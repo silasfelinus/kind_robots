@@ -214,8 +214,9 @@ function dreamShim(sheet: SheetWithDream): { id: number; dreamType: SheetDream['
 }
 
 watch(groups, (list) => {
-  if (list.length && !list.some((g) => g.slug === selectedSlug.value)) {
-    selectedSlug.value = list[0].slug
+  const first = list[0]
+  if (first && !list.some((g) => g.slug === selectedSlug.value)) {
+    selectedSlug.value = first.slug
   }
 })
 

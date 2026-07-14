@@ -194,7 +194,7 @@
           >
             <div class="flex min-w-0 gap-3">
               <a
-                v-if="jobImageSrc(job)"
+                v-if="jobImageShowable(job)"
                 :href="jobImageSrc(job)"
                 target="_blank"
                 rel="noopener"
@@ -208,12 +208,14 @@
                   muted
                   playsinline
                   preload="metadata"
+                  @error="markImageFailed(job)"
                 />
                 <img
                   v-else
                   :src="jobImageSrc(job)"
                   class="h-24 w-20 rounded-2xl border border-base-300 object-cover sm:h-28 sm:w-24"
                   alt="generated art"
+                  @error="markImageFailed(job)"
                 />
               </a>
               <div
@@ -937,6 +939,22 @@ function jobImageInfo(job: { artImageId?: number | null }) {
   return artJobStore.imageInfoById[job.artImageId] || null
 }
 
+// Track srcs whose <img>/<video> failed to load (e.g. a path that 404s) so the
+// tile can fall back to the diagnostic instead of a silent broken-image icon.
+// Keyed by src string, so a re-render with a new src is shown again.
+const failedSrcs = ref<Set<string>>(new Set())
+function markImageFailed(job: { artImageId?: number | null }) {
+  const s = jobImageSrc(job)
+  if (s) failedSrcs.value = new Set(failedSrcs.value).add(s)
+}
+function jobImageFailed(job: { artImageId?: number | null }): boolean {
+  const s = jobImageSrc(job)
+  return !!s && failedSrcs.value.has(s)
+}
+function jobImageShowable(job: { artImageId?: number | null }): boolean {
+  return !!jobImageSrc(job) && !jobImageFailed(job)
+}
+
 // 'video' → render <video>; 'image' → <img>; anything else → placeholder.
 function jobImageKind(job: { artImageId?: number | null }): string {
   return jobImageInfo(job)?.kind ?? 'none'
@@ -945,6 +963,7 @@ function jobImageKind(job: { artImageId?: number | null }): string {
 // Short keyword shown under the placeholder label so a blank tile at a glance
 // says WHY (no bytes vs. bad data vs. unresolved path) rather than just "No image".
 function jobImageReason(job: { artImageId?: number | null }): string {
+  if (jobImageFailed(job)) return 'load failed (404?)'
   const info = jobImageInfo(job)
   if (!info || info.kind !== 'none') return ''
   const d = info.diag
@@ -960,14 +979,16 @@ function jobImageDiag(job: { artImageId?: number | null }): string {
   const info = jobImageInfo(job)
   if (!info) return `ArtImage ${job.artImageId ?? '—'}: not loaded yet`
   const d = info.diag
-  return [
+  const lines = [
     `reason: ${info.reason}`,
     `kind: ${info.kind}  ·  used: ${d.usedField}`,
     `imageData: ${d.hasImageData ? d.imageDataShape : 'empty'}`,
     `fileType: ${d.fileType}`,
     `imagePath: ${d.imagePath}`,
     `path: ${d.path}`,
-  ].join('\n')
+  ]
+  if (jobImageFailed(job)) lines.unshift(`LOAD FAILED — attempted: ${jobImageSrc(job)}`)
+  return lines.join('\n')
 }
 
 function jobStatusClass(status: string): string {

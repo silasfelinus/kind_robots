@@ -57,7 +57,7 @@
         >
           <div class="flex gap-3">
             <a
-              v-if="jobImageSrc(job)"
+              v-if="jobImageShowable(job)"
               :href="jobImageSrc(job)"
               target="_blank"
               rel="noopener"
@@ -70,12 +70,14 @@
                 muted
                 playsinline
                 preload="metadata"
+                @error="markImageFailed(job)"
               />
               <img
                 v-else
                 :src="jobImageSrc(job)"
                 class="h-28 w-24 rounded-2xl border border-base-300 object-cover"
                 alt="curated generated art"
+                @error="markImageFailed(job)"
               />
             </a>
             <div
@@ -323,12 +325,28 @@ function jobImageInfo(job: ArtJobRecord) {
   return artJobStore.imageInfoById[job.artImageId] || null
 }
 
+// Track srcs whose <img>/<video> failed to load (e.g. a path that 404s) so the
+// tile falls back to the diagnostic instead of a silent broken-image icon.
+const failedSrcs = ref<Set<string>>(new Set())
+function markImageFailed(job: ArtJobRecord) {
+  const s = jobImageSrc(job)
+  if (s) failedSrcs.value = new Set(failedSrcs.value).add(s)
+}
+function jobImageFailed(job: ArtJobRecord): boolean {
+  const s = jobImageSrc(job)
+  return !!s && failedSrcs.value.has(s)
+}
+function jobImageShowable(job: ArtJobRecord): boolean {
+  return !!jobImageSrc(job) && !jobImageFailed(job)
+}
+
 function jobImageKind(job: ArtJobRecord): string {
   return jobImageInfo(job)?.kind ?? 'none'
 }
 
 // Short keyword under the placeholder; '' while the image is still loading.
 function jobImageReason(job: ArtJobRecord): string {
+  if (jobImageFailed(job)) return 'load failed (404?)'
   const info = jobImageInfo(job)
   if (!info || info.kind !== 'none') return ''
   const d = info.diag
@@ -343,14 +361,16 @@ function jobImageDiag(job: ArtJobRecord): string {
   const info = jobImageInfo(job)
   if (!info) return `ArtImage ${job.artImageId ?? '—'}: not loaded yet`
   const d = info.diag
-  return [
+  const lines = [
     `reason: ${info.reason}`,
     `kind: ${info.kind}  ·  used: ${d.usedField}`,
     `imageData: ${d.hasImageData ? d.imageDataShape : 'empty'}`,
     `fileType: ${d.fileType}`,
     `imagePath: ${d.imagePath}`,
     `path: ${d.path}`,
-  ].join('\n')
+  ]
+  if (jobImageFailed(job)) lines.unshift(`LOAD FAILED — attempted: ${jobImageSrc(job)}`)
+  return lines.join('\n')
 }
 
 function jobPrompt(job: ArtJobRecord): string {

@@ -53,6 +53,8 @@ export default defineEventHandler(async (event) => {
 
     const leaderboard = buildChallengeLeaderboard(submissions)
     const challengeIdsByContender = new Map<number, Set<number>>()
+    const winsByContender = new Map<number, number>()
+    const submissionsByChallenge = new Map<number, typeof submissions>()
 
     for (const submission of submissions) {
       if (!submission.contenderId) continue
@@ -60,6 +62,24 @@ export default defineEventHandler(async (event) => {
       const ids = challengeIdsByContender.get(submission.contenderId) ?? new Set()
       ids.add(submission.challengeId)
       challengeIdsByContender.set(submission.contenderId, ids)
+
+      const challengeSubmissions = submissionsByChallenge.get(submission.challengeId) ?? []
+      challengeSubmissions.push(submission)
+      submissionsByChallenge.set(submission.challengeId, challengeSubmissions)
+    }
+
+    for (const challengeSubmissions of submissionsByChallenge.values()) {
+      const challengeLeaders = buildChallengeLeaderboard(challengeSubmissions)
+      const winningScore = challengeLeaders[0]?.score.netScore
+      if (winningScore === undefined) continue
+
+      for (const leader of challengeLeaders) {
+        if (leader.score.netScore !== winningScore) break
+        winsByContender.set(
+          leader.contenderId,
+          (winsByContender.get(leader.contenderId) ?? 0) + 1,
+        )
+      }
     }
 
     event.node.res.statusCode = 200
@@ -67,11 +87,21 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Global challenge leaderboard fetched successfully.',
-      data: leaderboard.map((entry) => ({
-        ...entry,
-        challengesAttempted:
-          challengeIdsByContender.get(entry.contenderId)?.size ?? 0,
-      })),
+      data: leaderboard.map((entry) => {
+        const challengesAttempted =
+          challengeIdsByContender.get(entry.contenderId)?.size ?? 0
+        const challengesWon = winsByContender.get(entry.contenderId) ?? 0
+
+        return {
+          ...entry,
+          challengesAttempted,
+          challengesWon,
+          winRate:
+            challengesAttempted > 0
+              ? Math.round((challengesWon / challengesAttempted) * 1000) / 10
+              : 0,
+        }
+      }),
       statusCode: 200,
     }
   } catch (error: unknown) {

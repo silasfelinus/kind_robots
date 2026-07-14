@@ -6,6 +6,7 @@
 import prisma from '../../utils/prisma'
 import { getCurrentUserId } from '../../utils/auth'
 import { acceptPair } from '../../utils/relations'
+import { createNotification } from '../../utils/notify'
 import type { RelationStatus } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -40,6 +41,20 @@ export default defineEventHandler(async (event) => {
       }
     }
     const { acceptedRow, inverseRow } = await acceptPair(existing.id)
+    // Tell the original requester their request was accepted.
+    if (existing.type === 'FRIEND') {
+      const accepter = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { username: true },
+      })
+      await createNotification({
+        userId: existing.userId,
+        type: 'FRIEND_ACCEPT',
+        title: `${accepter?.username ?? 'Someone'} accepted your friend request`,
+        linkPath: '/friends',
+        actorId: userId,
+      })
+    }
     return {
       success: true,
       message: 'Relation accepted.',

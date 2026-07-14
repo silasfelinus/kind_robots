@@ -29,6 +29,7 @@ export const CONTENDER_SEEDS = [
     name: 'Conductor (Claude)',
     kind: 'AGENT_STACK',
     provider: 'anthropic',
+    model: undefined,
     generator: 'claude-api',
     description:
       'The AI_Networker Conductor stack using Claude through the Anthropic API.',
@@ -38,6 +39,8 @@ export const CONTENDER_SEEDS = [
     slug: 'portos-agent',
     name: 'Port0s',
     kind: 'AGENT_STACK',
+    provider: undefined,
+    model: undefined,
     generator: 'portos-agent',
     description:
       'The Port0s agent stack, registered as a first-class external challenge contender.',
@@ -70,6 +73,7 @@ export const CONTENDER_SEEDS = [
     name: 'OpenAI GPT',
     kind: 'LLM_MODEL',
     provider: 'openai',
+    model: undefined,
     generator: 'openai-api',
     description:
       'The configured OpenAI GPT model accessed through the OpenAI API.',
@@ -80,6 +84,7 @@ export const CONTENDER_SEEDS = [
     name: 'Stable Diffusion',
     kind: 'ART_GENERATOR',
     provider: 'local',
+    model: undefined,
     generator: 'art-sd',
     description:
       'The Kind Robots Stable Diffusion backend exposed by server/api/art/sd.',
@@ -90,6 +95,7 @@ export const CONTENDER_SEEDS = [
     name: 'ComfyUI FLUX',
     kind: 'ART_GENERATOR',
     provider: 'local',
+    model: undefined,
     generator: 'comfy-flux',
     description:
       'The Kind Robots ComfyUI FLUX pipeline exposed by server/api/comfy.',
@@ -100,6 +106,7 @@ export const CONTENDER_SEEDS = [
     name: 'ComfyUI SDXL',
     kind: 'ART_GENERATOR',
     provider: 'local',
+    model: undefined,
     generator: 'comfy-sdxl',
     description:
       'The Kind Robots ComfyUI SDXL pipeline exposed by server/api/comfy.',
@@ -110,6 +117,7 @@ export const CONTENDER_SEEDS = [
     name: 'OpenAI Images',
     kind: 'ART_GENERATOR',
     provider: 'openai',
+    model: undefined,
     generator: 'openai-images',
     description:
       'The Kind Robots OpenAI image-generation backend exposed by server/api/art/generate.',

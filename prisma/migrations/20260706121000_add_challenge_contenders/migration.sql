@@ -3,24 +3,21 @@
 
 -- CreateTable
 CREATE TABLE `Contender` (
-`id` INTEGER NOT NULL AUTO_INCREMENT,
-`createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-`updatedAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
-`slug` VARCHAR(255) NOT NULL,
-`name` VARCHAR(255) NOT NULL,
-`kind` ENUM('AGENT_STACK', 'LLM_MODEL', 'ART_GENERATOR') NOT NULL,
-`provider` VARCHAR(128) NULL,
-`model` VARCHAR(255) NULL,
-`generator` VARCHAR(128) NULL,
-`defaultSettings` JSON NULL,
-`description` TEXT NULL,
-`avatarImageId` INTEGER NULL,
-`isActive` BOOLEAN NOT NULL DEFAULT true,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `slug` VARCHAR(255) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `kind` ENUM('AGENT_STACK', 'LLM_MODEL', 'ART_GENERATOR') NOT NULL,
+    `provider` VARCHAR(128) NULL,
+    `model` VARCHAR(255) NULL,
+    `generator` VARCHAR(128) NULL,
+    `defaultSettings` JSON NULL,
+    `description` TEXT NULL,
+    `avatarImageId` INTEGER NULL,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
 
-```
-PRIMARY KEY (`id`)
-```
-
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateIndex
@@ -53,12 +50,12 @@ ON `Contender`(`avatarImageId`);
 
 -- AlterTable
 ALTER TABLE `ChallengeSubmission`
-ADD COLUMN `contenderId` INTEGER NULL,
-ADD COLUMN `variantKey` VARCHAR(128) NOT NULL DEFAULT 'default',
-ADD COLUMN `promptUsed` TEXT NULL,
-ADD COLUMN `settings` JSON NULL,
-ADD COLUMN `randomSelections` JSON NULL,
-MODIFY `botId` INTEGER NULL;
+    ADD COLUMN `contenderId` INTEGER NULL,
+    ADD COLUMN `variantKey` VARCHAR(128) NOT NULL DEFAULT 'default',
+    ADD COLUMN `promptUsed` TEXT NULL,
+    ADD COLUMN `settings` JSON NULL,
+    ADD COLUMN `randomSelections` JSON NULL,
+    MODIFY `botId` INTEGER NULL;
 
 -- CreateIndex
 CREATE UNIQUE INDEX `ChallengeSubmission_challengeId_contenderId_variantKey_key`

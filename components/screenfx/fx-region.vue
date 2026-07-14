@@ -53,7 +53,6 @@ type ComponentMap = Record<
 >
 
 const componentsMap: ComponentMap = {
-  'aurora-effect': resolveComponent('LazyAuroraEffect'),
   'starfield-effect': resolveComponent('LazyStarfieldEffect'),
   'constellation-effect': resolveComponent('LazyConstellationEffect'),
   'wishing-stars': resolveComponent('LazyWishingStars'),

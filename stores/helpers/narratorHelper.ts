@@ -302,8 +302,6 @@ export const narratorLoreTopics: NarratorLoreTopic[] = [
 // Kept as a lightweight name→id lookup so the Narrator can resolve
 // "make it rain" → 'rain-effect' without importing the full store.
 export const narratorAnimationAliases: Record<string, string> = {
-  aurora: 'aurora-effect',
-  borealis: 'aurora-effect',
   warp: 'starfield-effect',
   hyperspace: 'starfield-effect',
   stars: 'starfield-effect',

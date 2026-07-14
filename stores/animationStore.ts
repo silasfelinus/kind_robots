@@ -10,7 +10,6 @@ export type FxSurfaceMap = Record<FxRegion, Record<FxPlacement, boolean>>
 export const FX_REGIONS: FxRegion[] = ['header', 'sheet', 'page', 'hand']
 
 export type AnimationEffectId =
-  | 'aurora-effect'
   | 'starfield-effect'
   | 'constellation-effect'
   | 'wishing-stars'
@@ -100,16 +99,6 @@ function mergeSurfaces(
 }
 
 const allEffects: AnimationEffect[] = [
-  {
-    id: 'aurora-effect',
-    label: 'Aurora',
-    reveal: 'Borealis!',
-    icon: 'kind-icon:rainbow',
-    tooltip: 'Northern lights drift across the sky 🌌',
-    color: '#14b8a6',
-    generationSafe: true,
-    preferredSurface: 'fullscreen',
-  },
   {
     id: 'starfield-effect',
     label: 'Warp Drive',
@@ -386,6 +375,15 @@ const allEffects: AnimationEffect[] = [
     preferredSurface: 'page',
   },
 ]
+
+export function isAnimationEffectId(
+  value: unknown,
+): value is AnimationEffectId {
+  return (
+    typeof value === 'string' &&
+    allEffects.some((effect) => effect.id === value)
+  )
+}
 
 function pickRandomEffect(): AnimationEffectId {
   const safeEffects = allEffects.filter((effect) => effect.generationSafe)

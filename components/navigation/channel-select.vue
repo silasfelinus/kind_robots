@@ -38,7 +38,7 @@
     <div tabindex="0" class="dropdown-content z-110 mt-2">
       <ul
         ref="channelMenu"
-        class="menu max-h-[min(38rem,calc(100dvh-5rem))] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="menu max-h-[calc(100dvh-5rem)] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         @scroll="closeChannelTabs"
       >
         <li
@@ -106,7 +106,7 @@
       <ul
         v-if="expandedChannel"
         ref="channelFlyout"
-        class="channel-submenu menu absolute left-full z-120 ml-2 max-h-[min(32rem,calc(100dvh-5rem))] w-[min(22rem,calc(100vw-1rem))] overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl md:w-80"
+        class="channel-submenu menu absolute left-full z-120 ml-2 max-h-[calc(100dvh-5rem)] w-[min(22rem,calc(100vw-1rem))] overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl md:w-80"
         :style="{ top: `${channelFlyoutTop}px` }"
         :aria-label="expandedChannel.label + ' tabs'"
       >

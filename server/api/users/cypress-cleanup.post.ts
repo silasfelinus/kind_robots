@@ -8,8 +8,8 @@ import { errorHandler } from '../../utils/error'
 
 const DEFAULT_MAX_AGE_MS = 2 * 60 * 60 * 1000
 const MAX_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000
-const DEFAULT_LIMIT = 20
-const MAX_LIMIT = 50
+const DEFAULT_LIMIT = 5
+const MAX_LIMIT = 10
 
 const clampInteger = (
   value: unknown,

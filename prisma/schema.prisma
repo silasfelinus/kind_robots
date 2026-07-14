@@ -1438,68 +1438,68 @@ model Theme {
 
 /// our user model. default test user is userId=10. 
 model User {
-  id                    Int                @id @default(autoincrement())
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime?          @default(now()) @updatedAt
-  username              String             @unique @db.VarChar(255)
-  email                 String?            @unique @db.VarChar(255)
-  questPoints           Int                @default(0)
-  emailVerified         DateTime?          @db.DateTime(0)
-  name                  String?            @db.VarChar(255)
-  address1              String?            @db.Text
-  address2              String?            @db.Text
-  avatarImage           String?            @db.Text
-  bio                   String?            @db.Text
-  birthday              DateTime?          @db.DateTime(0)
-  city                  String?            @db.Text
-  country               String?            @db.Text
-  discordUrl            String?            @db.Text
-  facebookUrl           String?            @db.Text
-  instagramUrl          String?            @db.Text
-  kindrobotsUrl         String?            @db.Text
-  languages             String?            @db.Text
-  phone                 String?            @db.VarChar(255)
-  state                 String?            @db.VarChar(255)
-  timezone              String?            @db.VarChar(255)
-  twitterUrl            String?            @db.Text
-  apiKey                String?            @db.Text
-  password              String?            @db.Text
-  karma                 Int                @default(0)
-  mana                  Int                @default(0)
-  clickRecord           Int?               @default(0)
-  matchRecord           Int?               @default(0)
-  showMature            Boolean            @default(false)
-  Role                  Role               @default(USER)
+  id                    Int                 @id @default(autoincrement())
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime?           @default(now()) @updatedAt
+  username              String              @unique @db.VarChar(255)
+  email                 String?             @unique @db.VarChar(255)
+  questPoints           Int                 @default(0)
+  emailVerified         DateTime?           @db.DateTime(0)
+  name                  String?             @db.VarChar(255)
+  address1              String?             @db.Text
+  address2              String?             @db.Text
+  avatarImage           String?             @db.Text
+  bio                   String?             @db.Text
+  birthday              DateTime?           @db.DateTime(0)
+  city                  String?             @db.Text
+  country               String?             @db.Text
+  discordUrl            String?             @db.Text
+  facebookUrl           String?             @db.Text
+  instagramUrl          String?             @db.Text
+  kindrobotsUrl         String?             @db.Text
+  languages             String?             @db.Text
+  phone                 String?             @db.VarChar(255)
+  state                 String?             @db.VarChar(255)
+  timezone              String?             @db.VarChar(255)
+  twitterUrl            String?             @db.Text
+  apiKey                String?             @db.Text
+  password              String?             @db.Text
+  karma                 Int                 @default(0)
+  mana                  Int                 @default(0)
+  clickRecord           Int?                @default(0)
+  matchRecord           Int?                @default(0)
+  showMature            Boolean             @default(false)
+  Role                  Role                @default(USER)
   artImageId            Int?
-  token                 String?            @db.Text
+  token                 String?             @db.Text
   designerName          String?
-  googleEmail           String?            @db.VarChar(255)
+  googleEmail           String?             @db.VarChar(255)
   googleId              String?
   blockList             String?
-  isPublic              Boolean            @default(true)
-  smartBar              String?            @db.Text
-  customIcons           Boolean            @default(false)
-  isMember              Boolean            @default(false)
+  isPublic              Boolean             @default(true)
+  smartBar              String?             @db.Text
+  customIcons           Boolean             @default(false)
+  isMember              Boolean             @default(false)
   preferredArtServerId  Int?
   preferredTextServerId Int?
   memberUntil           DateTime?
-  stripeCustomerId      String?            @db.VarChar(64)
-  artModels             String?            @db.LongText
+  stripeCustomerId      String?             @db.VarChar(64)
+  artModels             String?             @db.LongText
   lastReward            String?
-  textModels            String?            @db.LongText
-  vibes                 String?            @db.LongText
-  hiddenServerIds       String?            @map("HiddenServers") @db.LongText
-  isActive              Boolean            @default(true)
-  artPrompt             String?            @db.Text
-  manaCap               Int                @default(500) // cycle ceiling
+  textModels            String?             @db.LongText
+  vibes                 String?             @db.LongText
+  hiddenServerIds       String?             @map("HiddenServers") @db.LongText
+  isActive              Boolean             @default(true)
+  artPrompt             String?             @db.Text
+  manaCap               Int                 @default(500) // cycle ceiling
   lastManaRefill        DateTime?
-  signupBonusGiven      Boolean            @default(false)
-  isGuest               Boolean            @default(false) // ip-temp users
-  referralCode          String?            @unique @db.VarChar(64)
+  signupBonusGiven      Boolean             @default(false)
+  isGuest               Boolean             @default(false) // ip-temp users
+  referralCode          String?             @unique @db.VarChar(64)
   ManaTransactions      ManaTransaction[]
   KarmaTransactions     KarmaTransaction[]
   ArtCollections        ArtCollection[]
-  ArtImages             ArtImage[]         @relation("ArtImageCreator")
+  ArtImages             ArtImage[]          @relation("ArtImageCreator")
   Bots                  Bot[]
   Chats                 Chat[]
   Dreams                Dream[]
@@ -1507,8 +1507,8 @@ model User {
   Facets                Facet[]
   Logs                  Log[]
   Achievements          AchievementRecord[]
-  Prompts               Prompt[]           @relation("PromptUser")
-  ClaimedPrompts        Prompt[]           @relation("PromptClaimer")
+  Prompts               Prompt[]            @relation("PromptUser")
+  ClaimedPrompts        Prompt[]            @relation("PromptClaimer")
   Reactions             Reaction[]
   Challenges            Challenge[]
   Resources             Resource[]
@@ -1517,12 +1517,12 @@ model User {
   Servers               Server[]
   SmartIcons            SmartIcon[]
   Themes                Theme[]
-  ArtImage              ArtImage?          @relation("UserProfileImage", fields: [artImageId], references: [id])
+  ArtImage              ArtImage?           @relation("UserProfileImage", fields: [artImageId], references: [id])
   Codes                 Code[]
   Compositions          Composition[]
   PitchSheets           PitchSheet[]
-  ReferralsMade         Referral[]         @relation("ReferralsMade")
-  ReferredBy            Referral?          @relation("ReferredBy")
+  ReferralsMade         Referral[]          @relation("ReferralsMade")
+  ReferredBy            Referral?           @relation("ReferredBy")
 
   RelationsOwned    UserRelation[] @relation("UserRelationOwner")
   RelationsReceived UserRelation[] @relation("UserRelationTarget")
@@ -2250,11 +2250,11 @@ model LifeAchievement {
   conditionKey    String?             @db.VarChar(255)
   description     String?             @db.Text
 
-  icon        String? @db.VarChar(764)
-  imagePath   String? @db.VarChar(764)
-  artImageId  Int?
+  icon          String? @db.VarChar(764)
+  imagePath     String? @db.VarChar(764)
+  artImageId    Int?
   achievementId Int?
-  endingId    Int?
+  endingId      Int?
 
   metadata Json?
   isActive Boolean @default(true)

@@ -108,12 +108,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/voice-lab',
   },
   'superkate-services-calculator': {
-    channelKey: 'build',
+    channelKey: 'lab',
     tabKey: 'stylist',
     route: '/stylist',
   },
   'superkate-hairstyle-ai': {
-    channelKey: 'build',
+    channelKey: 'lab',
     tabKey: 'stylist',
     route: '/stylist',
   },

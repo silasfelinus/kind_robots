@@ -85,7 +85,10 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   })
 
   const activeAccount = computed(() => {
-    return accounts.value.find((account) => account.userId === activeUserId.value) ?? null
+    return (
+      accounts.value.find((account) => account.userId === activeUserId.value) ??
+      null
+    )
   })
 
   const otherAccounts = computed(() => {
@@ -168,7 +171,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     persist()
   }
   async function switchToAccount(userId: number) {
-    const account = accounts.value.find((candidate) => candidate.userId === userId)
+    const account = accounts.value.find(
+      (candidate) => candidate.userId === userId,
+    )
 
     if (!account) {
       lastError.value = 'Saved login was not found.'
@@ -218,11 +223,50 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     }
   }
 
+  // Register (or refresh) a managed login without switching to it yet — used by
+  // admin "log in as", which mints a token server-side then switches.
+  function addAccount(input: {
+    userId: number
+    username: string
+    role?: string
+    token: string
+    googleToken?: boolean
+    avatarImage?: string | null
+    artImageId?: number | null
+    relationship?: LoginRelationship
+    label?: string
+  }) {
+    if (!input.token || input.userId === 10) return
+
+    const now = new Date().toISOString()
+    const existing = accounts.value.find((a) => a.userId === input.userId)
+
+    const managed: ManagedLogin = {
+      userId: input.userId,
+      username: input.username,
+      role: input.role ?? existing?.role ?? 'USER',
+      token: input.token,
+      googleToken: input.googleToken ?? false,
+      avatarImage: input.avatarImage ?? existing?.avatarImage ?? null,
+      artImageId: input.artImageId ?? existing?.artImageId ?? null,
+      label: input.label ?? existing?.label,
+      relationship: input.relationship ?? existing?.relationship ?? 'testing',
+      lastUsedAt: now,
+    }
+
+    if (existing) Object.assign(existing, managed)
+    else accounts.value.push(managed)
+
+    persist()
+  }
+
   function updateAccountRelationship(
     userId: number,
     relationship: LoginRelationship,
   ) {
-    const account = accounts.value.find((candidate) => candidate.userId === userId)
+    const account = accounts.value.find(
+      (candidate) => candidate.userId === userId,
+    )
 
     if (!account) {
       return
@@ -233,7 +277,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   }
 
   function updateAccountLabel(userId: number, label: string) {
-    const account = accounts.value.find((candidate) => candidate.userId === userId)
+    const account = accounts.value.find(
+      (candidate) => candidate.userId === userId,
+    )
 
     if (!account) {
       return
@@ -244,7 +290,9 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
   }
 
   function removeAccount(userId: number) {
-    accounts.value = accounts.value.filter((account) => account.userId !== userId)
+    accounts.value = accounts.value.filter(
+      (account) => account.userId !== userId,
+    )
 
     if (activeUserId.value === userId) {
       activeUserId.value = currentUserId.value
@@ -280,6 +328,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     close,
     toggle,
     captureCurrentSession,
+    addAccount,
     switchToAccount,
     updateAccountRelationship,
     updateAccountLabel,

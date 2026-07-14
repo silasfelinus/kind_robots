@@ -1438,91 +1438,108 @@ model Theme {
 
 /// our user model. default test user is userId=10. 
 model User {
-  id                    Int                 @id @default(autoincrement())
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime?           @default(now()) @updatedAt
-  username              String              @unique @db.VarChar(255)
-  email                 String?             @unique @db.VarChar(255)
-  questPoints           Int                 @default(0)
-  emailVerified         DateTime?           @db.DateTime(0)
-  name                  String?             @db.VarChar(255)
-  address1              String?             @db.Text
-  address2              String?             @db.Text
-  avatarImage           String?             @db.Text
-  bio                   String?             @db.Text
-  birthday              DateTime?           @db.DateTime(0)
-  city                  String?             @db.Text
-  country               String?             @db.Text
-  discordUrl            String?             @db.Text
-  facebookUrl           String?             @db.Text
-  instagramUrl          String?             @db.Text
-  kindrobotsUrl         String?             @db.Text
-  languages             String?             @db.Text
-  phone                 String?             @db.VarChar(255)
-  state                 String?             @db.VarChar(255)
-  timezone              String?             @db.VarChar(255)
-  twitterUrl            String?             @db.Text
-  apiKey                String?             @db.Text
-  password              String?             @db.Text
-  karma                 Int                 @default(0)
-  mana                  Int                 @default(0)
-  clickRecord           Int?                @default(0)
-  matchRecord           Int?                @default(0)
-  showMature            Boolean             @default(false)
-  Role                  Role                @default(USER)
+  id                    Int       @id @default(autoincrement())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime? @default(now()) @updatedAt
+  username              String    @unique @db.VarChar(255)
+  email                 String?   @unique @db.VarChar(255)
+  questPoints           Int       @default(0)
+  emailVerified         DateTime? @db.DateTime(0)
+  name                  String?   @db.VarChar(255)
+  address1              String?   @db.Text
+  address2              String?   @db.Text
+  avatarImage           String?   @db.Text
+  bio                   String?   @db.Text
+  birthday              DateTime? @db.DateTime(0)
+  city                  String?   @db.Text
+  country               String?   @db.Text
+  discordUrl            String?   @db.Text
+  facebookUrl           String?   @db.Text
+  instagramUrl          String?   @db.Text
+  kindrobotsUrl         String?   @db.Text
+  languages             String?   @db.Text
+  phone                 String?   @db.VarChar(255)
+  state                 String?   @db.VarChar(255)
+  timezone              String?   @db.VarChar(255)
+  twitterUrl            String?   @db.Text
+  apiKey                String?   @db.Text
+  password              String?   @db.Text
+  karma                 Int       @default(0)
+  mana                  Int       @default(0)
+  clickRecord           Int?      @default(0)
+  matchRecord           Int?      @default(0)
+  showMature            Boolean   @default(false)
+  Role                  Role      @default(USER)
   artImageId            Int?
-  token                 String?             @db.Text
+  token                 String?   @db.Text
   designerName          String?
-  googleEmail           String?             @db.VarChar(255)
+  googleEmail           String?   @db.VarChar(255)
   googleId              String?
   blockList             String?
-  isPublic              Boolean             @default(true)
-  smartBar              String?             @db.Text
-  customIcons           Boolean             @default(false)
-  isMember              Boolean             @default(false)
+  isPublic              Boolean   @default(true)
+  smartBar              String?   @db.Text
+  customIcons           Boolean   @default(false)
+  isMember              Boolean   @default(false)
   preferredArtServerId  Int?
   preferredTextServerId Int?
   memberUntil           DateTime?
-  stripeCustomerId      String?             @db.VarChar(64)
-  artModels             String?             @db.LongText
+  stripeCustomerId      String?   @db.VarChar(64)
+  artModels             String?   @db.LongText
   lastReward            String?
-  textModels            String?             @db.LongText
-  vibes                 String?             @db.LongText
-  hiddenServerIds       String?             @map("HiddenServers") @db.LongText
-  isActive              Boolean             @default(true)
-  artPrompt             String?             @db.Text
-  manaCap               Int                 @default(500) // cycle ceiling
+  textModels            String?   @db.LongText
+  vibes                 String?   @db.LongText
+  hiddenServerIds       String?   @map("HiddenServers") @db.LongText
+  isActive              Boolean   @default(true)
+  artPrompt             String?   @db.Text
+  manaCap               Int       @default(500) // cycle ceiling
   lastManaRefill        DateTime?
-  signupBonusGiven      Boolean             @default(false)
-  isGuest               Boolean             @default(false) // ip-temp users
-  referralCode          String?             @unique @db.VarChar(64)
-  ManaTransactions      ManaTransaction[]
-  KarmaTransactions     KarmaTransaction[]
-  ArtCollections        ArtCollection[]
-  ArtImages             ArtImage[]          @relation("ArtImageCreator")
-  Bots                  Bot[]
-  Chats                 Chat[]
-  Dreams                Dream[]
-  Projects              Project[]
-  Facets                Facet[]
-  Logs                  Log[]
-  Achievements          AchievementRecord[]
-  Prompts               Prompt[]            @relation("PromptUser")
-  ClaimedPrompts        Prompt[]            @relation("PromptClaimer")
-  Reactions             Reaction[]
-  Challenges            Challenge[]
-  Resources             Resource[]
-  Rewards               Reward[]
-  Scenarios             Scenario[]
-  Servers               Server[]
-  SmartIcons            SmartIcon[]
-  Themes                Theme[]
-  ArtImage              ArtImage?           @relation("UserProfileImage", fields: [artImageId], references: [id])
-  Codes                 Code[]
-  Compositions          Composition[]
-  PitchSheets           PitchSheet[]
-  ReferralsMade         Referral[]          @relation("ReferralsMade")
-  ReferredBy            Referral?           @relation("ReferredBy")
+  signupBonusGiven      Boolean   @default(false)
+  isGuest               Boolean   @default(false) // ip-temp users
+  referralCode          String?   @unique @db.VarChar(64)
+
+  // Consent & privacy (see MessagePolicy). showMature + isPublic already above.
+  listInDirectory     Boolean       @default(true) // appear in the public user directory
+  allowFriendRequests Boolean       @default(true)
+  messagePolicy       MessagePolicy @default(EVERYONE) // who may open a DM with me
+
+  // Newsletter / promotions consent (double opt-in)
+  newsletterFrequency   NewsletterFrequency @default(NEVER)
+  newsletterConfirmedAt DateTime?
+  brevoContactId        String?             @db.VarChar(64)
+
+  // Admin shadow-restrict ("block"): auto-private everything this user owns.
+  isRestricted     Boolean   @default(false)
+  restrictedAt     DateTime?
+  restrictedReason String?   @db.Text
+  restrictedById   Int?
+
+  ManaTransactions  ManaTransaction[]
+  KarmaTransactions KarmaTransaction[]
+  ArtCollections    ArtCollection[]
+  ArtImages         ArtImage[]          @relation("ArtImageCreator")
+  Bots              Bot[]
+  Chats             Chat[]
+  Dreams            Dream[]
+  Projects          Project[]
+  Facets            Facet[]
+  Logs              Log[]
+  Achievements      AchievementRecord[]
+  Prompts           Prompt[]            @relation("PromptUser")
+  ClaimedPrompts    Prompt[]            @relation("PromptClaimer")
+  Reactions         Reaction[]
+  Challenges        Challenge[]
+  Resources         Resource[]
+  Rewards           Reward[]
+  Scenarios         Scenario[]
+  Servers           Server[]
+  SmartIcons        SmartIcon[]
+  Themes            Theme[]
+  ArtImage          ArtImage?           @relation("UserProfileImage", fields: [artImageId], references: [id])
+  Codes             Code[]
+  Compositions      Composition[]
+  PitchSheets       PitchSheet[]
+  ReferralsMade     Referral[]          @relation("ReferralsMade")
+  ReferredBy        Referral?           @relation("ReferredBy")
 
   RelationsOwned    UserRelation[] @relation("UserRelationOwner")
   RelationsReceived UserRelation[] @relation("UserRelationTarget")
@@ -1537,6 +1554,12 @@ model User {
 
   StylistClients      StylistClient[]
   StylistAppointments StylistAppointment[]
+
+  AuthTokens         AuthToken[]
+  ConversationsIn    ConversationParticipant[]
+  SentMessages       DirectMessage[]           @relation("DirectMessageSender")
+  Notifications      Notification[]            @relation("NotificationRecipient")
+  ActedNotifications Notification[]            @relation("NotificationActor")
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }
@@ -1747,6 +1770,37 @@ enum Role {
   DESIGNER
   CHILD
   FAMILY
+}
+
+// Who is allowed to start a direct-message conversation with a user.
+enum MessagePolicy {
+  EVERYONE
+  FRIENDS
+  NONE
+}
+
+// Newsletter cadence a user has consented to (double opt-in required).
+enum NewsletterFrequency {
+  NEVER
+  SPECIAL // very special occasions only
+  MONTHLY
+  WEEKLY
+  DAILY
+}
+
+// Purpose of a single-use AuthToken (email verify, password reset, newsletter confirm).
+enum AuthTokenPurpose {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+  NEWSLETTER_CONFIRM
+}
+
+enum NotificationType {
+  MESSAGE
+  FRIEND_REQUEST
+  FRIEND_ACCEPT
+  ADMIN
+  SYSTEM
 }
 
 enum ChatType {
@@ -2312,4 +2366,95 @@ model LifeRunArt {
   @@index([artImageId])
   @@index([sceneType])
   @@index([chapter])
+}
+
+// ---------------------------------------------------------------------------
+// User-management upgrade: auth tokens, threaded DMs, notifications.
+// ---------------------------------------------------------------------------
+
+// Single-use, expiring token backing email verification, password reset, and
+// newsletter double-opt-in. `token` is a random 32-byte hex string.
+model AuthToken {
+  id         Int              @id @default(autoincrement())
+  createdAt  DateTime         @default(now())
+  expiresAt  DateTime
+  userId     Int
+  token      String           @unique @db.VarChar(128)
+  purpose    AuthTokenPurpose
+  consumedAt DateTime?
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([purpose])
+}
+
+// A threaded direct-message conversation (1:1 today, group-ready).
+model Conversation {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @default(now()) @updatedAt
+  isGroup       Boolean   @default(false)
+  title         String?   @db.VarChar(255)
+  lastMessageAt DateTime?
+
+  participants ConversationParticipant[]
+  messages     DirectMessage[]
+
+  @@index([lastMessageAt])
+}
+
+// A user's membership in a conversation. `lastReadAt` drives unread counts and
+// read receipts.
+model ConversationParticipant {
+  id             Int       @id @default(autoincrement())
+  conversationId Int
+  userId         Int
+  joinedAt       DateTime  @default(now())
+  lastReadAt     DateTime?
+  isMuted        Boolean   @default(false)
+  isArchived     Boolean   @default(false)
+
+  Conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  User         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model DirectMessage {
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  conversationId Int
+  senderId       Int
+  content        String    @db.Text
+  isMature       Boolean   @default(false)
+  editedAt       DateTime?
+  deletedAt      DateTime?
+
+  Conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  Sender       User         @relation("DirectMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+// Lightweight in-app notification (new DM, friend request/accept, admin notice).
+model Notification {
+  id        Int              @id @default(autoincrement())
+  createdAt DateTime         @default(now())
+  userId    Int
+  type      NotificationType
+  title     String           @db.VarChar(255)
+  body      String?          @db.Text
+  linkPath  String?          @db.VarChar(512)
+  actorId   Int?
+  entityId  Int?
+  isRead    Boolean          @default(false)
+
+  User  User  @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  Actor User? @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+  @@index([actorId])
 }

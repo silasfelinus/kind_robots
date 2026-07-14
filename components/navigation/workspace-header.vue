@@ -74,6 +74,7 @@
         class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5"
       >
         <server-selector class="header-control-item min-w-0" />
+        <notification-bell class="shrink-0" />
         <login-switcher class="header-control-item min-w-0" />
         <mana-widget class="shrink-0" />
       </section>

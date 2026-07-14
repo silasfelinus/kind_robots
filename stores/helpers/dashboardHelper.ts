@@ -134,6 +134,19 @@ export const dashboardConfigs = {
         route: '/art',
       },
       {
+        key: 'coloring-page',
+        label: 'Coloring Page',
+        icon: 'kind-icon:magic',
+        title: 'Coloring Page Maker',
+        summary: 'Turn any photo or design into a printable coloring page.',
+        image: tabImage('art', 'coloring-page'),
+        flourish: '🖍️',
+        tagline: 'Any picture → printable line art.',
+        narrative:
+          'Upload a photo or pick a design and convert it into clean black-and-white line art ready to print and color — bold outlines for the kids or crisp detail for grown-up coloring nights.',
+        route: '/coloring-page',
+      },
+      {
         key: 'workbench',
         label: 'Code Cards',
         icon: 'kind-icon:foundry',

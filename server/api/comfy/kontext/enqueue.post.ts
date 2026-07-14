@@ -32,6 +32,13 @@ type KontextEnqueueRequest = {
   sampler?: string | null
   scheduler?: string | null
   denoise?: number | null
+  // 0..1, how much of the original photo to preserve (see workflow.ts).
+  originalWeight?: number | null
+  // Optional real negative prompt (+ cfg) — enables the CFGGuider path.
+  negativePrompt?: string | null
+  cfg?: number | null
+  // Optional hair/region mask as a data URL (white = change, black = keep).
+  maskData?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
   designer?: string | null
@@ -72,6 +79,13 @@ export default defineEventHandler(async (event) => {
     const extension = getKontextImageExtension(imageData)
     const imageName = `kr_kontext_queue_${Date.now()}_${crypto.randomUUID()}.${extension}`
 
+    // Optional hair/region mask travels as a second input image the relay
+    // uploads to Comfy's input folder alongside the source photo.
+    const maskData = body.maskData?.trim() || ''
+    const maskName = maskData
+      ? `kr_kontext_mask_${Date.now()}_${crypto.randomUUID()}.${getKontextImageExtension(maskData)}`
+      : ''
+
     const workflow = buildKontextWorkflow({
       prompt,
       imageName,
@@ -83,6 +97,10 @@ export default defineEventHandler(async (event) => {
       sampler: body.sampler,
       scheduler: body.scheduler,
       denoise: body.denoise,
+      originalWeight: body.originalWeight,
+      negativePrompt: body.negativePrompt,
+      cfg: body.cfg,
+      maskName: maskName || null,
       filenamePrefix: body.filenamePrefix || 'kindrobots_kontext_queue',
     })
     // ComfyWorkflow's index signature doesn't structurally satisfy
@@ -96,6 +114,7 @@ export default defineEventHandler(async (event) => {
           name: imageName,
           imageData,
         },
+        ...(maskName ? [{ name: maskName, imageData: maskData }] : []),
       ],
       save: {
         isPublic: body.isPublic ?? false,

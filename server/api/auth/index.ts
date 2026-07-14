@@ -182,12 +182,12 @@ export function validatePassword(password: string): {
   isValid: boolean
   message: string
 } {
-  const minLength = /^.{6,}$/
+  const minLength = /^.{8,}$/
 
   if (!minLength.test(password)) {
     return {
       isValid: false,
-      message: 'Password must be at least 6 characters long.',
+      message: 'Password must be at least 8 characters long.',
     }
   }
 

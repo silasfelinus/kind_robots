@@ -15,6 +15,7 @@ export type ArtJobStatus =
   | 'FAILED'
   | 'CANCELLED'
 
+export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'
 export type ArtFeedbackVerdict = 'PROMOTE' | 'REVISE' | 'REJECT'
 
@@ -36,8 +37,20 @@ export type ArtJobCuration = Prisma.JsonObject & {
   history?: ArtJobFeedback[]
 }
 
+export type ArtJobRetry = Prisma.JsonObject & {
+  mode?: ArtJobRetryMode
+  sourceJobId?: number | null
+  rootJobId?: number | null
+  targetArtImageId?: number | null
+  archivedArtImageId?: number | null
+  refreshSeed?: boolean
+  requestedAt?: string
+  completedAt?: string
+}
+
 export type ArtJobPayload = Prisma.JsonObject & {
   curation?: ArtJobCuration
+  retry?: ArtJobRetry
 }
 
 export type ArtJobRecord = Omit<ArtJob, 'payload'> & {
@@ -114,6 +127,7 @@ type ArtJobState = {
   loadingUptime: boolean
   loadingJobs: boolean
   loadingTrainerJobs: boolean
+  retryingJobIds: number[]
   error: string | null
   windowHours: number
 }
@@ -132,6 +146,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingUptime: false,
     loadingJobs: false,
     loadingTrainerJobs: false,
+    retryingJobIds: [],
     error: null,
     windowHours: 24,
   })
@@ -309,17 +324,43 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return false
   }
 
-  async function reenqueueJob(id: number): Promise<number | null> {
-    const res = await performFetch<{ job: ArtJobRecord }>(
-      `/api/art/queue/${id}/reenqueue`,
-      { method: 'POST', body: JSON.stringify({}) },
-    )
-    if (res.success && res.data?.job) {
-      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
-      return res.data.job.id
+  async function reenqueueJob(
+    id: number,
+    mode: ArtJobRetryMode = 'NEW_OUTPUT',
+  ): Promise<number | null> {
+    if (state.retryingJobIds.includes(id)) return null
+    state.retryingJobIds = [...state.retryingJobIds, id]
+
+    try {
+      const res = await performFetch<{
+        job: ArtJobRecord
+        mode: ArtJobRetryMode
+        targetArtImageId: number | null
+      }>(`/api/art/queue/${id}/reenqueue`, {
+        method: 'POST',
+        body: JSON.stringify({ mode, refreshSeed: true }),
+      })
+
+      if (res.success && res.data?.job) {
+        if (
+          mode === 'OVERWRITE' &&
+          typeof res.data.targetArtImageId === 'number'
+        ) {
+          // The canonical id stays stable, so explicitly evict the old data URL;
+          // otherwise loadJobImages correctly assumes it is already hydrated.
+          delete state.imageSrcById[res.data.targetArtImageId]
+        }
+        await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+        return res.data.job.id
+      }
+
+      state.error = res.message || `Failed to re-enqueue job ${id}.`
+      return null
+    } finally {
+      state.retryingJobIds = state.retryingJobIds.filter(
+        (jobId) => jobId !== id,
+      )
     }
-    state.error = res.message || `Failed to re-enqueue job ${id}.`
-    return null
   }
 
   async function refreshAll(): Promise<void> {

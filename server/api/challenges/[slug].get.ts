@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')?.trim()
 
     if (!slug) {
-      throw createError({ statusCode: 400, message: 'Challenge slug is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Challenge slug is required.',
+      })
     }
 
     const auth = await validateApiKey(event)
@@ -69,6 +72,19 @@ export default defineEventHandler(async (event) => {
     const rankByContender = new Map(
       leaderboard.map((entry, index) => [entry.contenderId, index + 1]),
     )
+    const variantInfoBySubmission = new Map(
+      leaderboard.flatMap((entry) =>
+        entry.variants.map((variant) => [
+          variant.submissionId,
+          {
+            variantRank: variant.rank,
+            isBestVariant:
+              entry.bestVariantKey !== null &&
+              variant.variantKey === entry.bestVariantKey,
+          },
+        ]),
+      ),
+    )
 
     event.node.res.statusCode = 200
 
@@ -79,16 +95,19 @@ export default defineEventHandler(async (event) => {
         ...challenge,
         Submissions: challenge.Submissions.map((submission) => {
           const { Reactions, ...submissionData } = submission
+          const variantInfo = variantInfoBySubmission.get(submission.id)
 
           return {
             ...submissionData,
             score: scoreChallengeReactions(Reactions),
             rank: submission.contenderId
-              ? rankByContender.get(submission.contenderId) ?? null
+              ? (rankByContender.get(submission.contenderId) ?? null)
               : null,
+            variantRank: variantInfo?.variantRank ?? null,
+            isBestVariant: variantInfo?.isBestVariant ?? false,
             myReaction: currentUserId
-              ? Reactions.find((reaction) => reaction.userId === currentUserId)
-                  ?.reactionType ?? null
+              ? (Reactions.find((reaction) => reaction.userId === currentUserId)
+                  ?.reactionType ?? null)
               : null,
           }
         }),

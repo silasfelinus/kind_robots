@@ -261,6 +261,24 @@
                         : 'new attempt'
                     }}
                   </span>
+                  <span
+                    v-if="curatorVerdict(job)"
+                    class="badge badge-xs rounded-2xl"
+                    :class="curatorBadgeClass(job)"
+                    :title="`Conductor curated this job${
+                      curatorScore(job) !== null
+                        ? ` — ${curatorScore(job)}/100`
+                        : ''
+                    }`"
+                  >
+                    curator: {{ curatorVerdict(job)?.toLowerCase() }}
+                    <span
+                      v-if="curatorScore(job) !== null"
+                      class="ml-1 font-mono opacity-80"
+                    >
+                      {{ curatorScore(job) }}
+                    </span>
+                  </span>
                 </div>
 
                 <p
@@ -1026,6 +1044,30 @@ function canCurate(job: ArtJob): boolean {
 
 function hasCuratorVerdict(job: ArtJob): boolean {
   return Boolean(asRecord(payloadRecord(job).curation).curator)
+}
+
+// Conductor's curator verdict/score, once it has scored a finished job — surfaced
+// on the queue card so the queue and the trainer panel agree at a glance.
+function curatorFeedback(job: ArtJob): JsonRecord | null {
+  return asRecord(asRecord(payloadRecord(job).curation).curator)
+}
+
+function curatorVerdict(job: ArtJob): string {
+  const verdict = curatorFeedback(job)?.verdict
+  return typeof verdict === 'string' ? verdict.toUpperCase() : ''
+}
+
+function curatorScore(job: ArtJob): number | null {
+  const score = curatorFeedback(job)?.score
+  return typeof score === 'number' ? score : null
+}
+
+function curatorBadgeClass(job: ArtJob): string {
+  const verdict = curatorVerdict(job)
+  if (verdict === 'PROMOTE') return 'badge-success'
+  if (verdict === 'REVISE') return 'badge-warning'
+  if (verdict === 'REJECT') return 'badge-error'
+  return 'badge-ghost'
 }
 
 function curationRequested(job: ArtJob): boolean {

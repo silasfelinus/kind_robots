@@ -1,4 +1,5 @@
 import { createError, defineEventHandler, readBody } from 'h3'
+import type { Prisma } from '../../../prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
@@ -34,28 +35,44 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<{
       maxAgeMs?: number
       limit?: number
+      username?: string
     }>(event)
+    const exactUsername = String(body?.username || '').trim()
+    if (exactUsername && !/^cypress-/i.test(exactUsername)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Exact cleanup is restricted to cypress-* usernames.',
+      })
+    }
+
     const maxAgeMs = clampInteger(
       body?.maxAgeMs,
       DEFAULT_MAX_AGE_MS,
       0,
       MAX_MAX_AGE_MS,
     )
-    const limit = clampInteger(body?.limit, DEFAULT_LIMIT, 1, MAX_LIMIT)
+    const limit = exactUsername
+      ? 1
+      : clampInteger(body?.limit, DEFAULT_LIMIT, 1, MAX_LIMIT)
     const cutoff = new Date(Date.now() - maxAgeMs)
-    const where = {
-      Role: { not: 'ADMIN' as const },
-      createdAt: { lte: cutoff },
-      OR: [
-        { username: { startsWith: 'cypress-' } },
-        {
-          email: {
-            startsWith: 'cypress-',
-            endsWith: '@example.com',
-          },
-        },
-      ],
-    }
+    const where: Prisma.UserWhereInput = exactUsername
+      ? {
+          Role: { not: 'ADMIN' },
+          username: exactUsername,
+        }
+      : {
+          Role: { not: 'ADMIN' },
+          createdAt: { lte: cutoff },
+          OR: [
+            { username: { startsWith: 'cypress-' } },
+            {
+              email: {
+                startsWith: 'cypress-',
+                endsWith: '@example.com',
+              },
+            },
+          ],
+        }
 
     const candidates = await prisma.user.findMany({
       where,
@@ -104,10 +121,11 @@ export default defineEventHandler(async (event) => {
       success: failed.length === 0,
       message:
         failed.length === 0
-          ? `Removed ${deleted.length} stale Cypress users.`
-          : `Removed ${deleted.length} stale Cypress users; ${failed.length} failed.`,
+          ? `Removed ${deleted.length} Cypress users.`
+          : `Removed ${deleted.length} Cypress users; ${failed.length} failed.`,
       data: {
-        cutoff: cutoff.toISOString(),
+        cutoff: exactUsername ? null : cutoff.toISOString(),
+        exactUsername: exactUsername || null,
         maxAgeMs,
         limit,
         deleted,

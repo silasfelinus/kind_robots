@@ -22,6 +22,14 @@ function readPositiveInteger(
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
+function readNonNegativeInteger(
+  value: string | undefined,
+  fallback: number,
+): number {
+  const parsed = Number.parseInt(value ?? '', 10)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
+}
+
 function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
   const connectTimeout = readPositiveInteger(
@@ -36,6 +44,10 @@ function buildDatabaseUrl(url: string): string {
     process.env.DATABASE_CONNECTION_LIMIT,
     10,
   )
+  const minDelayValidation = readNonNegativeInteger(
+    process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
+    0,
+  )
 
   if (!parsed.searchParams.has('connectTimeout')) {
     parsed.searchParams.set('connectTimeout', String(connectTimeout))
@@ -47,6 +59,16 @@ function buildDatabaseUrl(url: string): string {
 
   if (!parsed.searchParams.has('connectionLimit')) {
     parsed.searchParams.set('connectionLimit', String(connectionLimit))
+  }
+
+  // ProxySQL can close a socket between rapid borrows. Validate every
+  // connection before use so stale sockets are discarded before Prisma sends
+  // a command. Set DATABASE_MIN_DELAY_VALIDATION_MS to relax this if needed.
+  if (!parsed.searchParams.has('minDelayValidation')) {
+    parsed.searchParams.set(
+      'minDelayValidation',
+      String(minDelayValidation),
+    )
   }
 
   return parsed.toString()
@@ -97,6 +119,10 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
       10,
+    ),
+    minDelayValidation: readNonNegativeInteger(
+      parsed.searchParams.get('minDelayValidation') ?? undefined,
+      0,
     ),
     ssl: {
       ca: sslCa,

@@ -275,6 +275,12 @@ export const tutorialChannels = {
         body: 'The admin control room for art generation: manage ComfyUI/SD servers, watch uptime, track images created vs failed, and inspect, requeue, or cancel jobs in the queue.',
         image: tutorialImage('art', 'artjob'),
       },
+      {
+        key: 'coloring',
+        title: 'Coloring Book',
+        body: 'Pick a page from a set, tap a region to fill it, and group-fill matching sections with one color. Switch to a custom shade any time, undo mistakes, and save your progress or export a finished page as an image — it all saves itself as you go.',
+        image: tutorialImage('art', 'coloring'),
+      },
     ],
   },
 

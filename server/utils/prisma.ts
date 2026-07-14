@@ -22,6 +22,14 @@ function readPositiveInteger(
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
+function readNonNegativeInteger(
+  value: string | undefined,
+  fallback: number,
+): number {
+  const parsed = Number.parseInt(value ?? '', 10)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
+}
+
 function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
   const connectTimeout = readPositiveInteger(
@@ -34,7 +42,15 @@ function buildDatabaseUrl(url: string): string {
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
-    10,
+    2,
+  )
+  const minimumIdle = readNonNegativeInteger(
+    process.env.DATABASE_MINIMUM_IDLE,
+    0,
+  )
+  const idleTimeout = readPositiveInteger(
+    process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
+    30,
   )
 
   if (!parsed.searchParams.has('connectTimeout')) {
@@ -47,6 +63,14 @@ function buildDatabaseUrl(url: string): string {
 
   if (!parsed.searchParams.has('connectionLimit')) {
     parsed.searchParams.set('connectionLimit', String(connectionLimit))
+  }
+
+  if (!parsed.searchParams.has('minimumIdle')) {
+    parsed.searchParams.set('minimumIdle', String(minimumIdle))
+  }
+
+  if (!parsed.searchParams.has('idleTimeout')) {
+    parsed.searchParams.set('idleTimeout', String(idleTimeout))
   }
 
   return parsed.toString()
@@ -96,7 +120,15 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
-      10,
+      2,
+    ),
+    minimumIdle: readNonNegativeInteger(
+      parsed.searchParams.get('minimumIdle') ?? undefined,
+      0,
+    ),
+    idleTimeout: readPositiveInteger(
+      parsed.searchParams.get('idleTimeout') ?? undefined,
+      30,
     ),
     ssl: {
       ca: sslCa,

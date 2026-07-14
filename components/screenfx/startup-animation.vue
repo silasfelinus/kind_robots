@@ -1,17 +1,19 @@
 <!-- /components/screenfx/startup-animation.vue -->
 <template>
-  <div
-    v-if="renderEffect && currentComponent"
-    class="startup-animation"
-    :class="{ 'startup-animation--fading': isFading }"
-    aria-hidden="true"
-  >
-    <component
-      :is="currentComponent"
-      :key="resolvedEffectId"
-      class="startup-animation__effect"
-    />
-  </div>
+  <Teleport to="body">
+    <div
+      v-if="renderEffect && currentComponent"
+      class="startup-animation"
+      :class="{ 'startup-animation--fading': isFading }"
+      aria-hidden="true"
+    >
+      <component
+        :is="currentComponent"
+        :key="resolvedEffectId"
+        class="startup-animation__effect"
+      />
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -30,6 +32,8 @@ import {
 } from '@/stores/animationStore'
 import { useAnimationPreferenceStore } from '@/stores/animationPreferenceStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
+
+defineOptions({ inheritAttrs: false })
 
 const animationStore = useAnimationStore()
 const preferenceStore = useAnimationPreferenceStore()
@@ -115,13 +119,12 @@ onBeforeUnmount(() => {
 .startup-animation {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 100;
   overflow: hidden;
   pointer-events: none;
   opacity: 1;
   transition: opacity 650ms ease;
-  transform: translateZ(0);
-  contain: layout paint style;
+  isolation: isolate;
   will-change: opacity;
 }
 

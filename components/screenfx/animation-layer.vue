@@ -1,10 +1,24 @@
-<!-- /components/content/animation/animation-layer.vue -->
+<!-- /components/screenfx/animation-layer.vue -->
 <template>
   <Teleport to="body">
     <Transition name="animation-layer-fade">
       <div
+        v-if="animationStore.isActive && activeComponent"
+        class="animation-effect-layer"
+        aria-hidden="true"
+      >
+        <component
+          :is="activeComponent"
+          :key="animationStore.activeEffectId"
+          class="animation-effect-layer__effect"
+        />
+      </div>
+    </Transition>
+
+    <Transition name="animation-layer-fade">
+      <div
         v-if="animationStore.isActive"
-        class="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4"
+        class="animation-status-layer pointer-events-none flex justify-center px-4"
         aria-live="polite"
       >
         <div
@@ -29,16 +43,56 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/animation/animation-layer.vue
-// The generation effect itself now renders through <fx-region /> surfaces
-// inside the header, sheet, page, and hand. This layer is only the status
-// pill and effect controls.
-import { useAnimationStore } from '@/stores/animationStore'
+import { computed, resolveComponent } from 'vue'
+import {
+  getAnimationComponentName,
+  useAnimationStore,
+  type AnimationEffectId,
+} from '@/stores/animationStore'
 
 const animationStore = useAnimationStore()
+
+const componentsMap = new Map<
+  AnimationEffectId,
+  ReturnType<typeof resolveComponent>
+>(
+  animationStore.effects.map((effect) => [
+    effect.id,
+    resolveComponent(getAnimationComponentName(effect.id)),
+  ]),
+)
+
+const activeComponent = computed(() => {
+  const effectId = animationStore.activeEffectId
+  if (!effectId) return null
+  return componentsMap.get(effectId) || null
+})
 </script>
 
 <style scoped>
+.animation-effect-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.animation-effect-layer__effect {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.animation-status-layer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 1rem;
+  z-index: 90;
+}
+
 .animation-layer-fade-enter-active,
 .animation-layer-fade-leave-active {
   transition:

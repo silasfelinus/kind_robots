@@ -260,7 +260,7 @@ export function buildKontextWorkflow(
     latentRef = ['71', 0]
   }
 
-  ;(workflow['13'].inputs as Record<string, unknown>).latent_image = latentRef
+  ;(workflow['13']!.inputs as Record<string, unknown>).latent_image = latentRef
 
   // --- real negative prompt via CFGGuider (Flux ignores negatives at cfg=1) ---
   if (useNegative) {

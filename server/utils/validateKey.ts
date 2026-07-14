@@ -7,7 +7,7 @@ import { userIsAdmin } from './authUser'
 export type ValidateResult = {
   isValid: boolean
   user?: { id: number; Role: string }
-  kind?: 'jwt' | 'beta-admin-token' | 'server'
+  kind?: 'jwt' | 'user-api-key' | 'beta-admin-token' | 'server'
 }
 
 const config = useRuntimeConfig()
@@ -23,10 +23,10 @@ function cleanToken(value?: string | null): string {
 
 function readRequestToken(event: H3Event): string {
   return cleanToken(
-    getHeader(event, 'authorization') ||
+    getHeader(event, 'x-api-key') ||
       getHeader(event, 'x-beta-admin-token') ||
       getHeader(event, 'x-admin-token') ||
-      getHeader(event, 'x-api-key'),
+      getHeader(event, 'authorization'),
   )
 }
 
@@ -62,20 +62,43 @@ async function getAuthUser(id: number) {
 async function validateJwtString(
   token: string,
 ): Promise<ValidateResult | null> {
+  if (!token || token.split('.').length !== 3) return null
+
+  try {
+    const verification = await verifyJwtToken(token)
+
+    if (!verification.success || !verification.userId) return null
+
+    const user = await getAuthUser(verification.userId)
+
+    if (!user) return null
+
+    return {
+      isValid: true,
+      user: { id: user.id, Role: user.Role },
+      kind: 'jwt',
+    }
+  } catch {
+    return null
+  }
+}
+
+async function validateUserApiKeyString(
+  token: string,
+): Promise<ValidateResult | null> {
   if (!token) return null
 
-  const verification = await verifyJwtToken(token)
+  const user = await prisma.user.findFirst({
+    where: { apiKey: token },
+    select: { id: true, Role: true, isActive: true },
+  })
 
-  if (!verification.success || !verification.userId) return null
-
-  const user = await getAuthUser(verification.userId)
-
-  if (!user) return null
+  if (!user || !user.isActive) return null
 
   return {
     isValid: true,
     user: { id: user.id, Role: user.Role },
-    kind: 'jwt',
+    kind: 'user-api-key',
   }
 }
 
@@ -103,8 +126,9 @@ export async function validateApiKeyString(
   const clean = cleanToken(token)
 
   return (
-    (await validateBetaAdminString(clean)) ??
-    (await validateJwtString(clean)) ?? {
+    (await validateJwtString(clean)) ??
+    (await validateUserApiKeyString(clean)) ??
+    (await validateBetaAdminString(clean)) ?? {
       isValid: false,
     }
   )

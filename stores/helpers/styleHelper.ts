@@ -13,6 +13,7 @@ export type StyleCategory =
   | '3D/Craft'
   | 'Realism'
   | 'Ink'
+  | 'Line Art'
   | 'History'
 
 export interface StyleEntry {
@@ -41,6 +42,7 @@ export const STYLE_CATEGORY_ICONS: Record<StyleCategory, string> = {
   '3D/Craft': '🏺',
   Realism: '📸',
   Ink: '🖋️',
+  'Line Art': '🖍️',
   History: '🏛️',
 }
 

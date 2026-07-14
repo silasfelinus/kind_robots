@@ -1,4 +1,4 @@
-<!-- /components/content/screenfx/fx-region.vue -->
+<!-- /components/screenfx/fx-region.vue -->
 <template>
   <div
     v-if="isMounted && behindEntries.length"
@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, resolveComponent } from 'vue'
 import {
+  getAnimationComponentName,
   useAnimationStore,
   type AnimationEffectId,
   type FxPlacement,
@@ -47,40 +48,15 @@ onMounted(() => {
   isMounted.value = true
 })
 
-type ComponentMap = Record<
+const componentsMap = new Map<
   AnimationEffectId,
   ReturnType<typeof resolveComponent>
->
-
-const componentsMap: ComponentMap = {
-  'starfield-effect': resolveComponent('LazyStarfieldEffect'),
-  'constellation-effect': resolveComponent('LazyConstellationEffect'),
-  'wishing-stars': resolveComponent('LazyWishingStars'),
-  'orbit-effect': resolveComponent('LazyOrbitEffect'),
-  'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
-  'firefly-effect': resolveComponent('LazyFireflyEffect'),
-  'rain-effect': resolveComponent('LazyRainEffect'),
-  'snow-effect': resolveComponent('LazySnowEffect'),
-  'floating-hearts': resolveComponent('LazyFloatingHearts'),
-  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
-  'ripple-effect': resolveComponent('LazyRippleEffect'),
-  'fireworks-effect': resolveComponent('LazyFireworksEffect'),
-  'lightning-effect': resolveComponent('LazyLightningEffect'),
-  'fire-effect': resolveComponent('LazyFireEffect'),
-  'glitch-effect': resolveComponent('LazyGlitchEffect'),
-  'kaleidoscope-effect': resolveComponent('LazyKaleidoscopeEffect'),
-  'plasma-effect': resolveComponent('LazyPlasmaEffect'),
-  'nyan-trail': resolveComponent('LazyNyanTrail'),
-  'matrix-rain': resolveComponent('LazyMatrixRain'),
-  'pixel-rain': resolveComponent('LazyPixelRain'),
-  'pixel-explosion': resolveComponent('LazyPixelExplosion'),
-  'wandering-creatures': resolveComponent('LazyWanderingCreatures'),
-  'toaster-effect': resolveComponent('LazyToasterEffect'),
-  'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
-  'pacbot-effect': resolveComponent('LazyPacbotEffect'),
-  'pocket-gremlin': resolveComponent('LazyPocketGremlin'),
-  'siege-engine': resolveComponent('LazySiegeEngine'),
-}
+>(
+  animationStore.effects.map((effect) => [
+    effect.id,
+    resolveComponent(getAnimationComponentName(effect.id)),
+  ]),
+)
 
 interface SurfaceEntry {
   key: string
@@ -94,7 +70,7 @@ function entriesForPlacement(placement: FxPlacement): SurfaceEntry[] {
 
   if (animationStore.screenSurfaces[props.region][placement]) {
     animationStore.screenEffects.forEach((effect) => {
-      const component = componentsMap[effect.id]
+      const component = componentsMap.get(effect.id)
 
       if (!component || seen.has(effect.id)) return
 
@@ -110,7 +86,7 @@ function entriesForPlacement(placement: FxPlacement): SurfaceEntry[] {
 
   if (generationActive && animationStore.activeEffectId) {
     const id = animationStore.activeEffectId
-    const component = componentsMap[id]
+    const component = componentsMap.get(id)
 
     if (component && !seen.has(id)) {
       entries.push({ key: `gen-${id}`, id, component })
@@ -138,19 +114,10 @@ const frontInteractive = computed(() => {
   overflow: hidden;
   border-radius: inherit;
   pointer-events: none;
-
-  /* Traps position: fixed effect children inside the region and clips them */
   transform: translateZ(0);
   contain: layout paint;
 }
 
-/*
- * Paints above the region's own background but below its normal-flow content.
- * The region's content children all carry z-index >= 1 (z-10, z-70, etc.),
- * so a z-index of 0 here sits above the opaque region background and below
- * that content. A negative z-index would hide behind the background and
- * render the effect invisible.
- */
 .fx-surface--behind {
   z-index: 0;
 }

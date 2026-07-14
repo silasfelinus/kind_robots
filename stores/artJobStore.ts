@@ -7,6 +7,8 @@ import type {
   Prisma,
 } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import { resolveArtImageSource } from '~/utils/artImageSource'
+import type { ArtImageSource } from '~/utils/artImageSource'
 
 export type ArtJobStatus =
   | 'PENDING'
@@ -129,6 +131,9 @@ type ArtJobState = {
   jobs: ArtJobRecord[]
   trainerJobs: ArtJobRecord[]
   imageSrcById: Record<number, string>
+  // Full resolver result per id: src + kind ('image'|'video'|'none') + a
+  // human-readable `reason` and `diag` block so a blank tile can explain itself.
+  imageInfoById: Record<number, ArtImageSource>
   jobStatusFilter: ArtJobStatus | 'ALL'
   loadingStats: boolean
   loadingUptime: boolean
@@ -144,7 +149,7 @@ type ArtJobState = {
   windowHours: number
 }
 
-const MAX_JOB_IMAGES = 72
+const MAX_JOB_IMAGES = 240
 
 export const useArtJobStore = defineStore('artJobStore', () => {
   const state = reactive<ArtJobState>({
@@ -153,6 +158,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     jobs: [],
     trainerJobs: [],
     imageSrcById: {},
+    imageInfoById: {},
     jobStatusFilter: 'PENDING',
     loadingStats: false,
     loadingUptime: false,
@@ -212,7 +218,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     // Stable ids are the point of overwrite, but that means an existing data URL
     // is no longer proof that the current bytes are hydrated. Force these ids to
     // reload whenever a completed overwrite is observed.
-    for (const id of ids) delete state.imageSrcById[id]
+    for (const id of ids) {
+      delete state.imageSrcById[id]
+      delete state.imageInfoById[id]
+    }
     return ids
   }
 
@@ -258,21 +267,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
+  // Delegates to the shared resolver (utils/artImageSource) so the ArtJob cards
+  // use the same robust, video-aware, path-normalizing logic as the main gallery
+  // instead of the old narrow rule that dropped any path not under /images/.
   function artImageToSrc(image: ArtImage | null | undefined): string {
-    if (!image) return ''
-    const raw = (image.imageData || '').trim()
-    if (raw) {
-      if (raw.startsWith('data:image/')) return raw
-      if (!raw.startsWith('/') && !raw.startsWith('http')) {
-        return `data:image/${image.fileType || 'png'};base64,${raw}`
-      }
-    }
-    const path = (image.imagePath || image.path || '').trim()
-    if (!path) return ''
-    if (path.startsWith('http') || path.startsWith('data:')) return path
-    if (path.startsWith('/images/')) return path
-    if (path.startsWith('images/')) return `/${path}`
-    return ''
+    return resolveArtImageSource(image).src
   }
 
   async function loadJobImages(forceIds: number[] = []): Promise<void> {
@@ -299,7 +298,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
           30_000,
         )
         if (res.success && res.data) {
-          state.imageSrcById[id] = artImageToSrc(res.data)
+          const info = resolveArtImageSource(res.data)
+          state.imageInfoById[id] = info
+          state.imageSrcById[id] = info.src
         }
       }),
     )

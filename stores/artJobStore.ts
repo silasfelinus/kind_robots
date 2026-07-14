@@ -15,6 +15,7 @@ export type ArtJobStatus =
   | 'FAILED'
   | 'CANCELLED'
 
+export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'
 export type ArtFeedbackVerdict = 'PROMOTE' | 'REVISE' | 'REJECT'
 
@@ -36,8 +37,20 @@ export type ArtJobCuration = Prisma.JsonObject & {
   history?: ArtJobFeedback[]
 }
 
+export type ArtJobRetry = Prisma.JsonObject & {
+  mode?: ArtJobRetryMode
+  sourceJobId?: number | null
+  rootJobId?: number | null
+  targetArtImageId?: number | null
+  archivedArtImageId?: number | null
+  refreshSeed?: boolean
+  requestedAt?: string
+  completedAt?: string
+}
+
 export type ArtJobPayload = Prisma.JsonObject & {
   curation?: ArtJobCuration
+  retry?: ArtJobRetry
 }
 
 export type ArtJobRecord = Omit<ArtJob, 'payload'> & {
@@ -114,6 +127,7 @@ type ArtJobState = {
   loadingUptime: boolean
   loadingJobs: boolean
   loadingTrainerJobs: boolean
+  retryingJobIds: number[]
   error: string | null
   windowHours: number
 }
@@ -132,6 +146,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingUptime: false,
     loadingJobs: false,
     loadingTrainerJobs: false,
+    retryingJobIds: [],
     error: null,
     windowHours: 24,
   })
@@ -168,6 +183,25 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
+  function completedOverwriteIds(jobs: ArtJobRecord[]): number[] {
+    const ids = jobs
+      .filter((job) => {
+        return (
+          job.status === 'DONE' &&
+          job.payload?.retry?.mode === 'OVERWRITE' &&
+          typeof job.artImageId === 'number'
+        )
+      })
+      .map((job) => job.artImageId as number)
+      .filter((id, index, all) => all.indexOf(id) === index)
+
+    // Stable ids are the point of overwrite, but that means an existing data URL
+    // is no longer proof that the current bytes are hydrated. Force these ids to
+    // reload whenever a completed overwrite is observed.
+    for (const id of ids) delete state.imageSrcById[id]
+    return ids
+  }
+
   async function fetchJobs(
     status: ArtJobStatus | 'ALL' = state.jobStatusFilter,
   ): Promise<void> {
@@ -179,8 +213,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         `/api/art/queue${query}${status === 'ALL' ? '?' : '&'}limit=100`,
       )
       if (res.success && res.data) {
+        const forceImageIds = completedOverwriteIds(res.data.jobs)
         state.jobs = res.data.jobs
-        void loadJobImages()
+        void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load jobs.'
       }
@@ -196,10 +231,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         '/api/art/queue?status=DONE&limit=200',
       )
       if (res.success && res.data) {
+        const forceImageIds = completedOverwriteIds(res.data.jobs)
         state.trainerJobs = res.data.jobs.filter((job) => {
           return Boolean(job.payload?.curation?.curator)
         })
-        void loadJobImages()
+        void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load curated jobs.'
       }
@@ -225,14 +261,17 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return ''
   }
 
-  async function loadJobImages(): Promise<void> {
-    const ids = [...state.jobs, ...state.trainerJobs]
-      .filter((job) => {
-        return job.status === 'DONE' && typeof job.artImageId === 'number'
-      })
-      .map((job) => job.artImageId as number)
+  async function loadJobImages(forceIds: number[] = []): Promise<void> {
+    const ids = [
+      ...forceIds,
+      ...[...state.jobs, ...state.trainerJobs]
+        .filter((job) => {
+          return job.status === 'DONE' && typeof job.artImageId === 'number'
+        })
+        .map((job) => job.artImageId as number),
+    ]
       .filter((id, index, all) => all.indexOf(id) === index)
-      .filter((id) => !(id in state.imageSrcById))
+      .filter((id) => forceIds.includes(id) || !(id in state.imageSrcById))
       .slice(0, MAX_JOB_IMAGES)
 
     if (!ids.length) return
@@ -309,17 +348,35 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return false
   }
 
-  async function reenqueueJob(id: number): Promise<number | null> {
-    const res = await performFetch<{ job: ArtJobRecord }>(
-      `/api/art/queue/${id}/reenqueue`,
-      { method: 'POST', body: JSON.stringify({}) },
-    )
-    if (res.success && res.data?.job) {
-      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
-      return res.data.job.id
+  async function reenqueueJob(
+    id: number,
+    mode: ArtJobRetryMode = 'NEW_OUTPUT',
+  ): Promise<number | null> {
+    if (state.retryingJobIds.includes(id)) return null
+    state.retryingJobIds = [...state.retryingJobIds, id]
+
+    try {
+      const res = await performFetch<{
+        job: ArtJobRecord
+        mode: ArtJobRetryMode
+        targetArtImageId: number | null
+      }>(`/api/art/queue/${id}/reenqueue`, {
+        method: 'POST',
+        body: JSON.stringify({ mode, refreshSeed: true }),
+      })
+
+      if (res.success && res.data?.job) {
+        await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+        return res.data.job.id
+      }
+
+      state.error = res.message || `Failed to re-enqueue job ${id}.`
+      return null
+    } finally {
+      state.retryingJobIds = state.retryingJobIds.filter(
+        (jobId) => jobId !== id,
+      )
     }
-    state.error = res.message || `Failed to re-enqueue job ${id}.`
-    return null
   }
 
   async function refreshAll(): Promise<void> {

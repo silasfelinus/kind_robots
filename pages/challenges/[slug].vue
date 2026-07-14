@@ -34,7 +34,10 @@
         <Icon name="kind-icon:warning" class="mx-auto size-10 text-error" />
         <h1 class="mt-3 text-xl font-black">Arena unavailable</h1>
         <p class="mt-2 text-sm text-base-content/65">{{ errorMessage }}</p>
-        <button class="btn btn-error btn-sm mt-5 rounded-xl" @click="loadChallenge">
+        <button
+          class="btn btn-error btn-sm mt-5 rounded-xl"
+          @click="loadChallenge"
+        >
           Try again
         </button>
       </div>
@@ -53,7 +56,9 @@
             class="pointer-events-none absolute -bottom-24 -left-16 size-64 rounded-full border-[40px] border-secondary/10"
           />
 
-          <div class="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
+          <div
+            class="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start"
+          >
             <div>
               <div class="flex flex-wrap items-center gap-2">
                 <span class="badge badge-primary rounded-lg font-black">
@@ -77,7 +82,9 @@
               >
                 {{ challenge.title }}
               </h1>
-              <p class="mt-5 max-w-4xl text-base leading-relaxed text-base-content/75">
+              <p
+                class="mt-5 max-w-4xl text-base leading-relaxed text-base-content/75"
+              >
                 {{ challenge.promptText }}
               </p>
 
@@ -99,7 +106,9 @@
             <div
               class="grid min-w-40 place-items-center rounded-3xl border border-primary/20 bg-base-100/75 p-5 text-center shadow-lg backdrop-blur"
             >
-              <span class="text-xs font-black uppercase tracking-[0.2em] text-base-content/45">
+              <span
+                class="text-xs font-black uppercase tracking-[0.2em] text-base-content/45"
+              >
                 Difficulty
               </span>
               <span
@@ -110,9 +119,12 @@
                   v-for="star in 5"
                   :key="star"
                   :class="star > challenge.difficulty ? 'opacity-20' : ''"
-                >★</span>
+                  >★</span
+                >
               </span>
-              <span class="mt-3 text-5xl font-black italic text-primary">VS</span>
+              <span class="mt-3 text-5xl font-black italic text-primary"
+                >VS</span
+              >
             </div>
           </div>
         </header>
@@ -123,8 +135,8 @@
         >
           <Icon name="kind-icon:warning" class="size-5" />
           <span>
-            Browse freely, but sign in before voting. Each account gets exactly one
-            current vote per submission.
+            Browse freely, but sign in before voting. Each account gets exactly
+            one current vote per submission.
           </span>
         </div>
 
@@ -134,7 +146,9 @@
           :class="voteStatus === 'error' ? 'alert-error' : 'alert-success'"
         >
           <Icon
-            :name="voteStatus === 'error' ? 'kind-icon:warning' : 'kind-icon:check'"
+            :name="
+              voteStatus === 'error' ? 'kind-icon:warning' : 'kind-icon:check'
+            "
             class="size-5"
           />
           <span>{{ voteMessage }}</span>
@@ -157,7 +171,9 @@
               v-for="submission in challenge.Submissions"
               :key="submission.id"
               class="group relative flex min-w-0 flex-col overflow-hidden rounded-3xl border bg-base-100 shadow-lg transition hover:-translate-y-1 hover:shadow-2xl"
-              :class="submission.rank === 1 ? 'border-warning/60' : 'border-base-300'"
+              :class="
+                submission.rank === 1 ? 'border-warning/60' : 'border-base-300'
+              "
             >
               <div
                 class="h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"
@@ -175,12 +191,21 @@
                     <span
                       v-if="submission.rank"
                       class="badge rounded-lg font-black"
-                      :class="submission.rank === 1 ? 'badge-warning' : 'badge-ghost'"
+                      :class="
+                        submission.rank === 1 ? 'badge-warning' : 'badge-ghost'
+                      "
                     >
                       #{{ submission.rank }}
                     </span>
                     <span class="badge badge-outline badge-sm rounded-lg">
                       {{ submission.variantKey }}
+                    </span>
+                    <span
+                      v-if="submission.isBestVariant"
+                      class="badge badge-secondary badge-sm rounded-lg font-black"
+                      title="Top-scoring prompt variant from this contender in this challenge"
+                    >
+                      Best variant
                     </span>
                   </div>
                   <h2 class="mt-2 truncate text-xl font-black uppercase">
@@ -205,7 +230,9 @@
                 </div>
               </header>
 
-              <div class="flex-1 border-y border-base-300 bg-base-200/35 p-4 sm:p-5">
+              <div
+                class="flex-1 border-y border-base-300 bg-base-200/35 p-4 sm:p-5"
+              >
                 <img
                   v-if="submission.ArtImage && artImageUrl(submission.ArtImage)"
                   :src="artImageUrl(submission.ArtImage)"
@@ -217,7 +244,9 @@
                   v-else-if="submission.Character"
                   class="rounded-2xl border border-primary/20 bg-primary/5 p-5"
                 >
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-primary">
+                  <p
+                    class="text-xs font-black uppercase tracking-[0.2em] text-primary"
+                  >
                     Character entry
                   </p>
                   <h3 class="mt-2 text-2xl font-black">
@@ -234,7 +263,9 @@
                   v-else-if="submission.Scenario"
                   class="rounded-2xl border border-secondary/20 bg-secondary/5 p-5"
                 >
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-secondary">
+                  <p
+                    class="text-xs font-black uppercase tracking-[0.2em] text-secondary"
+                  >
                     Scenario entry
                   </p>
                   <h3 class="mt-2 text-2xl font-black">
@@ -253,7 +284,9 @@
                 >
                   <p
                     class="whitespace-pre-line text-sm leading-relaxed"
-                    :class="expandedIds.has(submission.id) ? '' : 'line-clamp-[12]'"
+                    :class="
+                      expandedIds.has(submission.id) ? '' : 'line-clamp-[12]'
+                    "
                   >
                     {{ submission.outputText }}
                   </p>
@@ -291,6 +324,26 @@
                     class="collapse-content whitespace-pre-line text-xs text-base-content/65"
                   >
                     {{ submission.promptUsed }}
+                  </div>
+                </details>
+
+                <details
+                  v-if="randomSelectionsList(submission).length"
+                  class="collapse collapse-arrow mt-3 rounded-2xl border border-base-300 bg-base-100"
+                >
+                  <summary
+                    class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider"
+                  >
+                    Random rolls used
+                  </summary>
+                  <div class="collapse-content flex flex-wrap gap-2 text-xs">
+                    <span
+                      v-for="[key, value] in randomSelectionsList(submission)"
+                      :key="key"
+                      class="badge badge-ghost rounded-lg"
+                    >
+                      {{ key }}: {{ value }}
+                    </span>
                   </div>
                 </details>
               </div>
@@ -360,10 +413,16 @@
           v-else
           class="rounded-3xl border border-dashed border-base-300 bg-base-100 px-6 py-16 text-center"
         >
-          <Icon name="kind-icon:trophy" class="mx-auto size-12 text-primary/40" />
-          <h2 class="mt-4 text-2xl font-black uppercase">Waiting for contenders</h2>
+          <Icon
+            name="kind-icon:trophy"
+            class="mx-auto size-12 text-primary/40"
+          />
+          <h2 class="mt-4 text-2xl font-black uppercase">
+            Waiting for contenders
+          </h2>
           <p class="mx-auto mt-2 max-w-xl text-sm text-base-content/60">
-            The challenge is live, but no ready submissions have entered the arena yet.
+            The challenge is live, but no ready submissions have entered the
+            arena yet.
           </p>
         </section>
 
@@ -373,10 +432,14 @@
         >
           <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p class="text-xs font-black uppercase tracking-[0.25em] text-primary">
+              <p
+                class="text-xs font-black uppercase tracking-[0.25em] text-primary"
+              >
                 Live scorecard
               </p>
-              <h2 class="mt-1 text-2xl font-black uppercase">Challenge rankings</h2>
+              <h2 class="mt-1 text-2xl font-black uppercase">
+                Challenge rankings
+              </h2>
             </div>
             <NuxtLink
               to="/challenges/leaderboard"
@@ -405,7 +468,9 @@
                   {{ entry.score.votes }} votes
                 </p>
               </div>
-              <span class="hidden text-xs font-bold text-base-content/45 sm:inline">
+              <span
+                class="hidden text-xs font-bold text-base-content/45 sm:inline"
+              >
                 ♥ {{ entry.score.loved }} · 👏 {{ entry.score.clapped }} · 👎
                 {{ entry.score.booed }} · ✕ {{ entry.score.hated }}
               </span>
@@ -471,6 +536,7 @@ type ChallengeSubmission = {
   contenderId: number | null
   variantKey: string
   promptUsed: string | null
+  randomSelections: Record<string, string> | null
   outputText: string | null
   Contender: Contender | null
   ArtImage: ArtImagePreview | null
@@ -478,6 +544,8 @@ type ChallengeSubmission = {
   Scenario: LinkedEntity | null
   score: ChallengeScore
   rank: number | null
+  variantRank: number | null
+  isBestVariant: boolean
   myReaction: ReactionType | null
 }
 
@@ -552,7 +620,19 @@ function contenderInitial(submission: ChallengeSubmission) {
 function contenderSubtitle(submission: ChallengeSubmission) {
   const contender = submission.Contender
   if (!contender) return 'Unregistered contender'
-  return contender.model || contender.generator || contender.provider || contender.kind
+  return (
+    contender.model ||
+    contender.generator ||
+    contender.provider ||
+    contender.kind
+  )
+}
+
+function randomSelectionsList(
+  submission: ChallengeSubmission,
+): Array<[string, string]> {
+  if (!submission.randomSelections) return []
+  return Object.entries(submission.randomSelections)
 }
 
 function artImageUrl(image: ArtImagePreview) {
@@ -648,7 +728,9 @@ async function vote(submissionId: number, reactionType: ReactionType) {
   } catch (error: unknown) {
     voteStatus.value = 'error'
     voteMessage.value =
-      error instanceof Error ? error.message : 'Your vote could not be recorded.'
+      error instanceof Error
+        ? error.message
+        : 'Your vote could not be recorded.'
   } finally {
     votingSubmissionId.value = null
     pendingReaction.value = null

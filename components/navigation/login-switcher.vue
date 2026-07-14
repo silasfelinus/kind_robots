@@ -7,8 +7,8 @@
       type="button"
       class="login-switcher-avatar btn btn-ghost relative shrink-0 overflow-hidden rounded-full border border-base-300 bg-base-100 p-0"
       :class="store.isOpen ? 'ring-2 ring-primary' : ''"
-      title="Switch account"
-      aria-label="Switch account"
+      :title="accountMenuLabel"
+      :aria-label="accountMenuLabel"
       :aria-expanded="store.isOpen"
       @click.stop="store.toggle"
     >
@@ -37,12 +37,11 @@
 
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-black text-base-content">
-            {{ userStore.username }}
+            {{ userStore.isLoggedIn ? userStore.username : 'Guest' }}
           </p>
 
           <p class="truncate text-xs text-base-content/60">
-            {{ userStore.role }} ·
-            {{ userStore.isLoggedIn ? 'Logged in' : 'Guest mode' }}
+{{ userStore.isLoggedIn ? `${userStore.role} · Logged in` : 'Not logged in' }}
           </p>
         </div>
       </header>
@@ -67,11 +66,11 @@
           type="button"
           class="flex w-full items-center gap-3 rounded-2xl border p-2 text-left transition hover:bg-base-200"
           :class="
-            account.userId === userStore.userId
+            account.userId === currentUserId
               ? 'border-primary bg-primary/10'
               : 'border-base-300 bg-base-100'
           "
-          :disabled="store.isSwitching || account.userId === userStore.userId"
+          :disabled="store.isSwitching || account.userId === currentUserId"
           @click="store.switchToAccount(account.userId)"
         >
           <img
@@ -91,7 +90,7 @@
           </span>
 
           <Icon
-            v-if="account.userId === userStore.userId"
+            v-if="account.userId === currentUserId"
             name="kind-icon:check"
             class="h-4 w-4 text-success"
           />
@@ -106,7 +105,10 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
+      <div
+        v-if="userStore.isLoggedIn"
+        class="grid grid-cols-2 gap-2"
+      >
         <button
           type="button"
           class="btn btn-sm rounded-2xl"
@@ -126,7 +128,18 @@
         </button>
       </div>
 
+      <NuxtLink
+        v-else
+        to="/login"
+        class="btn btn-primary btn-sm rounded-2xl"
+        @click="store.close"
+      >
+        <Icon name="kind-icon:login" class="h-4 w-4" />
+        Log in
+      </NuxtLink>
+
       <button
+        v-if="userStore.isLoggedIn"
         type="button"
         class="btn btn-sm btn-ghost rounded-2xl text-error"
         @click="logout"
@@ -139,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoginManagerStore } from '@/stores/loginStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -147,6 +160,12 @@ const store = useLoginManagerStore()
 const userStore = useUserStore()
 const menuRef = ref<HTMLElement | null>(null)
 const fallbackAvatar = '/images/kindart.webp'
+const currentUserId = computed(() => {
+  return userStore.isLoggedIn ? (userStore.user?.id ?? null) : null
+})
+const accountMenuLabel = computed(() => {
+  return userStore.isLoggedIn ? 'Switch account' : 'Log in or switch account'
+})
 
 function handlePointerDown(event: PointerEvent) {
   if (!store.isOpen) {
@@ -162,24 +181,26 @@ function captureCurrent() {
   store.captureCurrentSession()
 }
 
-function addAccount() {
+async function addAccount(): Promise<void> {
   store.close()
   userStore.logout()
+  await navigateTo('/login')
 }
 
 function logout() {
   store.close()
   userStore.logout()
+  store.clearActiveSession()
 }
 
-watch(
-  () => userStore.userId,
-  (newId) => {
-    if (newId) {
-      store.captureCurrentSession()
-    }
-  },
-)
+watch(currentUserId, (newId) => {
+  if (newId) {
+    store.captureCurrentSession()
+    return
+  }
+
+  store.clearActiveSession()
+})
 
 onMounted(() => {
   store.initialize()

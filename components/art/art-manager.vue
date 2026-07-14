@@ -116,6 +116,7 @@
     <section
       v-else-if="activeTab === 'artjob'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+      @click.capture="handleArtJobImageClick"
     >
       <div
         class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:overflow-hidden"
@@ -135,6 +136,45 @@
     >
       Unknown image tab: {{ activeTab }}
     </div>
+
+    <dialog
+      ref="artPreviewDialog"
+      class="modal"
+      @click.self="closeArtPreview"
+      @close="clearArtPreview"
+    >
+      <div
+        class="modal-box flex h-[92vh] w-[96vw] max-w-7xl flex-col rounded-2xl border border-base-300 bg-base-100 p-3"
+      >
+        <div class="flex items-center justify-between gap-3 px-1 pb-3">
+          <div class="min-w-0">
+            <h3 class="truncate text-sm font-semibold">{{ artPreviewTitle }}</h3>
+            <p class="text-[11px] text-base-content/50">
+              Finished ArtJob preview
+            </p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-circle btn-ghost btn-sm"
+            aria-label="Close art preview"
+            @click="closeArtPreview"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div
+          class="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-2xl bg-base-200/60 p-2"
+        >
+          <img
+            v-if="artPreviewSrc"
+            :src="artPreviewSrc"
+            class="max-h-full max-w-full rounded-2xl object-contain"
+            :alt="artPreviewTitle"
+          />
+        </div>
+      </div>
+    </dialog>
   </section>
 </template>
 
@@ -182,6 +222,9 @@ const validTabs: LegacyArtTab[] = [
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
+const artPreviewDialog = ref<HTMLDialogElement | null>(null)
+const artPreviewSrc = ref('')
+const artPreviewTitle = ref('Generated art')
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -232,6 +275,33 @@ async function loadManagerData(force = false) {
 
 async function refreshManagerData() {
   await loadManagerData(true)
+}
+
+function handleArtJobImageClick(event: MouseEvent): void {
+  const target = event.target
+  if (!(target instanceof Element)) return
+
+  const anchor = target.closest('a[href^="data:image/"]')
+  if (!(anchor instanceof HTMLAnchorElement)) return
+
+  const src = anchor.getAttribute('href') || ''
+  if (!src) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  artPreviewSrc.value = src
+  artPreviewTitle.value = anchor.title || 'Generated art'
+  artPreviewDialog.value?.showModal()
+}
+
+function closeArtPreview(): void {
+  artPreviewDialog.value?.close()
+}
+
+function clearArtPreview(): void {
+  artPreviewSrc.value = ''
+  artPreviewTitle.value = 'Generated art'
 }
 
 onMounted(async () => {

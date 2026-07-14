@@ -117,7 +117,16 @@
       v-else-if="activeTab === 'artjob'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <artjob-manager class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div
+        class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:overflow-hidden"
+      >
+        <artjob-manager
+          class="min-h-[720px] overflow-hidden 2xl:min-h-0"
+        />
+        <artjob-feedback-manager
+          class="min-h-[560px] overflow-hidden 2xl:min-h-0"
+        />
+      </div>
     </section>
 
     <div

@@ -9,7 +9,10 @@ export default defineEventHandler(async (event) => {
     const slug = getRouterParam(event, 'slug')?.trim()
 
     if (!slug) {
-      throw createError({ statusCode: 400, message: 'Challenge slug is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Challenge slug is required.',
+      })
     }
 
     const challenge = await prisma.challenge.findUnique({
@@ -26,6 +29,8 @@ export default defineEventHandler(async (event) => {
             id: true,
             contenderId: true,
             variantKey: true,
+            promptUsed: true,
+            randomSelections: true,
             Contender: {
               select: {
                 id: true,

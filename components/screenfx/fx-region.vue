@@ -30,10 +30,12 @@
 import { computed, onMounted, ref, resolveComponent } from 'vue'
 import {
   getAnimationComponentName,
-  useAnimationStore,
   type AnimationEffectId,
-  type FxPlacement,
   type FxRegion,
+} from '@/stores/animationCatalog'
+import {
+  useAnimationStore,
+  type FxPlacement,
 } from '@/stores/animationStore'
 
 const props = defineProps<{

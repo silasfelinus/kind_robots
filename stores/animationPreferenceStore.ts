@@ -1,7 +1,10 @@
 // /stores/animationPreferenceStore.ts
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-import { isAnimationEffectId, type AnimationEffectId } from './animationStore'
+import {
+  isAnimationEffectId,
+  type AnimationEffectId,
+} from './animationCatalog'
 
 export type StartupAnimationChoice = AnimationEffectId | 'random' | 'none'
 

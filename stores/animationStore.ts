@@ -8,12 +8,10 @@ import {
   type FxRegion,
 } from './animationCatalog'
 
-export {
-  getAnimationComponentName,
-  isAnimationEffectId,
-  type AnimationEffect,
-  type AnimationEffectId,
-  type FxRegion,
+export type {
+  AnimationEffect,
+  AnimationEffectId,
+  FxRegion,
 } from './animationCatalog'
 
 export type FxPlacement = 'behind' | 'front'

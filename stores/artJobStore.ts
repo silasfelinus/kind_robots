@@ -183,6 +183,25 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
+  function completedOverwriteIds(jobs: ArtJobRecord[]): number[] {
+    const ids = jobs
+      .filter((job) => {
+        return (
+          job.status === 'DONE' &&
+          job.payload?.retry?.mode === 'OVERWRITE' &&
+          typeof job.artImageId === 'number'
+        )
+      })
+      .map((job) => job.artImageId as number)
+      .filter((id, index, all) => all.indexOf(id) === index)
+
+    // Stable ids are the point of overwrite, but that means an existing data URL
+    // is no longer proof that the current bytes are hydrated. Force these ids to
+    // reload whenever a completed overwrite is observed.
+    for (const id of ids) delete state.imageSrcById[id]
+    return ids
+  }
+
   async function fetchJobs(
     status: ArtJobStatus | 'ALL' = state.jobStatusFilter,
   ): Promise<void> {
@@ -194,8 +213,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         `/api/art/queue${query}${status === 'ALL' ? '?' : '&'}limit=100`,
       )
       if (res.success && res.data) {
+        const forceImageIds = completedOverwriteIds(res.data.jobs)
         state.jobs = res.data.jobs
-        void loadJobImages()
+        void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load jobs.'
       }
@@ -211,10 +231,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         '/api/art/queue?status=DONE&limit=200',
       )
       if (res.success && res.data) {
+        const forceImageIds = completedOverwriteIds(res.data.jobs)
         state.trainerJobs = res.data.jobs.filter((job) => {
           return Boolean(job.payload?.curation?.curator)
         })
-        void loadJobImages()
+        void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load curated jobs.'
       }
@@ -240,14 +261,17 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return ''
   }
 
-  async function loadJobImages(): Promise<void> {
-    const ids = [...state.jobs, ...state.trainerJobs]
-      .filter((job) => {
-        return job.status === 'DONE' && typeof job.artImageId === 'number'
-      })
-      .map((job) => job.artImageId as number)
+  async function loadJobImages(forceIds: number[] = []): Promise<void> {
+    const ids = [
+      ...forceIds,
+      ...[...state.jobs, ...state.trainerJobs]
+        .filter((job) => {
+          return job.status === 'DONE' && typeof job.artImageId === 'number'
+        })
+        .map((job) => job.artImageId as number),
+    ]
       .filter((id, index, all) => all.indexOf(id) === index)
-      .filter((id) => !(id in state.imageSrcById))
+      .filter((id) => forceIds.includes(id) || !(id in state.imageSrcById))
       .slice(0, MAX_JOB_IMAGES)
 
     if (!ids.length) return
@@ -342,14 +366,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       })
 
       if (res.success && res.data?.job) {
-        if (
-          mode === 'OVERWRITE' &&
-          typeof res.data.targetArtImageId === 'number'
-        ) {
-          // The canonical id stays stable, so explicitly evict the old data URL;
-          // otherwise loadJobImages correctly assumes it is already hydrated.
-          delete state.imageSrcById[res.data.targetArtImageId]
-        }
         await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
         return res.data.job.id
       }

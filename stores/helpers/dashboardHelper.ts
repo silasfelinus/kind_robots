@@ -170,6 +170,19 @@ export const dashboardConfigs = {
         route: '/coat-dance',
       },
       {
+        key: 'video',
+        label: 'Video',
+        icon: 'kind-icon:video',
+        title: 'Video Generator',
+        summary: 'Animate a still into a short looping clip with LTX or WAN.',
+        image: tabImage('art', 'video'),
+        flourish: '✨',
+        tagline: 'Turn a single frame into motion.',
+        narrative:
+          'Feed in a still (start with Use logo), add a motion prompt, pick LTX or WAN, set the seconds and fps, and queue an image-to-video job on the art box. The finished clip loops right on the page — perfect for launch gifs and endless randomized variants.',
+        route: '/video-generator',
+      },
+      {
         key: 'artjob',
         label: 'ArtJob',
         icon: 'kind-icon:server',

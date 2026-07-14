@@ -60,14 +60,16 @@ export const bearerHeaders = (token: string) => ({
 
 export const invalidBearerHeaders = () => bearerHeaders('invalid-cypress-token')
 
-export const adminHeaders = (token: string) => ({
+export const apiKeyHeaders = (token: string) => ({
   ...jsonHeaders(),
-  [adminTokenHeaderName]: token,
-  [betaAdminTokenHeaderName]: token,
   [apiKeyHeaderName]: token,
 })
 
-export const apiKeyHeaders = (token: string) => adminHeaders(token)
+export const adminHeaders = (token: string) => ({
+  ...apiKeyHeaders(token),
+  [adminTokenHeaderName]: token,
+  [betaAdminTokenHeaderName]: token,
+})
 
 const bodyNumber = (value: unknown): number | undefined => {
   const parsed = Number(value)

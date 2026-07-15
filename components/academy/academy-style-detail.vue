@@ -84,7 +84,7 @@
       </div>
     </div>
 
-    <footer class="flex flex-wrap items-center gap-2">
+    <footer v-if="showRemixButton" class="flex flex-wrap items-center gap-2">
       <button
         type="button"
         class="btn btn-primary flex-1 rounded-2xl font-black shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0"
@@ -106,8 +106,9 @@ const props = withDefaults(
   defineProps<{
     lesson: AcademyStyle
     showClose?: boolean
+    showRemixButton?: boolean
   }>(),
-  { showClose: true },
+  { showClose: true, showRemixButton: true },
 )
 
 const emit = defineEmits<{

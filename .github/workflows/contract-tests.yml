@@ -44,6 +44,9 @@ jobs:
       - name: Channel resolver contract
         run: npm run test:channel-resolver
 
+      - name: Database pool defaults contract
+        run: npm run test:database-pool-defaults
+
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 

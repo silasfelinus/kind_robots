@@ -11,6 +11,9 @@ export type CleanupRequest = {
 
 type RequestOptionsLike = Record<string, unknown> & {
   headers?: Record<string, string>
+  failOnStatusCode?: boolean
+  retryOnStatusCodeFailure?: boolean
+  retryOnNetworkFailure?: boolean
 }
 
 type CurrentTestLike = {
@@ -79,13 +82,27 @@ const syntheticTestHeaders = () => {
   return headers
 }
 
-const withSyntheticHeaders = (options: RequestOptionsLike) => ({
-  ...options,
-  headers: {
-    ...(options.headers || {}),
-    ...syntheticTestHeaders(),
-  },
-})
+const withSyntheticHeaders = (options: RequestOptionsLike) => {
+  const retrySuccessfulRequests = options.failOnStatusCode !== false
+
+  return {
+    ...options,
+    // Positive API requests should tolerate a short-lived 5xx from the remote
+    // serverless database path. Cypress retries status failures up to four
+    // times. Negative tests opt out by setting failOnStatusCode: false, so
+    // expected 4xx responses are never retried or delayed.
+    ...(retrySuccessfulRequests && options.retryOnStatusCodeFailure === undefined
+      ? { retryOnStatusCodeFailure: true }
+      : {}),
+    ...(options.retryOnNetworkFailure === undefined
+      ? { retryOnNetworkFailure: true }
+      : {}),
+    headers: {
+      ...(options.headers || {}),
+      ...syntheticTestHeaders(),
+    },
+  }
+}
 
 declare global {
   namespace Cypress {

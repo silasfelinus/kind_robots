@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Chat` ADD COLUMN `isRead` BOOLEAN NOT NULL DEFAULT false;

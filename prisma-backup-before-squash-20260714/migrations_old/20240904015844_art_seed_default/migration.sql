@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Art` MODIFY `seed` INTEGER NULL DEFAULT -1;

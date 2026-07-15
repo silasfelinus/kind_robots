@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Reaction` MODIFY `ReactionCategory` ENUM('ART', 'PITCH', 'COMPONENT', 'CHANNEL', 'TITLE') NOT NULL DEFAULT 'CHANNEL';

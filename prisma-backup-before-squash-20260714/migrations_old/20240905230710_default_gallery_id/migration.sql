@@ -1,8 +1,0 @@
--- AlterTable
-ALTER TABLE `ArtImage` MODIFY `galleryId` INTEGER NULL DEFAULT 21;
-
--- AlterTable
-ALTER TABLE `Prompt` MODIFY `galleryId` INTEGER NULL DEFAULT 21;
-
--- AlterTable
-ALTER TABLE `RandomList` MODIFY `userId` INTEGER NULL DEFAULT 1;

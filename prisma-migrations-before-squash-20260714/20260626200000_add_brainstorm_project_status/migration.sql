@@ -1,2 +1,0 @@
--- Add BRAINSTORM to ProjectStatus enum
-ALTER TABLE `Dream` MODIFY COLUMN `projectStatus` ENUM('ACTIVE', 'PAUSED', 'DONE', 'ARCHIVED', 'BRAINSTORM') NULL;

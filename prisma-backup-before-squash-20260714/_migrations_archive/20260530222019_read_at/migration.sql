@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Chat` ADD COLUMN `readAt` DATETIME(3) NULL;

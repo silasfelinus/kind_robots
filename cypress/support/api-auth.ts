@@ -28,9 +28,13 @@ export type TestUserAuth = {
   token: string
 }
 
+export type TestUserRole = 'primary' | 'second'
+
 export type CreateLoggedInTestUserOptions = {
-  /** @deprecated The suite now reuses one run-scoped seed user. */
+  /** @deprecated The suite now reuses run-scoped identities. */
   fresh?: boolean
+  /** `second` resolves to the existing administrator; it creates no user. */
+  role?: TestUserRole
 }
 
 export const defaultApiBase = 'https://kind-robots.vercel.app/api'
@@ -101,16 +105,16 @@ export const extractUserId = (body: ApiResponse<RegisterUserData>): number => {
   return id as number
 }
 
-export const getSeedTestUser = () =>
+export const getSeedTestUser = (role: TestUserRole = 'primary') =>
   cy
     .task<{
       user: TestUserAuth
+      secondUser: TestUserAuth
     }>('cypressSeed:get')
-    .then((seed) => seed.user)
+    .then((seed) => (role === 'second' ? seed.secondUser : seed.user))
 
 // Kept as an explicit escape hatch for a future test that truly requires an
-// isolated account. Normal specs must call createLoggedInTestUser(), which now
-// always returns the single run-scoped identity.
+// isolated account. Normal specs must call createLoggedInTestUser().
 export const createFreshLoggedInTestUser = () =>
   getApiEnv().then(({ apiBase, adminToken }) => {
     const stamp = `${Date.now()}-${Cypress._.random(1000, 9999)}`
@@ -157,9 +161,10 @@ export const createFreshLoggedInTestUser = () =>
             expect(loginResponse.status, JSON.stringify(loginResponse.body)).to.eq(
               200,
             )
-            expect(loginResponse.body.success, JSON.stringify(loginResponse.body)).to.eq(
-              true,
-            )
+            expect(
+              loginResponse.body.success,
+              JSON.stringify(loginResponse.body),
+            ).to.eq(true)
             const token = extractToken(loginResponse.body)
             return { id, username, email, password, token } satisfies TestUserAuth
           })
@@ -167,8 +172,8 @@ export const createFreshLoggedInTestUser = () =>
   })
 
 export const createLoggedInTestUser = (
-  _options: CreateLoggedInTestUserOptions = {},
-) => getSeedTestUser()
+  options: CreateLoggedInTestUserOptions = {},
+) => getSeedTestUser(options.role || 'primary')
 
 export const deleteTestUser = (
   apiBase: string,

@@ -12,9 +12,9 @@ type ScenarioPatchInput = {
   slug?: unknown
   description?: unknown
   intros?: unknown
-  outputType?: unknown // ← NEW
-  cast?: unknown // ← NEW
-  dreamIds?: unknown // ← NEW
+  outputType?: unknown
+  cast?: unknown
+  dreamIds?: unknown
   artImageId?: unknown
   imagePath?: unknown
   locations?: unknown
@@ -32,7 +32,6 @@ type ScenarioPatchInput = {
   compositionIds?: unknown
 }
 
-// ── NEW: outputType enum guard ──────────────────────────────────────────────
 const scenarioOutputTypes: ScenarioOutputType[] = [
   'STORY',
   'ART',
@@ -96,6 +95,31 @@ function normalizeNullableString(value: unknown, field: string): string | null {
 
   const trimmed = value.trim()
   return trimmed || null
+}
+
+function normalizeJsonString(value: unknown, field: string): string | null {
+  if (value === null) return null
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+
+    try {
+      JSON.parse(trimmed)
+      return trimmed
+    } catch {
+      return JSON.stringify(trimmed)
+    }
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    throw createError({
+      statusCode: 400,
+      message: `The "${field}" field must be JSON-serializable.`,
+    })
+  }
 }
 
 function normalizeBoolean(value: unknown, field: string): boolean {
@@ -223,7 +247,7 @@ function normalizeArtImageRelation(
 async function assertRelatedRecordsExist(options: {
   characterIds: number[]
   compositionIds: number[]
-  dreamIds: number[] // ← NEW
+  dreamIds: number[]
 }) {
   const { characterIds, compositionIds, dreamIds } = options
 
@@ -261,7 +285,6 @@ async function assertRelatedRecordsExist(options: {
     }
   }
 
-  // ← NEW: validate dream IDs exist before connecting
   if (dreamIds.length) {
     const dreams = await prisma.dream.findMany({
       where: { id: { in: dreamIds } },
@@ -292,17 +315,12 @@ async function buildScenarioUpdateInput(
   }
   if ('intros' in body) data.intros = normalizeIntros(body.intros)
 
-  // ← NEW: outputType
   if ('outputType' in body) {
     data.outputType = normalizeOutputType(body.outputType)
   }
 
-  // ← NEW: cast (Json?). Explicit null clears it; object/array sets it.
   if ('cast' in body) {
-    data.cast =
-      body.cast === null
-        ? Prisma.JsonNull
-        : (body.cast as Prisma.InputJsonValue)
+    data.cast = normalizeJsonString(body.cast, 'cast')
   }
 
   if ('imagePath' in body) {
@@ -352,12 +370,12 @@ async function buildScenarioUpdateInput(
     body.compositionIds,
     'compositionIds',
   )
-  const dreamIds = normalizePositiveIdArray(body.dreamIds, 'dreamIds') // ← NEW
+  const dreamIds = normalizePositiveIdArray(body.dreamIds, 'dreamIds')
 
   await assertRelatedRecordsExist({
     characterIds,
     compositionIds,
-    dreamIds, // ← NEW
+    dreamIds,
   })
 
   if (characterIds.length) {
@@ -372,7 +390,6 @@ async function buildScenarioUpdateInput(
     }
   }
 
-  // ← NEW: connect (append) Dreams, matching the characterIds/compositionIds pattern
   if (dreamIds.length) {
     data.Dreams = {
       connect: dreamIds.map((id) => ({ id })),
@@ -457,7 +474,7 @@ export default defineEventHandler(async (event) => {
         },
         Characters: true,
         Compositions: true,
-        Dreams: true, // ← NEW: echo the linked Dreams in the response
+        Dreams: true,
       },
     })
 

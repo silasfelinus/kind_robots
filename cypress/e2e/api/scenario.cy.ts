@@ -1,18 +1,7 @@
 import { createLoggedInTestUser } from '../../support/api-auth'
+
 // cypress/e2e/api/scenario.cy.ts
-
-let userId = 0
-
 describe('Scenario Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
-
   const baseUrl = 'https://kind-robots.vercel.app/api/scenarios'
   const invalidToken = 'someInvalidTokenValue'
   const uniqueScenarioTitle = `Scenario-${Date.now()}`
@@ -21,18 +10,10 @@ describe('Scenario Management API Tests', () => {
   let scenarioId: number | undefined
 
   before(() => {
-    cy.wrap(null).then(() => {
-          })
-  })
-  before(() => {
     createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
+      userToken = auth.token
     })
   })
-
-
-
-
 
   it('should not allow creating a scenario without an authorization token', () => {
     cy.request({

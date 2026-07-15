@@ -1,6 +1,5 @@
 // /server/api/model-builder/runs/index.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import { Prisma } from '~/prisma/generated/prisma/client'
 import type { ModelBuildAction } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -78,10 +77,11 @@ export default defineEventHandler(async (event) => {
       const action = actions.has(item.action as ModelBuildAction)
         ? (item.action as ModelBuildAction)
         : 'ASSET_ONLY'
-      const stageStatuses =
+      const stageStatuses = JSON.stringify(
         item.stageStatuses && typeof item.stageStatuses === 'object'
-          ? (item.stageStatuses as Prisma.InputJsonValue)
-          : ({} as Prisma.InputJsonValue)
+          ? item.stageStatuses
+          : {},
+      )
 
       const text = (value: unknown): string | null =>
         typeof value === 'string' && value.trim() ? value : null
@@ -116,7 +116,7 @@ export default defineEventHandler(async (event) => {
             : null,
         sourceSnapshot:
           body.sourceSnapshot && typeof body.sourceSnapshot === 'object'
-            ? (body.sourceSnapshot as Prisma.InputJsonValue)
+            ? JSON.stringify(body.sourceSnapshot)
             : undefined,
         recipeKey,
         recipeVersion:
@@ -125,7 +125,7 @@ export default defineEventHandler(async (event) => {
             : null,
         selections:
           body.selections && typeof body.selections === 'object'
-            ? (body.selections as Prisma.InputJsonValue)
+            ? JSON.stringify(body.selections)
             : undefined,
         Items: { create: items },
       },

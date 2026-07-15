@@ -1,6 +1,5 @@
 // /server/api/model-builder/items/[id]/artifacts.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import { Prisma } from '~/prisma/generated/prisma/client'
 import type { ModelBuildReviewState } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -80,7 +79,7 @@ export default defineEventHandler(async (event) => {
         height: int(body.height),
         workflow:
           body.workflow && typeof body.workflow === 'object'
-            ? (body.workflow as Prisma.InputJsonValue)
+            ? JSON.stringify(body.workflow)
             : undefined,
         format: str(body.format, 32),
         artImageId: normalizeNullableId(body.artImageId) ?? null,
@@ -91,7 +90,7 @@ export default defineEventHandler(async (event) => {
           : 'PENDING',
         usageInfo:
           body.usageInfo && typeof body.usageInfo === 'object'
-            ? (body.usageInfo as Prisma.InputJsonValue)
+            ? JSON.stringify(body.usageInfo)
             : undefined,
       },
     })

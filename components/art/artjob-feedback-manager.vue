@@ -394,7 +394,7 @@ function jobImageDiag(job: ArtJobRecord): string {
 }
 
 function jobPrompt(job: ArtJobRecord): string {
-  const payload = job.payload || {}
+  const payload: Record<string, unknown> = job.payload || {}
   for (const key of ['promptString', 'artPrompt', 'prompt']) {
     const value = payload[key]
     if (typeof value === 'string' && value.trim()) return value.trim()

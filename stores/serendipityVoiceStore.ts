@@ -10,11 +10,8 @@
 // Commands only toggle reversible visual effects; nothing is written or spent.
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import {
-  useAnimationStore,
-  type AnimationEffectId,
-  type FxRegion,
-} from '@/stores/animationStore'
+import { useAnimationStore } from '@/stores/animationStore'
+import type { AnimationEffectId, FxRegion } from '@/stores/animationCatalog'
 import { useThemeStore } from '@/stores/themeStore'
 
 export type VoiceBusRole = 'voice' | 'view' | 'system'

@@ -1,6 +1,6 @@
 // /server/api/model-builder/items/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import { Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
@@ -55,8 +55,9 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<ItemPatchBody>(event)
     const data: Prisma.ModelBuildItemUncheckedUpdateInput = {}
 
-    if (body.stageStatuses !== undefined && typeof body.stageStatuses === 'object' && body.stageStatuses !== null) {
-      data.stageStatuses = body.stageStatuses as Prisma.InputJsonValue
+    if (body.stageStatuses !== undefined && body.stageStatuses !== null) {
+      const stageStatuses = normalizeJson(body.stageStatuses)
+      if (typeof stageStatuses === 'string') data.stageStatuses = stageStatuses
     }
     if (body.pitch !== undefined) data.pitch = normalizeText(body.pitch)
     if (body.fieldsDraft !== undefined)
@@ -90,20 +91,20 @@ export default defineEventHandler(async (event) => {
     const reason =
       typeof body.reason === 'string' ? body.reason.slice(0, 255) : null
 
-    const previousPayload = {
+    const previousPayload = JSON.stringify({
       pitch: existing.pitch,
       fieldsDraft: existing.fieldsDraft,
       promptDraft: existing.promptDraft,
       stageStatuses: existing.stageStatuses,
       relationshipDraft: existing.relationshipDraft,
-    } as unknown as Prisma.InputJsonValue
-    const nextPayload = {
+    })
+    const nextPayload = JSON.stringify({
       pitch: data.pitch ?? existing.pitch,
       fieldsDraft: data.fieldsDraft ?? existing.fieldsDraft,
       promptDraft: data.promptDraft ?? existing.promptDraft,
       stageStatuses: data.stageStatuses ?? existing.stageStatuses,
       relationshipDraft: data.relationshipDraft ?? existing.relationshipDraft,
-    } as unknown as Prisma.InputJsonValue
+    })
 
     const item = await prisma.$transaction(async (tx) => {
       if (contentChanged) {

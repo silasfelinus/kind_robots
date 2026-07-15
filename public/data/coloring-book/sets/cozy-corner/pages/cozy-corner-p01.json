@@ -1,0 +1,123 @@
+{
+  "id": "cozy-corner/cozy-corner-p01",
+  "version": 1,
+  "title": "Sleepy Cat",
+  "viewBox": { "width": 1700, "height": 2200 },
+  "mode": "svg-regions",
+  "layers": {
+    "decor": "M1150 340V760 M940 550H1360 M560 1290 Q580 1300 600 1290 M640 1290 Q660 1300 680 1290 M480 1330H420 M480 1345H410 M480 1360H420 M760 1330H820 M760 1345H830 M760 1360H820"
+  },
+  "regions": [
+    {
+      "id": "wall",
+      "label": "Wall",
+      "group": "background",
+      "d": "M0 0H1700V1500H0Z"
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "group": "background",
+      "d": "M0 1500 C400 1460 1300 1540 1700 1490 V2200 H0 Z"
+    },
+    {
+      "id": "window-frame",
+      "label": "Window frame",
+      "group": "window",
+      "d": "M960 300 H1300 Q1400 300 1400 400 V700 Q1400 800 1300 800 H960 Q860 800 860 700 V400 Q860 300 960 300 Z"
+    },
+    {
+      "id": "window-glass",
+      "label": "Window glass",
+      "group": "window",
+      "d": "M940 340 H1360 V760 H940 Z"
+    },
+    {
+      "id": "moon",
+      "label": "Moon",
+      "group": "window",
+      "d": "M1200 420 A50 50 0 1 1 1300 420 A50 50 0 1 1 1200 420 Z"
+    },
+    {
+      "id": "cushion",
+      "label": "Cushion",
+      "d": "M400 1650 A300 150 0 1 1 1000 1650 A300 150 0 1 1 400 1650 Z"
+    },
+    {
+      "id": "cat-tail",
+      "label": "Cat tail",
+      "group": "cat",
+      "d": "M960 1500 C1050 1600 1000 1780 850 1800 C700 1820 550 1780 500 1700 C620 1750 780 1740 870 1650 C930 1600 950 1550 960 1500 Z"
+    },
+    {
+      "id": "cat-body",
+      "label": "Cat body",
+      "group": "cat",
+      "d": "M440 1450 A260 220 0 1 1 960 1450 A260 220 0 1 1 440 1450 Z"
+    },
+    {
+      "id": "cat-head",
+      "label": "Cat head",
+      "group": "cat",
+      "d": "M470 1280 A150 150 0 1 1 770 1280 A150 150 0 1 1 470 1280 Z"
+    },
+    {
+      "id": "ear-left",
+      "label": "Left ear",
+      "group": "cat",
+      "d": "M540 1170 L580 1060 L640 1185 Z"
+    },
+    {
+      "id": "ear-right",
+      "label": "Right ear",
+      "group": "cat",
+      "d": "M600 1185 L660 1060 L700 1170 Z"
+    },
+    {
+      "id": "inner-ear-left",
+      "label": "Left inner ear",
+      "d": "M555 1155 L580 1090 L615 1165 Z"
+    },
+    {
+      "id": "inner-ear-right",
+      "label": "Right inner ear",
+      "d": "M615 1165 L655 1090 L680 1155 Z"
+    },
+    {
+      "id": "nose",
+      "label": "Nose",
+      "d": "M600 1330 L640 1330 L620 1360 Z"
+    },
+    {
+      "id": "pot",
+      "label": "Plant pot",
+      "group": "plant",
+      "d": "M150 1900 H350 L320 2050 H180 Z"
+    },
+    {
+      "id": "leaves",
+      "label": "Plant leaves",
+      "group": "plant",
+      "d": "M180 1900 C120 1780 180 1700 250 1750 C260 1650 350 1650 340 1750 C400 1700 440 1800 380 1900 Z"
+    }
+  ],
+  "palette": [
+    { "id": "wall-cream", "name": "Wall Cream", "value": "#f3e6d8" },
+    { "id": "floor-wood", "name": "Floor Wood", "value": "#c8935a" },
+    { "id": "frame-brown", "name": "Frame Brown", "value": "#7a5230" },
+    { "id": "glass-night", "name": "Night Glass", "value": "#2b3a67" },
+    { "id": "moon-yellow", "name": "Moon Yellow", "value": "#f5e396" },
+    { "id": "cushion-plum", "name": "Cushion Plum", "value": "#b06a8f" },
+    { "id": "cat-orange", "name": "Cat Orange", "value": "#e08a3c" },
+    { "id": "ear-pink", "name": "Ear Pink", "value": "#e58fb1" },
+    { "id": "pot-terracotta", "name": "Pot Terracotta", "value": "#c1592f" },
+    { "id": "leaf-green", "name": "Leaf Green", "value": "#4c8c4a" }
+  ],
+  "metadata": {
+    "sourceImage": null,
+    "prompt": "hand-authored placeholder cozy-corner page",
+    "model": "none (hand-authored SVG)",
+    "generatedAt": "2026-07-15T00:00:00Z",
+    "printMaster": null
+  }
+}

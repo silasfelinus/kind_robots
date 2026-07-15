@@ -266,9 +266,10 @@ import type {
   ColoringSetPageRef,
 } from '@/stores/helpers/coloring'
 
-// v1 static registry of shipped sets; generated sets append here (or a
-// directory index replaces this) as coloring-book t-006/t-007 land.
-const SET_SLUGS = ['sampler']
+// Sets are discovered from data/coloring-book/sets/index.json so new sets
+// (coloring-book t-006/t-007 and beyond) can ship without a code change.
+// Falls back to the sampler alone if the index is missing or malformed.
+const FALLBACK_SET_SLUGS = ['sampler']
 const DATA_BASE = '/data/coloring-book/sets'
 
 const coloringStore = useColoringStore()
@@ -295,12 +296,24 @@ function isInProgress(setSlug: string, pageId: string): boolean {
   return coloringStore.inProgressPageIds.includes(`${setSlug}/${pageId}`)
 }
 
+async function loadSetSlugs(): Promise<string[]> {
+  try {
+    const index = await $fetch<{ sets: string[] }>(`${DATA_BASE}/index.json`)
+    return Array.isArray(index?.sets) && index.sets.length
+      ? index.sets
+      : FALLBACK_SET_SLUGS
+  } catch {
+    return FALLBACK_SET_SLUGS
+  }
+}
+
 async function loadSets() {
   loadError.value = ''
 
   try {
+    const slugs = await loadSetSlugs()
     const loaded = await Promise.all(
-      SET_SLUGS.map((slug) =>
+      slugs.map((slug) =>
         $fetch<ColoringSetManifest>(`${DATA_BASE}/${slug}/manifest.json`),
       ),
     )

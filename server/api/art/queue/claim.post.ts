@@ -13,6 +13,10 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import {
+  decodeArtJobPayload,
+  parseArtJobPayload,
+} from '../../../utils/artJobPayload'
 
 const STALE_CLAIM_MINUTES = 15
 const MAX_ATTEMPTS = 3
@@ -44,8 +48,11 @@ export default defineEventHandler(async (event) => {
     const claimedBy = body?.agentId?.trim().slice(0, 255) || 'relay'
 
     const engines = (body?.engines || ['A1111', 'COMFY'])
-      .map((e) => String(e).toUpperCase())
-      .filter((e) => e === 'A1111' || e === 'COMFY') as ('A1111' | 'COMFY')[]
+      .map((engine) => String(engine).toUpperCase())
+      .filter((engine) => engine === 'A1111' || engine === 'COMFY') as (
+      | 'A1111'
+      | 'COMFY'
+    )[]
 
     if (!engines.length) {
       throw createError({ statusCode: 400, message: 'No valid engines given.' })
@@ -97,9 +104,9 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      const payload = candidate.payload as { images?: unknown } | null
+      const payload = parseArtJobPayload(candidate.payload)
       const needsInputImages =
-        Array.isArray(payload?.images) && payload.images.length > 0
+        Array.isArray(payload.images) && payload.images.length > 0
 
       if (needsInputImages && !supportsInputImages) {
         // Leave the job for an image-capable agent instead of failing it.
@@ -129,7 +136,7 @@ export default defineEventHandler(async (event) => {
         return {
           success: true,
           message: 'Job claimed.',
-          data: { job },
+          data: { job: job ? decodeArtJobPayload(job) : null },
           statusCode: 200,
         }
       }

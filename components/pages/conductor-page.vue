@@ -1613,7 +1613,7 @@
               </h4>
               <div class="space-y-2">
                 <div
-                  v-for="task in selectedProject.tasks"
+                  v-for="task in activeTasks"
                   :key="task.id"
                   class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
                 >
@@ -1690,6 +1690,60 @@
                     >
                   </div>
                 </div>
+              </div>
+
+              <!-- COMPLETED TASKS DISCLOSURE, PER MILESTONE (t-015) -->
+              <div v-if="doneTasksByMilestone.length" class="mt-2 space-y-2">
+                <details
+                  v-for="group in doneTasksByMilestone"
+                  :key="group.id"
+                  class="group rounded-2xl border border-base-300 bg-base-200/50"
+                >
+                  <summary
+                    class="flex cursor-pointer list-none items-center gap-2 px-4 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
+                  >
+                    <Icon
+                      name="kind-icon:chevron-right"
+                      class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                    />
+                    <span class="truncate">{{ group.title }}</span>
+                    <span class="text-base-content/40"
+                      >&middot; Completed ({{ group.tasks.length }})</span
+                    >
+                  </summary>
+                  <div class="space-y-1.5 px-3 pb-3 pt-1">
+                    <div
+                      v-for="task in group.tasks"
+                      :key="task.id"
+                      class="flex items-start gap-2 rounded-xl border border-base-300/60 bg-base-100/60 px-3 py-2"
+                    >
+                      <Icon
+                        name="kind-icon:check"
+                        class="mt-0.5 size-3.5 shrink-0 text-success/70"
+                      />
+                      <div class="min-w-0 flex-1">
+                        <p
+                          class="truncate text-xs font-medium text-base-content/70"
+                        >
+                          {{ task.title }}
+                        </p>
+                        <div
+                          class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-base-content/40"
+                        >
+                          <span>{{ task.id }}</span>
+                          <span
+                            v-if="task.gateHuman && task.approvedByHuman"
+                            class="text-success"
+                            >&middot; ✓ approved</span
+                          >
+                          <span v-if="task.updated" class="ml-auto">{{
+                            relativeTime(task.updated)
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </details>
               </div>
             </div>
           </div>
@@ -1944,6 +1998,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type {
   ConductorProject,
+  ConductorTask,
   ConductorPitch,
 } from '@/server/api/conductor/projects.get'
 import {
@@ -2636,6 +2691,38 @@ function taskStatusSummary(project: ConductorProject): [string, number][] {
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
   })
 }
+
+// Completed tasks default to a collapsed "Completed (N)" disclosure grouped
+// per milestone (TASK-SURFACE-SPEC.md section 7); everything else stays flat.
+const activeTasks = computed(
+  () => selectedProject.value?.tasks.filter((t) => t.status !== 'done') ?? [],
+)
+
+const doneTasksByMilestone = computed(() => {
+  const project = selectedProject.value
+  if (!project) return []
+
+  const doneByMilestone = new Map<string, ConductorTask[]>()
+  for (const task of project.tasks) {
+    if (task.status !== 'done') continue
+    const key = task.milestone || ''
+    const bucket = doneByMilestone.get(key)
+    if (bucket) bucket.push(task)
+    else doneByMilestone.set(key, [task])
+  }
+
+  const groups: { id: string; title: string; tasks: ConductorTask[] }[] = []
+  for (const milestone of project.milestones) {
+    const tasks = doneByMilestone.get(milestone.id)
+    if (tasks?.length)
+      groups.push({ id: milestone.id, title: milestone.title, tasks })
+    doneByMilestone.delete(milestone.id)
+  }
+  for (const [key, tasks] of doneByMilestone) {
+    if (tasks.length) groups.push({ id: key || 'other', title: 'Other', tasks })
+  }
+  return groups
+})
 
 function priorityBadgeClass(priority: ProjectPriorityLevel): string {
   if (priority === 'HIGH') return 'badge-error'

@@ -52,7 +52,8 @@ function findDocumentedCallers(): Set<string> {
   const lineRegex = /^\/\/\s+-\s+([\w-]+\.vue):/gm
   let match: RegExpExecArray | null
   while ((match = lineRegex.exec(contents)) !== null) {
-    documented.add(match[1])
+    const filename = match[1]
+    if (filename) documented.add(filename)
   }
   return documented
 }

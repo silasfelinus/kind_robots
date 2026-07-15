@@ -58,6 +58,14 @@ function buildDatabaseUrl(url: string): string {
     process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
     0,
   )
+  const idleTimeout = readPositiveInteger(
+    process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
+    15,
+  )
+  const minimumIdle = readNonNegativeInteger(
+    process.env.DATABASE_MINIMUM_IDLE,
+    0,
+  )
 
   if (!parsed.searchParams.has('connectTimeout')) {
     parsed.searchParams.set('connectTimeout', String(connectTimeout))
@@ -73,6 +81,17 @@ function buildDatabaseUrl(url: string): string {
 
   if (!parsed.searchParams.has('minDelayValidation')) {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
+  }
+
+  // Vercel warm instances may sit idle longer than ProxySQL permits. Retire idle
+  // sockets quickly and allow the tiny pool to reach zero so the next request
+  // creates a fresh connection rather than borrowing two closed sockets.
+  if (!parsed.searchParams.has('idleTimeout')) {
+    parsed.searchParams.set('idleTimeout', String(idleTimeout))
+  }
+
+  if (!parsed.searchParams.has('minimumIdle')) {
+    parsed.searchParams.set('minimumIdle', String(minimumIdle))
   }
 
   return parsed.toString()
@@ -114,7 +133,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const rejectUnauthorized = readSslRejectUnauthorized()
 
   // No CA and full verification requested → nothing to customize; hand the
-  // adapter the plain URL (unchanged default behavior).
+  // adapter the URL with its bounded pool options.
   if (!sslCa && rejectUnauthorized) return resolvedUrl
 
   const parsed = new URL(resolvedUrl)
@@ -162,38 +181,47 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
       parsed.searchParams.get('minDelayValidation') ?? undefined,
       0,
     ),
+    idleTimeout: readPositiveInteger(
+      parsed.searchParams.get('idleTimeout') ?? undefined,
+      15,
+    ),
+    minimumIdle: readNonNegativeInteger(
+      parsed.searchParams.get('minimumIdle') ?? undefined,
+      0,
+    ),
     ssl: tlsOptions,
   }
 }
 
-const retryableDatabaseMessages = [
+const staleConnectionMessages = [
   'Cannot execute new commands: connection closed',
+]
+
+const unavailableDatabaseMessages = [
   'pool timeout: failed to retrieve a connection from pool',
   'Max connect timeout reached',
 ]
 
-// A pool acquisition can consume the full acquireTimeout. Keep the default
-// retry budget within the serverless function deadline instead of allowing the
-// platform to terminate the request before errorHandler can return a 503.
-// One retry, not two: when the wall is down every attempt burns the full
-// acquireTimeout, and a 3x retry turned a single dead request into ~18s of held
-// serverless concurrency — which is what produced the 504 gateway timeouts.
-const transientRetryAttempts = readNonNegativeInteger(
+// Acquisition failures consume the full timeout, so keep that retry budget at
+// one. Closed pooled sockets fail immediately; with a two-slot pool, two fast
+// retries let the adapter discard both stale sockets and create a fresh third
+// connection attempt without extending an outage by several seconds.
+const unavailableRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
   1,
+)
+const staleConnectionRetryAttempts = readNonNegativeInteger(
+  process.env.DATABASE_STALE_CONNECTION_RETRY_ATTEMPTS,
+  2,
 )
 const transientRetryDelayMs = readPositiveInteger(
   process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,
   100,
 )
 
-// Circuit breaker. When the pool cannot hand out a connection (ProxySQL/MariaDB
-// saturated or unreachable), every request otherwise waits the full
-// acquireTimeout before failing. After `breakerThreshold` consecutive connection
-// failures we "open" the breaker for `breakerCooldownMs` and fail fast — freeing
-// serverless slots (no more 504 pile-up) and letting the wall recover instead of
-// being hammered by retries. State is per warm instance, held on globalThis so it
-// survives across invocations on a reused Lambda.
+// Circuit breaker. Only true connection-acquisition outages count toward it.
+// A stale pooled socket is local lifecycle noise and must not poison a warm
+// instance that can recover by borrowing or creating another connection.
 const breakerThreshold = readPositiveInteger(
   process.env.DATABASE_BREAKER_THRESHOLD,
   5,
@@ -207,8 +235,6 @@ const breaker: CircuitBreakerState =
   globalForPrisma.prismaBreaker ?? { failures: 0, openUntil: 0 }
 globalForPrisma.prismaBreaker = breaker
 
-// Message is intentionally one the errorHandler classifies as a transient DB
-// error, so a fast-failed request still returns a clean 503 (not a 500).
 const CIRCUIT_OPEN_MESSAGE =
   'pool timeout: failed to retrieve a connection from pool (circuit open)'
 
@@ -216,8 +242,7 @@ function circuitIsOpen(): boolean {
   if (breaker.openUntil === 0) return false
 
   if (Date.now() >= breaker.openUntil) {
-    // Cooldown elapsed: half-open. Allow the next request through as a probe;
-    // recordSuccess/recordFailure below will close it or re-open it.
+    // Cooldown elapsed: half-open. Allow one probe through.
     breaker.openUntil = 0
     breaker.failures = breakerThreshold - 1
     return false
@@ -231,7 +256,7 @@ function recordConnectionSuccess(): void {
   breaker.openUntil = 0
 }
 
-function recordConnectionFailure(): void {
+function recordAvailabilityFailure(): void {
   breaker.failures += 1
   if (breaker.failures >= breakerThreshold) {
     breaker.openUntil = Date.now() + breakerCooldownMs
@@ -248,9 +273,23 @@ function errorMessage(error: unknown): string {
   return String(error)
 }
 
-function isRetryableDatabaseError(error: unknown): boolean {
+function messageMatches(error: unknown, candidates: string[]): boolean {
   const message = errorMessage(error)
-  return retryableDatabaseMessages.some((candidate) => message.includes(candidate))
+  return candidates.some((candidate) => message.includes(candidate))
+}
+
+function isStaleConnectionError(error: unknown): boolean {
+  return messageMatches(error, staleConnectionMessages)
+}
+
+function isAvailabilityError(error: unknown): boolean {
+  return messageMatches(error, unavailableDatabaseMessages)
+}
+
+function retryLimitFor(error: unknown): number {
+  if (isStaleConnectionError(error)) return staleConnectionRetryAttempts
+  if (isAvailabilityError(error)) return unavailableRetryAttempts
+  return 0
 }
 
 const delay = (milliseconds: number) =>
@@ -267,7 +306,7 @@ export const prisma = basePrisma.$extends({
   name: 'transient-database-retry',
   query: {
     async $allOperations({ model, operation, args, query }) {
-      // Fail fast while the breaker is open instead of blocking on the pool.
+      // Fail fast only for confirmed acquisition outages.
       if (circuitIsOpen()) {
         throw new Error(CIRCUIT_OPEN_MESSAGE)
       }
@@ -278,15 +317,18 @@ export const prisma = basePrisma.$extends({
           recordConnectionSuccess()
           return result
         } catch (error: unknown) {
-          const retryable = isRetryableDatabaseError(error)
-          if (retryable) {
-            recordConnectionFailure()
+          const availabilityError = isAvailabilityError(error)
+          const staleConnectionError = isStaleConnectionError(error)
+          const retryLimit = retryLimitFor(error)
+
+          if (availabilityError) {
+            recordAvailabilityFailure()
           }
 
           if (
-            !retryable ||
-            attempt >= transientRetryAttempts ||
-            circuitIsOpen()
+            (!availabilityError && !staleConnectionError) ||
+            attempt >= retryLimit ||
+            (availabilityError && circuitIsOpen())
           ) {
             throw error
           }
@@ -296,8 +338,9 @@ export const prisma = basePrisma.$extends({
           console.warn('[prisma:transient-retry]', {
             model: model ?? 'raw',
             operation,
+            kind: staleConnectionError ? 'stale-connection' : 'unavailable',
             retry: retryNumber,
-            maxRetries: transientRetryAttempts,
+            maxRetries: retryLimit,
             waitMs,
             message: errorMessage(error),
           })

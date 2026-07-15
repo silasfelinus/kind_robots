@@ -28,10 +28,12 @@ export type TestUserAuth = {
   token: string
 }
 
-export type TestUserRole = 'primary' | 'second' | 'third'
+export type TestUserRole = 'primary' | 'second'
 
 export type CreateLoggedInTestUserOptions = {
+  /** @deprecated The suite now reuses run-scoped identities. */
   fresh?: boolean
+  /** `second` resolves to the existing administrator; it creates no user. */
   role?: TestUserRole
 }
 
@@ -70,26 +72,22 @@ const bodyNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
 }
 
-const seedUserForRole = (seed: {
-  user: TestUserAuth
-  secondUser: TestUserAuth
-  thirdUser: TestUserAuth
-}, role?: TestUserRole) => {
-  if (role === 'second') return seed.secondUser
-  if (role === 'third') return seed.thirdUser
-  return seed.user
-}
-
 export const resetSeedUserCursor = () => {}
 
 export const getApiEnv = () =>
-  cy.env(['API_KEY', 'BETA_ADMIN_TOKEN', 'ADMIN_TOKEN', 'BASE_API_URL']).then((env: CypressApiEnv) => {
-    const apiBase = String(env.BASE_API_URL || defaultApiBase).replace(/\/+$/, '')
-    const adminToken = String(env.ADMIN_TOKEN || env.BETA_ADMIN_TOKEN || env.API_KEY || '')
-    expect(apiBase, 'api base').to.be.a('string').and.not.be.empty
-    expect(adminToken, 'ADMIN_TOKEN, BETA_ADMIN_TOKEN, or API_KEY').to.be.a('string').and.not.be.empty
-    return { apiBase, adminToken }
-  })
+  cy
+    .env(['API_KEY', 'BETA_ADMIN_TOKEN', 'ADMIN_TOKEN', 'BASE_API_URL'])
+    .then((env: CypressApiEnv) => {
+      const apiBase = String(env.BASE_API_URL || defaultApiBase).replace(/\/+$/, '')
+      const adminToken = String(
+        env.ADMIN_TOKEN || env.BETA_ADMIN_TOKEN || env.API_KEY || '',
+      )
+      expect(apiBase, 'api base').to.be.a('string').and.not.be.empty
+      expect(adminToken, 'ADMIN_TOKEN, BETA_ADMIN_TOKEN, or API_KEY')
+        .to.be.a('string')
+        .and.not.be.empty
+      return { apiBase, adminToken }
+    })
 
 export const extractToken = (body: ApiResponse): string => {
   const data = body.data && typeof body.data === 'object' ? dataFromBody(body) : {}
@@ -107,13 +105,16 @@ export const extractUserId = (body: ApiResponse<RegisterUserData>): number => {
   return id as number
 }
 
-export const getSeedTestUser = (role?: TestUserRole) =>
-  cy.task<{
-    user: TestUserAuth
-    secondUser: TestUserAuth
-    thirdUser: TestUserAuth
-  }>('cypressSeed:get').then((seed) => seedUserForRole(seed, role))
+export const getSeedTestUser = (role: TestUserRole = 'primary') =>
+  cy
+    .task<{
+      user: TestUserAuth
+      secondUser: TestUserAuth
+    }>('cypressSeed:get')
+    .then((seed) => (role === 'second' ? seed.secondUser : seed.user))
 
+// Kept as an explicit escape hatch for a future test that truly requires an
+// isolated account. Normal specs must call createLoggedInTestUser().
 export const createFreshLoggedInTestUser = () =>
   getApiEnv().then(({ apiBase, adminToken }) => {
     const stamp = `${Date.now()}-${Cypress._.random(1000, 9999)}`
@@ -121,61 +122,80 @@ export const createFreshLoggedInTestUser = () =>
     const email = `${username}@example.com`
     const password = defaultTestPassword
 
-    return cy.request<ApiResponse<RegisterUserData>>({
-      method: 'POST',
-      url: `${apiBase}/users/register`,
-      headers: adminHeaders(adminToken),
-      body: { username, email, password },
-      failOnStatusCode: false,
-    }).then((registerResponse) => {
-      expect(registerResponse.status, JSON.stringify(registerResponse.body)).to.be.oneOf([200, 201])
-      const id = extractUserId(registerResponse.body)
-
-      // Register immediately after creation. This survives a spec-level failure because
-      // the Node-side after:run cleanup owns the request independently of Mocha hooks.
-      cy.task('cypressCleanup:register', {
-        label: `fresh Cypress user ${id}`,
-        method: 'DELETE',
-        url: `${apiBase}/users/${id}`,
-        headers: adminHeaders(adminToken),
-        expectedStatuses: [200, 202, 204, 404],
-      }, { log: false })
-
-      return cy.request<ApiResponse>({
+    return cy
+      .request<ApiResponse<RegisterUserData>>({
         method: 'POST',
-        url: `${apiBase}/auth/login`,
-        headers: jsonHeaders(),
-        body: { username, password },
+        url: `${apiBase}/users/register`,
+        headers: adminHeaders(adminToken),
+        body: { username, email, password },
         failOnStatusCode: false,
-      }).then((loginResponse) => {
-        expect(loginResponse.status, JSON.stringify(loginResponse.body)).to.eq(200)
-        expect(loginResponse.body.success, JSON.stringify(loginResponse.body)).to.eq(true)
-        const token = extractToken(loginResponse.body)
-        return { id, username, email, password, token } satisfies TestUserAuth
       })
-    })
+      .then((registerResponse) => {
+        expect(
+          registerResponse.status,
+          JSON.stringify(registerResponse.body),
+        ).to.be.oneOf([200, 201])
+        const id = extractUserId(registerResponse.body)
+
+        cy.task(
+          'cypressCleanup:register',
+          {
+            label: `fresh Cypress user ${id}`,
+            method: 'DELETE',
+            url: `${apiBase}/users/${id}`,
+            headers: adminHeaders(adminToken),
+            expectedStatuses: [200, 202, 204, 404],
+          },
+          { log: false },
+        )
+
+        return cy
+          .request<ApiResponse>({
+            method: 'POST',
+            url: `${apiBase}/auth/login`,
+            headers: jsonHeaders(),
+            body: { username, password },
+            failOnStatusCode: false,
+          })
+          .then((loginResponse) => {
+            expect(loginResponse.status, JSON.stringify(loginResponse.body)).to.eq(
+              200,
+            )
+            expect(
+              loginResponse.body.success,
+              JSON.stringify(loginResponse.body),
+            ).to.eq(true)
+            const token = extractToken(loginResponse.body)
+            return { id, username, email, password, token } satisfies TestUserAuth
+          })
+      })
   })
 
-export const createLoggedInTestUser = (options: CreateLoggedInTestUserOptions = {}) => {
-  if (options.fresh) return createFreshLoggedInTestUser()
-  return getSeedTestUser(options.role)
-}
+export const createLoggedInTestUser = (
+  options: CreateLoggedInTestUserOptions = {},
+) => getSeedTestUser(options.role || 'primary')
 
-export const deleteTestUser = (apiBase: string, adminToken: string, userId?: number) => {
+export const deleteTestUser = (
+  apiBase: string,
+  adminToken: string,
+  userId?: number,
+) => {
   if (!userId) return cy.wrap(null)
 
   return cy.task<boolean>('cypressSeed:isSeedUser', userId).then((isSeedUser) => {
     if (isSeedUser) return null
-    return cy.request({
-      method: 'DELETE',
-      url: `${apiBase}/users/${userId}`,
-      headers: adminHeaders(adminToken),
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(
-        response.status,
-        `delete test user ${userId}: ${JSON.stringify(response.body)}`,
-      ).to.be.oneOf([200, 404])
-    })
+    return cy
+      .request({
+        method: 'DELETE',
+        url: `${apiBase}/users/${userId}`,
+        headers: adminHeaders(adminToken),
+        failOnStatusCode: false,
+      })
+      .then((response) => {
+        expect(
+          response.status,
+          `delete test user ${userId}: ${JSON.stringify(response.body)}`,
+        ).to.be.oneOf([200, 404])
+      })
   })
 }

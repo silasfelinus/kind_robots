@@ -14,8 +14,6 @@ export type CypressApiSeedState = {
   apiBase: string
   adminKey: string
   user: CypressApiSeedUser
-  secondUser: CypressApiSeedUser
-  thirdUser: CypressApiSeedUser
   fixtures: Record<string, number | string | boolean | null>
 }
 
@@ -78,7 +76,10 @@ const positiveNumber = (value: unknown): number | undefined => {
 }
 
 const cleanHeaderValue = (value: unknown, maxLength = 220) =>
-  String(value ?? '').replace(/[^\x20-\x7E]/g, ' ').trim().slice(0, maxLength)
+  String(value ?? '')
+    .replace(/[^\x20-\x7E]/g, ' ')
+    .trim()
+    .slice(0, maxLength)
 
 const syntheticHeaders = (spec = 'cypress-seed') => ({
   'x-kindrobots-test-source': cleanHeaderValue(
@@ -98,15 +99,15 @@ const requestAttemptLimit = () => {
 }
 
 const retryDelayMs = (attempt: number) =>
-  Math.min(500 * 2 ** Math.max(0, attempt - 1), 4000)
+  Math.min(500 * 2 ** Math.max(0, attempt - 1), 4_000)
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const responseMessage = (body: ApiResponse) => {
   if (body.message) return body.message
   if (body.error === undefined) return undefined
-
   if (typeof body.error === 'string') return body.error
+
   try {
     return JSON.stringify(body.error)
   } catch {
@@ -210,17 +211,22 @@ const resolveApiBase = (env: Record<string, unknown>) =>
     '',
   )
 
+// ADMIN_TOKEN was previously omitted here, causing local runs to send the
+// normal API_KEY to the admin-only orphan cleanup route and receive a 403.
 const resolveAdminKey = (env: Record<string, unknown>) =>
   String(
-    process.env.BETA_ADMIN_TOKEN ||
-      process.env.API_KEY ||
+    process.env.ADMIN_TOKEN ||
+      process.env.BETA_ADMIN_TOKEN ||
+      env.ADMIN_TOKEN ||
       env.BETA_ADMIN_TOKEN ||
+      process.env.API_KEY ||
       env.API_KEY ||
       '',
-  )
+  ).trim()
 
 const adminHeaders = (adminKey: string) => ({
   'x-api-key': adminKey,
+  'x-admin-token': adminKey,
   'x-beta-admin-token': adminKey,
 })
 
@@ -288,7 +294,8 @@ export const sweepStaleCypressUsers = async (env: Record<string, unknown>) => {
   const apiBase = resolveApiBase(env)
   const adminKey = resolveAdminKey(env)
   if (!adminKey) {
-    throw new Error('Cypress orphan sweep requires API_KEY or BETA_ADMIN_TOKEN.')
+    writeOrphanReport({ ok: false, skipped: true, reason: 'admin token unavailable' })
+    return []
   }
 
   const configuredAge = Number(
@@ -305,7 +312,7 @@ export const sweepStaleCypressUsers = async (env: Record<string, unknown>) => {
       {
         method: 'POST',
         headers: adminHeaders(adminKey),
-        body: JSON.stringify({ maxAgeMs, limit: 50 }),
+        body: JSON.stringify({ maxAgeMs, limit: 10 }),
       },
       'cypress-orphan-sweep',
     )
@@ -315,19 +322,18 @@ export const sweepStaleCypressUsers = async (env: Record<string, unknown>) => {
       cleanup.body.success !== false &&
       (cleanup.body.data?.failed?.length || 0) === 0
 
-    const report = {
+    writeOrphanReport({
       ok,
       maxAgeMs,
       status: cleanup.status,
       data: cleanup.body.data,
       body: cleanup.body,
       attempts: cleanup.attempts,
-    }
-    writeOrphanReport(report)
+    })
 
     if (!ok) {
       console.warn(
-        `[cypress-seed] orphan cleanup unavailable; continuing without blocking tests: ` +
+        '[cypress-seed] orphan cleanup unavailable; continuing without blocking tests: ' +
           `${cleanup.status} ${JSON.stringify(cleanup.body)}`,
       )
     }
@@ -347,9 +353,8 @@ const makeSeedUser = async (
   apiBase: string,
   adminKey: string,
   runId: string,
-  role: string,
 ): Promise<CypressApiSeedUser> => {
-  const username = `cypress-${role}-${runId}`
+  const username = `cypress-user-${runId}`
   const email = `${username}@example.com`
   const password = defaultTestPassword
 
@@ -357,20 +362,19 @@ const makeSeedUser = async (
     `${apiBase}/users/register`,
     {
       method: 'POST',
-      headers: { 'x-api-key': adminKey },
+      headers: adminHeaders(adminKey),
       body: JSON.stringify({ username, email, password }),
     },
-    `cypress-seed-register-${role}`,
+    'cypress-seed-register',
   )
 
   const registrationSucceeded = [200, 201].includes(register.status)
   const registrationAmbiguous =
-    register.status === 409 ||
-    register.attempts.some((attempt) => attempt.retryable)
+    register.status === 409 || register.attempts.some((attempt) => attempt.retryable)
 
   if (!registrationSucceeded && !registrationAmbiguous) {
     throw new Error(
-      `Seed user register failed for ${role}: ${register.status} ` +
+      `Seed user register failed: ${register.status} ` +
         `${JSON.stringify(register.body)} attempts=${JSON.stringify(register.attempts)}`,
     )
   }
@@ -383,14 +387,14 @@ const makeSeedUser = async (
       method: 'POST',
       body: JSON.stringify({ username, password }),
     },
-    `cypress-seed-login-${role}`,
+    'cypress-seed-login',
   )
 
   if (login.status === 200 && login.body.success !== false) {
     if (!id) {
       id = extractUserId(login.body)
       console.warn(
-        `[cypress-seed] recovered ${role} user ${id} after ambiguous registration ` +
+        `[cypress-seed] recovered user ${id} after ambiguous registration ` +
           `(final status ${register.status})`,
       )
     }
@@ -405,14 +409,14 @@ const makeSeedUser = async (
     }
   } catch (rollbackError) {
     throw new Error(
-      `Seed user login failed for ${role}: ${login.status} ${JSON.stringify(login.body)} ` +
+      `Seed user login failed: ${login.status} ${JSON.stringify(login.body)} ` +
         `loginAttempts=${JSON.stringify(login.attempts)}; rollback also failed: ` +
         `${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`,
     )
   }
 
   throw new Error(
-    `Seed user login failed for ${role}: ${login.status} ${JSON.stringify(login.body)} ` +
+    `Seed user login failed: ${login.status} ${JSON.stringify(login.body)} ` +
       `registerAttempts=${JSON.stringify(register.attempts)} ` +
       `loginAttempts=${JSON.stringify(login.attempts)}`,
   )
@@ -421,7 +425,8 @@ const makeSeedUser = async (
 const readSeed = (): CypressApiSeedState | undefined => {
   if (!fs.existsSync(seedFile)) return undefined
   try {
-    return JSON.parse(fs.readFileSync(seedFile, 'utf8')) as CypressApiSeedState
+    const parsed = JSON.parse(fs.readFileSync(seedFile, 'utf8')) as CypressApiSeedState
+    return parsed?.user?.id && parsed?.user?.token ? parsed : undefined
   } catch {
     return undefined
   }
@@ -443,7 +448,9 @@ export const ensureCypressApiSeed = async (env: Record<string, unknown>) => {
   const apiBase = resolveApiBase(env)
   const adminKey = resolveAdminKey(env)
   if (!adminKey) {
-    throw new Error('Cypress API seed requires API_KEY or BETA_ADMIN_TOKEN.')
+    throw new Error(
+      'Cypress API seed requires ADMIN_TOKEN, BETA_ADMIN_TOKEN, or API_KEY.',
+    )
   }
 
   const cached = readSeed()
@@ -452,57 +459,26 @@ export const ensureCypressApiSeed = async (env: Record<string, unknown>) => {
       ? cached
       : undefined
 
-  // A cached seed belongs to a prior interrupted local run. Reuse it rather
-  // than creating three more accounts. Its users are deliberately excluded
-  // from stale maintenance by skipping the sweep on this path.
+  // Reuse a prior interrupted local run rather than creating another account.
   if (reusableCache) {
     memorySeed = reusableCache
     return reusableCache
   }
 
-  const runId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`
-  const created: CypressApiSeedUser[] = []
-  try {
-    created.push(await makeSeedUser(apiBase, adminKey, runId, 'user'))
-    created.push(await makeSeedUser(apiBase, adminKey, runId, 'target'))
-    created.push(await makeSeedUser(apiBase, adminKey, runId, 'third'))
-  } catch (error) {
-    const rollbackFailures: string[] = []
-    for (const user of created.reverse()) {
-      try {
-        await deleteSeedUserById(apiBase, adminKey, user.id)
-      } catch (rollbackError) {
-        rollbackFailures.push(
-          rollbackError instanceof Error
-            ? rollbackError.message
-            : String(rollbackError),
-        )
-      }
-    }
-    if (rollbackFailures.length > 0) {
-      throw new Error(
-        `${error instanceof Error ? error.message : String(error)}; ` +
-          `seed rollback failures=${JSON.stringify(rollbackFailures)}`,
-      )
-    }
-    throw error
-  }
+  const runId = `${Date.now()}-${Math.floor(Math.random() * 10_000)}`
+  const user = await makeSeedUser(apiBase, adminKey, runId)
 
   const seed: CypressApiSeedState = {
     runId,
     apiBase,
     adminKey,
-    user: created[0]!,
-    secondUser: created[1]!,
-    thirdUser: created[2]!,
+    user,
     fixtures: {},
   }
   writeSeed(seed)
   memorySeed = seed
 
-  // Orphan maintenance is deliberately best-effort and happens only after the
-  // required test world exists. A maintenance endpoint outage must not prevent
-  // the actual API test suite from reporting application failures.
+  // Best-effort maintenance runs only after the required test identity exists.
   await sweepStaleCypressUsers(env)
 
   return seed
@@ -513,7 +489,5 @@ export const isSeedUserId = async (
   userId: number,
 ) => {
   const seed = await ensureCypressApiSeed(env)
-  return [seed.user.id, seed.secondUser.id, seed.thirdUser.id].includes(
-    Number(userId),
-  )
+  return seed.user.id === Number(userId)
 }

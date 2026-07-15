@@ -80,11 +80,44 @@ export function normalizeNullableId(value: unknown): number | null | undefined {
   return id
 }
 
-// JSON columns use the tri-state undefined (leave) / null (clear) / value.
-export function normalizeJson(
-  value: unknown,
-): Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined {
+// Structured model-builder fields are stored as JSON text. Preserve already
+// serialized JSON, serialize objects/arrays/scalars, and keep the tri-state
+// undefined (leave unchanged) / null (clear) / string value.
+export function normalizeJson(value: unknown): string | null | undefined {
   if (value === undefined) return undefined
-  if (value === null) return Prisma.JsonNull
-  return value as Prisma.InputJsonValue
+  if (value === null) return null
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+
+    try {
+      JSON.parse(trimmed)
+      return trimmed
+    } catch {
+      return JSON.stringify(trimmed)
+    }
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    throw createError({
+      statusCode: 400,
+      message: 'Expected a JSON-serializable value.',
+    })
+  }
+}
+
+export function parseStoredJson<T = unknown>(
+  value: unknown,
+  fallback: T,
+): T {
+  if (typeof value !== 'string' || !value.trim()) return fallback
+
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return fallback
+  }
 }

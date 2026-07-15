@@ -11,22 +11,36 @@ type CodeCreateBody = Partial<
     | 'title'
     | 'description'
     | 'icon'
-    | 'graph'
     | 'isPublic'
     | 'isOfficial'
     | 'isActive'
   >
->
+> & {
+  graph?: unknown
+}
 
-function normalizeGraph(graph: unknown): Prisma.InputJsonValue {
-  if (!graph || typeof graph !== 'object') {
+function normalizeGraph(graph: unknown): string {
+  let parsed = graph
+
+  if (typeof graph === 'string') {
+    try {
+      parsed = JSON.parse(graph)
+    } catch {
+      throw createError({
+        statusCode: 400,
+        message: 'The graph field must contain valid JSON.',
+      })
+    }
+  }
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw createError({
       statusCode: 400,
       message: 'A valid graph object is required.',
     })
   }
 
-  return graph as Prisma.InputJsonValue
+  return typeof graph === 'string' ? graph : JSON.stringify(parsed)
 }
 
 export default defineEventHandler(async (event) => {

@@ -1,5 +1,26 @@
 [
   {
+    "folderName": "academy",
+    "components": [
+      "academy-manager",
+      "academy-remix",
+      "academy-style-detail",
+      "academy-styles-browser",
+      "academy-timeline"
+    ]
+  },
+  {
+    "folderName": "achievements",
+    "components": [
+      "achievement-gallery",
+      "achievement-leaderboard",
+      "achievement-popup",
+      "earned-achievement-card",
+      "locked-achievements",
+      "unearned-achievement-card"
+    ]
+  },
+  {
     "folderName": "admin",
     "components": [
       "error-popup",
@@ -21,12 +42,20 @@
       "art-reactions",
       "art-styler",
       "art-test",
+      "artjob-feedback-manager",
+      "artjob-manager",
       "collection-card",
       "collection-picker",
       "generate-button",
       "image-card",
       "image-upload",
-      "list-manager"
+      "list-manager",
+      "stylist-calculator",
+      "stylist-clients",
+      "stylist-history",
+      "stylist-manager",
+      "stylist-restyle",
+      "stylist-settings"
     ]
   },
   {
@@ -122,6 +151,14 @@
     ]
   },
   {
+    "folderName": "coloring",
+    "components": [
+      "coloring-book-manager",
+      "coloring-book-page",
+      "coloring-canvas"
+    ]
+  },
+  {
     "folderName": "composition",
     "components": [
       "add-composition",
@@ -129,6 +166,28 @@
       "composition-gallery",
       "composition-interact",
       "composition-manager"
+    ]
+  },
+  {
+    "folderName": "conductor",
+    "components": [
+      "challenge-center-page",
+      "coat-dance-page",
+      "conductor-app-page",
+      "davinci-page",
+      "humboldt-scoop-page",
+      "newsfeed-page",
+      "packmaker-page",
+      "project-deliverables-panel",
+      "project-front-page",
+      "project-gallery-strip",
+      "project-pitch-board",
+      "ruler-hooked-page",
+      "scoop-cms-page",
+      "sketchy-page",
+      "storymaker-page",
+      "voice-lab-page",
+      "watchlist-page"
     ]
   },
   {
@@ -146,8 +205,14 @@
       "dream-pitch-sheet",
       "dream-relationship-gallery",
       "dream-sheet-toolbar",
-      "dream-workspace",
-      "project-card"
+      "dream-workspace"
+    ]
+  },
+  {
+    "folderName": "facets",
+    "components": [
+      "facet-manager",
+      "facet-picker"
     ]
   },
   {
@@ -184,14 +249,14 @@
     ]
   },
   {
-    "folderName": "achievements",
+    "folderName": "model-builder",
     "components": [
-      "earned-achievement-card",
-      "locked-achievements",
-      "achievement-gallery",
-      "achievement-leaderboard",
-      "achievement-popup",
-      "unearned-achievement-card"
+      "model-builder-item-panel",
+      "model-builder-manager",
+      "model-builder-progress-matrix",
+      "model-builder-recipe-selector",
+      "model-builder-run-history",
+      "model-builder-source-picker"
     ]
   },
   {
@@ -204,6 +269,8 @@
       "login-switcher",
       "mana-widget",
       "narrator-chat",
+      "navigation-health",
+      "notification-bell",
       "page-image",
       "server-selector",
       "slot-reel-gallery",
@@ -226,7 +293,10 @@
       "conductor-manager",
       "conductor-overview-gallery-page",
       "conductor-page",
+      "conductor-pitch-manager",
       "conductor-project-chat",
+      "daily-dream-page",
+      "giving-page",
       "kaizen-popup",
       "kind-prompts",
       "match-leaderboard",
@@ -237,11 +307,18 @@
       "rebel-button",
       "registration-form",
       "serendipity-page",
+      "serendipity-voice-page",
       "social-page",
       "sponsor-page",
       "super-form",
       "welcome-page",
       "wishmaster-page"
+    ]
+  },
+  {
+    "folderName": "projects",
+    "components": [
+      "project-placement-manager"
     ]
   },
   {
@@ -276,8 +353,10 @@
       "animation-interact",
       "animation-layer",
       "animation-loader",
+      "animation-selector",
       "animation-tester",
       "ascii-aquarium",
+      "bioluminescent-tide",
       "bubble-effect",
       "butterfly-animation",
       "constellation-effect",
@@ -290,6 +369,7 @@
       "fx-clear-all",
       "fx-region",
       "glitch-effect",
+      "gravity-garden",
       "kaleidoscope-effect",
       "lava-lamp",
       "lightning-effect",
@@ -308,6 +388,7 @@
       "smudge-effect",
       "snow-effect",
       "starfield-effect",
+      "startup-animation",
       "talking-butterflies",
       "toaster-effect",
       "wandering-creatures",
@@ -350,8 +431,16 @@
     ]
   },
   {
+    "folderName": "ui",
+    "components": [
+      "section-heading",
+      "ui-gallery"
+    ]
+  },
+  {
     "folderName": "user",
     "components": [
+      "account-settings",
       "avatar-image",
       "avatar-picker",
       "cache-clear",
@@ -360,15 +449,19 @@
       "chat-view",
       "forum-thread",
       "friend-gallery",
+      "friends-panel",
       "google-login",
       "login-form",
       "login-page",
       "login-persister",
+      "messenger",
+      "password-reset",
       "registration-page",
       "user-avatar",
       "user-builder",
       "user-dashboard",
       "user-galleries",
+      "user-manager-directory",
       "user-manager",
       "user-panel",
       "user-picture"
@@ -383,6 +476,7 @@
       "lab-gallery",
       "lab-interact",
       "lab-manager",
+      "mural-manager",
       "new-eyeball",
       "reactable-card",
       "reaction-card"

@@ -14,9 +14,9 @@ type ScenarioPostInput = {
   slug?: unknown
   description?: unknown
   intros?: unknown
-  outputType?: unknown // ← NEW
-  cast?: unknown // ← NEW
-  dreamIds?: unknown // ← NEW
+  outputType?: unknown
+  cast?: unknown
+  dreamIds?: unknown
   artImageId?: unknown
   imagePath?: unknown
   locations?: unknown
@@ -43,7 +43,6 @@ type FailedScenario = {
   message: string
 }
 
-// ── NEW: outputType enum guard ──────────────────────────────────────────────
 const scenarioOutputTypes: ScenarioOutputType[] = [
   'STORY',
   'ART',
@@ -60,7 +59,6 @@ function normalizeOutputType(value: unknown): ScenarioOutputType {
     : 'STORY'
 }
 
-// ── NEW: dreamIds array guard (positive ints, deduped) ──────────────────────
 function normalizeIdArray(value: unknown): number[] {
   if (!Array.isArray(value)) return []
 
@@ -112,7 +110,6 @@ function normalizeBoolean(value: unknown, fallback: boolean): boolean {
   if (typeof value === 'boolean') return value
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase()
-
     if (normalized === 'true') return true
     if (normalized === 'false') return false
   }
@@ -147,18 +144,15 @@ function normalizeIntros(value: unknown): string {
 
   if (typeof value === 'string') {
     const trimmed = value.trim()
-
     if (!trimmed) return '[]'
 
     try {
       const parsed = JSON.parse(trimmed)
-
       if (Array.isArray(parsed)) {
         return JSON.stringify(
           parsed.map((entry) => String(entry).trim()).filter(Boolean),
         )
       }
-
       return JSON.stringify([trimmed])
     } catch {
       return JSON.stringify(
@@ -177,7 +171,6 @@ function normalizeOptionalId(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined
 
   const id = Number(value)
-
   if (!Number.isInteger(id) || id <= 0) {
     throw createError({
       statusCode: 400,
@@ -193,6 +186,11 @@ function getErrorMessage(error: unknown): string {
   return 'Unknown scenario seed error.'
 }
 
+function isInfrastructureError(error: unknown): boolean {
+  const handled = errorHandler(error)
+  return Number(handled.statusCode) >= 500
+}
+
 function buildScenarioCreateInput(
   scenarioData: ScenarioPostInput,
   authenticatedUserId: number,
@@ -200,7 +198,7 @@ function buildScenarioCreateInput(
   const title = normalizeRequiredString(scenarioData.title, 'title')
   const artImageId = normalizeOptionalId(scenarioData.artImageId)
   const difficulty = normalizeNullableInteger(scenarioData.difficulty)
-  const dreamIds = normalizeIdArray(scenarioData.dreamIds) // ← NEW
+  const dreamIds = normalizeIdArray(scenarioData.dreamIds)
 
   return {
     User: { connect: { id: authenticatedUserId } },
@@ -208,14 +206,13 @@ function buildScenarioCreateInput(
     slug: normalizeSlugInput(scenarioData.slug) ?? undefined,
     description: normalizeString(scenarioData.description),
     intros: normalizeIntros(scenarioData.intros),
-    outputType: normalizeOutputType(scenarioData.outputType), // ← NEW
-    // cast is Json?: undefined leaves it unset; explicit null clears it.
+    outputType: normalizeOutputType(scenarioData.outputType),
     cast:
       scenarioData.cast === undefined
         ? undefined
         : scenarioData.cast === null
           ? Prisma.JsonNull
-          : (scenarioData.cast as Prisma.InputJsonValue), // ← NEW
+          : (scenarioData.cast as Prisma.InputJsonValue),
     imagePath: normalizeNullableString(scenarioData.imagePath),
     locations: normalizeNullableString(scenarioData.locations),
     artPrompt: normalizeNullableString(scenarioData.artPrompt),
@@ -229,7 +226,6 @@ function buildScenarioCreateInput(
     group: normalizeNullableString(scenarioData.group),
     secretNotes: normalizeNullableString(scenarioData.secretNotes),
     ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
-    // ← NEW: link Dreams from the scenario side (M2M "DreamToScenario")
     ...(dreamIds.length
       ? { Dreams: { connect: dreamIds.map((id) => ({ id })) } }
       : {}),
@@ -238,14 +234,8 @@ function buildScenarioCreateInput(
 
 async function findExistingScenario(title: string, userId: number) {
   return await prisma.scenario.findFirst({
-    where: {
-      title,
-      userId,
-    },
-    select: {
-      id: true,
-      title: true,
-    },
+    where: { title, userId },
+    select: { id: true, title: true },
   })
 }
 
@@ -263,10 +253,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<ScenarioPostInput | ScenarioPostInput[]>(event)
 
     if (!body) {
-      throw createError({
-        statusCode: 400,
-        message: 'Request body is required.',
-      })
+      throw createError({ statusCode: 400, message: 'Request body is required.' })
     }
 
     const isBatch = Array.isArray(body)
@@ -292,7 +279,6 @@ export default defineEventHandler(async (event) => {
       try {
         const createInput = buildScenarioCreateInput(scenarioData, user.id)
         const title = createInput.title
-
         const existingScenario = await findExistingScenario(title, user.id)
 
         if (existingScenario) {
@@ -308,20 +294,20 @@ export default defineEventHandler(async (event) => {
           data: createInput,
           include: {
             ArtImage: true,
-            User: {
-              select: {
-                id: true,
-                username: true,
-              },
-            },
+            User: { select: { id: true, username: true } },
             Characters: true,
             Compositions: true,
-            Dreams: true, // ← NEW: echo the linked Dreams in the response
+            Dreams: true,
           },
         })
 
         created.push(createdScenario)
       } catch (error) {
+        // Validation/duplicate problems can be reported per item in a batch.
+        // Database/network failures affect the whole request and must preserve
+        // their 5xx status instead of being mislabeled as HTTP 400.
+        if (isInfrastructureError(error)) throw error
+
         failed.push({
           title: fallbackTitle,
           message: getErrorMessage(error),
@@ -331,14 +317,9 @@ export default defineEventHandler(async (event) => {
 
     if (failed.length && !created.length && !skipped.length) {
       event.node.res.statusCode = 400
-
       return {
         success: false,
-        data: {
-          created,
-          skipped,
-          failed,
-        },
+        data: { created, skipped, failed },
         message: `No scenarios were created. ${failed.length} failed.`,
       }
     }
@@ -348,11 +329,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: failed.length === 0,
       data: isBatch
-        ? {
-            created,
-            skipped,
-            failed,
-          }
+        ? { created, skipped, failed }
         : created[0] || skipped[0] || failed[0],
       message: isBatch
         ? `${created.length} created, ${skipped.length} skipped, ${failed.length} failed.`
@@ -364,7 +341,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
-
     event.node.res.statusCode = statusCode || 500
 
     return {

@@ -5,13 +5,11 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import type { ExpressionMedia, Prisma } from '~/prisma/generated/prisma/client'
 
-// Allow up to 60s on Vercel (Pro). Harmless on platforms that ignore it.
 export const config = {
   maxDuration: 60,
 }
 
 const EXPRESSIONS = [
-  // ── Emotions (face-only) ──
   'NEUTRAL',
   'JOYFUL',
   'SORROWFUL',
@@ -22,7 +20,6 @@ const EXPRESSIONS = [
   'ANXIOUS',
   'PROUD',
   'LOVING',
-  // ── Actions (pose/state) ──
   'LAUGHING',
   'CRYING',
   'SLEEPING',
@@ -33,9 +30,9 @@ const EXPRESSIONS = [
   'CHEERING',
   'WHISPERING',
   'SHOUTING',
-  // ── Custom escape hatch ──
   'CUSTOM',
 ] as const
+
 type ExpressionValue = (typeof EXPRESSIONS)[number]
 const EXPRESSION_SET = new Set<string>(EXPRESSIONS)
 
@@ -43,8 +40,6 @@ const KINDS = ['EMOTION', 'ACTION'] as const
 type KindValue = (typeof KINDS)[number]
 const KIND_SET = new Set<string>(KINDS)
 
-// How many upserts to run per interactive transaction. Keeps any single
-// transaction well under both Prisma's and the platform's timeouts.
 const CHUNK_SIZE = 25
 
 type ExpressionBatchRow = Partial<ExpressionMedia> & {
@@ -53,6 +48,7 @@ type ExpressionBatchRow = Partial<ExpressionMedia> & {
   expression?: unknown
   kind?: unknown
   expressionKey?: unknown
+  additionalPhrases?: unknown
 }
 
 type ExpressionBatchBody =
@@ -89,6 +85,15 @@ function getKindOrUndefined(value: unknown): KindValue | undefined {
     : undefined
 }
 
+function serializeAdditionalPhrases(
+  value: unknown,
+): string | null | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return null
+  if (typeof value === 'string') return value
+  return JSON.stringify(value)
+}
+
 function getBatchPayload(body: ExpressionBatchBody): {
   dryRun: boolean
   rows: ExpressionBatchRow[]
@@ -96,13 +101,13 @@ function getBatchPayload(body: ExpressionBatchBody): {
   if (Array.isArray(body)) {
     return { dryRun: false, rows: body }
   }
+
   return {
     dryRun: body?.dryRun === true,
     rows: Array.isArray(body?.expressions) ? body.expressions : [],
   }
 }
 
-// Shared writable fields for both create and update halves of an upsert.
 function getWritableData(row: ExpressionBatchRow) {
   const artImageId = getPositiveIntegerOrUndefined(row.artImageId)
 
@@ -117,10 +122,7 @@ function getWritableData(row: ExpressionBatchRow) {
     designer: getStringOrUndefined(row.designer),
     artPrompt: getStringOrUndefined(row.artPrompt),
     isActive: getBooleanOrUndefined(row.isActive),
-    additionalPhrases:
-      row.additionalPhrases === undefined
-        ? undefined
-        : (row.additionalPhrases as Prisma.InputJsonValue),
+    additionalPhrases: serializeAdditionalPhrases(row.additionalPhrases),
     ArtImage:
       row.artImageId === null
         ? { disconnect: true }
@@ -169,17 +171,17 @@ async function assertRelatedRecordsExist(options: {
   assertFound(
     'Bot',
     options.botIds,
-    bots.map((b) => b.id),
+    bots.map((bot) => bot.id),
   )
   assertFound(
     'Character',
     options.characterIds,
-    characters.map((c) => c.id),
+    characters.map((character) => character.id),
   )
   assertFound(
     'ArtImage',
     options.artImageIds,
-    artImages.map((a) => a.id),
+    artImages.map((artImage) => artImage.id),
   )
 }
 
@@ -215,7 +217,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // ── Validate every row up front; collect normalized work + relation ids. ──
     type Normalized = {
       index: number
       botId?: number
@@ -233,7 +234,6 @@ export default defineEventHandler(async (event) => {
       const botId = getPositiveIntegerOrUndefined(row.botId)
       const characterId = getPositiveIntegerOrUndefined(row.characterId)
 
-      // Exactly one owner.
       if ((botId && characterId) || (!botId && !characterId)) {
         throw createError({
           statusCode: 400,
@@ -265,25 +265,27 @@ export default defineEventHandler(async (event) => {
 
       if (botId) botIds.add(botId)
       if (characterId) characterIds.add(characterId)
-      const aiId = getPositiveIntegerOrUndefined(row.artImageId)
-      if (aiId) artImageIds.add(aiId)
+      const artImageId = getPositiveIntegerOrUndefined(row.artImageId)
+      if (artImageId) artImageIds.add(artImageId)
 
       normalized.push({ index, botId, characterId, expressionKey, data })
     })
 
-    // Guard against duplicate (owner, key) pairs within the same batch —
-    // they'd race on the unique constraint inside one transaction.
     const seen = new Set<string>()
-    for (const n of normalized) {
-      const owner = n.botId ? `bot:${n.botId}` : `char:${n.characterId}`
-      const dupKey = `${owner}|${n.expressionKey}`
-      if (seen.has(dupKey)) {
+    for (const normalizedRow of normalized) {
+      const owner = normalizedRow.botId
+        ? `bot:${normalizedRow.botId}`
+        : `char:${normalizedRow.characterId}`
+      const duplicateKey = `${owner}|${normalizedRow.expressionKey}`
+
+      if (seen.has(duplicateKey)) {
         throw createError({
           statusCode: 400,
-          message: `Duplicate (owner, expressionKey) in batch: ${dupKey}.`,
+          message: `Duplicate (owner, expressionKey) in batch: ${duplicateKey}.`,
         })
       }
-      seen.add(dupKey)
+
+      seen.add(duplicateKey)
     }
 
     await assertRelatedRecordsExist({
@@ -297,17 +299,18 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         message: `Dry run: ${normalized.length} expression rows are valid.`,
-        data: normalized.map((n) => ({
-          owner: n.botId ? { botId: n.botId } : { characterId: n.characterId },
-          expressionKey: n.expressionKey,
-          expression: n.data.expression,
-          kind: n.data.kind,
+        data: normalized.map((normalizedRow) => ({
+          owner: normalizedRow.botId
+            ? { botId: normalizedRow.botId }
+            : { characterId: normalizedRow.characterId },
+          expressionKey: normalizedRow.expressionKey,
+          expression: normalizedRow.data.expression,
+          kind: normalizedRow.data.kind,
         })),
         statusCode: 200,
       }
     }
 
-    // ── Build one upsert arg per row, keyed on its compound unique. ──
     const select = {
       id: true,
       botId: true,
@@ -322,67 +325,67 @@ export default defineEventHandler(async (event) => {
       updatedAt: true,
     } satisfies Prisma.ExpressionMediaSelect
 
-    const buildUpsertArgs = (n: Normalized) => {
-      const where: Prisma.ExpressionMediaWhereUniqueInput = n.botId
+    const buildUpsertArgs = (normalizedRow: Normalized) => {
+      const where: Prisma.ExpressionMediaWhereUniqueInput = normalizedRow.botId
         ? {
             botId_expressionKey: {
-              botId: n.botId,
-              expressionKey: n.expressionKey,
+              botId: normalizedRow.botId,
+              expressionKey: normalizedRow.expressionKey,
             },
           }
         : {
             characterId_expressionKey: {
-              characterId: n.characterId as number,
-              expressionKey: n.expressionKey,
+              characterId: normalizedRow.characterId as number,
+              expressionKey: normalizedRow.expressionKey,
             },
           }
 
-      const owner = n.botId
-        ? { Bot: { connect: { id: n.botId } } }
-        : { Character: { connect: { id: n.characterId as number } } }
+      const owner = normalizedRow.botId
+        ? { Bot: { connect: { id: normalizedRow.botId } } }
+        : {
+            Character: {
+              connect: { id: normalizedRow.characterId as number },
+            },
+          }
 
-      // expression/kind are guaranteed defined past validation.
       const create: Prisma.ExpressionMediaCreateInput = {
-        expressionKey: n.expressionKey,
-        expression: n.data.expression!,
-        kind: n.data.kind!,
-        label: n.data.label,
-        emoticon: n.data.emoticon,
-        imagePath: n.data.imagePath,
-        videoPath: n.data.videoPath,
-        message: n.data.message,
-        designer: n.data.designer,
-        artPrompt: n.data.artPrompt,
-        isActive: n.data.isActive ?? true,
-        additionalPhrases: n.data.additionalPhrases,
+        expressionKey: normalizedRow.expressionKey,
+        expression: normalizedRow.data.expression!,
+        kind: normalizedRow.data.kind!,
+        label: normalizedRow.data.label,
+        emoticon: normalizedRow.data.emoticon,
+        imagePath: normalizedRow.data.imagePath,
+        videoPath: normalizedRow.data.videoPath,
+        message: normalizedRow.data.message,
+        designer: normalizedRow.data.designer,
+        artPrompt: normalizedRow.data.artPrompt,
+        isActive: normalizedRow.data.isActive ?? true,
+        additionalPhrases: normalizedRow.data.additionalPhrases,
         ...owner,
-        ...(n.data.ArtImage && 'connect' in n.data.ArtImage
-          ? { ArtImage: n.data.ArtImage }
+        ...(normalizedRow.data.ArtImage &&
+        'connect' in normalizedRow.data.ArtImage
+          ? { ArtImage: normalizedRow.data.ArtImage }
           : {}),
       }
 
       const update: Prisma.ExpressionMediaUpdateInput = {
-        expression: n.data.expression,
-        kind: n.data.kind,
-        label: n.data.label,
-        emoticon: n.data.emoticon,
-        imagePath: n.data.imagePath,
-        videoPath: n.data.videoPath,
-        message: n.data.message,
-        designer: n.data.designer,
-        artPrompt: n.data.artPrompt,
-        isActive: n.data.isActive,
-        additionalPhrases: n.data.additionalPhrases,
-        ArtImage: n.data.ArtImage,
+        expression: normalizedRow.data.expression,
+        kind: normalizedRow.data.kind,
+        label: normalizedRow.data.label,
+        emoticon: normalizedRow.data.emoticon,
+        imagePath: normalizedRow.data.imagePath,
+        videoPath: normalizedRow.data.videoPath,
+        message: normalizedRow.data.message,
+        designer: normalizedRow.data.designer,
+        artPrompt: normalizedRow.data.artPrompt,
+        isActive: normalizedRow.data.isActive,
+        additionalPhrases: normalizedRow.data.additionalPhrases,
+        ArtImage: normalizedRow.data.ArtImage,
       }
 
       return { where, create, update, select }
     }
 
-    // ── Upsert in chunks. Each chunk is its own transaction, so no single
-    //    transaction can outlast the timeout. Upserts are idempotent, so a
-    //    failure mid-run leaves prior chunks committed and is safely resumable
-    //    by re-sending the same payload. ──
     type UpsertResult = Prisma.ExpressionMediaGetPayload<{
       select: typeof select
     }>
@@ -394,7 +397,9 @@ export default defineEventHandler(async (event) => {
         const slice = normalized.slice(start, start + CHUNK_SIZE)
 
         const chunkResults = await prisma.$transaction(
-          slice.map((n) => prisma.expressionMedia.upsert(buildUpsertArgs(n))),
+          slice.map((normalizedRow) =>
+            prisma.expressionMedia.upsert(buildUpsertArgs(normalizedRow)),
+          ),
           { timeout: 30000 },
         )
 
@@ -402,7 +407,6 @@ export default defineEventHandler(async (event) => {
         committedChunks += 1
       }
     } catch (chunkError) {
-      // Surface partial progress so the caller knows how much landed.
       const { message, statusCode } = errorHandler(chunkError)
       event.node.res.statusCode = statusCode || 500
 

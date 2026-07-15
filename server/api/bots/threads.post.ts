@@ -1,17 +1,13 @@
 // server/api/bots/threads.post.ts
 import { defineEventHandler, readBody } from 'h3'
-import { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
 import { errorHandler } from '../../utils/error'
 
-// Allow up to 60s on Vercel (Pro). Harmless on platforms that ignore it.
 export const config = {
   maxDuration: 60,
 }
 
-// How many upserts to run per interactive transaction. Keeps any single
-// transaction well under both Prisma's and the platform's timeouts.
 const CHUNK_SIZE = 25
 
 type StarterPrompt = {
@@ -159,7 +155,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // ── Build one upsert arg per valid row, keyed on its compound unique. ──
     const buildUpsertArgs = ({
       botId,
       topicId,
@@ -173,8 +168,8 @@ export default defineEventHandler(async (event) => {
         input.starterPrompts === undefined
           ? undefined
           : input.starterPrompts === null
-            ? Prisma.DbNull
-            : (input.starterPrompts as Prisma.InputJsonValue)
+            ? null
+            : JSON.stringify(input.starterPrompts)
 
       const data = {
         title: input.title ?? null,
@@ -192,10 +187,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // ── Upsert in chunks. Each chunk is its own transaction, so no single
-    //    transaction can outlast the timeout. Upserts are idempotent, so a
-    //    failure mid-run leaves prior chunks committed and is safely resumable
-    //    by re-sending the same payload. ──
     const results = []
     let committedChunks = 0
 

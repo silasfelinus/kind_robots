@@ -8,7 +8,7 @@ on:
       max_wait_seconds:
         description: 'Max seconds to wait for the pushed commit to go live on Vercel before running tests'
         required: false
-        default: '600'
+        default: '1200'
 
 concurrency:
   group: cypress-${{ github.ref }}
@@ -37,7 +37,7 @@ jobs:
         env:
           BASE_URL: https://kind-robots.vercel.app
           TARGET_SHA: ${{ github.sha }}
-          MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '600' }}
+          MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '1200' }}
         run: |
           echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA}..."
           deadline=$(( $(date +%s) + MAX_WAIT ))
@@ -80,6 +80,7 @@ jobs:
           exit 1
 
       - name: Run Cypress tests
+        id: cypress
         uses: cypress-io/github-action@v6
         with:
           install: false
@@ -95,7 +96,10 @@ jobs:
           CYPRESS_SYNTHETIC_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Verify Cypress cleanup
-        if: always()
+        # Only meaningful when Cypress actually ran. When an earlier gate (deploy
+        # wait / DB readiness) fails, the test step is skipped and produces no
+        # reports — running verify then just masks the real failure.
+        if: always() && steps.cypress.outcome != 'skipped'
         run: node scripts/verify-cypress-cleanup.mjs
 
       - name: Upload Cypress diagnostic reports

@@ -8,7 +8,6 @@
 // and scripts/generate_davinci_endings.py: outcomeKey[i] is DIMENSIONS[i],
 // '1' = pass. Do not reorder without migrating the seeded endings.
 
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 
 export const DAVINCI_DIMENSIONS = [
@@ -104,7 +103,7 @@ export async function resolveLifeRunEnding(
         outcomeKey,
         endingId: ending.id,
         status: 'COMPLETE',
-        statsSnapshot: stats as Prisma.InputJsonValue,
+        statsSnapshot: JSON.stringify(stats),
       },
     })
 
@@ -154,7 +153,7 @@ export async function resolveLifeRunEnding(
             achievementId: lifeAchievement.id,
             lifeRunId: run.id,
             achievementRecordId,
-            data: { outcomeKey },
+            data: JSON.stringify({ outcomeKey }),
           },
         })
         unlockId = unlock.id
@@ -295,7 +294,7 @@ export async function recordLifeChoice(
         prompt,
         choiceText,
         resultText: input.resultText ?? null,
-        effects: effects as Prisma.InputJsonValue,
+        effects: JSON.stringify(effects),
         chatId: input.chatId ?? null,
       },
     })

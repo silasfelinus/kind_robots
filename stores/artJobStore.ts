@@ -55,7 +55,10 @@ export type ArtJobPayload = Prisma.JsonObject & {
   retry?: ArtJobRetry
 }
 
-export type ArtJobRecord = Omit<ArtJob, 'payload'> & {
+// The database column is string-backed, while queue API responses decode that
+// JSON for consumers. Intersect with the Prisma model so transport records stay
+// assignable anywhere that only needs the regular ArtJob scalar fields.
+export type ArtJobRecord = ArtJob & {
   payload: ArtJobPayload
 }
 

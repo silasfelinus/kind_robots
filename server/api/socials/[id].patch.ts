@@ -3,7 +3,11 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { Prisma, SocialPlatform, TargetStatus } from '~/prisma/generated/prisma/client'
+import type {
+  Prisma,
+  SocialPlatform,
+  TargetStatus,
+} from '~/prisma/generated/prisma/client'
 
 type PatchBody = Partial<{
   title: string
@@ -14,9 +18,24 @@ type PatchBody = Partial<{
   sourceType: string | null
   sourceId: number | null
   designer: string | null
-  platforms: SocialPlatform[] // resync target set
-  targetUpdate: { platform: SocialPlatform; status: TargetStatus } // single target
+  platforms: SocialPlatform[]
+  targetUpdate: { platform: SocialPlatform; status: TargetStatus }
 }>
+
+function serializeMediaUrls(value: unknown): string | null {
+  if (value == null) return null
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return JSON.stringify(
+      value.filter((item): item is string => typeof item === 'string'),
+    )
+  }
+
+  throw createError({
+    statusCode: 400,
+    message: 'The "mediaUrls" field must be a string or an array of strings.',
+  })
+}
 
 export default defineEventHandler(async (event) => {
   let id: number | undefined
@@ -57,7 +76,6 @@ export default defineEventHandler(async (event) => {
 
     const { platforms, targetUpdate, mediaUrls, ...scalarRaw } = patch
 
-    // Update a single child target's status (e.g. Mark Copied).
     if (targetUpdate?.platform && targetUpdate?.status) {
       await prisma.socialTarget.updateMany({
         where: { postId: id, platform: targetUpdate.platform },
@@ -65,20 +83,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Resync the set of target platforms if provided.
     if (Array.isArray(platforms)) {
       const wanted = Array.from(new Set(platforms))
       const current = await prisma.socialTarget.findMany({
         where: { postId: id },
         select: { platform: true },
       })
-      const currentSet = new Set(current.map((t) => t.platform))
-      const toAdd = wanted.filter((p) => !currentSet.has(p))
-      const toRemove = [...currentSet].filter((p) => !wanted.includes(p))
+      const currentSet = new Set(current.map((target) => target.platform))
+      const toAdd = wanted.filter((platform) => !currentSet.has(platform))
+      const toRemove = [...currentSet].filter(
+        (platform) => !wanted.includes(platform),
+      )
 
       if (toAdd.length) {
         await prisma.socialTarget.createMany({
-          data: toAdd.map((platform) => ({ postId: id!, platform, status: 'PENDING' as const })),
+          data: toAdd.map((platform) => ({
+            postId: id!,
+            platform,
+            status: 'PENDING' as const,
+          })),
           skipDuplicates: true,
         })
       }
@@ -91,7 +114,7 @@ export default defineEventHandler(async (event) => {
 
     const scalarData = scalarRaw as Prisma.SocialPostUpdateInput
     if (mediaUrls !== undefined) {
-      scalarData.mediaUrls = mediaUrls as Prisma.InputJsonValue
+      scalarData.mediaUrls = serializeMediaUrls(mediaUrls)
     }
 
     const data = await prisma.socialPost.update({

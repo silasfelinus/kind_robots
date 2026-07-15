@@ -10,6 +10,7 @@ import {
   getBotById,
   botImage,
   seedBotsHelper,
+  fetchAllBots,
 } from './helpers/botHelper'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
@@ -529,19 +530,15 @@ export const useBotStore = defineStore('botStore', () => {
       try {
         clearError()
 
-        const response = await performFetch<Bot[]>('/api/bots')
+        const fetched = await fetchAllBots()
 
-        if (response.success && Array.isArray(response.data)) {
-          bots.value = response.data.slice().sort(sortBots)
-          isLoaded.value = true
-          usingSnapshot.value = false
-          markSnapshotActive('bots', false)
-          persist()
+        bots.value = fetched.slice().sort(sortBots)
+        isLoaded.value = true
+        usingSnapshot.value = false
+        markSnapshotActive('bots', false)
+        persist()
 
-          return bots.value
-        }
-
-        throw new Error(response.message || 'Failed to fetch bots')
+        return bots.value
       } catch (error: unknown) {
         handleError(error, 'fetching bots')
         setLastError(error, 'Failed to fetch bots')

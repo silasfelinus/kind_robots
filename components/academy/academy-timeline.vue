@@ -56,6 +56,7 @@
           v-if="expandedSlug !== style.slug"
           type="button"
           class="group flex w-full flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-all hover:border-primary/50 hover:shadow-sm"
+          aria-expanded="false"
           @click="expandedSlug = style.slug"
         >
           <span class="text-xl leading-none">🏛️</span>

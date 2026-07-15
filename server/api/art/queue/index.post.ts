@@ -8,6 +8,10 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import {
+  decodeArtJobPayload,
+  serializeArtJobPayload,
+} from '../../../utils/artJobPayload'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -54,7 +58,7 @@ export default defineEventHandler(async (event) => {
     const job = await prisma.artJob.create({
       data: {
         engine: engine as 'A1111' | 'COMFY',
-        payload: payload as object,
+        payload: serializeArtJobPayload(payload),
         priority,
         projectSlug,
         userId: auth.user.id,
@@ -66,7 +70,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Art job queued.',
-      data: { job },
+      data: { job: decodeArtJobPayload(job) },
       statusCode: 201,
     }
   } catch (error: unknown) {

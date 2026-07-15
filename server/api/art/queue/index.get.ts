@@ -8,6 +8,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import { decodeArtJobPayload } from '../../../utils/artJobPayload'
 
 const STATUSES = new Set(['PENDING', 'RUNNING', 'DONE', 'FAILED', 'CANCELLED'])
 
@@ -39,11 +40,12 @@ export default defineEventHandler(async (event) => {
 
     const take = Math.min(Math.max(Number(query.limit) || 50, 1), 200)
 
-    const jobs = await prisma.artJob.findMany({
+    const storedJobs = await prisma.artJob.findMany({
       where,
       orderBy: [{ id: 'desc' }],
       take,
     })
+    const jobs = storedJobs.map(decodeArtJobPayload)
 
     return {
       success: true,

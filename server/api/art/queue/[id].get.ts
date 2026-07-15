@@ -7,6 +7,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import { decodeArtJobPayload } from '../../../utils/artJobPayload'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -17,14 +18,14 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid job id.' })
     }
 
-    const job = await prisma.artJob.findUnique({ where: { id } })
+    const storedJob = await prisma.artJob.findUnique({ where: { id } })
 
-    if (!job) {
+    if (!storedJob) {
       throw createError({ statusCode: 404, message: `Job ${id} not found.` })
     }
 
     if (
-      job.userId !== auth.user.id &&
+      storedJob.userId !== auth.user.id &&
       !auth.isAdmin &&
       !auth.isServerKey
     ) {
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `Job ${id}.`,
-      data: { job },
+      data: { job: decodeArtJobPayload(storedJob) },
       statusCode: 200,
     }
   } catch (error: unknown) {

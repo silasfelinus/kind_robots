@@ -5,10 +5,14 @@ import {
   getRouterParam,
   readBody,
 } from 'h3'
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
+import {
+  decodeArtJobPayload,
+  parseArtJobPayload,
+  serializeArtJobPayload,
+} from '../../../../utils/artJobPayload'
 
 type FeedbackSource = 'CURATOR' | 'HUMAN'
 type FeedbackVerdict = 'PROMOTE' | 'REVISE' | 'REJECT'
@@ -93,9 +97,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const score = body?.score === null || body?.score === undefined
-      ? null
-      : Number(body.score)
+    const score =
+      body?.score === null || body?.score === undefined
+        ? null
+        : Number(body.score)
 
     if (score !== null && (!Number.isFinite(score) || score < 0 || score > 100)) {
       throw createError({
@@ -117,7 +122,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const payload = asRecord(job.payload)
+    const payload = parseArtJobPayload(job.payload)
     const curation = asRecord(payload.curation)
     const history = Array.isArray(curation.history)
       ? curation.history.filter((item) => item && typeof item === 'object')
@@ -154,14 +159,14 @@ export default defineEventHandler(async (event) => {
     const updated = await prisma.artJob.update({
       where: { id },
       data: {
-        payload: nextPayload as Prisma.InputJsonValue,
+        payload: serializeArtJobPayload(nextPayload),
       },
     })
 
     return {
       success: true,
       message: `${source === 'CURATOR' ? 'Curator' : 'Human'} feedback saved for job ${id}.`,
-      data: { job: updated },
+      data: { job: decodeArtJobPayload(updated) },
       statusCode: 200,
     }
   } catch (error: unknown) {

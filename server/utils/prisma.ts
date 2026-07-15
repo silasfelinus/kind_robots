@@ -5,6 +5,7 @@ import {
   checkServerIdentity,
   type ConnectionOptions as TlsConnectionOptions,
 } from 'node:tls'
+import { DEFAULT_CONNECTION_LIMIT } from './databasePoolDefaults'
 
 type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
 
@@ -52,7 +53,7 @@ function buildDatabaseUrl(url: string): string {
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
-    10,
+    DEFAULT_CONNECTION_LIMIT,
   )
   const minDelayValidation = readNonNegativeInteger(
     process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
@@ -175,7 +176,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
-      10,
+      DEFAULT_CONNECTION_LIMIT,
     ),
     minDelayValidation: readNonNegativeInteger(
       parsed.searchParams.get('minDelayValidation') ?? undefined,
@@ -231,8 +232,10 @@ const breakerCooldownMs = readPositiveInteger(
   10_000,
 )
 
-const breaker: CircuitBreakerState =
-  globalForPrisma.prismaBreaker ?? { failures: 0, openUntil: 0 }
+const breaker: CircuitBreakerState = globalForPrisma.prismaBreaker ?? {
+  failures: 0,
+  openUntil: 0,
+}
 globalForPrisma.prismaBreaker = breaker
 
 const CIRCUIT_OPEN_MESSAGE =

@@ -14,9 +14,9 @@ type ScenarioPostInput = {
   slug?: unknown
   description?: unknown
   intros?: unknown
-  outputType?: unknown // ← NEW
-  cast?: unknown // ← NEW
-  dreamIds?: unknown // ← NEW
+  outputType?: unknown
+  cast?: unknown
+  dreamIds?: unknown
   artImageId?: unknown
   imagePath?: unknown
   locations?: unknown
@@ -43,7 +43,6 @@ type FailedScenario = {
   message: string
 }
 
-// ── NEW: outputType enum guard ──────────────────────────────────────────────
 const scenarioOutputTypes: ScenarioOutputType[] = [
   'STORY',
   'ART',
@@ -60,7 +59,6 @@ function normalizeOutputType(value: unknown): ScenarioOutputType {
     : 'STORY'
 }
 
-// ── NEW: dreamIds array guard (positive ints, deduped) ──────────────────────
 function normalizeIdArray(value: unknown): number[] {
   if (!Array.isArray(value)) return []
 
@@ -173,6 +171,34 @@ function normalizeIntros(value: unknown): string {
   return '[]'
 }
 
+function normalizeOptionalJsonString(
+  value: unknown,
+): string | null | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return null
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+
+    try {
+      JSON.parse(trimmed)
+      return trimmed
+    } catch {
+      return JSON.stringify(trimmed)
+    }
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    throw createError({
+      statusCode: 400,
+      message: 'The "cast" field must be JSON-serializable.',
+    })
+  }
+}
+
 function normalizeOptionalId(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined
 
@@ -200,7 +226,7 @@ function buildScenarioCreateInput(
   const title = normalizeRequiredString(scenarioData.title, 'title')
   const artImageId = normalizeOptionalId(scenarioData.artImageId)
   const difficulty = normalizeNullableInteger(scenarioData.difficulty)
-  const dreamIds = normalizeIdArray(scenarioData.dreamIds) // ← NEW
+  const dreamIds = normalizeIdArray(scenarioData.dreamIds)
 
   return {
     User: { connect: { id: authenticatedUserId } },
@@ -208,14 +234,8 @@ function buildScenarioCreateInput(
     slug: normalizeSlugInput(scenarioData.slug) ?? undefined,
     description: normalizeString(scenarioData.description),
     intros: normalizeIntros(scenarioData.intros),
-    outputType: normalizeOutputType(scenarioData.outputType), // ← NEW
-    // cast is Json?: undefined leaves it unset; explicit null clears it.
-    cast:
-      scenarioData.cast === undefined
-        ? undefined
-        : scenarioData.cast === null
-          ? Prisma.JsonNull
-          : (scenarioData.cast as Prisma.InputJsonValue), // ← NEW
+    outputType: normalizeOutputType(scenarioData.outputType),
+    cast: normalizeOptionalJsonString(scenarioData.cast),
     imagePath: normalizeNullableString(scenarioData.imagePath),
     locations: normalizeNullableString(scenarioData.locations),
     artPrompt: normalizeNullableString(scenarioData.artPrompt),
@@ -229,7 +249,6 @@ function buildScenarioCreateInput(
     group: normalizeNullableString(scenarioData.group),
     secretNotes: normalizeNullableString(scenarioData.secretNotes),
     ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
-    // ← NEW: link Dreams from the scenario side (M2M "DreamToScenario")
     ...(dreamIds.length
       ? { Dreams: { connect: dreamIds.map((id) => ({ id })) } }
       : {}),
@@ -316,7 +335,7 @@ export default defineEventHandler(async (event) => {
             },
             Characters: true,
             Compositions: true,
-            Dreams: true, // ← NEW: echo the linked Dreams in the response
+            Dreams: true,
           },
         })
 

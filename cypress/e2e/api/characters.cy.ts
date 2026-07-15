@@ -27,7 +27,7 @@ describe('Character Management API Tests', () => {
       baseUrl = `${apiBase}/characters`
     })
 
-    createLoggedInTestUser({ fresh: true }).then((auth) => {
+    createLoggedInTestUser().then((auth) => {
       userJwt = auth.token
       createdUserId = auth.id
     })
@@ -97,7 +97,6 @@ describe('Character Management API Tests', () => {
         level: 1,
         isPublic: false,
       },
-      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.be.true

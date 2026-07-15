@@ -1,10 +1,7 @@
 // /server/utils/prisma.ts
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import {
-  checkServerIdentity,
-  type ConnectionOptions as TlsConnectionOptions,
-} from 'node:tls'
+import { type ConnectionOptions as TlsConnectionOptions } from 'node:tls'
 import { DEFAULT_CONNECTION_LIMIT } from './databasePoolDefaults'
 
 type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
@@ -139,12 +136,20 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
 
   const parsed = new URL(resolvedUrl)
   const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
+  // Verify the CA chain only — do NOT enforce a hostname/SAN match. This mirrors
+  // the direct probe (server/utils/databaseDirectProbe.ts), which connects fine
+  // with verification ON. A previous custom checkServerIdentity() pinned the cert
+  // to the DATABASE_URL hostname; the ProxySQL frontend cert does not carry that
+  // exact host in its SANs, so every *pooled* connection failed verification
+  // while the (CA-only) direct probe succeeded — forcing the
+  // DATABASE_SSL_REJECT_UNAUTHORIZED=false stopgap. CA-only keeps the link
+  // encrypted and CA-trusted so verification can stay enabled. To restore
+  // hostname pinning, reissue the ProxySQL cert with the DATABASE_URL host in its
+  // SANs and add the check back.
   const tlsOptions: TlsConnectionOptions = rejectUnauthorized
     ? {
         ca: sslCa,
         rejectUnauthorized: true,
-        checkServerIdentity: (_connectorHostname, certificate) =>
-          checkServerIdentity(parsed.hostname, certificate),
       }
     : {
         // Encrypted but unverified: no CA requirement, no identity check.

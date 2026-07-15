@@ -116,19 +116,48 @@ function readDatabaseSslCa(): string | undefined {
   return plain
 }
 
+// Escape hatch. Default true (verify the server cert's CA + identity). Set
+// DATABASE_SSL_REJECT_UNAUTHORIZED=false to keep the connection ENCRYPTED but
+// stop verifying the certificate — the temporary unblock when ProxySQL presents
+// a cert whose CA or SAN no longer matches (e.g. after a cert renewal, or when
+// connecting by IP to a cert issued for a hostname). This trades away MITM
+// protection on the DB link; treat it as a stopgap and re-enable verification
+// once the cert/CA is fixed.
+function readSslRejectUnauthorized(): boolean {
+  const raw = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED?.trim().toLowerCase()
+  return raw !== 'false' && raw !== '0' && raw !== 'no'
+}
+
 function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const resolvedUrl = buildDatabaseUrl(url)
   const sslCa = readDatabaseSslCa()
+  const rejectUnauthorized = readSslRejectUnauthorized()
 
-  if (!sslCa) return resolvedUrl
+  // No CA and full verification requested → nothing to customize; hand the
+  // adapter the plain URL (unchanged default behavior).
+  if (!sslCa && rejectUnauthorized) return resolvedUrl
 
   const parsed = new URL(resolvedUrl)
   const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
-  const tlsOptions: TlsConnectionOptions = {
-    ca: sslCa,
-    rejectUnauthorized: true,
-    checkServerIdentity: (_connectorHostname, certificate) =>
-      checkServerIdentity(parsed.hostname, certificate),
+  const tlsOptions: TlsConnectionOptions = rejectUnauthorized
+    ? {
+        ca: sslCa,
+        rejectUnauthorized: true,
+        checkServerIdentity: (_connectorHostname, certificate) =>
+          checkServerIdentity(parsed.hostname, certificate),
+      }
+    : {
+        // Encrypted but unverified: no CA requirement, no identity check.
+        ...(sslCa ? { ca: sslCa } : {}),
+        rejectUnauthorized: false,
+      }
+
+  if (!rejectUnauthorized) {
+    console.warn(
+      '[prisma] DATABASE_SSL_REJECT_UNAUTHORIZED=false — TLS is on but the ' +
+        'database certificate is NOT being verified. Stopgap only; restore ' +
+        'verification once the ProxySQL cert/CA is fixed.',
+    )
   }
 
   return {

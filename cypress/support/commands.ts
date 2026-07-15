@@ -10,7 +10,11 @@ export type CleanupRequest = {
 }
 
 type RequestOptionsLike = Record<string, unknown> & {
+  method?: string
   headers?: Record<string, string>
+  failOnStatusCode?: boolean
+  retryOnStatusCodeFailure?: boolean
+  retryOnNetworkFailure?: boolean
 }
 
 type CurrentTestLike = {
@@ -29,6 +33,8 @@ const httpMethods = new Set([
   'PUT',
   'TRACE',
 ])
+
+const retrySafeMethods = new Set(['GET', 'HEAD', 'OPTIONS'])
 
 const cleanHeaderValue = (value: unknown, maxLength = 220) =>
   String(value ?? '')
@@ -79,13 +85,28 @@ const syntheticTestHeaders = () => {
   return headers
 }
 
-const withSyntheticHeaders = (options: RequestOptionsLike) => ({
-  ...options,
-  headers: {
-    ...(options.headers || {}),
-    ...syntheticTestHeaders(),
-  },
-})
+const withSyntheticHeaders = (options: RequestOptionsLike) => {
+  const method = String(options.method || 'GET').toUpperCase()
+  const retrySafeStatusFailure =
+    options.failOnStatusCode !== false && retrySafeMethods.has(method)
+
+  return {
+    ...options,
+    // Cypress's status retry can duplicate POST/PATCH/DELETE side effects when
+    // the server commits but the response is lost. Enable it only for safe
+    // reads. Write resilience belongs inside the API/database layer.
+    ...(retrySafeStatusFailure && options.retryOnStatusCodeFailure === undefined
+      ? { retryOnStatusCodeFailure: true }
+      : {}),
+    ...(options.retryOnNetworkFailure === undefined
+      ? { retryOnNetworkFailure: retrySafeMethods.has(method) }
+      : {}),
+    headers: {
+      ...(options.headers || {}),
+      ...syntheticTestHeaders(),
+    },
+  }
+}
 
 declare global {
   namespace Cypress {
@@ -124,6 +145,7 @@ declare global {
     if (typeof first === 'string') {
       return originalFn(
         withSyntheticHeaders({
+          method: 'GET',
           url: first,
           ...(second === undefined ? {} : { body: second }),
         }),

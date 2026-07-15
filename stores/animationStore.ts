@@ -8,12 +8,6 @@ import {
   type FxRegion,
 } from './animationCatalog'
 
-export type {
-  AnimationEffect,
-  AnimationEffectId,
-  FxRegion,
-} from './animationCatalog'
-
 export type FxPlacement = 'behind' | 'front'
 export type FxPlacementState = 'off' | FxPlacement
 export type FxSurfaceMap = Record<FxRegion, Record<FxPlacement, boolean>>
@@ -102,7 +96,6 @@ export const useAnimationStore = defineStore('animationStore', () => {
     screenEffectIds: [],
     screenSurfaces: defaultScreenSurfaces(),
   })
-
   const effects = computed(() => animationEffects)
 
   const safeEffects = computed(() => {

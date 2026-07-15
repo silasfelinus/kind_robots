@@ -207,6 +207,48 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'neoclassicism',
+    name: 'Neoclassicism',
+    era: 'c. 1750–1830',
+    sortYear: 1750,
+    region: 'Europe',
+    keyIdeas:
+      'A deliberate correction after Rococo’s pastel frivolity: artists turned back to the "noble simplicity" of Greece and Rome, freshly fueled by the excavations at Pompeii and Herculaneum. Clear drawing over loose paint, moral seriousness over decoration, stoic self-sacrifice over romance — the art of the Enlightenment and the age of revolutions.',
+    recognitionCues: [
+      'Crisp, precise contours — line does the work, not visible brushwork',
+      'Cool, restrained color and even, theater-lit illumination (no Baroque murk)',
+      'Friezelike compositions: figures arranged shallowly, almost like a stage set',
+      'Classical props — togas, columns, Roman furniture, marble — used with intent',
+    ],
+    artists: [
+      {
+        name: 'Jacques-Louis David',
+        years: '1748–1825',
+        note: 'The movement’s central figure and eventual court painter to Napoleon; his Roman history paintings doubled as political manifestos.',
+      },
+      {
+        name: 'Jean-Auguste-Dominique Ingres',
+        years: '1780–1867',
+        note: 'David’s most brilliant pupil, who pushed line into near-abstraction.',
+      },
+      {
+        name: 'Antonio Canova',
+        years: '1757–1822',
+        note: 'The age’s greatest sculptor, whose marble figures combine antique cool with tender softness.',
+      },
+      {
+        name: 'Angelica Kauffman',
+        years: '1741–1807',
+        note: 'Swiss-born history painter and a founding member of Britain’s Royal Academy.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Neoclassical oil painting: crisp linear contours, cool restrained color, smooth invisible brushwork, and a calm, stage-like classical composition',
+    },
+  },
+  {
     slug: 'ukiyo-e',
     name: 'Ukiyo-e',
     era: 'c. 1650–1900',

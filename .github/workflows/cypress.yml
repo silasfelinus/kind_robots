@@ -39,20 +39,38 @@ jobs:
           TARGET_SHA: ${{ github.sha }}
           MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '1200' }}
         run: |
-          echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA}..."
+          echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA} (or a commit that supersedes it)..."
           deadline=$(( $(date +%s) + MAX_WAIT ))
           live=""
           while [ "$(date +%s)" -lt "$deadline" ]; do
             body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
             live="$(printf '%s' "$body" | jq -r '.data.commit // empty' 2>/dev/null || true)"
-            if [ -n "$live" ] && [ "$live" = "$TARGET_SHA" ]; then
-              echo "Production is serving ${live} — deploy is live."
-              exit 0
+            if [ -n "$live" ]; then
+              if [ "$live" = "$TARGET_SHA" ]; then
+                echo "Production is serving ${live} — deploy is live."
+                exit 0
+              fi
+              # A burst of several merges within a short window can land newer
+              # commits on main before this run's own deploy goes live, so an
+              # already-superseded TARGET_SHA never becomes the exact `live`
+              # value. If the live commit already contains TARGET_SHA (i.e.
+              # TARGET_SHA is one of its ancestors), this deploy's changes are
+              # live too via that superseding commit -- not a failure. Only
+              # deepen the (shallow) checkout when ancestry needs checking, so
+              # the common exact-match case stays fast.
+              if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+                git fetch --quiet --depth=200 origin main 2>/dev/null || true
+              fi
+              if git cat-file -e "${live}^{commit}" 2>/dev/null \
+                && git merge-base --is-ancestor "$TARGET_SHA" "$live" 2>/dev/null; then
+                echo "Production is serving ${live}, a newer commit that already includes ${TARGET_SHA} — deploy is live (superseded)."
+                exit 0
+              fi
             fi
             echo "  not live yet (serving: ${live:-unknown}); retrying in 10s..."
             sleep 10
           done
-          echo "::error::Production did not serve ${TARGET_SHA} within ${MAX_WAIT}s (last seen: ${live:-unknown})."
+          echo "::error::Production did not serve ${TARGET_SHA} (or a superseding commit) within ${MAX_WAIT}s (last seen: ${live:-unknown})."
           exit 1
 
       - name: Verify database readiness

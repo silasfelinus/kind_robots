@@ -22,6 +22,19 @@ type IncomingPost = {
   designer?: string | null
 }
 
+const serializeMediaUrls = (value: unknown): string | null => {
+  if (value == null) return null
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return JSON.stringify(value.filter((item): item is string => typeof item === 'string'))
+  }
+
+  throw createError({
+    statusCode: 400,
+    message: 'The "mediaUrls" field must be a string or an array of strings.',
+  })
+}
+
 export default defineEventHandler(async (event) => {
   const singularLabel = 'SocialPost'
   const pluralLabel = 'SocialPosts'
@@ -70,7 +83,7 @@ export default defineEventHandler(async (event) => {
       return {
         title,
         body: postBody,
-        mediaUrls: (mediaUrls as Prisma.InputJsonValue) ?? [],
+        mediaUrls: serializeMediaUrls(mediaUrls),
         isPublic: isPublic ?? false,
         isMature: isMature ?? false,
         audience: audience ?? ('SOCIAL' as PostAudience),
@@ -90,7 +103,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Batch
     if (Array.isArray(body)) {
       const created = []
       const skipped: string[] = []
@@ -118,7 +130,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Single
     const data = await prisma.socialPost.create({
       data: buildCreate(body),
       include: { targets: true },

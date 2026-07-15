@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Art` MODIFY `path` VARCHAR(764) NULL DEFAULT ' ';

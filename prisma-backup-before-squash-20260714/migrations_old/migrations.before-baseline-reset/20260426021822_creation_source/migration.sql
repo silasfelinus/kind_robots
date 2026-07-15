@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE `Pitch` ADD COLUMN `creationSource` ENUM('HUMAN', 'AI', 'HYBRID', 'UPLOAD', 'UNKNOWN') NOT NULL DEFAULT 'HUMAN';
-
--- AlterTable
-ALTER TABLE `Prompt` ADD COLUMN `creationSource` ENUM('HUMAN', 'AI', 'HYBRID', 'UPLOAD', 'UNKNOWN') NOT NULL DEFAULT 'HUMAN';

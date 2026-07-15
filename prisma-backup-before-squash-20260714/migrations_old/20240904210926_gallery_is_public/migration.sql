@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE `Art` MODIFY `path` VARCHAR(764) NULL DEFAULT 'UNDEFINED';
-
--- AlterTable
-ALTER TABLE `Gallery` ADD COLUMN `isPublic` BOOLEAN NOT NULL DEFAULT true;

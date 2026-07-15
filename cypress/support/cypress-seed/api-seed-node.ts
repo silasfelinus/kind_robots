@@ -474,6 +474,90 @@ const makeSeedUser = async (
   )
 }
 
+const healthProbeTimeoutMs = 8_000
+
+// Single-shot GET used only to differentiate failure modes in the preflight.
+// Unlike jsonRequest it does not retry, so a confirmed-down probe stays fast.
+const probeHealthOnce = async (
+  url: string,
+): Promise<{ status: number; message?: string }> => {
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: syntheticHeaders('cypress-seed-preflight'),
+      signal: AbortSignal.timeout(healthProbeTimeoutMs),
+    })
+    let body: ApiResponse = {}
+    try {
+      const text = await response.text()
+      body = text ? (JSON.parse(text) as ApiResponse) : {}
+    } catch {
+      body = {}
+    }
+    return { status: response.status, message: responseMessage(body) }
+  } catch (error) {
+    return {
+      status: 0,
+      message: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+// Fail the run with a precise, actionable message BEFORE attempting to seed.
+// Seeding hits the live API, so when the database is unusable the seed used to
+// die deep inside makeSeedUser with a cryptic "Unable to extract user id" after
+// minutes of register/login retries. This distinguishes the two real failure
+// modes up front:
+//   • pool down but DB reachable  → the Prisma connect-timeout issue (not infra)
+//   • both down                   → a genuine database/ProxySQL outage
+const preflightDatabaseHealth = async (apiBase: string): Promise<void> => {
+  // Pooled health check reuses the standard retry budget so a genuinely
+  // transient blip does not abort the run.
+  const pooled = await jsonRequest(
+    `${apiBase}/health/database`,
+    { method: 'GET', headers: syntheticHeaders('cypress-seed-preflight') },
+    'cypress-seed-preflight',
+  )
+
+  if (pooled.status === 200) return
+
+  // Pool is failing after retries. Probe the direct (raw, unpooled) connection
+  // once to tell a pool-only failure apart from a full database outage.
+  const direct = await probeHealthOnce(`${apiBase}/health/database-direct`)
+
+  const lines = [
+    '🛑 Cypress cannot seed the test world: the production database is not usable.',
+    '',
+    `  • ${apiBase}/health/database        → ${pooled.status} (Prisma connection pool)`,
+    `  • ${apiBase}/health/database-direct → ${direct.status} (raw single connection)`,
+    '',
+  ]
+
+  if (direct.status === 200) {
+    lines.push(
+      'The database host is REACHABLE (the direct/unpooled probe succeeds), but the',
+      'Prisma pool cannot acquire a connection ("pool timeout ... active=0 idle=0").',
+      'This is a connection-establishment problem — NOT a test failure and NOT the',
+      'database being down.',
+      '',
+      'Note: this is independent of the client pool size and acquire timeout (raising',
+      'DATABASE_CONNECTION_LIMIT and the timeouts has been tried and does not help).',
+      'The likely cause is the database/ProxySQL side refusing new connections (e.g.',
+      'server max_connections exhausted). Check Threads_connected vs max_connections',
+      'on the DB, then re-run Cypress once /api/health/database returns 200.',
+    )
+  } else {
+    lines.push(
+      'The direct probe is failing too, so the database backend itself is down or',
+      'refusing connections. This is a database/ProxySQL infrastructure outage, not a',
+      'code or test issue. Bring the database back up and confirm',
+      `${apiBase}/health/database-direct returns 200, then re-run Cypress.`,
+    )
+  }
+
+  throw new Error(lines.join('\n'))
+}
+
 const readSeed = (): CypressApiSeedState | undefined => {
   if (!fs.existsSync(seedFile)) return undefined
   try {
@@ -504,6 +588,8 @@ export const ensureCypressApiSeed = async (env: Record<string, unknown>) => {
       'Cypress API seed requires ADMIN_TOKEN, BETA_ADMIN_TOKEN, or API_KEY.',
     )
   }
+
+  await preflightDatabaseHealth(apiBase)
 
   const cached = readSeed()
   const reusableCache =

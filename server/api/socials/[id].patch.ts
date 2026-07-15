@@ -2,7 +2,6 @@
 import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { serializeSocialMedia } from '@/server/utils/socialMedia'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type {
   Prisma,
@@ -22,6 +21,21 @@ type PatchBody = Partial<{
   platforms: SocialPlatform[]
   targetUpdate: { platform: SocialPlatform; status: TargetStatus }
 }>
+
+function serializeMediaUrls(value: unknown): string | null {
+  if (value == null) return null
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return JSON.stringify(
+      value.filter((item): item is string => typeof item === 'string'),
+    )
+  }
+
+  throw createError({
+    statusCode: 400,
+    message: 'The "mediaUrls" field must be a string or an array of strings.',
+  })
+}
 
 export default defineEventHandler(async (event) => {
   let id: number | undefined
@@ -100,7 +114,7 @@ export default defineEventHandler(async (event) => {
 
     const scalarData = scalarRaw as Prisma.SocialPostUpdateInput
     if (mediaUrls !== undefined) {
-      scalarData.mediaUrls = serializeSocialMedia(mediaUrls)
+      scalarData.mediaUrls = serializeMediaUrls(mediaUrls)
     }
 
     const data = await prisma.socialPost.update({

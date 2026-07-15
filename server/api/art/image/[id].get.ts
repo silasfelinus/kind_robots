@@ -22,6 +22,14 @@ type AccessContext = {
   isAuthenticated: boolean
 }
 
+type ReadableArtImage = Pick<ArtImage, 'userId' | 'isPublic' | 'isMature'> &
+  Record<string, unknown>
+
+type FindSelectedArtImage = (args: {
+  where: { id: number }
+  select: Prisma.ArtImageSelect
+}) => Promise<ReadableArtImage | null>
+
 function readBoolean(value: unknown, fallback = false): boolean {
   if (Array.isArray(value)) return readBoolean(value[0], fallback)
   if (value == null) return fallback
@@ -155,7 +163,11 @@ export default defineEventHandler(async (event) => {
     const access = await getAccessContext(event)
     const select = buildArtImageSelect(query)
 
-    const data = await prisma.artImage.findUnique({
+    // Prisma's extended-client generic can exceed TypeScript's comparison depth
+    // when a runtime-built select is passed directly. The query contract is
+    // intentionally bounded here to the access fields plus the selected record.
+    const findSelected = prisma.artImage.findUnique as unknown as FindSelectedArtImage
+    const data = await findSelected({
       where: { id },
       select,
     })

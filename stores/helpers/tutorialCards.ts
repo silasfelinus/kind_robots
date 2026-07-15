@@ -27,7 +27,11 @@ function tutorialImage(channelKey: string, sectionKey: string): string {
   return getTutorialImagePath(channelKey, sectionKey)
 }
 
-export type ExtraTutorialKey = 'conductor' | 'mural' | 'challenges'
+export type ExtraTutorialKey =
+  | 'conductor'
+  | 'mural'
+  | 'challenges'
+  | 'humboldt-scoop'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -430,6 +434,23 @@ export const tutorialChannels = {
     ],
   },
 
+  'humboldt-scoop': {
+    key: 'humboldt-scoop',
+    title: 'The Humboldt Scoop',
+    hero: tutorialImage('humboldt-scoop', 'humboldt-scoop'),
+    tagline: 'A cleaner yard, without the dirty work.',
+    overview:
+      'The Humboldt Scoop is a real-world pet-waste removal service run out of Humboldt County. This page is its home base inside Kind Robots — meet the service and the story, then jump to the real site to see pricing and book a route.',
+    sections: [
+      {
+        key: 'humboldt-scoop',
+        title: 'Local & dependable',
+        body: 'Weekly, bi-weekly, monthly, and one-time cleanup plans serving Eureka, Arcata, and McKinleyville (with Trinidad, Cutten, Freshwater, and Blue Lake by request). Flat honest pricing, cancel anytime, no long-term contract.',
+        image: tutorialImage('humboldt-scoop', 'humboldt-scoop'),
+      },
+    ],
+  },
+
   conductor: {
     key: 'conductor',
     title: 'Conductor',
@@ -463,6 +484,7 @@ const tutorialRouteMap = {
   conductor: '/conductor',
   mural: '/mural',
   challenges: '/challenges',
+  'humboldt-scoop': '/humboldt-scoop',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

@@ -82,7 +82,6 @@ function normalizeRequiredString(
   }
 
   const trimmed = value.trim()
-
   if (trimmed.length > maxLength) {
     throw createError({
       statusCode: 400,
@@ -122,7 +121,6 @@ function normalizeNullableInteger(value: unknown): number | null | undefined {
   if (value === undefined || value === '') return undefined
 
   const parsed = Number(value)
-
   if (!Number.isInteger(parsed)) {
     throw createError({
       statusCode: 400,
@@ -167,6 +165,34 @@ function normalizeIntros(value: unknown): string {
   return '[]'
 }
 
+function normalizeOptionalJsonString(
+  value: unknown,
+): string | null | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return null
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+
+    try {
+      JSON.parse(trimmed)
+      return trimmed
+    } catch {
+      return JSON.stringify(trimmed)
+    }
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    throw createError({
+      statusCode: 400,
+      message: 'The "cast" field must be JSON-serializable.',
+    })
+  }
+}
+
 function normalizeOptionalId(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined
 
@@ -207,12 +233,7 @@ function buildScenarioCreateInput(
     description: normalizeString(scenarioData.description),
     intros: normalizeIntros(scenarioData.intros),
     outputType: normalizeOutputType(scenarioData.outputType),
-    cast:
-      scenarioData.cast === undefined
-        ? undefined
-        : scenarioData.cast === null
-          ? Prisma.JsonNull
-          : (scenarioData.cast as Prisma.InputJsonValue),
+    cast: normalizeOptionalJsonString(scenarioData.cast),
     imagePath: normalizeNullableString(scenarioData.imagePath),
     locations: normalizeNullableString(scenarioData.locations),
     artPrompt: normalizeNullableString(scenarioData.artPrompt),
@@ -242,7 +263,6 @@ async function findExistingScenario(title: string, userId: number) {
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -251,14 +271,15 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<ScenarioPostInput | ScenarioPostInput[]>(event)
-
     if (!body) {
-      throw createError({ statusCode: 400, message: 'Request body is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Request body is required.',
+      })
     }
 
     const isBatch = Array.isArray(body)
     const scenarioInputs = isBatch ? body : [body]
-
     if (!scenarioInputs.length) {
       throw createError({
         statusCode: 400,
@@ -322,7 +343,6 @@ export default defineEventHandler(async (event) => {
     }
 
     event.node.res.statusCode = failed.length ? 207 : 201
-
     return {
       success: failed.length === 0,
       data: isBatch

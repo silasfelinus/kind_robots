@@ -8,8 +8,14 @@ import {
 
 type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
 
+type CircuitBreakerState = {
+  failures: number
+  openUntil: number
+}
+
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
+  prismaBreaker?: CircuitBreakerState
 }
 
 const databaseUrl = process.env.DATABASE_URL
@@ -38,11 +44,11 @@ function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
   const connectTimeout = readPositiveInteger(
     process.env.DATABASE_CONNECT_TIMEOUT_MS,
-    5_000,
+    3_000,
   )
   const acquireTimeout = readPositiveInteger(
     process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
-    6_000,
+    3_000,
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
@@ -133,11 +139,11 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     database,
     connectTimeout: readPositiveInteger(
       parsed.searchParams.get('connectTimeout') ?? undefined,
-      5_000,
+      3_000,
     ),
     acquireTimeout: readPositiveInteger(
       parsed.searchParams.get('acquireTimeout') ?? undefined,
-      6_000,
+      3_000,
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
@@ -168,14 +174,68 @@ const retryableDatabaseMessages = [
 // A pool acquisition can consume the full acquireTimeout. Keep the default
 // retry budget within the serverless function deadline instead of allowing the
 // platform to terminate the request before errorHandler can return a 503.
+// One retry, not two: when the wall is down every attempt burns the full
+// acquireTimeout, and a 3x retry turned a single dead request into ~18s of held
+// serverless concurrency — which is what produced the 504 gateway timeouts.
 const transientRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
-  2,
+  1,
 )
 const transientRetryDelayMs = readPositiveInteger(
   process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,
   100,
 )
+
+// Circuit breaker. When the pool cannot hand out a connection (ProxySQL/MariaDB
+// saturated or unreachable), every request otherwise waits the full
+// acquireTimeout before failing. After `breakerThreshold` consecutive connection
+// failures we "open" the breaker for `breakerCooldownMs` and fail fast — freeing
+// serverless slots (no more 504 pile-up) and letting the wall recover instead of
+// being hammered by retries. State is per warm instance, held on globalThis so it
+// survives across invocations on a reused Lambda.
+const breakerThreshold = readPositiveInteger(
+  process.env.DATABASE_BREAKER_THRESHOLD,
+  5,
+)
+const breakerCooldownMs = readPositiveInteger(
+  process.env.DATABASE_BREAKER_COOLDOWN_MS,
+  10_000,
+)
+
+const breaker: CircuitBreakerState =
+  globalForPrisma.prismaBreaker ?? { failures: 0, openUntil: 0 }
+globalForPrisma.prismaBreaker = breaker
+
+// Message is intentionally one the errorHandler classifies as a transient DB
+// error, so a fast-failed request still returns a clean 503 (not a 500).
+const CIRCUIT_OPEN_MESSAGE =
+  'pool timeout: failed to retrieve a connection from pool (circuit open)'
+
+function circuitIsOpen(): boolean {
+  if (breaker.openUntil === 0) return false
+
+  if (Date.now() >= breaker.openUntil) {
+    // Cooldown elapsed: half-open. Allow the next request through as a probe;
+    // recordSuccess/recordFailure below will close it or re-open it.
+    breaker.openUntil = 0
+    breaker.failures = breakerThreshold - 1
+    return false
+  }
+
+  return true
+}
+
+function recordConnectionSuccess(): void {
+  breaker.failures = 0
+  breaker.openUntil = 0
+}
+
+function recordConnectionFailure(): void {
+  breaker.failures += 1
+  if (breaker.failures >= breakerThreshold) {
+    breaker.openUntil = Date.now() + breakerCooldownMs
+  }
+}
 
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
@@ -206,13 +266,26 @@ export const prisma = basePrisma.$extends({
   name: 'transient-database-retry',
   query: {
     async $allOperations({ model, operation, args, query }) {
+      // Fail fast while the breaker is open instead of blocking on the pool.
+      if (circuitIsOpen()) {
+        throw new Error(CIRCUIT_OPEN_MESSAGE)
+      }
+
       for (let attempt = 0; ; attempt += 1) {
         try {
-          return await query(args)
+          const result = await query(args)
+          recordConnectionSuccess()
+          return result
         } catch (error: unknown) {
+          const retryable = isRetryableDatabaseError(error)
+          if (retryable) {
+            recordConnectionFailure()
+          }
+
           if (
-            !isRetryableDatabaseError(error) ||
-            attempt >= transientRetryAttempts
+            !retryable ||
+            attempt >= transientRetryAttempts ||
+            circuitIsOpen()
           ) {
             throw error
           }

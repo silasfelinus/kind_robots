@@ -209,7 +209,7 @@ const config: ProjectFrontConfig = {
   deliverables: {
     done: [
       'Shared coloring engine (region + flood fill, undo, palette, export)',
-      'Sampler set live; Mural runs on the same engine',
+      'Sampler and Cozy Corner sets live; Mural runs on the same engine',
     ],
     next: [
       'Generated Kind Robots and Monster Recast books',

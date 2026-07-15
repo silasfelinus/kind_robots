@@ -42,6 +42,7 @@
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "test:animation-catalog": "tsx utils/scripts/verifyAnimationCatalog.ts",
+    "test:database-pool-defaults": "tsx utils/scripts/verifyDatabasePoolDefaults.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

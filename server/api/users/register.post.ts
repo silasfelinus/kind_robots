@@ -41,7 +41,10 @@ export default defineEventHandler(async (event) => {
 
     // If the star formation (user creation) is successful, we celebrate with a warm welcome
     if (result.success && result.user) {
-      console.log('🌟 A new star is born in our user universe:', result)
+      console.log('🌟 A new star is born in our user universe:', {
+        id: result.user.id,
+        username: result.user.username,
+      })
 
       // Auto-send the inbox welcome message. Non-fatal: a failure here
       // should never block a successful registration.

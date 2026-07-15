@@ -1,6 +1,7 @@
 import { defineEventHandler, getQuery, sendRedirect, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { createToken } from '..'
+import { logSafeError } from '../../../utils/error'
 
 interface GoogleTokenResponse {
   access_token: string
@@ -89,7 +90,7 @@ export default defineEventHandler(async (event) => {
 
     return sendRedirect(event, redirectTarget)
   } catch (error) {
-    console.error('[Google Callback] ❌ Fatal error:', error)
+    logSafeError('[Google Callback] ❌ Fatal error:', error)
     throw createError({ statusCode: 500, message: 'Internal Server Error' })
   }
 })

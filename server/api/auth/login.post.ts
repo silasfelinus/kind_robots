@@ -1,6 +1,7 @@
 // server/api/auth/login.post.ts
 import { defineEventHandler, readBody, sendError, setCookie } from 'h3'
 import { validateUserCredentials } from '.'
+import { logSafeError } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 401
     return { success: false, message: 'Invalid credentials' }
   } catch (error: unknown) {
-    console.error('Error during login:', error)
+    logSafeError('Error during login:', error)
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error occurred'
     return sendError(event, new Error(errorMessage))

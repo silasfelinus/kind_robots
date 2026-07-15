@@ -14,6 +14,9 @@ export type CypressApiSeedState = {
   apiBase: string
   adminKey: string
   user: CypressApiSeedUser
+  // Compatibility identity for the friendship suite. This is the existing
+  // administrator account, not another disposable user created by Cypress.
+  secondUser: CypressApiSeedUser
   fixtures: Record<string, number | string | boolean | null>
 }
 
@@ -56,6 +59,12 @@ type CypressCleanupData = {
     message?: string
   }>
   remaining?: number
+}
+
+type CurrentUserData = {
+  id?: number
+  username?: string | null
+  email?: string | null
 }
 
 const defaultApiBase = 'https://kind-robots.vercel.app/api'
@@ -243,6 +252,49 @@ const writeOrphanReport = (report: Record<string, unknown>) => {
       2,
     )}\n`,
   )
+}
+
+const resolveExistingAdminUser = async (
+  apiBase: string,
+  adminKey: string,
+): Promise<CypressApiSeedUser> => {
+  const response = await jsonRequest<CurrentUserData>(
+    `${apiBase}/users/me`,
+    {
+      method: 'GET',
+      headers: {
+        ...adminHeaders(adminKey),
+        Authorization: `Bearer ${adminKey}`,
+      },
+    },
+    'cypress-admin-identity',
+  )
+
+  if (response.status !== 200 || response.body.success === false) {
+    throw new Error(
+      `Unable to resolve Cypress admin identity: ${response.status} ` +
+        `${JSON.stringify(response.body)} attempts=${JSON.stringify(response.attempts)}`,
+    )
+  }
+
+  const data =
+    response.body.data && typeof response.body.data === 'object'
+      ? response.body.data
+      : {}
+  const id = positiveNumber(data.id)
+  if (!id) {
+    throw new Error(
+      `Unable to extract Cypress admin user id: ${JSON.stringify(response.body)}`,
+    )
+  }
+
+  return {
+    id,
+    username: String(data.username || `admin-${id}`),
+    email: String(data.email || ''),
+    password: '',
+    token: adminKey,
+  }
 }
 
 const deleteSeedUserById = async (
@@ -459,20 +511,34 @@ export const ensureCypressApiSeed = async (env: Record<string, unknown>) => {
       ? cached
       : undefined
 
-  // Reuse a prior interrupted local run rather than creating another account.
   if (reusableCache) {
-    memorySeed = reusableCache
-    return reusableCache
+    const secondUser =
+      reusableCache.secondUser?.token === adminKey
+        ? reusableCache.secondUser
+        : await resolveExistingAdminUser(apiBase, adminKey)
+    const normalized = { ...reusableCache, secondUser }
+    if (secondUser !== reusableCache.secondUser) writeSeed(normalized)
+    memorySeed = normalized
+    return normalized
   }
 
   const runId = `${Date.now()}-${Math.floor(Math.random() * 10_000)}`
-  const user = await makeSeedUser(apiBase, adminKey, runId)
+  const [user, secondUser] = await Promise.all([
+    makeSeedUser(apiBase, adminKey, runId),
+    resolveExistingAdminUser(apiBase, adminKey),
+  ])
+
+  if (user.id === secondUser.id) {
+    await deleteSeedUserById(apiBase, adminKey, user.id)
+    throw new Error('Cypress normal user unexpectedly resolved to the admin identity.')
+  }
 
   const seed: CypressApiSeedState = {
     runId,
     apiBase,
     adminKey,
     user,
+    secondUser,
     fixtures: {},
   }
   writeSeed(seed)

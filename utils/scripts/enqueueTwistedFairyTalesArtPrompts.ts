@@ -8,7 +8,6 @@
 //   npm run seed:twisted-fairy-tales -- --write # create missing ArtJob rows
 
 import 'dotenv/config'
-import type { Prisma } from './../../prisma/generated/prisma/client'
 import prisma from './../../server/utils/prisma'
 import { twistedFairyTalesArtPrompts } from './../../stores/seeds/twistedFairyTalesArtPrompts'
 
@@ -17,11 +16,13 @@ const USER_ID = Number(process.env.ART_SEED_USER_ID || 1)
 const PROJECT_SLUG = 'twisted-fairy-tales'
 const PRIORITY = 10
 
-function requestIdFromPayload(payload: Prisma.JsonValue): string | null {
-  if (!payload || typeof payload !== 'object' || Array.isArray(payload))
+function requestIdFromPayload(payload: string): string | null {
+  try {
+    const parsed = JSON.parse(payload) as Record<string, unknown>
+    return typeof parsed.requestId === 'string' ? parsed.requestId : null
+  } catch {
     return null
-  const requestId = (payload as Record<string, Prisma.JsonValue>).requestId
-  return typeof requestId === 'string' ? requestId : null
+  }
 }
 
 async function main() {
@@ -92,7 +93,7 @@ async function main() {
           priority: PRIORITY,
           projectSlug: PROJECT_SLUG,
           userId: USER_ID,
-          payload: {
+          payload: JSON.stringify({
             requestId: entry.requestId,
             number: entry.number,
             title: entry.title,
@@ -108,7 +109,7 @@ async function main() {
               isMature: true,
               designer: 'Kind Robots / Twisted Fairy Tales',
             },
-          } as Prisma.InputJsonValue,
+          }),
         },
       }),
     ),

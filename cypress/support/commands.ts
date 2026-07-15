@@ -36,6 +36,28 @@ const cleanHeaderValue = (value: unknown, maxLength = 220) =>
     .trim()
     .slice(0, maxLength)
 
+// Synthetic-traffic identifiers arrive as CYPRESS_SYNTHETIC_* env vars in CI.
+// `cypress.config.ts` sets `allowCypressEnv: false`, so the synchronous
+// `Cypress.env()` throws (the suite was migrated to the async `cy.env()`
+// command, but this request overwrite runs synchronously). Capture the values
+// once via `cy.env()` in a root `before` hook into a module cache the
+// synchronous overwrite can read. Values fall back to the local-run defaults
+// until the hook populates them.
+let syntheticSource = 'cypress'
+let syntheticRunId = 'local-cypress'
+
+type SyntheticEnv = {
+  SYNTHETIC_SOURCE?: string
+  SYNTHETIC_RUN_ID?: string
+}
+
+before(() => {
+  cy.env(['SYNTHETIC_SOURCE', 'SYNTHETIC_RUN_ID']).then((env: SyntheticEnv) => {
+    if (env.SYNTHETIC_SOURCE) syntheticSource = env.SYNTHETIC_SOURCE
+    if (env.SYNTHETIC_RUN_ID) syntheticRunId = env.SYNTHETIC_RUN_ID
+  })
+})
+
 const syntheticTestHeaders = () => {
   const currentTest = Cypress.currentTest as CurrentTestLike | undefined
   const titlePath = Array.isArray(currentTest?.titlePath)
@@ -43,12 +65,8 @@ const syntheticTestHeaders = () => {
     : currentTest?.title
 
   const headers: Record<string, string> = {
-    'x-kindrobots-test-source': cleanHeaderValue(
-      Cypress.env('SYNTHETIC_SOURCE') || 'cypress',
-    ),
-    'x-kindrobots-test-run-id': cleanHeaderValue(
-      Cypress.env('SYNTHETIC_RUN_ID') || 'local-cypress',
-    ),
+    'x-kindrobots-test-source': cleanHeaderValue(syntheticSource),
+    'x-kindrobots-test-run-id': cleanHeaderValue(syntheticRunId),
     'x-kindrobots-test-spec': cleanHeaderValue(
       Cypress.spec.relative || Cypress.spec.name || 'unknown-spec',
     ),

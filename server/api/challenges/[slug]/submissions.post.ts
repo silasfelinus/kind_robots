@@ -58,14 +58,17 @@ function optionalId(value: unknown, field: string): number | null {
   return id
 }
 
-function optionalJson(value: unknown): Prisma.InputJsonValue | undefined {
+function optionalJson(value: unknown): string | undefined {
   if (value === undefined || value === null) return undefined
 
   if (typeof value !== 'object') {
-    throw createError({ statusCode: 400, message: 'JSON fields must be objects or arrays.' })
+    throw createError({
+      statusCode: 400,
+      message: 'JSON fields must be objects or arrays.',
+    })
   }
 
-  return value as Prisma.InputJsonValue
+  return JSON.stringify(value)
 }
 
 export default defineEventHandler(async (event) => {

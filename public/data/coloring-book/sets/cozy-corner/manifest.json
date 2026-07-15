@@ -1,0 +1,33 @@
+{
+  "slug": "cozy-corner",
+  "title": "Cozy Corner",
+  "description": "Two hand-drawn cozy-corner pages that prove out multi-set support while the Kind Robots and Monster Recast books are in production.",
+  "rating": "all-ages",
+  "pages": [
+    {
+      "id": "cozy-corner-p01",
+      "title": "Sleepy Cat",
+      "file": "pages/cozy-corner-p01.json"
+    },
+    {
+      "id": "cozy-corner-p02",
+      "title": "Potted Plant Shelf",
+      "file": "pages/cozy-corner-p02.json"
+    }
+  ],
+  "attribution": [
+    {
+      "pageId": "cozy-corner-p01",
+      "source": "hand-authored SVG (conductor coloring-book t-020)",
+      "note": "second demo set proving the library scales past a single hardcoded slug"
+    },
+    {
+      "pageId": "cozy-corner-p02",
+      "source": "hand-authored SVG (conductor coloring-book t-020)",
+      "note": "second demo set proving the library scales past a single hardcoded slug"
+    }
+  ],
+  "access": {
+    "tier": "free"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "cozy-corner/cozy-corner-p02",
+  "version": 1,
+  "title": "Potted Plant Shelf",
+  "viewBox": { "width": 1700, "height": 2200 },
+  "mode": "svg-regions",
+  "layers": {
+    "decor": "M850 1420 C840 1300 845 1180 850 1080 M780 1350 C760 1280 770 1200 800 1150 M920 1350 C940 1280 930 1200 900 1150"
+  },
+  "regions": [
+    {
+      "id": "wall",
+      "label": "Wall",
+      "group": "background",
+      "d": "M0 0H1700V1500H0Z"
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "group": "background",
+      "d": "M0 1500 C400 1460 1300 1540 1700 1490 V2200 H0 Z"
+    },
+    {
+      "id": "sun",
+      "label": "Sun",
+      "d": "M140 300 A110 110 0 1 1 360 300 A110 110 0 1 1 140 300 Z"
+    },
+    {
+      "id": "shelf",
+      "label": "Shelf",
+      "d": "M200 1600 H1500 Q1520 1600 1520 1620 V1660 Q1520 1680 1500 1680 H200 Q180 1680 180 1660 V1620 Q180 1600 200 1600 Z"
+    },
+    {
+      "id": "bracket-left",
+      "label": "Left bracket",
+      "d": "M260 1680 L260 1780 L340 1680 Z"
+    },
+    {
+      "id": "bracket-right",
+      "label": "Right bracket",
+      "d": "M1360 1680 L1440 1680 L1360 1780 Z"
+    },
+    {
+      "id": "pot",
+      "label": "Plant pot",
+      "group": "plant",
+      "d": "M650 1450 H1050 L1000 1600 H700 Z"
+    },
+    {
+      "id": "pot-rim",
+      "label": "Pot rim",
+      "group": "plant",
+      "d": "M630 1420 H1070 V1460 H630 Z"
+    },
+    {
+      "id": "leaf-left",
+      "label": "Left leaf",
+      "group": "plant",
+      "d": "M850 1420 C700 1350 650 1180 750 1080 C830 1200 850 1320 850 1420 Z"
+    },
+    {
+      "id": "leaf-center",
+      "label": "Center leaf",
+      "group": "plant",
+      "d": "M820 1420 C800 1250 810 1080 850 950 C890 1080 900 1250 880 1420 Z"
+    },
+    {
+      "id": "leaf-right",
+      "label": "Right leaf",
+      "group": "plant",
+      "d": "M850 1420 C1000 1350 1050 1180 950 1080 C870 1200 850 1320 850 1420 Z"
+    }
+  ],
+  "palette": [
+    { "id": "wall-cream", "name": "Wall Cream", "value": "#f3e6d8" },
+    { "id": "floor-wood", "name": "Floor Wood", "value": "#c8935a" },
+    { "id": "sun-yellow", "name": "Sun Yellow", "value": "#f5c451" },
+    { "id": "shelf-brown", "name": "Shelf Brown", "value": "#7a5230" },
+    { "id": "pot-terracotta", "name": "Pot Terracotta", "value": "#c1592f" },
+    { "id": "leaf-green", "name": "Leaf Green", "value": "#4c8c4a" },
+    { "id": "leaf-green-light", "name": "Leaf Green Light", "value": "#7fb56a" }
+  ],
+  "metadata": {
+    "sourceImage": null,
+    "prompt": "hand-authored placeholder cozy-corner page",
+    "model": "none (hand-authored SVG)",
+    "generatedAt": "2026-07-15T00:00:00Z",
+    "printMaster": null
+  }
+}

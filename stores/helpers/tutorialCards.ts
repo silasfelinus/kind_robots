@@ -32,6 +32,7 @@ export type ExtraTutorialKey =
   | 'mural'
   | 'challenges'
   | 'humboldt-scoop'
+  | 'scoop-cms'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -451,6 +452,36 @@ export const tutorialChannels = {
     ],
   },
 
+  'scoop-cms': {
+    key: 'scoop-cms',
+    title: 'Humboldt Scoop CMS',
+    hero: tutorialImage('scoop-cms', 'scoop-cms'),
+    tagline: 'The back office behind the tidy yards.',
+    overview:
+      'Humboldt Scoop CMS is the admin console for the real-world pet-waste removal business: customers, their yards and pets, recurring service schedules, visit logs, and draft invoicing. Internal, admin-only tooling — dummy data until Silas approves real customer data.',
+    sections: [
+      {
+        key: 'customers',
+        title: 'Customers, properties & pets',
+        body: 'Each customer can have multiple properties (yards), and pets are tied to the property where they are actually encountered, so service notes stay accurate across visits.',
+        image: tutorialImage('scoop-cms', 'scoop-cms'),
+      },
+      {
+        key: 'scheduling',
+        title: 'Service plans & visits',
+        body: 'Recurring service plans track frequency, preferred weekday, and pricing; visits record scheduled and completed work. Draft invoices preview billing from visits without any live payment collection.',
+        image: tutorialImage('scoop-cms', 'scoop-cms'),
+      },
+      {
+        key: 'routing',
+        title: 'Deterministic route planning',
+        body: 'A mapped route planner builds a route from a selected set of customers using deterministic optimization, not an LLM — Android-first for the field crew, with Linux and iOS compatibility as ongoing goals.',
+        image: tutorialImage('scoop-cms', 'scoop-cms'),
+        underConstruction: true,
+      },
+    ],
+  },
+
   conductor: {
     key: 'conductor',
     title: 'Conductor',
@@ -485,6 +516,7 @@ const tutorialRouteMap = {
   mural: '/mural',
   challenges: '/challenges',
   'humboldt-scoop': '/humboldt-scoop',
+  'scoop-cms': '/scoop-cms',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

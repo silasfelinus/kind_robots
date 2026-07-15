@@ -52,7 +52,7 @@ function buildDatabaseUrl(url: string): string {
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
-    2,
+    10,
   )
   const minDelayValidation = readNonNegativeInteger(
     process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
@@ -175,7 +175,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
-      2,
+      10,
     ),
     minDelayValidation: readNonNegativeInteger(
       parsed.searchParams.get('minDelayValidation') ?? undefined,

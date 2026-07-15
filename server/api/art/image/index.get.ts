@@ -108,7 +108,7 @@ function buildArtImageWhere({
 
 function buildArtImageSelect(
   query: Record<string, QueryValue>,
-): Prisma.ArtImageSelect {
+): Prisma.Args<typeof prisma.artImage, 'findMany'>['select'] {
   const includeImageData = readBoolean(query.includeImageData, false)
   const includeThumbnailData = readBoolean(query.includeThumbnailData, false)
   const includeTags = readBoolean(query.includeTags, false)

@@ -19,12 +19,20 @@
 // fields it owns (the single text field plus the model's known field spec).
 
 import { createError, defineEventHandler, readBody } from 'h3'
-import type { Rarity, RewardType, DreamType, FacetKind, Prisma  } from '~/prisma/generated/prisma/client'
+import type { Rarity, RewardType, DreamType, FacetKind } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { assertRunAccess, getItemId } from '../../runs/index'
+import { assertRunAccess, getItemId, parseStoredJson } from '../../runs/index'
 import { CREATE_TARGETS, fieldSpecFor } from '~/stores/helpers/modelBuilderFields'
+
+// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
+// $transaction callback's tx param has extended InternalArgs that don't
+// structurally match the plain Prisma.TransactionClient type. Derive the
+// type from the actual instance instead of the generated default.
+type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0]
 
 type SourceType =
   | 'Project'
@@ -359,7 +367,7 @@ async function updateText(
 // with the single text field plus any known columns from the structured FIELDS
 // draft. Returns its id.
 async function createRecord(
-  tx: Prisma.TransactionClient,
+  tx: TransactionClient,
   type: SourceType,
   name: string,
   text: string,
@@ -438,7 +446,7 @@ async function createRecord(
 // Link a newly created target back to its source via the known relation.
 // Returns true if a link was written, false if the pair has no known relation.
 async function linkSourceToTarget(
-  tx: Prisma.TransactionClient,
+  tx: TransactionClient,
   sourceType: SourceType,
   sourceId: number,
   targetType: SourceType,
@@ -667,10 +675,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Record the commit on the item (COMMIT stage + target) so it survives resume.
-    const stages =
-      item.stageStatuses && typeof item.stageStatuses === 'object'
-        ? { ...(item.stageStatuses as Record<string, unknown>) }
-        : {}
+    // stageStatuses is stored as serialized JSON text (see prisma/model-builder.prisma).
+    const stages = parseStoredJson<Record<string, unknown>>(
+      item.stageStatuses,
+      {},
+    )
     stages.COMMIT = {
       status: 'approved',
       note: `Committed → ${target.type} #${target.id}${target.created ? (target.linked ? ' (created + linked)' : ' (created)') : ''}`,
@@ -681,7 +690,7 @@ export default defineEventHandler(async (event) => {
       data: {
         targetType: target.type,
         targetId: target.id,
-        stageStatuses: stages as unknown as Prisma.InputJsonValue,
+        stageStatuses: JSON.stringify(stages),
       },
       include: {
         Artifacts: { orderBy: { id: 'asc' } },

@@ -53,10 +53,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  useAnimationStore,
-  type AnimationEffectId,
-} from '@/stores/animationStore'
+import { useAnimationStore } from '@/stores/animationStore'
+import type { AnimationEffectId } from '@/stores/animationCatalog'
 
 const animationStore = useAnimationStore()
 

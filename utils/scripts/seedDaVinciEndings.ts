@@ -27,7 +27,6 @@ import 'dotenv/config'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
-import type { Prisma } from './../../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 const VICTORY_TYPES = ['VICTORY', 'FAILURE', 'MIXED', 'SECRET'] as const
@@ -42,7 +41,7 @@ export interface EndingPayload {
   icon: string
   heroImage: string
   artPrompt: string
-  metadata: Prisma.InputJsonValue
+  metadata: unknown
   achievement: {
     label: string
     message: string
@@ -159,6 +158,7 @@ export async function importEnding(
     create: { ...achievementData, triggerCode: m.triggerCode },
   })
 
+  const metadata = JSON.stringify(ending.metadata ?? null)
   const endingData = {
     title: ending.title,
     slug: ending.slug,
@@ -167,7 +167,7 @@ export async function importEnding(
     icon: ending.icon,
     heroImage: ending.heroImage,
     artPrompt: ending.artPrompt,
-    metadata: ending.metadata,
+    metadata,
     achievementId: achievement.id,
     isActive: true,
   }
@@ -188,7 +188,7 @@ export async function importEnding(
     imagePath: a.imagePath,
     // LifeAchievement has no artPrompt column — the prompt lives on the
     // linked Achievement and LifeEnding rows.
-    metadata: ending.metadata,
+    metadata,
     achievementId: achievement.id,
     endingId: lifeEnding.id,
     isActive: true,
@@ -233,14 +233,14 @@ export function davinciCounts(prisma: PrismaClient, outcomeKeys: string[]) {
       where: { outcomeKey: { in: outcomeKeys } },
     }),
     prisma.lifeAchievement.count({
-      where: { conditionKey: { in: outcomeKeys.map((k) => `ending:${k}`) } },
+      where: { conditionKey: { in: outcomeKeys.map((key) => `ending:${key}`) } },
     }),
   ])
 }
 
 async function main() {
   const WRITE = process.argv.includes('--write')
-  const filePath = process.argv.slice(2).find((a) => !a.startsWith('--'))
+  const filePath = process.argv.slice(2).find((arg) => !arg.startsWith('--'))
   if (!filePath) {
     throw new Error(
       'Usage: npm run seed:davinci -- <path/to/davinci-endings.json|jsonl> [--write]',

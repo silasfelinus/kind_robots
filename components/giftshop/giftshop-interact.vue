@@ -76,6 +76,31 @@
           </div>
         </div>
 
+        <div
+          class="flex flex-col items-start gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm text-primary-content sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="flex items-start gap-3">
+            <Icon name="kind-icon:hand-heart" class="mt-1 h-5 w-5 shrink-0" />
+
+            <div class="space-y-1">
+              <p class="font-black">Skip the shop, give directly</p>
+
+              <p>
+                Every net purchased through the Against Malaria Foundation saves
+                lives. We never touch the money.
+              </p>
+            </div>
+          </div>
+
+          <NuxtLink
+            to="/giving"
+            class="btn btn-primary btn-sm shrink-0 rounded-2xl"
+          >
+            <Icon name="kind-icon:gift" class="h-4 w-4" />
+            Give directly
+          </NuxtLink>
+        </div>
+
         <div class="grid gap-3 xl:grid-cols-2">
           <article
             v-for="item in showcaseItems"

@@ -36,8 +36,8 @@
 
       <aside class="flex min-h-0 flex-col gap-3">
         <academy-style-detail
-          v-if="contextStyle"
-          :lesson="contextStyle"
+          v-if="academyStore.selectedStyle"
+          :lesson="academyStore.selectedStyle"
           :show-close="false"
           @remix="() => {}"
         />
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'
 import type { StyleEntry } from '@/stores/helpers/styleHelper'
@@ -69,20 +69,8 @@ import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 const academyStore = useAcademyStore()
 
-const activeStyleSlug = ref<string | null>(
-  academyStore.selectedStyleSlug ?? null,
-)
-
 const remixStyles = computed<StyleEntry[]>(() => {
   return academyStore.timeline.map((style) => academyStyleToEntry(style))
-})
-
-const contextStyle = computed<AcademyStyle | null>(() => {
-  if (!activeStyleSlug.value) return null
-  return (
-    academyStore.styles.find((style) => style.slug === activeStyleSlug.value) ??
-    null
-  )
 })
 
 function academyStyleToEntry(style: AcademyStyle): StyleEntry {
@@ -98,13 +86,12 @@ function academyStyleToEntry(style: AcademyStyle): StyleEntry {
 }
 
 function onStyleSelected(entry: StyleEntry | null) {
-  activeStyleSlug.value = entry?.slug ?? null
   academyStore.selectStyle(entry?.slug ?? null)
 }
 
 function onGenerated(_image: ArtImage) {
-  if (activeStyleSlug.value) {
-    academyStore.markStyleRemixed(activeStyleSlug.value)
+  if (academyStore.selectedStyleSlug) {
+    academyStore.markStyleRemixed(academyStore.selectedStyleSlug)
   }
 }
 </script>

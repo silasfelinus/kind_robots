@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { serializeSocialMedia } from '@/server/utils/socialMedia'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type {
   Prisma,
@@ -70,7 +71,10 @@ export default defineEventHandler(async (event) => {
       return {
         title,
         body: postBody,
-        mediaUrls: (mediaUrls as Prisma.InputJsonValue) ?? [],
+        // SocialPost.mediaUrls is a String column containing JSON. Passing an
+        // array here used to compile only because of an unsafe cast, then fail
+        // at runtime with Prisma validation error 400.
+        mediaUrls: serializeSocialMedia(mediaUrls),
         isPublic: isPublic ?? false,
         isMature: isMature ?? false,
         audience: audience ?? ('SOCIAL' as PostAudience),
@@ -90,7 +94,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Batch
     if (Array.isArray(body)) {
       const created = []
       const skipped: string[] = []
@@ -118,7 +121,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Single
     const data = await prisma.socialPost.create({
       data: buildCreate(body),
       include: { targets: true },

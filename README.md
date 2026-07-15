@@ -254,7 +254,7 @@ Covnert Images:
 node ./utils/scripts/convertImagesToWebp.mjs public/images/convert public/images/convert/webp
 
 
-****
+***
 Github whitespace error (if git is out of sync with minor edits)
 
 ## confirm the edits are minor

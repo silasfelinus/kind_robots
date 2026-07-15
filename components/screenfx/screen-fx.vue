@@ -159,10 +159,9 @@
 import { ref } from 'vue'
 import {
   useAnimationStore,
-  type AnimationEffectId,
-  type FxRegion,
   type FxPlacementState,
 } from '@/stores/animationStore'
+import type { AnimationEffectId, FxRegion } from '@/stores/animationCatalog'
 
 const animationStore = useAnimationStore()
 

@@ -45,7 +45,6 @@ import {
   WAN_DEFAULT_DURATION,
   WAN_DEFAULT_FRAME_RATE,
 } from '../comfy/wan/utils/imageToVideoWorkflow'
-import type { Prisma } from '~/prisma/generated/prisma/client'
 
 // The queueable engines. `openai` is handled synchronously elsewhere.
 // `ltx` and `wan` are image-to-video engines (media: 'video').
@@ -195,7 +194,7 @@ export default defineEventHandler(async (event) => {
     const job = await prisma.artJob.create({
       data: {
         engine: jobEngine,
-        payload: payload as unknown as Prisma.InputJsonValue,
+        payload: JSON.stringify(payload),
         priority,
         projectSlug,
         userId: gate.user.id,

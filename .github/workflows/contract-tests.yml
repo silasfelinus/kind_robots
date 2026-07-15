@@ -47,6 +47,9 @@ jobs:
       - name: Database pool defaults contract
         run: npm run test:database-pool-defaults
 
+      - name: Academy style-detail caller-doc contract
+        run: npm run test:academy-style-detail-callers
+
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 

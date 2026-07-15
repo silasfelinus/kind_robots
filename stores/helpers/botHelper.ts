@@ -119,3 +119,28 @@ export async function botImage(bot: Bot): Promise<string> {
 export async function seedBotsHelper(): Promise<Partial<BotPayload>[]> {
   return botData as Partial<BotPayload>[]
 }
+
+const BOT_FETCH_PAGE_SIZE = 200
+const BOT_FETCH_MAX_PAGES = 50
+
+export async function fetchAllBots(): Promise<Bot[]> {
+  const allBots: Bot[] = []
+
+  for (let page = 1; page <= BOT_FETCH_MAX_PAGES; page++) {
+    const response = await performFetch<Bot[]>(
+      `/api/bots?page=${page}&pageSize=${BOT_FETCH_PAGE_SIZE}`,
+    )
+
+    if (!response.success || !Array.isArray(response.data)) {
+      throw new Error(response.message || 'Failed to fetch bots')
+    }
+
+    allBots.push(...response.data)
+
+    if (response.data.length < BOT_FETCH_PAGE_SIZE) {
+      break
+    }
+  }
+
+  return allBots
+}

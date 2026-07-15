@@ -19,7 +19,7 @@ import {
   buildKontextWorkflow,
   getKontextImageExtension,
 } from './utils/workflow'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import { serializeArtJobPayload } from '../../../utils/artJobPayload'
 
 type KontextEnqueueRequest = {
   prompt?: string | null
@@ -103,9 +103,7 @@ export default defineEventHandler(async (event) => {
       maskName: maskName || null,
       filenamePrefix: body.filenamePrefix || 'kindrobots_kontext_queue',
     })
-    // ComfyWorkflow's index signature doesn't structurally satisfy
-    // Prisma.InputJsonValue, so cast at the boundary (same pattern as
-    // /api/art/queue/index.post.ts). The shape is plain JSON.
+
     const payload = {
       workflow,
       promptString: prompt,
@@ -128,7 +126,7 @@ export default defineEventHandler(async (event) => {
         engine: 'COMFY',
         priority: Number.isInteger(body.priority) ? Number(body.priority) : 5,
         userId: gate.user.id,
-        payload: payload as unknown as Prisma.InputJsonValue,
+        payload: serializeArtJobPayload(payload),
       },
     })
 

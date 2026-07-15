@@ -55,10 +55,10 @@ async function main() {
     return
   }
 
-  for (const p of prompts) {
-    const promptString = (p.artPrompt ?? p.prompt ?? '').trim()
+  for (const prompt of prompts) {
+    const promptString = (prompt.artPrompt ?? prompt.prompt ?? '').trim()
     console.log(
-      `Prompt #${p.id} [${p.artStatus}] → ArtJob (user ${p.userId ?? FALLBACK_USER_ID})` +
+      `Prompt #${prompt.id} [${prompt.artStatus}] → ArtJob (user ${prompt.userId ?? FALLBACK_USER_ID})` +
         `  "${promptString.slice(0, 60)}"`,
     )
   }
@@ -73,13 +73,13 @@ async function main() {
   let migrated = 0
   let skipped = 0
 
-  for (const p of prompts) {
-    const promptString = (p.artPrompt ?? p.prompt ?? '').trim()
+  for (const prompt of prompts) {
+    const promptString = (prompt.artPrompt ?? prompt.prompt ?? '').trim()
 
     if (!promptString) {
       // Nothing to render — just clear the stale queue state.
       await prisma.prompt.update({
-        where: { id: p.id },
+        where: { id: prompt.id },
         data: { artStatus: null },
       })
       skipped++
@@ -91,21 +91,21 @@ async function main() {
       prisma.artJob.create({
         data: {
           engine: 'A1111',
-          userId: p.userId ?? FALLBACK_USER_ID,
-          payload: {
+          userId: prompt.userId ?? FALLBACK_USER_ID,
+          payload: JSON.stringify({
             promptString,
-            imagePath: p.imagePath ?? null,
-            migratedFromPromptId: p.id,
+            imagePath: prompt.imagePath ?? null,
+            migratedFromPromptId: prompt.id,
             save: {
-              isPublic: p.isPublic,
-              isMature: p.isMature,
+              isPublic: prompt.isPublic,
+              isMature: prompt.isMature,
               designer: null,
             },
-          },
+          }),
         },
       }),
       prisma.prompt.update({
-        where: { id: p.id },
+        where: { id: prompt.id },
         data: { artStatus: null },
       }),
     ])

@@ -42,11 +42,11 @@ function buildDatabaseUrl(url: string): string {
   )
   const acquireTimeout = readPositiveInteger(
     process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
-    10_000,
+    6_000,
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
-    10,
+    2,
   )
   const minDelayValidation = readNonNegativeInteger(
     process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
@@ -77,9 +77,10 @@ function buildDatabaseUrl(url: string): string {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
   }
 
-  // The MariaDB connector defaults minimumIdle to connectionLimit and keeps
-  // those idle sockets for 30 minutes. That is a poor fit for reused Vercel
-  // functions because a warm instance can retain a full pool of dead sockets.
+  // Every warm Vercel function has its own pool. A default pool of ten lets a
+  // small traffic burst multiply into hundreds of database sockets. Keep the
+  // pool elastic and small; all values remain overridable through environment
+  // variables for non-serverless deployments.
   if (!parsed.searchParams.has('idleTimeout')) {
     parsed.searchParams.set('idleTimeout', String(idleTimeout))
   }
@@ -136,11 +137,11 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     acquireTimeout: readPositiveInteger(
       parsed.searchParams.get('acquireTimeout') ?? undefined,
-      10_000,
+      6_000,
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
-      10,
+      2,
     ),
     minDelayValidation: readNonNegativeInteger(
       parsed.searchParams.get('minDelayValidation') ?? undefined,
@@ -164,9 +165,12 @@ const retryableDatabaseMessages = [
   'Max connect timeout reached',
 ]
 
+// A pool acquisition can consume the full acquireTimeout. Keep the default
+// retry budget within the serverless function deadline instead of allowing the
+// platform to terminate the request before errorHandler can return a 503.
 const transientRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
-  5,
+  2,
 )
 const transientRetryDelayMs = readPositiveInteger(
   process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,

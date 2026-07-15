@@ -82,7 +82,6 @@ function normalizeRequiredString(
   }
 
   const trimmed = value.trim()
-
   if (trimmed.length > maxLength) {
     throw createError({
       statusCode: 400,
@@ -110,7 +109,6 @@ function normalizeBoolean(value: unknown, fallback: boolean): boolean {
   if (typeof value === 'boolean') return value
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase()
-
     if (normalized === 'true') return true
     if (normalized === 'false') return false
   }
@@ -123,7 +121,6 @@ function normalizeNullableInteger(value: unknown): number | null | undefined {
   if (value === undefined || value === '') return undefined
 
   const parsed = Number(value)
-
   if (!Number.isInteger(parsed)) {
     throw createError({
       statusCode: 400,
@@ -145,18 +142,15 @@ function normalizeIntros(value: unknown): string {
 
   if (typeof value === 'string') {
     const trimmed = value.trim()
-
     if (!trimmed) return '[]'
 
     try {
       const parsed = JSON.parse(trimmed)
-
       if (Array.isArray(parsed)) {
         return JSON.stringify(
           parsed.map((entry) => String(entry).trim()).filter(Boolean),
         )
       }
-
       return JSON.stringify([trimmed])
     } catch {
       return JSON.stringify(
@@ -203,7 +197,6 @@ function normalizeOptionalId(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined
 
   const id = Number(value)
-
   if (!Number.isInteger(id) || id <= 0) {
     throw createError({
       statusCode: 400,
@@ -217,6 +210,11 @@ function normalizeOptionalId(value: unknown): number | undefined {
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
   return 'Unknown scenario seed error.'
+}
+
+function isInfrastructureError(error: unknown): boolean {
+  const handled = errorHandler(error)
+  return Number(handled.statusCode) >= 500
 }
 
 function buildScenarioCreateInput(
@@ -257,21 +255,14 @@ function buildScenarioCreateInput(
 
 async function findExistingScenario(title: string, userId: number) {
   return await prisma.scenario.findFirst({
-    where: {
-      title,
-      userId,
-    },
-    select: {
-      id: true,
-      title: true,
-    },
+    where: { title, userId },
+    select: { id: true, title: true },
   })
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -280,7 +271,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<ScenarioPostInput | ScenarioPostInput[]>(event)
-
     if (!body) {
       throw createError({
         statusCode: 400,
@@ -290,7 +280,6 @@ export default defineEventHandler(async (event) => {
 
     const isBatch = Array.isArray(body)
     const scenarioInputs = isBatch ? body : [body]
-
     if (!scenarioInputs.length) {
       throw createError({
         statusCode: 400,
@@ -311,7 +300,6 @@ export default defineEventHandler(async (event) => {
       try {
         const createInput = buildScenarioCreateInput(scenarioData, user.id)
         const title = createInput.title
-
         const existingScenario = await findExistingScenario(title, user.id)
 
         if (existingScenario) {
@@ -327,12 +315,7 @@ export default defineEventHandler(async (event) => {
           data: createInput,
           include: {
             ArtImage: true,
-            User: {
-              select: {
-                id: true,
-                username: true,
-              },
-            },
+            User: { select: { id: true, username: true } },
             Characters: true,
             Compositions: true,
             Dreams: true,
@@ -341,6 +324,8 @@ export default defineEventHandler(async (event) => {
 
         created.push(createdScenario)
       } catch (error) {
+        if (isInfrastructureError(error)) throw error
+
         failed.push({
           title: fallbackTitle,
           message: getErrorMessage(error),
@@ -350,28 +335,18 @@ export default defineEventHandler(async (event) => {
 
     if (failed.length && !created.length && !skipped.length) {
       event.node.res.statusCode = 400
-
       return {
         success: false,
-        data: {
-          created,
-          skipped,
-          failed,
-        },
+        data: { created, skipped, failed },
         message: `No scenarios were created. ${failed.length} failed.`,
       }
     }
 
     event.node.res.statusCode = failed.length ? 207 : 201
-
     return {
       success: failed.length === 0,
       data: isBatch
-        ? {
-            created,
-            skipped,
-            failed,
-          }
+        ? { created, skipped, failed }
         : created[0] || skipped[0] || failed[0],
       message: isBatch
         ? `${created.length} created, ${skipped.length} skipped, ${failed.length} failed.`
@@ -383,7 +358,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
-
     event.node.res.statusCode = statusCode || 500
 
     return {

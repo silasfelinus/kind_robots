@@ -58,6 +58,9 @@ const timingDir = path.resolve('.cypress-cache')
 const timingLatestFile = path.join(timingDir, 'timing-latest.json')
 const seedCleanupLatestFile = path.join(timingDir, 'seed-cleanup-latest.json')
 const apiKeyHeaderName = ['x', 'api', 'key'].join('-')
+const adminTokenHeaderName = ['x', 'admin', 'token'].join('-')
+const betaAdminTokenHeaderName = ['x', 'beta', 'admin', 'token'].join('-')
+const cleanupConcurrency = 3
 
 const sweepTargets: SweepTarget[] = [
   { label: 'chats', path: '/chats' },
@@ -67,7 +70,10 @@ const sweepTargets: SweepTarget[] = [
   { label: 'bots', path: '/bots' },
   { label: 'rewards', path: '/rewards' },
   { label: 'scenarios', path: '/scenarios' },
-  { label: 'art collections', path: '/art/collection' },
+  {
+    label: 'art collections',
+    path: '/art/collection?summary=true&includeImages=false',
+  },
   { label: 'resources', path: '/resources' },
   { label: 'art images', path: '/art/image' },
   { label: 'servers', path: '/server' },
@@ -76,24 +82,23 @@ const sweepTargets: SweepTarget[] = [
   { label: 'achievements', path: '/achievements' },
 ]
 
-const cypressFixturePattern = /cypress|relationship-\d+|reaction-fixture-|pancake-sunrise-collection|justfortesting|Bad-Server-/i
+const cypressFixturePattern =
+  /cypress|relationship-\d+|reaction-fixture-|pancake-sunrise-collection|justfortesting|Bad-Server-/i
 
 const formatMs = (ms: number) => {
   if (!Number.isFinite(ms)) return 'n/a'
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
+  if (ms < 1_000) return `${ms}ms`
+  return `${(ms / 1_000).toFixed(1)}s`
 }
 
-const readNumber = (value: unknown, fallback = 0) => {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
-}
+const readNumber = (value: unknown, fallback = 0) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback
 
 const readRunStats = (results: unknown): RunStatsSummary | null => {
   if (!results || typeof results !== 'object') return null
 
   const record = results as Record<string, unknown>
   const totalDuration = record.totalDuration
-
   if (typeof totalDuration !== 'number') return null
 
   return {
@@ -108,7 +113,10 @@ const readRunStats = (results: unknown): RunStatsSummary | null => {
 
 const countTestsByState = (tests: unknown[], state: string) =>
   tests.filter((test) => {
-    const record = test as { state?: string; attempts?: Array<{ state?: string }> }
+    const record = test as {
+      state?: string
+      attempts?: Array<{ state?: string }>
+    }
     const lastAttempt = record.attempts?.[record.attempts.length - 1]
     return record.state === state || lastAttempt?.state === state
   }).length
@@ -120,7 +128,6 @@ const keepSeedAfterRun = (env: Record<string, unknown>) =>
 
 const parseResponseBody = async (response: Response) => {
   const text = await response.text()
-
   try {
     return text ? JSON.parse(text) : null
   } catch {
@@ -130,13 +137,11 @@ const parseResponseBody = async (response: Response) => {
 
 const dataArrayFromBody = (body: unknown): ApiRecord[] => {
   if (!body || typeof body !== 'object') return []
-
-  const record = body as Record<string, unknown>
-  const data = record.data
-
+  const data = (body as Record<string, unknown>).data
   if (!Array.isArray(data)) return []
-
-  return data.filter((item): item is ApiRecord => Boolean(item && typeof item === 'object'))
+  return data.filter(
+    (item): item is ApiRecord => Boolean(item && typeof item === 'object'),
+  )
 }
 
 const stringifySearchableRecord = (record: ApiRecord) =>
@@ -162,9 +167,11 @@ const stringifySearchableRecord = (record: ApiRecord) =>
 
 const isCypressFixtureRecord = (record: ApiRecord) => {
   const id = Number(record.id)
-  if (!Number.isInteger(id) || id <= 0) return false
-
-  return cypressFixturePattern.test(stringifySearchableRecord(record))
+  return (
+    Number.isInteger(id) &&
+    id > 0 &&
+    cypressFixturePattern.test(stringifySearchableRecord(record))
+  )
 }
 
 const baseJsonHeaders = () => ({
@@ -172,7 +179,43 @@ const baseJsonHeaders = () => ({
   'Content-Type': 'application/json',
 })
 
-const buildSweepDeleteAuths = (adminKey: string, seedUsers: SeedUser[]): SweepDeleteAuth[] => {
+const adminHeaders = (adminKey: string) => ({
+  ...baseJsonHeaders(),
+  [apiKeyHeaderName]: adminKey,
+  [adminTokenHeaderName]: adminKey,
+  [betaAdminTokenHeaderName]: adminKey,
+})
+
+const mapWithConcurrency = async <T, R>(
+  items: T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> => {
+  if (items.length === 0) return []
+
+  const results = new Array<R>(items.length)
+  let cursor = 0
+
+  const runners = Array.from(
+    { length: Math.min(Math.max(1, limit), items.length) },
+    async () => {
+      while (true) {
+        const index = cursor
+        cursor += 1
+        if (index >= items.length) return
+        results[index] = await worker(items[index]!, index)
+      }
+    },
+  )
+
+  await Promise.all(runners)
+  return results
+}
+
+const buildSweepDeleteAuths = (
+  adminKey: string,
+  seedUsers: SeedUser[],
+): SweepDeleteAuth[] => {
   const bearerAuths = seedUsers
     .filter((user) => typeof user.token === 'string' && user.token.length > 20)
     .map((user) => ({
@@ -186,12 +229,8 @@ const buildSweepDeleteAuths = (adminKey: string, seedUsers: SeedUser[]): SweepDe
   const adminAuths = adminKey
     ? [
         {
-          label: 'beta admin token',
-          headers: {
-            ...baseJsonHeaders(),
-            'x-beta-admin-token': adminKey,
-            [apiKeyHeaderName]: adminKey,
-          },
+          label: 'admin token',
+          headers: adminHeaders(adminKey),
         },
       ]
     : []
@@ -199,22 +238,20 @@ const buildSweepDeleteAuths = (adminKey: string, seedUsers: SeedUser[]): SweepDe
   return [...bearerAuths, ...adminAuths]
 }
 
-const deleteSeedUser = async (apiBase: string, adminKey: string, user: SeedUser) => {
+const deleteSeedUser = async (
+  apiBase: string,
+  adminKey: string,
+  user: SeedUser,
+) => {
   const response = await fetch(`${apiBase}/users/${user.id}`, {
     method: 'DELETE',
-    headers: {
-      ...baseJsonHeaders(),
-      'x-beta-admin-token': adminKey,
-      [apiKeyHeaderName]: adminKey,
-    },
+    headers: adminHeaders(adminKey),
   })
 
   return {
     label: `seed user ${user.id}`,
     userId: user.id,
     status: response.status,
-    // 401/403 used to count as "ok", which hid the fact that seed users were
-    // never actually deleted. Only success or already-gone counts now.
     ok: [200, 202, 204, 404].includes(response.status),
     body: await parseResponseBody(response),
   }
@@ -250,7 +287,8 @@ const deleteSweptRecord = async (
   record: ApiRecord,
   auths: SweepDeleteAuth[],
 ) => {
-  const url = `${apiBase}${target.path}/${record.id}`
+  const cleanPath = target.path.split('?')[0]
+  const url = `${apiBase}${cleanPath}/${record.id}`
   const attempts: unknown[] = []
 
   for (const auth of auths) {
@@ -260,7 +298,6 @@ const deleteSweptRecord = async (
     })
     const body = await parseResponseBody(response)
     const ok = [200, 202, 204, 404].includes(response.status)
-
     attempts.push({ auth: auth.label, status: response.status, ok, body })
 
     if (ok) {
@@ -286,33 +323,38 @@ const sweepCypressFixtures = async (
   adminKey: string,
   seedUsers: SeedUser[],
 ) => {
-  const listHeaders = {
-    ...baseJsonHeaders(),
-    'x-beta-admin-token': adminKey,
-    [apiKeyHeaderName]: adminKey,
-  }
+  const listHeaders = adminHeaders(adminKey)
   const deleteAuths = buildSweepDeleteAuths(adminKey, seedUsers)
-  const results: unknown[] = []
 
-  for (const target of sweepTargets) {
-    try {
-      const listResponse = await fetch(`${apiBase}${target.path}`, { headers: listHeaders })
-      const listBody = await parseResponseBody(listResponse)
-      const records = dataArrayFromBody(listBody).filter(isCypressFixtureRecord)
+  const targetResults = await mapWithConcurrency(
+    sweepTargets,
+    cleanupConcurrency,
+    async (target) => {
+      try {
+        const listResponse = await fetch(`${apiBase}${target.path}`, {
+          headers: listHeaders,
+        })
+        const listBody = await parseResponseBody(listResponse)
+        const records = dataArrayFromBody(listBody).filter(isCypressFixtureRecord)
 
-      for (const record of records) {
-        results.push(await deleteSweptRecord(apiBase, target, record, deleteAuths))
+        return mapWithConcurrency(
+          records,
+          cleanupConcurrency,
+          (record) => deleteSweptRecord(apiBase, target, record, deleteAuths),
+        )
+      } catch (error) {
+        return [
+          {
+            label: `sweep ${target.label}`,
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          },
+        ]
       }
-    } catch (error) {
-      results.push({
-        label: `sweep ${target.label}`,
-        ok: false,
-        error: error instanceof Error ? error.message : String(error),
-      })
-    }
-  }
+    },
+  )
 
-  return results
+  return targetResults.flat()
 }
 
 export default defineConfig({
@@ -328,7 +370,11 @@ export default defineConfig({
       const runStartedAt = Date.now()
       const specStarts = new Map<string, number>()
       const specSummaries: TimingSpecSummary[] = []
-      const timingEvents: Array<{ label: string; durationMs: number; at: string }> = []
+      const timingEvents: Array<{
+        label: string
+        durationMs: number
+        at: string
+      }> = []
       const cleanupRequests: CleanupRequest[] = []
 
       const timingLog = (message: string) => {
@@ -337,14 +383,17 @@ export default defineConfig({
 
       const recordEvent = (label: string, startMs: number) => {
         const durationMs = Date.now() - startMs
-        timingEvents.push({ label, durationMs, at: new Date().toISOString() })
+        timingEvents.push({
+          label,
+          durationMs,
+          at: new Date().toISOString(),
+        })
         timingLog(`${label}: ${formatMs(durationMs)}`)
         return durationMs
       }
 
       on('before:run', async () => {
         fs.mkdirSync(timingDir, { recursive: true })
-
         const seedStart = Date.now()
         timingLog('test world setup: start')
         await ensureCypressApiSeed(config.env as Record<string, unknown>)
@@ -374,45 +423,50 @@ export default defineConfig({
         }
 
         specSummaries.push(summary)
-
         timingLog(
           `spec done: ${summary.relative} ${formatMs(summary.durationMs)} ` +
-            `tests=${summary.tests} pass=${summary.passes} fail=${summary.failures} pending=${summary.pending}`,
+            `tests=${summary.tests} pass=${summary.passes} ` +
+            `fail=${summary.failures} pending=${summary.pending}`,
         )
       })
 
       on('after:run', async (results) => {
         const totalMs = Date.now() - runStartedAt
-        const sortedSpecs = [...specSummaries].sort((a, b) => b.durationMs - a.durationMs)
+        const sortedSpecs = [...specSummaries].sort(
+          (a, b) => b.durationMs - a.durationMs,
+        )
         const cleanupStartedAt = Date.now()
         const env = config.env as Record<string, unknown>
         const cleanupResults: unknown[] = []
         const cypressStats = readRunStats(results)
 
-        for (const request of [...cleanupRequests].reverse()) {
-          try {
-            cleanupResults.push(await runCleanupRequest(request))
-          } catch (error) {
-            cleanupResults.push({
-              label: request.label,
-              method: request.method || 'DELETE',
-              url: request.url,
-              ok: false,
-              error: error instanceof Error ? error.message : String(error),
-            })
-          }
-        }
+        const queuedRequests = [...cleanupRequests].reverse()
+        cleanupResults.push(
+          ...(await mapWithConcurrency(
+            queuedRequests,
+            cleanupConcurrency,
+            async (request) => {
+              try {
+                return await runCleanupRequest(request)
+              } catch (error) {
+                return {
+                  label: request.label,
+                  method: request.method || 'DELETE',
+                  url: request.url,
+                  ok: false,
+                  error: error instanceof Error ? error.message : String(error),
+                }
+              }
+            },
+          )),
+        )
 
         let seed: Awaited<ReturnType<typeof ensureCypressApiSeed>> | undefined
 
         try {
           seed = await ensureCypressApiSeed(env)
           cleanupResults.push(
-            ...(await sweepCypressFixtures(seed.apiBase, seed.adminKey, [
-              seed.user,
-              seed.secondUser,
-              seed.thirdUser,
-            ])),
+            ...(await sweepCypressFixtures(seed.apiBase, seed.adminKey, [seed.user])),
           )
         } catch (error) {
           cleanupResults.push({
@@ -425,21 +479,19 @@ export default defineConfig({
         if (!keepSeedAfterRun(env)) {
           try {
             seed = seed || (await ensureCypressApiSeed(env))
-
-            for (const user of [seed.thirdUser, seed.secondUser, seed.user]) {
-              cleanupResults.push(await deleteSeedUser(seed.apiBase, seed.adminKey, user))
-            }
-
+            cleanupResults.push(
+              await deleteSeedUser(seed.apiBase, seed.adminKey, seed.user),
+            )
             clearCypressApiSeed()
           } catch (error) {
             cleanupResults.push({
-              label: 'seed users',
+              label: 'seed user',
               ok: false,
               error: error instanceof Error ? error.message : String(error),
             })
           }
         } else {
-          cleanupResults.push({ label: 'seed users', ok: true, kept: true })
+          cleanupResults.push({ label: 'seed user', ok: true, kept: true })
         }
 
         recordEvent('test world cleanup', cleanupStartedAt)
@@ -454,17 +506,27 @@ export default defineConfig({
         }
 
         fs.mkdirSync(timingDir, { recursive: true })
-        fs.writeFileSync(timingLatestFile, `${JSON.stringify(report, null, 2)}\n`)
-        fs.writeFileSync(seedCleanupLatestFile, `${JSON.stringify(cleanupResults, null, 2)}\n`)
-        fs.writeFileSync(path.join(timingDir, `timing-${Date.now()}.json`), `${JSON.stringify(report, null, 2)}\n`)
+        fs.writeFileSync(
+          timingLatestFile,
+          `${JSON.stringify(report, null, 2)}\n`,
+        )
+        fs.writeFileSync(
+          seedCleanupLatestFile,
+          `${JSON.stringify(cleanupResults, null, 2)}\n`,
+        )
+        fs.writeFileSync(
+          path.join(timingDir, `timing-${Date.now()}.json`),
+          `${JSON.stringify(report, null, 2)}\n`,
+        )
 
         if (timingEnabled) {
           console.log(`[cypress:timing] run total: ${formatMs(totalMs)}`)
           console.log('[cypress:timing] slowest specs:')
           for (const spec of sortedSpecs.slice(0, 10)) {
             console.log(
-              `[cypress:timing]   ${formatMs(spec.durationMs).padStart(8)}  ${spec.relative} ` +
-                `(tests=${spec.tests}, fail=${spec.failures}, pending=${spec.pending})`,
+              `[cypress:timing]   ${formatMs(spec.durationMs).padStart(8)}  ` +
+                `${spec.relative} (tests=${spec.tests}, fail=${spec.failures}, ` +
+                `pending=${spec.pending})`,
             )
           }
           console.log(`[cypress:timing] wrote ${timingLatestFile}`)
@@ -475,14 +537,19 @@ export default defineConfig({
       on('task', {
         async 'cypressSeed:get'() {
           const start = Date.now()
-          const seed = await ensureCypressApiSeed(config.env as Record<string, unknown>)
+          const seed = await ensureCypressApiSeed(
+            config.env as Record<string, unknown>,
+          )
           recordEvent('task cypressSeed:get', start)
           return seed
         },
 
         async 'cypressSeed:isSeedUser'(userId: number) {
           const start = Date.now()
-          const result = await isSeedUserId(config.env as Record<string, unknown>, userId)
+          const result = await isSeedUserId(
+            config.env as Record<string, unknown>,
+            userId,
+          )
           recordEvent('task cypressSeed:isSeedUser', start)
           return result
         },
@@ -515,13 +582,5 @@ export default defineConfig({
   },
 
   projectId: 'm98sgq',
-
   allowCypressEnv: false,
-
-  component: {
-    devServer: {
-      framework: 'vue',
-      bundler: 'vite',
-    },
-  },
 })

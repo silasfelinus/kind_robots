@@ -33,29 +33,15 @@ const artImageListSelect = {
   serverUrl: true,
 } satisfies Prisma.ArtImageSelect
 
-type CollectionQueryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | Array<string | number | boolean | null | undefined>
-
 function firstQueryValue(value: unknown): string {
-  if (Array.isArray(value)) {
-    return firstQueryValue(value[0])
-  }
-
+  if (Array.isArray(value)) return firstQueryValue(value[0])
   if (value === null || value === undefined) return ''
-
   return String(value)
 }
 
 function queryFlag(value: unknown, fallback: boolean): boolean {
   const normalized = firstQueryValue(value).trim().toLowerCase()
-
   if (!normalized) return fallback
-
   return ['1', 'true', 'yes', 'y', 'on'].includes(normalized)
 }
 
@@ -67,17 +53,13 @@ function queryPositiveInt(
   if (!normalized) return fallback
 
   const parsed = Number(normalized)
-
   if (!Number.isInteger(parsed) || parsed <= 0) return fallback
-
   return parsed
 }
 
 function buildArtImagesRelation(take: number | null) {
   return {
-    orderBy: {
-      id: 'desc',
-    },
+    orderBy: { id: 'desc' },
     ...(take ? { take } : {}),
     select: artImageListSelect,
   } satisfies Prisma.ArtCollection$ArtImagesArgs
@@ -86,13 +68,14 @@ function buildArtImagesRelation(take: number | null) {
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
-
     const summaryOnly = queryFlag(query.summary, false)
     const includeImages = queryFlag(query.includeImages, !summaryOnly)
     const imageLimit = queryPositiveInt(
       query.imageLimit,
       summaryOnly ? 1 : null,
     )
+    const userId = queryPositiveInt(query.userId, null)
+    const collectionId = queryPositiveInt(query.id, null)
 
     const artCollectionSelect = {
       id: true,
@@ -109,26 +92,19 @@ export default defineEventHandler(async (event) => {
       description: true,
       username: true,
       ...(includeImages
-        ? {
-            ArtImages: buildArtImagesRelation(imageLimit),
-          }
+        ? { ArtImages: buildArtImagesRelation(imageLimit) }
         : {}),
-      _count: {
-        select: {
-          ArtImages: true,
-        },
-      },
+      _count: { select: { ArtImages: true } },
     } satisfies Prisma.ArtCollectionSelect
 
+    const where: Prisma.ArtCollectionWhereInput = {
+      ...(userId ? { userId } : {}),
+      ...(collectionId ? { id: collectionId } : {}),
+    }
+
     const collections = await prisma.artCollection.findMany({
-      orderBy: [
-        {
-          updatedAt: 'desc',
-        },
-        {
-          id: 'desc',
-        },
-      ],
+      where,
+      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
       select: artCollectionSelect,
     })
 

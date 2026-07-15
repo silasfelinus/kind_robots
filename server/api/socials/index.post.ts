@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { serializeSocialMedia } from '@/server/utils/socialMedia'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type {
   Prisma,
@@ -20,19 +21,6 @@ type IncomingPost = {
   sourceId?: number | null
   platforms?: SocialPlatform[]
   designer?: string | null
-}
-
-const serializeMediaUrls = (value: unknown): string | null => {
-  if (value == null) return null
-  if (typeof value === 'string') return value
-  if (Array.isArray(value)) {
-    return JSON.stringify(value.filter((item): item is string => typeof item === 'string'))
-  }
-
-  throw createError({
-    statusCode: 400,
-    message: 'The "mediaUrls" field must be a string or an array of strings.',
-  })
 }
 
 export default defineEventHandler(async (event) => {
@@ -83,7 +71,7 @@ export default defineEventHandler(async (event) => {
       return {
         title,
         body: postBody,
-        mediaUrls: serializeMediaUrls(mediaUrls),
+        mediaUrls: serializeSocialMedia(mediaUrls),
         isPublic: isPublic ?? false,
         isMature: isMature ?? false,
         audience: audience ?? ('SOCIAL' as PostAudience),

@@ -98,6 +98,13 @@
 </template>
 
 <script setup lang="ts">
+// Reused in three contexts, each passing a different showClose/showRemixButton
+// subset — check all three before changing a prop's default or meaning:
+//   - academy-timeline.vue: default props (close+remix shown), expanded list item
+//   - academy-styles-browser.vue: default props (close+remix shown), grid detail panel
+//   - academy-remix.vue: showClose=false, showRemixButton=false — read-only style
+//     summary in the Remix Studio sidebar, where remixing is already the page's
+//     primary action (a stray showRemixButton no-op button here was PR #301's bug)
 import { computed, onMounted } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'

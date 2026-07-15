@@ -13,6 +13,12 @@ import type {
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
+import {
+  decodeArtJobPayload,
+  parseArtJobPayload,
+  serializeArtJobPayload,
+  type ArtJobPayloadRecord,
+} from '../../../../utils/artJobPayload'
 
 const MAX_ATTEMPTS = 3
 
@@ -38,7 +44,7 @@ function asRecord(value: unknown): JsonRecord {
 }
 
 function readRetry(payload: unknown): RetryMetadata | null {
-  const retry = asRecord(asRecord(payload).retry)
+  const retry = asRecord(parseArtJobPayload(payload).retry)
   const mode = String(retry.mode || '').toUpperCase()
   if (mode !== 'NEW_OUTPUT' && mode !== 'OVERWRITE') return null
 
@@ -63,7 +69,7 @@ function readSavePolicy(payload: unknown): {
   isMature?: boolean
   designer?: string
 } {
-  const save = asRecord(asRecord(payload).save)
+  const save = asRecord(parseArtJobPayload(payload).save)
   return {
     ...(typeof save.isPublic === 'boolean'
       ? { isPublic: save.isPublic }
@@ -152,17 +158,17 @@ function replacementData(
 }
 
 function completedPayload(
-  payload: Prisma.JsonValue,
+  payload: unknown,
   archivedArtImageId: number,
-): Prisma.InputJsonValue {
-  const next = JSON.parse(JSON.stringify(payload ?? {})) as JsonRecord
+): ArtJobPayloadRecord {
+  const next = structuredClone(parseArtJobPayload(payload))
   const retry = asRecord(next.retry)
   next.retry = {
     ...retry,
     archivedArtImageId,
     completedAt: new Date().toISOString(),
   }
-  return next as Prisma.InputJsonValue
+  return next
 }
 
 export default defineEventHandler(async (event) => {
@@ -286,7 +292,9 @@ export default defineEventHandler(async (event) => {
               status: 'DONE',
               artImageId: targetArtImageId,
               error: null,
-              payload: completedPayload(job.payload, archived.id),
+              payload: serializeArtJobPayload(
+                completedPayload(job.payload, archived.id),
+              ),
             },
           })
 
@@ -338,7 +346,7 @@ export default defineEventHandler(async (event) => {
           ? `Job ${id} replaced ArtImage ${replacedArtImageId}; prior render archived as ArtImage ${archivedArtImageId}.`
           : `Job ${id} → ${updated.status}.`,
       data: {
-        job: updated,
+        job: decodeArtJobPayload(updated),
         replacedArtImageId,
         archivedArtImageId,
       },

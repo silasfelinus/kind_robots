@@ -10,6 +10,7 @@ export type CleanupRequest = {
 }
 
 type RequestOptionsLike = Record<string, unknown> & {
+  method?: string
   headers?: Record<string, string>
   failOnStatusCode?: boolean
   retryOnStatusCodeFailure?: boolean
@@ -32,6 +33,8 @@ const httpMethods = new Set([
   'PUT',
   'TRACE',
 ])
+
+const retrySafeMethods = new Set(['GET', 'HEAD', 'OPTIONS'])
 
 const cleanHeaderValue = (value: unknown, maxLength = 220) =>
   String(value ?? '')
@@ -83,19 +86,20 @@ const syntheticTestHeaders = () => {
 }
 
 const withSyntheticHeaders = (options: RequestOptionsLike) => {
-  const retrySuccessfulRequests = options.failOnStatusCode !== false
+  const method = String(options.method || 'GET').toUpperCase()
+  const retrySafeStatusFailure =
+    options.failOnStatusCode !== false && retrySafeMethods.has(method)
 
   return {
     ...options,
-    // Positive API requests should tolerate a short-lived 5xx from the remote
-    // serverless database path. Cypress retries status failures up to four
-    // times. Negative tests opt out by setting failOnStatusCode: false, so
-    // expected 4xx responses are never retried or delayed.
-    ...(retrySuccessfulRequests && options.retryOnStatusCodeFailure === undefined
+    // Cypress's status retry can duplicate POST/PATCH/DELETE side effects when
+    // the server commits but the response is lost. Enable it only for safe
+    // reads. Write resilience belongs inside the API/database layer.
+    ...(retrySafeStatusFailure && options.retryOnStatusCodeFailure === undefined
       ? { retryOnStatusCodeFailure: true }
       : {}),
     ...(options.retryOnNetworkFailure === undefined
-      ? { retryOnNetworkFailure: true }
+      ? { retryOnNetworkFailure: retrySafeMethods.has(method) }
       : {}),
     headers: {
       ...(options.headers || {}),
@@ -141,6 +145,7 @@ declare global {
     if (typeof first === 'string') {
       return originalFn(
         withSyntheticHeaders({
+          method: 'GET',
           url: first,
           ...(second === undefined ? {} : { body: second }),
         }),

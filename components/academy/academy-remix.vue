@@ -39,7 +39,7 @@
           v-if="academyStore.selectedStyle"
           :lesson="academyStore.selectedStyle"
           :show-close="false"
-          @remix="() => {}"
+          :show-remix-button="false"
         />
 
         <div

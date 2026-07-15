@@ -52,14 +52,6 @@ function buildDatabaseUrl(url: string): string {
     process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
     0,
   )
-  const idleTimeout = readPositiveInteger(
-    process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
-    30,
-  )
-  const minimumIdle = readNonNegativeInteger(
-    process.env.DATABASE_MINIMUM_IDLE,
-    0,
-  )
 
   if (!parsed.searchParams.has('connectTimeout')) {
     parsed.searchParams.set('connectTimeout', String(connectTimeout))
@@ -75,18 +67,6 @@ function buildDatabaseUrl(url: string): string {
 
   if (!parsed.searchParams.has('minDelayValidation')) {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
-  }
-
-  // Every warm Vercel function has its own pool. A default pool of ten lets a
-  // small traffic burst multiply into hundreds of database sockets. Keep the
-  // pool elastic and small; all values remain overridable through environment
-  // variables for non-serverless deployments.
-  if (!parsed.searchParams.has('idleTimeout')) {
-    parsed.searchParams.set('idleTimeout', String(idleTimeout))
-  }
-
-  if (!parsed.searchParams.has('minimumIdle')) {
-    parsed.searchParams.set('minimumIdle', String(minimumIdle))
   }
 
   return parsed.toString()
@@ -145,14 +125,6 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     minDelayValidation: readNonNegativeInteger(
       parsed.searchParams.get('minDelayValidation') ?? undefined,
-      0,
-    ),
-    idleTimeout: readPositiveInteger(
-      parsed.searchParams.get('idleTimeout') ?? undefined,
-      30,
-    ),
-    minimumIdle: readNonNegativeInteger(
-      parsed.searchParams.get('minimumIdle') ?? undefined,
       0,
     ),
     ssl: tlsOptions,

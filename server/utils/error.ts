@@ -43,6 +43,34 @@ function errorMessage(error: ErrorHandlerInput): string {
   return 'Unknown error'
 }
 
+// Secrets must never reach the logs. Old 360-day JWTs were minted carrying the
+// user's apiKey in their payload, and `jose` attaches that decoded payload to
+// JWTExpired/JWTClaimValidationFailed errors — so logging a raw auth error (or
+// a full user row) leaks the key into Vercel's log retention. We scrub both the
+// obvious token shapes and any long hex secret before anything is logged.
+const JWT_LIKE = /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g
+const LONG_HEX_SECRET = /\b[A-Fa-f0-9]{32,}\b/g
+const SENSITIVE_KEY_VALUE =
+  /("?\b(?:api_?key|password|token|secret|authorization|jwt|session)\b"?\s*[:=]\s*)("[^"]*"|'[^']*'|[^\s,}]+)/gi
+
+export function sanitizeLogMessage(message: string): string {
+  return message
+    .replace(JWT_LIKE, '[REDACTED_JWT]')
+    .replace(SENSITIVE_KEY_VALUE, '$1[REDACTED]')
+    .replace(LONG_HEX_SECRET, '[REDACTED]')
+}
+
+// Log an error safely from anywhere (auth handlers, callbacks, stream pumps).
+// Never pass the raw error object to console — that is what serializes a jose
+// error's `.payload` (with the apiKey) into the log line.
+export function logSafeError(context: string, error: ErrorHandlerInput): void {
+  console.error(context, {
+    name: error instanceof Error ? error.name : typeof error,
+    code: errorCode(error),
+    message: sanitizeLogMessage(errorMessage(error)),
+  })
+}
+
 function isTransientDatabaseError(error: ErrorHandlerInput): boolean {
   const message = errorMessage(error)
   return transientDatabaseMessages.some((candidate) => message.includes(candidate))
@@ -65,7 +93,7 @@ function logError(error: ErrorHandlerInput, statusCode: number): void {
   const payload = {
     name: error instanceof Error ? error.name : typeof error,
     code: errorCode(error),
-    message: errorMessage(error),
+    message: sanitizeLogMessage(errorMessage(error)),
     statusCode,
   }
 

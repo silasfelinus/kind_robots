@@ -241,12 +241,15 @@
                 <span
                   v-if="jobImageReason(job)"
                   class="text-[8px] font-normal normal-case leading-tight text-base-content/50"
-                >{{ jobImageReason(job) }}</span>
+                  >{{ jobImageReason(job) }}</span
+                >
               </div>
 
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="font-mono text-xs font-semibold">#{{ job.id }}</span>
+                  <span class="font-mono text-xs font-semibold"
+                    >#{{ job.id }}</span
+                  >
                   <span
                     class="badge badge-xs rounded-2xl"
                     :class="jobStatusClass(job.status)"
@@ -298,9 +301,11 @@
                 </div>
 
                 <p
-                  class="mt-2 whitespace-pre-wrap break-words text-sm font-medium leading-relaxed"
+                  class="mt-2 whitespace-pre-wrap wrap-break-word text-sm font-medium leading-relaxed"
                 >
-                  {{ jobPrompt(job) || 'Prompt unavailable for this legacy job.' }}
+                  {{
+                    jobPrompt(job) || 'Prompt unavailable for this legacy job.'
+                  }}
                 </p>
 
                 <div class="mt-2 flex flex-wrap gap-1">
@@ -341,13 +346,14 @@
               class="rounded-2xl border border-info/30 bg-info/10 p-2 text-xs"
             >
               <span v-if="jobRetryMode(job) === 'OVERWRITE'">
-                This attempt will replace ArtImage #{{ jobRetryTarget(job) }} while
-                preserving that canonical id. The prior render will be archived
-                for job/trainer history.
+                This attempt will replace ArtImage #{{ jobRetryTarget(job) }}
+                while preserving that canonical id. The prior render will be
+                archived for job/trainer history.
               </span>
               <span v-else>
-                This is a fresh output derived from job #{{ jobRetrySource(job) }}.
-                It will create a separate ArtImage.
+                This is a fresh output derived from job #{{
+                  jobRetrySource(job)
+                }}. It will create a separate ArtImage.
               </span>
             </div>
 
@@ -365,7 +371,7 @@
                     Prompt
                   </div>
                   <p
-                    class="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed"
+                    class="mt-1 whitespace-pre-wrap wrap-break-word text-sm leading-relaxed"
                   >
                     {{ jobPrompt(job) || 'Prompt unavailable.' }}
                   </p>
@@ -378,7 +384,7 @@
                     Negative prompt
                   </div>
                   <p
-                    class="mt-1 whitespace-pre-wrap break-words text-xs text-base-content/70"
+                    class="mt-1 whitespace-pre-wrap wrap-break-word text-xs text-base-content/70"
                   >
                     {{ jobNegativePrompt(job) }}
                   </p>
@@ -519,7 +525,8 @@
                         <span>
                           <strong>Make a new output</strong>
                           <span class="block text-[11px] opacity-60">
-                            Fresh seed, separate ArtImage, original stays intact.
+                            Fresh seed, separate ArtImage, original stays
+                            intact.
                           </span>
                         </span>
                       </button>
@@ -532,7 +539,9 @@
                         @click="askToOverwrite(job)"
                       >
                         <span>
-                          <strong>Replace ArtImage #{{ job.artImageId }}</strong>
+                          <strong
+                            >Replace ArtImage #{{ job.artImageId }}</strong
+                          >
                           <span class="block text-[11px] opacity-70">
                             Keep the id and links; archive the current render.
                           </span>
@@ -546,7 +555,9 @@
                   type="button"
                   class="btn btn-ghost btn-xs rounded-2xl"
                   :class="curationRequested(job) ? 'text-success' : ''"
-                  :disabled="isRequestingCuration(job.id) || curationRequested(job)"
+                  :disabled="
+                    isRequestingCuration(job.id) || curationRequested(job)
+                  "
                   :title="
                     curationRequested(job)
                       ? 'Conductor has this job queued for curation'
@@ -558,7 +569,11 @@
                     v-if="isRequestingCuration(job.id)"
                     class="loading loading-spinner loading-xs"
                   />
-                  {{ curationRequested(job) ? 'Curation requested' : 'Request curation' }}
+                  {{
+                    curationRequested(job)
+                      ? 'Curation requested'
+                      : 'Request curation'
+                  }}
                 </button>
                 <button
                   v-if="job.status !== 'DONE'"
@@ -593,7 +608,7 @@
 
     <div
       v-if="overwriteJob"
-      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="overwrite-art-title"
@@ -607,9 +622,10 @@
         </h3>
         <p class="mt-2 text-sm leading-relaxed text-base-content/70">
           The server will generate a fresh attempt and keep this ArtImage id, so
-          every Dream, Bot, Reward, collection, or other record linked to it sees
-          the replacement. The current pixels are archived under a new ArtImage id
-          and historical ArtJobs keep pointing to that archived render.
+          every Dream, Bot, Reward, collection, or other record linked to it
+          sees the replacement. The current pixels are archived under a new
+          ArtImage id and historical ArtJobs keep pointing to that archived
+          render.
         </p>
         <div class="mt-3 rounded-2xl bg-base-200 p-3 text-xs">
           <div class="font-semibold">Prompt</div>
@@ -618,8 +634,8 @@
           </p>
         </div>
         <p class="mt-3 text-xs text-base-content/60">
-          Concrete seeds are refreshed automatically so this is a real new attempt,
-          not a byte-for-byte rerun.
+          Concrete seeds are refreshed automatically so this is a real new
+          attempt, not a byte-for-byte rerun.
         </p>
         <div class="mt-5 flex justify-end gap-2">
           <button
@@ -1018,7 +1034,8 @@ function jobImageReason(job: { artImageId?: number | null }): string {
   const info = jobImageInfo(job)
   if (!info || info.kind !== 'none') return ''
   const d = info.diag
-  if (!d.hasImageData && d.imagePath === '(none)' && d.path === '(none)') return 'no bytes stored'
+  if (!d.hasImageData && d.imagePath === '(none)' && d.path === '(none)')
+    return 'no bytes stored'
   if (d.imageDataShape === 'unusable') return 'bad imageData'
   if (d.imagePath !== '(none)' || d.path !== '(none)') return 'unresolved path'
   return 'no source'
@@ -1038,7 +1055,8 @@ function jobImageDiag(job: { artImageId?: number | null }): string {
     `imagePath: ${d.imagePath}`,
     `path: ${d.path}`,
   ]
-  if (jobImageFailed(job)) lines.unshift(`LOAD FAILED — attempted: ${jobImageSrc(job)}`)
+  if (jobImageFailed(job))
+    lines.unshift(`LOAD FAILED — attempted: ${jobImageSrc(job)}`)
   return lines.join('\n')
 }
 
@@ -1145,8 +1163,7 @@ function curatorBadgeClass(job: ArtJob): string {
 
 function curationRequested(job: ArtJob): boolean {
   return (
-    hasCuratorVerdict(job) ||
-    artJobStore.curationRequestedIds.includes(job.id)
+    hasCuratorVerdict(job) || artJobStore.curationRequestedIds.includes(job.id)
   )
 }
 
@@ -1157,9 +1174,7 @@ function isRequestingCuration(jobId: number): boolean {
 // Curatable jobs currently loaded that Conductor has not already curated or been
 // asked to curate — the bulk button's target set.
 const uncuratedJobs = computed(() =>
-  artJobStore.jobs.filter(
-    (job) => canCurate(job) && !curationRequested(job),
-  ),
+  artJobStore.jobs.filter((job) => canCurate(job) && !curationRequested(job)),
 )
 
 const bulkCurating = ref(false)

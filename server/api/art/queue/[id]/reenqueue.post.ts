@@ -18,10 +18,15 @@ import {
   getRouterParam,
   readBody,
 } from 'h3'
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
+import {
+  decodeArtJobPayload,
+  parseArtJobPayload,
+  serializeArtJobPayload,
+  type ArtJobPayloadRecord,
+} from '../../../../utils/artJobPayload'
 
 type RetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -30,14 +35,12 @@ type ReenqueueBody = {
   refreshSeed?: boolean
 }
 
-type JsonRecord = Record<string, unknown>
-
 const RETRY_MODES = new Set<RetryMode>(['NEW_OUTPUT', 'OVERWRITE'])
 const SEED_KEYS = new Set(['seed', 'noise_seed'])
 
-function asRecord(value: unknown): JsonRecord {
+function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return value as JsonRecord
+  return value as ArtJobPayloadRecord
 }
 
 function nextSeed(): number {
@@ -67,7 +70,7 @@ function refreshConcreteSeeds(value: unknown, key = ''): unknown {
   }
 
   return Object.fromEntries(
-    Object.entries(value as JsonRecord).map(([childKey, child]) => [
+    Object.entries(value as ArtJobPayloadRecord).map(([childKey, child]) => [
       childKey,
       refreshConcreteSeeds(child, childKey),
     ]),
@@ -75,13 +78,13 @@ function refreshConcreteSeeds(value: unknown, key = ''): unknown {
 }
 
 function preparePayload(
-  rawPayload: Prisma.JsonValue,
+  rawPayload: unknown,
   sourceJobId: number,
   sourceArtImageId: number | null,
   mode: RetryMode,
   refreshSeed: boolean,
-): Prisma.InputJsonValue {
-  const cloned = JSON.parse(JSON.stringify(rawPayload ?? {})) as JsonRecord
+): ArtJobPayloadRecord {
+  const cloned = structuredClone(parseArtJobPayload(rawPayload))
   const previousRetry = asRecord(cloned.retry)
   const rootJobId = Number(previousRetry.rootJobId) || sourceJobId
 
@@ -90,7 +93,7 @@ function preparePayload(
   delete cloned.curation
 
   const generationPayload = refreshSeed
-    ? (refreshConcreteSeeds(cloned) as JsonRecord)
+    ? (refreshConcreteSeeds(cloned) as ArtJobPayloadRecord)
     : cloned
 
   generationPayload.retry = {
@@ -102,7 +105,7 @@ function preparePayload(
     requestedAt: new Date().toISOString(),
   }
 
-  return generationPayload as Prisma.InputJsonValue
+  return generationPayload
 }
 
 export default defineEventHandler(async (event) => {
@@ -172,7 +175,7 @@ export default defineEventHandler(async (event) => {
     const job = await prisma.artJob.create({
       data: {
         engine: source.engine,
-        payload,
+        payload: serializeArtJobPayload(payload),
         priority: source.priority,
         projectSlug: source.projectSlug,
         projectId: source.projectId,
@@ -189,7 +192,7 @@ export default defineEventHandler(async (event) => {
           ? `Queued job ${job.id} to replace ArtImage ${source.artImageId}.`
           : `Re-enqueued job ${id} as new-output job ${job.id}.`,
       data: {
-        job,
+        job: decodeArtJobPayload(job),
         sourceJobId: id,
         mode,
         targetArtImageId: mode === 'OVERWRITE' ? source.artImageId : null,

@@ -29,6 +29,7 @@
           type="search"
           class="min-w-0 flex-1 bg-transparent"
           placeholder="Search styles…"
+          aria-label="Search Academy styles"
         />
       </label>
     </header>
@@ -56,6 +57,7 @@
             ? 'border-primary shadow-md shadow-primary/20'
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
+        :aria-expanded="expandedSlug === style.slug"
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
         <div class="flex items-center justify-between gap-2">
@@ -129,6 +131,7 @@ const filteredStyles = computed<AcademyStyle[]>(() => {
       style.era,
       style.region,
       style.keyIdeas,
+      ...style.recognitionCues,
       ...style.artists.map((artist) => artist.name),
     ]
       .join(' ')

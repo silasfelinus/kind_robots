@@ -12,6 +12,7 @@ import {
 } from './databasePoolDefaults'
 
 type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
+type PrismaMariaDbPoolConfig = Exclude<PrismaMariaDbConfig, string>
 
 type CircuitBreakerState = {
   failures: number
@@ -180,7 +181,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     )
   }
 
-  return {
+  const poolConfig: PrismaMariaDbPoolConfig = {
     host: parsed.hostname,
     port: readPositiveInteger(parsed.port, 3_306),
     user: decodeURIComponent(parsed.username),
@@ -210,12 +211,21 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
       parsed.searchParams.get('minimumIdle') ?? undefined,
       DEFAULT_MINIMUM_IDLE,
     ),
+    ssl: tlsOptions,
+  }
+
+  // MariaDB Connector/Node.js 3.5.2 supports pingTimeout at runtime, but its
+  // published PoolConfig declaration does not expose the property. Assign it
+  // after constructing the typed object so we retain full checking for every
+  // declared pool option without casting the entire adapter config.
+  Object.assign(poolConfig, {
     pingTimeout: readPositiveInteger(
       parsed.searchParams.get('pingTimeout') ?? undefined,
       DEFAULT_PING_TIMEOUT_MS,
     ),
-    ssl: tlsOptions,
-  }
+  })
+
+  return poolConfig
 }
 
 const staleConnectionMessages = [

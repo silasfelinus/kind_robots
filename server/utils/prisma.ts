@@ -199,13 +199,6 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   }
 }
 
-function buildIsolatedDatabaseConfig(url: string): PrismaMariaDbConfig {
-  const parsed = new URL(buildDatabaseUrl(url))
-  parsed.searchParams.set('connectionLimit', '1')
-  parsed.searchParams.set('minimumIdle', '0')
-  return buildDatabaseConfig(parsed.toString())
-}
-
 const staleConnectionMessages = [
   'Cannot execute new commands: connection closed',
 ]
@@ -311,12 +304,6 @@ function retryLimitFor(error: unknown): number {
 
 const delay = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
-
-export function createIsolatedPrismaClient(): PrismaClient {
-  return new PrismaClient({
-    adapter: new PrismaMariaDb(buildIsolatedDatabaseConfig(databaseUrl!)),
-  })
-}
 
 const basePrisma =
   globalForPrisma.prisma ??

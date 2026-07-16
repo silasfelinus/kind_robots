@@ -7,6 +7,10 @@ type ConnectorError = Error & {
   fatal?: boolean
 }
 
+export type DirectDatabaseConnection = Awaited<
+  ReturnType<typeof mariadb.createConnection>
+>
+
 export type DirectDatabaseProbeResult = {
   success: boolean
   latencyMs: number
@@ -52,6 +56,35 @@ function sanitizedMessage(error: ConnectorError, parsed: URL): string {
   return message
 }
 
+export async function createDatabaseDirectConnection(): Promise<DirectDatabaseConnection> {
+  const databaseUrl = process.env.DATABASE_URL
+  if (!databaseUrl) {
+    throw Object.assign(new Error('DATABASE_URL is missing'), {
+      code: 'DATABASE_URL_MISSING',
+    })
+  }
+
+  const parsed = new URL(databaseUrl)
+  const sslCa = readDatabaseSslCa()
+
+  return mariadb.createConnection({
+    host: parsed.hostname,
+    port: Number.parseInt(parsed.port || '3306', 10),
+    user: decodeURIComponent(parsed.username),
+    password: decodeURIComponent(parsed.password),
+    database: decodeURIComponent(parsed.pathname.replace(/^\/+/, '')),
+    connectTimeout: 5_000,
+    ...(sslCa
+      ? {
+          ssl: {
+            ca: sslCa,
+            rejectUnauthorized: rejectUnauthorized(),
+          },
+        }
+      : {}),
+  })
+}
+
 export async function probeDatabaseDirect(): Promise<DirectDatabaseProbeResult> {
   const startedAt = Date.now()
   const databaseUrl = process.env.DATABASE_URL
@@ -65,28 +98,10 @@ export async function probeDatabaseDirect(): Promise<DirectDatabaseProbeResult> 
   }
 
   const parsed = new URL(databaseUrl)
-  const sslCa = readDatabaseSslCa()
-  let connection: Awaited<ReturnType<typeof mariadb.createConnection>> | null =
-    null
+  let connection: DirectDatabaseConnection | null = null
 
   try {
-    connection = await mariadb.createConnection({
-      host: parsed.hostname,
-      port: Number.parseInt(parsed.port || '3306', 10),
-      user: decodeURIComponent(parsed.username),
-      password: decodeURIComponent(parsed.password),
-      database: decodeURIComponent(parsed.pathname.replace(/^\/+/, '')),
-      connectTimeout: 5_000,
-      ...(sslCa
-        ? {
-            ssl: {
-              ca: sslCa,
-              rejectUnauthorized: rejectUnauthorized(),
-            },
-          }
-        : {}),
-    })
-
+    connection = await createDatabaseDirectConnection()
     await connection.query('SELECT 1 AS direct_probe_ok')
 
     return {

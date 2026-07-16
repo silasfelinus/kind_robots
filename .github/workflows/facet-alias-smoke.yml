@@ -6,7 +6,8 @@ on:
     paths:
       - prisma.config.ts
       - prisma/facet-alias.prisma
-      - prisma/migrations/20260711021500_add_facet_aliases/migration.sql
+      - prisma/migrations/00000000000000_squashed/migration.sql
+      - .github/workflows/fixtures/facet-alias-schema.sql
       - utils/facetAliases.ts
       - utils/scripts/setFacetAliases.ts
       - utils/scripts/verifyFacetAliases.ts
@@ -20,7 +21,8 @@ on:
     paths:
       - prisma.config.ts
       - prisma/facet-alias.prisma
-      - prisma/migrations/20260711021500_add_facet_aliases/migration.sql
+      - prisma/migrations/00000000000000_squashed/migration.sql
+      - .github/workflows/fixtures/facet-alias-schema.sql
       - utils/facetAliases.ts
       - utils/scripts/setFacetAliases.ts
       - utils/scripts/verifyFacetAliases.ts
@@ -91,8 +93,8 @@ jobs:
           INSERT INTO `Facet` (`slug`) VALUES ('cowcore'), ('weird-core');
           SQL
 
-      - name: Execute Facet alias migration
-        run: mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots < prisma/migrations/20260711021500_add_facet_aliases/migration.sql
+      - name: Create FacetAlias table + constraints
+        run: mariadb --host=127.0.0.1 --port=3306 --user=root --password=root kindrobots < .github/workflows/fixtures/facet-alias-schema.sql
 
       - name: Verify canonical aliases and constraints
         run: |

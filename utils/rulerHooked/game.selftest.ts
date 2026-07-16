@@ -52,7 +52,7 @@ const fresh = (id = 'sv_a'): RunSave =>
 
 // 3. The warlock/druid choice recomposites regions (exit criterion 2)
 {
-  const card = C.decks[0].cards.find((c) => c.id === 'warlock-druid-north')!
+  const card = C.decks[0]!.cards.find((c) => c.id === 'warlock-druid-north')!
   const before = fresh()
   const beforeScene = resolveScene(before, C.regions)
   const develop = card.choices.find((c) => c.id === 'develop')!
@@ -74,9 +74,9 @@ const fresh = (id = 'sv_a'): RunSave =>
   s.deckState.activeArcs['child-elopes'] = { step: 'elope-1', flags: {} }
   const step1 = findArcStep(C, 'elope-1')!.card
   s = resolveChoice(s, step1, step1.choices.find((c) => c.id === 'bless')!)
-  assert.equal(s.deckState.activeArcs['child-elopes'].step, 'elope-blessing', 'bless advances to blessing branch')
+  assert.equal(s.deckState.activeArcs['child-elopes']!.step, 'elope-blessing', 'bless advances to blessing branch')
   const step2 = findArcStep(C, 'elope-blessing')!.card
-  s = resolveChoice(s, step2, step2.choices[0])
+  s = resolveChoice(s, step2, step2.choices[0]!)
   assert.ok(!s.deckState.activeArcs['child-elopes'], 'welcome completes (removes) the arc')
   assert.ok(s.choiceLog.length === 2, 'both arc steps logged')
 }

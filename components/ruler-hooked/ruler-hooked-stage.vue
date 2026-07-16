@@ -90,7 +90,7 @@ const layers = computed<Layer[]>(() => {
         region,
         label: state ? `${region} · ${state}` : region,
         classes: STATE_CLASS[state ?? 'open'] ?? 'bg-base-300',
-        src: idx < cands.length ? cands[idx] : null,
+        src: cands[idx] ?? null,
       }
     })
 })

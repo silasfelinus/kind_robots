@@ -32,10 +32,10 @@ export function weightedPick(
   if (total <= 0) return null
   let roll = rng.next() * total
   for (let i = 0; i < pool.length; i++) {
-    roll -= weights[i]
-    if (roll < 0) return pool[i]
+    roll -= weights[i] ?? 0
+    if (roll < 0) return pool[i] ?? null
   }
-  return pool[pool.length - 1]
+  return pool[pool.length - 1] ?? null
 }
 
 /**
@@ -58,6 +58,6 @@ export function selectCard(
 /** Decrement all per-card cooldowns by one turn (never below zero). */
 export function tickCooldowns(save: RunSave): void {
   for (const id of Object.keys(save.deckState.cooldowns)) {
-    save.deckState.cooldowns[id] = Math.max(0, save.deckState.cooldowns[id] - 1)
+    save.deckState.cooldowns[id] = Math.max(0, (save.deckState.cooldowns[id] ?? 0) - 1)
   }
 }

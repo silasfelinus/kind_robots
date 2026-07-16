@@ -76,25 +76,78 @@ jobs:
         env:
           BASE_URL: https://kind-robots.vercel.app
         run: |
-          echo "Waiting for three consecutive database health checks..."
+          set -euo pipefail
+
+          check_database() {
+            local endpoint="$1"
+            local body
+            body="$(curl -sf --max-time 15 "${BASE_URL}${endpoint}")" || return 1
+            printf '%s' "$body" | jq -e '.success == true and .statusCode == 200' >/dev/null
+          }
+
+          echo "Waiting for three consecutive pooled database health checks..."
           deadline=$(( $(date +%s) + 180 ))
           consecutive=0
+          ready=0
           while [ "$(date +%s)" -lt "$deadline" ]; do
-            body="$(curl -sf --max-time 15 "${BASE_URL}/api/health/database" || true)"
-            if printf '%s' "$body" | jq -e '.success == true and .statusCode == 200' >/dev/null 2>&1; then
+            if check_database /api/health/database; then
               consecutive=$(( consecutive + 1 ))
-              echo "  database healthy (${consecutive}/3)"
+              echo "  pooled database healthy (${consecutive}/3)"
               if [ "$consecutive" -ge 3 ]; then
-                exit 0
+                ready=1
+                break
               fi
             else
               consecutive=0
-              echo "  database unavailable; retrying in 5s..."
+              echo "  pooled database unavailable; retrying in 5s..."
             fi
             sleep 5
           done
-          echo "::error::Database did not remain healthy for three consecutive checks."
-          exit 1
+
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::Database did not remain healthy for three consecutive checks."
+            exit 1
+          fi
+
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+
+          run_pool_round() {
+            local round="$1"
+            local failed=0
+            local pids=()
+
+            rm -f "$tmpdir"/*
+            echo "Running pooled database soak round ${round} (8 concurrent requests)..."
+            for request in $(seq 1 8); do
+              (
+                check_database /api/health/database
+              ) >"$tmpdir/${round}-${request}.log" 2>&1 &
+              pids+=("$!")
+            done
+
+            for pid in "${pids[@]}"; do
+              if ! wait "$pid"; then
+                failed=1
+              fi
+            done
+
+            if [ "$failed" -ne 0 ]; then
+              echo "::error::Pooled database soak round ${round} failed."
+              cat "$tmpdir"/*.log || true
+              return 1
+            fi
+
+            check_database /api/health/database-direct
+            echo "  pooled and direct database checks passed for round ${round}."
+          }
+
+          run_pool_round 1
+          echo "Pausing 20 seconds to cross the previous 15-second idle-retirement window..."
+          sleep 20
+          run_pool_round 2
+          sleep 5
+          run_pool_round 3
 
       - name: Run Cypress tests
         id: cypress

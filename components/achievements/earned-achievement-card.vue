@@ -9,9 +9,15 @@
       <Icon name="ph:star-bold" class="text-yellow-400 text-4xl" />
     </div>
     <div class="text-center">
-      id: {{ achievement.id }}
-      <!-- Achievement Icon -->
+      <!-- Achievement art when generated, otherwise the icon -->
+      <img
+        v-if="achievement.imagePath"
+        :src="achievement.imagePath"
+        :alt="achievement.label"
+        class="mx-auto mb-2 h-24 w-24 rounded-2xl object-cover"
+      />
       <Icon
+        v-else
         :name="achievement.icon ?? 'kind-icon:map'"
         class="text-9xl mb-2 md:w-16 md:h-16"
       />

@@ -9,6 +9,7 @@ import type {
 import { performFetch, handleError } from '@/stores/utils'
 import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useAnimationStore } from '@/stores/animationStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
@@ -2428,6 +2429,15 @@ export const useArtStore = defineStore('artStore', () => {
     )
 
     setGenerationMessage('success', 'Image created and added to collections.')
+
+    // Achievements: "ArtMaker" on the first image, "Prolific Painter" at 10.
+    // generatedArtImages is this session's generated set, so the count is a
+    // best-effort lower bound; reward dedupe keeps it safe.
+    const achievementStore = useAchievementStore()
+    void achievementStore.rewardAchievementByCode('artmaker')
+    if (state.generatedArtImages.length >= 10) {
+      void achievementStore.rewardAchievementByCode('art-ten')
+    }
   }
 
   function resetInitialization(): void {

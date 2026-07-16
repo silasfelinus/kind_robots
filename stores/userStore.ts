@@ -717,6 +717,9 @@ export const useUserStore = defineStore('userStore', () => {
       initialized.value = true
       lastError.value = null
 
+      // Achievement: "Welcome Back" for logging in (deduped).
+      void useAchievementStore().rewardAchievementByCode('welcome-back')
+
       return {
         success: true,
         message: 'Login successful.',
@@ -758,6 +761,9 @@ export const useUserStore = defineStore('userStore', () => {
         const { useLoginManagerStore } = await import('@/stores/loginStore')
         useLoginManagerStore().captureCurrentSession()
 
+        // Achievement: "Trailblazer" for creating an account (deduped).
+        void useAchievementStore().rewardAchievementByCode('Dashboard')
+
         lastError.value = null
         return res
       }
@@ -795,6 +801,11 @@ export const useUserStore = defineStore('userStore', () => {
 
     queueUserPatch(fields)
     await flushUserPatchQueue()
+
+    // Achievement: "Face of Kindness" for setting a profile avatar (deduped).
+    if ('avatarImage' in fields && fields.avatarImage) {
+      void useAchievementStore().rewardAchievementByCode('profile-avatar')
+    }
   }
 
   async function updateUserInfo(info: UserPatch) {

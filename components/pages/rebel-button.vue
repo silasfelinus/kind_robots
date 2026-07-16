@@ -188,7 +188,7 @@ const pressedButton = () => {
   }
 
   if (state.pressCount == 100) {
-    achievementStore.rewardAchievement(5)
+    achievementStore.rewardAchievementByCode('rebel-button')
   }
 
   // Save to localStorage every 10 clicks to optimize performance

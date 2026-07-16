@@ -14,6 +14,7 @@ type CircuitBreakerState = {
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
   prismaBreaker?: CircuitBreakerState
+  prismaReconnect?: Promise<void>
 }
 
 const databaseUrl = process.env.DATABASE_URL
@@ -209,9 +210,8 @@ const unavailableDatabaseMessages = [
 ]
 
 // Acquisition failures consume the full timeout, so keep that retry budget at
-// one. Closed pooled sockets fail immediately; with a two-slot pool, two fast
-// retries let the adapter discard both stale sockets and create a fresh third
-// connection attempt without extending an outage by several seconds.
+// one. Closed pooled sockets fail immediately, but the MariaDB adapter can keep
+// returning the same poisoned pool unless Prisma explicitly reconnects first.
 const unavailableRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
   1,
@@ -310,6 +310,33 @@ const basePrisma =
   })
 globalForPrisma.prisma = basePrisma
 
+async function reconnectPrisma(): Promise<void> {
+  const activeReconnect = globalForPrisma.prismaReconnect
+  if (activeReconnect) {
+    await activeReconnect
+    return
+  }
+
+  const reconnect = (async () => {
+    console.warn('[prisma:stale-connection-reset]', {
+      action: 'disconnect-connect',
+    })
+    await basePrisma.$disconnect()
+    await basePrisma.$connect()
+    recordConnectionSuccess()
+  })()
+
+  globalForPrisma.prismaReconnect = reconnect
+
+  try {
+    await reconnect
+  } finally {
+    if (globalForPrisma.prismaReconnect === reconnect) {
+      delete globalForPrisma.prismaReconnect
+    }
+  }
+}
+
 export const prisma = basePrisma.$extends({
   name: 'transient-database-retry',
   query: {
@@ -352,6 +379,11 @@ export const prisma = basePrisma.$extends({
             waitMs,
             message: errorMessage(error),
           })
+
+          if (staleConnectionError) {
+            await reconnectPrisma()
+          }
+
           await delay(waitMs)
         }
       }

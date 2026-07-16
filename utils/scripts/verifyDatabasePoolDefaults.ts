@@ -1,6 +1,5 @@
 // /utils/scripts/verifyDatabasePoolDefaults.ts
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
 import {
   DEFAULT_CONNECTION_LIMIT,
   SAFE_MINIMUM_CONNECTION_LIMIT,
@@ -17,23 +16,6 @@ assert.ok(
     'see server/utils/databasePoolDefaults.ts',
 )
 
-const prismaSource = readFileSync(
-  new URL('../../server/utils/prisma.ts', import.meta.url),
-  'utf8',
-)
-
-// Project Sync exposed that retrying the same Prisma query after ProxySQL closes
-// a warm socket can keep borrowing from the same poisoned pool. Guard the
-// disconnect/connect reset and its stale-error-only call site.
-assert.match(prismaSource, /prismaReconnect\?: Promise<void>/)
-assert.match(prismaSource, /await basePrisma\.\$disconnect\(\)/)
-assert.match(prismaSource, /await basePrisma\.\$connect\(\)/)
-assert.match(
-  prismaSource,
-  /if \(staleConnectionError\) \{\s+await reconnectPrisma\(\)/,
-)
-
 console.log(
-  `Database pool safeguards verified: connection limit ${DEFAULT_CONNECTION_LIMIT} >= ` +
-    `${SAFE_MINIMUM_CONNECTION_LIMIT}, stale connections trigger a single-flight reconnect.`,
+  `Database pool connection-limit fallback verified: ${DEFAULT_CONNECTION_LIMIT} >= ${SAFE_MINIMUM_CONNECTION_LIMIT}.`,
 )

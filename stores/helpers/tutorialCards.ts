@@ -33,6 +33,7 @@ export type ExtraTutorialKey =
   | 'challenges'
   | 'humboldt-scoop'
   | 'scoop-cms'
+  | 'mermaids'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -482,6 +483,23 @@ export const tutorialChannels = {
     ],
   },
 
+  mermaids: {
+    key: 'mermaids',
+    title: 'Mermaids of Venice',
+    hero: tutorialImage('mermaids', 'mermaids'),
+    tagline: 'Old gods, busking for tips in a flooded city.',
+    overview:
+      "Mermaids of Venice is Silas Knight's novel — six years hand-carved, edited by the author's own hand. This page is its home inside Kind Robots: the book, a personal note from Silas, and exactly one paragraph of AI (the one that admits it).",
+    sections: [
+      {
+        key: 'mermaids',
+        title: 'The Book',
+        body: 'In the canals and campos of Venice, old gods get by the way anyone does — busking, bargaining, and performing for a crowd that no longer believes in them. Available now in paperback on Amazon, with a PDF edition coming to the giftshop.',
+        image: tutorialImage('mermaids', 'mermaids'),
+      },
+    ],
+  },
+
   conductor: {
     key: 'conductor',
     title: 'Conductor',
@@ -517,6 +535,7 @@ const tutorialRouteMap = {
   challenges: '/challenges',
   'humboldt-scoop': '/humboldt-scoop',
   'scoop-cms': '/scoop-cms',
+  mermaids: '/mermaids',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

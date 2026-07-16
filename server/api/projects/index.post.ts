@@ -5,10 +5,8 @@ import type {
   ProjectPriority,
   ProjectStatus,
 } from '~/prisma/generated/prisma/client'
-import prisma, {
-  createIsolatedPrismaClient,
-  isStaleDatabaseConnectionError,
-} from '~/server/utils/prisma'
+import prisma, { isStaleDatabaseConnectionError } from '~/server/utils/prisma'
+import { upsertProjectDirect } from '~/server/utils/projectDirectWrite'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { enforceProjectCap } from '~/server/utils/projectCap'
@@ -51,7 +49,7 @@ type ProjectCreateBody = {
   isMature?: unknown
 }
 
-async function createProjectWithIsolatedFallback(
+async function createProjectWithDirectFallback(
   data: Prisma.ProjectUncheckedCreateInput,
   conductorSlug: string,
 ) {
@@ -63,32 +61,11 @@ async function createProjectWithIsolatedFallback(
   } catch (error: unknown) {
     if (!isStaleDatabaseConnectionError(error)) throw error
 
-    const isolatedPrisma = createIsolatedPrismaClient()
-    console.warn('[project-sync:isolated-prisma-fallback]', {
+    console.warn('[project-sync:direct-mariadb-fallback]', {
       conductorSlug,
       action: 'upsert',
     })
-
-    try {
-      return await isolatedPrisma.project.upsert({
-        where: { conductorSlug },
-        create: data,
-        update: data,
-        include: projectInclude,
-      })
-    } finally {
-      try {
-        await isolatedPrisma.$disconnect()
-      } catch (disconnectError: unknown) {
-        console.warn('[project-sync:isolated-prisma-disconnect-failed]', {
-          conductorSlug,
-          message:
-            disconnectError instanceof Error
-              ? disconnectError.message
-              : String(disconnectError),
-        })
-      }
-    }
+    return upsertProjectDirect(data, conductorSlug)
   }
 }
 
@@ -166,7 +143,7 @@ export default defineEventHandler(async (event) => {
       userId: auth.user.id,
     } satisfies Prisma.ProjectUncheckedCreateInput
 
-    const project = await createProjectWithIsolatedFallback(
+    const project = await createProjectWithDirectFallback(
       projectData,
       conductorSlug,
     )

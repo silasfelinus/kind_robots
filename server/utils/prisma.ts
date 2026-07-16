@@ -141,6 +141,17 @@ function readSslRejectUnauthorized(): boolean {
   return raw !== 'false' && raw !== '0' && raw !== 'no'
 }
 
+// Prisma's MariaDB adapter uses the binary execute() protocol by default. Under
+// sustained Vercel traffic through ProxySQL, that path repeatedly retained a
+// connection whose command channel was already closed, while the connector's
+// query() path remained healthy for direct probes and fallback writes. Default
+// to the adapter's supported text protocol for this topology. Set
+// DATABASE_USE_TEXT_PROTOCOL=false to restore the binary protocol quickly.
+function readDatabaseUseTextProtocol(): boolean {
+  const raw = process.env.DATABASE_USE_TEXT_PROTOCOL?.trim().toLowerCase()
+  return raw !== 'false' && raw !== '0' && raw !== 'no'
+}
+
 function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const resolvedUrl = buildDatabaseUrl(url)
   const sslCa = readDatabaseSslCa()
@@ -334,10 +345,17 @@ function retryLimitFor(error: unknown): number {
 const delay = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
 
+const useTextProtocol = readDatabaseUseTextProtocol()
+console.info('[prisma] MariaDB protocol mode', {
+  mode: useTextProtocol ? 'text-query' : 'binary-execute',
+})
+
 const basePrisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl)),
+    adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl), {
+      useTextProtocol,
+    }),
   })
 globalForPrisma.prisma = basePrisma
 

@@ -9,6 +9,7 @@ import type {
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { useNavStore } from '@/stores/navStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -585,6 +586,9 @@ export const useRewardStore = defineStore('rewardStore', () => {
 
     const navStore = useNavStore()
     navStore.setDashboardTab(dashboardKey, 'interact')
+
+    // Achievement: "Lucky Bean" for claiming a reward (deduped).
+    void useAchievementStore().rewardAchievementByCode('first-reward')
 
     return reward
   }

@@ -755,7 +755,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       }
 
       if (score.value >= 50) {
-        await achievementStore.rewardAchievement(5)
+        await achievementStore.rewardAchievementByCode('memory-master')
       }
     } catch (error) {
       handleError(error, 'updating memory dungeon score')

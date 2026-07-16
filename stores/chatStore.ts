@@ -4,6 +4,7 @@ import { computed, reactive, ref } from 'vue'
 import { useUserStore } from './userStore'
 import { useServerStore } from './serverStore'
 import { useManaStore } from './manaStore'
+import { useAchievementStore } from './achievementStore'
 import { ErrorType } from './errorStore'
 import { handleError } from './utils'
 import type { Chat, Server } from '~/prisma/generated/prisma/client'
@@ -1434,6 +1435,18 @@ export const useChatStore = defineStore('chatStore', () => {
       chats.value.push(newChat)
       refreshUnreadMessages()
       saveToLocalStorage()
+
+      // Achievements: "Botcafe" on the first message, "Chatterbox" at 50.
+      // The 50-count is a best-effort read of this user's loaded chats.
+      const achievementStore = useAchievementStore()
+      void achievementStore.rewardAchievementByCode('botcafe')
+      const myChats = chats.value.filter(
+        (chat) => chat.userId === userStore.userId,
+      ).length
+      if (myChats >= 50) {
+        void achievementStore.rewardAchievementByCode('chat-fifty')
+      }
+
       return newChat
     } catch (error) {
       handleError(ErrorType.NETWORK_ERROR, `Error in addChat: ${error}`)

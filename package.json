@@ -39,6 +39,8 @@
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
+    "seed:achievements": "tsx scripts/seed_achievements.ts",
+    "generate:achievement-art": "tsx scripts/generate_achievement_art.ts",
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",

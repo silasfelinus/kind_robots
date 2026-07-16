@@ -16,6 +16,7 @@ import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { useServerStore } from './serverStore'
 import { useUserStore } from './userStore'
+import { useAchievementStore } from './achievementStore'
 
 export interface BotForm extends Partial<Bot> {
   serverId?: number | null
@@ -656,6 +657,9 @@ export const useBotStore = defineStore('botStore', () => {
       botForm.value = toBotForm(saved)
       currentImagePath.value = saved.avatarImage || ''
       persist()
+
+      // Achievement: "Bot Builder" for bringing a robot to life (deduped).
+      void useAchievementStore().rewardAchievementByCode('first-bot')
 
       return {
         success: true,

@@ -4,6 +4,7 @@ import { ref, computed, watch } from 'vue'
 import { useChatStore } from './chatStore'
 import { useCharacterStore } from './characterStore'
 import { useUserStore } from './userStore'
+import { useAchievementStore } from './achievementStore'
 import { performFetch, handleError } from './utils'
 import type { Chat } from '~/prisma/generated/prisma/client'
 import { scenarios } from '@/utils/sceneChoices'
@@ -117,6 +118,9 @@ export const useWeirdStore = defineStore('weirdStore', () => {
       if (!history.value.find((c) => c.id === newChat.id)) {
         history.value.push(newChat)
       }
+
+      // Achievement: "Weirdlandia" for starting an adventure (deduped).
+      void useAchievementStore().rewardAchievementByCode('weirdlandia')
     } catch (error) {
       handleError(
         new Error('Failed to start adventure'),
@@ -158,6 +162,9 @@ export const useWeirdStore = defineStore('weirdStore', () => {
         if (!history.value.find((c) => c.id === newChat.id)) {
           history.value.push(newChat)
         }
+
+        // Achievement: "Story Weaver" for advancing a weird tale (deduped).
+        void useAchievementStore().rewardAchievementByCode('story-weaver')
       } catch (error) {
         handleError(
           new Error('Error processing action'),

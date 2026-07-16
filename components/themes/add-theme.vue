@@ -328,7 +328,7 @@ async function applyBuiltInTheme(theme: string) {
     : result.message || 'Failed to apply theme'
 
   if (result.success) {
-    achievementStore.rewardAchievement(9)
+    achievementStore.rewardAchievementByCode('theme')
   }
 }
 
@@ -350,7 +350,7 @@ async function applySharedTheme(theme: Theme) {
     : result.message || 'Failed to apply theme'
 
   if (result.success) {
-    achievementStore.rewardAchievement(9)
+    achievementStore.rewardAchievementByCode('theme')
   }
 }
 
@@ -381,7 +381,7 @@ async function applyPreviewTheme() {
       : result.message || 'Failed to preview theme'
 
     if (result.success) {
-      achievementStore.rewardAchievement(9)
+      achievementStore.rewardAchievementByCode('theme')
     }
   } catch (error: unknown) {
     themeError.value =
@@ -430,7 +430,7 @@ async function saveTheme() {
         : result.message || 'Failed to apply saved theme'
     }
 
-    achievementStore.rewardAchievement(9)
+    achievementStore.rewardAchievementByCode('theme')
     themeStore.resetThemeForm()
   } catch (error: unknown) {
     themeError.value =

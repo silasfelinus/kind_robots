@@ -679,7 +679,7 @@ async function applyBuiltInTheme(theme: string): Promise<void> {
 
   const snapshot = await themeStore.getActiveThemeSnapshot(theme)
   inspectValues.value = JSON.stringify(snapshot, null, 2)
-  achievementStore.rewardAchievement(9)
+  achievementStore.rewardAchievementByCode('theme')
 }
 
 async function applySharedTheme(theme: Theme): Promise<void> {
@@ -704,7 +704,7 @@ async function applySharedTheme(theme: Theme): Promise<void> {
 
   const snapshot = await themeStore.getActiveThemeSnapshot(theme.name)
   inspectValues.value = JSON.stringify(snapshot, null, 2)
-  achievementStore.rewardAchievement(9)
+  achievementStore.rewardAchievementByCode('theme')
 }
 
 function handleThemeEdit(theme: Theme): void {

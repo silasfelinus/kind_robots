@@ -740,6 +740,16 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         achievement.isActive = true
         persist()
       }
+
+      // Meta achievement: "Jellybean Hunter" for earning 10 achievements. Only
+      // fire from a non-hunter reward to avoid recursing into itself, and let
+      // the hunter's own record/dedupe guards prevent repeats.
+      if (
+        slugify(achievement?.triggerCode ?? '') !== 'jellybean-hunter' &&
+        achievementCountForUser.value >= 10
+      ) {
+        await rewardAchievementByCode('jellybean-hunter')
+      }
     })()
 
     rewardAchievementPromises.set(achievementId, promise)

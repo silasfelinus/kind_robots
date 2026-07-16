@@ -20,6 +20,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useUserStore } from './userStore'
+import { useAchievementStore } from './achievementStore'
 import { performFetch, handleError } from './utils'
 
 export type RelationType = 'FRIEND' | 'BLOCK' | 'PARENT' | 'CHILD' | 'REFEREE'
@@ -228,6 +229,8 @@ export const useFriendStore = defineStore('friendStore', () => {
       return
     }
     await requestRelation(userId, 'FRIEND')
+    // Achievement: "Kindred Spirit" for reaching out to a friend (deduped).
+    void useAchievementStore().rewardAchievementByCode('first-friend')
   }
   async function cancelFriendRequest(userId: number): Promise<void> {
     const row = findOwnedRelation(userId, 'FRIEND')
@@ -235,7 +238,11 @@ export const useFriendStore = defineStore('friendStore', () => {
   }
   async function acceptFriendRequest(userId: number): Promise<void> {
     const row = findReceivedRequest(userId, 'FRIEND')
-    if (row) await acceptRequest(row.id)
+    if (row) {
+      await acceptRequest(row.id)
+      // Achievement: "Kindred Spirit" for accepting a friend (deduped).
+      void useAchievementStore().rewardAchievementByCode('first-friend')
+    }
   }
   async function declineFriendRequest(userId: number): Promise<void> {
     const row = findReceivedRequest(userId, 'FRIEND')

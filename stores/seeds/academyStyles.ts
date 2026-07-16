@@ -133,6 +133,49 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'gothic',
+    name: 'Gothic Panel Painting',
+    era: 'c. 1200–1450',
+    sortYear: 1200,
+    region: 'Italy & Europe',
+    keyIdeas:
+      'Before the Renaissance learned to fake deep space, painters worked on wooden panels in glowing tempera against skies of solid gold leaf. Gothic painting is the hinge between the flat, eternal figures of Byzantine art and the breathing bodies of the Renaissance: artists like Giotto began letting saints stand with real weight, turn in space, and show tenderness or grief on their faces, while keeping the medieval love of gold, pattern, and pointed-arch framing.',
+    recognitionCues: [
+      'Burnished gold-leaf backgrounds instead of sky or landscape, often tooled with punched patterns',
+      'Slender, gently swaying figures with small features and haloed heads',
+      'Jewel-toned tempera — ultramarine, vermilion, rose — with fine, decorative linework',
+      'Pointed-arch and gabled frames; multi-panel altarpiece (polyptych) formats',
+      'Space that tilts toward the viewer — thrones and floors read as slightly "wrong," and that is the style, not a mistake',
+    ],
+    artists: [
+      {
+        name: 'Duccio di Buoninsegna',
+        years: 'c. 1255–1319',
+        note: 'The founder of the Sienese school, who softened Byzantine rigidity into a new tenderness of line and color.',
+      },
+      {
+        name: 'Giotto di Bondone',
+        years: '1267–1337',
+        note: 'The great pivot of Western painting, who gave figures real weight, emotion, and believable space a full century before the Renaissance caught up.',
+      },
+      {
+        name: 'Simone Martini',
+        years: 'c. 1284–1344',
+        note: 'Sienese master of elegant, courtly line and sumptuous gold, whose refinement defined "International Gothic."',
+      },
+      {
+        name: 'Fra Angelico',
+        years: 'c. 1395–1455',
+        note: 'Dominican friar and painter who fused Gothic gold with early-Renaissance light and perspective; devout, luminous, and precise.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a late-medieval Gothic panel painting: figures on a burnished gold-leaf ground, elongated bodies with gentle S-curves, jewel-toned tempera, pointed-arch framing, flattened space',
+    },
+  },
+  {
     slug: 'renaissance',
     name: 'Renaissance',
     era: 'c. 1400–1600',
@@ -170,6 +213,54 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'northern-renaissance',
+    name: 'Northern Renaissance',
+    era: 'c. 1420–1570',
+    sortYear: 1420,
+    region: 'The Low Countries & Germany',
+    keyIdeas:
+      'While Italy rediscovered antiquity, the artists of Flanders and the Netherlands staged a quieter revolution: oil paint. Building color up in transparent glazes, they achieved a jewel-like realism the south could not match — every hair, brass rivet, and distant church tower rendered with almost microscopic devotion. It hides symbols in ordinary objects (a single candle, a dog, a convex mirror), sets sacred scenes in real Flemish rooms, and looks out of the frame with startlingly modern, individual faces. Later, Bruegel turned that same sharp eye on peasant weddings and snowy villages, inventing the everyday landscape.',
+    recognitionCues: [
+      'Astonishing fine detail and hard, crisp edges — texture you can almost feel',
+      'Luminous, glowing color from layered oil glazes; cool, even northern daylight',
+      'Deep, meticulously painted landscapes or interiors behind the main figures',
+      'Symbolic everyday objects loaded with hidden meaning',
+      'Direct, particular, un-idealized faces — real people, not classical types',
+    ],
+    artists: [
+      {
+        name: 'Jan van Eyck',
+        years: 'c. 1390–1441',
+        note: 'The pioneer who pushed oil painting to jewel-like perfection; his surfaces still look impossibly real six centuries on.',
+      },
+      {
+        name: 'Rogier van der Weyden',
+        years: 'c. 1399–1464',
+        note: 'Master of restrained, piercing emotion, whose grieving figures set the standard for devotional feeling in the North.',
+      },
+      {
+        name: 'Hans Memling',
+        years: 'c. 1430–1494',
+        note: 'Bruges portraitist of serene, gentle faces, hugely popular with the international merchants of his city.',
+      },
+      {
+        name: 'Pieter Bruegel the Elder',
+        years: 'c. 1525–1569',
+        note: 'The great painter of peasant life, seasons, and proverbs, who made the humble landscape a serious subject.',
+      },
+      {
+        name: 'Hieronymus Bosch',
+        years: 'c. 1450–1516',
+        note: 'Inventor of teeming, surreal panoramas of temptation and torment; a singular imagination centuries ahead of its time.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as an Early Netherlandish oil painting: microscopic detail, luminous layered glazes, crisp naturalism, cool northern daylight, and a meticulously rendered landscape or interior behind the figures',
+    },
+  },
+  {
     slug: 'baroque',
     name: 'Baroque',
     era: 'c. 1600–1750',
@@ -204,6 +295,49 @@ export const academyStyles: AcademyStyle[] = [
       mode: 'prompt',
       template:
         'Repaint this image as a Baroque oil painting with dramatic chiaroscuro: a single strong light source, deep near-black shadows, rich warm tones, theatrical composition',
+    },
+  },
+  {
+    slug: 'rococo',
+    name: 'Rococo',
+    era: 'c. 1700–1780',
+    sortYear: 1700,
+    region: 'France & Europe',
+    keyIdeas:
+      'After the thunder of the Baroque, the 18th century exhaled into something lighter and more playful. Rococo is the art of pleasure: garden parties, flirtation, silk and porcelain, painted in a pastel palette of rose, cream, and sky-blue with feathery, dissolving brushwork. Where Baroque used dark drama, Rococo uses soft diffused light and swirling ornamental curves. It can be pure frothy delight (Boucher, Fragonard) or something quieter and more tender — Chardin, working in the same era, turned the same soft light on a soap bubble or a kitchen still life and found real poetry there.',
+    recognitionCues: [
+      'Pastel palette — rose pink, powder blue, cream, mint — and gilded highlights',
+      'Soft, diffused light with no harsh shadows; a hazy, tender atmosphere',
+      'Feathery, loose, sparkling brushwork, especially in silk and foliage',
+      'Playful curves and asymmetric ornament (shells, scrolls, garlands) everywhere',
+      'Light-hearted subjects: courtship, music, gardens, mythological romps',
+    ],
+    artists: [
+      {
+        name: 'Antoine Watteau',
+        years: '1684–1721',
+        note: 'Inventor of the dreamy fête galante — elegant figures drifting through parkland — and a poet of wistful, fleeting pleasure.',
+      },
+      {
+        name: 'François Boucher',
+        years: '1703–1770',
+        note: 'The decorative genius of the age, favorite painter of Madame de Pompadour, all rose-and-blue mythology and charm.',
+      },
+      {
+        name: 'Jean-Honoré Fragonard',
+        years: '1732–1806',
+        note: 'The most dazzling brush of late Rococo, whose flickering strokes turn silk and leaves into pure sparkle.',
+      },
+      {
+        name: 'Jean-Baptiste-Siméon Chardin',
+        years: '1699–1779',
+        note: 'The quiet counterweight: still lifes and domestic scenes of grave, luminous simplicity that later painters revered.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Rococo oil painting: pastel palette of rose, sky-blue, and cream, feathery loose brushwork, soft diffused light, playful ornamental curves, and a light, airy mood',
     },
   },
   {
@@ -416,6 +550,92 @@ export const academyStyles: AcademyStyle[] = [
       mode: 'prompt',
       template:
         'Repaint this image as a Post-Impressionist painting in the manner of Van Gogh: swirling directional impasto brushstrokes, intense emotional color, bold outlines, thick visible paint texture',
+    },
+  },
+  {
+    slug: 'symbolism',
+    name: 'Symbolism',
+    era: 'c. 1880–1910',
+    sortYear: 1880,
+    region: 'France, Belgium & beyond',
+    keyIdeas:
+      'While the Impressionists painted sunlight on water, the Symbolists turned inward, toward dreams, myths, and the unseen. Reacting against both cold realism and mere prettiness, they wanted painting to suggest rather than describe — to give form to longing, mystery, death, and the sacred. Expect twilight color, allegorical figures, and scenes that feel like something remembered from a dream you cannot quite place.',
+    recognitionCues: [
+      'Dreamlike, mysterious mood — reverie rather than a report of the real world',
+      'Mythological, allegorical, or spiritual subjects, often melancholy or uncanny',
+      'Muted, twilight color and soft, glowing, sourceless light',
+      'Flattened, decorative, or hazy space that resists ordinary depth',
+      'A sense of hidden meaning — the picture is a riddle or a symbol, not a scene',
+    ],
+    artists: [
+      {
+        name: 'Gustave Moreau',
+        years: '1826–1898',
+        note: "Painter of jewel-encrusted myths and femmes fatales, whose shimmering, detailed fantasies made him the movement's grand elder.",
+      },
+      {
+        name: 'Odilon Redon',
+        years: '1840–1916',
+        note: 'Poet of the strange and the floating — dream-eyes, spiders, and, later, radiant flowers in luminous pastel color.',
+      },
+      {
+        name: 'Arnold Böcklin',
+        years: '1827–1901',
+        note: 'Swiss painter of haunting mythologies; his brooding Isle of the Dead became one of the most reproduced images of its era.',
+      },
+      {
+        name: 'Pierre Puvis de Chavannes',
+        years: '1824–1898',
+        note: 'Master of pale, calm, dreamlike murals whose flattened simplicity quietly influenced nearly every modernist who followed.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Symbolist painting: dreamlike mysterious mood, muted twilight color, mythic and allegorical atmosphere, soft glowing light, and a sense of reverie rather than plain reality',
+    },
+  },
+  {
+    slug: 'pointillism',
+    name: 'Neo-Impressionism / Pointillism',
+    era: 'c. 1884–1910',
+    sortYear: 1884,
+    region: 'France & Belgium',
+    keyIdeas:
+      'Georges Seurat loved what Impressionism had discovered about light but wanted to put it on a scientific footing. Instead of loose dabs mixed on the palette, he built entire canvases from thousands of tiny, separate dots of pure color, placed so your eye — not the brush — does the blending. Up close it is a field of confetti; step back and it fuses into a glowing, oddly still, luminous whole. His followers, the Neo-Impressionists, spread this "divisionism" across France and Belgium.',
+    recognitionCues: [
+      'Whole image built from tiny, distinct dots or short dashes of pure color',
+      "Colors kept separate and left to blend optically in the viewer's eye",
+      'An even, all-over, almost woven surface texture',
+      'Luminous, balanced light and a calm, frozen, monumental stillness',
+      'Complementary color pairs (orange/blue, red/green) placed side by side to vibrate',
+    ],
+    artists: [
+      {
+        name: 'Georges Seurat',
+        years: '1859–1891',
+        note: 'Inventor of pointillism, who built vast, serene, scientifically composed scenes from pure dots; dead at just 31.',
+      },
+      {
+        name: 'Paul Signac',
+        years: '1863–1935',
+        note: "Seurat's great champion, who carried divisionism forward into brighter, mosaic-like harbors and coastlines after Seurat's death.",
+      },
+      {
+        name: 'Henri-Edmond Cross',
+        years: '1856–1910',
+        note: 'Painter of luminous Mediterranean color whose broad, tile-like touch helped point the way toward Fauvism.',
+      },
+      {
+        name: 'Théo van Rysselberghe',
+        years: '1862–1926',
+        note: 'The leading Belgian Neo-Impressionist, who brought the dot-technique to elegant, sensitive portraiture.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image using pointillist technique: thousands of tiny separate dots of pure unmixed color that blend in the eye, a luminous divisionist surface, even all-over stippling, and bright balanced light',
     },
   },
   {

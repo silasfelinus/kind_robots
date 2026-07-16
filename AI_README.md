@@ -28,7 +28,7 @@ This file is a shared handoff note for future AI coding sessions helping Silas w
 
 ## Current focus
 
-The current focus is stabilizing the Cypress API suite after recent sign-in changes.
+The current focus is overall system improvements.
 
 ## Notes for future sessions
 

@@ -45,8 +45,18 @@ const RUN_STEP_EXTENSIONS = [
   'yaml',
   'prisma',
 ]
+// Anchored the same way as bareTokenPattern below: plain `\b` only checks a
+// word/non-word transition, and `.`/`/`/`@` are all non-word, so it happily
+// anchors mid-token -- e.g. against a `curl`'d install-script URL like
+// `https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh` or an
+// absolute toolcache path like `/opt/hostedtoolcache/node/20.11.0/x64/bin/
+// activate.sh`, the un-anchored version below matched the domain/path as if
+// it were a repo-relative file reference. The lookarounds require the match
+// not be immediately preceded/followed by another path/token/version-pin
+// character, so it can't start partway through a longer non-repo token (a
+// URL host, a CDN path like `some-package@1.2.3/dist/index.js`, etc.).
 const runStepTokenPattern = new RegExp(
-  `[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)+\\.(?:${RUN_STEP_EXTENSIONS.join('|')})\\b`,
+  `(?<![A-Za-z0-9._/@-])[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)+\\.(?:${RUN_STEP_EXTENSIONS.join('|')})(?![A-Za-z0-9._-])`,
   'g',
 )
 

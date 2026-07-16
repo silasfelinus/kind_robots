@@ -45,19 +45,25 @@ const RUN_STEP_EXTENSIONS = [
   'yaml',
   'prisma',
 ]
-// Anchored the same way as bareTokenPattern below: plain `\b` only checks a
-// word/non-word transition, and `.`/`/`/`@` are all non-word, so it happily
-// anchors mid-token -- e.g. against a `curl`'d install-script URL like
-// `https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh` or an
-// absolute toolcache path like `/opt/hostedtoolcache/node/20.11.0/x64/bin/
-// activate.sh`, the un-anchored version below matched the domain/path as if
-// it were a repo-relative file reference. The lookarounds require the match
-// not be immediately preceded/followed by another path/token/version-pin
-// character, so it can't start partway through a longer non-repo token (a
-// URL host, a CDN path like `some-package@1.2.3/dist/index.js`, etc.).
-const runStepTokenPattern = new RegExp(
-  `(?<![A-Za-z0-9._/@-])[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)+\\.(?:${RUN_STEP_EXTENSIONS.join('|')})(?![A-Za-z0-9._-])`,
-  'g',
+// Shared boundary for every path-shaped pattern in this file: plain `\b`
+// only checks a word/non-word transition, and `.`/`/`/`@` are all non-word,
+// so it happily anchors mid-token -- e.g. against a `curl`'d install-script
+// URL like `https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh`,
+// an absolute toolcache path like `/opt/hostedtoolcache/node/20.11.0/x64/bin/
+// activate.sh`, or an npm-scoped CDN path like `some-scope@1.2.3/dist/
+// index.js`, an un-anchored pattern matches the domain/path/version-pin as
+// if it were a repo-relative file reference. Requiring the match not be
+// immediately preceded/followed by another path/token/version-pin character
+// stops it from starting partway through a longer non-repo token. Build any
+// new path-matching pattern in this file from `anchorPathToken()` so it
+// inherits correct anchoring by construction instead of needing its own
+// manual audit pass (see kind-robots/t-030, t-034, t-035).
+function anchorPathToken(body: string): RegExp {
+  return new RegExp(`(?<![A-Za-z0-9._/@-])${body}(?![A-Za-z0-9._-])`, 'g')
+}
+
+const runStepTokenPattern = anchorPathToken(
+  `[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)+\\.(?:${RUN_STEP_EXTENSIONS.join('|')})`,
 )
 
 // Extension-less directory references (e.g. `git diff --quiet -- stores/fallback`).
@@ -71,18 +77,14 @@ const runStepTokenPattern = new RegExp(
 //     and GitHub Actions context expressions)
 //   - a segment may start with a single leading dot (`.bin`, `.github`) but
 //     is otherwise dot-free
-//   - the match can't be immediately preceded or followed by another
-//     path/token character (`\b` alone doesn't cover this: "." and "/" are
-//     both non-word, so `\b` happily anchors mid-token, e.g. inside
-//     "100.64.0.0/10" or right after the "/" in "/dev/null") -- these
-//     explicit lookaround checks are what actually keeps this pattern from
-//     matching a fragment of a longer non-path token, or a fragment of a
-//     path the extension-based pattern above already owns
+//   - the boundary comes from anchorPathToken() above (`\b` alone doesn't
+//     cover this: "." and "/" are both non-word, so `\b` happily anchors
+//     mid-token, e.g. inside "100.64.0.0/10" or right after the "/" in
+//     "/dev/null") -- it's what actually keeps this pattern from matching a
+//     fragment of a longer non-path token, or a fragment of a path the
+//     extension-based pattern above already owns
 const bareSegment = String.raw`\.?[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?`
-const bareTokenPattern = new RegExp(
-  `(?<![a-zA-Z0-9._/-])${bareSegment}(?:/${bareSegment})+(?![a-zA-Z0-9._-])`,
-  'g',
-)
+const bareTokenPattern = anchorPathToken(`${bareSegment}(?:/${bareSegment})+`)
 
 // Bare tokens sit inside shell, so `require('dns/promises')` / `from
 // 'stream/promises'` / `import('node:fs/promises')` read as path-shaped

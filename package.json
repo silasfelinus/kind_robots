@@ -12,6 +12,7 @@
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "test:prompt-variants": "tsx utils/scripts/verifyPromptVariants.ts",
     "test:challenge-center": "tsx utils/scripts/verifyChallengeCenter.ts",
+    "test:relay-agent-registry": "tsx utils/scripts/verifyRelayAgentRegistry.ts",
     "test:seed-challenges": "tsx scripts/seed_challenges.ts",
     "test:seed-contenders": "tsx scripts/seed_contenders.ts",
     "vercel-build": "prisma generate && node scripts/prisma-migrate-deploy.mjs && node --max-old-space-size=8192 node_modules/.bin/nuxt build",

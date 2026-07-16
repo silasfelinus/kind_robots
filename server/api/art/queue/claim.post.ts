@@ -17,6 +17,7 @@ import {
   decodeArtJobPayload,
   parseArtJobPayload,
 } from '../../../utils/artJobPayload'
+import { recordRelayClaimAttempt } from '../../../utils/relayAgentRegistry'
 
 const STALE_CLAIM_MINUTES = 15
 const MAX_ATTEMPTS = 3
@@ -29,6 +30,10 @@ type ClaimRequestBody = {
   // Studio kontext jobs) are only handed to agents that declare support, so
   // a stale relay never claims-and-fails them — they wait instead.
   supportsInputImages?: boolean | null
+  // Optional relay build identifier. Not required — older relay builds that
+  // don't send it just show as "unknown" in the admin diagnostics readout
+  // (see relayAgentRegistry.ts) instead of failing the request.
+  agentVersion?: string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -50,15 +55,28 @@ export default defineEventHandler(async (event) => {
     const engines = (body?.engines || ['A1111', 'COMFY'])
       .map((engine) => String(engine).toUpperCase())
       .filter((engine) => engine === 'A1111' || engine === 'COMFY') as (
-      | 'A1111'
-      | 'COMFY'
+      'A1111' | 'COMFY'
     )[]
+
+    const supportsInputImages = body?.supportsInputImages === true
+
+    // Record this poll up front — before engine validation and before we know
+    // whether a job gets handed out — so a relay that's alive but never wins
+    // a candidate (wrong engines, every job skipped by the image-capability
+    // gate below) still shows up in the admin diagnostics readout instead of
+    // looking indistinguishable from a relay that's stopped polling
+    // entirely.
+    recordRelayClaimAttempt({
+      agentId: claimedBy,
+      supportsInputImages,
+      engines,
+      agentVersion: body?.agentVersion,
+    })
 
     if (!engines.length) {
       throw createError({ statusCode: 400, message: 'No valid engines given.' })
     }
 
-    const supportsInputImages = body?.supportsInputImages === true
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
     const skippedIds: number[] = []
 

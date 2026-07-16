@@ -34,6 +34,7 @@ export type ExtraTutorialKey =
   | 'humboldt-scoop'
   | 'scoop-cms'
   | 'mermaids'
+  | 'packs'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -522,6 +523,23 @@ export const tutorialChannels = {
       },
     ],
   },
+  packs: {
+    key: 'packs',
+    title: 'Packmaker',
+    tagline: 'Bundle it once. Share it everywhere.',
+    overview:
+      'Packmaker turns loose creations into tidy, shareable packs. Choose the contents, set who can use them, and ship reusable content bundles and DLC that other builders can drop straight into their own worlds.',
+    underConstruction: true,
+    sections: [
+      {
+        key: 'packs',
+        title: 'Packmaker',
+        body: 'Group characters, art, scenarios, and rewards into one coherent pack, then control who can install it with the shared permission primitives.',
+        image: tutorialImage('packs', 'packs'),
+        underConstruction: true,
+      },
+    ],
+  },
 } as const satisfies Record<TutorialChannelKey, TutorialChannel>
 
 export const tutorialChannelKeys = Object.keys(
@@ -536,6 +554,7 @@ const tutorialRouteMap = {
   'humboldt-scoop': '/humboldt-scoop',
   'scoop-cms': '/scoop-cms',
   mermaids: '/mermaids',
+  packs: '/packs',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

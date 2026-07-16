@@ -56,6 +56,9 @@ jobs:
       - name: Workflow path references contract
         run: npm run test:workflow-paths
 
+      - name: Deploy-wait ancestry check contract
+        run: npm run test:deploy-wait-ancestry
+
       - name: Challenge Center seed validation (dry run, no database)
         run: |
           npm run test:seed-challenges

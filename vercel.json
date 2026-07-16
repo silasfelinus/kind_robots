@@ -1,10 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["iad1"],
+  "ignoreCommand": "node scripts/vercel-ignore-build.mjs",
   "git": {
     "deploymentEnabled": {
       "claude/*": false,
-      "agent/*": false
+      "agent/*": false,
+      "worker/*": false,
+      "conductor/*": false
     }
   }
 }

@@ -15,7 +15,7 @@
         {{ superkate.settings.salonName }}
       </span>
       <button
-        v-for="view in views"
+        v-for="view in visibleViews"
         :key="view.key"
         type="button"
         class="btn btn-sm rounded-xl"
@@ -59,26 +59,68 @@
       <stylist-clients v-else-if="superkate.activeView === 'clients'" />
       <stylist-history v-else-if="superkate.activeView === 'history'" />
       <stylist-settings v-else-if="superkate.activeView === 'settings'" />
+      <stylist-relay-status
+        v-else-if="superkate.activeView === 'diagnostics'"
+      />
       <stylist-restyle v-else />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useStylistStore } from '@/stores/stylistStore'
 import { useSuperkateStore } from '@/stores/superkateStore'
+import { useUserStore } from '@/stores/userStore'
 
 const stylist = useStylistStore()
 const superkate = useSuperkateStore()
+const userStore = useUserStore()
 
 const views = [
-  { key: 'studio', label: 'Hair Studio', icon: 'kind-icon:magic' },
-  { key: 'calculator', label: 'Calculator', icon: 'kind-icon:sparkles' },
-  { key: 'clients', label: 'Clients', icon: 'kind-icon:heart' },
-  { key: 'history', label: 'History', icon: 'kind-icon:book' },
-  { key: 'settings', label: 'Settings', icon: 'kind-icon:adjust' },
+  {
+    key: 'studio',
+    label: 'Hair Studio',
+    icon: 'kind-icon:magic',
+    adminOnly: false,
+  },
+  {
+    key: 'calculator',
+    label: 'Calculator',
+    icon: 'kind-icon:sparkles',
+    adminOnly: false,
+  },
+  {
+    key: 'clients',
+    label: 'Clients',
+    icon: 'kind-icon:heart',
+    adminOnly: false,
+  },
+  {
+    key: 'history',
+    label: 'History',
+    icon: 'kind-icon:book',
+    adminOnly: false,
+  },
+  {
+    key: 'settings',
+    label: 'Settings',
+    icon: 'kind-icon:adjust',
+    adminOnly: false,
+  },
+  {
+    key: 'diagnostics',
+    label: 'Diagnostics',
+    icon: 'kind-icon:activity',
+    adminOnly: true,
+  },
 ] as const
+
+// Hide the admin-only Diagnostics tab from non-admins entirely, rather than
+// showing it and letting the panel's own admin gate render a dead end.
+const visibleViews = computed(() =>
+  views.filter((view) => !view.adminOnly || userStore.isAdmin),
+)
 
 onMounted(() => {
   superkate.hydrate()

@@ -199,6 +199,13 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   }
 }
 
+function buildIsolatedDatabaseConfig(url: string): PrismaMariaDbConfig {
+  const parsed = new URL(buildDatabaseUrl(url))
+  parsed.searchParams.set('connectionLimit', '1')
+  parsed.searchParams.set('minimumIdle', '0')
+  return buildDatabaseConfig(parsed.toString())
+}
+
 const staleConnectionMessages = [
   'Cannot execute new commands: connection closed',
 ]
@@ -286,7 +293,7 @@ function messageMatches(error: unknown, candidates: string[]): boolean {
   return candidates.some((candidate) => message.includes(candidate))
 }
 
-function isStaleConnectionError(error: unknown): boolean {
+export function isStaleDatabaseConnectionError(error: unknown): boolean {
   return messageMatches(error, staleConnectionMessages)
 }
 
@@ -295,13 +302,21 @@ function isAvailabilityError(error: unknown): boolean {
 }
 
 function retryLimitFor(error: unknown): number {
-  if (isStaleConnectionError(error)) return staleConnectionRetryAttempts
+  if (isStaleDatabaseConnectionError(error)) {
+    return staleConnectionRetryAttempts
+  }
   if (isAvailabilityError(error)) return unavailableRetryAttempts
   return 0
 }
 
 const delay = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
+
+export function createIsolatedPrismaClient(): PrismaClient {
+  return new PrismaClient({
+    adapter: new PrismaMariaDb(buildIsolatedDatabaseConfig(databaseUrl)),
+  })
+}
 
 const basePrisma =
   globalForPrisma.prisma ??
@@ -326,7 +341,7 @@ export const prisma = basePrisma.$extends({
           return result
         } catch (error: unknown) {
           const availabilityError = isAvailabilityError(error)
-          const staleConnectionError = isStaleConnectionError(error)
+          const staleConnectionError = isStaleDatabaseConnectionError(error)
           const retryLimit = retryLimitFor(error)
 
           if (availabilityError) {

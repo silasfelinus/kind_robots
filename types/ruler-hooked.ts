@@ -58,7 +58,8 @@ export interface RegionDef {
 }
 
 export interface RegionsManifest {
-  regions: Record<RegionKey, RegionDef>
+  // Partial: a theme/biome need not define every region (compositing.md §1).
+  regions: Partial<Record<RegionKey, RegionDef>>
 }
 
 // --- kingdom health (data-model.md §4) --------------------------------------

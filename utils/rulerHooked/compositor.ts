@@ -49,6 +49,7 @@ export function resolveScene(
   const regionStates: Partial<Record<RegionKey, RegionState>> = {}
   for (const key of Object.keys(manifest.regions) as RegionKey[]) {
     const def = manifest.regions[key]
+    if (!def) continue
     const override = save.regionOverrides[key]
     if (override !== undefined) {
       regionStates[key] = override

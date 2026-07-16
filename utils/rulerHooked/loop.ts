@@ -58,7 +58,7 @@ export function takeTurn(
 
   // 2. A pending active-arc step (arcs resolve before free draws).
   for (const arcId of Object.keys(next.deckState.activeArcs)) {
-    const step = next.deckState.activeArcs[arcId].step
+    const step = next.deckState.activeArcs[arcId]?.step
     if (step && !seen.has(step)) {
       const found = findArcStep(bundle, step)
       if (found) return { save: next, card: found.card, arcId }

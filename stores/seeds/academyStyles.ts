@@ -546,6 +546,43 @@ export const academyStyles: AcademyStyle[] = [
         'Convert this image into a De Stijl composition: bold black grid lines on white, rectangles of pure primary red yellow and blue, strict horizontal and vertical geometry, balanced asymmetry',
     },
   },
+  {
+    slug: 'bauhaus',
+    name: 'Bauhaus',
+    era: '1919–1933',
+    sortYear: 1919,
+    region: 'Germany',
+    keyIdeas:
+      'Painting, craft, and design as one discipline: "form follows function," taught through hands-on workshops and a shared foundational visual vocabulary. Kandinsky and Klee both taught the school\'s first-year "form" class, codifying geometric shape and color into symbolic language — a direct continuation of De Stijl\'s flat grids, until the Nazi government forced the school to close in 1933 and its faculty scattered its style worldwide.',
+    recognitionCues: [
+      'Pure geometric forms — circles, triangles, squares — as a symbolic color-form vocabulary',
+      'Bold primary and secondary color fields crossed by black grid lines or diagonals',
+      'Whimsical, sign-like pictograms layered over precise geometric grids',
+      'Camera-less "photograms" — ghostly silhouettes on light-sensitive paper',
+    ],
+    artists: [
+      {
+        name: 'Wassily Kandinsky',
+        years: '1866–1944',
+        note: 'Led the Bauhaus\'s foundational "form" class, teaching that geometric shapes and colors carry specific emotional meaning.',
+      },
+      {
+        name: 'Paul Klee',
+        years: '1879–1940',
+        note: 'Filled private notebooks with pedagogical diagrams; his paintings mix childlike pictograms with dry, precise geometry.',
+      },
+      {
+        name: 'László Moholy-Nagy',
+        years: '1895–1946',
+        note: 'Ran the metal workshop and pioneered the photogram, treating light itself as an art medium.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Bauhaus-school geometric abstraction: pure circles, triangles, and squares in bold primary colors on a flat plane, precise linework, no realistic shading',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> =

@@ -1595,6 +1595,13 @@
                     </p>
                     <p class="text-xs text-base-content/50">
                       weight {{ milestone.weight }}
+                      <span v-if="milestoneTaskCounts.get(milestone.id)?.total"
+                        >&middot;
+                        {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
+                          milestoneTaskCounts.get(milestone.id)?.total
+                        }}
+                        done</span
+                      >
                     </p>
                   </div>
                   <span
@@ -2722,6 +2729,22 @@ const doneTasksByMilestone = computed(() => {
     if (tasks.length) groups.push({ id: key || 'other', title: 'Other', tasks })
   }
   return groups
+})
+
+// Per-milestone "N/M done" counts (t-018), a side effect of the same
+// done/active split doneTasksByMilestone and activeTasks already compute.
+const milestoneTaskCounts = computed(() => {
+  const counts = new Map<string, { done: number; total: number }>()
+  const project = selectedProject.value
+  if (!project) return counts
+  for (const task of project.tasks) {
+    const key = task.milestone || ''
+    const entry = counts.get(key) ?? { done: 0, total: 0 }
+    entry.total += 1
+    if (task.status === 'done') entry.done += 1
+    counts.set(key, entry)
+  }
+  return counts
 })
 
 function priorityBadgeClass(priority: ProjectPriorityLevel): string {

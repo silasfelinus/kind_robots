@@ -314,7 +314,7 @@ const delay = (milliseconds: number) =>
 
 export function createIsolatedPrismaClient(): PrismaClient {
   return new PrismaClient({
-    adapter: new PrismaMariaDb(buildIsolatedDatabaseConfig(databaseUrl)),
+    adapter: new PrismaMariaDb(buildIsolatedDatabaseConfig(databaseUrl!)),
   })
 }
 

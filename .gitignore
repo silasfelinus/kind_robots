@@ -28,3 +28,5 @@ http-client.env.json
 contents.sqlite
 prisma/migrations_old/*.sql
 kindblank_*.sql
+.vercel
+.env*

@@ -53,6 +53,9 @@ jobs:
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 
+      - name: Workflow path references contract
+        run: npm run test:workflow-paths
+
       - name: Challenge Center seed validation (dry run, no database)
         run: |
           npm run test:seed-challenges

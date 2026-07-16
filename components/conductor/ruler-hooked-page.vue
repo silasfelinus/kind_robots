@@ -1,6 +1,10 @@
 <!-- /components/conductor/ruler-hooked-page.vue -->
 <template>
-  <ProjectFrontPage slug="ruler-hooked" :fallback="config" />
+  <ProjectFrontPage slug="ruler-hooked" :fallback="config">
+    <template #interactive>
+      <RulerHookedGame />
+    </template>
+  </ProjectFrontPage>
 </template>
 
 <script setup lang="ts">

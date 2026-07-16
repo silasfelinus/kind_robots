@@ -70,7 +70,8 @@ export function applyEffect(save: RunSave, effect: Effect): void {
     if (advance) {
       // advance names the NEXT step id; find the owning arc and set its step.
       for (const arcId of Object.keys(save.deckState.activeArcs)) {
-        save.deckState.activeArcs[arcId].step = advance
+        const arc = save.deckState.activeArcs[arcId]
+        if (arc) arc.step = advance
       }
     }
     if (complete) delete save.deckState.activeArcs[complete]

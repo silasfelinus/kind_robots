@@ -49,11 +49,11 @@ function baseSave(): RunSave {
   const before = baseSave()
   const card: Card = { id: 'warlock-druid-north', kind: 'interrupt', title: 'North Woods',
     choices: [{ id: 'develop', text: 'Build', effects: { sliders: { nature: -20 }, ending: undefined } }] }
-  const after = resolveChoice(before, card, card.choices[0])
+  const after = resolveChoice(before, card, card.choices[0]!)
   assert.equal(before.kingdomHealth.nature, 90, 'input save NOT mutated (purity)')
   assert.equal(after.kingdomHealth.nature, 70, 'choice applied on clone')
   assert.equal(after.choiceLog.length, 1, 'choiceLog appended')
-  assert.equal(after.choiceLog[0].cardId, 'warlock-druid-north')
+  assert.equal(after.choiceLog[0]!.cardId, 'warlock-druid-north')
   assert.ok(after.deckState.seenCardIds.includes('warlock-druid-north'), 'card marked seen')
 
   const fin = cloneSave(baseSave())

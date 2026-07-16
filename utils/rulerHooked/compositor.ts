@@ -22,7 +22,7 @@ export function rampState(value: number, ramp: RegionState[]): RegionState {
   if (ramp.length === 0) return ''
   const band = 100 / ramp.length
   const idx = Math.max(0, Math.min(ramp.length - 1, Math.floor(value / band)))
-  return ramp[idx]
+  return ramp[idx] ?? ramp[0] ?? ''
 }
 
 /**
@@ -35,7 +35,7 @@ export function cyclePosition(turnCount: number): number {
   return ((turnCount % CYCLE.length) + CYCLE.length) % CYCLE.length
 }
 export function cycleTime(turnCount: number): TimeKey {
-  return CYCLE[cyclePosition(turnCount)]
+  return CYCLE[cyclePosition(turnCount)] ?? 'day'
 }
 
 /**

@@ -21,31 +21,41 @@ const prismaSource = readFileSync(
   new URL('../../server/utils/prisma.ts', import.meta.url),
   'utf8',
 )
+const directProbeSource = readFileSync(
+  new URL('../../server/utils/databaseDirectProbe.ts', import.meta.url),
+  'utf8',
+)
+const directProjectSource = readFileSync(
+  new URL('../../server/utils/projectDirectWrite.ts', import.meta.url),
+  'utf8',
+)
 const projectCreateSource = readFileSync(
   new URL('../../server/api/projects/index.post.ts', import.meta.url),
   'utf8',
 )
 
 // Project Sync can encounter a stale socket retained by a warm Vercel instance.
-// Recovery must use a fresh one-connection client and must never disconnect the
-// shared Prisma client, which would abort unrelated in-flight transactions.
-assert.match(
-  prismaSource,
-  /export function createIsolatedPrismaClient\(\): PrismaClient/,
-)
-assert.match(prismaSource, /searchParams\.set\('connectionLimit', '1'\)/)
+// Recovery must bypass the Prisma adapter pool through the same direct MariaDB
+// connection path used by the production database probe. It must never
+// disconnect the shared Prisma client, which aborts unrelated transactions.
 assert.doesNotMatch(prismaSource, /basePrisma\.\$disconnect\(\)/)
+assert.doesNotMatch(prismaSource, /createIsolatedPrismaClient/)
+assert.match(
+  directProbeSource,
+  /export async function createDatabaseDirectConnection\(\)/,
+)
+assert.match(directProjectSource, /ON DUPLICATE KEY UPDATE/)
+assert.match(directProjectSource, /await connection\.end\(\)/)
 assert.match(
   projectCreateSource,
   /if \(!isStaleDatabaseConnectionError\(error\)\) throw error/,
 )
 assert.match(
   projectCreateSource,
-  /isolatedPrisma\.project\.upsert\([\s\S]*where: \{ conductorSlug \}/,
+  /return upsertProjectDirect\(data, conductorSlug\)/,
 )
-assert.match(projectCreateSource, /await isolatedPrisma\.\$disconnect\(\)/)
 
 console.log(
   `Database pool safeguards verified: connection limit ${DEFAULT_CONNECTION_LIMIT} >= ` +
-    `${SAFE_MINIMUM_CONNECTION_LIMIT}; stale Project creates use an isolated client.`,
+    `${SAFE_MINIMUM_CONNECTION_LIMIT}; stale Project creates bypass Prisma through direct MariaDB.`,
 )

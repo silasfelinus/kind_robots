@@ -61,8 +61,7 @@ jobs:
               if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
                 git fetch --quiet --depth=200 origin main 2>/dev/null || true
               fi
-              if git cat-file -e "${live}^{commit}" 2>/dev/null \
-                && git merge-base --is-ancestor "$TARGET_SHA" "$live" 2>/dev/null; then
+              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live" 2>/dev/null; then
                 echo "Production is serving ${live}, a newer commit that already includes ${TARGET_SHA} — deploy is live (superseded)."
                 exit 0
               fi

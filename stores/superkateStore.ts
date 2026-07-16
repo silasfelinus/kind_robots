@@ -139,7 +139,12 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
   // Which suite view is open on /stylist. Store-level so it survives
   // leaving and returning to the page, matching the dashboard-tab fix.
   const activeView = ref<
-    'studio' | 'calculator' | 'clients' | 'history' | 'settings'
+    | 'studio'
+    | 'calculator'
+    | 'clients'
+    | 'history'
+    | 'settings'
+    | 'diagnostics'
   >('studio')
 
   const isClient = typeof window !== 'undefined'

@@ -11,10 +11,12 @@ import {
   SAFE_MINIMUM_CONNECTION_LIMIT,
 } from './../../server/utils/databasePoolDefaults'
 
-// Regression guards for the two production pool failure modes:
+// Regression guards for the production pool failure modes:
 // - too few connections starve every DB-backed route
 // - retiring every idle connection after 15 seconds leaves warm Vercel instances
 //   reusing or recreating unhealthy ProxySQL sockets during sustained API tests
+// - the adapter's binary execute() path can retain a closed command channel
+//   through ProxySQL even while the connector's text query() path stays healthy
 assert.ok(
   DEFAULT_CONNECTION_LIMIT >= SAFE_MINIMUM_CONNECTION_LIMIT,
   `DEFAULT_CONNECTION_LIMIT (${DEFAULT_CONNECTION_LIMIT}) must be >= ` +
@@ -62,6 +64,15 @@ assert.match(prismaSource, /DEFAULT_IDLE_TIMEOUT_SECONDS/)
 assert.match(prismaSource, /DEFAULT_MINIMUM_IDLE/)
 assert.doesNotMatch(prismaSource, /DATABASE_IDLE_TIMEOUT_SECONDS,\s*15/)
 assert.doesNotMatch(prismaSource, /DATABASE_MINIMUM_IDLE,\s*0/)
+assert.match(prismaSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
+assert.match(
+  prismaSource,
+  /new PrismaMariaDb\(buildDatabaseConfig\(databaseUrl\),\s*\{\s*useTextProtocol/,
+)
+assert.match(
+  prismaSource,
+  /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
+)
 
 // Project Sync can encounter a stale socket retained by a warm Vercel instance.
 // Recovery must bypass the Prisma adapter pool through the same direct MariaDB
@@ -88,5 +99,6 @@ console.log(
   `Database pool safeguards verified: limit=${DEFAULT_CONNECTION_LIMIT}, ` +
     `connect=${DEFAULT_CONNECT_TIMEOUT_MS}ms, acquire=${DEFAULT_ACQUIRE_TIMEOUT_MS}ms, ` +
     `idle=${DEFAULT_IDLE_TIMEOUT_SECONDS}s, minimumIdle=${DEFAULT_MINIMUM_IDLE}, ` +
-    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; stale Project creates bypass Prisma through direct MariaDB.`,
+    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma defaults to MariaDB text protocol through ProxySQL; ` +
+    'stale Project creates bypass Prisma through direct MariaDB.',
 )

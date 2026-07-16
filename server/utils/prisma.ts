@@ -2,9 +2,17 @@
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { type ConnectionOptions as TlsConnectionOptions } from 'node:tls'
-import { DEFAULT_CONNECTION_LIMIT } from './databasePoolDefaults'
+import {
+  DEFAULT_ACQUIRE_TIMEOUT_MS,
+  DEFAULT_CONNECTION_LIMIT,
+  DEFAULT_CONNECT_TIMEOUT_MS,
+  DEFAULT_IDLE_TIMEOUT_SECONDS,
+  DEFAULT_MINIMUM_IDLE,
+  DEFAULT_PING_TIMEOUT_MS,
+} from './databasePoolDefaults'
 
 type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
+type PrismaMariaDbPoolConfig = Exclude<PrismaMariaDbConfig, string>
 
 type CircuitBreakerState = {
   failures: number
@@ -42,11 +50,11 @@ function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
   const connectTimeout = readPositiveInteger(
     process.env.DATABASE_CONNECT_TIMEOUT_MS,
-    3_000,
+    DEFAULT_CONNECT_TIMEOUT_MS,
   )
   const acquireTimeout = readPositiveInteger(
     process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
-    3_000,
+    DEFAULT_ACQUIRE_TIMEOUT_MS,
   )
   const connectionLimit = readPositiveInteger(
     process.env.DATABASE_CONNECTION_LIMIT,
@@ -58,11 +66,15 @@ function buildDatabaseUrl(url: string): string {
   )
   const idleTimeout = readPositiveInteger(
     process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
-    15,
+    DEFAULT_IDLE_TIMEOUT_SECONDS,
   )
   const minimumIdle = readNonNegativeInteger(
     process.env.DATABASE_MINIMUM_IDLE,
-    0,
+    DEFAULT_MINIMUM_IDLE,
+  )
+  const pingTimeout = readPositiveInteger(
+    process.env.DATABASE_PING_TIMEOUT_MS,
+    DEFAULT_PING_TIMEOUT_MS,
   )
 
   if (!parsed.searchParams.has('connectTimeout')) {
@@ -81,15 +93,19 @@ function buildDatabaseUrl(url: string): string {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
   }
 
-  // Vercel warm instances may sit idle longer than ProxySQL permits. Retire idle
-  // sockets quickly and allow the tiny pool to reach zero so the next request
-  // creates a fresh connection rather than borrowing two closed sockets.
+  // Keep one connection warm and retain idle sockets long enough to avoid a
+  // constant retire/recreate cycle across Vercel freeze/thaw. The connector
+  // validates borrowed idle sockets, bounded by pingTimeout, before reuse.
   if (!parsed.searchParams.has('idleTimeout')) {
     parsed.searchParams.set('idleTimeout', String(idleTimeout))
   }
 
   if (!parsed.searchParams.has('minimumIdle')) {
     parsed.searchParams.set('minimumIdle', String(minimumIdle))
+  }
+
+  if (!parsed.searchParams.has('pingTimeout')) {
+    parsed.searchParams.set('pingTimeout', String(pingTimeout))
   }
 
   return parsed.toString()
@@ -165,7 +181,7 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     )
   }
 
-  return {
+  const poolConfig: PrismaMariaDbPoolConfig = {
     host: parsed.hostname,
     port: readPositiveInteger(parsed.port, 3_306),
     user: decodeURIComponent(parsed.username),
@@ -173,11 +189,11 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     database,
     connectTimeout: readPositiveInteger(
       parsed.searchParams.get('connectTimeout') ?? undefined,
-      3_000,
+      DEFAULT_CONNECT_TIMEOUT_MS,
     ),
     acquireTimeout: readPositiveInteger(
       parsed.searchParams.get('acquireTimeout') ?? undefined,
-      3_000,
+      DEFAULT_ACQUIRE_TIMEOUT_MS,
     ),
     connectionLimit: readPositiveInteger(
       parsed.searchParams.get('connectionLimit') ?? undefined,
@@ -189,14 +205,27 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ),
     idleTimeout: readPositiveInteger(
       parsed.searchParams.get('idleTimeout') ?? undefined,
-      15,
+      DEFAULT_IDLE_TIMEOUT_SECONDS,
     ),
     minimumIdle: readNonNegativeInteger(
       parsed.searchParams.get('minimumIdle') ?? undefined,
-      0,
+      DEFAULT_MINIMUM_IDLE,
     ),
     ssl: tlsOptions,
   }
+
+  // MariaDB Connector/Node.js 3.5.2 supports pingTimeout at runtime, but its
+  // published PoolConfig declaration does not expose the property. Assign it
+  // after constructing the typed object so we retain full checking for every
+  // declared pool option without casting the entire adapter config.
+  Object.assign(poolConfig, {
+    pingTimeout: readPositiveInteger(
+      parsed.searchParams.get('pingTimeout') ?? undefined,
+      DEFAULT_PING_TIMEOUT_MS,
+    ),
+  })
+
+  return poolConfig
 }
 
 const staleConnectionMessages = [
@@ -209,9 +238,9 @@ const unavailableDatabaseMessages = [
 ]
 
 // Acquisition failures consume the full timeout, so keep that retry budget at
-// one. Closed pooled sockets fail immediately; with a two-slot pool, two fast
-// retries let the adapter discard both stale sockets and create a fresh third
-// connection attempt without extending an outage by several seconds.
+// one. Closed pooled sockets fail immediately; two fast retries give the driver
+// a chance to validate and discard an unhealthy socket without extending an
+// outage by several seconds.
 const unavailableRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
   1,

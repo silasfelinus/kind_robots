@@ -22,6 +22,9 @@ const ALLOWLIST_PREFIXES = [
   // davinci-seed-verify.yml checks out silasfelinus/conductor into this path
   // and runs its generator script from there -- not part of this repo tree.
   'conductor-src/',
+  // Build output, never checked into git -- whether it exists depends on
+  // whether a prior step in the same job ran an install, not on repo state.
+  'node_modules/',
 ]
 
 // `run:` steps are shell, not YAML -- we don't parse them, we scan for
@@ -46,6 +49,35 @@ const runStepTokenPattern = new RegExp(
   `[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)+\\.(?:${RUN_STEP_EXTENSIONS.join('|')})\\b`,
   'g',
 )
+
+// Extension-less directory references (e.g. `git diff --quiet -- stores/fallback`).
+// Deliberately narrower than the extension-based pattern above -- bare
+// `word/word` tokens collide with a lot of non-path shell content (git refs,
+// npm builtin module specifiers, prose, /dev/null, CIDR ranges like
+// 100.64.0.0/10). To keep the false-positive rate down without a full shell
+// parser:
+//   - every segment must be lowercase (repo directories are lowercase; this
+//     alone rules out prose like "Codespaces/Dependabot" in echoed strings
+//     and GitHub Actions context expressions)
+//   - a segment may start with a single leading dot (`.bin`, `.github`) but
+//     is otherwise dot-free
+//   - the match can't be immediately preceded or followed by another
+//     path/token character (`\b` alone doesn't cover this: "." and "/" are
+//     both non-word, so `\b` happily anchors mid-token, e.g. inside
+//     "100.64.0.0/10" or right after the "/" in "/dev/null") -- these
+//     explicit lookaround checks are what actually keeps this pattern from
+//     matching a fragment of a longer non-path token, or a fragment of a
+//     path the extension-based pattern above already owns
+const bareSegment = String.raw`\.?[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?`
+const bareTokenPattern = new RegExp(
+  `(?<![a-zA-Z0-9._/-])${bareSegment}(?:/${bareSegment})+(?![a-zA-Z0-9._-])`,
+  'g',
+)
+
+// Bare tokens sit inside shell, so `require('dns/promises')` / `from
+// 'stream/promises'` / `import('node:fs/promises')` read as path-shaped
+// text even though they're Node module specifiers, not repo paths.
+const importSpecifierContext = /(?:\brequire\(\s*|\bfrom\s+|\bimport\(\s*)['"]$/
 
 function listWorkflowFiles(): string[] {
   return readdirSync(workflowsDirectory)
@@ -95,12 +127,24 @@ function extractRunStepPaths(lines: string[], file: string): PathHit[] {
       hits.push({ file, path: match[0], source: 'run step' })
     }
   }
+  // Bare tokens run over whole shell lines, so (unlike the extension pattern
+  // above) a `#` comment line reads as path-shaped text too easily -- skip
+  // it outright rather than trying to strip inline comments from arbitrary
+  // shell.
+  const scanBare = (text: string) => {
+    if (text.trim().startsWith('#')) return
+    for (const match of text.matchAll(bareTokenPattern)) {
+      if (importSpecifierContext.test(text.slice(0, match.index))) continue
+      hits.push({ file, path: match[0], source: 'run step' })
+    }
+  }
 
   for (const [i, line] of lines.entries()) {
     const inline = line.match(/^(\s*)run:\s*(.+)$/)
     const inlineValue = inline?.[2] ?? ''
     if (inline && !/^[|>][-+]?$/.test(inlineValue.trim())) {
       scan(inlineValue)
+      scanBare(inlineValue)
       continue
     }
     const block = line.match(/^(\s*)run:\s*[|>][-+]?\s*$/)
@@ -110,6 +154,7 @@ function extractRunStepPaths(lines: string[], file: string): PathHit[] {
       if (!next.trim()) continue
       if (indentOf(next) <= keyIndent) break
       scan(next)
+      scanBare(next)
     }
   }
   return hits

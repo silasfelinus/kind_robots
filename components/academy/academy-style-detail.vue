@@ -84,6 +84,62 @@
       </div>
     </div>
 
+    <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
+      <p
+        class="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
+      >
+        <Icon name="kind-icon:flask" class="h-3.5 w-3.5" />
+        Try it
+      </p>
+      <p class="mb-2 text-sm leading-relaxed text-base-content/80">
+        {{ lesson.remix.template }}
+      </p>
+      <p class="mb-1 text-xs font-bold text-base-content/70">What to expect</p>
+      <p class="mb-2 text-xs leading-relaxed text-base-content/60">
+        The remix should keep hold of the cues above — especially
+        {{ lesson.recognitionCues[0]?.toLowerCase() }}. If it just looks like a
+        generic old painting, the style didn't fully take.
+      </p>
+      <p class="mb-1 text-xs font-bold text-base-content/70">
+        {{ tryItFailureLabel }}
+      </p>
+      <p class="mb-2 text-xs leading-relaxed text-base-content/60">
+        {{ tryItFailureNote }}
+      </p>
+      <p
+        class="flex items-start gap-1.5 text-xs leading-relaxed text-base-content/60"
+      >
+        <Icon
+          name="kind-icon:refresh"
+          class="mt-0.5 h-3.5 w-3.5 shrink-0 text-base-content/40"
+        />
+        Not quite right? Try a different starter image, tweak the instruction
+        above, or adjust the style strength — then remix again.
+      </p>
+    </div>
+
+    <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
+      <p
+        class="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
+      >
+        <Icon name="kind-icon:chat" class="h-3.5 w-3.5" />
+        Reflect
+      </p>
+      <ul class="flex flex-col gap-1.5">
+        <li
+          v-for="prompt in reflectPrompts"
+          :key="prompt"
+          class="flex items-start gap-2 text-sm text-base-content/80"
+        >
+          <Icon
+            name="kind-icon:question"
+            class="mt-0.5 h-3.5 w-3.5 shrink-0 text-base-content/40"
+          />
+          {{ prompt }}
+        </li>
+      </ul>
+    </div>
+
     <footer v-if="showRemixButton" class="flex flex-wrap items-center gap-2">
       <button
         type="button"
@@ -127,6 +183,31 @@ const academyStore = useAcademyStore()
 
 const isViewed = computed(() => {
   return academyStore.viewedLessons.includes(props.lesson.slug)
+})
+
+// remix.mode-driven copy for the "Try It" beat's failure-mode line — the
+// per-style failure notes in conductor's docs/teaching-notes.md aren't part
+// of this seed's data model, so this stays a reusable, mode-level fallback
+// rather than 21 one-off strings threaded through academyStyles.ts.
+const tryItFailureLabel = computed(() => {
+  return props.lesson.remix.mode === 'lora'
+    ? 'Watch for: the style overpowering your subject'
+    : 'Watch for: under-cooking into a generic "old painting" look'
+})
+
+const tryItFailureNote = computed(() => {
+  return props.lesson.remix.mode === 'lora'
+    ? 'LoRA-driven styles can be heavy-handed — if your subject gets lost, lower the style strength a notch.'
+    : 'Prompt-driven styles lean on the instruction above doing the work — if the result feels too subtle, make the instruction more specific.'
+})
+
+const reflectPrompts = computed(() => {
+  const name = props.lesson.name
+  return [
+    `Which cue from "How to spot it" survived best in your remix? Which one got lost?`,
+    `Does the result feel like ${name}, or just "an old painting"? What's missing?`,
+    `If you remixed again, what's the one thing you'd change?`,
+  ]
 })
 
 onMounted(() => {

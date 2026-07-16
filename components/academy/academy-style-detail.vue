@@ -185,20 +185,20 @@ const isViewed = computed(() => {
   return academyStore.viewedLessons.includes(props.lesson.slug)
 })
 
-// remix.mode-driven copy for the "Try It" beat's failure-mode line — the
-// per-style failure notes in conductor's docs/teaching-notes.md aren't part
-// of this seed's data model, so this stays a reusable, mode-level fallback
-// rather than 21 one-off strings threaded through academyStyles.ts.
-const tryItFailureLabel = computed(() => {
+// Per-style failure-mode text (ai-art-academy/t-025, backfilled from
+// conductor's docs/teaching-notes.md §3). Falls back to the original
+// mode-level generic note for any style not yet backfilled (e.g. a
+// newly-added movement whose teaching notes haven't landed here yet).
+const tryItFailureLabel = computed(() => 'Watch for:')
+
+const tryItFailureFallbackNote = computed(() => {
   return props.lesson.remix.mode === 'lora'
-    ? 'Watch for: the style overpowering your subject'
-    : 'Watch for: under-cooking into a generic "old painting" look'
+    ? 'The style overpowering your subject — LoRA-driven styles can be heavy-handed, so if your subject gets lost, lower the style strength a notch.'
+    : 'Under-cooking into a generic "old painting" look — prompt-driven styles lean on the instruction above doing the work, so if the result feels too subtle, make the instruction more specific.'
 })
 
 const tryItFailureNote = computed(() => {
-  return props.lesson.remix.mode === 'lora'
-    ? 'LoRA-driven styles can be heavy-handed — if your subject gets lost, lower the style strength a notch.'
-    : 'Prompt-driven styles lean on the instruction above doing the work — if the result feels too subtle, make the instruction more specific.'
+  return props.lesson.failureMode ?? tryItFailureFallbackNote.value
 })
 
 const reflectPrompts = computed(() => {

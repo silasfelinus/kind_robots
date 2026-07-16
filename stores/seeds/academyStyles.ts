@@ -43,6 +43,13 @@ export interface AcademyStyle {
   remix: AcademyRemixConfig
   /** Optional preview image under /images/academy/styles/{slug}.webp */
   previewImageSrc?: string
+  /**
+   * Per-style "what tends to go wrong" note for the Try It beat, backfilled
+   * from conductor's docs/teaching-notes.md §3 (ai-art-academy/t-025). Falls
+   * back to a mode-level generic note in academy-style-detail.vue for any
+   * style not yet backfilled (e.g. a newly-added movement).
+   */
+  failureMode?: string
 }
 
 export const academyStyles: AcademyStyle[] = [
@@ -72,6 +79,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Red-figure virtuoso known for single glowing figures floating on black.',
       },
     ],
+    failureMode:
+      'May add vessel curvature or border framing; loses fine facial detail',
     remix: {
       mode: 'prompt',
       template:
@@ -99,6 +108,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The anonymous workshops of San Vitale set the gold standard — literally — for the next six hundred years.',
       },
     ],
+    failureMode:
+      'Grout/tesserae texture can flatten faces; gold field can swallow the subject',
     remix: {
       mode: 'prompt',
       template:
@@ -126,6 +137,7 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Their Très Riches Heures calendar pages are the most famous manuscript paintings ever made.',
       },
     ],
+    failureMode: 'Page/text context crowds small subjects',
     remix: {
       mode: 'prompt',
       template:
@@ -169,6 +181,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Dominican friar and painter who fused Gothic gold with early-Renaissance light and perspective; devout, luminous, and precise.',
       },
     ],
+    failureMode:
+      '"Gothic" pulls toward horror; may bolt haloes or altarpiece frames onto secular subjects',
     remix: {
       mode: 'prompt',
       template:
@@ -206,6 +220,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The great harmonizer — clarity, sweetness, and perfect composition.',
       },
     ],
+    failureMode:
+      'Under-cooks into a generic "old master" look; keep sfumato and balance explicit',
     remix: {
       mode: 'prompt',
       template:
@@ -254,6 +270,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Inventor of teeming, surreal panoramas of temptation and torment; a singular imagination centuries ahead of its time.',
       },
     ],
+    failureMode:
+      'Under-cooks into "generic old oil"; differentiators are microscopic detail and a deep, sharp background',
     remix: {
       mode: 'prompt',
       template:
@@ -291,6 +309,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Fierce, virtuosic drama from the era’s greatest woman painter.',
       },
     ],
+    failureMode:
+      'The model may just darken the photo instead of restructuring the light',
     remix: {
       mode: 'prompt',
       template:
@@ -334,6 +354,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The quiet counterweight: still lifes and domestic scenes of grave, luminous simplicity that later painters revered.',
       },
     ],
+    failureMode:
+      "Keeps the photo's saturated, contrasty color — push a high-key pastel palette instead",
     remix: {
       mode: 'prompt',
       template:
@@ -376,6 +398,7 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Swiss-born history painter and a founding member of Britain’s Royal Academy.',
       },
     ],
+    failureMode: 'Over-flattens texture into a "marble statue" look',
     remix: {
       mode: 'prompt',
       template:
@@ -408,6 +431,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Poet of rain, snow, and the road to Kyoto.',
       },
     ],
+    failureMode:
+      'Adds spurious calligraphy, stamps, or borders — append "no text, no stamps, no border" to the instruction',
     remix: {
       mode: 'prompt',
       template:
@@ -440,6 +465,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Dissolved ships and sunsets into pure luminous weather.',
       },
     ],
+    failureMode:
+      'Reads as a "dramatic sky filter"; push mood and scale, not just clouds',
     remix: {
       mode: 'prompt',
       template:
@@ -472,6 +499,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Gave farm labor the gravity of scripture.',
       },
     ],
+    failureMode:
+      'A subtle style — can look like a lightly-graded photo; lean on the earthy palette',
     remix: {
       mode: 'prompt',
       template:
@@ -509,6 +538,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Dappled sunlight on dancing crowds.',
       },
     ],
+    failureMode:
+      'Can over-blur into mush; keep "broken brushstrokes" and a high-key palette in the instruction',
     remix: {
       mode: 'prompt',
       template:
@@ -546,6 +577,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The bridge from Impressionism to everything modern.',
       },
     ],
+    failureMode:
+      'The Van Gogh LoRA pulls toward one artist; the movement prompt keeps it broader',
     remix: {
       mode: 'prompt',
       template:
@@ -589,6 +622,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Master of pale, calm, dreamlike murals whose flattened simplicity quietly influenced nearly every modernist who followed.',
       },
     ],
+    failureMode:
+      'The loosest visual signature — transfers as mood and palette; guard against a modern digital-surreal look',
     remix: {
       mode: 'prompt',
       template:
@@ -632,6 +667,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The leading Belgian Neo-Impressionist, who brought the dot-technique to elegant, sensitive portraiture.',
       },
     ],
+    failureMode:
+      'Dots render too coarse or sparse at low output sizes — evaluate at a higher resolution',
     remix: {
       mode: 'prompt',
       template:
@@ -664,6 +701,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Gold-leaf patterns swallowing tender figures.',
       },
     ],
+    failureMode:
+      'A great transfer overall; watch for over-busy borders eating the subject',
     remix: {
       mode: 'prompt',
       template:
@@ -701,6 +740,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Blue horses and yellow cows — animals as pure feeling.',
       },
     ],
+    failureMode:
+      'The LoRA leans Kirchner-specific; A/B against the movement prompt for a broader result',
     remix: {
       mode: 'prompt',
       template:
@@ -728,6 +769,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The clearest, most elegant architect of the Cubist grid.',
       },
     ],
+    failureMode:
+      '"Preserve composition" fights faceting — often comes out as a shallow "crystallized photo"',
     remix: {
       mode: 'prompt',
       template:
@@ -760,6 +803,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The movement’s tireless organizer and provocateur.',
       },
     ],
+    failureMode:
+      'A faithful remix discards the photo entirely — frame it playfully ("Mondrian-ify") rather than expecting recognizable content',
     remix: {
       mode: 'prompt',
       template:
@@ -797,6 +842,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Ran the metal workshop and pioneered the photogram, treating light itself as an art medium.',
       },
     ],
+    failureMode:
+      'Three distinct hands can average into a generic "geometric abstract" look; pick one artist (e.g. Kandinsky) to anchor it',
     remix: {
       mode: 'prompt',
       template:

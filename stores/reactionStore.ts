@@ -7,6 +7,8 @@ import type {
   Reaction_reactionCategory,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import { useAchievementStore } from './achievementStore'
+import { useUserStore } from './userStore'
 
 export type ReactionTypeEnum = `${ReactionType}`
 export type ReactionCategoryEnum = `${Reaction_reactionCategory}`
@@ -367,6 +369,19 @@ export const useReactionStore = defineStore('reactionStore', () => {
       upsertReaction(res.data)
       invalidatePayloadTargets(payload)
       invalidateReactionTargets(res.data)
+
+      // Achievements: "Art Critic" on the first reaction, "Curator" at 25.
+      // The store dedupes rewards, so firing every time is safe. The 25-count
+      // is a best-effort read of the reactions currently loaded for this user.
+      const achievementStore = useAchievementStore()
+      void achievementStore.rewardAchievementByCode('artcritic')
+      const userStore = useUserStore()
+      const myReactions = reactions.value.filter(
+        (reaction) => reaction.userId === userStore.userId,
+      ).length
+      if (myReactions >= 25) {
+        void achievementStore.rewardAchievementByCode('reaction-twentyfive')
+      }
 
       return res.data
     } catch (error) {

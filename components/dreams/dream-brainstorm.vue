@@ -501,6 +501,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import {
   CREATABLE_DREAM_TYPES,
   type CreatableDreamType,
@@ -846,6 +847,9 @@ async function saveAcceptedAsBrainstorm() {
 
   emit('saved', [result.data.id])
   setStatus('Accepted ideas saved as a Brainstorm Dream.')
+
+  // Achievement: "Brainstorm" for submitting a brainstorm (deduped).
+  useAchievementStore().rewardAchievementByCode('Brainstorm')
 }
 
 async function saveAcceptedAsDreams() {

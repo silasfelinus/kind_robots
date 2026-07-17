@@ -30,3 +30,5 @@ prisma/migrations_old/*.sql
 kindblank_*.sql
 .vercel
 .env*
+/public/images/**
+!/public/images/.gitkeep

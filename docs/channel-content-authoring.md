@@ -190,6 +190,29 @@ Role and capability gates are evaluated independently. Administrators bypass cap
 
 Canonical page activation happens in `pageStore`: content resolves the active channel and tab first, then the old dashboard shell is synchronized as a compatibility adapter. Header, navigator, Builder, and tutorial components should not recreate that synchronization.
 
+## Data surfaces without a content page
+
+Not every navigable thing is a Markdown page. A store-backed surface (the honeydo
+inbox, for example) can live entirely inside a component's local tab state, with
+no `content/` file for `verifyChannelContent.ts` to scan — so it can go
+undiscoverable with nothing failing CI. Register any such surface in
+`utils/dataSurfaceManifest.ts`'s `DATA_SURFACES` array:
+
+```ts
+{
+  id: 'my-surface',
+  label: 'What a human would call it',
+  dataSource: 'stores/myStore.ts: myStore.someGlobalList',
+  navEntry: { channelKey: 'plan', tabKey: 'my-tab' }, // or null while unwired
+  acknowledgedGap: 'project/t-XXX', // required when navEntry is null
+}
+```
+
+`npm run test:data-surface-manifest` fails the build if an entry has neither a
+`navEntry` that resolves to a real tab, nor an `acknowledgedGap` — a new
+data surface can never land silently undiscoverable, and an existing gap stays
+visible in CI until the tracked task actually wires it up.
+
 ## Validation
 
 Run:
@@ -197,6 +220,7 @@ Run:
 ```bash
 npm run test:channel-content
 npm run test:channel-resolver
+npm run test:data-surface-manifest
 npm run audit:channel-assets
 ```
 
@@ -220,5 +244,11 @@ The resolver contract checks:
 - Role filtering
 - Capability filtering
 - Administrator bypass
+
+The data surface manifest contract checks:
+
+- Every registered surface has a unique id
+- Every registered surface has a resolvable `navEntry` or an `acknowledgedGap`
+- Any `navEntry` actually points at a real channel/tab
 
 TypeScript validation also runs through the normal project test workflow. Admin users can inspect the live resolved graph at `/navigation-health` and apply Project placement updates at `/project-placement`.

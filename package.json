@@ -44,6 +44,7 @@
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
+    "test:data-surface-manifest": "tsx utils/scripts/verifyDataSurfaceManifest.ts",
     "test:animation-catalog": "tsx utils/scripts/verifyAnimationCatalog.ts",
     "test:database-pool-defaults": "tsx utils/scripts/verifyDatabasePoolDefaults.ts",
     "test:academy-style-detail-callers": "tsx utils/scripts/verifyAcademyStyleDetailCallers.ts",

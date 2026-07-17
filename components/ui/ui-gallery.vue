@@ -481,6 +481,13 @@
             </tbody>
           </table>
         </div>
+        <div class="kr-panel-flat overflow-x-auto">
+          <leaderboard-table
+            :rows="sampleLeaderboard"
+            score-label="Click Record"
+            score-key="clickRecord"
+          />
+        </div>
       </section>
 
       <!-- Progress & loaders -->
@@ -546,6 +553,12 @@ const sections = [
   { id: 'nav', label: 'Nav' },
   { id: 'data', label: 'Data' },
   { id: 'progress', label: 'Progress' },
+]
+
+const sampleLeaderboard = [
+  { id: 1, username: 'kindrobot', clickRecord: 9001 },
+  { id: 2, username: 'silas', clickRecord: 742 },
+  { id: 3, username: 'amibot', clickRecord: 128 },
 ]
 
 const tokens = [

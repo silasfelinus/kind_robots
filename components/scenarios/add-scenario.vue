@@ -15,7 +15,7 @@
 
     <div
       v-if="mode === 'edit' && !scenarioStore.selectedScenario"
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="kr-note kr-note-warning"
     >
       Select a scenario before editing.
     </div>
@@ -249,12 +249,8 @@
 
       <div
         v-if="statusMessage"
-        class="rounded-2xl border p-3 text-sm"
-        :class="
-          statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        class="kr-note"
+        :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ statusMessage }}
       </div>

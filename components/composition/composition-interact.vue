@@ -23,12 +23,8 @@
 
     <div
       v-if="statusMessage"
-      class="rounded-2xl border p-3 text-sm"
-      :class="
-        statusTone === 'error'
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'border-success/40 bg-success/10 text-success'
-      "
+      class="kr-note"
+      :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
     >
       {{ statusMessage }}
     </div>
@@ -113,8 +109,7 @@
             <pre
               v-if="synthesisPrompt"
               class="whitespace-pre-wrap rounded-2xl bg-base-300 p-3 text-sm leading-relaxed text-base-content/80"
-              >{{ synthesisPrompt }}</pre
-            >
+              >{{ synthesisPrompt }}</pre>
             <div
               v-else
               class="flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/50"

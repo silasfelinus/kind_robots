@@ -16,7 +16,7 @@
 
     <div
       v-if="!userStore.isLoggedIn || userStore.isGuest"
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm font-semibold text-warning"
+      class="kr-note kr-note-warning"
     >
       Sign in to manage your account settings.
     </div>
@@ -25,7 +25,7 @@
       <!-- Query-string banners (from email links) -->
       <div
         v-if="banner"
-        class="rounded-2xl border p-3 text-sm font-semibold"
+        class="kr-note"
         :class="banner.ok ? okClass : errClass"
       >
         {{ banner.text }}
@@ -302,8 +302,8 @@ const userStore = useUserStore()
 const account = useAccountStore()
 const route = useRoute()
 
-const okClass = 'border-success/40 bg-success/10 text-success'
-const errClass = 'border-error/40 bg-error/10 text-error'
+const okClass = 'kr-note-success'
+const errClass = 'kr-note-error'
 
 // ── Email / password state ──────────────────────────────────────────────────
 const userEmail = computed(() => userStore.user?.email ?? '')

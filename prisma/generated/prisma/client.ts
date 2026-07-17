@@ -218,6 +218,38 @@ export type Achievement = Prisma.AchievementModel
  */
 export type ManaTransaction = Prisma.ManaTransactionModel
 /**
+ * Model Product
+ * digital-storefront v1 catalog entry (SPEC.md §3, digital-storefront/t-011 step 1).
+ * Trusted server-side price source — replaces the imported
+ * stores/seeds/cartItems.ts array in checkout.post.ts. metadata is a
+ * serialized-JSON string (this repo stores structured data as
+ * String/@db.LongText, never a native Json column — see
+ * utils/scripts/verifyNoPrismaJsonCast.ts).
+ */
+export type Product = Prisma.ProductModel
+/**
+ * Model Order
+ * One Stripe Checkout Session's fulfillment record (SPEC.md §3). Created by
+ * the webhook handler (digital-storefront t-011 step 2, not this migration)
+ * on `checkout.session.completed`; stripeSessionId is the idempotency key
+ * that stops a redelivered webhook event from double-fulfilling.
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * One line of an Order. priceCents snapshots the Product's price at purchase
+ * time so a later price change never rewrites history.
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model Entitlement
+ * Answers "does this user own this digital good" (SPEC.md §4) — the gate a
+ * secure download route (t-011 step 3, not this migration) checks before
+ * streaming a paid PDF/DLC file. revokedAt supports refunds without deleting
+ * purchase history.
+ */
+export type Entitlement = Prisma.EntitlementModel
+/**
  * Model AchievementRecord
  * the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
  */

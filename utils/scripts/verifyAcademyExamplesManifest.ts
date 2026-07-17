@@ -5,11 +5,11 @@
 // verifyAcademyStarterManifest.ts and conductor's PUBLIC-DOMAIN-POLICY.md
 // §3), plus one more invariant specific to example works: academyStyles.ts is
 // the canonical metadata copy and the external examples manifest is its media
-// mirror. This contract fails CI if either goes stale relative to the other or
-// if a referenced media asset is missing.
+// mirror. Schema and path parity are source-code contracts; live asset
+// availability is an opt-in operational smoke test.
 //
-// Set MEDIA_ROOT for an offline filesystem-backed run, or MEDIA_ORIGIN to
-// override the default public origin.
+// Set MEDIA_ROOT for a filesystem-backed availability check, or set
+// MEDIA_VERIFY_ASSETS=1 to verify the public origin with HEAD requests.
 //
 // Run: npm run test:academy-examples-manifest
 
@@ -25,9 +25,10 @@ import {
 
 const manifestRelativePath = 'academy/examples/examples.manifest.json'
 const manifestSource = mediaSourceDescription(manifestRelativePath)
+const verifyAssets =
+  Boolean(process.env.MEDIA_ROOT?.trim()) ||
+  process.env.MEDIA_VERIFY_ASSETS === '1'
 
-// This manifest carries two fields beyond the shared provenance schema:
-// `movement` (join key to academyStyles.ts) and `file` (legacy repo-style path).
 const REQUIRED_OWN_STRING_FIELDS = ['movement', 'file'] as const
 
 async function main(): Promise<void> {
@@ -82,7 +83,7 @@ async function main(): Promise<void> {
 
     try {
       const mediaPath = repositoryFileToMediaPath(file)
-      if (!(await mediaAssetExists(mediaPath))) {
+      if (verifyAssets && !(await mediaAssetExists(mediaPath))) {
         errors.push(
           `${label}: referenced media asset does not exist: ${mediaSourceDescription(mediaPath)}`,
         )
@@ -97,8 +98,6 @@ async function main(): Promise<void> {
     }
   }
 
-  // Cross-check against the canonical copy in academyStyles.ts — the external
-  // manifest is a generated mirror and must not drift from it (t-013).
   const seedImageSrcByMovement = new Map<string, string>()
   for (const style of academyStyles) {
     for (const work of style.exampleWorks ?? []) {
@@ -113,7 +112,7 @@ async function main(): Promise<void> {
 
       try {
         const mediaPath = imageSrcToMediaPath(work.imageSrc)
-        if (!(await mediaAssetExists(mediaPath))) {
+        if (verifyAssets && !(await mediaAssetExists(mediaPath))) {
           errors.push(
             `${style.slug}: exampleWorks imageSrc does not exist at ${mediaSourceDescription(mediaPath)}`,
           )
@@ -159,8 +158,11 @@ async function main(): Promise<void> {
     return
   }
 
+  const availabilityNote = verifyAssets
+    ? ' with media availability verified'
+    : ' (media availability check skipped; set MEDIA_VERIFY_ASSETS=1 to enable)'
   console.log(
-    `Academy examples manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated from ${manifestSource} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts.`,
+    `Academy examples manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated from ${manifestSource} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
   )
 }
 

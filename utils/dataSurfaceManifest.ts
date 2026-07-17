@@ -5,9 +5,9 @@
 // Markdown page gets this check for free from verifyChannelContent.ts's
 // channelKey/tabKey frontmatter cross-reference -- but a data surface can
 // live entirely inside a Vue component's local tab state, with no Markdown
-// page at all, and slip past that file-scanning check silently. That is
-// exactly what happened to the honeydo inbox: todoStore.honeyDoTodos is
-// correctly global, but its only UI entry point was a HONEYDO tab buried
+// page at all, and slip past that file-scanning check silently. That is what
+// happened to the honeydo inbox until global-ui/t-014 landed: todoStore.honeyDoTodos
+// was correctly global, but its only UI entry point was a HONEYDO tab buried
 // inside conductor-page.vue's per-project detail view, with no top-level
 // destination -- caught only by a manual audit (NAVIGATION-MAP.md,
 // 2026-07-15), not CI. Mirrors the intent of PortOS's server/lib/navManifest.js.
@@ -33,7 +33,6 @@ export const DATA_SURFACES: DataSurfaceEntry[] = [
     id: 'honeydo-inbox',
     label: 'Global honeydo queue',
     dataSource: 'stores/todoStore.ts: todoStore.honeyDoTodos',
-    navEntry: null,
-    acknowledgedGap: 'global-ui/t-014',
+    navEntry: { channelKey: 'home', tabKey: 'for-you' },
   },
 ]

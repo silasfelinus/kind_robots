@@ -1,9 +1,10 @@
 // /server/api/utils/UploadArtImage.ts
-import path from 'path'
-import fs from 'fs/promises'
+import path from 'node:path'
+import fs from 'node:fs/promises'
 import prisma from '~/server/utils/prisma'
 import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import { errorHandler } from './error'
+import { getImageStorageRoot } from './imageStorageRoot'
 
 export type UploadedImageFile = {
   data: Buffer
@@ -161,7 +162,7 @@ export async function uploadArtImage(
     let savedImagePath = cleanText(input.imagePath)
 
     if (process.env.APP_ENV !== 'production') {
-      const imageRoot = process.env.IMAGES_PATH || './public/images'
+      const imageRoot = getImageStorageRoot()
       const dirPath = path.join(imageRoot, safeGalleryName)
       const filePath = path.join(dirPath, finalFileName)
 

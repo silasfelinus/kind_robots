@@ -51,6 +51,18 @@
       </div>
 
       <div
+        v-if="bulkRetryMessage"
+        class="rounded-2xl border p-2 text-xs"
+        :class="
+          bulkRetryHasFailures
+            ? 'border-warning/40 bg-warning/10 text-warning'
+            : 'border-success/40 bg-success/10 text-success'
+        "
+      >
+        {{ bulkRetryMessage }}
+      </div>
+
+      <div
         v-if="stats?.oldestPending"
         class="rounded-2xl border border-warning/40 bg-warning/10 p-2 text-xs text-warning"
       >
@@ -152,7 +164,7 @@
 
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <h3 class="text-sm font-semibold">Queue</h3>
             <span
               v-if="(stats?.staleRunningCount ?? 0) > 0"
@@ -164,6 +176,20 @@
             <span class="text-[11px] text-base-content/50">
               {{ stats?.imagesCreatedInWindow ?? 0 }} imgs / {{ windowHours }}h
             </span>
+            <button
+              v-if="failedJobCount > 0"
+              type="button"
+              class="btn btn-error btn-xs rounded-2xl"
+              :disabled="artJobStore.reenqueueingFailedJobs"
+              :title="`Clone all ${failedJobCount} failed jobs into fresh pending attempts`"
+              @click="reenqueueAllFailed"
+            >
+              <span
+                v-if="artJobStore.reenqueueingFailedJobs"
+                class="loading loading-spinner loading-xs"
+              />
+              Re-enqueue all failed ({{ failedJobCount }})
+            </button>
             <button
               v-if="uncuratedJobs.length"
               type="button"
@@ -686,6 +712,8 @@ const selectedWindow = ref(24)
 const checkingServerId = ref<number | null>(null)
 const copiedJobId = ref<number | null>(null)
 const overwriteJob = ref<ArtJob | null>(null)
+const bulkRetryMessage = ref('')
+const bulkRetryHasFailures = ref(false)
 
 const statusFilters: (ArtJobStatus | 'ALL')[] = [
   'PENDING',
@@ -699,6 +727,7 @@ const statusFilters: (ArtJobStatus | 'ALL')[] = [
 const stats = computed(() => artJobStore.stats)
 const uptime = computed(() => artJobStore.uptime)
 const windowHours = computed(() => artJobStore.windowHours)
+const failedJobCount = computed(() => stats.value?.queueDepth.FAILED ?? 0)
 const isLoading = computed(
   () =>
     artJobStore.loadingStats ||
@@ -1192,6 +1221,30 @@ async function requestBulkCuration(): Promise<void> {
   } finally {
     bulkCurating.value = false
   }
+}
+
+async function reenqueueAllFailed(): Promise<void> {
+  const count = failedJobCount.value
+  if (!count || artJobStore.reenqueueingFailedJobs) return
+
+  const confirmed = window.confirm(
+    `Re-enqueue all ${count} failed art jobs as fresh outputs? The failed jobs and their errors will remain in history.`,
+  )
+  if (!confirmed) return
+
+  bulkRetryMessage.value = ''
+  bulkRetryHasFailures.value = false
+
+  const result = await artJobStore.reenqueueFailedJobs()
+  if (!result) return
+
+  bulkRetryHasFailures.value = result.failedCount > 0
+  bulkRetryMessage.value =
+    result.requestedCount === 0
+      ? 'No failed art jobs were found.'
+      : result.failedCount > 0
+        ? `Queued ${result.queuedCount} of ${result.requestedCount} failed jobs. ${result.failedCount} could not be queued.`
+        : `Re-enqueued all ${result.queuedCount} failed jobs as fresh outputs.`
 }
 
 function askToOverwrite(job: ArtJob): void {

@@ -6,6 +6,8 @@
     @transitionend="handleTransitionEnd"
   >
     <div class="loading-content">
+      <div class="loading-heading">Building Kind Robots...</div>
+
       <div class="loading-logo-frame">
         <NuxtImg
           src="/images/kindlogo_new.webp"
@@ -56,20 +58,19 @@ const emit = defineEmits<{
 
 const loadStore = useLoadStore()
 
-const currentMessage = ref('Building Kind Robots...')
+const currentMessage = ref('Wiring robots for suspicious levels of charm...')
 const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
 const logoLoaded = ref(false)
 const hiddenEmitted = ref(false)
 
-const FIRST_MESSAGE_MS = 950
 const EXTRA_MESSAGE_COUNT = 2
 const EXTRA_MESSAGE_MS = 1250
 const ROTATING_MESSAGE_MS = 1600
 const READY_HOLD_MS = 450
 const MIN_TOTAL_MS =
-  FIRST_MESSAGE_MS + EXTRA_MESSAGE_COUNT * EXTRA_MESSAGE_MS + READY_HOLD_MS
+  (EXTRA_MESSAGE_COUNT + 1) * EXTRA_MESSAGE_MS + READY_HOLD_MS
 const OVERLAY_FADE_MS = 650
 
 const startTime = Date.now()
@@ -149,15 +150,12 @@ function handleTransitionEnd(event: TransitionEvent) {
 }
 
 async function runVisualSequence() {
-  await wait(FIRST_MESSAGE_MS)
-
   for (let index = 0; index < EXTRA_MESSAGE_COUNT; index += 1) {
+    await wait(EXTRA_MESSAGE_MS)
     if (destroyed) return
     nextMessage()
-    await wait(EXTRA_MESSAGE_MS)
   }
 
-  if (destroyed) return
   minimumSequenceComplete.value = true
 
   if (props.storesReady) {
@@ -224,19 +222,45 @@ onBeforeUnmount(() => {
 .loading-content {
   display: grid;
   width: min(98vw, 64rem);
-  grid-template-rows: clamp(20rem, 58vw, 36rem) 8rem;
+  height: min(92vh, 52rem);
+  grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem;
   place-items: center;
+}
+
+.loading-heading,
+.loading-message {
+  display: flex;
+  width: fit-content;
+  max-width: min(90vw, 44rem);
+  min-height: 3.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.2rem;
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.42);
+  transform: translateZ(0);
+}
+
+.loading-heading {
+  font-size: clamp(1.2rem, 2.25vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .loading-logo-frame {
   display: grid;
   width: 100%;
   height: 100%;
+  min-height: 0;
   place-items: center;
 }
 
 .loading-logo {
-  width: clamp(20rem, 58vw, 34rem);
+  width: clamp(16rem, 58vw, 34rem);
+  max-height: 100%;
   height: auto;
   object-fit: contain;
   opacity: 0;
@@ -275,21 +299,8 @@ onBeforeUnmount(() => {
 }
 
 .loading-message {
-  display: flex;
-  width: fit-content;
-  max-width: min(90vw, 44rem);
-  min-height: 3.75rem;
-  align-items: center;
-  justify-content: center;
-  padding: 0.65rem 1.2rem;
-  background: rgba(0, 0, 0, 0.78);
-  color: #fff;
   font-size: clamp(1.05rem, 2vw, 1.75rem);
-  font-weight: 700;
-  text-align: center;
-  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.42);
   will-change: transform, opacity;
-  transform: translateZ(0);
 }
 
 .bubble-loader {

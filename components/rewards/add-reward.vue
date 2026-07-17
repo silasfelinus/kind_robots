@@ -15,7 +15,7 @@
 
     <div
       v-if="mode === 'edit' && !rewardStore.selectedReward"
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="kr-note kr-note-warning"
     >
       Select a reward before editing.
     </div>
@@ -229,11 +229,7 @@
       <div
         v-if="statusMessage"
         class="rounded-2xl border p-3 text-sm"
-        :class="
-          statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ statusMessage }}
       </div>
@@ -278,7 +274,11 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
-import { useRewardStore, type Rarity, type RewardType } from '@/stores/rewardStore'
+import {
+  useRewardStore,
+  type Rarity,
+  type RewardType,
+} from '@/stores/rewardStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
 const props = withDefaults(

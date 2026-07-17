@@ -400,16 +400,23 @@ export const useCartStore = defineStore('cartStore', () => {
     return topupPromise.value
   }
 
-  async function cancelSubscription(
-    userId: number,
-  ): Promise<CartCheckoutResult> {
+  async function cancelSubscription(): Promise<CartCheckoutResult> {
     try {
       loading.value = true
       clearError()
 
+      const result = await performFetch<{ message?: string }>(
+        '/api/stripe/cancel-subscription',
+        { method: 'POST' },
+      )
+
+      if (!result.success) {
+        throw new Error(result.message || 'Cancellation failed.')
+      }
+
       return {
-        success: false,
-        message: `Cancel subscription for user ${userId} is not implemented yet.`,
+        success: true,
+        message: result.message,
       }
     } catch (error) {
       handleError(error, 'cancelSubscription')

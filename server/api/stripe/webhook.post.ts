@@ -66,6 +66,91 @@ async function handleManaTopup(session: Stripe.Checkout.Session) {
   )
 }
 
+// Subscription checkout completes with no metadata (subscribe.post.ts sets none) —
+// route on session.mode instead. Idempotent by construction: this only ever sets
+// isMember/stripeSubscriptionId to their new value, it never accumulates like mana.
+async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
+  const customerId =
+    typeof session.customer === 'string'
+      ? session.customer
+      : session.customer?.id
+  const subscriptionId =
+    typeof session.subscription === 'string'
+      ? session.subscription
+      : session.subscription?.id
+
+  if (!customerId || !subscriptionId) {
+    console.error(
+      `⚠️ Stripe webhook: subscription checkout session ${session.id} missing customer/subscription id`,
+    )
+    return
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { stripeCustomerId: customerId },
+  })
+  if (!user) {
+    console.error(
+      `⚠️ Stripe webhook: no user found for Stripe customer ${customerId} (session ${session.id})`,
+    )
+    return
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isMember: true,
+      memberUntil: null,
+      stripeSubscriptionId: subscriptionId,
+    },
+  })
+
+  console.log(
+    `🎫 Activated membership for user ${user.id} (subscription ${subscriptionId})`,
+  )
+}
+
+// customer.subscription.updated/deleted — keeps isMember in sync with Stripe's
+// view of the subscription (renewal, cancellation, payment failure) independent
+// of whether the cancellation was initiated from our UI or the Stripe dashboard.
+async function handleSubscriptionLifecycle(subscription: Stripe.Subscription) {
+  const customerId =
+    typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer?.id
+
+  if (!customerId) return
+
+  const user = await prisma.user.findFirst({
+    where: { stripeCustomerId: customerId },
+  })
+  if (!user) return
+
+  // Only act on the subscription we're currently tracking for this user —
+  // an old/replaced subscription's late event shouldn't clobber a newer one.
+  if (
+    user.stripeSubscriptionId &&
+    user.stripeSubscriptionId !== subscription.id
+  )
+    return
+
+  const isActive =
+    subscription.status === 'active' || subscription.status === 'trialing'
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isMember: isActive,
+      memberUntil: isActive ? null : new Date(),
+      stripeSubscriptionId: isActive ? subscription.id : null,
+    },
+  })
+
+  console.log(
+    `🎫 Subscription ${subscription.id} for user ${user.id} -> ${subscription.status} (isMember=${isActive})`,
+  )
+}
+
 export default defineEventHandler(async (event) => {
   let response
 
@@ -98,7 +183,16 @@ export default defineEventHandler(async (event) => {
       const session = stripeEvent.data.object as Stripe.Checkout.Session
       if (session.metadata?.kind === 'mana_topup') {
         await handleManaTopup(session)
+      } else if (session.mode === 'subscription') {
+        await handleSubscriptionCheckout(session)
       }
+    } else if (
+      stripeEvent.type === 'customer.subscription.updated' ||
+      stripeEvent.type === 'customer.subscription.deleted'
+    ) {
+      await handleSubscriptionLifecycle(
+        stripeEvent.data.object as Stripe.Subscription,
+      )
     }
 
     response = { received: true }

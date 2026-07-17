@@ -2,7 +2,7 @@
 //
 // Card definitions for the Bot Builder.
 // A bot is a programmatic entity that responds to users with text, art,
-// compositions, or any combination. It can replicate other models or
+// structured text, art, or any combination. It can replicate other models or
 // create new interactive experiences.
 
 import type { BuilderCard } from '@/stores/helpers/builderCards'
@@ -37,13 +37,6 @@ export const BOT_TYPES: BotTypeOption[] = [
     subtext:
       'Generates and refines art prompts. Can drive image generation workflows. Thinks in visuals.',
     image: '/images/bots/type/art.webp',
-  },
-  {
-    value: 'composition',
-    label: 'Composition Bot',
-    subtext:
-      'Modular synthesis. Combines characters, dreams, scenarios, dream seeds, and rewards into cohesive output.',
-    image: '/images/bots/type/composition.webp',
   },
   {
     value: 'character',
@@ -184,11 +177,6 @@ export const MODULE_PRESETS: Array<{
     subtext: 'Can search the web for current information.',
   },
   {
-    value: 'composition',
-    label: 'Composition',
-    subtext: 'Can build and output structured composition objects.',
-  },
-  {
     value: 'character-voice',
     label: 'Character Voice',
     subtext: 'Speaks as a named character with consistent personality.',
@@ -229,7 +217,7 @@ export const BOT_CARDS: BuilderCard[] = [
     heroImage: '/images/bots/type.webp',
     tagline: 'What this bot fundamentally does.',
     narrative:
-      "A bot's type is its purpose. An assistant answers questions. A story bot generates narrative. An art bot drives image workflows. A composition bot synthesizes multiple models into a single output. The type shapes the prompt, the intros, and how the bot is presented to users.",
+      "A bot's type is its purpose. An assistant answers questions. A story bot generates narrative. An art bot drives image workflows. A custom bot can combine several capabilities into one focused assistant. The type shapes the prompt, the intros, and how the bot is presented to users.",
     required: true,
     restoresFields: ['BotType'],
     steps: [

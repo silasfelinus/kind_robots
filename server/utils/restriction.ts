@@ -56,10 +56,6 @@ export async function privatizeUserContent(userId: number): Promise<void> {
       where: { userId },
       data: { isPublic: false },
     }),
-    prisma.composition.updateMany({
-      where: { userId },
-      data: { isPublic: false },
-    }),
     prisma.theme.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.bot.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.reward.updateMany({ where: { userId }, data: { isPublic: false } }),

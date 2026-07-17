@@ -62,13 +62,6 @@
       <add-bot :mode="botFormMode" @saved="handleBotSaved" @cancel="goToBots" />
     </section>
 
-    <section
-      v-else-if="activeTab === 'composition'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <composition-manager class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
     <div
       v-else
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-center text-warning"

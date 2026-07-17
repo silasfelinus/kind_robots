@@ -61,9 +61,7 @@ export const ModelName = {
   Bot: 'Bot',
   Character: 'Character',
   Chat: 'Chat',
-  Code: 'Code',
   Component: 'Component',
-  Composition: 'Composition',
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
   Project: 'Project',
@@ -415,24 +413,6 @@ export const ChatScalarFieldEnum = {
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
 
 
-export const CodeScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId',
-  title: 'title',
-  description: 'description',
-  icon: 'icon',
-  graph: 'graph',
-  isPublic: 'isPublic',
-  isOfficial: 'isOfficial',
-  isActive: 'isActive',
-  isMature: 'isMature'
-} as const
-
-export type CodeScalarFieldEnum = (typeof CodeScalarFieldEnum)[keyof typeof CodeScalarFieldEnum]
-
-
 export const ComponentScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -448,44 +428,6 @@ export const ComponentScalarFieldEnum = {
 } as const
 
 export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
-
-
-export const CompositionScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  title: 'title',
-  description: 'description',
-  label: 'label',
-  mode: 'mode',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  isActive: 'isActive',
-  designer: 'designer',
-  characterId: 'characterId',
-  dreamId: 'dreamId',
-  scenarioId: 'scenarioId',
-  rewardId: 'rewardId',
-  characterBlurb: 'characterBlurb',
-  dreamBlurb: 'dreamBlurb',
-  scenarioBlurb: 'scenarioBlurb',
-  rewardBlurb: 'rewardBlurb',
-  narrativeText: 'narrativeText',
-  artPrompt: 'artPrompt',
-  userId: 'userId',
-  artImageId: 'artImageId',
-  imagePath: 'imagePath',
-  approvedAt: 'approvedAt',
-  bountyId: 'bountyId',
-  manaCharged: 'manaCharged',
-  outputDreamId: 'outputDreamId',
-  status: 'status',
-  stepLog: 'stepLog',
-  userApproved: 'userApproved',
-  wishText: 'wishText'
-} as const
-
-export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
 
 
 export const DreamScalarFieldEnum = {
@@ -955,7 +897,6 @@ export const ReactionScalarFieldEnum = {
   characterId: 'characterId',
   scenarioId: 'scenarioId',
   themeId: 'themeId',
-  compositionId: 'compositionId',
   challengeSubmissionId: 'challengeSubmissionId',
   projectId: 'projectId',
   facetId: 'facetId'
@@ -1798,16 +1739,6 @@ export const ChatOrderByRelevanceFieldEnum = {
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
 
 
-export const CodeOrderByRelevanceFieldEnum = {
-  title: 'title',
-  description: 'description',
-  icon: 'icon',
-  graph: 'graph'
-} as const
-
-export type CodeOrderByRelevanceFieldEnum = (typeof CodeOrderByRelevanceFieldEnum)[keyof typeof CodeOrderByRelevanceFieldEnum]
-
-
 export const ComponentOrderByRelevanceFieldEnum = {
   folderName: 'folderName',
   componentName: 'componentName',
@@ -1816,26 +1747,6 @@ export const ComponentOrderByRelevanceFieldEnum = {
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
-
-
-export const CompositionOrderByRelevanceFieldEnum = {
-  title: 'title',
-  description: 'description',
-  label: 'label',
-  mode: 'mode',
-  designer: 'designer',
-  characterBlurb: 'characterBlurb',
-  dreamBlurb: 'dreamBlurb',
-  scenarioBlurb: 'scenarioBlurb',
-  rewardBlurb: 'rewardBlurb',
-  narrativeText: 'narrativeText',
-  artPrompt: 'artPrompt',
-  imagePath: 'imagePath',
-  stepLog: 'stepLog',
-  wishText: 'wishText'
-} as const
-
-export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {

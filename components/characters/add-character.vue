@@ -15,7 +15,7 @@
 
     <div
       v-if="mode === 'edit' && !promptStore.selectedPrompt"
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="kr-note kr-note-warning"
     >
       Select a prompt before editing.
     </div>
@@ -260,21 +260,14 @@
         </div>
       </section>
 
-      <div
-        v-if="promptStore.lastError"
-        class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
-      >
+      <div v-if="promptStore.lastError" class="kr-note kr-note-error">
         {{ promptStore.lastError }}
       </div>
 
       <div
         v-if="statusMessage"
-        class="rounded-2xl border p-3 text-sm"
-        :class="
-          statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        class="kr-note"
+        :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ statusMessage }}
       </div>
@@ -547,7 +540,6 @@ function handleKeepFieldChange(field: string) {
     useGenerated[field] = false
   }
 }
-
 
 function seedPrompt() {
   promptStore.setPromptForm({

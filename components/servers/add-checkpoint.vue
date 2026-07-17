@@ -27,11 +27,7 @@
       </button>
     </div>
 
-    <div
-      v-if="message"
-      class="rounded-2xl border p-3 text-sm"
-      :class="messageClass"
-    >
+    <div v-if="message" class="kr-note" :class="messageClass">
       {{ message }}
     </div>
 
@@ -248,14 +244,7 @@ type ResourceType =
   | 'API'
 
 type SupportedServer =
-  | 'SDXL'
-  | 'SD15'
-  | 'FLUX'
-  | 'KONTEXT'
-  | 'COMFY'
-  | 'A1111'
-  | 'OPENAI'
-  | 'OTHER'
+  'SDXL' | 'SD15' | 'FLUX' | 'KONTEXT' | 'COMFY' | 'A1111' | 'OPENAI' | 'OTHER'
 
 type AddCheckpointForm = {
   name: string
@@ -316,14 +305,14 @@ const canSubmit = computed(() => {
 
 const messageClass = computed(() => {
   if (messageType.value === 'success') {
-    return 'border-success/40 bg-success/10 text-success'
+    return 'kr-note-success'
   }
 
   if (messageType.value === 'error') {
-    return 'border-error/40 bg-error/10 text-error'
+    return 'kr-note-error'
   }
 
-  return 'border-info/40 bg-info/10 text-info'
+  return 'kr-note-info'
 })
 
 function cleanOptional(value: string) {

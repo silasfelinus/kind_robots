@@ -10,13 +10,17 @@
 //
 //   npm ci --ignore-scripts          # one-time; skips nuxi postinstall
 //
-//   # via ProxySQL (the failing production path):
-//   DATABASE_URL='mysql://kindrobot:<pw>@127.0.0.1:5544/kindblank_fresh' \
-//     node scripts/db-write-repro.mjs
+// Run through `npx tsx` (not `node`): the generated Prisma client is emitted as
+// TypeScript by the `prisma-client` generator, so plain node can't resolve it.
+//
+//   # via ProxySQL (the failing production path). Add REPRO_PIPELINING=false to
+//   # confirm the fix (issue #324); REPRO_SSL=1 if the frontend requires TLS:
+//   REPRO_SSL=1 DATABASE_URL='mysql://kindrobot:<pw>@127.0.0.1:5544/kindblank_fresh' \
+//     npx tsx scripts/db-write-repro.mjs
 //
 //   # direct to MariaDB (bypasses ProxySQL — the discriminating run):
 //   DATABASE_URL='mysql://kindrobot:<pw>@<mariadb-ip>:3306/kindblank_fresh' \
-//     node scripts/db-write-repro.mjs
+//     npx tsx scripts/db-write-repro.mjs
 //
 // Each run exercises text AND binary protocol, with and without include, on a
 // control table (Todo — passes in prod) and two failing tables (Chat, Reward).
@@ -49,6 +53,19 @@ function buildAdapter(useTextProtocol) {
       connectTimeout: 5000,
       acquireTimeout: 10000,
       trace: true,
+      // REPRO_SSL=1 turns on TLS without cert verification (LAN debugging via
+      // the ProxySQL frontend, which presents a cert the LAN host can't verify).
+      ...(process.env.REPRO_SSL === '1'
+        ? { ssl: { rejectUnauthorized: false } }
+        : {}),
+      // REPRO_PIPELINING=false disables connector command pipelining. ProxySQL's
+      // frontend rejects a second command arriving while it is still processing
+      // the first ("Unexpected packet ... Session_status: 6 ... Disconnecting"),
+      // which is what kills multi-statement transactions (create + include reads)
+      // over the TLS proxy path. Set this to prove the fix, then compare.
+      ...(process.env.REPRO_PIPELINING === 'false'
+        ? { pipelining: false }
+        : {}),
       // Surface every connector-level error with its ORIGINAL message/stack —
       // this is the evidence the production logs never show.
       logger: {

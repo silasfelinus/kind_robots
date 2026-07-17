@@ -23,7 +23,6 @@ type ReactionBody = {
   characterId?: unknown
   chatId?: unknown
   componentId?: unknown
-  compositionId?: unknown
   dreamId?: unknown
   promptId?: unknown
   resourceId?: unknown
@@ -49,7 +48,6 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   BOT: Reaction_reactionCategory.BOT,
   CHARACTER: Reaction_reactionCategory.CHARACTER,
   COMPONENT: Reaction_reactionCategory.COMPONENT,
-  COMPOSITION: Reaction_reactionCategory.COMPOSITION,
   DREAM: Reaction_reactionCategory.DREAM,
   POST: Reaction_reactionCategory.POST,
   PROMPT: Reaction_reactionCategory.PROMPT,
@@ -61,7 +59,10 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
 
 function normalizeReactionType(value: unknown): ReactionType {
   if (typeof value !== 'string') {
-    throw createError({ statusCode: 400, message: '"reactionType" is required.' })
+    throw createError({
+      statusCode: 400,
+      message: '"reactionType" is required.',
+    })
   }
 
   const normalized = value.trim().toUpperCase() as ReactionType
@@ -78,10 +79,16 @@ function normalizeReactionType(value: unknown): ReactionType {
 
 function normalizeReactionCategory(value: unknown): Reaction_reactionCategory {
   if (typeof value !== 'string') {
-    throw createError({ statusCode: 400, message: '"reactionCategory" is required.' })
+    throw createError({
+      statusCode: 400,
+      message: '"reactionCategory" is required.',
+    })
   }
 
-  const normalizedKey = value.trim().toUpperCase().replace(/[\s-]+/g, '_')
+  const normalizedKey = value
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_')
 
   if (retiredReactionCategories.has(normalizedKey)) {
     throw createError({
@@ -133,7 +140,6 @@ function getTargetFields(body: ReactionBody) {
     characterId: toPositiveId(body.characterId),
     chatId: toPositiveId(body.chatId),
     componentId: toPositiveId(body.componentId),
-    compositionId: toPositiveId(body.compositionId),
     dreamId: toPositiveId(body.dreamId),
     promptId: toPositiveId(body.promptId),
     resourceId: toPositiveId(body.resourceId),
@@ -145,7 +151,10 @@ function getTargetFields(body: ReactionBody) {
 
 function getExpectedTargetField(category: Reaction_reactionCategory) {
   const map: Partial<
-    Record<Reaction_reactionCategory, keyof ReturnType<typeof getTargetFields> | null>
+    Record<
+      Reaction_reactionCategory,
+      keyof ReturnType<typeof getTargetFields> | null
+    >
   > = {
     [Reaction_reactionCategory.ART_IMAGE]: 'artImageId',
     [Reaction_reactionCategory.ART_COLLECTION]: 'artCollectionId',
@@ -153,7 +162,6 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.CHARACTER]: 'characterId',
     [Reaction_reactionCategory.CHAT_EXCHANGE]: 'chatId',
     [Reaction_reactionCategory.COMPONENT]: 'componentId',
-    [Reaction_reactionCategory.COMPOSITION]: 'compositionId',
     [Reaction_reactionCategory.DREAM]: 'dreamId',
     [Reaction_reactionCategory.PROMPT]: 'promptId',
     [Reaction_reactionCategory.RESOURCE]: 'resourceId',
@@ -198,13 +206,15 @@ async function getContentOwnerId(
   if (expectedField === 'componentId') return null
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const modelMap: Record<string, { findUnique: (args: any) => Promise<unknown> }> = {
+  const modelMap: Record<
+    string,
+    { findUnique: (args: any) => Promise<unknown> }
+  > = {
     artImageId: prisma.artImage,
     artCollectionId: prisma.artCollection,
     botId: prisma.bot,
     characterId: prisma.character,
     chatId: prisma.chat,
-    compositionId: prisma.composition,
     dreamId: prisma.dream,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
@@ -216,7 +226,10 @@ async function getContentOwnerId(
   const model = modelMap[expectedField]
   if (!model) return null
 
-  const result = await model.findUnique({ where: { id: targetId }, select: { userId: true } }) as { userId?: number | null } | null
+  const result = (await model.findUnique({
+    where: { id: targetId },
+    select: { userId: true },
+  })) as { userId?: number | null } | null
   return result?.userId ?? null
 }
 
@@ -231,19 +244,60 @@ async function assertReactionTargetExists(
   if (!targetId) return
 
   const checks: Record<string, () => Promise<unknown>> = {
-    artImageId: () => prisma.artImage.findUnique({ where: { id: targetId }, select: { id: true } }),
-    artCollectionId: () => prisma.artCollection.findUnique({ where: { id: targetId }, select: { id: true } }),
-    botId: () => prisma.bot.findUnique({ where: { id: targetId }, select: { id: true } }),
-    characterId: () => prisma.character.findUnique({ where: { id: targetId }, select: { id: true } }),
-    chatId: () => prisma.chat.findUnique({ where: { id: targetId }, select: { id: true } }),
-    componentId: () => prisma.component.findUnique({ where: { id: targetId }, select: { id: true } }),
-    compositionId: () => prisma.composition.findUnique({ where: { id: targetId }, select: { id: true } }),
-    dreamId: () => prisma.dream.findUnique({ where: { id: targetId }, select: { id: true } }),
-    promptId: () => prisma.prompt.findUnique({ where: { id: targetId }, select: { id: true } }),
-    resourceId: () => prisma.resource.findUnique({ where: { id: targetId }, select: { id: true } }),
-    rewardId: () => prisma.reward.findUnique({ where: { id: targetId }, select: { id: true } }),
-    scenarioId: () => prisma.scenario.findUnique({ where: { id: targetId }, select: { id: true } }),
-    themeId: () => prisma.theme.findUnique({ where: { id: targetId }, select: { id: true } }),
+    artImageId: () =>
+      prisma.artImage.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    artCollectionId: () =>
+      prisma.artCollection.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    botId: () =>
+      prisma.bot.findUnique({ where: { id: targetId }, select: { id: true } }),
+    characterId: () =>
+      prisma.character.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    chatId: () =>
+      prisma.chat.findUnique({ where: { id: targetId }, select: { id: true } }),
+    componentId: () =>
+      prisma.component.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    dreamId: () =>
+      prisma.dream.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    promptId: () =>
+      prisma.prompt.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    resourceId: () =>
+      prisma.resource.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    rewardId: () =>
+      prisma.reward.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    scenarioId: () =>
+      prisma.scenario.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    themeId: () =>
+      prisma.theme.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
   }
 
   const check = checks[expectedField]
@@ -264,13 +318,19 @@ export default defineEventHandler(async (event) => {
     const { isValid, user } = await validateApiKey(event)
 
     if (!isValid || !user) {
-      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
     const body = await readBody<ReactionBody>(event)
 
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
-      throw createError({ statusCode: 400, message: 'Reaction payload is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Reaction payload is required.',
+      })
     }
 
     const reactionType = normalizeReactionType(body.reactionType)
@@ -306,13 +366,23 @@ export default defineEventHandler(async (event) => {
       : await prisma.reaction.create({ data: mutationData })
 
     if (!existingReaction) {
-      awardKarma({ userId: user.id, reason: 'REACTION_GIVEN', refId: String(data.id) }).catch(() => {})
-      // Award content owner for receiving a reaction (fire-and-forget; gated by KARMA_LIVE)
-      getContentOwnerId(reactionCategory, targets).then((ownerId) => {
-        if (ownerId && ownerId !== user.id) {
-          awardKarma({ userId: ownerId, reason: 'REACTION_RECEIVED', refId: String(data.id) }).catch(() => {})
-        }
+      awardKarma({
+        userId: user.id,
+        reason: 'REACTION_GIVEN',
+        refId: String(data.id),
       }).catch(() => {})
+      // Award content owner for receiving a reaction (fire-and-forget; gated by KARMA_LIVE)
+      getContentOwnerId(reactionCategory, targets)
+        .then((ownerId) => {
+          if (ownerId && ownerId !== user.id) {
+            awardKarma({
+              userId: ownerId,
+              reason: 'REACTION_RECEIVED',
+              refId: String(data.id),
+            }).catch(() => {})
+          }
+        })
+        .catch(() => {})
     }
 
     event.node.res.statusCode = existingReaction ? 200 : 201

@@ -11,13 +11,10 @@ import prisma from '../../utils/prisma'
 export type RewardRelationInput = {
   characterIds?: number[]
   dreamIds?: number[]
-  compositionIds?: number[]
   setCharacterIds?: number[]
   setDreamIds?: number[]
-  setCompositionIds?: number[]
   removeCharacterIds?: number[]
   removeDreamIds?: number[]
-  removeCompositionIds?: number[]
 }
 
 export type RewardMutationInput = {
@@ -55,7 +52,6 @@ export const rewardInclude = {
   ArtImage: true,
   Characters: true,
   Dreams: true,
-  Compositions: true,
   Reactions: true,
   User: {
     select: {
@@ -206,7 +202,6 @@ export function buildCreateData(
 
   const characterIds = toPositiveIntArray(input.characterIds)
   const dreamIds = toPositiveIntArray(input.dreamIds)
-  const compositionIds = toPositiveIntArray(input.compositionIds)
 
   return {
     name,
@@ -243,11 +238,6 @@ export function buildCreateData(
     ...(dreamIds.length && {
       Dreams: {
         connect: connectMany(dreamIds),
-      },
-    }),
-    ...(compositionIds.length && {
-      Compositions: {
-        connect: connectMany(compositionIds),
       },
     }),
   }
@@ -355,15 +345,12 @@ export function buildUpdateData(
 
   const characterIds = toPositiveIntArray(input.characterIds)
   const dreamIds = toPositiveIntArray(input.dreamIds)
-  const compositionIds = toPositiveIntArray(input.compositionIds)
 
   const setCharacterIds = toPositiveIntArray(input.setCharacterIds)
   const setDreamIds = toPositiveIntArray(input.setDreamIds)
-  const setCompositionIds = toPositiveIntArray(input.setCompositionIds)
 
   const removeCharacterIds = toPositiveIntArray(input.removeCharacterIds)
   const removeDreamIds = toPositiveIntArray(input.removeDreamIds)
-  const removeCompositionIds = toPositiveIntArray(input.removeCompositionIds)
 
   if (
     characterIds.length ||
@@ -393,24 +380,6 @@ export function buildUpdateData(
       }),
       ...(removeDreamIds.length && {
         disconnect: connectMany(removeDreamIds),
-      }),
-    }
-  }
-
-  if (
-    compositionIds.length ||
-    setCompositionIds.length ||
-    removeCompositionIds.length
-  ) {
-    data.Compositions = {
-      ...(setCompositionIds.length && {
-        set: connectMany(setCompositionIds),
-      }),
-      ...(compositionIds.length && {
-        connect: connectMany(compositionIds),
-      }),
-      ...(removeCompositionIds.length && {
-        disconnect: connectMany(removeCompositionIds),
       }),
     }
   }

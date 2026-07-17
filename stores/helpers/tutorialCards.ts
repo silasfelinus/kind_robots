@@ -228,13 +228,6 @@ export const tutorialChannels = {
         body: 'Forge new bot personalities and tune their skills.',
         image: tutorialImage('bot', 'forge'),
       },
-      {
-        key: 'composition',
-        title: 'Composition',
-        body: 'Customize the shape of a bot response object for more precise requests. Still under construction.',
-        image: tutorialImage('bot', 'composition'),
-        underConstruction: true,
-      },
     ],
   },
 
@@ -268,13 +261,6 @@ export const tutorialChannels = {
         title: 'Hair Studio',
         body: 'The Hair by Superkate suite: upload or snap a client photo and try a new color, style, or cleanup on their own face; price appointments with the services calculator (rate × time + products); keep the client book; and send warm receipts. Client photos are kept private — they never appear in public galleries or the memory game.',
         image: tutorialImage('art', 'stylist'),
-      },
-      {
-        key: 'workbench',
-        title: 'Code Cards (Workbench)',
-        body: 'A simplified ComfyUI-style interface for building specific chains of art and text generation. Under construction.',
-        image: tutorialImage('art', 'workbench'),
-        underConstruction: true,
       },
       {
         key: 'artjob',

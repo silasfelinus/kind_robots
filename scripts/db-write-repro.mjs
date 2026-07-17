@@ -69,7 +69,12 @@ function buildAdapter(useTextProtocol) {
       // Surface every connector-level error with its ORIGINAL message/stack —
       // this is the evidence the production logs never show.
       logger: {
-        error: (err) => console.error('  [connector:error]', err?.message, err?.cause?.message ?? ''),
+        error: (err) =>
+          console.error(
+            '  [connector:error]',
+            err?.message,
+            err?.cause?.message ?? '',
+          ),
         warning: (msg) => console.error('  [connector:warn]', msg),
       },
     },
@@ -101,7 +106,9 @@ const USER_ID = Number(process.env.REPRO_USER_ID || 10)
 
 async function runMatrixCell(useTextProtocol, withInclude) {
   const mode = `${useTextProtocol ? 'text' : 'binary'}/${withInclude ? 'include' : 'plain'}`
-  console.log(`\n=== protocol=${useTextProtocol ? 'TEXT' : 'BINARY'} include=${withInclude} ===`)
+  console.log(
+    `\n=== protocol=${useTextProtocol ? 'TEXT' : 'BINARY'} include=${withInclude} ===`,
+  )
 
   const prisma = new PrismaClient({ adapter: buildAdapter(useTextProtocol) })
 
@@ -111,7 +118,6 @@ async function runMatrixCell(useTextProtocol, withInclude) {
           ArtImage: true,
           Characters: true,
           Dreams: true,
-          Compositions: true,
           Reactions: true,
           User: { select: { id: true, username: true } },
         },
@@ -120,7 +126,10 @@ async function runMatrixCell(useTextProtocol, withInclude) {
 
   await attempt(
     `todo.create [${mode}] (control — passes in prod)`,
-    () => prisma.todo.create({ data: { title: `repro-${stamp}`, userId: USER_ID } }),
+    () =>
+      prisma.todo.create({
+        data: { title: `repro-${stamp}`, userId: USER_ID },
+      }),
     (row) => prisma.todo.delete({ where: { id: row.id } }),
   )
 
@@ -167,7 +176,9 @@ for (const useTextProtocol of [true, false]) {
 
 console.log('\n=== SUMMARY ===')
 for (const r of results) {
-  console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.label}${r.ok ? '' : `  — ${r.error}`}`)
+  console.log(
+    `${r.ok ? 'PASS' : 'FAIL'}  ${r.label}${r.ok ? '' : `  — ${r.error}`}`,
+  )
 }
 
 const failed = results.filter((r) => !r.ok)

@@ -27,7 +27,6 @@ type ScenarioPatchInput = {
   group?: unknown
   secretNotes?: unknown
   characterIds?: unknown
-  compositionIds?: unknown
 }
 
 type ScenarioBatchEntry = ScenarioPatchInput & { id?: unknown }
@@ -215,11 +214,8 @@ function normalizeArtImageRelation(
   }
 }
 
-async function assertRelatedRecordsExist(options: {
-  characterIds: number[]
-  compositionIds: number[]
-}) {
-  const { characterIds, compositionIds } = options
+async function assertRelatedRecordsExist(options: { characterIds: number[] }) {
+  const { characterIds } = options
 
   if (characterIds.length) {
     const characters = await prisma.character.findMany({
@@ -234,23 +230,6 @@ async function assertRelatedRecordsExist(options: {
       throw createError({
         statusCode: 404,
         message: `Character IDs not found: ${missingIds.join(', ')}.`,
-      })
-    }
-  }
-
-  if (compositionIds.length) {
-    const compositions = await prisma.composition.findMany({
-      where: { id: { in: compositionIds } },
-      select: { id: true },
-    })
-
-    const foundIds = new Set(compositions.map((composition) => composition.id))
-    const missingIds = compositionIds.filter((id) => !foundIds.has(id))
-
-    if (missingIds.length) {
-      throw createError({
-        statusCode: 404,
-        message: `Composition IDs not found: ${missingIds.join(', ')}.`,
       })
     }
   }
@@ -309,25 +288,14 @@ async function buildScenarioUpdateInput(
     body.characterIds,
     'characterIds',
   )
-  const compositionIds = normalizePositiveIdArray(
-    body.compositionIds,
-    'compositionIds',
-  )
 
   await assertRelatedRecordsExist({
     characterIds,
-    compositionIds,
   })
 
   if (characterIds.length) {
     data.Characters = {
       connect: characterIds.map((id) => ({ id })),
-    }
-  }
-
-  if (compositionIds.length) {
-    data.Compositions = {
-      connect: compositionIds.map((id) => ({ id })),
     }
   }
 
@@ -404,7 +372,6 @@ async function processEntry(
           },
         },
         Characters: true,
-        Compositions: true,
       },
     })
 

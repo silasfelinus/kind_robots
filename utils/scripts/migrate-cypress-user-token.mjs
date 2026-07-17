@@ -7,7 +7,6 @@ const root = process.cwd()
 const targets = [
   'cypress/e2e/api/art.cy.ts',
   'cypress/e2e/api/butterflies.cy.ts',
-  'cypress/e2e/api/compositions.cy.ts',
   'cypress/e2e/api/dreams.cy.ts',
   'cypress/e2e/api/friendships.cy.ts',
   'cypress/e2e/api/icons.cy.ts',
@@ -56,9 +55,12 @@ function ensureUserIdVariable(source) {
   if (/\blet\s+userId\b/.test(source)) return source
   if (!/\buserId\s*:\s*9\b/.test(source)) return source
 
-  const tokenMatch = source.match(/\blet\s+userToken\s*=\s*['"`][^'"`]*['"`]\s*/)
-  if (tokenMatch?.index !== undefined) {
-    const insertAt = tokenMatch.index + tokenMatch[0].length
+  const tokenMatch = source.match(
+    /\blet\s+userToken\s*=\s*['"`][^'"`]*['"`]\s*/,
+  )
+  const tokenText = tokenMatch?.[0]
+  if (tokenMatch?.index !== undefined && tokenText) {
+    const insertAt = tokenMatch.index + tokenText.length
     return `${source.slice(0, insertAt)}\nlet userId = 0${source.slice(insertAt)}`
   }
 
@@ -157,4 +159,6 @@ for (const target of targets) {
 }
 
 console.log(`\nChanged ${changed} file(s). Backups written as *.bak.`)
-console.log('Next: run npx cypress run --spec cypress/e2e/api/<spec>.cy.ts on affected specs.')
+console.log(
+  'Next: run npx cypress run --spec cypress/e2e/api/<spec>.cy.ts on affected specs.',
+)

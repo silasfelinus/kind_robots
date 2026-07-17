@@ -489,7 +489,6 @@ export type ArtImageWhereInput = {
   Characters?: Prisma.CharacterListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   Components?: Prisma.ComponentListRelationFilter
-  Compositions?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Contenders?: Prisma.ContenderListRelationFilter
   DreamsPrimary?: Prisma.DreamListRelationFilter
   ExpressionMedia?: Prisma.XOR<Prisma.ExpressionMediaNullableScalarRelationFilter, Prisma.ExpressionMediaWhereInput> | null
@@ -558,7 +557,6 @@ export type ArtImageOrderByWithRelationInput = {
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   Components?: Prisma.ComponentOrderByRelationAggregateInput
-  Compositions?: Prisma.CompositionOrderByWithRelationInput
   Contenders?: Prisma.ContenderOrderByRelationAggregateInput
   DreamsPrimary?: Prisma.DreamOrderByRelationAggregateInput
   ExpressionMedia?: Prisma.ExpressionMediaOrderByWithRelationInput
@@ -631,7 +629,6 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   Characters?: Prisma.CharacterListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   Components?: Prisma.ComponentListRelationFilter
-  Compositions?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Contenders?: Prisma.ContenderListRelationFilter
   DreamsPrimary?: Prisma.DreamListRelationFilter
   ExpressionMedia?: Prisma.XOR<Prisma.ExpressionMediaNullableScalarRelationFilter, Prisma.ExpressionMediaWhereInput> | null
@@ -780,7 +777,6 @@ export type ArtImageCreateInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -846,7 +842,6 @@ export type ArtImageUncheckedCreateInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -911,7 +906,6 @@ export type ArtImageUpdateInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -977,7 +971,6 @@ export type ArtImageUncheckedUpdateInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -1375,22 +1368,6 @@ export type ArtImageUpdateOneWithoutComponentsNestedInput = {
   delete?: Prisma.ArtImageWhereInput | boolean
   connect?: Prisma.ArtImageWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutComponentsInput, Prisma.ArtImageUpdateWithoutComponentsInput>, Prisma.ArtImageUncheckedUpdateWithoutComponentsInput>
-}
-
-export type ArtImageCreateNestedOneWithoutCompositionsInput = {
-  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
-  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutCompositionsInput
-  connect?: Prisma.ArtImageWhereUniqueInput
-}
-
-export type ArtImageUpdateOneWithoutCompositionsNestedInput = {
-  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
-  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutCompositionsInput
-  upsert?: Prisma.ArtImageUpsertWithoutCompositionsInput
-  disconnect?: Prisma.ArtImageWhereInput | boolean
-  delete?: Prisma.ArtImageWhereInput | boolean
-  connect?: Prisma.ArtImageWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutCompositionsInput, Prisma.ArtImageUpdateWithoutCompositionsInput>, Prisma.ArtImageUncheckedUpdateWithoutCompositionsInput>
 }
 
 export type ArtImageCreateNestedOneWithoutDreamsPrimaryInput = {
@@ -1950,7 +1927,6 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -2015,7 +1991,6 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -2140,7 +2115,6 @@ export type ArtImageCreateWithoutBotsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -2205,7 +2179,6 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -2285,7 +2258,6 @@ export type ArtImageUpdateWithoutBotsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -2350,7 +2322,6 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -2414,7 +2385,6 @@ export type ArtImageCreateWithoutCharactersInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -2479,7 +2449,6 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -2559,7 +2528,6 @@ export type ArtImageUpdateWithoutCharactersInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -2624,7 +2592,6 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -2688,7 +2655,6 @@ export type ArtImageCreateWithoutChatsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -2753,7 +2719,6 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -2833,7 +2798,6 @@ export type ArtImageUpdateWithoutChatsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -2898,7 +2862,6 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -2962,7 +2925,6 @@ export type ArtImageCreateWithoutComponentsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -3027,7 +2989,6 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -3107,7 +3068,6 @@ export type ArtImageUpdateWithoutComponentsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -3172,281 +3132,6 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
-  Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
-  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
-  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
-  FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
-  FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
-  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
-  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
-  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
-  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
-  ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
-  ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
-  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
-  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
-  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
-  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
-  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
-}
-
-export type ArtImageCreateWithoutCompositionsInput = {
-  imageData?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  fileName?: string | null
-  fileType?: string
-  cfg?: number | null
-  cfgHalf?: boolean | null
-  checkpoint?: string | null
-  designer?: string | null
-  genres?: string | null
-  imagePath?: string | null
-  isMature?: boolean | null
-  isPublic?: boolean | null
-  negativePrompt?: string | null
-  path?: string | null
-  promptString?: string | null
-  sampler?: string | null
-  seed?: number | null
-  serverName?: string | null
-  serverUrl?: string | null
-  steps?: number | null
-  isActive?: boolean | null
-  artPrompt?: string | null
-  cardData?: string | null
-  cardPath?: string | null
-  heroData?: string | null
-  heroPath?: string | null
-  iconData?: string | null
-  iconPath?: string | null
-  thumbnailData?: string | null
-  thumbnailPath?: string | null
-  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
-  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
-  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
-  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
-  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
-  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
-  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
-  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
-  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
-  FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
-  FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
-  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
-  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
-  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
-  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
-  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
-  ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
-  ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
-  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
-  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
-  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
-  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
-  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
-}
-
-export type ArtImageUncheckedCreateWithoutCompositionsInput = {
-  id?: number
-  imageData?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  userId?: number | null
-  fileName?: string | null
-  fileType?: string
-  cfg?: number | null
-  cfgHalf?: boolean | null
-  checkpoint?: string | null
-  checkpointResourceId?: number | null
-  designer?: string | null
-  genres?: string | null
-  imagePath?: string | null
-  isMature?: boolean | null
-  isPublic?: boolean | null
-  negativePrompt?: string | null
-  path?: string | null
-  promptString?: string | null
-  sampler?: string | null
-  seed?: number | null
-  serverId?: number | null
-  serverName?: string | null
-  serverUrl?: string | null
-  steps?: number | null
-  isActive?: boolean | null
-  artPrompt?: string | null
-  cardData?: string | null
-  cardPath?: string | null
-  heroData?: string | null
-  heroPath?: string | null
-  iconData?: string | null
-  iconPath?: string | null
-  thumbnailData?: string | null
-  thumbnailPath?: string | null
-  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
-  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
-  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
-  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
-  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
-  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
-  FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
-  FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
-  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
-  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
-  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
-  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
-  ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
-  ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
-  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
-  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
-  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
-  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
-  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
-}
-
-export type ArtImageCreateOrConnectWithoutCompositionsInput = {
-  where: Prisma.ArtImageWhereUniqueInput
-  create: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
-}
-
-export type ArtImageUpsertWithoutCompositionsInput = {
-  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutCompositionsInput, Prisma.ArtImageUncheckedUpdateWithoutCompositionsInput>
-  create: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
-  where?: Prisma.ArtImageWhereInput
-}
-
-export type ArtImageUpdateToOneWithWhereWithoutCompositionsInput = {
-  where?: Prisma.ArtImageWhereInput
-  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutCompositionsInput, Prisma.ArtImageUncheckedUpdateWithoutCompositionsInput>
-}
-
-export type ArtImageUpdateWithoutCompositionsInput = {
-  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
-  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
-  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
-  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
-  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
-  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
-  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
-  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
-  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
-  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
-  FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
-  FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
-  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
-  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
-  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
-  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
-  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
-  ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
-  ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
-  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
-  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
-  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
-  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
-  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
-}
-
-export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
-  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
-  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
-  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
-  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -3511,7 +3196,6 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
@@ -3576,7 +3260,6 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
@@ -3645,7 +3328,6 @@ export type ArtImageCreateWithoutDreamsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -3710,7 +3392,6 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -3790,7 +3471,6 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
@@ -3855,7 +3535,6 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3935,7 +3614,6 @@ export type ArtImageCreateWithoutProjectsPrimaryInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -4000,7 +3678,6 @@ export type ArtImageUncheckedCreateWithoutProjectsPrimaryInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -4080,7 +3757,6 @@ export type ArtImageUpdateWithoutProjectsPrimaryInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -4145,7 +3821,6 @@ export type ArtImageUncheckedUpdateWithoutProjectsPrimaryInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -4209,7 +3884,6 @@ export type ArtImageCreateWithoutFacetsPrimaryInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -4274,7 +3948,6 @@ export type ArtImageUncheckedCreateWithoutFacetsPrimaryInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -4354,7 +4027,6 @@ export type ArtImageUpdateWithoutFacetsPrimaryInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -4419,7 +4091,6 @@ export type ArtImageUncheckedUpdateWithoutFacetsPrimaryInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -4483,7 +4154,6 @@ export type ArtImageCreateWithoutProjectLinksInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -4548,7 +4218,6 @@ export type ArtImageUncheckedCreateWithoutProjectLinksInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -4628,7 +4297,6 @@ export type ArtImageUpdateWithoutProjectLinksInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -4693,7 +4361,6 @@ export type ArtImageUncheckedUpdateWithoutProjectLinksInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -4757,7 +4424,6 @@ export type ArtImageCreateWithoutFacetLinksInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -4822,7 +4488,6 @@ export type ArtImageUncheckedCreateWithoutFacetLinksInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -4902,7 +4567,6 @@ export type ArtImageUpdateWithoutFacetLinksInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -4967,7 +4631,6 @@ export type ArtImageUncheckedUpdateWithoutFacetLinksInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -5031,7 +4694,6 @@ export type ArtImageCreateWithoutExpressionMediaInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
@@ -5096,7 +4758,6 @@ export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
@@ -5176,7 +4837,6 @@ export type ArtImageUpdateWithoutExpressionMediaInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
@@ -5241,7 +4901,6 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5304,7 +4963,6 @@ export type ArtImageCreateWithoutAchievementsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -5369,7 +5027,6 @@ export type ArtImageUncheckedCreateWithoutAchievementsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -5449,7 +5106,6 @@ export type ArtImageUpdateWithoutAchievementsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -5514,7 +5170,6 @@ export type ArtImageUncheckedUpdateWithoutAchievementsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -5579,7 +5234,6 @@ export type ArtImageCreateWithoutPitchSheetsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -5644,7 +5298,6 @@ export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -5724,7 +5377,6 @@ export type ArtImageUpdateWithoutPitchSheetsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -5789,7 +5441,6 @@ export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -5853,7 +5504,6 @@ export type ArtImageCreateWithoutPromptsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -5918,7 +5568,6 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -5998,7 +5647,6 @@ export type ArtImageUpdateWithoutPromptsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -6063,7 +5711,6 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -6127,7 +5774,6 @@ export type ArtImageCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -6192,7 +5838,6 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -6272,7 +5917,6 @@ export type ArtImageUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -6337,7 +5981,6 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -6400,7 +6043,6 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -6465,7 +6107,6 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -6540,7 +6181,6 @@ export type ArtImageCreateWithoutResourcesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -6605,7 +6245,6 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -6674,7 +6313,6 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -6739,7 +6377,6 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -6835,7 +6472,6 @@ export type ArtImageUpdateWithoutResourcesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -6900,7 +6536,6 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -6980,7 +6615,6 @@ export type ArtImageCreateWithoutRewardsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -7045,7 +6679,6 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -7125,7 +6758,6 @@ export type ArtImageUpdateWithoutRewardsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -7190,7 +6822,6 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -7254,7 +6885,6 @@ export type ArtImageCreateWithoutScenariosInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -7319,7 +6949,6 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -7399,7 +7028,6 @@ export type ArtImageUpdateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -7464,7 +7092,6 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -7527,7 +7154,6 @@ export type ArtImageCreateWithoutServerInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -7592,7 +7218,6 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -7682,7 +7307,6 @@ export type ArtImageCreateWithoutUserInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -7747,7 +7371,6 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -7822,7 +7445,6 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -7887,7 +7509,6 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -7983,7 +7604,6 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -8048,7 +7668,6 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -8111,7 +7730,6 @@ export type ArtImageCreateWithoutChallengeSubmissionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -8176,7 +7794,6 @@ export type ArtImageUncheckedCreateWithoutChallengeSubmissionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -8256,7 +7873,6 @@ export type ArtImageUpdateWithoutChallengeSubmissionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -8321,7 +7937,6 @@ export type ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -8386,7 +8001,6 @@ export type ArtImageCreateWithoutContendersInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
@@ -8451,7 +8065,6 @@ export type ArtImageUncheckedCreateWithoutContendersInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
   FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
@@ -8531,7 +8144,6 @@ export type ArtImageUpdateWithoutContendersInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
@@ -8596,7 +8208,6 @@ export type ArtImageUncheckedUpdateWithoutContendersInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
   FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8660,7 +8271,6 @@ export type ArtImageCreateWithoutLifeEndingHeroesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -8725,7 +8335,6 @@ export type ArtImageUncheckedCreateWithoutLifeEndingHeroesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -8794,7 +8403,6 @@ export type ArtImageCreateWithoutLifeEndingIconsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -8859,7 +8467,6 @@ export type ArtImageUncheckedCreateWithoutLifeEndingIconsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -8939,7 +8546,6 @@ export type ArtImageUpdateWithoutLifeEndingHeroesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -9004,7 +8610,6 @@ export type ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -9079,7 +8684,6 @@ export type ArtImageUpdateWithoutLifeEndingIconsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -9144,7 +8748,6 @@ export type ArtImageUncheckedUpdateWithoutLifeEndingIconsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -9208,7 +8811,6 @@ export type ArtImageCreateWithoutLifeAchievementsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -9273,7 +8875,6 @@ export type ArtImageUncheckedCreateWithoutLifeAchievementsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -9353,7 +8954,6 @@ export type ArtImageUpdateWithoutLifeAchievementsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -9418,7 +9018,6 @@ export type ArtImageUncheckedUpdateWithoutLifeAchievementsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -9482,7 +9081,6 @@ export type ArtImageCreateWithoutLifeRunArtInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
@@ -9547,7 +9145,6 @@ export type ArtImageUncheckedCreateWithoutLifeRunArtInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
   Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
-  Compositions?: Prisma.CompositionUncheckedCreateNestedOneWithoutArtImageInput
   Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
   DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
@@ -9627,7 +9224,6 @@ export type ArtImageUpdateWithoutLifeRunArtInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -9692,7 +9288,6 @@ export type ArtImageUncheckedUpdateWithoutLifeRunArtInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -9756,7 +9351,6 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -9821,7 +9415,6 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -9923,7 +9516,6 @@ export type ArtImageUpdateWithoutDreamsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -9988,7 +9580,6 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -10126,7 +9717,6 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -10191,7 +9781,6 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -10293,7 +9882,6 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -10358,7 +9946,6 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -10496,7 +10083,6 @@ export type ArtImageUpdateWithoutServerInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -10561,7 +10147,6 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -10699,7 +10284,6 @@ export type ArtImageUpdateWithoutUserInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
@@ -10764,7 +10348,6 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
   Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
-  Compositions?: Prisma.CompositionUncheckedUpdateOneWithoutArtImageNestedInput
   Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
   DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
@@ -11126,7 +10709,6 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Characters?: boolean | Prisma.ArtImage$CharactersArgs<ExtArgs>
   Chats?: boolean | Prisma.ArtImage$ChatsArgs<ExtArgs>
   Components?: boolean | Prisma.ArtImage$ComponentsArgs<ExtArgs>
-  Compositions?: boolean | Prisma.ArtImage$CompositionsArgs<ExtArgs>
   Contenders?: boolean | Prisma.ArtImage$ContendersArgs<ExtArgs>
   DreamsPrimary?: boolean | Prisma.ArtImage$DreamsPrimaryArgs<ExtArgs>
   ExpressionMedia?: boolean | Prisma.ArtImage$ExpressionMediaArgs<ExtArgs>
@@ -11202,7 +10784,6 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Characters?: boolean | Prisma.ArtImage$CharactersArgs<ExtArgs>
   Chats?: boolean | Prisma.ArtImage$ChatsArgs<ExtArgs>
   Components?: boolean | Prisma.ArtImage$ComponentsArgs<ExtArgs>
-  Compositions?: boolean | Prisma.ArtImage$CompositionsArgs<ExtArgs>
   Contenders?: boolean | Prisma.ArtImage$ContendersArgs<ExtArgs>
   DreamsPrimary?: boolean | Prisma.ArtImage$DreamsPrimaryArgs<ExtArgs>
   ExpressionMedia?: boolean | Prisma.ArtImage$ExpressionMediaArgs<ExtArgs>
@@ -11239,7 +10820,6 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Characters: Prisma.$CharacterPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     Components: Prisma.$ComponentPayload<ExtArgs>[]
-    Compositions: Prisma.$CompositionPayload<ExtArgs> | null
     Contenders: Prisma.$ContenderPayload<ExtArgs>[]
     DreamsPrimary: Prisma.$DreamPayload<ExtArgs>[]
     ExpressionMedia: Prisma.$ExpressionMediaPayload<ExtArgs> | null
@@ -11647,7 +11227,6 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   Characters<T extends Prisma.ArtImage$CharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$CharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.ArtImage$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Components<T extends Prisma.ArtImage$ComponentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ComponentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Compositions<T extends Prisma.ArtImage$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$CompositionsArgs<ExtArgs>>): Prisma.Prisma__CompositionClient<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Contenders<T extends Prisma.ArtImage$ContendersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ContendersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContenderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   DreamsPrimary<T extends Prisma.ArtImage$DreamsPrimaryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$DreamsPrimaryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ExpressionMedia<T extends Prisma.ArtImage$ExpressionMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ExpressionMediaArgs<ExtArgs>>): Prisma.Prisma__ExpressionMediaClient<runtime.Types.Result.GetResult<Prisma.$ExpressionMediaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -12279,25 +11858,6 @@ export type ArtImage$ComponentsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ComponentScalarFieldEnum | Prisma.ComponentScalarFieldEnum[]
-}
-
-/**
- * ArtImage.Compositions
- */
-export type ArtImage$CompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Composition
-   */
-  select?: Prisma.CompositionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Composition
-   */
-  omit?: Prisma.CompositionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CompositionInclude<ExtArgs> | null
-  where?: Prisma.CompositionWhereInput
 }
 
 /**

@@ -54,6 +54,18 @@
           >
             Gallery
           </button>
+          <button
+            type="button"
+            class="px-2.5 py-1 font-bold transition"
+            :class="
+              sourceTab === 'starters'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
+            @click="sourceTab = 'starters'"
+          >
+            Starters
+          </button>
         </div>
       </div>
 
@@ -131,7 +143,7 @@
         </div>
       </div>
 
-      <div v-else class="flex flex-col gap-2">
+      <div v-else-if="sourceTab === 'gallery'" class="flex flex-col gap-2">
         <label
           class="input input-bordered input-xs flex items-center gap-1.5 bg-base-200"
         >
@@ -204,6 +216,63 @@
         >
           <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
           <p class="mt-1 text-xs text-base-content/40">No images found</p>
+        </div>
+      </div>
+
+      <div v-else class="flex flex-col gap-2">
+        <div
+          v-if="starterEntries.length"
+          class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
+        >
+          <button
+            v-for="entry in starterEntries"
+            :key="entry.file"
+            type="button"
+            class="group relative aspect-square overflow-hidden rounded-xl border-2 transition-all disabled:opacity-50"
+            :class="
+              selectedStarterFile === entry.file
+                ? 'border-primary shadow-md shadow-primary/20'
+                : 'border-transparent hover:border-primary/50'
+            "
+            :disabled="isLoadingStarterImage"
+            :title="`${entry.workTitle} — ${entry.artist}`"
+            @click="selectStarterEntry(entry)"
+          >
+            <img
+              :src="starterImageSrc(entry)"
+              :alt="entry.workTitle"
+              class="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+            <div
+              v-if="selectedStarterFile === entry.file"
+              class="absolute inset-0 flex items-center justify-center bg-primary/30"
+            >
+              <Icon
+                v-if="!isLoadingStarterImage"
+                name="mdi:check-circle"
+                class="h-5 w-5 text-primary-content drop-shadow"
+              />
+              <span
+                v-else
+                class="loading loading-spinner loading-sm text-primary-content"
+              />
+            </div>
+          </button>
+        </div>
+
+        <div
+          v-else-if="isLoadingStarters"
+          class="flex min-h-28 items-center justify-center rounded-xl bg-base-200"
+        >
+          <span class="loading loading-spinner loading-sm text-primary" />
+        </div>
+
+        <div
+          v-else
+          class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
+        >
+          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
+          <p class="mt-1 text-xs text-base-content/40">No starters found</p>
         </div>
       </div>
     </div>
@@ -526,6 +595,12 @@ import {
 import type { StyleCategory, StyleEntry } from '@/stores/helpers/styleHelper'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 
+interface StarterEntry {
+  file: string
+  workTitle: string
+  artist: string
+}
+
 const props = withDefaults(
   defineProps<{
     serverId?: number | null
@@ -765,7 +840,7 @@ const successMessage = ref('')
 const resultImage = ref<ArtImage | null>(null)
 
 const selectedSourceImage = ref<ArtImage | null>(null)
-const sourceTab = ref<'upload' | 'gallery'>('upload')
+const sourceTab = ref<'upload' | 'gallery' | 'starters'>('upload')
 const uploadedImageData = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
@@ -773,6 +848,11 @@ const isDragging = ref(false)
 const gallerySearch = ref('')
 const galleryThumbs = ref<Record<number, string>>({})
 const isLoadingGallery = ref(false)
+
+const starterEntries = ref<StarterEntry[]>([])
+const isLoadingStarters = ref(false)
+const selectedStarterFile = ref<string | null>(null)
+const isLoadingStarterImage = ref(false)
 
 const allCategories = computed<StyleCategory[]>(() => {
   return [...new Set(styles.value.map((style) => style.category))]
@@ -913,6 +993,21 @@ function handleDrop(event: DragEvent) {
   }
 }
 
+function buildSyntheticSourceImage(
+  dataUrl: string,
+  fileName: string,
+  fileType: string,
+): ArtImage {
+  return {
+    id: -1,
+    fileName,
+    fileType: fileType.replace('image/', ''),
+    imageData: dataUrl.split(',')[1] ?? null,
+    thumbnailData: null,
+    imagePath: null,
+  } as unknown as ArtImage
+}
+
 function processUploadedFile(file: File) {
   const reader = new FileReader()
 
@@ -920,17 +1015,12 @@ function processUploadedFile(file: File) {
     const dataUrl = event.target?.result as string
 
     uploadedImageData.value = dataUrl
-
-    const synthetic = {
-      id: -1,
-      fileName: file.name,
-      fileType: file.type.replace('image/', ''),
-      imageData: dataUrl.split(',')[1] ?? null,
-      thumbnailData: null,
-      imagePath: null,
-    } as unknown as ArtImage
-
-    selectedSourceImage.value = synthetic
+    selectedSourceImage.value = buildSyntheticSourceImage(
+      dataUrl,
+      file.name,
+      file.type,
+    )
+    selectedStarterFile.value = null
     errorMessage.value = ''
     successMessage.value = ''
     resultImage.value = null
@@ -939,11 +1029,63 @@ function processUploadedFile(file: File) {
   reader.readAsDataURL(file)
 }
 
+function starterImageSrc(entry: StarterEntry): string {
+  return `/${entry.file.replace(/^public\//, '')}`
+}
+
+async function loadStarterEntries(): Promise<void> {
+  if (starterEntries.value.length || isLoadingStarters.value) return
+
+  isLoadingStarters.value = true
+
+  try {
+    starterEntries.value = await $fetch<StarterEntry[]>(
+      '/images/academy/starters/starters.manifest.json',
+    )
+  } catch (error) {
+    console.warn('[art-styler] loadStarterEntries:', error)
+  } finally {
+    isLoadingStarters.value = false
+  }
+}
+
+async function selectStarterEntry(entry: StarterEntry): Promise<void> {
+  errorMessage.value = ''
+  successMessage.value = ''
+  resultImage.value = null
+  isLoadingStarterImage.value = true
+
+  try {
+    const response = await fetch(starterImageSrc(entry))
+    const blob = await response.blob()
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = () => reject(reader.error)
+      reader.readAsDataURL(blob)
+    })
+
+    uploadedImageData.value = dataUrl
+    selectedSourceImage.value = buildSyntheticSourceImage(
+      dataUrl,
+      `${entry.workTitle} — ${entry.artist}`,
+      blob.type || 'image/jpeg',
+    )
+    selectedStarterFile.value = entry.file
+  } catch (error) {
+    errorMessage.value =
+      error instanceof Error ? error.message : 'Could not load starter image.'
+  } finally {
+    isLoadingStarterImage.value = false
+  }
+}
+
 async function selectGalleryImage(image: ArtImage) {
   uploadedImageData.value = null
   resultImage.value = null
   errorMessage.value = ''
   successMessage.value = ''
+  selectedStarterFile.value = null
 
   if (galleryThumbs.value[image.id]) {
     selectedSourceImage.value = image
@@ -978,6 +1120,7 @@ async function selectGalleryImage(image: ArtImage) {
 function clearSourceImage() {
   selectedSourceImage.value = null
   uploadedImageData.value = null
+  selectedStarterFile.value = null
   resultImage.value = null
   errorMessage.value = ''
   successMessage.value = ''
@@ -1002,8 +1145,7 @@ async function hydrateGalleryThumbs() {
           })
 
           const hydrated = fetched as
-            | (ArtImage & { thumbnailData?: string | null })
-            | null
+            (ArtImage & { thumbnailData?: string | null }) | null
 
           if (hydrated?.thumbnailData) {
             galleryThumbs.value = {
@@ -1221,6 +1363,11 @@ async function runStyleTransfer(): Promise<void> {
 }
 
 watch(sourceTab, async (tab) => {
+  if (tab === 'starters') {
+    await loadStarterEntries()
+    return
+  }
+
   if (tab !== 'gallery') return
 
   if (!artStore.artImages.length) {
@@ -1290,6 +1437,7 @@ async function applySourceImageId(
   if (!id || id <= 0) return
 
   uploadedImageData.value = null
+  selectedStarterFile.value = null
   resultImage.value = null
 
   try {

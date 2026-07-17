@@ -1031,6 +1031,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'The LoRA leans Kirchner-specific; A/B against the movement prompt for a broader result',
+    exampleWorks: [
+      {
+        workTitle: 'The Yellow Cow',
+        artist: 'Franz Marc',
+        artistDied: 1916,
+        year: '1911',
+        collection: 'Solomon R. Guggenheim Museum',
+        accessionId: '49.1210',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:Franz_Marc-The_Yellow_Cow-1911.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc: '/images/academy/examples/the-yellow-cow-49-1210.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1060,6 +1076,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       '"Preserve composition" fights faceting — often comes out as a shallow "crystallized photo"',
+    exampleWorks: [
+      {
+        workTitle: 'Fantômas',
+        artist: 'Juan Gris',
+        artistDied: 1927,
+        year: '1915',
+        collection: 'National Gallery of Art, Washington',
+        accessionId: '1976.59.1',
+        sourceUrl: 'https://www.nga.gov/artworks/56101-fantomas',
+        license: 'CC0',
+        licenseTermsUrl:
+          'https://www.nga.gov/artworks/free-images-and-open-access',
+        imageSrc: '/images/academy/examples/fantomas-1976-59-1.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1151,6 +1182,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Three distinct hands can average into a generic "geometric abstract" look; pick one artist (e.g. Kandinsky) to anchor it',
+    exampleWorks: [
+      {
+        workTitle: 'Composition 8 (Komposition 8)',
+        artist: 'Wassily Kandinsky',
+        artistDied: 1944,
+        year: 'July 1923',
+        collection: 'Solomon R. Guggenheim Museum',
+        accessionId: '37.262',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:Kandinsky_-_Composition_8,_1923.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc: '/images/academy/examples/composition-8-37-262.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:

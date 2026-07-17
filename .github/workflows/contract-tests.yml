@@ -82,6 +82,9 @@ jobs:
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 
+      - name: Pack scaffold extraction self-test
+        run: npm run test:pack-scaffold-extraction
+
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 

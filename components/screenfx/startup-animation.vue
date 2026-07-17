@@ -17,18 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  resolveComponent,
-  watch,
-} from 'vue'
-import {
-  getAnimationComponentName,
-  type AnimationEffectId,
-} from '@/stores/animationCatalog'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
+import type { AnimationEffectId } from '@/stores/animationCatalog'
 import { useAnimationStore } from '@/stores/animationStore'
 import { useAnimationPreferenceStore } from '@/stores/animationPreferenceStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
@@ -47,19 +38,9 @@ const FADE_MS = 650
 
 let fadeTimer: ReturnType<typeof setTimeout> | null = null
 
-const componentsMap = new Map<
-  AnimationEffectId,
-  ReturnType<typeof resolveComponent>
->(
-  animationStore.effects.map((effect) => [
-    effect.id,
-    resolveComponent(getAnimationComponentName(effect.id)),
-  ]),
-)
-
 const currentComponent = computed(() => {
   if (!resolvedEffectId.value) return null
-  return componentsMap.get(resolvedEffectId.value) || null
+  return getAnimationEffectComponent(resolvedEffectId.value)
 })
 
 function clearFadeTimer(): void {
@@ -72,7 +53,10 @@ function selectEffect(): void {
   preferenceStore.initialize()
 
   const availableIds = animationStore.safeEffects
-    .filter((effect) => !effect.blocksInput && componentsMap.has(effect.id))
+    .filter(
+      (effect) =>
+        !effect.blocksInput && Boolean(getAnimationEffectComponent(effect.id)),
+    )
     .map((effect) => effect.id)
 
   resolvedEffectId.value = preferenceStore.resolveStartupEffect(availableIds)

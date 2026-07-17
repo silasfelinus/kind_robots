@@ -1,12 +1,23 @@
-import { readdir, readFile } from 'node:fs/promises'
+import { access, readdir, readFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   resolveChannels,
   type ChannelContentItem,
 } from '@/stores/helpers/channelContent'
+import {
+  imageSrcToMediaPath,
+  mediaAssetExists,
+  mediaSourceDescription,
+} from './mediaContractSource'
 
 type FrontMatter = Record<string, string>
+type AssetReference = {
+  location: string
+  image: string
+  mediaPath?: string
+  publicPath?: string
+}
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
@@ -83,34 +94,55 @@ async function loadChannelItems(): Promise<ChannelContentItem[]> {
   )
 }
 
-function publicAssetPath(image: string): string | null {
+function assetReference(location: string, image: string): AssetReference | null {
   const value = image.trim()
   if (!value || /^https?:\/\//i.test(value)) return null
 
   const pathname = value.split(/[?#]/)[0] ?? ''
   if (!pathname.startsWith('/')) return null
 
-  return pathname.slice(1)
+  if (pathname.startsWith('/images/')) {
+    return {
+      location,
+      image,
+      mediaPath: imageSrcToMediaPath(pathname),
+    }
+  }
+
+  return {
+    location,
+    image,
+    publicPath: pathname.slice(1),
+  }
+}
+
+async function localPublicAssetExists(relativePath: string): Promise<boolean> {
+  try {
+    await access(resolve(publicDirectory, relativePath))
+    return true
+  } catch {
+    return false
+  }
 }
 
 async function main(): Promise<void> {
-  const [items, publicFiles] = await Promise.all([
-    loadChannelItems(),
-    filesWithin(publicDirectory),
-  ])
-  const assets = new Set(
-    publicFiles.map((file) => relative(publicDirectory, file).replaceAll('\\', '/')),
-  )
+  const items = await loadChannelItems()
   const channels = resolveChannels(items)
-  const missing: Array<{ location: string; image: string }> = []
-  let checked = 0
+  const references: AssetReference[] = []
 
   function inspect(location: string, image: string): void {
-    const asset = publicAssetPath(image)
-    if (!asset) return
-
-    checked += 1
-    if (!assets.has(asset)) missing.push({ location, image })
+    try {
+      const reference = assetReference(location, image)
+      if (reference) references.push(reference)
+    } catch (error) {
+      references.push({
+        location,
+        image,
+        publicPath: `__invalid__/${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      })
+    }
   }
 
   for (const channel of channels) {
@@ -121,18 +153,32 @@ async function main(): Promise<void> {
     }
   }
 
+  const missing: AssetReference[] = []
+  for (const reference of references) {
+    const exists = reference.mediaPath
+      ? await mediaAssetExists(reference.mediaPath)
+      : reference.publicPath
+        ? await localPublicAssetExists(reference.publicPath)
+        : true
+
+    if (!exists) missing.push(reference)
+  }
+
   console.log(
-    `Channel artwork audit checked ${checked} local image references across ${channels.length} channels.`,
+    `Channel artwork audit checked ${references.length} local URL references across ${channels.length} channels.`,
   )
 
   if (!missing.length) {
-    console.log('All resolved channel and tab artwork exists in public/.')
+    console.log('All resolved channel and tab artwork exists in public/ or the media origin.')
     return
   }
 
   console.warn(`Missing ${missing.length} resolved channel or tab image(s):`)
   for (const entry of missing) {
-    console.warn(`- ${entry.location}: ${entry.image}`)
+    const source = entry.mediaPath
+      ? mediaSourceDescription(entry.mediaPath)
+      : resolve(publicDirectory, entry.publicPath ?? '')
+    console.warn(`- ${entry.location}: ${entry.image} (${source})`)
   }
 
   if (strict) process.exitCode = 1

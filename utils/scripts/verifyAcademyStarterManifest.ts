@@ -4,11 +4,10 @@
 // The starter-image provenance manifest schema (workTitle, artist, artistDied,
 // year, collection, accessionId, sourceUrl, license, licenseTermsUrl,
 // retrievedDate) is defined in conductor's projects/ai-art-academy/
-// PUBLIC-DOMAIN-POLICY.md §3 but was previously enforced only by hand at
-// write time. This contract test validates every entry in
-// public/images/academy/starters/starters.manifest.json against that
-// required-field schema and the license enum, so a future edit can't
-// silently drop a provenance field.
+// PUBLIC-DOMAIN-POLICY.md §3. The manifest now lives on the external media
+// origin rather than in Git, so this verifier reads the canonical media copy.
+// Set MEDIA_ROOT for an offline filesystem-backed run, or MEDIA_ORIGIN to
+// override the default public origin.
 //
 // Dependency-free on purpose: pure JSON + string assertions, no schema
 // library, so it runs under bare `tsx` without the Nuxt/Prisma runtime.
@@ -18,27 +17,24 @@
 //
 // Run: npm run test:academy-starter-manifest
 
-import { readFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { validateProvenanceRecord } from './academyProvenanceSchema'
+import {
+  mediaSourceDescription,
+  readMediaText,
+} from './mediaContractSource'
 
-const scriptDirectory = dirname(fileURLToPath(import.meta.url))
-const repositoryRoot = resolve(scriptDirectory, '../..')
-const manifestPath = resolve(
-  repositoryRoot,
-  'public/images/academy/starters/starters.manifest.json',
-)
+const manifestRelativePath = 'academy/starters/starters.manifest.json'
+const manifestSource = mediaSourceDescription(manifestRelativePath)
 
 async function main(): Promise<void> {
-  const raw = await readFile(manifestPath, 'utf8')
+  const raw = await readMediaText(manifestRelativePath)
 
   let entries: unknown
   try {
     entries = JSON.parse(raw)
   } catch (error) {
     console.error(
-      `Academy starter manifest contract failed: ${manifestPath} is not valid JSON — ${
+      `Academy starter manifest contract failed: ${manifestSource} is not valid JSON — ${
         error instanceof Error ? error.message : String(error)
       }`,
     )
@@ -48,7 +44,7 @@ async function main(): Promise<void> {
 
   if (!Array.isArray(entries)) {
     console.error(
-      `Academy starter manifest contract failed: ${manifestPath} must be a JSON array, got ${typeof entries}`,
+      `Academy starter manifest contract failed: ${manifestSource} must be a JSON array, got ${typeof entries}`,
     )
     process.exitCode = 1
     return
@@ -80,7 +76,7 @@ async function main(): Promise<void> {
   }
 
   console.log(
-    `Academy starter manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated against PUBLIC-DOMAIN-POLICY.md §3.`,
+    `Academy starter manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated from ${manifestSource} against PUBLIC-DOMAIN-POLICY.md §3.`,
   )
 }
 

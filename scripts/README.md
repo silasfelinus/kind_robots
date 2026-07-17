@@ -61,3 +61,23 @@ implementation of this pattern (kind-robots/t-018, t-023 in conductor's roadmap)
   hermetic temp git repo with forked branches and running the same script against the
   accept path (superseding commit), the reject path (sibling-branch commit), and the
   unknown-commit edge case.
+
+`parse-mysql-url.sh` / `verifyParseMysqlUrl.ts` is a second worked example, showing
+the pattern applied to a step that appeared *twice* in the same workflow with slightly
+duplicated logic (kind-robots/t-036 in conductor's roadmap):
+
+- `scripts/parse-mysql-url.sh` — extracted out of
+  `.github/workflows/fallback-snapshot.yml`'s "Connectivity probe" and "Dump and
+  encrypt database" steps, which each hand-parsed a `mysql://user:pass@host:port/db`
+  URL with near-identical shell substring slicing, including the same "default to
+  port 3306 when the URL omits one" conditional. Takes `<url> <field>` where field is
+  one of `user`/`password`/`host`/`port`/`name`, and prints just that field to stdout.
+  No network I/O.
+- Both steps invoke it once per field, e.g.
+  `DB_HOST="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" host)"` — captured via
+  `$(...)` rather than `eval`, so a password containing shell metacharacters can't be
+  re-interpreted as code.
+- `utils/scripts/verifyParseMysqlUrl.ts` regression-tests it against a URL with an
+  explicit port, a URL that needs the default-port fallback, a password containing a
+  colon (the field's own delimiter), a query string on the database name, and an
+  unknown field name.

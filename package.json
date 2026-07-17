@@ -104,13 +104,12 @@
     "npm": "11.x"
   },
   "allowScripts": {
-    "esbuild@0.27.7": true,
-    "esbuild@0.28.0": true,
     "@parcel/watcher@2.5.6": true,
     "@prisma/engines@7.8.0": true,
-    "cypress@15.17.0": true,
     "prisma@7.8.0": true,
     "sharp@0.34.5": true,
-    "unrs-resolver@1.12.2": true
+    "unrs-resolver@1.12.2": true,
+    "cypress@15.18.1": true,
+    "esbuild@0.28.1": true
   }
 }

@@ -54,6 +54,14 @@ function buildAdapter(useTextProtocol) {
       ...(process.env.REPRO_SSL === '1'
         ? { ssl: { rejectUnauthorized: false } }
         : {}),
+      // REPRO_PIPELINING=false disables connector command pipelining. ProxySQL's
+      // frontend rejects a second command arriving while it is still processing
+      // the first ("Unexpected packet ... Session_status: 6 ... Disconnecting"),
+      // which is what kills multi-statement transactions (create + include reads)
+      // over the TLS proxy path. Set this to prove the fix, then compare.
+      ...(process.env.REPRO_PIPELINING === 'false'
+        ? { pipelining: false }
+        : {}),
       // Surface every connector-level error with its ORIGINAL message/stack —
       // this is the evidence the production logs never show.
       logger: {

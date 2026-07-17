@@ -111,6 +111,10 @@ function buildDatabaseUrl(url: string): string {
     parsed.searchParams.set('pingTimeout', String(pingTimeout))
   }
 
+  if (!parsed.searchParams.has('pipelining')) {
+    parsed.searchParams.set('pipelining', String(readDatabasePipelining()))
+  }
+
   return parsed.toString()
 }
 
@@ -146,6 +150,24 @@ function readSslRejectUnauthorized(): boolean {
 function readDatabaseUseTextProtocol(): boolean {
   const raw = process.env.DATABASE_USE_TEXT_PROTOCOL?.trim().toLowerCase()
   return raw !== 'false' && raw !== '0' && raw !== 'no'
+}
+
+// ProxySQL's frontend does not support MySQL command pipelining. When the
+// MariaDB connector sends a second command while ProxySQL is still processing
+// the previous one on the same session, ProxySQL logs
+// "Unexpected packet from client ... Session_status: 6 ... Disconnecting it",
+// closes the frontend socket, and KILLs the backend query. That surfaced as
+// deterministic "Cannot execute new commands: connection closed" 503s on every
+// create/update whose Prisma plan runs multiple statements in one transaction
+// (an INSERT followed by the relation SELECTs of an `include`), while lean
+// single-statement writes and all reads went through fine — and it reproduced
+// only over the TLS ProxySQL path, never on a direct MariaDB connection (see
+// scripts/db-write-repro.mjs and issue #324). The connector pipelines by
+// default; disable it for this topology. Set DATABASE_PIPELINING=true to
+// restore pipelining (e.g. for a direct-to-MariaDB link with no ProxySQL).
+function readDatabasePipelining(): boolean {
+  const raw = process.env.DATABASE_PIPELINING?.trim().toLowerCase()
+  return raw === 'true' || raw === '1' || raw === 'yes'
 }
 
 function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
@@ -213,6 +235,8 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
       parsed.searchParams.get('pingTimeout') ?? undefined,
       DEFAULT_PING_TIMEOUT_MS,
     ),
+    // Off by default for the ProxySQL topology — see readDatabasePipelining().
+    pipelining: readDatabasePipelining(),
   })
 
   return poolConfig

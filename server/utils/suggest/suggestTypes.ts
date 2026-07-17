@@ -1,5 +1,6 @@
 // /server/utils/suggest/suggestTypes.ts
-export type SuggestProvider = 'anthropic' | 'openai' | 'openai_compatible' | 'ollama'
+export type SuggestProvider =
+  'anthropic' | 'openai' | 'openai_compatible' | 'ollama'
 
 export type SuggestBuilder = string
 
@@ -41,7 +42,10 @@ export type SuggestSheet = {
   contextKeys?: string[]
   fieldPrompts?: Record<string, string>
   stepPrompts?: Record<string, string>
-  buildContext?: (context: Record<string, unknown>, body: SuggestBody) => string[]
+  buildContext?: (
+    context: Record<string, unknown>,
+    body: SuggestBody,
+  ) => string[]
   buildInstruction?: (body: SuggestBody) => string | null
 }
 
@@ -59,4 +63,6 @@ export type SuggestProviderOptions = {
   apiKey?: string
   baseUrl?: string
   endpointPath?: string
+  /** Completion budget; providers fall back to 512 when unset. */
+  maxTokens?: number
 }

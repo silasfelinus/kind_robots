@@ -33,7 +33,7 @@ function getSuggestServerId(server: unknown): number | null {
 
 export default defineEventHandler(async (event) => {
   try {
-const body = await readBody<SuggestRequestBody>(event)
+    const body = await readBody<SuggestRequestBody>(event)
 
     const field = body?.field ?? ''
     const stepKey = body?.stepKey ?? body?.field ?? ''
@@ -68,11 +68,18 @@ const body = await readBody<SuggestRequestBody>(event)
       context,
     })
 
+    // Caller-requested completion budget, clamped so a bad request can't ask
+    // for an unbounded generation. Mana cost is estimated from the same value.
+    const maxTokens = Math.min(
+      Math.max(Math.trunc(body.maxTokens ?? body.max_tokens ?? 512), 64),
+      8192,
+    )
+
     const gate = await manaGate(event, {
       kind: 'text',
       estCostUsd: estimateTextCostUsd({
         model,
-        maxTokens: body.maxTokens ?? body.max_tokens ?? 512,
+        maxTokens,
       }),
       serverId: getSuggestServerId(server),
     })
@@ -89,13 +96,17 @@ const body = await readBody<SuggestRequestBody>(event)
     const value = await callSuggestProvider(systemPrompt, userPrompt, {
       provider,
       model,
+      maxTokens,
       apiKey:
         provider === 'anthropic'
           ? str(config.anthropicApiKey)
           : str(config.openaiApiKey),
       baseUrl:
         provider === 'ollama'
-          ? str(server?.baseUrl, str(config.ollamaBaseUrl, 'http://localhost:11434'))
+          ? str(
+              server?.baseUrl,
+              str(config.ollamaBaseUrl, 'http://localhost:11434'),
+            )
           : provider === 'openai_compatible'
             ? str(server?.baseUrl, 'http://localhost:1234')
             : undefined,

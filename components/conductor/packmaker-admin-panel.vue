@@ -26,14 +26,28 @@
           </p>
         </div>
       </div>
-      <button
-        class="btn btn-ghost btn-xs rounded-xl"
-        @click="showImport = !showImport"
-      >
-        <Icon name="kind-icon:plus" class="size-3.5" />
-        Load manifest JSON
-      </button>
+      <div class="flex items-center gap-1.5">
+        <button class="btn btn-primary btn-xs rounded-xl" @click="openNewPack">
+          <Icon name="kind-icon:plus" class="size-3.5" />
+          New pack
+        </button>
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          @click="showImport = !showImport"
+        >
+          Load manifest JSON
+        </button>
+      </div>
     </div>
+
+    <!-- Pack editor: hand-build, LLM-scaffold, or edit/rename a pack -->
+    <PackmakerPackEditor
+      v-if="editorMode"
+      :key="editorMode === 'edit' ? `edit-${selectedPackId}` : 'new'"
+      :pack="editorMode === 'edit' ? selectedPack : null"
+      @close="editorMode = null"
+      @saved="onEditorSaved"
+    />
 
     <!-- Paste-a-manifest for the NEXT pack -->
     <div v-if="showImport" class="flex flex-col gap-2">
@@ -93,6 +107,14 @@
           "
           >{{ packStore.packBuildStatus(selectedPack.id) }}</span
         >
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          title="Rename the pack or edit its manifest entries"
+          @click="editorMode = 'edit'"
+        >
+          <Icon name="kind-icon:pencil" class="size-3.5" />
+          Edit / rename
+        </button>
         <p class="w-full text-sm leading-relaxed text-base-content/70">
           {{ selectedPack.description }}
         </p>
@@ -226,6 +248,7 @@ const userStore = useUserStore()
 const packStore = usePackStore()
 
 const selectedPackId = ref<string>('')
+const editorMode = ref<'new' | 'edit' | null>(null)
 const showImport = ref(false)
 const importText = ref('')
 const importMessage = ref('')
@@ -300,6 +323,15 @@ function statusLabel(status: PackItemBuildStatus): string {
     default:
       return status
   }
+}
+
+function openNewPack(): void {
+  editorMode.value = editorMode.value === 'new' ? null : 'new'
+}
+
+function onEditorSaved(packId: string): void {
+  selectedPackId.value = packId
+  editorMode.value = null
 }
 
 function onImport(): void {

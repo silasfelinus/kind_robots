@@ -220,10 +220,10 @@ Run cypress Tests:
 npx cypress run --spec "cypress/e2e/api/users.cy.ts"
 
 Update Smart Icons
-node utils/scripts/updateKindIcons.js
+node utils/scripts/updateKindIcons.js 
 
 
-Run comfy-test
+Run  comfy-test
 curl -X POST "https://kind-robots.vercel.app/prompt" \
   -H "Content-Type: application/json" \
   --data-binary @utils/fluxKontext.json

@@ -63,11 +63,13 @@ const minimumSequenceComplete = ref(false)
 const logoLoaded = ref(false)
 const hiddenEmitted = ref(false)
 
-const FIRST_MESSAGE_MS = 850
-const SLOW_LOAD_MESSAGE_MS = 1500
+const FIRST_MESSAGE_MS = 950
+const EXTRA_MESSAGE_COUNT = 2
+const EXTRA_MESSAGE_MS = 1250
 const ROTATING_MESSAGE_MS = 1600
-const READY_HOLD_MS = 350
-const MIN_TOTAL_MS = 1800
+const READY_HOLD_MS = 450
+const MIN_TOTAL_MS =
+  FIRST_MESSAGE_MS + EXTRA_MESSAGE_COUNT * EXTRA_MESSAGE_MS + READY_HOLD_MS
 const OVERLAY_FADE_MS = 650
 
 const startTime = Date.now()
@@ -148,8 +150,14 @@ function handleTransitionEnd(event: TransitionEvent) {
 
 async function runVisualSequence() {
   await wait(FIRST_MESSAGE_MS)
-  if (destroyed) return
 
+  for (let index = 0; index < EXTRA_MESSAGE_COUNT; index += 1) {
+    if (destroyed) return
+    nextMessage()
+    await wait(EXTRA_MESSAGE_MS)
+  }
+
+  if (destroyed) return
   minimumSequenceComplete.value = true
 
   if (props.storesReady) {
@@ -157,10 +165,6 @@ async function runVisualSequence() {
     return
   }
 
-  await wait(SLOW_LOAD_MESSAGE_MS)
-  if (destroyed || props.storesReady || fadeOverlay.value) return
-
-  nextMessage()
   rotationIntervalId = setInterval(() => {
     if (destroyed) return
     nextMessage()
@@ -204,7 +208,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: #000;
+  background: transparent;
   opacity: 1;
   transition: opacity 650ms ease;
   pointer-events: auto;

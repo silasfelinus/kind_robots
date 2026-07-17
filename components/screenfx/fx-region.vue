@@ -27,12 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, resolveComponent } from 'vue'
-import {
-  getAnimationComponentName,
-  type AnimationEffectId,
-  type FxRegion,
-} from '@/stores/animationCatalog'
+import { computed, onMounted, ref, type Component } from 'vue'
+import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
+import type { AnimationEffectId, FxRegion } from '@/stores/animationCatalog'
 import {
   useAnimationStore,
   type FxPlacement,
@@ -50,20 +47,10 @@ onMounted(() => {
   isMounted.value = true
 })
 
-const componentsMap = new Map<
-  AnimationEffectId,
-  ReturnType<typeof resolveComponent>
->(
-  animationStore.effects.map((effect) => [
-    effect.id,
-    resolveComponent(getAnimationComponentName(effect.id)),
-  ]),
-)
-
 interface SurfaceEntry {
   key: string
   id: AnimationEffectId
-  component: ReturnType<typeof resolveComponent>
+  component: Component
 }
 
 function entriesForPlacement(placement: FxPlacement): SurfaceEntry[] {
@@ -73,7 +60,7 @@ function entriesForPlacement(placement: FxPlacement): SurfaceEntry[] {
   const seen = new Set<AnimationEffectId>()
 
   animationStore.screenEffects.forEach((effect) => {
-    const component = componentsMap.get(effect.id)
+    const component = getAnimationEffectComponent(effect.id)
 
     if (!component || seen.has(effect.id)) return
 

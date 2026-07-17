@@ -33,7 +33,7 @@ export type TestUserRole = 'primary' | 'second'
 export type CreateLoggedInTestUserOptions = {
   /** @deprecated The suite now reuses run-scoped identities. */
   fresh?: boolean
-  /** `second` resolves to the existing administrator; it creates no user. */
+  /** `second` creates an isolated disposable account for relationship tests. */
   role?: TestUserRole
 }
 
@@ -105,13 +105,13 @@ export const extractUserId = (body: ApiResponse<RegisterUserData>): number => {
   return id as number
 }
 
-export const getSeedTestUser = (role: TestUserRole = 'primary') =>
+export const getSeedTestUser = () =>
   cy
     .task<{
       user: TestUserAuth
       secondUser: TestUserAuth
     }>('cypressSeed:get')
-    .then((seed) => (role === 'second' ? seed.secondUser : seed.user))
+    .then((seed) => seed.user)
 
 // Kept as an explicit escape hatch for a future test that truly requires an
 // isolated account. Normal specs must call createLoggedInTestUser().
@@ -173,7 +173,10 @@ export const createFreshLoggedInTestUser = () =>
 
 export const createLoggedInTestUser = (
   options: CreateLoggedInTestUserOptions = {},
-) => getSeedTestUser(options.role || 'primary')
+) =>
+  options.role === 'second'
+    ? createFreshLoggedInTestUser()
+    : getSeedTestUser()
 
 export const deleteTestUser = (
   apiBase: string,

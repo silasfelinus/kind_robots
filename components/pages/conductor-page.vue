@@ -890,96 +890,99 @@
                 class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
               />
             </template>
-            <div
-              v-for="todo in filteredTodos"
-              :key="todo.id"
-              class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
-              :class="[
-                todo.status === 'DONE'
-                  ? 'opacity-60 border-base-300 bg-base-100'
-                  : todo.category === 'HONEYDO' && todo.priority === 'HIGH'
-                    ? 'border-error/30 bg-error/5'
+            <template v-for="todo in filteredTodos" :key="todo.id">
+              <honeydo-card
+                v-if="todo.category === 'HONEYDO'"
+                :todo="todo"
+                :show-relative-time="false"
+                :show-category-badge="todoFilter !== 'OPEN'"
+                show-archive-action
+                show-delete-action
+                @toggle-done="todoStore.toggleDone(todo)"
+                @archive="todoStore.archiveTodo(todo.id)"
+                @delete="todoStore.deleteTodo(todo.id)"
+              />
+              <div
+                v-else
+                class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
+                :class="[
+                  todo.status === 'DONE'
+                    ? 'opacity-60 border-base-300 bg-base-100'
                     : 'border-base-300 bg-base-100',
-              ]"
-            >
-              <div class="flex items-center gap-3">
-                <button
-                  type="button"
-                  class="shrink-0 transition-colors"
-                  :class="
-                    todo.status === 'DONE'
-                      ? 'text-success'
-                      : 'text-base-content/30 hover:text-success'
-                  "
-                  @click="todoStore.toggleDone(todo)"
-                >
-                  <Icon
-                    :name="
-                      todo.status === 'DONE'
-                        ? 'kind-icon:check-circle'
-                        : 'kind-icon:circle'
-                    "
-                    class="size-5"
-                  />
-                </button>
-                <span
-                  class="min-w-0 flex-1 truncate text-sm font-medium"
-                  :class="
-                    todo.status === 'DONE'
-                      ? 'line-through text-base-content/40'
-                      : ''
-                  "
-                  >{{ todo.title }}</span
-                >
-                <span
-                  v-if="todo.priority === 'HIGH'"
-                  class="badge badge-error badge-xs shrink-0"
-                  >🔴 high</span
-                >
-                <span
-                  v-else-if="todo.priority === 'LOW'"
-                  class="badge badge-ghost badge-xs shrink-0"
-                  >🟢 low</span
-                >
-                <span
-                  v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'"
-                  class="badge badge-secondary badge-xs shrink-0"
-                  >✨ kaizen</span
-                >
-                <span
-                  v-else-if="
-                    todoFilter !== 'OPEN' && todo.category === 'HONEYDO'
-                  "
-                  class="badge badge-accent badge-xs shrink-0"
-                  >🍯 honey do</span
-                >
-                <div class="flex shrink-0 gap-1">
-                  <button
-                    v-if="todo.status !== 'ARCHIVED'"
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
-                    title="Archive"
-                    @click="todoStore.archiveTodo(todo.id)"
-                  >
-                    <Icon name="kind-icon:archive" class="size-3" />
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
-                    title="Delete"
-                    @click="todoStore.deleteTodo(todo.id)"
-                  >
-                    <Icon name="kind-icon:x" class="size-3" />
-                  </button>
-                </div>
-              </div>
-              <p
-                v-if="todo.description"
-                class="ml-8 text-xs leading-relaxed text-base-content/50"
+                ]"
               >
-                {{ todo.description }}
-              </p>
-            </div>
+                <div class="flex items-center gap-3">
+                  <button
+                    type="button"
+                    class="shrink-0 transition-colors"
+                    :class="
+                      todo.status === 'DONE'
+                        ? 'text-success'
+                        : 'text-base-content/30 hover:text-success'
+                    "
+                    @click="todoStore.toggleDone(todo)"
+                  >
+                    <Icon
+                      :name="
+                        todo.status === 'DONE'
+                          ? 'kind-icon:check-circle'
+                          : 'kind-icon:circle'
+                      "
+                      class="size-5"
+                    />
+                  </button>
+                  <span
+                    class="min-w-0 flex-1 truncate text-sm font-medium"
+                    :class="
+                      todo.status === 'DONE'
+                        ? 'line-through text-base-content/40'
+                        : ''
+                    "
+                    >{{ todo.title }}</span
+                  >
+                  <span
+                    v-if="todo.priority === 'HIGH'"
+                    class="badge badge-error badge-xs shrink-0"
+                    >🔴 high</span
+                  >
+                  <span
+                    v-else-if="todo.priority === 'LOW'"
+                    class="badge badge-ghost badge-xs shrink-0"
+                    >🟢 low</span
+                  >
+                  <span
+                    v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'"
+                    class="badge badge-secondary badge-xs shrink-0"
+                    >✨ kaizen</span
+                  >
+                  <div class="flex shrink-0 gap-1">
+                    <button
+                      v-if="todo.status !== 'ARCHIVED'"
+                      type="button"
+                      class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
+                      title="Archive"
+                      @click="todoStore.archiveTodo(todo.id)"
+                    >
+                      <Icon name="kind-icon:archive" class="size-3" />
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
+                      title="Delete"
+                      @click="todoStore.deleteTodo(todo.id)"
+                    >
+                      <Icon name="kind-icon:x" class="size-3" />
+                    </button>
+                  </div>
+                </div>
+                <p
+                  v-if="todo.description"
+                  class="ml-8 text-xs leading-relaxed text-base-content/50"
+                >
+                  {{ todo.description }}
+                </p>
+              </div>
+            </template>
             <div
               v-if="!todoStore.loading && !filteredTodos.length"
               class="py-8 text-center"

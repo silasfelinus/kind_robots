@@ -30,60 +30,14 @@
           />
         </template>
 
-        <div
+        <honeydo-card
           v-for="todo in todoStore.honeyDoTodos"
           :key="todo.id"
-          class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
-          :class="
-            todo.priority === 'HIGH'
-              ? 'border-error/30 bg-error/5'
-              : 'border-base-300 bg-base-100'
-          "
-        >
-          <div class="flex items-center gap-3">
-            <button
-              type="button"
-              class="shrink-0 text-base-content/30 transition-colors hover:text-success"
-              title="Mark complete"
-              @click="todoStore.toggleDone(todo)"
-            >
-              <Icon name="kind-icon:circle" class="size-5" />
-            </button>
-            <span class="min-w-0 flex-1 truncate text-sm font-medium">{{
-              todo.title
-            }}</span>
-            <span
-              v-if="todo.priority === 'HIGH'"
-              class="badge badge-error badge-xs shrink-0"
-              >🔴 high</span
-            >
-            <span
-              v-else-if="todo.priority === 'LOW'"
-              class="badge badge-ghost badge-xs shrink-0"
-              >🟢 low</span
-            >
-            <span class="shrink-0 text-xs text-base-content/40">{{
-              relativeTime(todo.createdAt)
-            }}</span>
-          </div>
-          <p
-            v-if="todo.description"
-            class="ml-8 text-xs leading-relaxed text-base-content/50"
-          >
-            {{ todo.description }}
-          </p>
-          <button
-            v-if="relatedProject(todo)"
-            type="button"
-            class="ml-8 self-start text-xs text-info hover:underline"
-            @click="viewProject(relatedProject(todo)!)"
-          >
-            View
-            {{
-              relatedProject(todo)!.title || relatedProject(todo)!.slug
-            }}&nbsp;→
-          </button>
-        </div>
+          :todo="todo"
+          :project="relatedProject(todo)"
+          @toggle-done="todoStore.toggleDone(todo)"
+          @view-project="viewProject"
+        />
 
         <div
           v-if="!todoStore.loading && !todoStore.honeyDoTodos.length"
@@ -132,19 +86,6 @@ function viewProject(project: ProjectWithRelations) {
   if (!project.slug) return
   pageStore.setWorkspaceCardKey(project.slug)
   navigateTo('/conductor')
-}
-
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const minutes = Math.round(diffMs / 60000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.round(hours / 24)
-  if (days < 30) return `${days}d ago`
-  const months = Math.round(days / 30)
-  return `${months}mo ago`
 }
 
 onMounted(() => {

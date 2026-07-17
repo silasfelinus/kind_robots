@@ -1,8 +1,9 @@
 // /server/api/stripe/subscribe.post.ts
-import { defineEventHandler, readBody } from 'h3'
+import { defineEventHandler } from 'h3'
 import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { requireApiUser } from '~/server/utils/authGuard'
 
 let stripe: Stripe | null = null
 
@@ -23,14 +24,7 @@ function getStripeClient() {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { userId } = await readBody<{ userId: number }>(event)
-
-    if (!userId)
-      return errorHandler({ message: 'No user ID provided', statusCode: 400 })
-
-    const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user)
-      return errorHandler({ message: 'User not found', statusCode: 404 })
+    const { user } = await requireApiUser(event)
 
     const stripe = getStripeClient()
     const email = user.email || `user-${user.id}@kindrobots.org`
@@ -40,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     if (!user.stripeCustomerId) {
       await prisma.user.update({
-        where: { id: userId },
+        where: { id: user.id },
         data: { stripeCustomerId: customerId },
       })
     }

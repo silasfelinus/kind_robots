@@ -1,11 +1,13 @@
 // /server/api/scenarios/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { normalizeSlugInput } from '~/utils/slugify'
-import { Prisma } from '~/prisma/generated/prisma/client'
-import type { ScenarioOutputType } from '~/prisma/generated/prisma/client'
+import type {
+  Prisma,
+  ScenarioOutputType,
+} from '~/prisma/generated/prisma/client'
 
 type ScenarioPatchInput = {
   title?: unknown
@@ -127,7 +129,6 @@ function normalizeBoolean(value: unknown, field: string): boolean {
 
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase()
-
     if (normalized === 'true') return true
     if (normalized === 'false') return false
   }
@@ -157,8 +158,6 @@ function normalizeNullableInteger(
 }
 
 function normalizePositiveIdArray(value: unknown, field: string): number[] {
-  if (typeof value === 'undefined') return []
-
   if (!Array.isArray(value)) {
     throw createError({
       statusCode: 400,
@@ -189,12 +188,10 @@ function normalizeIntros(value: unknown): string {
 
   if (typeof value === 'string') {
     const trimmed = value.trim()
-
     if (!trimmed) return '[]'
 
     try {
       const parsed = JSON.parse(trimmed)
-
       if (Array.isArray(parsed)) {
         return JSON.stringify(
           parsed.map((entry) => String(entry).trim()).filter(Boolean),
@@ -222,11 +219,7 @@ function normalizeIntros(value: unknown): string {
 function normalizeArtImageRelation(
   value: unknown,
 ): Prisma.ArtImageUpdateOneWithoutScenariosNestedInput {
-  if (value === null || value === '') {
-    return {
-      disconnect: true,
-    }
-  }
+  if (value === null || value === '') return { disconnect: true }
 
   const id = Number(value)
 
@@ -237,27 +230,22 @@ function normalizeArtImageRelation(
     })
   }
 
-  return {
-    connect: {
-      id,
-    },
-  }
+  return { connect: { id } }
 }
 
 async function assertRelatedRecordsExist(options: {
-  characterIds: number[]
-  compositionIds: number[]
-  dreamIds: number[]
+  characterIds?: number[]
+  compositionIds?: number[]
+  dreamIds?: number[]
 }) {
   const { characterIds, compositionIds, dreamIds } = options
 
-  if (characterIds.length) {
-    const characters = await prisma.character.findMany({
+  if (characterIds?.length) {
+    const records = await prisma.character.findMany({
       where: { id: { in: characterIds } },
       select: { id: true },
     })
-
-    const foundIds = new Set(characters.map((character) => character.id))
+    const foundIds = new Set(records.map((record) => record.id))
     const missingIds = characterIds.filter((id) => !foundIds.has(id))
 
     if (missingIds.length) {
@@ -268,13 +256,12 @@ async function assertRelatedRecordsExist(options: {
     }
   }
 
-  if (compositionIds.length) {
-    const compositions = await prisma.composition.findMany({
+  if (compositionIds?.length) {
+    const records = await prisma.composition.findMany({
       where: { id: { in: compositionIds } },
       select: { id: true },
     })
-
-    const foundIds = new Set(compositions.map((composition) => composition.id))
+    const foundIds = new Set(records.map((record) => record.id))
     const missingIds = compositionIds.filter((id) => !foundIds.has(id))
 
     if (missingIds.length) {
@@ -285,13 +272,12 @@ async function assertRelatedRecordsExist(options: {
     }
   }
 
-  if (dreamIds.length) {
-    const dreams = await prisma.dream.findMany({
+  if (dreamIds?.length) {
+    const records = await prisma.dream.findMany({
       where: { id: { in: dreamIds } },
       select: { id: true },
     })
-
-    const foundIds = new Set(dreams.map((dream) => dream.id))
+    const foundIds = new Set(records.map((record) => record.id))
     const missingIds = dreamIds.filter((id) => !foundIds.has(id))
 
     if (missingIds.length) {
@@ -314,15 +300,8 @@ async function buildScenarioUpdateInput(
     data.description = normalizeString(body.description, 'description')
   }
   if ('intros' in body) data.intros = normalizeIntros(body.intros)
-
-  if ('outputType' in body) {
-    data.outputType = normalizeOutputType(body.outputType)
-  }
-
-  if ('cast' in body) {
-    data.cast = normalizeJsonString(body.cast, 'cast')
-  }
-
+  if ('outputType' in body) data.outputType = normalizeOutputType(body.outputType)
+  if ('cast' in body) data.cast = normalizeJsonString(body.cast, 'cast')
   if ('imagePath' in body) {
     data.imagePath = normalizeNullableString(body.imagePath, 'imagePath')
   }
@@ -362,15 +341,18 @@ async function buildScenarioUpdateInput(
     data.ArtImage = normalizeArtImageRelation(body.artImageId)
   }
 
-  const characterIds = normalizePositiveIdArray(
-    body.characterIds,
-    'characterIds',
-  )
-  const compositionIds = normalizePositiveIdArray(
-    body.compositionIds,
-    'compositionIds',
-  )
-  const dreamIds = normalizePositiveIdArray(body.dreamIds, 'dreamIds')
+  const characterIds =
+    'characterIds' in body
+      ? normalizePositiveIdArray(body.characterIds, 'characterIds')
+      : undefined
+  const compositionIds =
+    'compositionIds' in body
+      ? normalizePositiveIdArray(body.compositionIds, 'compositionIds')
+      : undefined
+  const dreamIds =
+    'dreamIds' in body
+      ? normalizePositiveIdArray(body.dreamIds, 'dreamIds')
+      : undefined
 
   await assertRelatedRecordsExist({
     characterIds,
@@ -378,21 +360,21 @@ async function buildScenarioUpdateInput(
     dreamIds,
   })
 
-  if (characterIds.length) {
+  if (characterIds) {
     data.Characters = {
-      connect: characterIds.map((id) => ({ id })),
+      set: characterIds.map((id) => ({ id })),
     }
   }
 
-  if (compositionIds.length) {
+  if (compositionIds) {
     data.Compositions = {
-      connect: compositionIds.map((id) => ({ id })),
+      set: compositionIds.map((id) => ({ id })),
     }
   }
 
-  if (dreamIds.length) {
+  if (dreamIds) {
     data.Dreams = {
-      connect: dreamIds.map((id) => ({ id })),
+      set: dreamIds.map((id) => ({ id })),
     }
   }
 

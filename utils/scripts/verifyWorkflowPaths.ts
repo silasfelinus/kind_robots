@@ -25,6 +25,11 @@ const ALLOWLIST_PREFIXES = [
   // Build output, never checked into git -- whether it exists depends on
   // whether a prior step in the same job ran an install, not on repo state.
   'node_modules/',
+  // A git remote-tracking ref (e.g. `origin/main`), not a repo-relative file
+  // path -- contract-tests.yml's capture-group guard step passes this as a
+  // base-ref argument to a script, which reads path-shaped to the bare-token
+  // extractor above (kind-robots/t-031).
+  'origin/',
 ]
 
 // `run:` steps are shell, not YAML -- we don't parse them, we scan for

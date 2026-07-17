@@ -246,6 +246,9 @@
                 class="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-widest text-base-content/45"
               >
                 <span>{{ item.kindLabel }}</span>
+                <span v-if="item.totalTasks"
+                  >{{ item.done }}/{{ item.totalTasks }} done</span
+                >
                 <span>{{ item.progress }}%</span>
               </div>
 
@@ -328,6 +331,12 @@
                   {{ item.progress }}% progress
                 </span>
                 <span
+                  v-if="item.totalTasks"
+                  class="badge badge-success badge-sm rounded-2xl"
+                >
+                  {{ item.done }}/{{ item.totalTasks }} done
+                </span>
+                <span
                   v-if="item.needsHuman"
                   class="badge badge-accent badge-sm rounded-2xl"
                 >
@@ -407,7 +416,7 @@
               v-if="item.totalTasks"
               class="badge badge-info badge-sm rounded-2xl"
             >
-              {{ item.totalTasks }} tasks
+              {{ item.done }}/{{ item.totalTasks }} done
             </span>
             <span
               v-if="item.needsHuman"
@@ -511,7 +520,9 @@
 
             <div class="grid flex-1 grid-cols-3 gap-2 text-center md:w-full">
               <div class="rounded-xl bg-base-100 p-2">
-                <p class="font-black text-success">{{ item.done }}</p>
+                <p class="font-black text-success">
+                  {{ item.done }}/{{ item.totalTasks }}
+                </p>
                 <p class="text-[0.65rem] text-base-content/40">done</p>
               </div>
               <div class="rounded-xl bg-base-100 p-2">

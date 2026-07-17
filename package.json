@@ -53,6 +53,7 @@
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",
     "test:capture-group-guards": "tsx utils/scripts/verifyCaptureGroupGuards.ts",
     "test:capture-group-guards-selftest": "tsx utils/scripts/verifyCaptureGroupGuards.test.ts",
+    "test:parse-mysql-url": "tsx utils/scripts/verifyParseMysqlUrl.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

@@ -692,6 +692,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Can over-blur into mush; keep "broken brushstrokes" and a high-key palette in the instruction',
+    exampleWorks: [
+      {
+        workTitle: 'Two Sisters (On the Terrace)',
+        artist: 'Pierre-Auguste Renoir',
+        artistDied: 1919,
+        year: '1881',
+        collection: 'The Art Institute of Chicago',
+        accessionId: '1933.455',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:Pierre-Auguste_Renoir_-_Two_Sisters_(On_the_Terrace)_-_1933.455_-_Art_Institute_of_Chicago.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc: '/images/academy/examples/two-sisters-on-the-terrace-1933-455.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -731,6 +747,23 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'The Van Gogh LoRA pulls toward one artist; the movement prompt keeps it broader',
+    exampleWorks: [
+      {
+        workTitle: 'A Sunday on La Grande Jatte — 1884',
+        artist: 'Georges Seurat',
+        artistDied: 1891,
+        year: '1884–86, border added 1888–89',
+        collection: 'The Art Institute of Chicago',
+        accessionId: '1926.224',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:A_Sunday_on_La_Grande_Jatte,_Georges_Seurat,_1884.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc:
+          '/images/academy/examples/a-sunday-on-la-grande-jatte-1884-1926-224.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -973,6 +1006,23 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'A faithful remix discards the photo entirely — frame it playfully ("Mondrian-ify") rather than expecting recognizable content',
+    exampleWorks: [
+      {
+        workTitle: 'Lozenge Composition with Yellow, Black, Blue, Red, and Gray',
+        artist: 'Piet Mondrian',
+        artistDied: 1944,
+        year: '1921',
+        collection: 'The Art Institute of Chicago',
+        accessionId: '1957.307',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:Piet_Mondrian_-_Lozenge_Composition_with_Yellow,_Black,_Blue,_Red,_and_Gray_-_1957.307_-_Art_Institute_of_Chicago.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc:
+          '/images/academy/examples/lozenge-composition-with-yellow-black-blue-red-and-gray-1957-307.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:

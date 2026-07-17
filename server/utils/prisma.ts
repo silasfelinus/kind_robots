@@ -20,18 +20,11 @@ type CircuitBreakerState = {
   openUntil: number
 }
 
-type DatabasePoolOverrides = {
-  connectionLimit?: number
-  idleTimeout?: number
-  minimumIdle?: number
-  minDelayValidation?: number
-}
-
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
   prismaBreaker?: CircuitBreakerState
-  prismaAdapterPoisoned?: boolean
-  prismaOneShotQueue?: Promise<void>
+  prismaRecovery?: Promise<PrismaClient>
+  prismaGeneration?: number
 }
 
 const configuredDatabaseUrl = process.env.DATABASE_URL
@@ -57,6 +50,68 @@ function readNonNegativeInteger(
 ): number {
   const parsed = Number.parseInt(value ?? '', 10)
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
+}
+
+function buildDatabaseUrl(url: string): string {
+  const parsed = new URL(url)
+  const connectTimeout = readPositiveInteger(
+    process.env.DATABASE_CONNECT_TIMEOUT_MS,
+    DEFAULT_CONNECT_TIMEOUT_MS,
+  )
+  const acquireTimeout = readPositiveInteger(
+    process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
+    DEFAULT_ACQUIRE_TIMEOUT_MS,
+  )
+  const connectionLimit = readPositiveInteger(
+    process.env.DATABASE_CONNECTION_LIMIT,
+    DEFAULT_CONNECTION_LIMIT,
+  )
+  const minDelayValidation = readNonNegativeInteger(
+    process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
+    0,
+  )
+  const idleTimeout = readPositiveInteger(
+    process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
+    DEFAULT_IDLE_TIMEOUT_SECONDS,
+  )
+  const minimumIdle = readNonNegativeInteger(
+    process.env.DATABASE_MINIMUM_IDLE,
+    DEFAULT_MINIMUM_IDLE,
+  )
+  const pingTimeout = readPositiveInteger(
+    process.env.DATABASE_PING_TIMEOUT_MS,
+    DEFAULT_PING_TIMEOUT_MS,
+  )
+
+  if (!parsed.searchParams.has('connectTimeout')) {
+    parsed.searchParams.set('connectTimeout', String(connectTimeout))
+  }
+
+  if (!parsed.searchParams.has('acquireTimeout')) {
+    parsed.searchParams.set('acquireTimeout', String(acquireTimeout))
+  }
+
+  if (!parsed.searchParams.has('connectionLimit')) {
+    parsed.searchParams.set('connectionLimit', String(connectionLimit))
+  }
+
+  if (!parsed.searchParams.has('minDelayValidation')) {
+    parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
+  }
+
+  if (!parsed.searchParams.has('idleTimeout')) {
+    parsed.searchParams.set('idleTimeout', String(idleTimeout))
+  }
+
+  if (!parsed.searchParams.has('minimumIdle')) {
+    parsed.searchParams.set('minimumIdle', String(minimumIdle))
+  }
+
+  if (!parsed.searchParams.has('pingTimeout')) {
+    parsed.searchParams.set('pingTimeout', String(pingTimeout))
+  }
+
+  return parsed.toString()
 }
 
 function readDatabaseSslCa(): string | undefined {
@@ -93,24 +148,15 @@ function readDatabaseUseTextProtocol(): boolean {
   return raw !== 'false' && raw !== '0' && raw !== 'no'
 }
 
-function buildDatabaseConfig(
-  url: string,
-  overrides: DatabasePoolOverrides = {},
-): PrismaMariaDbPoolConfig {
-  const parsed = new URL(url)
+function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
+  const resolvedUrl = buildDatabaseUrl(url)
   const sslCa = readDatabaseSslCa()
   const rejectUnauthorized = readSslRejectUnauthorized()
+
+  if (!sslCa && rejectUnauthorized) return resolvedUrl
+
+  const parsed = new URL(resolvedUrl)
   const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
-  const connectTimeout = readPositiveInteger(
-    parsed.searchParams.get('connectTimeout') ??
-      process.env.DATABASE_CONNECT_TIMEOUT_MS,
-    DEFAULT_CONNECT_TIMEOUT_MS,
-  )
-  const acquireTimeout = readPositiveInteger(
-    parsed.searchParams.get('acquireTimeout') ??
-      process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
-    DEFAULT_ACQUIRE_TIMEOUT_MS,
-  )
   const tlsOptions: TlsConnectionOptions = rejectUnauthorized
     ? {
         ca: sslCa,
@@ -135,46 +181,38 @@ function buildDatabaseConfig(
     user: decodeURIComponent(parsed.username),
     password: decodeURIComponent(parsed.password),
     database,
-    connectTimeout,
-    acquireTimeout,
-    connectionLimit:
-      overrides.connectionLimit ??
-      readPositiveInteger(
-        parsed.searchParams.get('connectionLimit') ??
-          process.env.DATABASE_CONNECTION_LIMIT,
-        DEFAULT_CONNECTION_LIMIT,
-      ),
-    minDelayValidation:
-      overrides.minDelayValidation ??
-      readNonNegativeInteger(
-        parsed.searchParams.get('minDelayValidation') ??
-          process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
-        0,
-      ),
-    idleTimeout:
-      overrides.idleTimeout ??
-      readPositiveInteger(
-        parsed.searchParams.get('idleTimeout') ??
-          process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
-        DEFAULT_IDLE_TIMEOUT_SECONDS,
-      ),
-    minimumIdle:
-      overrides.minimumIdle ??
-      readNonNegativeInteger(
-        parsed.searchParams.get('minimumIdle') ??
-          process.env.DATABASE_MINIMUM_IDLE,
-        DEFAULT_MINIMUM_IDLE,
-      ),
-    ...(sslCa || !rejectUnauthorized ? { ssl: tlsOptions } : {}),
+    connectTimeout: readPositiveInteger(
+      parsed.searchParams.get('connectTimeout') ?? undefined,
+      DEFAULT_CONNECT_TIMEOUT_MS,
+    ),
+    acquireTimeout: readPositiveInteger(
+      parsed.searchParams.get('acquireTimeout') ?? undefined,
+      DEFAULT_ACQUIRE_TIMEOUT_MS,
+    ),
+    connectionLimit: readPositiveInteger(
+      parsed.searchParams.get('connectionLimit') ?? undefined,
+      DEFAULT_CONNECTION_LIMIT,
+    ),
+    minDelayValidation: readNonNegativeInteger(
+      parsed.searchParams.get('minDelayValidation') ?? undefined,
+      0,
+    ),
+    idleTimeout: readPositiveInteger(
+      parsed.searchParams.get('idleTimeout') ?? undefined,
+      DEFAULT_IDLE_TIMEOUT_SECONDS,
+    ),
+    minimumIdle: readNonNegativeInteger(
+      parsed.searchParams.get('minimumIdle') ?? undefined,
+      DEFAULT_MINIMUM_IDLE,
+    ),
+    ssl: tlsOptions,
   }
 
   Object.assign(poolConfig, {
     pingTimeout: readPositiveInteger(
-      parsed.searchParams.get('pingTimeout') ??
-        process.env.DATABASE_PING_TIMEOUT_MS,
+      parsed.searchParams.get('pingTimeout') ?? undefined,
       DEFAULT_PING_TIMEOUT_MS,
     ),
-    initializationTimeout: acquireTimeout,
   })
 
   return poolConfig
@@ -192,6 +230,10 @@ const unavailableDatabaseMessages = [
 const unavailableRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
   1,
+)
+const staleConnectionRetryAttempts = readNonNegativeInteger(
+  process.env.DATABASE_STALE_CONNECTION_RETRY_ATTEMPTS,
+  2,
 )
 const transientRetryDelayMs = readPositiveInteger(
   process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,
@@ -264,19 +306,25 @@ function isAvailabilityError(error: unknown): boolean {
   return messageMatches(error, unavailableDatabaseMessages)
 }
 
+function retryLimitFor(error: unknown): number {
+  if (isStaleDatabaseConnectionError(error)) {
+    return staleConnectionRetryAttempts
+  }
+
+  if (isAvailabilityError(error)) return unavailableRetryAttempts
+  return 0
+}
+
 const delay = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
 
 const useTextProtocol = readDatabaseUseTextProtocol()
 
-function createPrismaClient(
-  poolOverrides: DatabasePoolOverrides = {},
-): PrismaClient {
+function createBasePrismaClient(): PrismaClient {
   return new PrismaClient({
-    adapter: new PrismaMariaDb(
-      buildDatabaseConfig(databaseUrl, poolOverrides),
-      { useTextProtocol },
-    ),
+    adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl), {
+      useTextProtocol,
+    }),
   })
 }
 
@@ -289,10 +337,7 @@ async function replayPrismaOperation(
   const delegateName = `${model.charAt(0).toLowerCase()}${model.slice(1)}`
   const delegate = (client as unknown as Record<string, unknown>)[delegateName]
 
-  if (
-    !delegate ||
-    (typeof delegate !== 'object' && typeof delegate !== 'function')
-  ) {
+  if (!delegate || (typeof delegate !== 'object' && typeof delegate !== 'function')) {
     throw new Error(`Unable to replay Prisma operation for model ${model}.`)
   }
 
@@ -307,145 +352,75 @@ async function replayPrismaOperation(
   ).call(delegate, args)
 }
 
-const oneShotPoolOverrides: DatabasePoolOverrides = {
-  connectionLimit: 1,
-  minimumIdle: 1,
-  idleTimeout: 30,
-  minDelayValidation: 500,
-}
+let activeBasePrisma = globalForPrisma.prisma ?? createBasePrismaClient()
+globalForPrisma.prisma = activeBasePrisma
 
-async function serializeOneShotOperation<T>(
-  operation: () => Promise<T>,
-): Promise<T> {
-  const previous = globalForPrisma.prismaOneShotQueue ?? Promise.resolve()
-  let release!: () => void
-  const gate = new Promise<void>((resolve) => {
-    release = resolve
-  })
-  const current = previous.catch(() => undefined).then(() => gate)
+type RetryingPrismaClient = ReturnType<typeof extendPrismaClient>
+let activePrisma: RetryingPrismaClient
 
-  globalForPrisma.prismaOneShotQueue = current
-  await previous.catch(() => undefined)
+async function recyclePrismaClient(reason: string): Promise<PrismaClient> {
+  const existingRecovery = globalForPrisma.prismaRecovery
+  if (existingRecovery) return await existingRecovery
 
-  try {
-    return await operation()
-  } finally {
-    release()
+  const recovery = (async () => {
+    const replacement = createBasePrismaClient()
+    await replacement.$connect()
 
-    if (globalForPrisma.prismaOneShotQueue === current) {
-      globalForPrisma.prismaOneShotQueue = undefined
-    }
-  }
-}
+    activeBasePrisma = replacement
+    globalForPrisma.prisma = replacement
+    activePrisma = extendPrismaClient(replacement)
+    globalForPrisma.prismaGeneration =
+      (globalForPrisma.prismaGeneration ?? 0) + 1
 
-async function runOneShotPrismaOperation(
-  model: string,
-  operation: string,
-  args: unknown,
-  reason: string,
-): Promise<unknown> {
-  return serializeOneShotOperation(async () => {
-    const oneShotPrisma = createPrismaClient(oneShotPoolOverrides)
-
-    console.warn('[prisma:one-shot-fallback]', {
-      model,
-      operation,
+    console.warn('[prisma:client-recycled]', {
+      generation: globalForPrisma.prismaGeneration,
       reason,
       mode: useTextProtocol ? 'text-query' : 'binary-execute',
     })
 
-    try {
-      await oneShotPrisma.$connect()
-      await oneShotPrisma.$queryRawUnsafe('SELECT 1 AS prisma_one_shot_ready')
+    return replacement
+  })()
 
-      console.warn('[prisma:one-shot-ready]', {
-        model,
-        operation,
-      })
+  globalForPrisma.prismaRecovery = recovery
 
-      const result = await replayPrismaOperation(
-        oneShotPrisma,
-        model,
-        operation,
-        args,
-      )
-      recordConnectionSuccess()
-      return result
-    } finally {
-      await oneShotPrisma.$disconnect().catch((disconnectError: unknown) => {
-        console.warn('[prisma:one-shot-disconnect-failed]', {
-          model,
-          operation,
-          message: errorMessage(disconnectError),
-        })
-      })
+  try {
+    return await recovery
+  } finally {
+    if (globalForPrisma.prismaRecovery === recovery) {
+      globalForPrisma.prismaRecovery = undefined
     }
-  })
+  }
 }
-
-const basePrisma = globalForPrisma.prisma ?? createPrismaClient()
-globalForPrisma.prisma = basePrisma
 
 function extendPrismaClient(client: PrismaClient) {
   return client.$extends({
     name: 'transient-database-retry',
     query: {
       async $allOperations({ model, operation, args, query }) {
-        const transactionActive = transactionContext.getStore() === true
-
-        if (
-          globalForPrisma.prismaAdapterPoisoned &&
-          model &&
-          !transactionActive
-        ) {
-          return (await runOneShotPrismaOperation(
-            model,
-            operation,
-            args,
-            'shared adapter already marked poisoned',
-          )) as ReturnType<typeof query>
-        }
-
         if (circuitIsOpen()) {
           throw new Error(CIRCUIT_OPEN_MESSAGE)
         }
 
+        let execute = () => query(args)
+
         for (let attempt = 0; ; attempt += 1) {
           try {
-            const result = await query(args)
+            const result = await execute()
             recordConnectionSuccess()
             return result
           } catch (error: unknown) {
             const availabilityError = isAvailabilityError(error)
             const staleConnectionError = isStaleDatabaseConnectionError(error)
+            const retryLimit = retryLimitFor(error)
 
-            if (staleConnectionError) {
-              globalForPrisma.prismaAdapterPoisoned = true
-
-              console.warn('[prisma:adapter-poisoned]', {
-                model: model ?? 'raw',
-                operation,
-                transactionActive,
-                message: errorMessage(error),
-              })
-
-              if (!model || transactionActive) throw error
-
-              return (await runOneShotPrismaOperation(
-                model,
-                operation,
-                args,
-                `${model}.${operation}: ${errorMessage(error)}`,
-              )) as ReturnType<typeof query>
+            if (availabilityError) {
+              recordAvailabilityFailure()
             }
 
-            if (!availabilityError) throw error
-
-            recordAvailabilityFailure()
-
             if (
-              attempt >= unavailableRetryAttempts ||
-              circuitIsOpen()
+              (!availabilityError && !staleConnectionError) ||
+              attempt >= retryLimit ||
+              (availabilityError && circuitIsOpen())
             ) {
               throw error
             }
@@ -456,14 +431,32 @@ function extendPrismaClient(client: PrismaClient) {
             console.warn('[prisma:transient-retry]', {
               model: model ?? 'raw',
               operation,
-              kind: 'unavailable',
+              kind: staleConnectionError ? 'stale-connection' : 'unavailable',
               retry: retryNumber,
-              maxRetries: unavailableRetryAttempts,
+              maxRetries: retryLimit,
               waitMs,
               message: errorMessage(error),
             })
 
             await delay(waitMs)
+
+            if (staleConnectionError && model) {
+              const replacement = await recyclePrismaClient(
+                `${model}.${operation}: ${errorMessage(error)}`,
+              )
+
+              if (transactionContext.getStore()) {
+                throw error
+              }
+
+              execute = (() =>
+                replayPrismaOperation(
+                  replacement,
+                  model,
+                  operation,
+                  args,
+                ) as ReturnType<typeof query>) as typeof execute
+            }
           }
         }
       },
@@ -471,12 +464,11 @@ function extendPrismaClient(client: PrismaClient) {
   })
 }
 
-type RetryingPrismaClient = ReturnType<typeof extendPrismaClient>
-const activePrisma = extendPrismaClient(basePrisma)
+activePrisma = extendPrismaClient(activeBasePrisma)
 
 console.info('[prisma] MariaDB protocol mode', {
   mode: useTextProtocol ? 'text-query' : 'binary-execute',
-  oneShotFallback: globalForPrisma.prismaAdapterPoisoned ?? false,
+  generation: globalForPrisma.prismaGeneration ?? 0,
 })
 
 export const prisma = new Proxy({} as RetryingPrismaClient, {

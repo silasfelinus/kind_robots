@@ -14,9 +14,9 @@ import {
 // Regression guards for the production pool failure modes:
 // - too few connections starve every DB-backed route
 // - retiring every idle connection after 15 seconds leaves warm Vercel instances
-//   reusing unhealthy ProxySQL sockets during sustained API tests
+//   reusing or recreating unhealthy ProxySQL sockets during sustained API tests
 // - the adapter's binary execute() path can retain a closed command channel
-// - a fallback pool with minimumIdle=0 never established a connection and timed out
+// - retrying through the same poisoned client repeats the same stale-socket error
 assert.ok(
   DEFAULT_CONNECTION_LIMIT >= SAFE_MINIMUM_CONNECTION_LIMIT,
   `DEFAULT_CONNECTION_LIMIT (${DEFAULT_CONNECTION_LIMIT}) must be >= ` +
@@ -60,7 +60,6 @@ const projectCreateSource = readFileSync(
 
 assert.match(prismaSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
 assert.match(prismaSource, /pingTimeout:\s*readPositiveInteger/)
-assert.match(prismaSource, /initializationTimeout:\s*acquireTimeout/)
 assert.match(prismaSource, /DEFAULT_IDLE_TIMEOUT_SECONDS/)
 assert.match(prismaSource, /DEFAULT_MINIMUM_IDLE/)
 assert.doesNotMatch(prismaSource, /DATABASE_IDLE_TIMEOUT_SECONDS,\s*15/)
@@ -68,57 +67,42 @@ assert.doesNotMatch(prismaSource, /DATABASE_MINIMUM_IDLE,\s*0/)
 assert.match(prismaSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
 assert.match(
   prismaSource,
-  /new PrismaMariaDb\(\s*buildDatabaseConfig\(databaseUrl, poolOverrides\)/,
+  /new PrismaMariaDb\(buildDatabaseConfig\(databaseUrl\),\s*\{\s*useTextProtocol/,
 )
 assert.match(
   prismaSource,
   /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
 )
 
-// Once the shared adapter emits the stale-channel error, future non-transaction
-// model operations bypass it through an initialized, single-connection client.
-// Fallback operations are serialized so background heartbeat/queue traffic cannot
-// create a connection storm on the same warm Vercel instance.
-assert.match(prismaSource, /prismaAdapterPoisoned\?: boolean/)
-assert.match(prismaSource, /prismaOneShotQueue\?: Promise<void>/)
-assert.match(prismaSource, /globalForPrisma\.prismaAdapterPoisoned = true/)
-assert.match(prismaSource, /\[prisma:adapter-poisoned\]/)
-assert.match(prismaSource, /\[prisma:one-shot-fallback\]/)
-assert.match(prismaSource, /\[prisma:one-shot-ready\]/)
-assert.match(prismaSource, /const oneShotPoolOverrides/)
-assert.match(prismaSource, /connectionLimit:\s*1/)
-assert.match(prismaSource, /minimumIdle:\s*1/)
-assert.match(prismaSource, /idleTimeout:\s*30/)
-assert.match(prismaSource, /minDelayValidation:\s*500/)
-assert.match(prismaSource, /serializeOneShotOperation/)
-assert.match(prismaSource, /await oneShotPrisma\.\$connect\(\)/)
+// A stale socket poisons the adapter client that owns its pool. Recovery must
+// connect a replacement client, atomically redirect future calls, and replay the
+// failed model operation through that replacement instead of calling the stale
+// query closure again. Concurrent failures share one recovery promise.
+assert.match(prismaSource, /globalForPrisma\.prismaRecovery/)
+assert.match(prismaSource, /await replacement\.\$connect\(\)/)
 assert.match(
   prismaSource,
-  /await oneShotPrisma\.\$queryRawUnsafe\('SELECT 1 AS prisma_one_shot_ready'\)/,
+  /activePrisma = extendPrismaClient\(replacement\)/,
 )
-assert.match(prismaSource, /await oneShotPrisma\.\$disconnect\(\)/)
 assert.match(prismaSource, /replayPrismaOperation/)
 assert.match(prismaSource, /new Proxy\(\{\} as RetryingPrismaClient/)
-assert.doesNotMatch(prismaSource, /prismaRecovery/)
-assert.doesNotMatch(prismaSource, /\[prisma:client-recycled\]/)
-assert.doesNotMatch(prismaSource, /minimumIdle:\s*0/)
 
-// A failed statement inside an explicit transaction must never be replayed on a
-// one-shot client outside that transaction. Transaction callers are tracked
-// through the stable proxy and receive the original error so Prisma rolls back.
+// Recovery may replace the client during an active transaction, but the failed
+// statement must not be replayed outside that transaction. Transaction callers
+// are tracked through the stable proxy and receive the original error so Prisma
+// can roll back the transaction normally.
 assert.match(prismaSource, /new AsyncLocalStorage<boolean>\(\)/)
 assert.match(prismaSource, /property === '\$transaction'/)
 assert.match(prismaSource, /transactionContext\.run\(true/)
-assert.match(prismaSource, /const transactionActive =/)
-assert.match(prismaSource, /if \(!model \|\| transactionActive\) throw error/)
+assert.match(prismaSource, /transactionContext\.getStore\(\)/)
 
-// The shared client itself must never be disconnected during request recovery;
-// only the explicitly isolated one-shot client may be closed.
-assert.doesNotMatch(prismaSource, /basePrisma\.\$disconnect\(\)/)
-assert.doesNotMatch(prismaSource, /activePrisma\.\$disconnect\(\)/)
+// Never disconnect the shared or retired client during request recovery. Other
+// requests may still be completing transactions against it.
+assert.doesNotMatch(prismaSource, /\.\$disconnect\(\)/)
+assert.doesNotMatch(prismaSource, /createIsolatedPrismaClient/)
 
-// Project Sync retains its direct MariaDB fallback as an independent control and
-// final route-specific safety net.
+// Project Sync keeps its direct MariaDB fallback as a route-specific final
+// safety net when adapter recovery cannot complete.
 assert.match(
   directProbeSource,
   /export async function createDatabaseDirectConnection\(\)/,
@@ -139,5 +123,5 @@ console.log(
     `connect=${DEFAULT_CONNECT_TIMEOUT_MS}ms, acquire=${DEFAULT_ACQUIRE_TIMEOUT_MS}ms, ` +
     `idle=${DEFAULT_IDLE_TIMEOUT_SECONDS}s, minimumIdle=${DEFAULT_MINIMUM_IDLE}, ` +
     `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma uses MariaDB text protocol and ` +
-    'contains poisoned warm instances with initialized serialized one-shot clients.',
+    'recycles poisoned clients without replaying outside active transactions.',
 )

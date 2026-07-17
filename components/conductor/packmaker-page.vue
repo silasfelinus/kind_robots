@@ -1,6 +1,10 @@
 <!-- /components/conductor/packmaker-page.vue -->
 <template>
-  <ProjectFrontPage slug="packmaker" :fallback="config" />
+  <ProjectFrontPage slug="packmaker" :fallback="config">
+    <template #interactive>
+      <PackmakerAdminPanel />
+    </template>
+  </ProjectFrontPage>
 </template>
 
 <script setup lang="ts">

@@ -18,12 +18,8 @@
 
     <div
       v-if="statusMessage"
-      class="rounded-2xl border p-3 text-sm"
-      :class="
-        statusTone === 'error'
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'border-success/40 bg-success/10 text-success'
-      "
+      class="kr-note"
+      :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
     >
       {{ statusMessage }}
     </div>
@@ -95,10 +91,7 @@
             </div>
           </div>
 
-          <div
-            v-else
-            class="flex flex-col gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-          >
+          <div v-else class="kr-note kr-note-warning flex flex-col gap-3">
             <p class="font-bold">No bot selected.</p>
 
             <bot-gallery
@@ -378,8 +371,7 @@
 
           <pre
             class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
-            >{{ promptPreview }}</pre
-          >
+            >{{ promptPreview }}</pre>
         </section>
       </aside>
     </section>

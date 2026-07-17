@@ -40,10 +40,8 @@
         <div class="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 sm:p-4">
           <div
             v-if="statusMessage"
-            class="rounded-2xl border p-3 text-sm font-bold"
-            :class="statusTone === 'success'
-              ? 'border-success/40 bg-success/10 text-success'
-              : 'border-error/40 bg-error/10 text-error'"
+            class="kr-note"
+            :class="statusTone === 'success' ? 'kr-note-success' : 'kr-note-error'"
           >
             {{ statusMessage }}
           </div>

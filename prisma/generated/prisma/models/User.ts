@@ -101,6 +101,7 @@ export type UserMinAggregateOutputType = {
   preferredTextServerId: number | null
   memberUntil: Date | null
   stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
   artModels: string | null
   lastReward: string | null
   textModels: string | null
@@ -172,6 +173,7 @@ export type UserMaxAggregateOutputType = {
   preferredTextServerId: number | null
   memberUntil: Date | null
   stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
   artModels: string | null
   lastReward: string | null
   textModels: string | null
@@ -243,6 +245,7 @@ export type UserCountAggregateOutputType = {
   preferredTextServerId: number
   memberUntil: number
   stripeCustomerId: number
+  stripeSubscriptionId: number
   artModels: number
   lastReward: number
   textModels: number
@@ -344,6 +347,7 @@ export type UserMinAggregateInputType = {
   preferredTextServerId?: true
   memberUntil?: true
   stripeCustomerId?: true
+  stripeSubscriptionId?: true
   artModels?: true
   lastReward?: true
   textModels?: true
@@ -415,6 +419,7 @@ export type UserMaxAggregateInputType = {
   preferredTextServerId?: true
   memberUntil?: true
   stripeCustomerId?: true
+  stripeSubscriptionId?: true
   artModels?: true
   lastReward?: true
   textModels?: true
@@ -486,6 +491,7 @@ export type UserCountAggregateInputType = {
   preferredTextServerId?: true
   memberUntil?: true
   stripeCustomerId?: true
+  stripeSubscriptionId?: true
   artModels?: true
   lastReward?: true
   textModels?: true
@@ -644,6 +650,7 @@ export type UserGroupByOutputType = {
   preferredTextServerId: number | null
   memberUntil: Date | null
   stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
   artModels: string | null
   lastReward: string | null
   textModels: string | null
@@ -738,6 +745,7 @@ export type UserWhereInput = {
   preferredTextServerId?: Prisma.IntNullableFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
   artModels?: Prisma.StringNullableFilter<"User"> | string | null
   lastReward?: Prisma.StringNullableFilter<"User"> | string | null
   textModels?: Prisma.StringNullableFilter<"User"> | string | null
@@ -852,6 +860,7 @@ export type UserOrderByWithRelationInput = {
   preferredTextServerId?: Prisma.SortOrderInput | Prisma.SortOrder
   memberUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   artModels?: Prisma.SortOrderInput | Prisma.SortOrder
   lastReward?: Prisma.SortOrderInput | Prisma.SortOrder
   textModels?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -971,6 +980,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   preferredTextServerId?: Prisma.IntNullableFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
   artModels?: Prisma.StringNullableFilter<"User"> | string | null
   lastReward?: Prisma.StringNullableFilter<"User"> | string | null
   textModels?: Prisma.StringNullableFilter<"User"> | string | null
@@ -1084,6 +1094,7 @@ export type UserOrderByWithAggregationInput = {
   preferredTextServerId?: Prisma.SortOrderInput | Prisma.SortOrder
   memberUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   artModels?: Prisma.SortOrderInput | Prisma.SortOrder
   lastReward?: Prisma.SortOrderInput | Prisma.SortOrder
   textModels?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1163,6 +1174,7 @@ export type UserScalarWhereWithAggregatesInput = {
   preferredTextServerId?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   artModels?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   lastReward?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   textModels?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -1232,6 +1244,7 @@ export type UserCreateInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -1346,6 +1359,7 @@ export type UserUncheckedCreateInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -1457,6 +1471,7 @@ export type UserUpdateInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1571,6 +1586,7 @@ export type UserUncheckedUpdateInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1684,6 +1700,7 @@ export type UserCreateManyInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -1753,6 +1770,7 @@ export type UserUpdateManyMutationInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1824,6 +1842,7 @@ export type UserUncheckedUpdateManyInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1921,6 +1940,7 @@ export type UserCountOrderByAggregateInput = {
   preferredTextServerId?: Prisma.SortOrder
   memberUntil?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
   artModels?: Prisma.SortOrder
   lastReward?: Prisma.SortOrder
   textModels?: Prisma.SortOrder
@@ -2006,6 +2026,7 @@ export type UserMaxOrderByAggregateInput = {
   preferredTextServerId?: Prisma.SortOrder
   memberUntil?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
   artModels?: Prisma.SortOrder
   lastReward?: Prisma.SortOrder
   textModels?: Prisma.SortOrder
@@ -2077,6 +2098,7 @@ export type UserMinOrderByAggregateInput = {
   preferredTextServerId?: Prisma.SortOrder
   memberUntil?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
   artModels?: Prisma.SortOrder
   lastReward?: Prisma.SortOrder
   textModels?: Prisma.SortOrder
@@ -2848,6 +2870,7 @@ export type UserCreateWithoutArtImagesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -2961,6 +2984,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -3076,6 +3100,7 @@ export type UserCreateWithoutArtImageInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -3188,6 +3213,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -3320,6 +3346,7 @@ export type UserUpdateWithoutArtImagesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3433,6 +3460,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3564,6 +3592,7 @@ export type UserScalarWhereInput = {
   preferredTextServerId?: Prisma.IntNullableFilter<"User"> | number | null
   memberUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"User"> | string | null
   artModels?: Prisma.StringNullableFilter<"User"> | string | null
   lastReward?: Prisma.StringNullableFilter<"User"> | string | null
   textModels?: Prisma.StringNullableFilter<"User"> | string | null
@@ -3633,6 +3662,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -3746,6 +3776,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -3872,6 +3903,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3985,6 +4017,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4095,6 +4128,7 @@ export type UserCreateWithoutBotsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -4208,6 +4242,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -4334,6 +4369,7 @@ export type UserUpdateWithoutBotsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4447,6 +4483,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4557,6 +4594,7 @@ export type UserCreateWithoutCharactersInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -4670,6 +4708,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -4796,6 +4835,7 @@ export type UserUpdateWithoutCharactersInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4909,6 +4949,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5019,6 +5060,7 @@ export type UserCreateWithoutChatsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -5132,6 +5174,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -5258,6 +5301,7 @@ export type UserUpdateWithoutChatsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5371,6 +5415,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5481,6 +5526,7 @@ export type UserCreateWithoutCodesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -5594,6 +5640,7 @@ export type UserUncheckedCreateWithoutCodesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -5720,6 +5767,7 @@ export type UserUpdateWithoutCodesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5833,6 +5881,7 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5943,6 +5992,7 @@ export type UserCreateWithoutCompositionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -6056,6 +6106,7 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -6182,6 +6233,7 @@ export type UserUpdateWithoutCompositionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6295,6 +6347,7 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6405,6 +6458,7 @@ export type UserCreateWithoutDreamsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -6518,6 +6572,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -6644,6 +6699,7 @@ export type UserUpdateWithoutDreamsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6757,6 +6813,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6867,6 +6924,7 @@ export type UserCreateWithoutProjectsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -6980,6 +7038,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -7106,6 +7165,7 @@ export type UserUpdateWithoutProjectsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7219,6 +7279,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7329,6 +7390,7 @@ export type UserCreateWithoutFacetsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -7442,6 +7504,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -7568,6 +7631,7 @@ export type UserUpdateWithoutFacetsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7681,6 +7745,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7791,6 +7856,7 @@ export type UserCreateWithoutLogsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -7904,6 +7970,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -8030,6 +8097,7 @@ export type UserUpdateWithoutLogsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8143,6 +8211,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8253,6 +8322,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -8366,6 +8436,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -8492,6 +8563,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8605,6 +8677,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8715,6 +8788,7 @@ export type UserCreateWithoutOrdersInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -8828,6 +8902,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -8954,6 +9029,7 @@ export type UserUpdateWithoutOrdersInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9067,6 +9143,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9177,6 +9254,7 @@ export type UserCreateWithoutEntitlementsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -9290,6 +9368,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -9416,6 +9495,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9529,6 +9609,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9639,6 +9720,7 @@ export type UserCreateWithoutAchievementsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -9752,6 +9834,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -9878,6 +9961,7 @@ export type UserUpdateWithoutAchievementsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9991,6 +10075,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10101,6 +10186,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -10214,6 +10300,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -10340,6 +10427,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10453,6 +10541,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10563,6 +10652,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -10676,6 +10766,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -10791,6 +10882,7 @@ export type UserCreateWithoutPromptsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -10904,6 +10996,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -11030,6 +11123,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11143,6 +11237,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11264,6 +11359,7 @@ export type UserUpdateWithoutPromptsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11377,6 +11473,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11487,6 +11584,7 @@ export type UserCreateWithoutReactionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -11600,6 +11698,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -11726,6 +11825,7 @@ export type UserUpdateWithoutReactionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11839,6 +11939,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11949,6 +12050,7 @@ export type UserCreateWithoutResourcesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -12062,6 +12164,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -12188,6 +12291,7 @@ export type UserUpdateWithoutResourcesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12301,6 +12405,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12411,6 +12516,7 @@ export type UserCreateWithoutRewardsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -12524,6 +12630,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -12650,6 +12757,7 @@ export type UserUpdateWithoutRewardsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12763,6 +12871,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12873,6 +12982,7 @@ export type UserCreateWithoutScenariosInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -12986,6 +13096,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -13112,6 +13223,7 @@ export type UserUpdateWithoutScenariosInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13225,6 +13337,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13335,6 +13448,7 @@ export type UserCreateWithoutServersInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -13448,6 +13562,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -13574,6 +13689,7 @@ export type UserUpdateWithoutServersInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13687,6 +13803,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13797,6 +13914,7 @@ export type UserCreateWithoutSmartIconsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -13910,6 +14028,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -14036,6 +14155,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -14149,6 +14269,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -14259,6 +14380,7 @@ export type UserCreateWithoutSocialPostsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -14372,6 +14494,7 @@ export type UserUncheckedCreateWithoutSocialPostsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -14498,6 +14621,7 @@ export type UserUpdateWithoutSocialPostsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -14611,6 +14735,7 @@ export type UserUncheckedUpdateWithoutSocialPostsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -14721,6 +14846,7 @@ export type UserCreateWithoutThemesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -14834,6 +14960,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -14960,6 +15087,7 @@ export type UserUpdateWithoutThemesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -15073,6 +15201,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -15183,6 +15312,7 @@ export type UserCreateWithoutStylistClientsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -15296,6 +15426,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -15422,6 +15553,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -15535,6 +15667,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -15645,6 +15778,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -15758,6 +15892,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -15884,6 +16019,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -15997,6 +16133,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -16107,6 +16244,7 @@ export type UserCreateWithoutArtJobsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -16220,6 +16358,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -16346,6 +16485,7 @@ export type UserUpdateWithoutArtJobsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -16459,6 +16599,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -16569,6 +16710,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -16682,6 +16824,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -16808,6 +16951,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -16921,6 +17065,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -17031,6 +17176,7 @@ export type UserCreateWithoutReferredByInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -17144,6 +17290,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -17259,6 +17406,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -17372,6 +17520,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -17498,6 +17647,7 @@ export type UserUpdateWithoutReferredByInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -17611,6 +17761,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -17732,6 +17883,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -17845,6 +17997,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -17955,6 +18108,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -18068,6 +18222,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -18183,6 +18338,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -18296,6 +18452,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -18422,6 +18579,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -18535,6 +18693,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -18656,6 +18815,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -18769,6 +18929,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -18879,6 +19040,7 @@ export type UserCreateWithoutChallengesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -18992,6 +19154,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -19118,6 +19281,7 @@ export type UserUpdateWithoutChallengesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -19231,6 +19395,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -19341,6 +19506,7 @@ export type UserCreateWithoutLifeRunsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -19454,6 +19620,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -19580,6 +19747,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -19693,6 +19861,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -19803,6 +19972,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -19916,6 +20086,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -20042,6 +20213,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -20155,6 +20327,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -20265,6 +20438,7 @@ export type UserCreateWithoutAuthTokensInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -20378,6 +20552,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -20504,6 +20679,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -20617,6 +20793,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -20727,6 +20904,7 @@ export type UserCreateWithoutConversationsInInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -20840,6 +21018,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -20966,6 +21145,7 @@ export type UserUpdateWithoutConversationsInInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -21079,6 +21259,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -21189,6 +21370,7 @@ export type UserCreateWithoutSentMessagesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -21302,6 +21484,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -21428,6 +21611,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -21541,6 +21725,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -21651,6 +21836,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -21764,6 +21950,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -21879,6 +22066,7 @@ export type UserCreateWithoutNotificationsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -21992,6 +22180,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -22118,6 +22307,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -22231,6 +22421,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -22352,6 +22543,7 @@ export type UserUpdateWithoutNotificationsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -22465,6 +22657,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -22576,6 +22769,7 @@ export type UserCreateManyArtImageInput = {
   preferredTextServerId?: number | null
   memberUntil?: Date | string | null
   stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
   artModels?: string | null
   lastReward?: string | null
   textModels?: string | null
@@ -22645,6 +22839,7 @@ export type UserUpdateWithoutArtImageInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -22757,6 +22952,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -22869,6 +23065,7 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
   preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -23331,6 +23528,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   preferredTextServerId?: boolean
   memberUntil?: boolean
   stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
   artModels?: boolean
   lastReward?: boolean
   textModels?: boolean
@@ -23448,6 +23646,7 @@ export type UserSelectScalar = {
   preferredTextServerId?: boolean
   memberUntil?: boolean
   stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
   artModels?: boolean
   lastReward?: boolean
   textModels?: boolean
@@ -23472,7 +23671,7 @@ export type UserSelectScalar = {
   restrictedReason?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "stripeSubscriptionId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -23614,6 +23813,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     preferredTextServerId: number | null
     memberUntil: Date | null
     stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
     artModels: string | null
     lastReward: string | null
     textModels: string | null
@@ -24094,6 +24294,7 @@ export interface UserFieldRefs {
   readonly preferredTextServerId: Prisma.FieldRef<"User", 'Int'>
   readonly memberUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>
+  readonly stripeSubscriptionId: Prisma.FieldRef<"User", 'String'>
   readonly artModels: Prisma.FieldRef<"User", 'String'>
   readonly lastReward: Prisma.FieldRef<"User", 'String'>
   readonly textModels: Prisma.FieldRef<"User", 'String'>

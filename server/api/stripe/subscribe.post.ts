@@ -54,8 +54,8 @@ export default defineEventHandler(async (event) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.BASE_URL}/members/success`,
-      cancel_url: `${process.env.BASE_URL}/members/cancel`,
+      success_url: `${process.env.BASE_URL}/sanctuary?subscription=success`,
+      cancel_url: `${process.env.BASE_URL}/sanctuary?subscription=cancelled`,
     })
 
     return {

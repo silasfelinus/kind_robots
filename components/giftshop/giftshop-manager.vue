@@ -55,9 +55,25 @@
 
       <section
         v-else-if="activeTab === 'mana'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="flex h-full min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-4"
       >
-        <mana-wallet class="h-full min-h-0 flex-1 overflow-hidden" />
+        <div
+          v-if="manaTopupNotice"
+          class="rounded-xl border p-3 text-center text-sm font-medium"
+          :class="
+            manaTopupNotice === 'success'
+              ? 'border-success/40 bg-success/10 text-success'
+              : 'border-warning/40 bg-warning/10 text-warning'
+          "
+        >
+          {{
+            manaTopupNotice === 'success'
+              ? '⚡ Mana top-up complete — your balance updates below.'
+              : 'Mana top-up cancelled. No charge was made.'
+          }}
+        </div>
+        <mana-wallet />
+        <credit-purchase />
         <subscription-manager />
       </section>
 
@@ -114,9 +130,12 @@ const dashboardConfig = dashboardConfigs[defaultDashboardKey]
 const cartStore = useCartStore()
 const navStore = useNavStore()
 const userStore = useUserStore()
+const route = useRoute()
+const router = useRouter()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
+const manaTopupNotice = ref<'success' | 'cancelled' | null>(null)
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -162,6 +181,15 @@ const swarmMemo = computed(() => {
 
 onMounted(async () => {
   await refreshManagerData()
+
+  const topupQuery = route.query.manaTopup
+  if (topupQuery === 'success' || topupQuery === 'cancelled') {
+    manaTopupNotice.value = topupQuery
+    setTab('mana')
+    const { manaTopup: _drop, ...restQuery } = route.query
+    router.replace({ query: restQuery })
+    return
+  }
 
   if (!isDashboardTabKey(defaultDashboardKey, storedTab.value)) {
     setTab(dashboardConfig.defaultTab)

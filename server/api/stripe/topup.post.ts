@@ -77,8 +77,8 @@ export default defineEventHandler(async (event) => {
         userId: String(user.id),
         manaAmount: String(manaAmount),
       },
-      success_url: `${process.env.BASE_URL}/shop/success`,
-      cancel_url: `${process.env.BASE_URL}/shop/cancel`,
+      success_url: `${process.env.BASE_URL}/sanctuary?manaTopup=success`,
+      cancel_url: `${process.env.BASE_URL}/sanctuary?manaTopup=cancelled`,
     })
 
     response = {

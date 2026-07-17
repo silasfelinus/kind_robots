@@ -1,24 +1,14 @@
 // /server/utils/auth.ts
-import { getHeader, type H3Event } from 'h3'
-import { verifyJwtToken } from '../api/auth'
+import { type H3Event } from 'h3'
+import { getOptionalApiUser } from './authGuard'
 
-function readBearerToken(event: H3Event): string {
-  const authorization = getHeader(event, 'authorization') ?? ''
-
-  return authorization
-    .trim()
-    .replace(/^Bearer\s+/i, '')
-    .trim()
-}
-
+// Resolve the acting user for endpoints that only need the caller's id.
+// Delegates to the canonical auth resolver so these routes accept the same
+// credentials as the rest of the API — a JWT, a user API key, or the
+// beta-admin token — instead of JWTs only. (Previously JWT-only, which made
+// admin/api-key callers to /api/relations fail with "Not authenticated.")
 export async function getCurrentUserId(event: H3Event): Promise<number | null> {
-  const token = readBearerToken(event)
+  const auth = await getOptionalApiUser(event)
 
-  if (!token) return null
-
-  const verification = await verifyJwtToken(token)
-
-  if (!verification.success || !verification.userId) return null
-
-  return verification.userId
+  return auth?.user.id ?? null
 }

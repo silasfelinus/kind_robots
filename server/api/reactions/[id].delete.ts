@@ -2,6 +2,7 @@
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (reaction.userId !== user.id) {
+    if (reaction.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this reaction.',

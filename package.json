@@ -9,6 +9,7 @@
     "trim:dry": "node utils/scripts/trim.mjs --dry-run",
     "trim": "node utils/scripts/trim.mjs",
     "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && node --max-old-space-size=8192 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.json",
+    "test:db-writes": "node scripts/db-write-smoke.mjs",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "test:prompt-variants": "tsx utils/scripts/verifyPromptVariants.ts",
     "test:challenge-center": "tsx utils/scripts/verifyChallengeCenter.ts",

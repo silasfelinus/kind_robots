@@ -259,6 +259,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       '"Gothic" pulls toward horror; may bolt haloes or altarpiece frames onto secular subjects',
+    exampleWorks: [
+      {
+        workTitle: 'Madonna and Child',
+        artist: 'Duccio di Buoninsegna',
+        artistDied: 1318,
+        year: 'ca. 1290-1300',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '2004.442',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/438754',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/madonna-and-child-2004-442.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -364,6 +378,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Under-cooks into "generic old oil"; differentiators are microscopic detail and a deep, sharp background',
+    exampleWorks: [
+      {
+        workTitle: 'Tommaso di Folco Portinari and Maria Portinari',
+        artist: 'Hans Memling',
+        artistDied: 1494,
+        year: 'ca. 1470',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '14.40.626-27',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/437056',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/tommaso-di-folco-portinari-and-maria-portinari-14-40-626-27.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -464,6 +493,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Keeps the photo's saturated, contrasty color — push a high-key pastel palette instead",
+    exampleWorks: [
+      {
+        workTitle: 'Soap Bubbles',
+        artist: 'Jean Siméon Chardin',
+        artistDied: 1779,
+        year: 'ca. 1733-34',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '49.24',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/435888',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/soap-bubbles-49-24.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -507,6 +550,20 @@ export const academyStyles: AcademyStyle[] = [
       },
     ],
     failureMode: 'Over-flattens texture into a "marble statue" look',
+    exampleWorks: [
+      {
+        workTitle: 'The Death of Socrates',
+        artist: 'Jacques Louis David',
+        artistDied: 1825,
+        year: '1787',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '31.45',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/436105',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/the-death-of-socrates-31-45.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -705,7 +762,8 @@ export const academyStyles: AcademyStyle[] = [
         license: 'PD-Mark',
         licenseTermsUrl:
           'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
-        imageSrc: '/images/academy/examples/two-sisters-on-the-terrace-1933-455.jpg',
+        imageSrc:
+          '/images/academy/examples/two-sisters-on-the-terrace-1933-455.jpg',
       },
     ],
     remix: {
@@ -809,6 +867,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'The loosest visual signature — transfers as mood and palette; guard against a modern digital-surreal look',
+    exampleWorks: [
+      {
+        workTitle: 'Oedipus and the Sphinx',
+        artist: 'Gustave Moreau',
+        artistDied: 1898,
+        year: '1864',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '21.134.1',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/437153',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/oedipus-and-the-sphinx-21-134-1.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -854,6 +927,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Dots render too coarse or sparse at low output sizes — evaluate at a higher resolution',
+    exampleWorks: [
+      {
+        workTitle: 'Circus Sideshow (Parade de cirque)',
+        artist: 'Georges Seurat',
+        artistDied: 1891,
+        year: '1887-88',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '61.101.17',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/437654',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/circus-sideshow-parade-de-cirque-61-101-17.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1008,7 +1096,8 @@ export const academyStyles: AcademyStyle[] = [
       'A faithful remix discards the photo entirely — frame it playfully ("Mondrian-ify") rather than expecting recognizable content',
     exampleWorks: [
       {
-        workTitle: 'Lozenge Composition with Yellow, Black, Blue, Red, and Gray',
+        workTitle:
+          'Lozenge Composition with Yellow, Black, Blue, Red, and Gray',
         artist: 'Piet Mondrian',
         artistDied: 1944,
         year: '1921',

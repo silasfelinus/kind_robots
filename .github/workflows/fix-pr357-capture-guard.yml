@@ -1,4 +1,4 @@
-name: Fix PR 357 Capture Guard
+name: Diagnose PR 357 Capture Guard
 
 on:
   pull_request:
@@ -10,14 +10,14 @@ on:
       - reopened
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: fix-pr357-capture-guard-${{ github.event.pull_request.number }}
+  group: diagnose-pr357-capture-guard-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  fix:
+  diagnose:
     if: github.head_ref == 'agent/remove-code-compositions'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -31,28 +31,6 @@ jobs:
           ref: agent/remove-code-compositions
           fetch-depth: 0
 
-      - name: Configure Git
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-
-      - name: Exclude abandonware from active-source guard
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path('utils/scripts/verifyCaptureGroupGuards.ts')
-          source = path.read_text()
-          old = "  'cypress',\n  'prisma/generated',"
-          new = "  'cypress',\n  'abandonware',\n  'prisma/generated',"
-
-          if old not in source:
-              raise SystemExit('Expected capture-guard exclusion block not found')
-
-          path.write_text(source.replace(old, new, 1))
-          PY
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -62,20 +40,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify capture-group guard
+      - name: Capture exact guard diagnostics
         shell: bash
         run: |
           git fetch origin main
-          npm run test:capture-group-guards-selftest
-          npm run test:capture-group-guards -- origin/main
+          set +e
+          npm run test:capture-group-guards -- origin/main > capture-group-guard.txt 2>&1
+          status=$?
+          set -e
+          cat capture-group-guard.txt
+          echo "$status" > capture-group-guard.status
 
-      - name: Remove temporary workflow
-        run: rm -f .github/workflows/fix-pr357-capture-guard.yml
-
-      - name: Commit fix
-        shell: bash
-        run: |
-          git add -A
-          git diff --cached --check
-          git commit -m "exclude abandonware from active-source capture checks"
-          git push origin HEAD:agent/remove-code-compositions
+      - name: Upload diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr357-capture-group-guard
+          path: |
+            capture-group-guard.txt
+            capture-group-guard.status
+          if-no-files-found: error
+          retention-days: 3

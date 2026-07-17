@@ -36,6 +36,7 @@ import {
   CREATE_TARGETS,
   defaultFieldsTemplate,
   fieldsBrief,
+  setFieldLine,
 } from '@/stores/helpers/modelBuilderFields'
 
 export type BuilderStep = 'source' | 'recipe' | 'run'
@@ -89,6 +90,18 @@ export interface BuildRun {
   items: BuildItem[]
 }
 
+// A quantity/expansion output's items, grouped for batch editing. Derived from
+// run.items by outputKey — the run model has no persisted group object.
+export interface BuildItemGroup {
+  outputKey: string
+  label: string
+  quantity: boolean
+  action: BuildAction
+  generation: GenerationKind
+  targetModel: SourceTypeKey
+  items: BuildItem[]
+}
+
 interface OutputSelection {
   on: boolean
   quantity: number
@@ -112,6 +125,7 @@ interface ModelBuilderState {
   committingItemId: string | null
   autoBuilding: boolean
   autoBuildingItemId: string | null
+  batchingOutputKey: string | null
   statusMessage: string
   statusTone: 'success' | 'error'
 }
@@ -295,6 +309,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     committingItemId: null,
     autoBuilding: false,
     autoBuildingItemId: null,
+    batchingOutputKey: null,
     statusMessage: '',
     statusTone: 'success',
   })
@@ -982,6 +997,136 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
+  // --- batch editing across a quantity output group -------------------------
+
+  // Group the run's items by outputKey so a quantity/expansion output (e.g. 10
+  // rewards) can be edited together. The group carries its target model so the
+  // editor can enumerate that model's fields (fieldSpecFor).
+  const itemGroups = computed<BuildItemGroup[]>(() => {
+    const run = state.run
+    if (!run) return []
+    const byKey = new Map<string, BuildItem[]>()
+    for (const item of run.items) {
+      const existing = byKey.get(item.outputKey)
+      if (existing) existing.push(item)
+      else byKey.set(item.outputKey, [item])
+    }
+    return [...byKey.entries()].flatMap(([outputKey, items]) => {
+      const first = items[0]
+      if (!first) return []
+      const config = recipeOutputs.value.find(
+        (output) => output.key === outputKey,
+      )
+      return [
+        {
+          outputKey,
+          label: config?.label ?? first.label,
+          quantity: config?.quantity ?? items.length > 1,
+          action: first.action,
+          generation: first.generation,
+          targetModel: resolveTargetModel(
+            first.action,
+            outputKey,
+            run.sourceType,
+          ),
+          items,
+        },
+      ]
+    })
+  })
+
+  function groupItems(outputKey: string): BuildItem[] {
+    return state.run?.items.filter((item) => item.outputKey === outputKey) ?? []
+  }
+
+  // AI-draft one field (pitch/fields/artPrompt) across every item in a group,
+  // sequentially so we don't hammer the text server. onlyEmpty skips items that
+  // already have hand-edited content.
+  async function batchDraftField(
+    outputKey: string,
+    field: DraftField,
+    opts?: { onlyEmpty?: boolean },
+  ): Promise<void> {
+    const items = groupItems(outputKey)
+    if (!items.length) return
+    state.batchingOutputKey = outputKey
+    clearStatus()
+    let drafted = 0
+    try {
+      for (const item of items) {
+        const current =
+          field === 'pitch'
+            ? item.pitch
+            : field === 'fields'
+              ? item.fieldsDraft
+              : item.promptDraft
+        if (opts?.onlyEmpty && current.trim()) continue
+        const ok = await draftText(item.id, field)
+        if (ok) drafted++
+      }
+      const label = field === 'artPrompt' ? 'prompt' : field
+      setStatus('success', `Drafted ${label} for ${drafted}/${items.length} items.`)
+    } finally {
+      state.batchingOutputKey = null
+    }
+  }
+
+  // Set one model field to the same value on every item in a group (e.g. rarity =
+  // RARE across 10 rewards). Only rewrites items whose value actually changes.
+  function batchSetField(
+    outputKey: string,
+    fieldKey: string,
+    value: string,
+  ): void {
+    const items = groupItems(outputKey)
+    let changed = 0
+    for (const item of items) {
+      const next = setFieldLine(item.fieldsDraft, fieldKey, value)
+      if (next !== item.fieldsDraft) {
+        updateFields(item.id, next)
+        changed++
+      }
+    }
+    setStatus('success', `Set ${fieldKey} on ${changed}/${items.length} items.`)
+  }
+
+  // Approve a stage for every (unlocked) item in a group at once.
+  function batchApproveStage(outputKey: string, stageKey: BuildStageKey): void {
+    let approved = 0
+    for (const item of groupItems(outputKey)) {
+      if (item.stages[stageKey].status === 'locked') continue
+      approveStage(item.id, stageKey)
+      approved++
+    }
+    setStatus('success', `Approved ${stageKey} for ${approved} items.`)
+  }
+
+  // Auto-build (draft → generate → commit with defaults) every not-yet-committed
+  // item in a single group.
+  async function batchAutoBuild(outputKey: string): Promise<void> {
+    const items = groupItems(outputKey)
+    if (!items.length) return
+    state.batchingOutputKey = outputKey
+    clearStatus()
+    let committed = 0
+    try {
+      for (const item of items) {
+        if (item.stages.COMMIT.status === 'approved') {
+          committed++
+          continue
+        }
+        const ok = await autoBuildItem(item.id)
+        if (ok) committed++
+      }
+      setStatus(
+        'success',
+        `Auto-built ${committed}/${items.length} in this group.`,
+      )
+    } finally {
+      state.batchingOutputKey = null
+    }
+  }
+
   // --- persistence / resume -------------------------------------------------
 
   function setActiveRunId(id: number): void {
@@ -1129,6 +1274,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     selectedOutputCount,
     canStartRun,
     runProgress,
+    itemGroups,
     // display
     sourceLabel,
     // actions
@@ -1152,6 +1298,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     toggleIncludeArt,
     autoBuildItem,
     autoBuildRun,
+    batchDraftField,
+    batchSetField,
+    batchApproveStage,
+    batchAutoBuild,
     resumeRun,
     fetchRuns,
     openRun,

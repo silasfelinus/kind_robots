@@ -2,6 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["iad1"],
   "ignoreCommand": "node scripts/vercel-ignore-build.mjs",
+  "redirects": [
+    {
+      "source": "/images/:path*",
+      "destination": "https://media.acrocatranch.com/images/:path*",
+      "permanent": false
+    }
+  ],
   "git": {
     "deploymentEnabled": {
       "claude/*": false,

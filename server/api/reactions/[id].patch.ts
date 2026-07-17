@@ -3,6 +3,7 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 import type { Reaction } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -50,7 +51,7 @@ export default defineEventHandler(async (event) => {
         message: 'Reaction not found.',
       })
     }
-    if (existingReaction.userId !== userId) {
+    if (existingReaction.userId !== userId && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this reaction.',

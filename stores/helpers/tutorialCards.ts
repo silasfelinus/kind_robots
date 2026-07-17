@@ -354,6 +354,12 @@ export const tutorialChannels = {
         body: 'Move through a card-driven flow to create reusable building blocks from one place.',
         image: tutorialImage('builder', 'builder'),
       },
+      {
+        key: 'model-builder',
+        title: 'Model Builder',
+        body: 'Turn any record — Project, Character, Bot, Reward, Dream, Scenario, or Facet — into a resumable, gated build run: pick a recipe, draft fields and art, batch-edit quantity outputs, and commit upgraded or newly created records with full provenance.',
+        image: tutorialImage('builder', 'model-builder'),
+      },
     ],
   },
 

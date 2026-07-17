@@ -25,6 +25,14 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    vue: {
+      template: {
+        transformAssetUrls: {
+          // `/images/...` is served by the external media origin at runtime.
+          includeAbsolute: false,
+        },
+      },
+    },
     build: {
       target: 'esnext',
       minify: 'esbuild',

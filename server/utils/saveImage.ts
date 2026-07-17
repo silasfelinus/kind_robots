@@ -1,7 +1,8 @@
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from './error'
-import path from 'path'
-import fs from 'fs/promises'
+import { getImageStorageRoot } from './imageStorageRoot'
+import path from 'node:path'
+import fs from 'node:fs/promises'
 
 export async function saveImage(
   base64Image: string,
@@ -23,9 +24,9 @@ export async function saveImage(
       },
     })
 
-    // Optionally save to the local filesystem in development
+    // Optionally save to the configured local filesystem in development.
     if (!isProduction) {
-      const dirPath = path.join(process.env.IMAGES_PATH || './public/images')
+      const dirPath = getImageStorageRoot()
       const filePath = path.join(dirPath, fileName)
 
       // Ensure the gallery directory exists

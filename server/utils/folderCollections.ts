@@ -1,23 +1,24 @@
 // /server/utils/folderCollections.ts
 //
 // Folder-based art collections: every image sitting in a slug's folder under
-// public/images/ IS part of that slug's collection just by existing there
-// (Silas, 2026-07-04). Conductor's image pipeline maintains a gallery.json
-// manifest per folder and a master public/images/collections.json index
-// (slug -> folder path) so the collection can be resolved on Vercel, where
-// public/ lives on the CDN and the filesystem is not readable.
+// the configured image storage root IS part of that slug's collection just by
+// existing there (Silas, 2026-07-04). Conductor's image pipeline maintains a
+// gallery.json manifest per folder and a master collections.json index
+// (slug -> folder path) so the collection can be resolved when the filesystem
+// is not readable by the deployed application.
 //
 // Placement convention (Silas, 2026-07-05): the canonical home is nested,
-// public/images/{context}/{slug}/ - context being the most relevant schema or
-// project - with flat public/images/{slug}/ still valid as the degenerate
-// case, and artcollections/{slug}/ as the legacy/unsorted fallback. Both the
-// single-slug resolver and the enumeration below follow that order.
+// images/{context}/{slug}/ - context being the most relevant schema or project -
+// with flat images/{slug}/ still valid as the degenerate case, and
+// artcollections/{slug}/ as the legacy/unsorted fallback. Both the single-slug
+// resolver and the enumeration below follow that order.
 //
 // Shared by GET /api/art/collection/folder/[slug], GET
 // /api/art/collection/folders, and POST /api/art/collection/folder/[slug]/sync
 // so all three agree on exactly what "the folder's images" means.
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { getImageStorageRoot } from './imageStorageRoot'
 
 const IMAGE_EXTENSIONS = new Set([
   '.webp',
@@ -47,7 +48,7 @@ const NON_SLUG_DIRS = new Set(['images', 'artcollections'])
  * Split an ArtImage's public URL into its folder collection {slug, parentFolder}.
  * By the folder convention slug === the directory that holds the file (the leaf,
  * which is the collection's unique key); parentFolder is everything before it under
- * public/images/ (null when top-level). Returns null when the image sits loose
+ * the image root (null when top-level). Returns null when the image sits loose
  * in /images/ or the leaf isn't slug-shaped — callers fall back to "unsorted".
  *   /images/artcollections/sketchy/sketchy-card.webp -> { slug: "sketchy", parentFolder: "artcollections" }
  *   /images/rewards/duct-tape/x.webp                 -> { slug: "duct-tape", parentFolder: "rewards" }
@@ -90,9 +91,9 @@ async function listImages(
 }
 
 async function imagesFromFilesystem(slug: string): Promise<string[] | null> {
-  const imagesRoot = path.resolve(process.cwd(), 'public/images')
+  const imagesRoot = getImageStorageRoot()
 
-  // 1. Nested: public/images/{context}/{slug}/
+  // 1. Nested: images/{context}/{slug}/
   try {
     const contexts = await fs.readdir(imagesRoot, { withFileTypes: true })
     for (const ctx of contexts) {
@@ -106,11 +107,11 @@ async function imagesFromFilesystem(slug: string): Promise<string[] | null> {
     return null // images root unreadable: CDN mode, use manifests
   }
 
-  // 2. Flat: public/images/{slug}/
+  // 2. Flat: images/{slug}/
   const flat = await listImages(path.join(imagesRoot, slug), `/images/${slug}`)
   if (flat) return flat
 
-  // 3. Legacy/unsorted: public/images/artcollections/{slug}/
+  // 3. Legacy/unsorted: images/artcollections/{slug}/
   return listImages(
     path.join(imagesRoot, 'artcollections', slug),
     `/images/artcollections/${slug}`,
@@ -142,7 +143,7 @@ async function imagesFromManifest(
   slug: string,
   origin: string,
 ): Promise<string[] | null> {
-  // 1. Master index: public/images/collections.json -> { [slug]: "context/slug" | "slug" }
+  // 1. Master index: /images/collections.json -> { [slug]: "context/slug" | "slug" }
   const index = await readCollectionsIndex(origin)
   const folder = index[slug]
   if (typeof folder === 'string' && /^[a-z0-9][a-z0-9_/-]*$/.test(folder)) {
@@ -166,14 +167,14 @@ async function imagesFromManifest(
 }
 
 /**
- * Read the master slug -> folder index. Prefers the local filesystem (dev),
- * falls back to fetching the CDN copy (Vercel). Returns {} when neither is
- * available so callers can degrade gracefully.
+ * Read the master slug -> folder index. Prefers the configured local image root,
+ * falls back to fetching the deployed copy. Returns {} when neither is available
+ * so callers can degrade gracefully.
  */
 async function readCollectionsIndex(
   origin: string,
 ): Promise<Record<string, string>> {
-  const local = path.resolve(process.cwd(), 'public/images/collections.json')
+  const local = path.join(getImageStorageRoot(), 'collections.json')
   try {
     const raw = await fs.readFile(local, 'utf8')
     const parsed = JSON.parse(raw)
@@ -220,7 +221,7 @@ export async function listFolderSlugs(origin: string): Promise<string[]> {
   }
 
   // Dev fallback: pick up folders that hold images but aren't indexed yet.
-  const imagesRoot = path.resolve(process.cwd(), 'public/images')
+  const imagesRoot = getImageStorageRoot()
   try {
     const contexts = await fs.readdir(imagesRoot, { withFileTypes: true })
     for (const ctx of contexts) {

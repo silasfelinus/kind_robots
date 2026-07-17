@@ -23,89 +23,17 @@ import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import {
   decodeArtJobPayload,
-  parseArtJobPayload,
   serializeArtJobPayload,
-  type ArtJobPayloadRecord,
 } from '../../../../utils/artJobPayload'
-
-type RetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
+import {
+  ART_JOB_RETRY_MODES,
+  prepareArtJobRetryPayload,
+  type ArtJobRetryMode,
+} from '../../../../utils/artJobRetry'
 
 type ReenqueueBody = {
   mode?: string | null
   refreshSeed?: boolean
-}
-
-const RETRY_MODES = new Set<RetryMode>(['NEW_OUTPUT', 'OVERWRITE'])
-const SEED_KEYS = new Set(['seed', 'noise_seed'])
-
-function asRecord(value: unknown): ArtJobPayloadRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return value as ArtJobPayloadRecord
-}
-
-function nextSeed(): number {
-  return Math.floor(Math.random() * 1_000_000_000_000_000)
-}
-
-function refreshConcreteSeeds(value: unknown, key = ''): unknown {
-  if (Array.isArray(value)) {
-    return value.map((item) => refreshConcreteSeeds(item))
-  }
-
-  if (!value || typeof value !== 'object') {
-    if (SEED_KEYS.has(key)) {
-      if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
-        return nextSeed()
-      }
-      if (
-        typeof value === 'string' &&
-        value.trim() &&
-        Number.isFinite(Number(value)) &&
-        Number(value) >= 0
-      ) {
-        return String(nextSeed())
-      }
-    }
-    return value
-  }
-
-  return Object.fromEntries(
-    Object.entries(value as ArtJobPayloadRecord).map(([childKey, child]) => [
-      childKey,
-      refreshConcreteSeeds(child, childKey),
-    ]),
-  )
-}
-
-function preparePayload(
-  rawPayload: unknown,
-  sourceJobId: number,
-  sourceArtImageId: number | null,
-  mode: RetryMode,
-  refreshSeed: boolean,
-): ArtJobPayloadRecord {
-  const cloned = structuredClone(parseArtJobPayload(rawPayload))
-  const previousRetry = asRecord(cloned.retry)
-  const rootJobId = Number(previousRetry.rootJobId) || sourceJobId
-
-  // A new render has not been curated yet. Keeping old feedback here would make
-  // the trainer believe the replacement pixels had already been reviewed.
-  delete cloned.curation
-
-  const generationPayload = refreshSeed
-    ? (refreshConcreteSeeds(cloned) as ArtJobPayloadRecord)
-    : cloned
-
-  generationPayload.retry = {
-    mode,
-    sourceJobId,
-    rootJobId,
-    targetArtImageId: mode === 'OVERWRITE' ? sourceArtImageId : null,
-    refreshSeed,
-    requestedAt: new Date().toISOString(),
-  }
-
-  return generationPayload
 }
 
 export default defineEventHandler(async (event) => {
@@ -126,10 +54,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = (await readBody(event).catch(() => null)) as ReenqueueBody | null
-    const mode = String(body?.mode || 'NEW_OUTPUT').toUpperCase() as RetryMode
+    const mode = String(
+      body?.mode || 'NEW_OUTPUT',
+    ).toUpperCase() as ArtJobRetryMode
     const refreshSeed = body?.refreshSeed !== false
 
-    if (!RETRY_MODES.has(mode)) {
+    if (!ART_JOB_RETRY_MODES.has(mode)) {
       throw createError({
         statusCode: 400,
         message: 'mode must be NEW_OUTPUT or OVERWRITE.',
@@ -164,7 +94,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const payload = preparePayload(
+    const payload = prepareArtJobRetryPayload(
       source.payload,
       source.id,
       source.artImageId,

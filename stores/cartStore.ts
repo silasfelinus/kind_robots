@@ -91,6 +91,7 @@ export const useCartStore = defineStore('cartStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
   const checkoutPromise = ref<Promise<CartCheckoutResult> | null>(null)
   const subscribePromise = ref<Promise<CartCheckoutResult> | null>(null)
+  const topupPromise = ref<Promise<CartCheckoutResult> | null>(null)
   const hydrating = ref(false)
 
   const totalPrice = computed(() =>
@@ -350,6 +351,55 @@ export const useCartStore = defineStore('cartStore', () => {
     return subscribePromise.value
   }
 
+  async function topup(tierId: string): Promise<CartCheckoutResult> {
+    if (topupPromise.value) return topupPromise.value
+
+    topupPromise.value = (async () => {
+      try {
+        loading.value = true
+        clearError()
+
+        const result = await performFetch<{ url: string }>(
+          '/api/stripe/topup',
+          {
+            method: 'POST',
+            body: JSON.stringify({ tierId }),
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+
+        if (!result.success || !result.data?.url) {
+          throw new Error(result.message || 'Mana top-up checkout failed.')
+        }
+
+        if (isClient) {
+          window.location.href = result.data.url
+        }
+
+        return {
+          success: true,
+          url: result.data.url,
+        }
+      } catch (error) {
+        handleError(error, 'topup')
+        setLastError(error, 'Mana top-up failed. Try again later.')
+
+        return {
+          success: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Mana top-up failed. Try again later.',
+        }
+      } finally {
+        loading.value = false
+        topupPromise.value = null
+      }
+    })()
+
+    return topupPromise.value
+  }
+
   async function cancelSubscription(
     userId: number,
   ): Promise<CartCheckoutResult> {
@@ -381,6 +431,7 @@ export const useCartStore = defineStore('cartStore', () => {
     initializePromise.value = null
     checkoutPromise.value = null
     subscribePromise.value = null
+    topupPromise.value = null
     lastError.value = null
   }
 
@@ -398,6 +449,7 @@ export const useCartStore = defineStore('cartStore', () => {
     initializePromise,
     checkoutPromise,
     subscribePromise,
+    topupPromise,
 
     totalItems,
     totalPrice,
@@ -417,6 +469,7 @@ export const useCartStore = defineStore('cartStore', () => {
     loadFromLocalStorage,
     checkout,
     subscribe,
+    topup,
     cancelSubscription,
   }
 })

@@ -1,7 +1,8 @@
 // /server/utils/prisma.ts
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import { type ConnectionOptions as TlsConnectionOptions } from 'node:tls'
+import { AsyncLocalStorage } from 'node:async_hooks'
+import type { ConnectionOptions as TlsConnectionOptions } from 'node:tls'
 import {
   DEFAULT_ACQUIRE_TIMEOUT_MS,
   DEFAULT_CONNECTION_LIMIT,
@@ -22,13 +23,18 @@ type CircuitBreakerState = {
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
   prismaBreaker?: CircuitBreakerState
+  prismaRecovery?: Promise<PrismaClient>
+  prismaGeneration?: number
 }
 
-const databaseUrl = process.env.DATABASE_URL
+const configuredDatabaseUrl = process.env.DATABASE_URL
 
-if (!databaseUrl) {
+if (!configuredDatabaseUrl) {
   throw new Error('DATABASE_URL is missing')
 }
+
+const databaseUrl: string = configuredDatabaseUrl
+const transactionContext = new AsyncLocalStorage<boolean>()
 
 function readPositiveInteger(
   value: string | undefined,
@@ -93,9 +99,6 @@ function buildDatabaseUrl(url: string): string {
     parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
   }
 
-  // Keep one connection warm and retain idle sockets long enough to avoid a
-  // constant retire/recreate cycle across Vercel freeze/thaw. The connector
-  // validates borrowed idle sockets, bounded by pingTimeout, before reuse.
   if (!parsed.searchParams.has('idleTimeout')) {
     parsed.searchParams.set('idleTimeout', String(idleTimeout))
   }
@@ -113,40 +116,33 @@ function buildDatabaseUrl(url: string): string {
 
 function readDatabaseSslCa(): string | undefined {
   const encoded = process.env.DATABASE_SSL_CA_BASE64?.trim()
+
   if (encoded) {
     const decoded = Buffer.from(encoded, 'base64').toString('utf8').trim()
+
     if (!decoded.includes('BEGIN CERTIFICATE')) {
       throw new Error('DATABASE_SSL_CA_BASE64 is not a PEM certificate')
     }
+
     return decoded
   }
 
   const plain = process.env.DATABASE_SSL_CA?.replace(/\\n/g, '\n').trim()
+
   if (!plain) return undefined
+
   if (!plain.includes('BEGIN CERTIFICATE')) {
     throw new Error('DATABASE_SSL_CA is not a PEM certificate')
   }
+
   return plain
 }
 
-// Escape hatch. Default true (verify the server cert's CA + identity). Set
-// DATABASE_SSL_REJECT_UNAUTHORIZED=false to keep the connection ENCRYPTED but
-// stop verifying the certificate — the temporary unblock when ProxySQL presents
-// a cert whose CA or SAN no longer matches (e.g. after a cert renewal, or when
-// connecting by IP to a cert issued for a hostname). This trades away MITM
-// protection on the DB link; treat it as a stopgap and re-enable verification
-// once the cert/CA is fixed.
 function readSslRejectUnauthorized(): boolean {
   const raw = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED?.trim().toLowerCase()
   return raw !== 'false' && raw !== '0' && raw !== 'no'
 }
 
-// Prisma's MariaDB adapter uses the binary execute() protocol by default. Under
-// sustained Vercel traffic through ProxySQL, that path repeatedly retained a
-// connection whose command channel was already closed, while the connector's
-// query() path remained healthy for direct probes and fallback writes. Default
-// to the adapter's supported text protocol for this topology. Set
-// DATABASE_USE_TEXT_PROTOCOL=false to restore the binary protocol quickly.
 function readDatabaseUseTextProtocol(): boolean {
   const raw = process.env.DATABASE_USE_TEXT_PROTOCOL?.trim().toLowerCase()
   return raw !== 'false' && raw !== '0' && raw !== 'no'
@@ -157,29 +153,16 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
   const sslCa = readDatabaseSslCa()
   const rejectUnauthorized = readSslRejectUnauthorized()
 
-  // No CA and full verification requested → nothing to customize; hand the
-  // adapter the URL with its bounded pool options.
   if (!sslCa && rejectUnauthorized) return resolvedUrl
 
   const parsed = new URL(resolvedUrl)
   const database = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
-  // Verify the CA chain only — do NOT enforce a hostname/SAN match. This mirrors
-  // the direct probe (server/utils/databaseDirectProbe.ts), which connects fine
-  // with verification ON. A previous custom checkServerIdentity() pinned the cert
-  // to the DATABASE_URL hostname; the ProxySQL frontend cert does not carry that
-  // exact host in its SANs, so every *pooled* connection failed verification
-  // while the (CA-only) direct probe succeeded — forcing the
-  // DATABASE_SSL_REJECT_UNAUTHORIZED=false stopgap. CA-only keeps the link
-  // encrypted and CA-trusted so verification can stay enabled. To restore
-  // hostname pinning, reissue the ProxySQL cert with the DATABASE_URL host in its
-  // SANs and add the check back.
   const tlsOptions: TlsConnectionOptions = rejectUnauthorized
     ? {
         ca: sslCa,
         rejectUnauthorized: true,
       }
     : {
-        // Encrypted but unverified: no CA requirement, no identity check.
         ...(sslCa ? { ca: sslCa } : {}),
         rejectUnauthorized: false,
       }
@@ -225,10 +208,6 @@ function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
     ssl: tlsOptions,
   }
 
-  // MariaDB Connector/Node.js 3.5.2 supports pingTimeout at runtime, but its
-  // published PoolConfig declaration does not expose the property. Assign it
-  // after constructing the typed object so we retain full checking for every
-  // declared pool option without casting the entire adapter config.
   Object.assign(poolConfig, {
     pingTimeout: readPositiveInteger(
       parsed.searchParams.get('pingTimeout') ?? undefined,
@@ -248,10 +227,6 @@ const unavailableDatabaseMessages = [
   'Max connect timeout reached',
 ]
 
-// Acquisition failures consume the full timeout, so keep that retry budget at
-// one. Closed pooled sockets fail immediately; two fast retries give the driver
-// a chance to validate and discard an unhealthy socket without extending an
-// outage by several seconds.
 const unavailableRetryAttempts = readNonNegativeInteger(
   process.env.DATABASE_TRANSIENT_RETRY_ATTEMPTS,
   1,
@@ -264,10 +239,6 @@ const transientRetryDelayMs = readPositiveInteger(
   process.env.DATABASE_TRANSIENT_RETRY_DELAY_MS,
   100,
 )
-
-// Circuit breaker. Only true connection-acquisition outages count toward it.
-// A stale pooled socket is local lifecycle noise and must not poison a warm
-// instance that can recover by borrowing or creating another connection.
 const breakerThreshold = readPositiveInteger(
   process.env.DATABASE_BREAKER_THRESHOLD,
   5,
@@ -281,6 +252,7 @@ const breaker: CircuitBreakerState = globalForPrisma.prismaBreaker ?? {
   failures: 0,
   openUntil: 0,
 }
+
 globalForPrisma.prismaBreaker = breaker
 
 const CIRCUIT_OPEN_MESSAGE =
@@ -290,7 +262,6 @@ function circuitIsOpen(): boolean {
   if (breaker.openUntil === 0) return false
 
   if (Date.now() >= breaker.openUntil) {
-    // Cooldown elapsed: half-open. Allow one probe through.
     breaker.openUntil = 0
     breaker.failures = breakerThreshold - 1
     return false
@@ -306,6 +277,7 @@ function recordConnectionSuccess(): void {
 
 function recordAvailabilityFailure(): void {
   breaker.failures += 1
+
   if (breaker.failures >= breakerThreshold) {
     breaker.openUntil = Date.now() + breakerCooldownMs
   }
@@ -338,6 +310,7 @@ function retryLimitFor(error: unknown): number {
   if (isStaleDatabaseConnectionError(error)) {
     return staleConnectionRetryAttempts
   }
+
   if (isAvailabilityError(error)) return unavailableRetryAttempts
   return 0
 }
@@ -346,65 +319,170 @@ const delay = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
 
 const useTextProtocol = readDatabaseUseTextProtocol()
-console.info('[prisma] MariaDB protocol mode', {
-  mode: useTextProtocol ? 'text-query' : 'binary-execute',
-})
 
-const basePrisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+function createBasePrismaClient(): PrismaClient {
+  return new PrismaClient({
     adapter: new PrismaMariaDb(buildDatabaseConfig(databaseUrl), {
       useTextProtocol,
     }),
   })
-globalForPrisma.prisma = basePrisma
+}
 
-export const prisma = basePrisma.$extends({
-  name: 'transient-database-retry',
-  query: {
-    async $allOperations({ model, operation, args, query }) {
-      // Fail fast only for confirmed acquisition outages.
-      if (circuitIsOpen()) {
-        throw new Error(CIRCUIT_OPEN_MESSAGE)
-      }
+async function replayPrismaOperation(
+  client: PrismaClient,
+  model: string,
+  operation: string,
+  args: unknown,
+): Promise<unknown> {
+  const delegateName = `${model.charAt(0).toLowerCase()}${model.slice(1)}`
+  const delegate = (client as unknown as Record<string, unknown>)[delegateName]
 
-      for (let attempt = 0; ; attempt += 1) {
-        try {
-          const result = await query(args)
-          recordConnectionSuccess()
-          return result
-        } catch (error: unknown) {
-          const availabilityError = isAvailabilityError(error)
-          const staleConnectionError = isStaleDatabaseConnectionError(error)
-          const retryLimit = retryLimitFor(error)
+  if (!delegate || (typeof delegate !== 'object' && typeof delegate !== 'function')) {
+    throw new Error(`Unable to replay Prisma operation for model ${model}.`)
+  }
 
-          if (availabilityError) {
-            recordAvailabilityFailure()
-          }
+  const method = (delegate as Record<string, unknown>)[operation]
 
-          if (
-            (!availabilityError && !staleConnectionError) ||
-            attempt >= retryLimit ||
-            (availabilityError && circuitIsOpen())
-          ) {
-            throw error
-          }
+  if (typeof method !== 'function') {
+    throw new Error(`Unable to replay Prisma operation ${model}.${operation}.`)
+  }
 
-          const retryNumber = attempt + 1
-          const waitMs = transientRetryDelayMs * retryNumber
-          console.warn('[prisma:transient-retry]', {
-            model: model ?? 'raw',
-            operation,
-            kind: staleConnectionError ? 'stale-connection' : 'unavailable',
-            retry: retryNumber,
-            maxRetries: retryLimit,
-            waitMs,
-            message: errorMessage(error),
-          })
-          await delay(waitMs)
+  return await (
+    method as (this: unknown, input: unknown) => Promise<unknown>
+  ).call(delegate, args)
+}
+
+let activeBasePrisma = globalForPrisma.prisma ?? createBasePrismaClient()
+globalForPrisma.prisma = activeBasePrisma
+
+type RetryingPrismaClient = ReturnType<typeof extendPrismaClient>
+let activePrisma: RetryingPrismaClient
+
+async function recyclePrismaClient(reason: string): Promise<PrismaClient> {
+  const existingRecovery = globalForPrisma.prismaRecovery
+  if (existingRecovery) return await existingRecovery
+
+  const recovery = (async () => {
+    const replacement = createBasePrismaClient()
+    await replacement.$connect()
+
+    activeBasePrisma = replacement
+    globalForPrisma.prisma = replacement
+    activePrisma = extendPrismaClient(replacement)
+    globalForPrisma.prismaGeneration =
+      (globalForPrisma.prismaGeneration ?? 0) + 1
+
+    console.warn('[prisma:client-recycled]', {
+      generation: globalForPrisma.prismaGeneration,
+      reason,
+      mode: useTextProtocol ? 'text-query' : 'binary-execute',
+    })
+
+    return replacement
+  })()
+
+  globalForPrisma.prismaRecovery = recovery
+
+  try {
+    return await recovery
+  } finally {
+    if (globalForPrisma.prismaRecovery === recovery) {
+      globalForPrisma.prismaRecovery = undefined
+    }
+  }
+}
+
+function extendPrismaClient(client: PrismaClient) {
+  return client.$extends({
+    name: 'transient-database-retry',
+    query: {
+      async $allOperations({ model, operation, args, query }) {
+        if (circuitIsOpen()) {
+          throw new Error(CIRCUIT_OPEN_MESSAGE)
         }
-      }
+
+        let execute = () => query(args)
+
+        for (let attempt = 0; ; attempt += 1) {
+          try {
+            const result = await execute()
+            recordConnectionSuccess()
+            return result
+          } catch (error: unknown) {
+            const availabilityError = isAvailabilityError(error)
+            const staleConnectionError = isStaleDatabaseConnectionError(error)
+            const retryLimit = retryLimitFor(error)
+
+            if (availabilityError) {
+              recordAvailabilityFailure()
+            }
+
+            if (
+              (!availabilityError && !staleConnectionError) ||
+              attempt >= retryLimit ||
+              (availabilityError && circuitIsOpen())
+            ) {
+              throw error
+            }
+
+            const retryNumber = attempt + 1
+            const waitMs = transientRetryDelayMs * retryNumber
+
+            console.warn('[prisma:transient-retry]', {
+              model: model ?? 'raw',
+              operation,
+              kind: staleConnectionError ? 'stale-connection' : 'unavailable',
+              retry: retryNumber,
+              maxRetries: retryLimit,
+              waitMs,
+              message: errorMessage(error),
+            })
+
+            await delay(waitMs)
+
+            if (staleConnectionError && model) {
+              const replacement = await recyclePrismaClient(
+                `${model}.${operation}: ${errorMessage(error)}`,
+              )
+
+              if (transactionContext.getStore()) {
+                throw error
+              }
+
+              execute = (() =>
+                replayPrismaOperation(
+                  replacement,
+                  model,
+                  operation,
+                  args,
+                ) as ReturnType<typeof query>) as typeof execute
+            }
+          }
+        }
+      },
     },
+  })
+}
+
+activePrisma = extendPrismaClient(activeBasePrisma)
+
+console.info('[prisma] MariaDB protocol mode', {
+  mode: useTextProtocol ? 'text-query' : 'binary-execute',
+  generation: globalForPrisma.prismaGeneration ?? 0,
+})
+
+export const prisma = new Proxy({} as RetryingPrismaClient, {
+  get(_target, property) {
+    const value = Reflect.get(activePrisma, property, activePrisma)
+
+    if (property === '$transaction' && typeof value === 'function') {
+      return (...args: unknown[]) =>
+        transactionContext.run(true, () =>
+          Reflect.apply(value, activePrisma, args),
+        )
+    }
+
+    return typeof value === 'function' ? value.bind(activePrisma) : value
   },
 })
 

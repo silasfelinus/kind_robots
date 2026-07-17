@@ -300,23 +300,6 @@ export type EnumChatTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumChatTypeFilter<$PrismaModel>
 }
 
-export type EnumCompositionStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.CompositionStatus | Prisma.EnumCompositionStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.CompositionStatus[]
-  notIn?: $Enums.CompositionStatus[]
-  not?: Prisma.NestedEnumCompositionStatusFilter<$PrismaModel> | $Enums.CompositionStatus
-}
-
-export type EnumCompositionStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CompositionStatus | Prisma.EnumCompositionStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.CompositionStatus[]
-  notIn?: $Enums.CompositionStatus[]
-  not?: Prisma.NestedEnumCompositionStatusWithAggregatesFilter<$PrismaModel> | $Enums.CompositionStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCompositionStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCompositionStatusFilter<$PrismaModel>
-}
-
 export type EnumCreationSourceFilter<$PrismaModel = never> = {
   equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
   in?: $Enums.CreationSource[]
@@ -1488,23 +1471,6 @@ export type NestedEnumChatTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumChatTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumChatTypeFilter<$PrismaModel>
-}
-
-export type NestedEnumCompositionStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.CompositionStatus | Prisma.EnumCompositionStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.CompositionStatus[]
-  notIn?: $Enums.CompositionStatus[]
-  not?: Prisma.NestedEnumCompositionStatusFilter<$PrismaModel> | $Enums.CompositionStatus
-}
-
-export type NestedEnumCompositionStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CompositionStatus | Prisma.EnumCompositionStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.CompositionStatus[]
-  notIn?: $Enums.CompositionStatus[]
-  not?: Prisma.NestedEnumCompositionStatusWithAggregatesFilter<$PrismaModel> | $Enums.CompositionStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCompositionStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCompositionStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumCreationSourceFilter<$PrismaModel = never> = {

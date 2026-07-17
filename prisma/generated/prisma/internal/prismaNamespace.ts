@@ -394,9 +394,7 @@ export const ModelName = {
   Bot: 'Bot',
   Character: 'Character',
   Chat: 'Chat',
-  Code: 'Code',
   Component: 'Component',
-  Composition: 'Composition',
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
   Project: 'Project',
@@ -470,7 +468,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification"
+    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "socialPost" | "socialTarget" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1134,72 +1132,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Code: {
-      payload: Prisma.$CodePayload<ExtArgs>
-      fields: Prisma.CodeFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CodeFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CodeFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
-        }
-        findFirst: {
-          args: Prisma.CodeFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CodeFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
-        }
-        findMany: {
-          args: Prisma.CodeFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>[]
-        }
-        create: {
-          args: Prisma.CodeCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
-        }
-        createMany: {
-          args: Prisma.CodeCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.CodeDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
-        }
-        update: {
-          args: Prisma.CodeUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
-        }
-        deleteMany: {
-          args: Prisma.CodeDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CodeUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.CodeUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
-        }
-        aggregate: {
-          args: Prisma.CodeAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCode>
-        }
-        groupBy: {
-          args: Prisma.CodeGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CodeGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CodeCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CodeCountAggregateOutputType> | number
-        }
-      }
-    }
     Component: {
       payload: Prisma.$ComponentPayload<ExtArgs>
       fields: Prisma.ComponentFieldRefs
@@ -1263,72 +1195,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ComponentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ComponentCountAggregateOutputType> | number
-        }
-      }
-    }
-    Composition: {
-      payload: Prisma.$CompositionPayload<ExtArgs>
-      fields: Prisma.CompositionFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CompositionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CompositionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
-        }
-        findFirst: {
-          args: Prisma.CompositionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CompositionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
-        }
-        findMany: {
-          args: Prisma.CompositionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>[]
-        }
-        create: {
-          args: Prisma.CompositionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
-        }
-        createMany: {
-          args: Prisma.CompositionCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.CompositionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
-        }
-        update: {
-          args: Prisma.CompositionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
-        }
-        deleteMany: {
-          args: Prisma.CompositionDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CompositionUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.CompositionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
-        }
-        aggregate: {
-          args: Prisma.CompositionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateComposition>
-        }
-        groupBy: {
-          args: Prisma.CompositionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CompositionGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CompositionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CompositionCountAggregateOutputType> | number
         }
       }
     }
@@ -5474,24 +5340,6 @@ export const ChatScalarFieldEnum = {
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
 
 
-export const CodeScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId',
-  title: 'title',
-  description: 'description',
-  icon: 'icon',
-  graph: 'graph',
-  isPublic: 'isPublic',
-  isOfficial: 'isOfficial',
-  isActive: 'isActive',
-  isMature: 'isMature'
-} as const
-
-export type CodeScalarFieldEnum = (typeof CodeScalarFieldEnum)[keyof typeof CodeScalarFieldEnum]
-
-
 export const ComponentScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -5507,44 +5355,6 @@ export const ComponentScalarFieldEnum = {
 } as const
 
 export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
-
-
-export const CompositionScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  title: 'title',
-  description: 'description',
-  label: 'label',
-  mode: 'mode',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  isActive: 'isActive',
-  designer: 'designer',
-  characterId: 'characterId',
-  dreamId: 'dreamId',
-  scenarioId: 'scenarioId',
-  rewardId: 'rewardId',
-  characterBlurb: 'characterBlurb',
-  dreamBlurb: 'dreamBlurb',
-  scenarioBlurb: 'scenarioBlurb',
-  rewardBlurb: 'rewardBlurb',
-  narrativeText: 'narrativeText',
-  artPrompt: 'artPrompt',
-  userId: 'userId',
-  artImageId: 'artImageId',
-  imagePath: 'imagePath',
-  approvedAt: 'approvedAt',
-  bountyId: 'bountyId',
-  manaCharged: 'manaCharged',
-  outputDreamId: 'outputDreamId',
-  status: 'status',
-  stepLog: 'stepLog',
-  userApproved: 'userApproved',
-  wishText: 'wishText'
-} as const
-
-export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
 
 
 export const DreamScalarFieldEnum = {
@@ -6014,7 +5824,6 @@ export const ReactionScalarFieldEnum = {
   characterId: 'characterId',
   scenarioId: 'scenarioId',
   themeId: 'themeId',
-  compositionId: 'compositionId',
   challengeSubmissionId: 'challengeSubmissionId',
   projectId: 'projectId',
   facetId: 'facetId'
@@ -6857,16 +6666,6 @@ export const ChatOrderByRelevanceFieldEnum = {
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
 
 
-export const CodeOrderByRelevanceFieldEnum = {
-  title: 'title',
-  description: 'description',
-  icon: 'icon',
-  graph: 'graph'
-} as const
-
-export type CodeOrderByRelevanceFieldEnum = (typeof CodeOrderByRelevanceFieldEnum)[keyof typeof CodeOrderByRelevanceFieldEnum]
-
-
 export const ComponentOrderByRelevanceFieldEnum = {
   folderName: 'folderName',
   componentName: 'componentName',
@@ -6875,26 +6674,6 @@ export const ComponentOrderByRelevanceFieldEnum = {
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
-
-
-export const CompositionOrderByRelevanceFieldEnum = {
-  title: 'title',
-  description: 'description',
-  label: 'label',
-  mode: 'mode',
-  designer: 'designer',
-  characterBlurb: 'characterBlurb',
-  dreamBlurb: 'dreamBlurb',
-  scenarioBlurb: 'scenarioBlurb',
-  rewardBlurb: 'rewardBlurb',
-  narrativeText: 'narrativeText',
-  artPrompt: 'artPrompt',
-  imagePath: 'imagePath',
-  stepLog: 'stepLog',
-  wishText: 'wishText'
-} as const
-
-export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {
@@ -7560,13 +7339,6 @@ export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'CompositionStatus'
- */
-export type EnumCompositionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompositionStatus'>
-    
-
-
-/**
  * Reference to a field of type 'CreationSource'
  */
 export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreationSource'>
@@ -8028,9 +7800,7 @@ export type GlobalOmitConfig = {
   bot?: Prisma.BotOmit
   character?: Prisma.CharacterOmit
   chat?: Prisma.ChatOmit
-  code?: Prisma.CodeOmit
   component?: Prisma.ComponentOmit
-  composition?: Prisma.CompositionOmit
   dream?: Prisma.DreamOmit
   dreamRelation?: Prisma.DreamRelationOmit
   project?: Prisma.ProjectOmit

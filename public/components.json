@@ -16,6 +16,7 @@
       "achievement-leaderboard",
       "achievement-popup",
       "earned-achievement-card",
+      "leaderboard-table",
       "locked-achievements",
       "unearned-achievement-card"
     ]
@@ -54,6 +55,7 @@
       "stylist-clients",
       "stylist-history",
       "stylist-manager",
+      "stylist-relay-status",
       "stylist-restyle",
       "stylist-settings"
     ]
@@ -139,33 +141,11 @@
     ]
   },
   {
-    "folderName": "code",
-    "components": [
-      "code-canvas",
-      "code-controls",
-      "code-library",
-      "code-node",
-      "code-palette",
-      "code-settings",
-      "code-workbench"
-    ]
-  },
-  {
     "folderName": "coloring",
     "components": [
       "coloring-book-manager",
       "coloring-book-page",
       "coloring-canvas"
-    ]
-  },
-  {
-    "folderName": "composition",
-    "components": [
-      "add-composition",
-      "composition-card",
-      "composition-gallery",
-      "composition-interact",
-      "composition-manager"
     ]
   },
   {
@@ -251,6 +231,7 @@
   {
     "folderName": "model-builder",
     "components": [
+      "model-builder-batch-editor",
       "model-builder-item-panel",
       "model-builder-manager",
       "model-builder-progress-matrix",
@@ -296,6 +277,7 @@
       "conductor-pitch-manager",
       "conductor-project-chat",
       "daily-dream-page",
+      "for-you-manager",
       "giving-page",
       "kaizen-popup",
       "kind-prompts",
@@ -329,6 +311,16 @@
       "reward-gallery",
       "reward-interact",
       "reward-manager"
+    ]
+  },
+  {
+    "folderName": "ruler-hooked",
+    "components": [
+      "ruler-hooked-card",
+      "ruler-hooked-game",
+      "ruler-hooked-health",
+      "ruler-hooked-slots",
+      "ruler-hooked-stage"
     ]
   },
   {
@@ -418,6 +410,12 @@
       "stage-message",
       "stage-preset",
       "stage-slot"
+    ]
+  },
+  {
+    "folderName": "tasks",
+    "components": [
+      "honeydo-card"
     ]
   },
   {

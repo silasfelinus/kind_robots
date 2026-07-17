@@ -107,13 +107,6 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'workbench'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <code-workbench class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
-    <section
       v-else-if="activeTab === 'artjob'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
       @click.capture="handleArtJobImageClick"
@@ -121,9 +114,7 @@
       <div
         class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:overflow-hidden"
       >
-        <artjob-manager
-          class="min-h-[720px] overflow-hidden 2xl:min-h-0"
-        />
+        <artjob-manager class="min-h-[720px] overflow-hidden 2xl:min-h-0" />
         <artjob-feedback-manager
           class="min-h-[560px] overflow-hidden 2xl:min-h-0"
         />
@@ -148,7 +139,9 @@
       >
         <div class="flex items-center justify-between gap-3 px-1 pb-3">
           <div class="min-w-0">
-            <h3 class="truncate text-sm font-semibold">{{ artPreviewTitle }}</h3>
+            <h3 class="truncate text-sm font-semibold">
+              {{ artPreviewTitle }}
+            </h3>
             <p class="text-[11px] text-base-content/50">
               Finished ArtJob preview
             </p>
@@ -193,7 +186,6 @@ type ArtTab =
   | 'styler'
   | 'stylist'
   | 'coloring'
-  | 'workbench'
   | 'art-test'
   | 'artjob'
 
@@ -215,7 +207,6 @@ const validTabs: LegacyArtTab[] = [
   'styler',
   'stylist',
   'coloring',
-  'workbench',
   'art-test',
   'artjob',
 ]

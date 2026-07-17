@@ -7,7 +7,6 @@ export const ChatGptResourceSchema = z.enum([
   'bot',
   'character',
   'chat',
-  'composition',
   'dream',
   'facet',
   'project',

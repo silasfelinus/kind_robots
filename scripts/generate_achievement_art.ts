@@ -4,7 +4,8 @@
 // Achievement that has an `artPrompt` but no `imagePath`, it:
 //   1. generates an image from the prompt via the site's OpenAI image pipeline
 //      (server/utils/openAIImageGenerator.ts),
-//   2. downloads the result to public/images/achievements/<triggerCode>.png,
+//   2. downloads the result to images/achievements/<triggerCode>.png under the
+//      configured IMAGES_PATH (default: public/images),
 //   3. creates an ArtImage row and points the Achievement at it
 //      (imagePath + artImageId).
 //
@@ -27,10 +28,11 @@ import { dirname, resolve } from 'node:path'
 import { PrismaClient } from '../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { generateImageWithOpenAI } from '../server/utils/openAIImageGenerator'
+import { getImageStorageRoot } from '../server/utils/imageStorageRoot'
 import { slugify } from '../utils/slugify'
 
-const PUBLIC_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public')
-const ART_SUBDIR = 'images/achievements'
+const IMAGE_ROOT = getImageStorageRoot()
+const ART_SUBDIR = 'achievements'
 // Achievements seeded by the seed script share userId 10 (guest) as owner, the
 // same default ArtImage.userId uses elsewhere.
 const SEED_USER_ID = 10
@@ -41,9 +43,9 @@ function createSeedPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
 }
 
-async function downloadToPublic(url: string, slug: string): Promise<string> {
+async function downloadToImageStorage(url: string, slug: string): Promise<string> {
   const relPath = `${ART_SUBDIR}/${slug}.png`
-  const absPath = resolve(PUBLIC_DIR, relPath)
+  const absPath = resolve(IMAGE_ROOT, relPath)
   await mkdir(dirname(absPath), { recursive: true })
 
   const res = await fetch(url)
@@ -51,8 +53,8 @@ async function downloadToPublic(url: string, slug: string): Promise<string> {
   const bytes = Buffer.from(await res.arrayBuffer())
   await writeFile(absPath, bytes)
 
-  // Paths served by Nuxt are absolute from /public.
-  return `/${relPath}`
+  // Public paths remain stable regardless of the filesystem backing store.
+  return `/images/${relPath}`
 }
 
 async function main() {
@@ -89,7 +91,7 @@ async function main() {
           achievement.artPrompt as string,
           'achievement-seeder',
         )
-        const imagePath = await downloadToPublic(url, slug)
+        const imagePath = await downloadToImageStorage(url, slug)
 
         const artImage = await prisma.artImage.create({
           data: {

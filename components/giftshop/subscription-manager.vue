@@ -105,7 +105,9 @@ const startSubscription = async () => {
 const cancelSub = async () => {
   try {
     if (!userStore.user?.id) throw new Error('User not logged in')
-    await cartStore.cancelSubscription(userStore.user.id)
+    const result = await cartStore.cancelSubscription()
+    if (!result.success) throw new Error(result.message)
+    userStore.user.isMember = false
     message.value = 'Subscription cancelled. Thank you for your support!'
   } catch (err: any) {
     error.value = err.message || 'Could not cancel subscription.'

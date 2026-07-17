@@ -72,6 +72,21 @@
               : 'Mana top-up cancelled. No charge was made.'
           }}
         </div>
+        <div
+          v-if="subscriptionNotice"
+          class="rounded-xl border p-3 text-center text-sm font-medium"
+          :class="
+            subscriptionNotice === 'success'
+              ? 'border-success/40 bg-success/10 text-success'
+              : 'border-warning/40 bg-warning/10 text-warning'
+          "
+        >
+          {{
+            subscriptionNotice === 'success'
+              ? '🎫 Subscription active — thank you for supporting Kind Robots!'
+              : 'Subscription checkout cancelled. No charge was made.'
+          }}
+        </div>
         <mana-wallet />
         <credit-purchase />
         <subscription-manager />
@@ -136,6 +151,7 @@ const router = useRouter()
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 const manaTopupNotice = ref<'success' | 'cancelled' | null>(null)
+const subscriptionNotice = ref<'success' | 'cancelled' | null>(null)
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -187,6 +203,18 @@ onMounted(async () => {
     manaTopupNotice.value = topupQuery
     setTab('mana')
     const { manaTopup: _drop, ...restQuery } = route.query
+    router.replace({ query: restQuery })
+    return
+  }
+
+  const subscriptionQuery = route.query.subscription
+  if (subscriptionQuery === 'success' || subscriptionQuery === 'cancelled') {
+    subscriptionNotice.value = subscriptionQuery
+    setTab('mana')
+    if (subscriptionQuery === 'success') {
+      await userStore.validateAndFetchUserData()
+    }
+    const { subscription: _drop, ...restQuery } = route.query
     router.replace({ query: restQuery })
     return
   }

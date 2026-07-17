@@ -1366,6 +1366,7 @@ model User {
   preferredTextServerId  Int?
   memberUntil            DateTime?
   stripeCustomerId       String?                   @db.VarChar(64)
+  stripeSubscriptionId   String?                   @db.VarChar(64)
   artModels              String?                   @db.LongText
   lastReward             String?
   textModels             String?                   @db.LongText

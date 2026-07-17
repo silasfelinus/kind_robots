@@ -2,7 +2,7 @@
 title: 'Art Academy'
 room: 'Art Academy'
 subtitle: 'Learn the styles. Meet the masters. Remix everything.'
-description: Explore twenty-five centuries of public-domain art history, then remix your own images in any style you learn — from Greek vases to De Stijl grids.
+description: Explore twenty-five centuries of public-domain art history, then remix your own images in any style you learn — from Greek vases to Bauhaus grids.
 image: 'background/artgallery.webp'
 icon: kind-icon:palette
 tooltip: Art history lessons with a remix button. The masters would approve. Probably.

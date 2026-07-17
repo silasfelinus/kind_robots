@@ -317,7 +317,6 @@ export default defineEventHandler(async (event) => {
             ArtImage: true,
             User: { select: { id: true, username: true } },
             Characters: true,
-            Compositions: true,
             Dreams: true,
           },
         })

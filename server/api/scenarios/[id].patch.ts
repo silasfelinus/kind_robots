@@ -31,7 +31,6 @@ type ScenarioPatchInput = {
   group?: unknown
   secretNotes?: unknown
   characterIds?: unknown
-  compositionIds?: unknown
 }
 
 const scenarioOutputTypes: ScenarioOutputType[] = [
@@ -235,10 +234,9 @@ function normalizeArtImageRelation(
 
 async function assertRelatedRecordsExist(options: {
   characterIds?: number[]
-  compositionIds?: number[]
   dreamIds?: number[]
 }) {
-  const { characterIds, compositionIds, dreamIds } = options
+  const { characterIds, dreamIds } = options
 
   if (characterIds?.length) {
     const records = await prisma.character.findMany({
@@ -252,22 +250,6 @@ async function assertRelatedRecordsExist(options: {
       throw createError({
         statusCode: 404,
         message: `Character IDs not found: ${missingIds.join(', ')}.`,
-      })
-    }
-  }
-
-  if (compositionIds?.length) {
-    const records = await prisma.composition.findMany({
-      where: { id: { in: compositionIds } },
-      select: { id: true },
-    })
-    const foundIds = new Set(records.map((record) => record.id))
-    const missingIds = compositionIds.filter((id) => !foundIds.has(id))
-
-    if (missingIds.length) {
-      throw createError({
-        statusCode: 404,
-        message: `Composition IDs not found: ${missingIds.join(', ')}.`,
       })
     }
   }
@@ -300,7 +282,8 @@ async function buildScenarioUpdateInput(
     data.description = normalizeString(body.description, 'description')
   }
   if ('intros' in body) data.intros = normalizeIntros(body.intros)
-  if ('outputType' in body) data.outputType = normalizeOutputType(body.outputType)
+  if ('outputType' in body)
+    data.outputType = normalizeOutputType(body.outputType)
   if ('cast' in body) data.cast = normalizeJsonString(body.cast, 'cast')
   if ('imagePath' in body) {
     data.imagePath = normalizeNullableString(body.imagePath, 'imagePath')
@@ -345,10 +328,6 @@ async function buildScenarioUpdateInput(
     'characterIds' in body
       ? normalizePositiveIdArray(body.characterIds, 'characterIds')
       : undefined
-  const compositionIds =
-    'compositionIds' in body
-      ? normalizePositiveIdArray(body.compositionIds, 'compositionIds')
-      : undefined
   const dreamIds =
     'dreamIds' in body
       ? normalizePositiveIdArray(body.dreamIds, 'dreamIds')
@@ -356,19 +335,12 @@ async function buildScenarioUpdateInput(
 
   await assertRelatedRecordsExist({
     characterIds,
-    compositionIds,
     dreamIds,
   })
 
   if (characterIds) {
     data.Characters = {
       set: characterIds.map((id) => ({ id })),
-    }
-  }
-
-  if (compositionIds) {
-    data.Compositions = {
-      set: compositionIds.map((id) => ({ id })),
     }
   }
 
@@ -455,7 +427,6 @@ export default defineEventHandler(async (event) => {
           },
         },
         Characters: true,
-        Compositions: true,
         Dreams: true,
       },
     })

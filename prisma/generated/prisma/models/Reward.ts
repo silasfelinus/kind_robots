@@ -339,7 +339,6 @@ export type RewardWhereInput = {
   flavorText?: Prisma.StringNullableFilter<"Reward"> | string | null
   name?: Prisma.StringFilter<"Reward"> | string
   slug?: Prisma.StringNullableFilter<"Reward"> | string | null
-  Compositions?: Prisma.CompositionListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -367,7 +366,6 @@ export type RewardOrderByWithRelationInput = {
   flavorText?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
-  Compositions?: Prisma.CompositionOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
@@ -399,7 +397,6 @@ export type RewardWhereUniqueInput = Prisma.AtLeast<{
   effect?: Prisma.StringNullableFilter<"Reward"> | string | null
   flavorText?: Prisma.StringNullableFilter<"Reward"> | string | null
   name?: Prisma.StringFilter<"Reward"> | string
-  Compositions?: Prisma.CompositionListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -476,7 +473,6 @@ export type RewardCreateInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
   User?: Prisma.UserCreateNestedOneWithoutRewardsInput
@@ -504,7 +500,6 @@ export type RewardUncheckedCreateInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
@@ -527,7 +522,6 @@ export type RewardUpdateInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
   User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
@@ -555,7 +549,6 @@ export type RewardUncheckedUpdateInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
@@ -803,22 +796,6 @@ export type RewardUncheckedUpdateManyWithoutCharactersNestedInput = {
   deleteMany?: Prisma.RewardScalarWhereInput | Prisma.RewardScalarWhereInput[]
 }
 
-export type RewardCreateNestedOneWithoutCompositionsInput = {
-  create?: Prisma.XOR<Prisma.RewardCreateWithoutCompositionsInput, Prisma.RewardUncheckedCreateWithoutCompositionsInput>
-  connectOrCreate?: Prisma.RewardCreateOrConnectWithoutCompositionsInput
-  connect?: Prisma.RewardWhereUniqueInput
-}
-
-export type RewardUpdateOneWithoutCompositionsNestedInput = {
-  create?: Prisma.XOR<Prisma.RewardCreateWithoutCompositionsInput, Prisma.RewardUncheckedCreateWithoutCompositionsInput>
-  connectOrCreate?: Prisma.RewardCreateOrConnectWithoutCompositionsInput
-  upsert?: Prisma.RewardUpsertWithoutCompositionsInput
-  disconnect?: Prisma.RewardWhereInput | boolean
-  delete?: Prisma.RewardWhereInput | boolean
-  connect?: Prisma.RewardWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.RewardUpdateToOneWithWhereWithoutCompositionsInput, Prisma.RewardUpdateWithoutCompositionsInput>, Prisma.RewardUncheckedUpdateWithoutCompositionsInput>
-}
-
 export type RewardCreateNestedManyWithoutDreamsInput = {
   create?: Prisma.XOR<Prisma.RewardCreateWithoutDreamsInput, Prisma.RewardUncheckedCreateWithoutDreamsInput> | Prisma.RewardCreateWithoutDreamsInput[] | Prisma.RewardUncheckedCreateWithoutDreamsInput[]
   connectOrCreate?: Prisma.RewardCreateOrConnectWithoutDreamsInput | Prisma.RewardCreateOrConnectWithoutDreamsInput[]
@@ -936,7 +913,6 @@ export type RewardCreateWithoutArtImageInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
   User?: Prisma.UserCreateNestedOneWithoutRewardsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
@@ -962,7 +938,6 @@ export type RewardUncheckedCreateWithoutArtImageInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
@@ -1036,7 +1011,6 @@ export type RewardCreateWithoutCharactersInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
   User?: Prisma.UserCreateNestedOneWithoutRewardsInput
@@ -1063,7 +1037,6 @@ export type RewardUncheckedCreateWithoutCharactersInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
 }
@@ -1089,120 +1062,6 @@ export type RewardUpdateManyWithWhereWithoutCharactersInput = {
   data: Prisma.XOR<Prisma.RewardUpdateManyMutationInput, Prisma.RewardUncheckedUpdateManyWithoutCharactersInput>
 }
 
-export type RewardCreateWithoutCompositionsInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  icon?: string | null
-  collection?: string | null
-  rarity?: $Enums.Rarity
-  imagePath?: string | null
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-  rewardType?: $Enums.RewardType
-  description?: string | null
-  effect?: string | null
-  flavorText?: string | null
-  name: string
-  slug?: string | null
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
-  User?: Prisma.UserCreateNestedOneWithoutRewardsInput
-  Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutRewardsInput
-}
-
-export type RewardUncheckedCreateWithoutCompositionsInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  icon?: string | null
-  collection?: string | null
-  rarity?: $Enums.Rarity
-  userId?: number | null
-  artImageId?: number | null
-  imagePath?: string | null
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-  rewardType?: $Enums.RewardType
-  description?: string | null
-  effect?: string | null
-  flavorText?: string | null
-  name: string
-  slug?: string | null
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
-  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
-}
-
-export type RewardCreateOrConnectWithoutCompositionsInput = {
-  where: Prisma.RewardWhereUniqueInput
-  create: Prisma.XOR<Prisma.RewardCreateWithoutCompositionsInput, Prisma.RewardUncheckedCreateWithoutCompositionsInput>
-}
-
-export type RewardUpsertWithoutCompositionsInput = {
-  update: Prisma.XOR<Prisma.RewardUpdateWithoutCompositionsInput, Prisma.RewardUncheckedUpdateWithoutCompositionsInput>
-  create: Prisma.XOR<Prisma.RewardCreateWithoutCompositionsInput, Prisma.RewardUncheckedCreateWithoutCompositionsInput>
-  where?: Prisma.RewardWhereInput
-}
-
-export type RewardUpdateToOneWithWhereWithoutCompositionsInput = {
-  where?: Prisma.RewardWhereInput
-  data: Prisma.XOR<Prisma.RewardUpdateWithoutCompositionsInput, Prisma.RewardUncheckedUpdateWithoutCompositionsInput>
-}
-
-export type RewardUpdateWithoutCompositionsInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
-  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rewardType?: Prisma.EnumRewardTypeFieldUpdateOperationsInput | $Enums.RewardType
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effect?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
-  User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
-  Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutRewardsNestedInput
-}
-
-export type RewardUncheckedUpdateWithoutCompositionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rewardType?: Prisma.EnumRewardTypeFieldUpdateOperationsInput | $Enums.RewardType
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effect?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
-  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
-}
-
 export type RewardCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1220,7 +1079,6 @@ export type RewardCreateWithoutDreamsInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
   User?: Prisma.UserCreateNestedOneWithoutRewardsInput
@@ -1247,7 +1105,6 @@ export type RewardUncheckedCreateWithoutDreamsInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
 }
@@ -1290,7 +1147,6 @@ export type RewardCreateWithoutReactionsInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionCreateNestedManyWithoutRewardInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
   User?: Prisma.UserCreateNestedOneWithoutRewardsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
@@ -1317,7 +1173,6 @@ export type RewardUncheckedCreateWithoutReactionsInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
 }
@@ -1355,7 +1210,6 @@ export type RewardUpdateWithoutReactionsInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUpdateManyWithoutRewardNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
   User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
@@ -1382,7 +1236,6 @@ export type RewardUncheckedUpdateWithoutReactionsInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
 }
@@ -1404,7 +1257,6 @@ export type RewardCreateWithoutUserInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutRewardInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutRewardsInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutRewardsInput
@@ -1430,7 +1282,6 @@ export type RewardUncheckedCreateWithoutUserInput = {
   flavorText?: string | null
   name: string
   slug?: string | null
-  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutRewardInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutRewardInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutRewardsInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutRewardsInput
@@ -1500,7 +1351,6 @@ export type RewardUpdateWithoutArtImageInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
   User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
@@ -1526,7 +1376,6 @@ export type RewardUncheckedUpdateWithoutArtImageInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
@@ -1570,7 +1419,6 @@ export type RewardUpdateWithoutCharactersInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
   User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
@@ -1597,7 +1445,6 @@ export type RewardUncheckedUpdateWithoutCharactersInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
 }
@@ -1641,7 +1488,6 @@ export type RewardUpdateWithoutDreamsInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
   User?: Prisma.UserUpdateOneWithoutRewardsNestedInput
@@ -1668,7 +1514,6 @@ export type RewardUncheckedUpdateWithoutDreamsInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
 }
@@ -1733,7 +1578,6 @@ export type RewardUpdateWithoutUserInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutRewardNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutRewardsNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutRewardsNestedInput
@@ -1759,7 +1603,6 @@ export type RewardUncheckedUpdateWithoutUserInput = {
   flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutRewardNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutRewardNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutRewardsNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutRewardsNestedInput
@@ -1792,14 +1635,12 @@ export type RewardUncheckedUpdateManyWithoutUserInput = {
  */
 
 export type RewardCountOutputType = {
-  Compositions: number
   Reactions: number
   Characters: number
   Dreams: number
 }
 
 export type RewardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Compositions?: boolean | RewardCountOutputTypeCountCompositionsArgs
   Reactions?: boolean | RewardCountOutputTypeCountReactionsArgs
   Characters?: boolean | RewardCountOutputTypeCountCharactersArgs
   Dreams?: boolean | RewardCountOutputTypeCountDreamsArgs
@@ -1813,13 +1654,6 @@ export type RewardCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
    * Select specific fields to fetch from the RewardCountOutputType
    */
   select?: Prisma.RewardCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * RewardCountOutputType without action
- */
-export type RewardCountOutputTypeCountCompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CompositionWhereInput
 }
 
 /**
@@ -1864,7 +1698,6 @@ export type RewardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   flavorText?: boolean
   name?: boolean
   slug?: boolean
-  Compositions?: boolean | Prisma.Reward$CompositionsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Reward$ReactionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reward$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Reward$UserArgs<ExtArgs>
@@ -1899,7 +1732,6 @@ export type RewardSelectScalar = {
 
 export type RewardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "icon" | "collection" | "rarity" | "userId" | "artImageId" | "imagePath" | "isMature" | "isPublic" | "isActive" | "artPrompt" | "rewardType" | "description" | "effect" | "flavorText" | "name" | "slug", ExtArgs["result"]["reward"]>
 export type RewardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Compositions?: boolean | Prisma.Reward$CompositionsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Reward$ReactionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reward$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Reward$UserArgs<ExtArgs>
@@ -1911,7 +1743,6 @@ export type RewardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type $RewardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Reward"
   objects: {
-    Compositions: Prisma.$CompositionPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
@@ -2278,7 +2109,6 @@ readonly fields: RewardFieldRefs;
  */
 export interface Prisma__RewardClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Compositions<T extends Prisma.Reward$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$CompositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Reward$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImage<T extends Prisma.Reward$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Reward$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reward$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2677,30 +2507,6 @@ export type RewardDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Rewards to delete.
    */
   limit?: number
-}
-
-/**
- * Reward.Compositions
- */
-export type Reward$CompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Composition
-   */
-  select?: Prisma.CompositionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Composition
-   */
-  omit?: Prisma.CompositionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CompositionInclude<ExtArgs> | null
-  where?: Prisma.CompositionWhereInput
-  orderBy?: Prisma.CompositionOrderByWithRelationInput | Prisma.CompositionOrderByWithRelationInput[]
-  cursor?: Prisma.CompositionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CompositionScalarFieldEnum | Prisma.CompositionScalarFieldEnum[]
 }
 
 /**

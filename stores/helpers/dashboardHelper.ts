@@ -147,17 +147,6 @@ export const dashboardConfigs = {
         route: '/coloring-page',
       },
       {
-        key: 'workbench',
-        label: 'Code Cards',
-        icon: 'kind-icon:foundry',
-        title: 'Workbench',
-        summary: 'Create modular server requests with special code cards.',
-        image: tabImage('art', 'workbench'),
-        narrative:
-          'Assemble modular server requests with reusable code cards, test weird pipelines, and keep the experimental sparks mostly inside the box.',
-        route: '/art',
-      },
-      {
         key: 'art-test',
         label: 'Art Test',
         icon: 'kind-icon:image',
@@ -304,17 +293,6 @@ export const dashboardConfigs = {
         image: tabImage('bot', 'forge'),
         narrative:
           'Forge new bot personalities, tune their skills, and give them just enough charm to be useful without letting them unionize.',
-        route: '/bots',
-      },
-      {
-        key: 'composition',
-        label: 'Composition',
-        icon: 'kind-icon:rubik',
-        title: 'Composition',
-        summary: 'Compose your own bot endpoint.',
-        image: tabImage('bot', 'composition'),
-        narrative:
-          'Compose custom bot endpoints from reusable parts, model choices, and instructions that can survive contact with actual users.',
         route: '/bots',
       },
     ],
@@ -575,47 +553,6 @@ export const dashboardConfigs = {
           'Conductor App is the companion Flutter client for steering projects from a phone. This is its launch pad and status inside Kind Robots.',
         route: '/conductor-app',
         requiredRole: 'ADMIN',
-      },
-    ],
-  },
-
-  composition: {
-    key: 'composition',
-    label: 'Composition Manager',
-    defaultTab: 'gallery',
-    tabs: [
-      {
-        key: 'gallery',
-        label: 'Gallery',
-        icon: 'kind-icon:grid',
-        title: 'Composition Gallery',
-        summary: 'Browse saved compositions and reusable endpoint recipes.',
-        image: tabImage('composition', 'gallery'),
-        narrative:
-          'Browse saved compositions, compare endpoint recipes, and find the reusable machine that does the thing without rebuilding it every time.',
-        route: '/bots',
-      },
-      {
-        key: 'add',
-        label: 'New',
-        icon: 'kind-icon:plus',
-        title: 'New Composition',
-        summary: 'Create a new composition recipe.',
-        image: tabImage('composition', 'add'),
-        narrative:
-          'Create a new composition recipe from models, instructions, and routing choices that cooperate like a tiny robot kitchen.',
-        route: '/bots',
-      },
-      {
-        key: 'synthesize',
-        label: 'Synthesize',
-        icon: 'kind-icon:wand',
-        title: 'Synthesize',
-        summary: 'Generate a composition from existing parts.',
-        image: tabImage('composition', 'synthesize'),
-        narrative:
-          'Synthesize new compositions from existing parts, then see whether the endpoint sings, squeaks, or demands a snack.',
-        route: '/bots',
       },
     ],
   },

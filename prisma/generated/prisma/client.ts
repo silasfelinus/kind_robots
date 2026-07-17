@@ -109,20 +109,10 @@ export type Character = Prisma.CharacterModel
  */
 export type Chat = Prisma.ChatModel
 /**
- * Model Code
- * programmatic blueprints to call one or more art or text servers
- */
-export type Code = Prisma.CodeModel
-/**
  * Model Component
  * Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
  */
 export type Component = Prisma.ComponentModel
-/**
- * Model Composition
- * 
- */
-export type Composition = Prisma.CompositionModel
 /**
  * Model Dream
  * A Dream is the canonical "idea/vibe" that governs a generation. It absorbs
@@ -333,7 +323,7 @@ export type SocialTarget = Prisma.SocialTargetModel
 export type Theme = Prisma.ThemeModel
 /**
  * Model User
- * our user model. default test user is userId=10. 
+ * our user model. default test user is userId=10.
  */
 export type User = Prisma.UserModel
 /**

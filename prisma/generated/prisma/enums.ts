@@ -390,7 +390,6 @@ export const Reaction_reactionCategory = {
   CHARACTER: 'CHARACTER',
   CHAT_EXCHANGE: 'CHAT_EXCHANGE',
   COMPONENT: 'COMPONENT',
-  COMPOSITION: 'COMPOSITION',
   DREAM: 'DREAM',
   FACET: 'FACET',
   PROJECT: 'PROJECT',
@@ -541,17 +540,6 @@ export const KarmaReason = {
 } as const
 
 export type KarmaReason = (typeof KarmaReason)[keyof typeof KarmaReason]
-
-
-export const CompositionStatus = {
-  DRAFT: 'DRAFT',
-  PENDING: 'PENDING',
-  RUNNING: 'RUNNING',
-  DONE: 'DONE',
-  FAILED: 'FAILED'
-} as const
-
-export type CompositionStatus = (typeof CompositionStatus)[keyof typeof CompositionStatus]
 
 
 export const ChallengeType = {

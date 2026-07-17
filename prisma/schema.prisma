@@ -53,7 +53,6 @@ model ArtImage {
   Characters           Character[]
   Chats                Chat[]
   Components           Component[]
-  Compositions         Composition?
   Contenders           Contender[]
   DreamsPrimary        Dream[]               @relation("DreamPrimaryArtImage")
   ExpressionMedia      ExpressionMedia?
@@ -204,7 +203,6 @@ model Character {
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   User                 User?                  @relation(fields: [userId], references: [id])
   Chats                Chat[]
-  Compositions         Composition[]
   ExpressionMedia      ExpressionMedia[]
   ExpressionTransition ExpressionTransition[]
   LifeRuns             LifeRun[]
@@ -276,29 +274,6 @@ model Chat {
   @@index([recipientId])
 }
 
-/// programmatic blueprints to call one or more art or text servers
-model Code {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  userId      Int?     @default(10)
-  title       String
-  description String?  @db.Text
-  icon        String?
-  graph       String   @db.LongText
-  isPublic    Boolean  @default(false)
-  isOfficial  Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  isMature    Boolean  @default(false)
-  User        User?    @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([isPublic])
-  @@index([isOfficial])
-  @@index([isActive])
-  @@index([isMature])
-}
-
 /// Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
 model Component {
   id                Int        @id @default(autoincrement())
@@ -318,108 +293,56 @@ model Component {
   @@index([artImageId], map: "Component_artImageId_fkey")
 }
 
-model Composition {
-  id             Int               @id @default(autoincrement())
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  title          String            @db.VarChar(255)
-  description    String?           @db.VarChar(512)
-  label          String?           @db.VarChar(255)
-  mode           String            @default("both") @db.VarChar(64)
-  isPublic       Boolean           @default(true)
-  isMature       Boolean           @default(false)
-  isActive       Boolean           @default(true)
-  designer       String?           @default("system") @db.VarChar(255)
-  characterId    Int?
-  dreamId        Int?
-  scenarioId     Int?
-  rewardId       Int?
-  characterBlurb String?           @db.VarChar(512)
-  dreamBlurb     String?           @db.VarChar(512)
-  scenarioBlurb  String?           @db.VarChar(512)
-  rewardBlurb    String?           @db.VarChar(512)
-  narrativeText  String?           @db.Text
-  artPrompt      String?           @db.Text
-  userId         Int?
-  artImageId     Int?              @unique
-  imagePath      String?           @db.VarChar(764)
-  approvedAt     DateTime?
-  bountyId       Int?
-  manaCharged    Int?
-  outputDreamId  Int?              @unique
-  status         CompositionStatus @default(DRAFT)
-  stepLog        String?           @db.LongText
-  userApproved   Boolean           @default(false)
-  wishText       String?           @db.Text
-  ArtImage       ArtImage?         @relation(fields: [artImageId], references: [id])
-  Character      Character?        @relation(fields: [characterId], references: [id])
-  Dream          Dream?            @relation(fields: [dreamId], references: [id])
-  OutputDream    Dream?            @relation("CompositionOutputDream", fields: [outputDreamId], references: [id])
-  Reward         Reward?           @relation(fields: [rewardId], references: [id])
-  Scenario       Scenario?         @relation(fields: [scenarioId], references: [id])
-  User           User?             @relation(fields: [userId], references: [id])
-  Reactions      Reaction[]
-
-  @@index([userId])
-  @@index([mode])
-  @@index([characterId])
-  @@index([dreamId])
-  @@index([scenarioId])
-  @@index([rewardId])
-}
-
 /// A Dream is the canonical "idea/vibe" that governs a generation. It absorbs
 /// the old Pitch concept: a single big-picture seed that fuels art assets, text
 /// assets, characters, rewards, and collections. Each Dream can own many
 /// ArtImages / ArtCollections / Characters / Rewards, while also designating a
 /// primary "main choice" for each via the singular FK fields.
 model Dream {
-  id                Int             @id @default(autoincrement())
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime?       @default(now()) @updatedAt
-  title             String          @db.VarChar(255)
-  slug              String?         @unique @db.VarChar(255)
-  description       String?         @db.Text
-  userId            Int?            @default(10)
-  artImageId        Int?
-  artCollectionId   Int?
-  isPublic          Boolean         @default(true)
-  isMature          Boolean         @default(false)
-  isActive          Boolean         @default(true)
-  artPrompt         String?         @db.Text
-  creationSource    CreationSource  @default(HUMAN)
-  designer          String?         @db.VarChar(256)
-  dreamType         DreamType       @default(PITCH)
-  examples          String?         @db.LongText
-  flavorText        String?         @db.VarChar(512)
-  highlightImage    String?         @db.VarChar(256)
-  icon              String?
-  imagePath         String?         @db.Text
-  pitch             String?         @db.Text
-  allowReviews      Boolean         @default(false)
-  cardPath          String?         @db.Text
-  heroPath          String?         @db.Text
-  narratorId        Int?
-  Chats             Chat[]
-  Compositions      Composition[]
-  SourceComposition Composition?    @relation("CompositionOutputDream")
-  ArtCollection     ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
-  ArtImage          ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
-  Narrator          Bot?            @relation("DreamNarrator", fields: [narratorId], references: [id])
-  User              User?           @relation(fields: [userId], references: [id])
-  FacetLinks        DreamFacet[]
-  RelationsFrom     DreamRelation[] @relation("DreamRelationFrom")
-  RelationsTo       DreamRelation[] @relation("DreamRelationTo")
-  LifeRuns          LifeRun[]
-  PitchSheet        PitchSheet?
-  Reactions         Reaction[]
-  Todos             Todo[]
-  Bots              Bot[]           @relation("BotToDream")
-  Characters        Character[]     @relation("CharacterToDream")
-  ArtCollections    ArtCollection[] @relation("DreamToArtCollection")
-  ArtImages         ArtImage[]      @relation("DreamToArtImage")
-  Rewards           Reward[]        @relation("DreamToReward")
-  Scenarios         Scenario[]      @relation("DreamToScenario")
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @default(now()) @updatedAt
+  title           String          @db.VarChar(255)
+  slug            String?         @unique @db.VarChar(255)
+  description     String?         @db.Text
+  userId          Int?            @default(10)
+  artImageId      Int?
+  artCollectionId Int?
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
+  isActive        Boolean         @default(true)
+  artPrompt       String?         @db.Text
+  creationSource  CreationSource  @default(HUMAN)
+  designer        String?         @db.VarChar(256)
+  dreamType       DreamType       @default(PITCH)
+  examples        String?         @db.LongText
+  flavorText      String?         @db.VarChar(512)
+  highlightImage  String?         @db.VarChar(256)
+  icon            String?
+  imagePath       String?         @db.Text
+  pitch           String?         @db.Text
+  allowReviews    Boolean         @default(false)
+  cardPath        String?         @db.Text
+  heroPath        String?         @db.Text
+  narratorId      Int?
+  Chats           Chat[]
+  ArtCollection   ArtCollection?  @relation("DreamPrimaryArtCollection", fields: [artCollectionId], references: [id])
+  ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
+  Narrator        Bot?            @relation("DreamNarrator", fields: [narratorId], references: [id])
+  User            User?           @relation(fields: [userId], references: [id])
+  FacetLinks      DreamFacet[]
+  RelationsFrom   DreamRelation[] @relation("DreamRelationFrom")
+  RelationsTo     DreamRelation[] @relation("DreamRelationTo")
+  LifeRuns        LifeRun[]
+  PitchSheet      PitchSheet?
+  Reactions       Reaction[]
+  Todos           Todo[]
+  Bots            Bot[]           @relation("BotToDream")
+  Characters      Character[]     @relation("CharacterToDream")
+  ArtCollections  ArtCollection[] @relation("DreamToArtCollection")
+  ArtImages       ArtImage[]      @relation("DreamToArtImage")
+  Rewards         Reward[]        @relation("DreamToReward")
+  Scenarios       Scenario[]      @relation("DreamToScenario")
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
@@ -1009,7 +932,6 @@ model Reaction {
   characterId           Int?
   scenarioId            Int?
   themeId               Int?
-  compositionId         Int?
   challengeSubmissionId Int?
   projectId             Int?
   facetId               Int?
@@ -1020,7 +942,6 @@ model Reaction {
   Character             Character?                @relation(fields: [characterId], references: [id])
   Chat                  Chat?                     @relation(fields: [chatId], references: [id])
   Component             Component?                @relation(fields: [componentId], references: [id])
-  Composition           Composition?              @relation(fields: [compositionId], references: [id])
   Dream                 Dream?                    @relation(fields: [dreamId], references: [id])
   Facet                 Facet?                    @relation(fields: [facetId], references: [id])
   Project               Project?                  @relation(fields: [projectId], references: [id])
@@ -1048,7 +969,6 @@ model Reaction {
   @@index([rewardId], map: "Reaction_rewardId_fkey")
   @@index([scenarioId], map: "Reaction_scenarioId_fkey")
   @@index([themeId], map: "Reaction_themeId_fkey")
-  @@index([compositionId])
   @@index([challengeSubmissionId])
 }
 
@@ -1092,31 +1012,30 @@ model Resource {
 /// the LLM-facing narrative hook that tells the storytelling engine how the reward
 /// behaves when played into a scene.
 model Reward {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime?     @default(now()) @updatedAt
-  icon         String?       @db.VarChar(256)
-  collection   String?       @db.VarChar(764)
-  rarity       Rarity        @default(COMMON)
-  userId       Int?          @default(1)
-  artImageId   Int?
-  imagePath    String?       @db.VarChar(764)
-  isMature     Boolean       @default(false)
-  isPublic     Boolean       @default(true)
-  isActive     Boolean       @default(true)
-  artPrompt    String?       @db.Text
-  rewardType   RewardType    @default(ITEM)
-  description  String?       @db.Text
-  effect       String?       @db.Text
-  flavorText   String?       @db.VarChar(512)
-  name         String        @db.VarChar(256)
-  slug         String?       @unique @db.VarChar(256)
-  Compositions Composition[]
-  Reactions    Reaction[]
-  ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
-  User         User?         @relation(fields: [userId], references: [id])
-  Characters   Character[]   @relation("CharacterToReward")
-  Dreams       Dream[]       @relation("DreamToReward")
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?   @default(now()) @updatedAt
+  icon        String?     @db.VarChar(256)
+  collection  String?     @db.VarChar(764)
+  rarity      Rarity      @default(COMMON)
+  userId      Int?        @default(1)
+  artImageId  Int?
+  imagePath   String?     @db.VarChar(764)
+  isMature    Boolean     @default(false)
+  isPublic    Boolean     @default(true)
+  isActive    Boolean     @default(true)
+  artPrompt   String?     @db.Text
+  rewardType  RewardType  @default(ITEM)
+  description String?     @db.Text
+  effect      String?     @db.Text
+  flavorText  String?     @db.VarChar(512)
+  name        String      @db.VarChar(256)
+  slug        String?     @unique @db.VarChar(256)
+  Reactions   Reaction[]
+  ArtImage    ArtImage?   @relation(fields: [artImageId], references: [id])
+  User        User?       @relation(fields: [userId], references: [id])
+  Characters  Character[] @relation("CharacterToReward")
+  Dreams      Dream[]     @relation("DreamToReward")
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
@@ -1151,7 +1070,6 @@ model Scenario {
   outputType           ScenarioOutputType    @default(STORY)
   slug                 String?               @unique @db.VarChar(255)
   ChallengeSubmissions ChallengeSubmission[]
-  Compositions         Composition[]
   Reactions            Reaction[]
   ArtImage             ArtImage?             @relation(fields: [artImageId], references: [id])
   User                 User?                 @relation(fields: [userId], references: [id])
@@ -1318,7 +1236,7 @@ model Theme {
   @@index([userId], map: "Theme_userId_fkey")
 }
 
-/// our user model. default test user is userId=10. 
+/// our user model. default test user is userId=10.
 model User {
   id                     Int                       @id @default(autoincrement())
   createdAt              DateTime                  @default(now())
@@ -1398,8 +1316,6 @@ model User {
   Challenges             Challenge[]
   characters             Character[]
   Chats                  Chat[]
-  Codes                  Code[]
-  Compositions           Composition[]
   ConversationsIn        ConversationParticipant[]
   SentMessages           DirectMessage[]           @relation("DirectMessageSender")
   Dreams                 Dream[]
@@ -2179,7 +2095,6 @@ enum Reaction_reactionCategory {
   CHARACTER
   CHAT_EXCHANGE
   COMPONENT
-  COMPOSITION
   DREAM
   FACET
   PROJECT
@@ -2294,14 +2209,6 @@ enum KarmaReason {
   REFERRAL_SIGNUP
   REFERRAL_CUT
   ADMIN_ADJUSTMENT
-}
-
-enum CompositionStatus {
-  DRAFT
-  PENDING
-  RUNNING
-  DONE
-  FAILED
 }
 
 enum ChallengeType {

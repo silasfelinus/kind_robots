@@ -2,10 +2,7 @@
 import { createError } from 'h3'
 import { prisma } from '~/server/utils/prisma'
 import type { ChatGptActor } from '../auth/resolveActor'
-import type {
-  ChatGptResource,
-  ContentRef,
-} from '../schemas/operationSchemas'
+import type { ChatGptResource, ContentRef } from '../schemas/operationSchemas'
 import {
   getCurrentModelConfig,
   type CurrentModelConfig,
@@ -47,7 +44,11 @@ type RelationDefinition = {
 }
 
 const relationDefinitions = [
-  ['artImage', 'resource', { mode: 'scalar', sourceField: 'checkpointResourceId' }],
+  [
+    'artImage',
+    'resource',
+    { mode: 'scalar', sourceField: 'checkpointResourceId' },
+  ],
   ['artImage', 'server', { mode: 'scalar', sourceField: 'serverId' }],
   ['artImage', 'user', { mode: 'scalar', sourceField: 'userId' }],
   ['artCollection', 'user', { mode: 'scalar', sourceField: 'userId' }],
@@ -64,20 +65,26 @@ const relationDefinitions = [
   ['chat', 'prompt', { mode: 'scalar', sourceField: 'promptId' }],
   ['chat', 'server', { mode: 'scalar', sourceField: 'serverId' }],
   ['chat', 'user', { mode: 'scalar', sourceField: 'userId' }],
-  ['composition', 'artImage', { mode: 'scalar', sourceField: 'artImageId' }],
-  ['composition', 'character', { mode: 'scalar', sourceField: 'characterId' }],
-  ['composition', 'dream', { mode: 'scalar', sourceField: 'dreamId' }],
-  ['composition', 'reward', { mode: 'scalar', sourceField: 'rewardId' }],
-  ['composition', 'scenario', { mode: 'scalar', sourceField: 'scenarioId' }],
-  ['composition', 'user', { mode: 'scalar', sourceField: 'userId' }],
-  ['dream', 'artCollection', { mode: 'scalar', sourceField: 'artCollectionId' }],
+  [
+    'dream',
+    'artCollection',
+    { mode: 'scalar', sourceField: 'artCollectionId' },
+  ],
   ['dream', 'artImage', { mode: 'scalar', sourceField: 'artImageId' }],
   ['dream', 'bot', { mode: 'scalar', sourceField: 'narratorId' }],
   ['dream', 'user', { mode: 'scalar', sourceField: 'userId' }],
-  ['facet', 'artCollection', { mode: 'scalar', sourceField: 'artCollectionId' }],
+  [
+    'facet',
+    'artCollection',
+    { mode: 'scalar', sourceField: 'artCollectionId' },
+  ],
   ['facet', 'artImage', { mode: 'scalar', sourceField: 'artImageId' }],
   ['facet', 'user', { mode: 'scalar', sourceField: 'userId' }],
-  ['project', 'artCollection', { mode: 'scalar', sourceField: 'artCollectionId' }],
+  [
+    'project',
+    'artCollection',
+    { mode: 'scalar', sourceField: 'artCollectionId' },
+  ],
   ['project', 'artImage', { mode: 'scalar', sourceField: 'artImageId' }],
   ['project', 'bot', { mode: 'scalar', sourceField: 'managerBotId' }],
   ['project', 'user', { mode: 'scalar', sourceField: 'userId' }],
@@ -94,8 +101,16 @@ const relationDefinitions = [
   ['server', 'user', { mode: 'scalar', sourceField: 'userId' }],
   ['theme', 'user', { mode: 'scalar', sourceField: 'userId' }],
   ['user', 'artImage', { mode: 'scalar', sourceField: 'artImageId' }],
-  ['artCollection', 'artImage', { mode: 'manyToMany', relationField: 'ArtImages' }],
-  ['artImage', 'artCollection', { mode: 'manyToMany', relationField: 'ArtCollections' }],
+  [
+    'artCollection',
+    'artImage',
+    { mode: 'manyToMany', relationField: 'ArtImages' },
+  ],
+  [
+    'artImage',
+    'artCollection',
+    { mode: 'manyToMany', relationField: 'ArtCollections' },
+  ],
   ['artCollection', 'dream', { mode: 'manyToMany', relationField: 'Dreams' }],
   ['artImage', 'dream', { mode: 'manyToMany', relationField: 'Dreams' }],
   ['bot', 'dream', { mode: 'manyToMany', relationField: 'Dreams' }],
@@ -104,7 +119,11 @@ const relationDefinitions = [
   ['character', 'reward', { mode: 'manyToMany', relationField: 'Rewards' }],
   ['reward', 'character', { mode: 'manyToMany', relationField: 'Characters' }],
   ['character', 'scenario', { mode: 'manyToMany', relationField: 'Scenarios' }],
-  ['scenario', 'character', { mode: 'manyToMany', relationField: 'Characters' }],
+  [
+    'scenario',
+    'character',
+    { mode: 'manyToMany', relationField: 'Characters' },
+  ],
   ['dream', 'reward', { mode: 'manyToMany', relationField: 'Rewards' }],
   ['reward', 'dream', { mode: 'manyToMany', relationField: 'Dreams' }],
   ['dream', 'scenario', { mode: 'manyToMany', relationField: 'Scenarios' }],
@@ -215,7 +234,11 @@ function buildPermissionSelect(
   const scalarFields = getScalarFields(resource)
   const select: Record<string, boolean> = { id: true }
 
-  for (const field of [config.ownerField, config.publicField, config.activeField]) {
+  for (const field of [
+    config.ownerField,
+    config.publicField,
+    config.activeField,
+  ]) {
     if (field && scalarFields.has(field)) select[field] = true
   }
 

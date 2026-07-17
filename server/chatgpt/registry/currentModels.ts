@@ -46,7 +46,13 @@ export const CURRENT_MODEL_REGISTRY = {
       field: 'updatedAt',
       direction: 'desc',
     },
-    hiddenFields: ['imageData', 'thumbnailData', 'heroData', 'cardData', 'iconData'],
+    hiddenFields: [
+      'imageData',
+      'thumbnailData',
+      'heroData',
+      'cardData',
+      'iconData',
+    ],
     listHiddenFields: [
       'imageData',
       'thumbnailData',
@@ -181,44 +187,6 @@ export const CURRENT_MODEL_REGISTRY = {
       direction: 'desc',
     },
   },
-  composition: {
-    prisma: 'composition',
-    ownerField: 'userId',
-    activeField: 'isActive',
-    publicField: 'isPublic',
-    searchableFields: [
-      'title',
-      'description',
-      'label',
-      'mode',
-      'designer',
-      'characterBlurb',
-      'dreamBlurb',
-      'scenarioBlurb',
-      'rewardBlurb',
-      'narrativeText',
-      'artPrompt',
-      'imagePath',
-      'wishText',
-    ],
-    filterFields: [
-      'mode',
-      'status',
-      'designer',
-      'characterId',
-      'dreamId',
-      'scenarioId',
-      'rewardId',
-      'artImageId',
-      'outputDreamId',
-      'userApproved',
-      'bountyId',
-    ],
-    defaultOrderBy: {
-      field: 'updatedAt',
-      direction: 'desc',
-    },
-  },
   dream: {
     prisma: 'dream',
     ownerField: 'userId',
@@ -332,7 +300,13 @@ export const CURRENT_MODEL_REGISTRY = {
     ownerField: 'userId',
     activeField: 'isActive',
     publicField: 'isPublic',
-    searchableFields: ['prompt', 'artPrompt', 'imagePath', 'batchId', 'errorMessage'],
+    searchableFields: [
+      'prompt',
+      'artPrompt',
+      'imagePath',
+      'batchId',
+      'errorMessage',
+    ],
     filterFields: [
       'creationSource',
       'botId',
@@ -472,7 +446,14 @@ export const CURRENT_MODEL_REGISTRY = {
     ownerField: 'userId',
     activeField: 'isActive',
     publicField: 'isPublic',
-    searchableFields: ['name', 'values', 'tagline', 'room', 'colorScheme', 'artPrompt'],
+    searchableFields: [
+      'name',
+      'values',
+      'tagline',
+      'room',
+      'colorScheme',
+      'artPrompt',
+    ],
     filterFields: ['name', 'colorScheme', 'prefersDark'],
     defaultOrderBy: {
       field: 'createdAt',
@@ -484,7 +465,14 @@ export const CURRENT_MODEL_REGISTRY = {
     ownerField: 'id',
     activeField: 'isActive',
     publicField: 'isPublic',
-    searchableFields: ['username', 'name', 'bio', 'languages', 'timezone', 'designerName'],
+    searchableFields: [
+      'username',
+      'name',
+      'bio',
+      'languages',
+      'timezone',
+      'designerName',
+    ],
     filterFields: [
       'username',
       'showMature',
@@ -539,7 +527,9 @@ export const CURRENT_MODEL_REGISTRY = {
   },
 } satisfies Partial<Record<ChatGptResource, CurrentModelConfig>>
 
-export function getCurrentModelConfig(resource: ChatGptResource): CurrentModelConfig {
+export function getCurrentModelConfig(
+  resource: ChatGptResource,
+): CurrentModelConfig {
   const config = CURRENT_MODEL_REGISTRY[resource]
 
   if (!config) {

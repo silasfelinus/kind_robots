@@ -116,6 +116,13 @@
       </table>
     </div>
 
+    <!-- Batch editor for the selected item's quantity group -->
+    <model-builder-batch-editor
+      v-if="selectedItem && showBatch"
+      :output-key="selectedItem.outputKey"
+      @select-item="selectedItemId = $event"
+    />
+
     <!-- Selected item panel -->
     <model-builder-item-panel
       v-if="selectedItem"
@@ -192,6 +199,15 @@ const selectedItemId = ref<string>(run.value?.items[0]?.id ?? '')
 const selectedItem = computed(() =>
   run.value?.items.find((item) => item.id === selectedItemId.value),
 )
+
+// Show the batch editor when the selected item is part of a quantity/expansion
+// group (more than one item sharing its outputKey).
+const selectedGroup = computed(() =>
+  store.itemGroups.find(
+    (group) => group.outputKey === selectedItem.value?.outputKey,
+  ),
+)
+const showBatch = computed(() => (selectedGroup.value?.items.length ?? 0) > 1)
 
 function statusClass(status: StageStatus): string {
   switch (status) {

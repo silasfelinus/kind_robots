@@ -153,3 +153,53 @@ export const CREATE_TARGETS: Record<string, SourceTypeKey> = {
   'expand-manager-bot': 'Bot',
   'expand-narrator-bot': 'Bot',
 }
+
+// --- FIELDS blob helpers ----------------------------------------------------
+// The FIELDS stage stores a "key: value" text blob (one field per line, the same
+// format defaultFieldsTemplate produces and the commit executor parses). These
+// helpers let the batch editor read and set individual fields across many items
+// without disturbing the other lines.
+
+export interface FieldLine {
+  key: string
+  value: string
+}
+
+export function parseFieldLines(blob: string): FieldLine[] {
+  return blob
+    .split('\n')
+    .map((line): FieldLine | null => {
+      const idx = line.indexOf(':')
+      if (idx === -1) return null
+      const key = line.slice(0, idx).trim()
+      if (!key) return null
+      return { key, value: line.slice(idx + 1).trim() }
+    })
+    .filter((line): line is FieldLine => line !== null)
+}
+
+// Read a single field's value from a FIELDS blob ('' if absent).
+export function readFieldLine(blob: string, key: string): string {
+  return parseFieldLines(blob).find((line) => line.key === key)?.value ?? ''
+}
+
+// Set (or append) a key's value in a FIELDS blob, preserving every other line and
+// its order. Appending drops a single trailing blank line first so the blob stays
+// tidy.
+export function setFieldLine(blob: string, key: string, value: string): string {
+  const lines = blob.split('\n')
+  let found = false
+  const next = lines.map((line) => {
+    const idx = line.indexOf(':')
+    if (idx === -1) return line
+    if (line.slice(0, idx).trim() !== key) return line
+    found = true
+    return `${key}: ${value}`
+  })
+  if (!found) {
+    const last = next[next.length - 1]
+    if (last !== undefined && last.trim() === '') next.pop()
+    next.push(`${key}: ${value}`)
+  }
+  return next.join('\n')
+}

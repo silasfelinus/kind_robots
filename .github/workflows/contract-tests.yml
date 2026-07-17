@@ -79,6 +79,9 @@ jobs:
       - name: Capture-group guard checker self-test
         run: npm run test:capture-group-guards-selftest
 
+      - name: Pack manifest validator self-test
+        run: npm run test:pack-manifest
+
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 

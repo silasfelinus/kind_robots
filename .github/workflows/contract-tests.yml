@@ -58,6 +58,9 @@ jobs:
       - name: Academy style-detail caller-doc contract
         run: npm run test:academy-style-detail-callers
 
+      - name: Academy starter manifest provenance contract
+        run: npm run test:academy-starter-manifest
+
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 

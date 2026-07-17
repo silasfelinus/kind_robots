@@ -149,6 +149,14 @@ jobs:
           sleep 5
           run_pool_round 3
 
+      - name: Remove stale Cypress users
+        env:
+          CYPRESS_BASE_API_URL: https://kind-robots.vercel.app/api
+          CYPRESS_BETA_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          CYPRESS_API_KEY: ${{ secrets.CYPRESS_API_KEY }}
+          CYPRESS_CLEANUP_PHASE: before-run
+        run: node scripts/cleanup-cypress-users.mjs
+
       - name: Run Cypress tests
         id: cypress
         uses: cypress-io/github-action@v6
@@ -164,6 +172,15 @@ jobs:
           CYPRESS_TIMING_LOG: '1'
           CYPRESS_SYNTHETIC_SOURCE: github-actions-cypress
           CYPRESS_SYNTHETIC_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Remove Cypress users after run
+        if: always() && steps.cypress.outcome != 'skipped'
+        env:
+          CYPRESS_BASE_API_URL: https://kind-robots.vercel.app/api
+          CYPRESS_BETA_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          CYPRESS_API_KEY: ${{ secrets.CYPRESS_API_KEY }}
+          CYPRESS_CLEANUP_PHASE: after-run
+        run: node scripts/cleanup-cypress-users.mjs
 
       - name: Verify Cypress cleanup
         # Only meaningful when Cypress actually ran. When an earlier gate (deploy
@@ -181,6 +198,7 @@ jobs:
             .cypress-cache/timing-latest.json
             .cypress-cache/seed-cleanup-latest.json
             .cypress-cache/orphan-user-sweep-latest.json
+            .cypress-cache/user-cleanup-*.json
           if-no-files-found: warn
 
       - name: Upload Cypress screenshots on failure

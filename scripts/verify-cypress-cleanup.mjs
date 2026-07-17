@@ -33,8 +33,25 @@ const failures = []
 for (const entry of Array.isArray(cleanup) ? cleanup : []) {
   if (entry?.ok === false) failures.push({ source: path.basename(cleanupFile), entry })
 }
-for (const entry of Array.isArray(orphan?.results) ? orphan.results : []) {
-  if (entry?.ok === false) failures.push({ source: path.basename(orphanFile), entry })
+
+if (orphan?.ok === false && orphan?.skipped !== true) {
+  failures.push({ source: path.basename(orphanFile), entry: orphan })
+}
+
+const orphanFailed = Array.isArray(orphan?.data?.failed) ? orphan.data.failed : []
+if (orphanFailed.length > 0) {
+  failures.push({
+    source: path.basename(orphanFile),
+    entry: { failed: orphanFailed },
+  })
+}
+
+const orphanRemaining = Number(orphan?.data?.remaining)
+if (Number.isFinite(orphanRemaining) && orphanRemaining > 0) {
+  failures.push({
+    source: path.basename(orphanFile),
+    entry: { remaining: orphanRemaining },
+  })
 }
 
 if (failures.length > 0) {
@@ -45,5 +62,5 @@ if (failures.length > 0) {
 
 console.log(
   `Cypress cleanup verified: ${Array.isArray(cleanup) ? cleanup.length : 0} cleanup result(s), ` +
-    `${Number(orphan?.candidates || 0)} stale user candidate(s).`,
+    `${Number(orphan?.data?.deleted?.length || 0)} stale user(s) removed.`,
 )

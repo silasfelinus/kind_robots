@@ -1,5 +1,5 @@
 // /server/api/characters/[id].patch.ts
-import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
@@ -12,21 +12,46 @@ import {
 import type { Character, Prisma } from '~/prisma/generated/prisma/client'
 
 type CharacterPatchBody = Partial<Character> & {
-  rewardIds?: number[]
-  scenarioIds?: number[]
-  dreamIds?: number[]
+  rewardIds?: unknown
+  scenarioIds?: unknown
+  dreamIds?: unknown
 }
 
-function normalizeIdArray(value: unknown): number[] {
-  if (!Array.isArray(value)) return []
+function normalizePositiveIdArray(value: unknown, field: string): number[] {
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `The "${field}" field must be an array of positive integer IDs.`,
+    })
+  }
 
-  return Array.from(
-    new Set(
-      value
-        .map((entry) => Number(entry))
-        .filter((entry) => Number.isInteger(entry) && entry > 0),
-    ),
-  )
+  const ids = value.map((entry) => Number(entry))
+
+  if (!ids.every((entry) => Number.isInteger(entry) && entry > 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `The "${field}" field must contain only positive integer IDs.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
+function normalizeArtImageRelation(
+  value: unknown,
+): Prisma.ArtImageUpdateOneWithoutCharactersNestedInput {
+  if (value === null || value === '') return { disconnect: true }
+
+  const id = Number(value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: 'artImageId must be a positive integer or null when provided.',
+    })
+  }
+
+  return { connect: { id } }
 }
 
 function getStringOrUndefined(value: unknown): string | undefined {
@@ -44,12 +69,72 @@ function getBooleanOrUndefined(value: unknown): boolean | undefined {
 }
 
 function getNumberOrUndefined(value: unknown): number | undefined {
+  if (value === null || typeof value === 'undefined' || value === '') {
+    return undefined
+  }
+
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : undefined
 }
 
 function hasUpdateData(data: Record<string, unknown>): boolean {
   return Object.values(data).some((value) => value !== undefined)
+}
+
+async function assertRelatedRecordsExist(options: {
+  rewardIds?: number[]
+  scenarioIds?: number[]
+  dreamIds?: number[]
+}) {
+  const { rewardIds, scenarioIds, dreamIds } = options
+
+  if (rewardIds?.length) {
+    const records = await prisma.reward.findMany({
+      where: { id: { in: rewardIds } },
+      select: { id: true },
+    })
+    const foundIds = new Set(records.map((record) => record.id))
+    const missingIds = rewardIds.filter((id) => !foundIds.has(id))
+
+    if (missingIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Reward IDs not found: ${missingIds.join(', ')}.`,
+      })
+    }
+  }
+
+  if (scenarioIds?.length) {
+    const records = await prisma.scenario.findMany({
+      where: { id: { in: scenarioIds } },
+      select: { id: true },
+    })
+    const foundIds = new Set(records.map((record) => record.id))
+    const missingIds = scenarioIds.filter((id) => !foundIds.has(id))
+
+    if (missingIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Scenario IDs not found: ${missingIds.join(', ')}.`,
+      })
+    }
+  }
+
+  if (dreamIds?.length) {
+    const records = await prisma.dream.findMany({
+      where: { id: { in: dreamIds } },
+      select: { id: true },
+    })
+    const foundIds = new Set(records.map((record) => record.id))
+    const missingIds = dreamIds.filter((id) => !foundIds.has(id))
+
+    if (missingIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Dream IDs not found: ${missingIds.join(', ')}.`,
+      })
+    }
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -152,15 +237,24 @@ export default defineEventHandler(async (event) => {
       nextSlug = await getUniqueCharacterSlug(
         prisma,
         nextName ?? existingCharacter.name,
-        {
-          excludeId: id,
-        },
+        { excludeId: id },
       )
     }
 
-    const rewardIds = normalizeIdArray(body.rewardIds)
-    const scenarioIds = normalizeIdArray(body.scenarioIds)
-    const dreamIds = normalizeIdArray(body.dreamIds)
+    const rewardIds =
+      'rewardIds' in body
+        ? normalizePositiveIdArray(body.rewardIds, 'rewardIds')
+        : undefined
+    const scenarioIds =
+      'scenarioIds' in body
+        ? normalizePositiveIdArray(body.scenarioIds, 'scenarioIds')
+        : undefined
+    const dreamIds =
+      'dreamIds' in body
+        ? normalizePositiveIdArray(body.dreamIds, 'dreamIds')
+        : undefined
+
+    await assertRelatedRecordsExist({ rewardIds, scenarioIds, dreamIds })
 
     const updateData: Prisma.CharacterUpdateInput = {
       name: nextName,
@@ -193,31 +287,28 @@ export default defineEventHandler(async (event) => {
       grace: body.grace,
       charm: body.charm,
       empathy: body.empathy,
+    }
 
-      ArtImage:
-        typeof body.artImageId === 'number'
-          ? { connect: { id: body.artImageId } }
-          : body.artImageId === null
-            ? { disconnect: true }
-            : undefined,
+    if ('artImageId' in body) {
+      updateData.ArtImage = normalizeArtImageRelation(body.artImageId)
+    }
 
-      Rewards: rewardIds.length
-        ? {
-            connect: rewardIds.map((rewardId) => ({ id: rewardId })),
-          }
-        : undefined,
+    if (rewardIds) {
+      updateData.Rewards = {
+        set: rewardIds.map((rewardId) => ({ id: rewardId })),
+      }
+    }
 
-      Scenarios: scenarioIds.length
-        ? {
-            connect: scenarioIds.map((scenarioId) => ({ id: scenarioId })),
-          }
-        : undefined,
+    if (scenarioIds) {
+      updateData.Scenarios = {
+        set: scenarioIds.map((scenarioId) => ({ id: scenarioId })),
+      }
+    }
 
-      Dreams: dreamIds.length
-        ? {
-            connect: dreamIds.map((dreamId) => ({ id: dreamId })),
-          }
-        : undefined,
+    if (dreamIds) {
+      updateData.Dreams = {
+        set: dreamIds.map((dreamId) => ({ id: dreamId })),
+      }
     }
 
     if (!hasUpdateData(updateData as Record<string, unknown>)) {

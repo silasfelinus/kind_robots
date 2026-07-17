@@ -84,6 +84,43 @@
       </div>
     </div>
 
+    <div v-if="lesson.exampleWorks?.length" class="flex flex-col gap-2">
+      <p
+        class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
+      >
+        <Icon name="kind-icon:gallery" class="h-3.5 w-3.5" />
+        Example works
+      </p>
+      <div class="grid gap-2 sm:grid-cols-2">
+        <a
+          v-for="work in lesson.exampleWorks"
+          :key="work.imageSrc"
+          :href="work.sourceUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group relative overflow-hidden rounded-xl border border-base-300 bg-base-200/40"
+          :title="`${work.workTitle} — public-domain source page`"
+        >
+          <img
+            :src="work.imageSrc"
+            :alt="`${work.workTitle} by ${work.artist}`"
+            loading="lazy"
+            class="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div
+            class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/90 to-transparent px-2 pb-1.5 pt-6"
+          >
+            <p class="truncate text-xs font-bold text-base-content">
+              {{ work.workTitle }}
+            </p>
+            <p class="truncate text-[0.65rem] text-base-content/70">
+              {{ work.artist }} · {{ work.year }} · {{ work.collection }}
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
       <p
         class="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"

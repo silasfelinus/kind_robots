@@ -1,4 +1,4 @@
-name: Diagnose PR 357 Capture Guard
+name: Fix PR 357 Capture Guard
 
 on:
   pull_request:
@@ -10,19 +10,20 @@ on:
       - reopened
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: diagnose-pr357-capture-guard-${{ github.event.pull_request.number }}
+  group: fix-pr357-capture-guard-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  diagnose:
+  fix:
     if: github.head_ref == 'agent/remove-code-compositions'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       CYPRESS_INSTALL_BINARY: '0'
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
 
     steps:
       - name: Checkout PR branch
@@ -30,6 +31,28 @@ jobs:
         with:
           ref: agent/remove-code-compositions
           fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Guard tokenMatch indexing
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('utils/scripts/migrate-cypress-user-token.mjs')
+          source = path.read_text()
+          old = "  if (tokenMatch?.index !== undefined) {\n    const insertAt = tokenMatch.index + tokenMatch[0].length"
+          new = "  if (tokenMatch?.index !== undefined && tokenMatch[0]) {\n    const insertAt = tokenMatch.index + tokenMatch[0].length"
+
+          if old not in source:
+              raise SystemExit('Expected tokenMatch block not found')
+
+          path.write_text(source.replace(old, new, 1))
+          PY
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -40,23 +63,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Capture exact guard diagnostics
+      - name: Verify focused contracts
         shell: bash
         run: |
           git fetch origin main
-          set +e
-          npm run test:capture-group-guards -- origin/main > capture-group-guard.txt 2>&1
-          status=$?
-          set -e
-          cat capture-group-guard.txt
-          echo "$status" > capture-group-guard.status
+          npm run test:capture-group-guards-selftest
+          npm run test:capture-group-guards -- origin/main
+          npm run test
 
-      - name: Upload diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr357-capture-group-guard
-          path: |
-            capture-group-guard.txt
-            capture-group-guard.status
-          if-no-files-found: error
-          retention-days: 3
+      - name: Remove temporary workflow
+        run: rm -f .github/workflows/fix-pr357-capture-guard.yml
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git add -A
+          git diff --cached --check
+          git commit -m "guard Cypress token migration regex match"
+          git push origin HEAD:agent/remove-code-compositions

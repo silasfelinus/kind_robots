@@ -25,6 +25,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
+import { useServerStore } from '@/stores/serverStore'
 import {
   seedPackManifests,
   type PackManifest,
@@ -226,6 +227,130 @@ export const usePackStore = defineStore('packStore', () => {
       (m) => m.id !== packId,
     )
     persist()
+  }
+
+  /**
+   * Validate and upsert a manifest into the editable (imported) set. Seed
+   * packs are copy-on-write: saving under a seed's id overrides the seed copy
+   * without touching the shipped data, and build state keyed by pack id
+   * carries over untouched.
+   */
+  function savePackManifest(manifest: PackManifest): {
+    success: boolean
+    message: string
+  } {
+    const problem = validatePackManifest(manifest)
+    if (problem) return { success: false, message: problem }
+    importedManifests.value = [
+      ...importedManifests.value.filter((m) => m.id !== manifest.id),
+      manifest,
+    ]
+    persist()
+    return { success: true, message: `Saved pack "${manifest.title}".` }
+  }
+
+  /** Rename a pack (seed or imported) — copy-on-write, id stays stable. */
+  function renamePack(
+    packId: string,
+    newTitle: string,
+  ): { success: boolean; message: string } {
+    const title = newTitle.trim()
+    if (!title) return { success: false, message: 'Title cannot be empty.' }
+    const pack = packById(packId)
+    if (!pack) return { success: false, message: 'Unknown pack.' }
+    return savePackManifest({ ...pack, title })
+  }
+
+  function uniquePackId(baseId: string): string {
+    const taken = new Set(manifests.value.map((m) => m.id))
+    if (!taken.has(baseId)) return baseId
+    let n = 2
+    while (taken.has(`${baseId}-${n}`)) n += 1
+    return `${baseId}-${n}`
+  }
+
+  /**
+   * Ask the LLM for a full manifest scaffold from a general theme prompt, via
+   * the existing /api/suggest pipeline (registered 'packmaker' sheet). The
+   * result is parsed and schema-validated but NOT saved — the caller loads it
+   * into the editor for review first.
+   */
+  async function generatePackScaffold(
+    prompt: string,
+  ): Promise<
+    | { success: true; manifest: PackManifest }
+    | { success: false; message: string }
+  > {
+    const theme = prompt.trim()
+    if (!theme) {
+      return { success: false, message: 'Describe the pack you want first.' }
+    }
+
+    const serverStore = useServerStore()
+    const activeServer = serverStore.activeTextServer
+    const serverSnapshot = activeServer
+      ? {
+          serverType: activeServer.serverType ?? null,
+          baseUrl: activeServer.baseUrl ?? null,
+          endpointPath: activeServer.endpointPath ?? null,
+          model: activeServer.model ?? null,
+        }
+      : undefined
+
+    const response = await performFetch<{ value: string }>(
+      '/api/suggest',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          builder: 'packmaker',
+          server: serverSnapshot,
+          field: 'manifest',
+          context: { prompt: theme },
+          maxTokens: 6000,
+        }),
+      },
+      1,
+      120_000,
+    )
+
+    if (!response.success || !response.data?.value) {
+      return {
+        success: false,
+        message: response.message || 'The model returned nothing useful.',
+      }
+    }
+
+    // Tolerate markdown fences or stray prose around the JSON object.
+    const raw = response.data.value
+    const start = raw.indexOf('{')
+    const end = raw.lastIndexOf('}')
+    if (start === -1 || end <= start) {
+      return { success: false, message: 'The model did not return JSON.' }
+    }
+
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(raw.slice(start, end + 1))
+    } catch {
+      return {
+        success: false,
+        message: 'The generated manifest was not valid JSON — try again.',
+      }
+    }
+
+    const problem = validatePackManifest(parsed)
+    if (problem) {
+      return {
+        success: false,
+        message: `The generated manifest failed validation (${problem}) — try again.`,
+      }
+    }
+
+    const manifest = parsed as PackManifest
+    return {
+      success: true,
+      manifest: { ...manifest, id: uniquePackId(manifest.id) },
+    }
   }
 
   /**
@@ -456,6 +581,10 @@ export const usePackStore = defineStore('packStore', () => {
     initialize,
     importManifest,
     removeImportedManifest,
+    savePackManifest,
+    renamePack,
+    uniquePackId,
+    generatePackScaffold,
     createItemRecord,
     generateItemArt,
     resetItem,

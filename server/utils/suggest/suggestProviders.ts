@@ -75,7 +75,7 @@ async function callAnthropic(
     },
     body: JSON.stringify({
       model: options.model,
-      max_tokens: 512,
+      max_tokens: options.maxTokens ?? 512,
       stream: false,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
@@ -121,7 +121,7 @@ async function callOpenAI(
     },
     body: JSON.stringify({
       model: options.model,
-      max_tokens: 512,
+      max_tokens: options.maxTokens ?? 512,
       stream: false,
       temperature: 0.7,
       messages: [
@@ -164,7 +164,7 @@ async function callOllama(
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      options: { num_predict: 512 },
+      options: { num_predict: options.maxTokens ?? 512 },
     }),
   })
 

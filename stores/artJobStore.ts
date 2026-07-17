@@ -79,6 +79,17 @@ export type CurateRequestResult = {
   missing: number[]
 }
 
+export type BulkReenqueueResult = {
+  requestedCount: number
+  queuedCount: number
+  failedCount: number
+  sourceJobIds: number[]
+  queuedSourceJobIds: number[]
+  failedSourceJobIds: number[]
+  createdJobIds: number[]
+  refreshSeed: boolean
+}
+
 export type QueueStats = {
   windowHours: number
   since: string
@@ -143,6 +154,7 @@ type ArtJobState = {
   loadingJobs: boolean
   loadingTrainerJobs: boolean
   retryingJobIds: number[]
+  reenqueueingFailedJobs: boolean
   // Jobs with a curate-request POST in flight, and jobs a request has been queued
   // for this session (so the UI can show "Curation requested" before Conductor's
   // verdict lands in payload.curation.curator).
@@ -168,6 +180,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingJobs: false,
     loadingTrainerJobs: false,
     retryingJobIds: [],
+    reenqueueingFailedJobs: false,
     curationRequestingIds: [],
     curationRequestedIds: [],
     error: null,
@@ -462,6 +475,32 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
+  async function reenqueueFailedJobs(): Promise<BulkReenqueueResult | null> {
+    if (state.reenqueueingFailedJobs) return null
+    state.reenqueueingFailedJobs = true
+    state.error = null
+
+    try {
+      const res = await performFetch<BulkReenqueueResult>(
+        '/api/art/queue/reenqueue-failed',
+        {
+          method: 'POST',
+          body: JSON.stringify({ refreshSeed: true }),
+        },
+      )
+
+      if (res.success && res.data) {
+        await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+        return res.data
+      }
+
+      state.error = res.message || 'Failed to re-enqueue failed jobs.'
+      return null
+    } finally {
+      state.reenqueueingFailedJobs = false
+    }
+  }
+
   async function refreshAll(): Promise<void> {
     state.error = null
     await Promise.all([
@@ -488,6 +527,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     requeueJob,
     cancelJob,
     reenqueueJob,
+    reenqueueFailedJobs,
     refreshAll,
     setWindow,
   }

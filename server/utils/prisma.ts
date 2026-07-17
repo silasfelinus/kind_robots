@@ -26,11 +26,13 @@ const globalForPrisma = globalThis as unknown as {
   prismaGeneration?: number
 }
 
-const databaseUrl = process.env.DATABASE_URL
+const configuredDatabaseUrl = process.env.DATABASE_URL
 
-if (!databaseUrl) {
+if (!configuredDatabaseUrl) {
   throw new Error('DATABASE_URL is missing')
 }
+
+const databaseUrl: string = configuredDatabaseUrl
 
 function readPositiveInteger(
   value: string | undefined,

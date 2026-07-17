@@ -10,13 +10,17 @@
 //
 //   npm ci --ignore-scripts          # one-time; skips nuxi postinstall
 //
-//   # via ProxySQL (the failing production path):
-//   DATABASE_URL='mysql://kindrobot:<pw>@127.0.0.1:5544/kindblank_fresh' \
-//     node scripts/db-write-repro.mjs
+// Run through `npx tsx` (not `node`): the generated Prisma client is emitted as
+// TypeScript by the `prisma-client` generator, so plain node can't resolve it.
+//
+//   # via ProxySQL (the failing production path). Add REPRO_PIPELINING=false to
+//   # confirm the fix (issue #324); REPRO_SSL=1 if the frontend requires TLS:
+//   REPRO_SSL=1 DATABASE_URL='mysql://kindrobot:<pw>@127.0.0.1:5544/kindblank_fresh' \
+//     npx tsx scripts/db-write-repro.mjs
 //
 //   # direct to MariaDB (bypasses ProxySQL — the discriminating run):
 //   DATABASE_URL='mysql://kindrobot:<pw>@<mariadb-ip>:3306/kindblank_fresh' \
-//     node scripts/db-write-repro.mjs
+//     npx tsx scripts/db-write-repro.mjs
 //
 // Each run exercises text AND binary protocol, with and without include, on a
 // control table (Todo — passes in prod) and two failing tables (Chat, Reward).

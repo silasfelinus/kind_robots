@@ -49,6 +49,9 @@ jobs:
       - name: Channel resolver contract
         run: npm run test:channel-resolver
 
+      - name: Data surface manifest contract
+        run: npm run test:data-surface-manifest
+
       - name: Database pool defaults contract
         run: npm run test:database-pool-defaults
 

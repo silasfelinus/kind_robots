@@ -87,6 +87,15 @@ assert.match(
 assert.match(prismaSource, /replayPrismaOperation/)
 assert.match(prismaSource, /new Proxy\(\{\} as RetryingPrismaClient/)
 
+// Recovery may replace the client during an active transaction, but the failed
+// statement must not be replayed outside that transaction. Transaction callers
+// are tracked through the stable proxy and receive the original error so Prisma
+// can roll back the transaction normally.
+assert.match(prismaSource, /new AsyncLocalStorage<boolean>\(\)/)
+assert.match(prismaSource, /property === '\$transaction'/)
+assert.match(prismaSource, /transactionContext\.run\(true/)
+assert.match(prismaSource, /transactionContext\.getStore\(\)/)
+
 // Never disconnect the shared or retired client during request recovery. Other
 // requests may still be completing transactions against it.
 assert.doesNotMatch(prismaSource, /\.\$disconnect\(\)/)
@@ -114,5 +123,5 @@ console.log(
     `connect=${DEFAULT_CONNECT_TIMEOUT_MS}ms, acquire=${DEFAULT_ACQUIRE_TIMEOUT_MS}ms, ` +
     `idle=${DEFAULT_IDLE_TIMEOUT_SECONDS}s, minimumIdle=${DEFAULT_MINIMUM_IDLE}, ` +
     `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma uses MariaDB text protocol and ` +
-    'recycles poisoned clients before replaying stale operations.',
+    'recycles poisoned clients without replaying outside active transactions.',
 )

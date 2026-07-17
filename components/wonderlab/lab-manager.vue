@@ -69,6 +69,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useComponentStore } from '@/stores/componentStore'
 import { useNavStore } from '@/stores/navStore'
 
@@ -82,6 +83,7 @@ const dashboardKey = 'wonder' as const
 const fallbackTab: LabTab = 'memory-dungeon'
 const validTabs: LabTab[] = ['memory-dungeon', 'wonder-lab', 'screen-fx']
 
+const route = useRoute()
 const navStore = useNavStore()
 const componentStore = useComponentStore()
 
@@ -89,6 +91,9 @@ const isLoading = ref(false)
 const managerError = ref<string | null>(null)
 
 const activeTab = computed<LabTab>(() => {
+  const routePath = route.path.replace(/\/+$/, '') || '/'
+  if (routePath === '/screenfx') return 'screen-fx'
+
   const selectedTab = navStore.getDashboardTab(dashboardKey)
 
   if (validTabs.includes(selectedTab as LabTab)) {

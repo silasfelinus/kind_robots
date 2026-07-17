@@ -43,29 +43,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, resolveComponent } from 'vue'
-import {
-  getAnimationComponentName,
-  type AnimationEffectId,
-} from '@/stores/animationCatalog'
+import { computed } from 'vue'
+import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
 import { useAnimationStore } from '@/stores/animationStore'
 
 const animationStore = useAnimationStore()
 
-const componentsMap = new Map<
-  AnimationEffectId,
-  ReturnType<typeof resolveComponent>
->(
-  animationStore.effects.map((effect) => [
-    effect.id,
-    resolveComponent(getAnimationComponentName(effect.id)),
-  ]),
-)
-
 const activeComponent = computed(() => {
   const effectId = animationStore.activeEffectId
   if (!effectId) return null
-  return componentsMap.get(effectId) || null
+  return getAnimationEffectComponent(effectId)
 })
 </script>
 

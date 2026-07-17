@@ -5,13 +5,17 @@
       v-if="renderEffect && currentComponent"
       class="startup-animation"
       :class="{ 'startup-animation--fading': isFading }"
-      aria-hidden="true"
     >
       <component
         :is="currentComponent"
         :key="resolvedEffectId"
         class="startup-animation__effect"
+        aria-hidden="true"
       />
+
+      <div v-if="currentEffectLabel" class="startup-animation__label">
+        Animation: {{ currentEffectLabel }}
+      </div>
     </div>
   </Teleport>
 </template>
@@ -41,6 +45,16 @@ let fadeTimer: ReturnType<typeof setTimeout> | null = null
 const currentComponent = computed(() => {
   if (!resolvedEffectId.value) return null
   return getAnimationEffectComponent(resolvedEffectId.value)
+})
+
+const currentEffectLabel = computed(() => {
+  if (!resolvedEffectId.value) return ''
+
+  return (
+    animationStore.effects.find(
+      (effect) => effect.id === resolvedEffectId.value,
+    )?.label ?? resolvedEffectId.value
+  )
 })
 
 function clearFadeTimer(): void {
@@ -103,7 +117,7 @@ onBeforeUnmount(() => {
 .startup-animation {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 49;
   overflow: hidden;
   pointer-events: none;
   opacity: 1;
@@ -121,5 +135,27 @@ onBeforeUnmount(() => {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.startup-animation__label {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 100;
+  max-width: calc(100vw - 2rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 9999px;
+  padding: 0.45rem 0.8rem;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(0.5rem);
 }
 </style>

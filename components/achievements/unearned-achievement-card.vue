@@ -5,8 +5,7 @@
     class="card bg-base-300 hover:bg-accent-dark hover:shadow-xl rounded-2xl p-4 m-2 border transition duration-300 ease-in-out relative"
   >
     <div class="text-center flex flex-col items-center">
-      <!-- Achievement Icon -->
-      id: {{ achievement.id }}
+      <!-- Achievement Icon (art stays hidden until the bean is earned) -->
       <Icon
         :name="props.achievement.icon ?? 'kind-icon:map'"
         class="Icon-extra-large mb-2"

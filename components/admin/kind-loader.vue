@@ -173,7 +173,10 @@ async function initializeStores() {
       navStore.initialize?.(),
       smartbarStore.initialize?.(),
       consoleStore.initialize?.(),
-      achievementStore.initialize?.(),
+      achievementStore.initialize?.({
+        fetchRemote: true,
+        migratePendingGuestAchievements: true,
+      }),
       themeStore.initialize({ fetchShared: true }),
     ])
 

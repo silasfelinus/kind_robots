@@ -5,6 +5,7 @@ import type { ArtImage, Prompt } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { useUserStore } from './userStore'
+import { useAchievementStore } from './achievementStore'
 import {
   validatePromptString,
   extractPitch,
@@ -563,6 +564,9 @@ export const usePromptStore = defineStore('promptStore', () => {
         currentPrompt.value = created.prompt
 
         syncToLocalStorage()
+
+        // Achievement: "Prompt Smith" for forging a prompt (deduped).
+        void useAchievementStore().rewardAchievementByCode('first-prompt')
 
         return {
           success: true,

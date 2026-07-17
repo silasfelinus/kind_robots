@@ -16,9 +16,16 @@
         class="bg-linear-to-r from-primary via-secondary to-accent px-6 py-5 text-center"
       >
         <span
-          class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 ring-2 ring-white/30"
+          class="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/20 ring-2 ring-white/30"
         >
+          <img
+            v-if="achievement.imagePath"
+            :src="achievement.imagePath"
+            :alt="achievement.label"
+            class="h-full w-full object-cover"
+          />
           <Icon
+            v-else
             :name="achievement.icon ?? 'kind-icon:map'"
             class="h-9 w-9 text-white drop-shadow"
           />
@@ -89,6 +96,7 @@ type AchievementLike = {
   label: string
   message?: string | null
   icon?: string | null
+  imagePath?: string | null
   karma?: number | null
 }
 

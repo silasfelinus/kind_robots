@@ -15,6 +15,7 @@ import {
   randomPrimaryColor,
 } from './helpers/butterflyHelper'
 import { createButterflyEffects } from './helpers/butterflyEffects'
+import { useAchievementStore } from './achievementStore'
 
 type StartupButterflyMode = 'legacy' | 'dynamic'
 
@@ -514,6 +515,14 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterfly.id,
     ])
     discoveryButterfly.value = butterfly
+
+    // Achievements: "Butterfly Whisperer" on the first catch, "Lepidopterist"
+    // at 25. Reward dedupe makes firing on every capture safe.
+    const achievementStore = useAchievementStore()
+    void achievementStore.rewardAchievementByCode('butterfly-first')
+    if (capturedButterflyIds.value.size >= 25) {
+      void achievementStore.rewardAchievementByCode('butterfly-swarm')
+    }
   }
 
   function clearDiscovery() {

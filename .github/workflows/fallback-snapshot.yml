@@ -148,15 +148,10 @@ jobs:
           EOF
 
           sudo apt-get install -y -q mysql-client >/dev/null 2>&1 || true
-          proto_stripped="${DATABASE_URL#mysql://}"
-          creds="${proto_stripped%%@*}"
-          rest="${proto_stripped#*@}"
-          DB_USER="${creds%%:*}"
-          export MYSQL_PWD="${creds#*:}"
-          hostport="${rest%%/*}"
-          DB_HOST="${hostport%%:*}"
-          DB_PORT="${hostport#*:}"
-          [ "$DB_PORT" = "$DB_HOST" ] && DB_PORT=3306
+          DB_USER="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" user)"
+          export MYSQL_PWD="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" password)"
+          DB_HOST="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" host)"
+          DB_PORT="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" port)"
           if command -v tailscale >/dev/null 2>&1; then
             if tailscale ping -c 2 --timeout 3s "$DB_HOST" >/dev/null 2>&1; then
               echo "tailscale ping: ok"
@@ -217,6 +212,10 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Checkout
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
       - name: Connect to Tailscale
         if: steps.gate.outputs.enabled == 'true'
         uses: tailscale/github-action@v3
@@ -241,17 +240,11 @@ jobs:
           set -o pipefail
 
           # Parse mysql://user:pass@host:port/db (query string ignored)
-          proto_stripped="${DATABASE_URL#mysql://}"
-          creds="${proto_stripped%%@*}"
-          rest="${proto_stripped#*@}"
-          DB_USER="${creds%%:*}"
-          export MYSQL_PWD="${creds#*:}"
-          hostport="${rest%%/*}"
-          DB_HOST="${hostport%%:*}"
-          DB_PORT="${hostport#*:}"
-          [ "$DB_PORT" = "$DB_HOST" ] && DB_PORT=3306
-          db_and_query="${rest#*/}"
-          DB_NAME="${db_and_query%%\?*}"
+          DB_USER="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" user)"
+          export MYSQL_PWD="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" password)"
+          DB_HOST="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" host)"
+          DB_PORT="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" port)"
+          DB_NAME="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" name)"
 
           # --column-statistics=0: the runner's MySQL 8 mysqldump queries
           # information_schema.COLUMN_STATISTICS, which MariaDB doesn't have.

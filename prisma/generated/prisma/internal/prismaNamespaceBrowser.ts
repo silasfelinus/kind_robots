@@ -80,6 +80,10 @@ export const ModelName = {
   Log: 'Log',
   Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
+  Product: 'Product',
+  Order: 'Order',
+  OrderItem: 'OrderItem',
+  Entitlement: 'Entitlement',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
@@ -752,6 +756,60 @@ export const ManaTransactionScalarFieldEnum = {
 } as const
 
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
+
+
+export const ProductScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  type: 'type',
+  title: 'title',
+  priceCents: 'priceCents',
+  currency: 'currency',
+  active: 'active',
+  metadata: 'metadata'
+} as const
+
+export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const OrderScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  stripeSessionId: 'stripeSessionId',
+  stripeCustomerId: 'stripeCustomerId',
+  status: 'status',
+  totalCents: 'totalCents'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  quantity: 'quantity',
+  priceCents: 'priceCents'
+} as const
+
+export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const EntitlementScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  productId: 'productId',
+  orderItemId: 'orderItemId',
+  grantedAt: 'grantedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type EntitlementScalarFieldEnum = (typeof EntitlementScalarFieldEnum)[keyof typeof EntitlementScalarFieldEnum]
 
 
 export const AchievementRecordScalarFieldEnum = {
@@ -1907,6 +1965,24 @@ export const ManaTransactionOrderByRelevanceFieldEnum = {
 } as const
 
 export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
+
+
+export const ProductOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  currency: 'currency',
+  metadata: 'metadata'
+} as const
+
+export type ProductOrderByRelevanceFieldEnum = (typeof ProductOrderByRelevanceFieldEnum)[keyof typeof ProductOrderByRelevanceFieldEnum]
+
+
+export const OrderOrderByRelevanceFieldEnum = {
+  stripeSessionId: 'stripeSessionId',
+  stripeCustomerId: 'stripeCustomerId'
+} as const
+
+export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
 
 
 export const AchievementRecordOrderByRelevanceFieldEnum = {

@@ -759,6 +759,82 @@ model ManaTransaction {
   @@index([userId, createdAt])
 }
 
+/// digital-storefront v1 catalog entry (SPEC.md §3, digital-storefront/t-011 step 1).
+/// Trusted server-side price source — replaces the imported
+/// stores/seeds/cartItems.ts array in checkout.post.ts. metadata is a
+/// serialized-JSON string (this repo stores structured data as
+/// String/@db.LongText, never a native Json column — see
+/// utils/scripts/verifyNoPrismaJsonCast.ts).
+model Product {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @default(now()) @updatedAt
+  slug         String        @unique @db.VarChar(255)
+  type         ProductType
+  title        String        @db.VarChar(255)
+  priceCents   Int
+  currency     String        @default("usd") @db.VarChar(8)
+  active       Boolean       @default(true)
+  metadata     String?       @db.LongText
+  Entitlements Entitlement[]
+  OrderItems   OrderItem[]
+}
+
+/// One Stripe Checkout Session's fulfillment record (SPEC.md §3). Created by
+/// the webhook handler (digital-storefront t-011 step 2, not this migration)
+/// on `checkout.session.completed`; stripeSessionId is the idempotency key
+/// that stops a redelivered webhook event from double-fulfilling.
+model Order {
+  id               Int         @id @default(autoincrement())
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime?   @default(now()) @updatedAt
+  userId           Int
+  stripeSessionId  String      @unique @db.VarChar(255)
+  stripeCustomerId String?     @db.VarChar(64)
+  status           OrderStatus @default(PENDING)
+  totalCents       Int
+  User             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Items            OrderItem[]
+
+  @@index([userId])
+}
+
+/// One line of an Order. priceCents snapshots the Product's price at purchase
+/// time so a later price change never rewrites history.
+model OrderItem {
+  id          Int          @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  quantity    Int          @default(1)
+  priceCents  Int
+  Order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product     Product      @relation(fields: [productId], references: [id])
+  Entitlement Entitlement?
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+/// Answers "does this user own this digital good" (SPEC.md §4) — the gate a
+/// secure download route (t-011 step 3, not this migration) checks before
+/// streaming a paid PDF/DLC file. revokedAt supports refunds without deleting
+/// purchase history.
+model Entitlement {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  userId      Int
+  productId   Int
+  orderItemId Int       @unique
+  grantedAt   DateTime  @default(now())
+  revokedAt   DateTime?
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Product     Product   @relation(fields: [productId], references: [id])
+  OrderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+}
+
 /// the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
 model AchievementRecord {
   id                     Int                     @id @default(autoincrement())
@@ -1326,8 +1402,10 @@ model User {
   ConversationsIn        ConversationParticipant[]
   SentMessages           DirectMessage[]           @relation("DirectMessageSender")
   Dreams                 Dream[]
+  Entitlements           Entitlement[]
   Facets                 Facet[]
   KarmaTransactions      KarmaTransaction[]
+  Orders                 Order[]
   LifeAchievementUnlocks LifeAchievementUnlock[]
   LifeRuns               LifeRun[]
   Logs                   Log[]
@@ -2284,4 +2362,25 @@ enum LifeAchievementType {
   FAILURE
   VICTORY
   COLLECTION
+}
+
+/// digital-storefront v1 catalog (SPEC.md, digital-storefront/t-009). Step 1 of
+/// t-011's build order: replaces stores/seeds/cartItems.ts as the trusted price
+/// source for Stripe checkout. Values other than DIGITAL_PDF are declared now so
+/// later storefront steps (subscription/mana-topup/DLC/POD) share one enum, but
+/// only DIGITAL_PDF is seeded/used as of this migration.
+enum ProductType {
+  DIGITAL_PDF
+  POD
+  SUBSCRIPTION
+  MANA_TOPUP
+  DLC
+  DONATION
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }

@@ -637,3 +637,25 @@ export const LifeAchievementType = {
 } as const
 
 export type LifeAchievementType = (typeof LifeAchievementType)[keyof typeof LifeAchievementType]
+
+
+export const ProductType = {
+  DIGITAL_PDF: 'DIGITAL_PDF',
+  POD: 'POD',
+  SUBSCRIPTION: 'SUBSCRIPTION',
+  MANA_TOPUP: 'MANA_TOPUP',
+  DLC: 'DLC',
+  DONATION: 'DONATION'
+} as const
+
+export type ProductType = (typeof ProductType)[keyof typeof ProductType]
+
+
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]

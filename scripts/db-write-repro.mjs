@@ -49,6 +49,11 @@ function buildAdapter(useTextProtocol) {
       connectTimeout: 5000,
       acquireTimeout: 10000,
       trace: true,
+      // REPRO_SSL=1 turns on TLS without cert verification (LAN debugging via
+      // the ProxySQL frontend, which presents a cert the LAN host can't verify).
+      ...(process.env.REPRO_SSL === '1'
+        ? { ssl: { rejectUnauthorized: false } }
+        : {}),
       // Surface every connector-level error with its ORIGINAL message/stack —
       // this is the evidence the production logs never show.
       logger: {

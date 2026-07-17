@@ -57,6 +57,7 @@
     "test:capture-group-guards": "tsx utils/scripts/verifyCaptureGroupGuards.ts",
     "test:capture-group-guards-selftest": "tsx utils/scripts/verifyCaptureGroupGuards.test.ts",
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",
+    "test:pack-scaffold-extraction": "tsx utils/scripts/verifyPackScaffoldExtraction.test.ts",
     "test:parse-mysql-url": "tsx utils/scripts/verifyParseMysqlUrl.ts",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

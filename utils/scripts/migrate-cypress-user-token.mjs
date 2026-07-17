@@ -58,8 +58,9 @@ function ensureUserIdVariable(source) {
   const tokenMatch = source.match(
     /\blet\s+userToken\s*=\s*['"`][^'"`]*['"`]\s*/,
   )
-  if (tokenMatch?.index !== undefined) {
-    const insertAt = tokenMatch.index + tokenMatch[0].length
+  const tokenText = tokenMatch?.[0]
+  if (tokenMatch?.index !== undefined && tokenText) {
+    const insertAt = tokenMatch.index + tokenText.length
     return `${source.slice(0, insertAt)}\nlet userId = 0${source.slice(insertAt)}`
   }
 

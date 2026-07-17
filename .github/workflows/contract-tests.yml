@@ -62,7 +62,7 @@ jobs:
         run: npm run test:academy-starter-manifest
 
       - name: Academy examples manifest provenance contract
-        run: npm run test:academy-examples-manifest
+        run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
 
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
@@ -106,11 +106,13 @@ jobs:
       - name: Channel artwork audit
         run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
 
-      - name: Upload channel artwork report
+      - name: Upload contract diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: channel-artwork-audit
-          path: channel-artwork-audit.txt
-          if-no-files-found: error
+          name: contract-diagnostics
+          path: |
+            academy-examples-contract.txt
+            channel-artwork-audit.txt
+          if-no-files-found: warn
           retention-days: 14

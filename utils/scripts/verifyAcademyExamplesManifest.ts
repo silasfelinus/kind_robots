@@ -3,48 +3,43 @@
 // ai-art-academy/t-013: the curriculum "Example works" strip needs the same
 // provenance discipline as the starter-image library (see
 // verifyAcademyStarterManifest.ts and conductor's PUBLIC-DOMAIN-POLICY.md
-// §3), plus one more invariant specific to example works: per §3's field
-// rules, "these records live in... for curriculum example works, in the
-// academy-styles registry entries" — so stores/seeds/academyStyles.ts is the
-// canonical copy and public/images/academy/examples/examples.manifest.json
-// is a generated mirror. This contract fails CI if either goes stale
-// relative to the other, or if a referenced image file is missing.
+// §3), plus one more invariant specific to example works: academyStyles.ts is
+// the canonical metadata copy and the external examples manifest is its media
+// mirror. Schema and path parity are source-code contracts; live asset
+// availability is an opt-in operational smoke test.
 //
-// Dependency-free on purpose: pure JSON + string assertions, no schema
-// library, so it runs under bare `tsx` without the Nuxt/Prisma runtime.
-// Shared field-list/license-enum check lives in academyProvenanceSchema.ts
-// (ai-art-academy/t-028) so this and verifyAcademyStarterManifest.ts
-// validate the same schema instead of duplicating it by hand.
+// Set MEDIA_ROOT for a filesystem-backed availability check, or set
+// MEDIA_VERIFY_ASSETS=1 to verify the public origin with HEAD requests.
 //
 // Run: npm run test:academy-examples-manifest
 
-import { existsSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { academyStyles } from '../../stores/seeds/academyStyles'
 import { validateProvenanceRecord } from './academyProvenanceSchema'
+import {
+  imageSrcToMediaPath,
+  mediaAssetExists,
+  mediaSourceDescription,
+  readMediaText,
+  repositoryFileToMediaPath,
+} from './mediaContractSource'
 
-const scriptDirectory = dirname(fileURLToPath(import.meta.url))
-const repositoryRoot = resolve(scriptDirectory, '../..')
-const manifestPath = resolve(
-  repositoryRoot,
-  'public/images/academy/examples/examples.manifest.json',
-)
+const manifestRelativePath = 'academy/examples/examples.manifest.json'
+const manifestSource = mediaSourceDescription(manifestRelativePath)
+const verifyAssets =
+  Boolean(process.env.MEDIA_ROOT?.trim()) ||
+  process.env.MEDIA_VERIFY_ASSETS === '1'
 
-// This manifest carries two fields beyond the shared provenance schema:
-// `movement` (join key to academyStyles.ts) and `file` (repo-relative path).
 const REQUIRED_OWN_STRING_FIELDS = ['movement', 'file'] as const
 
 async function main(): Promise<void> {
-  const raw = await readFile(manifestPath, 'utf8')
+  const raw = await readMediaText(manifestRelativePath)
 
   let entries: unknown
   try {
     entries = JSON.parse(raw)
   } catch (error) {
     console.error(
-      `Academy examples manifest contract failed: ${manifestPath} is not valid JSON — ${
+      `Academy examples manifest contract failed: ${manifestSource} is not valid JSON — ${
         error instanceof Error ? error.message : String(error)
       }`,
     )
@@ -54,7 +49,7 @@ async function main(): Promise<void> {
 
   if (!Array.isArray(entries)) {
     console.error(
-      `Academy examples manifest contract failed: ${manifestPath} must be a JSON array, got ${typeof entries}`,
+      `Academy examples manifest contract failed: ${manifestSource} must be a JSON array, got ${typeof entries}`,
     )
     process.exitCode = 1
     return
@@ -63,7 +58,7 @@ async function main(): Promise<void> {
   const errors: string[] = []
   const manifestImageSrcByMovement = new Map<string, string>()
 
-  entries.forEach((entry, index) => {
+  for (const [index, entry] of entries.entries()) {
     const label =
       entry && typeof entry === 'object' && 'workTitle' in entry
         ? String((entry as Record<string, unknown>).workTitle)
@@ -71,7 +66,7 @@ async function main(): Promise<void> {
 
     if (!entry || typeof entry !== 'object') {
       errors.push(`${label}: entry is not an object`)
-      return
+      continue
     }
     const record = entry as Record<string, unknown>
 
@@ -84,22 +79,25 @@ async function main(): Promise<void> {
     validateProvenanceRecord(record, label, errors)
 
     const file = typeof record.file === 'string' ? record.file : null
-    if (file) {
-      const absolutePath = resolve(repositoryRoot, file)
-      if (!existsSync(absolutePath)) {
-        errors.push(`${label}: referenced file does not exist: ${file}`)
-      }
-      if (typeof record.movement === 'string') {
-        manifestImageSrcByMovement.set(
-          record.movement,
-          `/${file.replace(/^public\//, '')}`,
+    if (!file) continue
+
+    try {
+      const mediaPath = repositoryFileToMediaPath(file)
+      if (verifyAssets && !(await mediaAssetExists(mediaPath))) {
+        errors.push(
+          `${label}: referenced media asset does not exist: ${mediaSourceDescription(mediaPath)}`,
         )
       }
+      if (typeof record.movement === 'string') {
+        manifestImageSrcByMovement.set(record.movement, `/images/${mediaPath}`)
+      }
+    } catch (error) {
+      errors.push(
+        `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
-  })
+  }
 
-  // Cross-check against the canonical copy in academyStyles.ts — the
-  // manifest is a generated mirror and must not drift from it (t-013).
   const seedImageSrcByMovement = new Map<string, string>()
   for (const style of academyStyles) {
     for (const work of style.exampleWorks ?? []) {
@@ -111,9 +109,17 @@ async function main(): Promise<void> {
         continue
       }
       seedImageSrcByMovement.set(style.slug, work.imageSrc)
-      if (!existsSync(resolve(repositoryRoot, 'public' + work.imageSrc))) {
+
+      try {
+        const mediaPath = imageSrcToMediaPath(work.imageSrc)
+        if (verifyAssets && !(await mediaAssetExists(mediaPath))) {
+          errors.push(
+            `${style.slug}: exampleWorks imageSrc does not exist at ${mediaSourceDescription(mediaPath)}`,
+          )
+        }
+      } catch (error) {
         errors.push(
-          `${style.slug}: exampleWorks imageSrc does not exist on disk: ${work.imageSrc}`,
+          `${style.slug}: ${error instanceof Error ? error.message : String(error)}`,
         )
       }
     }
@@ -152,8 +158,11 @@ async function main(): Promise<void> {
     return
   }
 
+  const availabilityNote = verifyAssets
+    ? ' with media availability verified'
+    : ' (media availability check skipped; set MEDIA_VERIFY_ASSETS=1 to enable)'
   console.log(
-    `Academy examples manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts.`,
+    `Academy examples manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated from ${manifestSource} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
   )
 }
 

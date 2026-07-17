@@ -16,7 +16,7 @@ import {
 // - retiring every idle connection after 15 seconds leaves warm Vercel instances
 //   reusing or recreating unhealthy ProxySQL sockets during sustained API tests
 // - the adapter's binary execute() path can retain a closed command channel
-//   through ProxySQL even while the connector's text query() path stays healthy
+// - retrying through the same poisoned client repeats the same stale-socket error
 assert.ok(
   DEFAULT_CONNECTION_LIMIT >= SAFE_MINIMUM_CONNECTION_LIMIT,
   `DEFAULT_CONNECTION_LIMIT (${DEFAULT_CONNECTION_LIMIT}) must be >= ` +
@@ -74,12 +74,26 @@ assert.match(
   /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
 )
 
-// Project Sync can encounter a stale socket retained by a warm Vercel instance.
-// Recovery must bypass the Prisma adapter pool through the same direct MariaDB
-// connection path used by the production database probe. It must never
-// disconnect the shared Prisma client, which aborts unrelated transactions.
-assert.doesNotMatch(prismaSource, /basePrisma\.\$disconnect\(\)/)
+// A stale socket poisons the adapter client that owns its pool. Recovery must
+// connect a replacement client, atomically redirect future calls, and replay the
+// failed model operation through that replacement instead of calling the stale
+// query closure again. Concurrent failures share one recovery promise.
+assert.match(prismaSource, /globalForPrisma\.prismaRecovery/)
+assert.match(prismaSource, /await replacement\.\$connect\(\)/)
+assert.match(
+  prismaSource,
+  /activePrisma = extendPrismaClient\(replacement\)/,
+)
+assert.match(prismaSource, /replayPrismaOperation/)
+assert.match(prismaSource, /new Proxy\(\{\} as RetryingPrismaClient/)
+
+// Never disconnect the shared or retired client during request recovery. Other
+// requests may still be completing transactions against it.
+assert.doesNotMatch(prismaSource, /\.\$disconnect\(\)/)
 assert.doesNotMatch(prismaSource, /createIsolatedPrismaClient/)
+
+// Project Sync keeps its direct MariaDB fallback as a route-specific final
+// safety net when adapter recovery cannot complete.
 assert.match(
   directProbeSource,
   /export async function createDatabaseDirectConnection\(\)/,
@@ -99,6 +113,6 @@ console.log(
   `Database pool safeguards verified: limit=${DEFAULT_CONNECTION_LIMIT}, ` +
     `connect=${DEFAULT_CONNECT_TIMEOUT_MS}ms, acquire=${DEFAULT_ACQUIRE_TIMEOUT_MS}ms, ` +
     `idle=${DEFAULT_IDLE_TIMEOUT_SECONDS}s, minimumIdle=${DEFAULT_MINIMUM_IDLE}, ` +
-    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma defaults to MariaDB text protocol through ProxySQL; ` +
-    'stale Project creates bypass Prisma through direct MariaDB.',
+    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma uses MariaDB text protocol and ` +
+    'recycles poisoned clients before replaying stale operations.',
 )

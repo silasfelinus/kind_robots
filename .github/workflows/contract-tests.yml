@@ -61,6 +61,9 @@ jobs:
       - name: Academy starter manifest provenance contract
         run: npm run test:academy-starter-manifest
 
+      - name: Academy examples manifest provenance contract
+        run: npm run test:academy-examples-manifest
+
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 

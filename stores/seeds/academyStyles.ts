@@ -22,6 +22,29 @@ export interface AcademyArtist {
   note: string
 }
 
+/**
+ * A single real, public-domain example work shown in the Academy lesson
+ * detail view's "Example works" strip. Provenance schema per conductor's
+ * ai-art-academy PUBLIC-DOMAIN-POLICY.md §3 (this registry is the schema's
+ * canonical home for curriculum example works). Image files + a matching
+ * JSON copy of this data live under public/images/academy/examples/,
+ * validated by utils/scripts/verifyAcademyExamplesManifest.ts.
+ */
+export interface AcademyExampleWork {
+  workTitle: string
+  artist: string
+  /** Year the artist died — the §1.3 prong-1 public-domain check. */
+  artistDied: number
+  year: string
+  collection: string
+  accessionId: string
+  sourceUrl: string
+  license: 'CC0' | 'PD-Mark' | 'Open-Access-Terms'
+  licenseTermsUrl: string
+  /** Path under /images/academy/examples/{file}, served from public/. */
+  imageSrc: string
+}
+
 export interface AcademyRemixConfig {
   mode: 'prompt' | 'lora' | 'hybrid'
   /** Kontext instruction; art-styler uses this as the trigger phrase. */
@@ -43,6 +66,13 @@ export interface AcademyStyle {
   remix: AcademyRemixConfig
   /** Optional preview image under /images/academy/styles/{slug}.webp */
   previewImageSrc?: string
+  /**
+   * Real public-domain example works for the "Example works" strip
+   * (ai-art-academy/t-013). Not every style has a verified example yet —
+   * verification is a per-work, ongoing process (see PUBLIC-DOMAIN-POLICY.md
+   * and docs/curriculum-outline.md's "VERIFIED" markers).
+   */
+  exampleWorks?: AcademyExampleWork[]
   /**
    * Per-style "what tends to go wrong" note for the Try It beat, backfilled
    * from conductor's docs/teaching-notes.md §3 (ai-art-academy/t-025). Falls
@@ -81,6 +111,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'May add vessel curvature or border framing; loses fine facial detail',
+    exampleWorks: [
+      {
+        workTitle: 'Terracotta Panathenaic prize amphora',
+        artist: 'Attributed to the Euphiletos Painter',
+        artistDied: -500,
+        year: 'ca. 530 BCE',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '14.130.12',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/248902',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/terracotta-panathenaic-prize-amphora-14-130-12.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -110,6 +155,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Grout/tesserae texture can flatten faces; gold field can swallow the subject',
+    exampleWorks: [
+      {
+        workTitle:
+          'Fragment of a Floor Mosaic with a Personification of Ktisis',
+        artist: 'Unknown Byzantine mosaicist',
+        artistDied: 600,
+        year: '500-550 CE, with modern restoration',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '1998.69; 1999.99',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/469960',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/fragment-of-a-floor-mosaic-with-a-person-1998-69-1999-99.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -138,6 +199,21 @@ export const academyStyles: AcademyStyle[] = [
       },
     ],
     failureMode: 'Page/text context crowds small subjects',
+    exampleWorks: [
+      {
+        workTitle: 'The Belles Heures of Jean de France, duc de Berry',
+        artist: 'The Limbourg Brothers',
+        artistDied: 1416,
+        year: '1405-1408/1409',
+        collection: 'The Metropolitan Museum of Art, The Cloisters',
+        accessionId: '54.1.1a, b',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/470306',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/the-belles-heures-of-jean-de-france-duc--54-1-1a-b.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -222,6 +298,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Under-cooks into a generic "old master" look; keep sfumato and balance explicit',
+    exampleWorks: [
+      {
+        workTitle: "Ginevra de' Benci",
+        artist: 'Leonardo da Vinci',
+        artistDied: 1519,
+        year: 'c. 1474/1478',
+        collection: 'National Gallery of Art, Washington',
+        accessionId: '1937.1.1',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Ginevra_de%27_Benci_-_Google_Art_Project.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc: '/images/academy/examples/ginevra-de-benci-1937-1-1.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -311,6 +403,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'The model may just darken the photo instead of restructuring the light',
+    exampleWorks: [
+      {
+        workTitle: 'The Milkmaid',
+        artist: 'Johannes Vermeer',
+        artistDied: 1675,
+        year: 'c. 1660',
+        collection: 'Rijksmuseum, Amsterdam',
+        accessionId: 'SK-A-2344',
+        sourceUrl:
+          'https://www.rijksmuseum.nl/en/collection/object/The-Milkmaid--42dd0e658c2979aec8e144d2357c55c0',
+        license: 'Open-Access-Terms',
+        licenseTermsUrl:
+          'https://www.rijksmuseum.nl/en/rijksstudio/about-rijksstudio',
+        imageSrc: '/images/academy/examples/the-milkmaid-sk-a-2344.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -433,6 +541,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Adds spurious calligraphy, stamps, or borders — append "no text, no stamps, no border" to the instruction',
+    exampleWorks: [
+      {
+        workTitle: 'Under the Wave off Kanagawa (The Great Wave)',
+        artist: 'Katsushika Hokusai',
+        artistDied: 1849,
+        year: 'ca. 1830-32',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: 'JP10',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/36491',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/under-the-wave-off-kanagawa-kanagawa-oki-jp10.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -467,6 +590,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Reads as a "dramatic sky filter"; push mood and scale, not just clouds',
+    exampleWorks: [
+      {
+        workTitle: 'Two Men Contemplating the Moon',
+        artist: 'Caspar David Friedrich',
+        artistDied: 1840,
+        year: 'ca. 1825-30',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '2000.51',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/438417',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/two-men-contemplating-the-moon-2000-51.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -501,6 +639,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'A subtle style — can look like a lightly-graded photo; lean on the earthy palette',
+    exampleWorks: [
+      {
+        workTitle: 'Woman with a Parrot',
+        artist: 'Gustave Courbet',
+        artistDied: 1877,
+        year: '1866',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '29.100.57',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/436002',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/woman-with-a-parrot-29-100-57.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -703,6 +855,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'A great transfer overall; watch for over-busy borders eating the subject',
+    exampleWorks: [
+      {
+        workTitle: 'Gismonda (poster for Sarah Bernhardt)',
+        artist: 'Alphonse Mucha',
+        artistDied: 1939,
+        year: '1894',
+        collection: 'Wikimedia Commons (Hans Sachs collection)',
+        accessionId: 'Mucha_1894_Gismonda',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_1894_-_Gismonda.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc: '/images/academy/examples/gismonda-poster-mucha-1894.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:

@@ -12,12 +12,16 @@
 //
 // Dependency-free on purpose: pure JSON + string assertions, no schema
 // library, so it runs under bare `tsx` without the Nuxt/Prisma runtime.
+// Shared field-list/license-enum check lives in academyProvenanceSchema.ts
+// (ai-art-academy/t-028) so this and verifyAcademyExamplesManifest.ts
+// validate the same schema instead of duplicating it by hand.
 //
 // Run: npm run test:academy-starter-manifest
 
 import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { validateProvenanceRecord } from './academyProvenanceSchema'
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
@@ -25,27 +29,6 @@ const manifestPath = resolve(
   repositoryRoot,
   'public/images/academy/starters/starters.manifest.json',
 )
-
-const REQUIRED_STRING_FIELDS = [
-  'workTitle',
-  'artist',
-  'year',
-  'collection',
-  'accessionId',
-  'sourceUrl',
-  'license',
-  'retrievedDate',
-] as const
-
-const VALID_LICENSES = ['CC0', 'PD-Mark', 'Open-Access-Terms'] as const
-type ValidLicense = (typeof VALID_LICENSES)[number]
-
-function isValidLicense(value: unknown): value is ValidLicense {
-  return (
-    typeof value === 'string' &&
-    (VALID_LICENSES as readonly string[]).includes(value)
-  )
-}
 
 async function main(): Promise<void> {
   const raw = await readFile(manifestPath, 'utf8')
@@ -84,40 +67,7 @@ async function main(): Promise<void> {
       return
     }
     const record = entry as Record<string, unknown>
-
-    for (const field of REQUIRED_STRING_FIELDS) {
-      const value = record[field]
-      if (typeof value !== 'string' || value.trim() === '') {
-        errors.push(`${label}: missing or empty required field "${field}"`)
-      }
-    }
-
-    // artistDied is a required field per PUBLIC-DOMAIN-POLICY.md §3, but is
-    // numeric (a year), not a string.
-    if (
-      typeof record.artistDied !== 'number' ||
-      !Number.isFinite(record.artistDied)
-    ) {
-      errors.push(
-        `${label}: missing or non-numeric required field "artistDied"`,
-      )
-    }
-
-    const license = record.license
-    if (typeof license === 'string' && !isValidLicense(license)) {
-      errors.push(
-        `${label}: invalid license "${license}" — must be one of ${VALID_LICENSES.join(', ')}`,
-      )
-    }
-
-    if (license === 'Open-Access-Terms') {
-      const termsUrl = record.licenseTermsUrl
-      if (typeof termsUrl !== 'string' || termsUrl.trim() === '') {
-        errors.push(
-          `${label}: license "Open-Access-Terms" requires a non-empty "licenseTermsUrl"`,
-        )
-      }
-    }
+    validateProvenanceRecord(record, label, errors)
   })
 
   if (errors.length) {

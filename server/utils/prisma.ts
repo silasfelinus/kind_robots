@@ -1,6 +1,7 @@
 // /server/utils/prisma.ts
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { AsyncLocalStorage } from 'node:async_hooks'
 import type { ConnectionOptions as TlsConnectionOptions } from 'node:tls'
 import {
   DEFAULT_ACQUIRE_TIMEOUT_MS,
@@ -33,6 +34,7 @@ if (!configuredDatabaseUrl) {
 }
 
 const databaseUrl: string = configuredDatabaseUrl
+const transactionContext = new AsyncLocalStorage<boolean>()
 
 function readPositiveInteger(
   value: string | undefined,
@@ -443,6 +445,10 @@ function extendPrismaClient(client: PrismaClient) {
                 `${model}.${operation}: ${errorMessage(error)}`,
               )
 
+              if (transactionContext.getStore()) {
+                throw error
+              }
+
               execute = (() =>
                 replayPrismaOperation(
                   replacement,
@@ -468,6 +474,14 @@ console.info('[prisma] MariaDB protocol mode', {
 export const prisma = new Proxy({} as RetryingPrismaClient, {
   get(_target, property) {
     const value = Reflect.get(activePrisma, property, activePrisma)
+
+    if (property === '$transaction' && typeof value === 'function') {
+      return (...args: unknown[]) =>
+        transactionContext.run(true, () =>
+          Reflect.apply(value, activePrisma, args),
+        )
+    }
+
     return typeof value === 'function' ? value.bind(activePrisma) : value
   },
 })

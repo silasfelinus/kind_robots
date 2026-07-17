@@ -118,9 +118,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git diff --check
-          git diff --cached --stat
-          git diff --cached --quiet && exit 1
+          git add -A
+          git status --short
+          test -n "$(git status --porcelain)"
 
       - name: Commit and push rebuilt branch
         shell: bash

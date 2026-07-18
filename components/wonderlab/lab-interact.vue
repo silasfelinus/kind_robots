@@ -583,9 +583,8 @@ async function saveSelectedComponent() {
   statusMessage.value = ''
 
   try {
-    const updated = await componentStore.createOrUpdateComponent(
+    const updated = await componentStore.updateComponent(
       selectedComponent.value,
-      'update',
     )
     componentStore.selectedComponent = updated
     setStatus('Component curator notes and status saved.')

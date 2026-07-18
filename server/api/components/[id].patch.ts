@@ -63,6 +63,20 @@ function nullableText(value: unknown, field: string): string | null {
   return text.length ? text : null
 }
 
+function componentNameValue(value: unknown): string {
+  const name = requiredText(value, 'componentName', 255)
+
+  if (!/^[a-zA-Z0-9\s-]+$/.test(name)) {
+    throw createError({
+      statusCode: 400,
+      message:
+        '"componentName" may contain only alphanumeric characters, spaces, or hyphens.',
+    })
+  }
+
+  return name
+}
+
 function optionalBoolean(value: unknown, field: string): boolean | undefined {
   if (value === undefined) return undefined
 
@@ -188,7 +202,7 @@ export default defineEventHandler(async (event) => {
       componentName:
         body.componentName === undefined
           ? undefined
-          : requiredText(body.componentName, 'componentName', 255),
+          : componentNameValue(body.componentName),
       folderName:
         body.folderName === undefined
           ? undefined

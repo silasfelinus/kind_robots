@@ -52,8 +52,13 @@ export async function updateComponent(
     {
       method: 'PATCH',
       body: JSON.stringify({
-        ...component,
-        notes: component.notes || '',
+        componentName: component.componentName,
+        folderName: component.folderName,
+        isWorking: component.isWorking,
+        underConstruction: component.underConstruction,
+        isBroken: component.isBroken,
+        title: component.title,
+        notes: component.notes || null,
         artImageId: component.artImageId || null,
       }),
     },
@@ -83,20 +88,4 @@ export function findComponentByName(
   const match = components.find((c) => c.componentName === name)
   if (!match) throw new Error(`Component with name "${name}" not found.`)
   return match
-}
-
-export async function createOrUpdateComponent(
-  component: Component,
-  action: 'create' | 'update',
-): Promise<Component> {
-  const method = action === 'create' ? 'POST' : 'PATCH'
-  const response = await performFetch<Component>('/api/components', {
-    method,
-    body: JSON.stringify(component),
-  })
-
-  if (!response.success || !response.data) {
-    throw new Error(`Failed to ${action} component: ${component.componentName}`)
-  }
-  return response.data
 }

@@ -7,7 +7,6 @@ import {
   updateComponent as helperUpdate,
   deleteComponent as helperDelete,
   findComponentByName as helperFind,
-  createOrUpdateComponent as helperCreateOrUpdate,
 } from '@/stores/helpers/componentHelper'
 import { performFetch } from '@/stores/utils'
 import {
@@ -106,22 +105,6 @@ export const useComponentStore = defineStore('componentStore', () => {
     return found
   }
 
-  async function createOrUpdateComponent(
-    component: Component,
-    action: 'create' | 'update',
-  ) {
-    const result = await helperCreateOrUpdate(component, action)
-
-    if (action === 'create') {
-      components.value.push(result)
-    } else {
-      const index = components.value.findIndex((entry) => entry.id === result.id)
-      if (index !== -1) components.value[index] = result
-    }
-
-    return result
-  }
-
   return {
     components,
     usingSnapshot,
@@ -141,7 +124,6 @@ export const useComponentStore = defineStore('componentStore', () => {
     updateComponent,
     deleteComponent,
     findComponentByName,
-    createOrUpdateComponent,
   }
 })
 

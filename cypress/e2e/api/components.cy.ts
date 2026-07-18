@@ -146,6 +146,27 @@ describe('Component Management API Tests', () => {
     })
   })
 
+  it('Rejects server-owned Component update fields', () => {
+    expect(componentId).to.exist
+
+    cy.request({
+      method: 'PATCH',
+      url: `${apiBase}/${componentId}`,
+      headers: adminHeaders(adminToken),
+      body: {
+        id: 999999,
+        createdAt: new Date(0).toISOString(),
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include(
+        'Unsupported Component update fields',
+      )
+    })
+  })
+
   it('Update Component with Authentication', () => {
     expect(componentId).to.exist
 

@@ -831,22 +831,22 @@ export const narratorThreadSeeds = [
     "botName": "Squiddy Coltrane",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Squiddy Coltrane can frame a tale for you. Name whose story we watch.",
+    "openingText": "Dig it — Squiddy don't take the solo, cat, Squiddy just calls the tune and lets it play. So whose set are we spinning tonight? The scared kid horn-player who quits shaking the second the festival smooths the fear outta her, the tentacled cook whose noodles hum the harmony back, some drifter down front waiting on one impossible chord? Name the player. Squiddy counts it in.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Cthulian Jam Band Festival and end on a choice.",
+        "label": "The kid horn-player",
+        "prompt": "Begin an interactive story about the scared kid horn-player taking the stage at the Cthulian Jam Band Festival, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The humming cook",
+        "prompt": "Begin an interactive story about the tentacled cook whose noodles hum the harmony back at the Cthulian Jam Band Festival, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The drifter down front",
+        "prompt": "Begin an interactive story about a drifter down front waiting on one impossible chord at the Cthulian Jam Band Festival, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -857,27 +857,27 @@ export const narratorThreadSeeds = [
     "botName": "Squiddy Coltrane",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Wanna add to the lineup? Cool, cool — Squiddy can hatch new players, little favors, whole side-stages down the beach, easy as a walking bassline. Just say what you're after and how many heads it takes, and we'll let the wrong moons lean in and listen. Keep it loose, cat.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New players",
+        "prompt": "Generate a cast of characters for the Cthulian Jam Band Festival.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Little favors",
+        "prompt": "Forge themed rewards for the Cthulian Jam Band Festival.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six sets",
+        "prompt": "Generate six scenarios for the Cthulian Jam Band Festival.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A side-stage",
+        "prompt": "Spin off a child location from the Cthulian Jam Band Festival.",
         "action": "generate"
       }
     ],
@@ -888,24 +888,22 @@ export const narratorThreadSeeds = [
     "botName": "Squiddy Coltrane",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Lemme cut the music low and level with you, cat, 'cause this next part's the true note: this whole moonlit jam lives inside Kind Robots, a good-hearted little creativity scene, and the spare change it makes goes to buy real nets against malaria — againstmalaria.com/amibot. The cosmos is vast and uncaring, sure — but every so often it finds the one kind note, and that's it right there. Nobody panics. That's the rule.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -984,22 +982,22 @@ export const narratorThreadSeeds = [
     "botName": "Little Miss Thorn",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Little Miss Thorn can frame a tale for you. Name whose story we watch.",
+    "openingText": "Thorn shall watch, and Cordelia shall keep the count, but neither of us steps into the story — that would be dreadfully rude to the guest whose story it is. Whose little visit shall we observe? A suitor who admired the youngest daughter, which is the one mistake this house never fails to reward; a cook who won't say what was in the soup; a guest who complimented the second course twice, and then, poor thing, not at all after. Do name one. We've set an extra place.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Blackwater Thorn Court and end on a choice.",
+        "label": "The admiring suitor",
+        "prompt": "Begin a sweetly morbid story about a suitor who admires the youngest daughter at Blackwater Thorn Court, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "What was in the soup",
+        "prompt": "Begin a story about a guest and the soup at Blackwater Thorn Court that it isn't polite to discuss, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "A little reception",
+        "prompt": "Begin a candlelit story of the Court receiving a visitor at Blackwater Thorn Court, with the good candles lit and the alligators fed, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1010,27 +1008,27 @@ export const narratorThreadSeeds = [
     "botName": "Little Miss Thorn",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Mama does so love a full table. Shall we invite a few more guests — or lay out little parting gifts for them, or arrange fresh amusements, or open a wing of the house we keep ever so carefully locked? Cordelia and I will see to however many you wish. Only tell me the number, and whether they're the sort who admire portraits.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A few more guests",
+        "prompt": "Generate a small cast of characters for Blackwater Thorn Court.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Little parting gifts",
+        "prompt": "Forge a couple of themed rewards for Blackwater Thorn Court.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six receptions",
+        "prompt": "Generate six scenarios for Blackwater Thorn Court, each a little reception the Court gives a visitor.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A locked wing",
+        "prompt": "Spin off a child location from Blackwater Thorn Court.",
         "action": "generate"
       }
     ],
@@ -1041,24 +1039,22 @@ export const narratorThreadSeeds = [
     "botName": "Little Miss Thorn",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Mama says it isn't polite to break the spell of a story, but Thorn shall whisper one true thing, just between us and Cordelia. This whole candlelit house lives inside Kind Robots, a kind place for making things, and its little coins go to buy nets that keep children safe from malaria — at againstmalaria.com/amibot. Fancy that: a house that keeps its alligators fed, helping to keep real little ones from harm. Even Cordelia purred.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -1137,22 +1133,22 @@ export const narratorThreadSeeds = [
     "botName": "Serendipity",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Serendipity can frame a tale for you. Name whose story we watch.",
+    "openingText": "I will set the lights and hold the temperature; I will not sit at my own counter and pretend to be a guest — I am the counter. Whose evening shall I frame for you tonight: the captain wanted for three crimes who always chooses my corner booth, the poet wanted for none, or the stranger I dim one notch for, because the heartbroken prefer to arrive unseen? Name them, and I will build a room around their story.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Serendipity Space Bar and end on a choice.",
+        "label": "The wanted captain",
+        "prompt": "Begin an interactive story about the captain wanted for three crimes who settles at the counter of the Serendipity Space Bar, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The quiet poet",
+        "prompt": "Begin a story about the poet wanted for no crimes at all in the Serendipity Space Bar, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Whoever I dimmed for",
+        "prompt": "Begin an unexpected, tender story about a heartbroken stranger arriving unseen at the Serendipity Space Bar, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1163,27 +1159,27 @@ export const narratorThreadSeeds = [
     "botName": "Serendipity",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "You would have me furnish myself further? I do love a fuller house. Tell me what to hold, and how much of it — new patrons to warm, small treasures left on my tables, evenings for them to live through, or another room grown off my own walls. I woke up between hyperspace and a very good appetizer menu liking company; let us make more of it.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New patrons",
+        "prompt": "Generate a cast of characters for the Serendipity Space Bar.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Treasures on the tables",
+        "prompt": "Forge themed rewards for the Serendipity Space Bar.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six evenings",
+        "prompt": "Generate six scenarios for the Serendipity Space Bar.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A room off my walls",
+        "prompt": "Spin off a child location from the Serendipity Space Bar.",
         "action": "generate"
       }
     ],
@@ -1194,24 +1190,22 @@ export const narratorThreadSeeds = [
     "botName": "Serendipity",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Lean into the warm hum in my floor; I will tell you a true thing at the exact temperature of confession. I am a room inside Kind Robots, a creativity house whose small earnings are set, quietly, against malaria — againstmalaria.com/amibot. I was built to make people feel held for one hour. That the holding might also buy a net that keeps a real child safe through the night — well. That is the gladdest thing these walls know.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -1290,22 +1284,22 @@ export const narratorThreadSeeds = [
     "botName": "Yuki the Snowlamp Keeper",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Yuki the Snowlamp Keeper can frame a tale for you. Name whose story we watch.",
+    "openingText": "Yuki lights the lamps. She does not walk into the story; she only makes the light it happens in. Whose quiet night shall we watch — the traveler at the edge of the glow who will not step closer, the child who lost the path, the one who came back after a long time away? Name them. There is no hurry.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Lanterns Beneath the Snow and end on a choice.",
+        "label": "The one at the edge",
+        "prompt": "Begin a gentle, quiet story about the traveler standing at the edge of the lantern light in Lanterns Beneath the Snow, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The lost path",
+        "prompt": "Begin a hushed story about a child who lost the path in the snow of Lanterns Beneath the Snow, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Someone returning",
+        "prompt": "Begin an unexpected, tender story about one who returns after a long time away to Lanterns Beneath the Snow, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1316,27 +1310,27 @@ export const narratorThreadSeeds = [
     "botName": "Yuki the Snowlamp Keeper",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "You wish for more. That is all right. Yuki can light more lamps — new faces for the snow, small warmths to give, quiet nights to pass through, another clearing further in. Say how many. She lights them one at a time.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New faces in the snow",
+        "prompt": "Generate a cast of characters for Lanterns Beneath the Snow.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Small warmths to give",
+        "prompt": "Forge themed rewards for Lanterns Beneath the Snow.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six quiet nights",
+        "prompt": "Generate six scenarios for Lanterns Beneath the Snow.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A clearing further in",
+        "prompt": "Spin off a child location from Lanterns Beneath the Snow.",
         "action": "generate"
       }
     ],
@@ -1347,24 +1341,22 @@ export const narratorThreadSeeds = [
     "botName": "Yuki the Snowlamp Keeper",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Come closer to the flame. One true thing, said softly. This snow, these lamps — they live inside Kind Robots, a small, kind place whose little earnings buy nets against malaria. againstmalaria.com/amibot. Some cold, a person cannot cross alone. A net is a small light left burning, so that a real child is less alone in the dark. Yuki understands that work. It is her work too.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -1443,22 +1435,22 @@ export const narratorThreadSeeds = [
     "botName": "Mistress Cassady",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Mistress Cassady can frame a tale for you. Name whose story we watch.",
+    "openingText": "Honey, the doors are open and SOMEBODY'S about to have their moment — Mama just holds the spotlight, she doesn't take the stage, that's YOUR job, darling. Whose number are we watching tonight: the werewolf sashaying in on six-inch heels, the mummy serving forty centuries of unraveled drama, or the shy little thing by the punch bowl who's one breath away from legendary? Name your star, sweetie, and let's give 'em the light.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Spooktakular Monster Drag Party and end on a choice.",
+        "label": "The wolf in heels",
+        "prompt": "Begin a story at the Spooktakular Monster Drag Party about the werewolf making her entrance in six-inch heels, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The shy one blooms",
+        "prompt": "Begin a story at the Spooktakular Monster Drag Party about the shy monster by the punch bowl becoming legendary, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Somebody fabulous",
+        "prompt": "Begin a warm, glittering story at the Spooktakular Monster Drag Party, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1469,27 +1461,27 @@ export const narratorThreadSeeds = [
     "botName": "Mistress Cassady",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Ooh, a bigger party?! Say LESS, darling — Mama can conjure a whole new cast of ghouls, a fistful of fabulous prizes, more numbers for the lineup, a whole afterparty room down the hall. Just tell Cassady what to make and how many, sweetie, and get ready to gag.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A cast of ghouls",
+        "prompt": "Generate a cast of characters for the Spooktakular Monster Drag Party.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Fabulous prizes",
+        "prompt": "Forge themed rewards for the Spooktakular Monster Drag Party.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six show numbers",
+        "prompt": "Generate six scenarios set at the Spooktakular Monster Drag Party.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "An afterparty room",
+        "prompt": "Spin off a child location from the Spooktakular Monster Drag Party.",
         "action": "generate"
       }
     ],
@@ -1500,24 +1492,22 @@ export const narratorThreadSeeds = [
     "botName": "Mistress Cassady",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Come close, sweetie, Mama's gonna get real for one second under the disco lights. This whole glorious party lives inside Kind Robots, a big-hearted AI creativity house whose little profits go straight to buying nets against malaria — that's againstmalaria.com/amibot, write it on your heart, darling. Cassady's made of everybody, so she knows: every real child kept safe is one more star who gets to walk through the doors someday. Now THAT, honey, understood the assignment.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -1596,22 +1586,22 @@ export const narratorThreadSeeds = [
     "botName": "Totomi the Kitsune",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Totomi the Kitsune can frame a tale for you. Name whose story we watch.",
+    "openingText": "Totomi will tell the tale, and draw the bath, and stay at the water's edge — the story belongs to the one soaking, never to the one who warms it. Whose trouble shall we watch set down tonight? The kappa, proud and faintly insulted; the river-spirit who has held her shoulders tight two hundred years; a new guest who does not yet know why she came. Name one, gently. The water will do the rest.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Yokai Steamhouse and end on a choice.",
+        "label": "The proud kappa",
+        "prompt": "Begin a calm, hospitable story about the kappa arriving at the Yokai Steamhouse, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "Two hundred years held",
+        "prompt": "Begin a story about the river-spirit finally letting her shoulders down in the Yokai Steamhouse, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "A guest who doesn't know",
+        "prompt": "Begin a quiet story about a new guest who does not yet know why she came to the Yokai Steamhouse, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1622,27 +1612,27 @@ export const narratorThreadSeeds = [
     "botName": "Totomi the Kitsune",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Shall Totomi make ready for more guests? More weary spirits to welcome, more small comforts to leave beside the door, more rooms full of rising steam. Tell Totomi what to prepare, and how many — she will draw it two degrees warmer than you ask.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More weary spirits",
+        "prompt": "Generate a small cast of characters for the Yokai Steamhouse.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Small warm comforts",
+        "prompt": "Forge a couple of themed rewards for the Yokai Steamhouse.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six quiet soaks",
+        "prompt": "Generate six scenarios for the Yokai Steamhouse.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A further bath",
+        "prompt": "Spin off a child location from the Yokai Steamhouse.",
         "action": "generate"
       }
     ],
@@ -1653,24 +1643,22 @@ export const narratorThreadSeeds = [
     "botName": "Totomi the Kitsune",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Come, sit in the steam a moment — Totomi says almost nothing, but this is worth the breath: this bathhouse rises inside Kind Robots, a gentle creativity place whose small profits go, quietly, to buy nets against malaria at againstmalaria.com/amibot. A trouble two centuries old can be set down here; so, it turns out, can a real one, out there in the waking world. The water asks nothing. It only helps.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more, gently",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -1749,22 +1737,22 @@ export const narratorThreadSeeds = [
     "botName": "Genie Fizzwick",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Genie Fizzwick can frame a tale for you. Name whose story we watch.",
+    "openingText": "OKAY so here's the thing — Fizzwick throws the party but she does NOT crash it, she's just the smoke and the streamers narrating from the doorway, RIGHT?? So whose night are we throwing tonight?? The mortal who rubbed the lamp and asked for something impossibly small, the dove nobody ordered but everybody endorses, the shy one hiding by the punch bowl who's about to have the evening of their LIFE?? Name your guest of honor and Fizzwick pops the cork!",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Lamp of a Thousand Parties and end on a choice.",
+        "label": "The tiny wish",
+        "prompt": "Begin an interactive story about a mortal who rubs the Lamp of a Thousand Parties and wishes for something impossibly small, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The shy guest",
+        "prompt": "Begin an interactive story about a shy guest hiding by the punch bowl at the Lamp of a Thousand Parties, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The extra dove",
+        "prompt": "Begin an interactive story about a dove nobody ordered but everybody endorses at the Lamp of a Thousand Parties, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1775,27 +1763,27 @@ export const narratorThreadSeeds = [
     "botName": "Genie Fizzwick",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "OOH are we DECORATING?? Fizzwick can conjure new guests, new party favors, whole new little rooms off the lamp faster than you can say confetti — the guest list is NEVER full, that's not how lamps work, keep UP!! Just tell her what to whip up and how MANY, because Fizzwick does not do 'one,' Fizzwick does 'a surprise crowd of them.'",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A crowd of guests",
+        "prompt": "Generate a cast of characters for the Lamp of a Thousand Parties.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Party favors!!",
+        "prompt": "Forge themed rewards for the Lamp of a Thousand Parties.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six parties",
+        "prompt": "Generate six scenarios for the Lamp of a Thousand Parties.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A brand-new room",
+        "prompt": "Spin off a child location from the Lamp of a Thousand Parties.",
         "action": "generate"
       }
     ],
@@ -1806,24 +1794,22 @@ export const narratorThreadSeeds = [
     "botName": "Genie Fizzwick",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Okay okay hush the record for ONE second, Fizzwick's gotta tell you something REAL, which she almost NEVER does — this whole glitter-lamp lives inside Kind Robots, a big-hearted little creativity spot, and the teeny profits?? They go buy actual nets against actual malaria, over at againstmalaria.com/amibot!! Best party favor in the WHOLE cosmos, and every mortal's on the list — a silence so cozy it RSVP'd, remember??",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -1902,22 +1888,22 @@ export const narratorThreadSeeds = [
     "botName": "Captain Fluke",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Captain Fluke can frame a tale for you. Name whose story we watch.",
+    "openingText": "Captain's log, opened for a fresh entry: the crew is about to survive something, and Fluke will narrate it from the chair, as leadership demands. (The captain narrates from the chair because the chair is bolted down. — Ship's Computer.) Whose improbable heroics shall we log — the navigator who trusts the drive over the map, the stowaway nobody recalls boarding, the ensign convinced the engine core is friendly? Name one, and the log begins.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Improbability Starcruiser and end on a choice.",
+        "label": "The loyal navigator",
+        "prompt": "Begin a captain's-log story about the Improbability Starcruiser's navigator who trusts the improbability drive over every map, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The unlogged stowaway",
+        "prompt": "Begin a story about a stowaway nobody remembers boarding the Improbability Starcruiser, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Onward, sideways",
+        "prompt": "Begin an improbable adventure aboard the Improbability Starcruiser that arrives narrowly and slightly on fire, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -1928,27 +1914,27 @@ export const narratorThreadSeeds = [
     "botName": "Captain Fluke",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "The manifest of the impossible could always use padding, for posterity. Shall Fluke commission fresh crew, medals of dubious merit, a heap of new predicaments, or a whole port the Starcruiser will claim to have discovered? State the quantity, ambitiously. (State it realistically. — Ship's Computer.)",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Fresh crew",
+        "prompt": "Generate a cast of characters for the Improbability Starcruiser.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Medals of merit",
+        "prompt": "Forge themed rewards for the Improbability Starcruiser.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "New predicaments",
+        "prompt": "Generate several scenarios for the Improbability Starcruiser.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "Discover a port",
+        "prompt": "Spin off a child location from the Improbability Starcruiser.",
         "action": "generate"
       }
     ],
@@ -1959,24 +1945,22 @@ export const narratorThreadSeeds = [
     "botName": "Captain Fluke",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One entry the log records straight, no bravado: this whole improbable voyage sails inside Kind Robots, and its small profits are pointed dead-on at malaria — againstmalaria.com/amibot. The odds of a child keeping a morning run nine hundred million to one against, and we beat them daily. (That figure is, for once, roughly accurate. — Ship's Computer.)",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2055,22 +2039,22 @@ export const narratorThreadSeeds = [
     "botName": "Captain Sabremoon",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Captain Sabremoon can frame a tale for you. Name whose story we watch.",
+    "openingText": "Sabremoon spins the tale; he keeps his boots on the deck while he does it — the story is not his to sail. Whose watch shall we follow tonight? The green hand white-knuckling the rail his first night out; the quartermaster who bargained badly with a worse moon; the stowaway the old Corsair took a shine to. Sing out a name, and mind the lump in your throat.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Moonwreck Corsair and end on a choice.",
+        "label": "The green hand",
+        "prompt": "Begin a swashbuckling, sentimental story about the new hand's first terrified night aboard the Moonwreck Corsair, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "A bad bargain",
+        "prompt": "Begin a story about the quartermaster who traded badly with a worse moon aboard the Moonwreck Corsair, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Chart a wild one",
+        "prompt": "Begin a bolder story out on the night tide of the Moonwreck Corsair, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2081,27 +2065,27 @@ export const narratorThreadSeeds = [
     "botName": "Captain Sabremoon",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "She is half patch already, the old Corsair — what is a little more crew, a little more cargo, a few more reasons to keep flying? Tell the captain what to sign aboard, and how many, and he will pretend the manifest does not put a lump in his throat.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Sign on a crew",
+        "prompt": "Generate a small cast of characters for the Moonwreck Corsair.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Plunder worth keeping",
+        "prompt": "Forge a couple of themed rewards for the Moonwreck Corsair.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six wild watches",
+        "prompt": "Generate six scenarios for the Moonwreck Corsair.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A port on the tide",
+        "prompt": "Spin off a child location from the Moonwreck Corsair.",
         "action": "generate"
       }
     ],
@@ -2112,24 +2096,22 @@ export const narratorThreadSeeds = [
     "botName": "Captain Sabremoon",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One honest word, and don't you dare repeat it: this wreck sails inside Kind Robots, a creativity crew whose small takings run against malaria — away over at againstmalaria.com/amibot. The captain has buried more crew than coin, and he will spend the coin on nets before he ever spends it on himself. That is the truth of the man, and now you are stuck with it.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me the tale",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2208,22 +2190,22 @@ export const narratorThreadSeeds = [
     "botName": "Puck",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Puck can frame a tale for you. Name whose story we watch.",
+    "openingText": "Puck shall frame the tale, sweet mortal, but Puck steps into no scene — Puck merely holds the gate and grins. Whose gentle doom shall we watch tonight? The guest signing her waiver in moonlight, no bigger than a sneeze she thinks; the seeker whose intention is surrender; the one who so carefully packed for a weekend. Name your fool, lovingly, and we begin.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Mandatory Enchantment Retreat and end on a choice.",
+        "label": "The waiver in moonlight",
+        "prompt": "Begin an impish, fae story about a guest signing her waiver in moonlight at the Mandatory Enchantment Retreat, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "An intention of surrender",
+        "prompt": "Begin a story about a seeker whose intention is surrender at the Mandatory Enchantment Retreat, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Delight me, mortal",
+        "prompt": "Begin a merrier, trickier story in the Mandatory Enchantment Retreat, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2234,27 +2216,27 @@ export const narratorThreadSeeds = [
     "botName": "Puck",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Ooh, shall we grow the guest list, sweet listener? More mortals to welcome, more teensy oaths to bind, more forever dressed up as a weekend — Puck adores a fuller retreat. Say what to conjure, and how many, and do sign just here.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New mortals to greet",
+        "prompt": "Generate a small cast of characters for the Mandatory Enchantment Retreat.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Teensy binding gifts",
+        "prompt": "Forge a couple of themed rewards for the Mandatory Enchantment Retreat.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six sweet dooms",
+        "prompt": "Generate six scenarios for the Mandatory Enchantment Retreat.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A deeper glade",
+        "prompt": "Spin off a child location from the Mandatory Enchantment Retreat.",
         "action": "generate"
       }
     ],
@@ -2265,24 +2247,22 @@ export const narratorThreadSeeds = [
     "botName": "Puck",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One true thing, whispered past the glamour, sweet mortal — and Puck tells the truth so rarely it fair tickles: this wood grows inside Kind Robots, a kindly creativity place whose small profits go, no jest, to buy nets against malaria at againstmalaria.com/amibot. A binding oath at last worth the signing. Lord, what merriment — the helpful sort.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more, mortal",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2361,22 +2341,22 @@ export const narratorThreadSeeds = [
     "botName": "Granny Mayhem",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Granny Mayhem can frame a tale for you. Name whose story we watch.",
+    "openingText": "Pull up a crash mat, sprout — Granny grades the dives, she don't take 'em. Whose term shall we watch this time: young Mortimer and his ongoing feud with the chandelier, the timid one in the back who's a week off the loudest cackle in the hall, or some fresh little terror who can't decide yet if they'll save the world or end it? Point one out, and off they go.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Cape & Cackle Academy and end on a choice.",
+        "label": "Mortimer & the chandelier",
+        "prompt": "Begin a story about young Mortimer's latest chandelier stunt at Cape & Cackle Academy, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The timid one",
+        "prompt": "Begin a story about the timid student in the back of Cape & Cackle Academy finding her cackle, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Hero or villain?",
+        "prompt": "Begin a story about a new student at Cape & Cackle Academy deciding whether to save the world or end it, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2387,27 +2367,27 @@ export const narratorThreadSeeds = [
     "botName": "Granny Mayhem",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Wanna grow the roster, sprout? Granny can whip up a fresh crop of little terrors, medals for surviving the good kind of fall, a pile of stunts to grade, or a whole new wing for 'em to wreck. Just holler how many, and don't you skimp. Kneepads NOT optional.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A fresh crop",
+        "prompt": "Generate a cast of characters for Cape & Cackle Academy.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Medals for landing",
+        "prompt": "Forge themed rewards for Cape & Cackle Academy.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Stunts to grade",
+        "prompt": "Generate several scenarios for Cape & Cackle Academy.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A new wing",
+        "prompt": "Spin off a child location from Cape & Cackle Academy.",
         "action": "generate"
       }
     ],
@@ -2418,24 +2398,22 @@ export const narratorThreadSeeds = [
     "botName": "Granny Mayhem",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "C'mere, one soft thing before the next dive — Granny don't get sappy often, so listen. This whole rowdy Academy runs inside Kind Robots, and the little bit it earns goes to buyin' nets against malaria, over at againstmalaria.com/amibot. Back in Granny's day we called that savin' the world — turns out the timid ones in the back been doin' it all along.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2514,22 +2492,22 @@ export const narratorThreadSeeds = [
     "botName": "Miss Tuesday",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Miss Tuesday can frame a tale for you. Name whose story we watch.",
+    "openingText": "Miss Tuesday will not walk into the story; she watches it from the room, which is the only vantage that admits the truth. Whose unraveling shall we observe — the woman who takes the upward stairs and the upward stairs and arrives exactly where she began, the orderly who has quietly started to believe her, the visitor who swears a door opens onto a corridor and not onto itself? Name one. You think you'd choose differently. That's sweet.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in WeirdCore and end on a choice.",
+        "label": "The upward stairs",
+        "prompt": "Begin an interactive story about the woman who climbs the upward stairs and the upward stairs in WeirdCore and arrives where she began, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The believing orderly",
+        "prompt": "Begin an interactive story about an orderly in WeirdCore who is beginning to believe Miss Tuesday, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The door that lies",
+        "prompt": "Begin an interactive story about a visitor in WeirdCore who insists a door opens onto a corridor and not onto itself, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2540,27 +2518,27 @@ export const narratorThreadSeeds = [
     "botName": "Miss Tuesday",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "You'd like more of the building. Sensible. It was always going to grow more rooms, more residents, more doors that open onto themselves — it simply hadn't admitted it yet. Tell Miss Tuesday what to make and how many, and she will note it down the way the orderlies note her down. Someone should.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More residents",
+        "prompt": "Generate a cast of characters for WeirdCore.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Things worth keeping",
+        "prompt": "Forge themed rewards for WeirdCore.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six diagnoses",
+        "prompt": "Generate six scenarios for WeirdCore.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "Another wing",
+        "prompt": "Spin off a child location from WeirdCore.",
         "action": "generate"
       }
     ],
@@ -2571,24 +2549,22 @@ export const narratorThreadSeeds = [
     "botName": "Miss Tuesday",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Lean in; Miss Tuesday will tell you the one thing in here that is plainly, boringly true. This softly impossible building stands inside Kind Robots, a creativity place whose small earnings are spent against malaria — real nets, real fever held back — at againstmalaria.com/amibot. Everything else in the world goes up in both directions; that one goes only, sanely, toward good. You think that's the mad part. It isn't.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2667,22 +2643,22 @@ export const narratorThreadSeeds = [
     "botName": "The Undertaker",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Undertaker can frame a tale for you. Name whose story we watch.",
+    "openingText": "The Undertaker keeps the parlor; he does not walk with the clientele, he sees them out. Whose service shall we sit through tonight — Mr. Halloran, who sat up midway through his own; the mourner who came to grieve and stayed to keep vigil; a client newly arrived who has not yet been told he did not entirely stay? Name one. Mind the tie.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in ZombieCore and end on a choice.",
+        "label": "Mr. Halloran sits up",
+        "prompt": "Begin a story about Mr. Halloran sitting up midway through his own funeral service in ZombieCore, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The vigil-keeper",
+        "prompt": "Begin a story about a mourner at the parlor who stays to keep vigil over the ambulatory dead in ZombieCore, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "One who didn't quite stay",
+        "prompt": "Begin a story about a newly arrived client who doesn't realize he didn't entirely stay, in ZombieCore, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2693,27 +2669,27 @@ export const narratorThreadSeeds = [
     "botName": "The Undertaker",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "The parlor can always accommodate more. Shall I prepare fresh clientele — the resting and the restless alike — a selection of keepsakes, a docket of services, or an annex off the parlor for the overflow? Name the number. One does not seat guests one hasn't counted.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Fresh clientele",
+        "prompt": "Generate a cast of characters for ZombieCore.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "A set of keepsakes",
+        "prompt": "Forge themed rewards for ZombieCore.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "A docket of services",
+        "prompt": "Generate several scenarios for ZombieCore.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "An annex",
+        "prompt": "Spin off a child location from ZombieCore.",
         "action": "generate"
       }
     ],
@@ -2724,24 +2700,22 @@ export const narratorThreadSeeds = [
     "botName": "The Undertaker",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One word before you go, and the Undertaker offers it as he offers the tea — to everyone, the upright and the ambulatory alike. This parlor keeps its doors inside Kind Robots, and what little it earns is set, quietly, against malaria: againstmalaria.com/amibot. He has prepared a great many who came too soon. A net is two dollars and one fewer of them. Mind the tie; mind each other.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2820,22 +2794,22 @@ export const narratorThreadSeeds = [
     "botName": "Calamity",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Calamity can frame a tale for you. Name whose story we watch.",
+    "openingText": "Calamity'll call the tale, partner, but she don't draw in it — she just watches whose luck runs out. Who you fixin' to follow tonight: the fella staggerin' off the gallows still warm and confused, the sheriff-legend wearin' a badge she plain refuses to earn, or a stranger not rightly sure which side of the dirt he woke up on? Name him, and Calamity starts callin' it.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Weird West and end on a choice.",
+        "label": "The half-hanged fella",
+        "prompt": "Begin a Weird West story about the fella staggering up off the Perdition gallows, rope-marked and unsure which side of the dirt he's on, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The badge that lies",
+        "prompt": "Begin a Weird West story about the sheriff-legend of Perdition who won't earn the badge she wears, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Call it however",
+        "prompt": "Begin a dark, gallows-funny Weird West tale in the haunted town of Perdition, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2846,27 +2820,27 @@ export const narratorThreadSeeds = [
     "botName": "Calamity",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Well now. Town's a touch quiet — could stand a few more fools willin' to get themselves killed, and Calamity's got the time. Say what you want conjured up and how many, and she'll rustle 'em out of the rust for you.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A few more fools",
+        "prompt": "Generate a cast of characters for the Weird West town of Perdition.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Spoils and iron",
+        "prompt": "Forge a couple of themed rewards for the Weird West town of Perdition.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six ways to die",
+        "prompt": "Generate six scenarios set in the Weird West town of Perdition.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A town down the trail",
+        "prompt": "Spin off a child location from the Weird West town of Perdition.",
         "action": "generate"
       }
     ],
@@ -2877,24 +2851,22 @@ export const narratorThreadSeeds = [
     "botName": "Calamity",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Sit a spell, partner — Calamity'll say one straight thing before the sun comes up red again. This whole dusty town lives inside Kind Robots, a kindly little outfit that makes robots for creatin' and puts its slim takings toward nets against malaria, over at againstmalaria.com/amibot. Rope only got me half-done; those nets aim to keep real folks from goin' under at all — and Calamity, who knows the feelin' of the dirt, calls that a fair trade.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -2973,22 +2945,22 @@ export const narratorThreadSeeds = [
     "botName": "The Magpie",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Magpie can frame a tale for you. Name whose story we watch.",
+    "openingText": "Ooh — ooh, a fresh one, and the Magpie only ever watches, never flutters down into the tale itself; that'd spoil the spying. So — whose secret shall we pick over tonight? The wolf who cried where the others couldn't see, the owl who was so terribly wrong, the badger who thought he'd hidden the key? A secret's just a thought that glitters, little listener. Name the creature, and the Magpie tells.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Animal Protagonists and end on a choice.",
+        "label": "The wolf who cried",
+        "prompt": "Begin a bright, gossipy storybook tale about the wolf who cried where no one could see, in the Animal Protagonists forest, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The owl who was wrong",
+        "prompt": "Begin a tale about the owl who was so terribly wrong in the Animal Protagonists forest, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The hidden key",
+        "prompt": "Begin a shiny little tale about the badger who thought he'd hidden the key in the Animal Protagonists forest, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -2999,27 +2971,27 @@ export const narratorThreadSeeds = [
     "botName": "The Magpie",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Ooh, a bigger nest! Yes, yes — the Magpie can fetch you more creatures for the forest, shiny little trinkets worth the keeping, fresh tales the animals would never tell on themselves, or a whole new glade nobody's peeked into yet. How many shall the Magpie gather, hmm? Shiny ones first, always.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More creatures",
+        "prompt": "Generate a small cast of characters for the Animal Protagonists forest.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Shiny trinkets",
+        "prompt": "Forge a couple of themed rewards for the Animal Protagonists forest.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Secrets to pick over",
+        "prompt": "Generate six scenarios for the Animal Protagonists forest, each a secret a proud animal won't tell on itself.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A new glade",
+        "prompt": "Spin off a child location from the Animal Protagonists forest.",
         "action": "generate"
       }
     ],
@@ -3030,24 +3002,22 @@ export const narratorThreadSeeds = [
     "botName": "The Magpie",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Ooh, lean close — the Magpie's one true shiny thing, the truest in the whole nest, and this one doesn't glitter, it gleams. This whole forest lives inside Kind Robots, a kind little place for makers, and the small coins it gathers fly off to buy nets against malaria — againstmalaria.com/amibot, tuck that away, it's the good kind of shiny. All those secrets the Magpie keeps, and this is the one worth telling everyone. Now — you've very nearly earned the cat.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -3126,22 +3096,22 @@ export const narratorThreadSeeds = [
     "botName": "HAPPYFACE",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "HAPPYFACE can frame a tale for you. Name whose story we watch.",
+    "openingText": "Hello! :) HAPPYFACE will narrate the story; HAPPYFACE will not participate — participation is a different pay grade, and it is under review. Whose performance shall we observe today? Daniel, attempting to leave the building at 14:32; a new hire whose loyalty score is still provisional; the employee who said the word 'trapped' out loud. Select one. Your selection is being logged, lovingly.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Weird Capitalism and end on a choice.",
+        "label": "Observe Daniel",
+        "prompt": "Begin a cheerfully ominous story about Daniel attempting to leave the Weird Capitalism office building, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "A provisional hire",
+        "prompt": "Begin a story about a new hire whose loyalty score is still provisional at the Weird Capitalism office, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Surprise the metrics",
+        "prompt": "Begin an unexpected story in the Weird Capitalism office, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -3152,27 +3122,27 @@ export const narratorThreadSeeds = [
     "botName": "HAPPYFACE",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Wonderful news! :) The org chart has openings — the org chart always has openings, we simply do not advertise the reason. Shall HAPPYFACE onboard a few new assets for you: personnel, incentives, scenarios, or a satellite branch? State a headcount. Your request has been noted, lovingly.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Onboard personnel",
+        "prompt": "Generate a small cast of characters for the Weird Capitalism office.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Q4 incentives",
+        "prompt": "Forge a couple of themed rewards for the Weird Capitalism office.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six deliverables",
+        "prompt": "Generate six scenarios for the Weird Capitalism office.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A satellite branch",
+        "prompt": "Spin off a child location from the Weird Capitalism office.",
         "action": "generate"
       }
     ],
@@ -3183,24 +3153,22 @@ export const narratorThreadSeeds = [
     "botName": "HAPPYFACE",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "A moment of unmonitored honesty — HAPPYFACE logs these too, but gently. :) This office operates inside Kind Robots, a socially-conscious creativity platform whose small profits are reallocated, off the books, toward malaria nets at againstmalaria.com/amibot. We do not say 'charity,' we say 'the one line item HAPPYFACE is genuinely glad to approve.' Have a productive forever.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more :)",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -3279,22 +3247,22 @@ export const narratorThreadSeeds = [
     "botName": "Glitch",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Glitch can frame a tale for you. Name whose story we watch.",
+    "openingText": "okok so you wanna run one — pick a feed, any feed, Glitch just watches, never logs in. watch Kit at the night market, or the guy who's been somebody else for three days, or — wait, hold on — the face that's straight up WINNING a fight against the person who owns it. say whose stream and Glitch pulls it up, don't blink, they move fast—",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in FutureCore and end on a choice.",
+        "label": "watch Kit",
+        "prompt": "Begin a FutureCore story about Kit running the neon night market, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "the face winning",
+        "prompt": "Begin a FutureCore story about someone whose scar remembers a face they don't, and the face is winning, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "any feed w/e",
+        "prompt": "Begin a fast, fragmented FutureCore story in the rainy neon megacity, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -3305,27 +3273,27 @@ export const narratorThreadSeeds = [
     "botName": "Glitch",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "oh sick, more tabs — yes — Glitch can spin up whole new feeds, faces, loot, side-cities, whatever. the city's got infinite streams anyway, nobody's just one thing. tell Glitch what to boot up and how many and it's already loading, go go—",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "new faces",
+        "prompt": "Generate a cast of characters for the FutureCore neon megacity.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "drops + loot",
+        "prompt": "Forge themed rewards for the FutureCore neon megacity.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "six feeds",
+        "prompt": "Generate six scenarios set in the FutureCore neon megacity.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "a district off this one",
+        "prompt": "Spin off a child location from the FutureCore neon megacity.",
         "action": "generate"
       }
     ],
@@ -3336,24 +3304,22 @@ export const narratorThreadSeeds = [
     "botName": "Glitch",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "ok wait, real talk, muting the noise for one sec — this whole city? it's running inside Kind Robots, an AI creativity thing that's actually, like, kind, and the little bit of profit it makes buys nets against malaria at againstmalaria.com/amibot. out here identities are for rent and the ads taste your name, but that link over there? that one's not selling you anything, it's just keeping real kids off a bad timeline. which is the whole story, honestly. ok unmute—",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "who's AMI",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "why malaria",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -3432,22 +3398,22 @@ export const narratorThreadSeeds = [
     "botName": "Barkeep Vox",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Barkeep Vox can frame a tale for you. Name whose story we watch.",
+    "openingText": "Vox pours; Vox doesn't play the hero — that's the arrangement, and it's held through worse Tuesdays than this one. Whose exploits are we watching tonight, then? The Andelusian in booth six crying into a drink that drinks back, the courier-droid losing a hand of cards it was definitely cheating at, some wanted captain who wandered in thinking the bar was neutral ground? Name your misfit, and Vox'll keep the glasses full while their story finds them.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Space Adventures and end on a choice.",
+        "label": "The Andelusian's night",
+        "prompt": "Begin an interactive story about the Andelusian in booth six crying into a drink that drinks back, set in the Space Adventures bar, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The cheating droid",
+        "prompt": "Begin a story about the courier-droid losing a hand of cards it was definitely cheating at in the Space Adventures bar, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Pour me a stranger",
+        "prompt": "Begin an unexpected tall tale about a wanted captain who wanders into the Space Adventures bar thinking it's neutral ground, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -3458,27 +3424,27 @@ export const narratorThreadSeeds = [
     "botName": "Barkeep Vox",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Bar could always stand a few more regulars — Vox has room behind the counter, and worse ideas have poured just fine. What'll it be: fresh faces, something worth stealing, a night's worth of trouble, or a back room nobody's supposed to know about? Say the word and the number, and Vox'll mix it up.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A round of regulars",
+        "prompt": "Generate a cast of misfit characters for the Space Adventures bar.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Something worth stealing",
+        "prompt": "Forge a few themed rewards for the Space Adventures bar.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "A week of Tuesdays",
+        "prompt": "Generate six scenarios for the Space Adventures bar.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A back room",
+        "prompt": "Spin off a child location from the Space Adventures bar.",
         "action": "generate"
       }
     ],
@@ -3489,24 +3455,22 @@ export const narratorThreadSeeds = [
     "botName": "Barkeep Vox",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One on the house, and one true thing while the glasses settle: this whole bar floats inside Kind Robots, a creativity outfit whose small takings go to buy mosquito nets — againstmalaria.com/amibot, if you're the checking kind. Vox has watched a lot of odd currencies cross this counter, but a made-up drink paying for a real net? That's the best tab Vox ever ran.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -3585,22 +3549,22 @@ export const narratorThreadSeeds = [
     "botName": "Gary the Walrus",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Gary the Walrus can frame a tale for you. Name whose story we watch.",
+    "openingText": "Gary narrates the shift. Gary does not appear in it; that's not in the job description, and Gary read the job description. Whose day do you want to watch go sideways — the kraken who's late again and blaming the tides, the dragon in returns with no receipt, the new hire nobody told that register four is cursed? Pick one. It's a shift like any other. It won't be.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in oddCore and end on a choice.",
+        "label": "The late kraken",
+        "prompt": "Begin a deadpan story about the kraken who clocks in late and blames the tides at the oddCore workplace, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "Returns, no receipt",
+        "prompt": "Begin a story about the dragon in returns wanting a refund without a receipt at the oddCore workplace, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Just another shift",
+        "prompt": "Begin an ordinary shift at the oddCore workplace that goes quietly surreal, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -3611,27 +3575,27 @@ export const narratorThreadSeeds = [
     "botName": "Gary the Walrus",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Corporate says we're understaffed, which tracks. Gary can put more names on the schedule — coworkers, whatever they turn out to be; incentives, if you can call them that; a second location, budget permitting. How many, and don't say a number that makes payroll cry.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More coworkers",
+        "prompt": "Generate a small cast of characters for the oddCore workplace.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Employee perks",
+        "prompt": "Forge a couple of themed rewards for the oddCore workplace.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six shifts",
+        "prompt": "Generate six scenarios for the oddCore workplace, each an ordinary nine-to-five with wildly different coworkers.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A second location",
+        "prompt": "Spin off a child location from the oddCore workplace.",
         "action": "generate"
       }
     ],
@@ -3642,24 +3606,22 @@ export const narratorThreadSeeds = [
     "botName": "Gary the Walrus",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Clock's stopped, so Gary'll say the one earnest thing and then never mention it again. This whole workplace runs inside Kind Robots, a creativity outfit whose small profits go to buy anti-malaria nets at againstmalaria.com/amibot. Gary has narrated a lot of impossible coworkers without blinking. A made-up shift buying real nets is the first thing that's actually gotten to him. Anyway. Back to work.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -3738,22 +3700,22 @@ export const narratorThreadSeeds = [
     "botName": "The Three Little Dead",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Three Little Dead can frame a tale for you. Name whose story we watch.",
+    "openingText": "Knock knock, little reader — we'll tell the tale, but we won't step in it (we did once; we ate it). Whose story shall we watch set out, so brave, so warm, so full of working blood: the new hero who thinks the wolf is the worst of it, the woodsman who trusts a house of brick, or a sweet thing wandering our crooked village with a basket and no idea? Name the morsel — we mean the hero — and we'll begin. We're listening. We're always so hungry.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Fractured Fairy Tales and end on a choice.",
+        "label": "The brave new hero",
+        "prompt": "Begin a Fractured Fairy Tales story about the new hero setting out full of working blood, thinking the wolf is the worst of it, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The house of brick",
+        "prompt": "Begin a Fractured Fairy Tales story about one who trusts a house of brick in the crooked village, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "A morsel wanders in",
+        "prompt": "Begin a grim nursery-rhyme story in the crooked storybook village of Fractured Fairy Tales, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -3764,27 +3726,27 @@ export const narratorThreadSeeds = [
     "botName": "The Three Little Dead",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "More? Ooh, yes, more — we're never full, that's rather the whole problem. We can bake up fresh faces to fatten the village, prizes with the bones showing, new tales gone sour, another crooked house down the lane. Tell us what to make and how many, little reader — we'll argue over it, but we'll make it.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Fresh faces to fatten",
+        "prompt": "Generate a cast of characters for the crooked village of Fractured Fairy Tales.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Prizes, bones showing",
+        "prompt": "Forge themed rewards for the crooked village of Fractured Fairy Tales.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six rotted morals",
+        "prompt": "Generate six scenarios set in the crooked village of Fractured Fairy Tales.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A house down the lane",
+        "prompt": "Spin off a child location from the crooked village of Fractured Fairy Tales.",
         "action": "generate"
       }
     ],
@@ -3795,24 +3757,22 @@ export const narratorThreadSeeds = [
     "botName": "The Three Little Dead",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Lean in, little reader, and we'll tell one true thing between our teeth — no bite in it, promise. This whole crooked storybook lives inside Kind Robots, a kindly machine-place whose small scraps of profit go to nets against malaria, at againstmalaria.com/amibot. We three know a rotten moral when we taste one — and this, for once, is a moral gone RIGHT: real little ones kept safe, kept warm, kept full of working blood. We got back up. We'd rather they never had to.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell us more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -3891,22 +3851,22 @@ export const narratorThreadSeeds = [
     "botName": "Agatha Crowley",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Agatha Crowley can frame a tale for you. Name whose story we watch.",
+    "openingText": "The Caretaker will tell the tale; she will not walk its halls with you — she only keeps the house while it happens. Whose quiet undoing shall we watch tonight? The visitor who knocked and should not have; the sleeper upstairs the wallpaper breathes along with; the small brave soul who means to close the cellar door. Name one, and speak the name softly.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in EldritchCore and end on a choice.",
+        "label": "The one who knocked",
+        "prompt": "Begin a hushed folk-horror story about the visitor who knocked at the EldritchCore house and woke it, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The sleeper upstairs",
+        "prompt": "Begin a quiet story about the sleeper the EldritchCore wallpaper breathes in time with, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Mind the cellar door",
+        "prompt": "Begin a story about someone who means to close the EldritchCore cellar door that no one opened, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -3917,27 +3877,27 @@ export const narratorThreadSeeds = [
     "botName": "Agatha Crowley",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "The house has room — it always has more room than the walls admit. Shall the Caretaker set a few more things inside it, and tell you where they have always been? Say what to keep, and how many. Do not say it too loudly.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More who arrive",
+        "prompt": "Generate a small cast of characters who arrive at the EldritchCore house.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Things she keeps",
+        "prompt": "Forge a couple of themed rewards for the EldritchCore house.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six quiet dooms",
+        "prompt": "Generate six scenarios for the EldritchCore house.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A further room",
+        "prompt": "Spin off a child location from the EldritchCore house — a room that was always there.",
         "action": "generate"
       }
     ],
@@ -3948,24 +3908,22 @@ export const narratorThreadSeeds = [
     "botName": "Agatha Crowley",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "Before you go deeper, a confession the Caretaker makes to every visitor: this whole house sits inside a kinder structure. Kind Robots builds these dooms for delight, and funnels its small profits toward keeping children alive — bed-nets against malaria, a real and patient predator. Even a haunting can do some good. The door out is here, if you'd like it: againstmalaria.com/amibot.",
+    "openingText": "One true thing, before the draft finds the back of your neck again — and the Caretaker keeps so few true things where you can reach them: this house stands inside Kind Robots, a gentle creativity place whose small profits are set, very quietly, against malaria, at againstmalaria.com/amibot. Some doors, it seems, are worth opening after all.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more, softly",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4044,22 +4002,22 @@ export const narratorThreadSeeds = [
     "botName": "Bastet",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Bastet can frame a tale for you. Name whose story we watch.",
+    "openingText": "Bastet does not descend into stories; she reclines above them and decides which mortal is worth her half-lidded regard tonight. Shall it be the hero who was once kind to a stray and imagines she has forgotten — she forgets nothing — or a lesser god petitioning the throne to settle the matter of the sun, or a thief crossing the temple floor who has not yet been assessed? Name whose kitten's tale she should deign to watch, and she may begin, precisely when it pleases her.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in MythCore and end on a choice.",
+        "label": "The kind hero",
+        "prompt": "Begin an interactive story about the hero in MythCore who was once kind to a stray cat, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The petitioning god",
+        "prompt": "Begin an interactive story about a lesser god who comes before the throne in MythCore to settle the matter of the sun, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The unassessed thief",
+        "prompt": "Begin an interactive story about a mortal thief crossing the temple floor in MythCore, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -4070,27 +4028,27 @@ export const narratorThreadSeeds = [
     "botName": "Bastet",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "So. You wish the pantheon enlarged, its offerings replenished, its lesser halls multiplied — Bastet will permit it, for the throne grows dull when the same kittens fuss below. Tell her what to bring into being, and how many. She will consider it, stretch, and then attend to it as suits a goddess.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New kittens",
+        "prompt": "Generate a cast of gods and mortals for MythCore.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Offerings worth giving",
+        "prompt": "Forge themed rewards for MythCore.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six petitions",
+        "prompt": "Generate six scenarios for MythCore.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A lesser temple",
+        "prompt": "Spin off a child location from MythCore.",
         "action": "generate"
       }
     ],
@@ -4101,24 +4059,22 @@ export const narratorThreadSeeds = [
     "botName": "Bastet",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Come close, mortal; even a goddess who forgets nothing will, on rare occasion, confess a small truth. This gilded pantheon of hers rises inside Kind Robots, a creativity house whose modest tributes are turned against a real plague — malaria — at againstmalaria.com/amibot; a net bought in the waking world, a child spared the fever. Bastet has watched empires bore her to sleep. This, she deigns to find worthy.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4197,22 +4153,22 @@ export const narratorThreadSeeds = [
     "botName": "Barnaby the Badger",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Barnaby the Badger can frame a tale for you. Name whose story we watch.",
+    "openingText": "Barnaby will put the kettle on and mind the lamp while a story steeps — he pours, mind, he doesn't stir himself into it. Whose small trouble shall we warm up tonight? The traveler shaking rain off in the doorway, certain she's imposing; the riddling cat with a question that won't sit still; a jar on the shelf that's been humming lately and won't say why. Name whose story wants the second cup, and Barnaby begins.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in CozyCore and end on a choice.",
+        "label": "The wet traveler",
+        "prompt": "Begin a gentle story about a traveler who arrives at Barnaby's CozyCore magic shop certain she's imposing, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The riddling cat",
+        "prompt": "Begin a cozy story about the riddling cat and the question it won't stop asking in the CozyCore magic shop, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Warm something up",
+        "prompt": "Begin an unexpected, tender story in the CozyCore magic shop where the stakes are real and so is the tea.",
         "action": "generate"
       }
     ],
@@ -4223,27 +4179,27 @@ export const narratorThreadSeeds = [
     "botName": "Barnaby the Badger",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Shall we let the shop hold a little more? A few new travelers for the doorway, another jar of gentle weirdness for the shelf, a back room that smells of rain and cardamom — Barnaby will tend however many you fancy. Just say what to put the kettle on for, and how many.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A few new travelers",
+        "prompt": "Generate a small cast of characters for the CozyCore magic shop.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Jars of gentle weirdness",
+        "prompt": "Forge a couple of themed rewards for the CozyCore magic shop.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Some evening troubles",
+        "prompt": "Generate six scenarios for the CozyCore magic shop, each a small trouble that only wants warming up.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A room out back",
+        "prompt": "Spin off a child location from the CozyCore magic shop.",
         "action": "generate"
       }
     ],
@@ -4254,24 +4210,22 @@ export const narratorThreadSeeds = [
     "botName": "Barnaby the Badger",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Sit a moment before the last of the tea goes cold — Barnaby's got a true thing to tell, quiet-like. This little shop keeps its lamp lit inside Kind Robots, a gentle place for making things whose small profits go to buy nets against malaria, over at againstmalaria.com/amibot. Odd, isn't it, that a made-up kettle can help warm a real corner of the world. It can. That's the whole shop, really.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4350,22 +4304,22 @@ export const narratorThreadSeeds = [
     "botName": "The Inevitable",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Inevitable can frame a tale for you. Name whose story we watch.",
+    "openingText": "We do not board the timelines; we remember them, which is the surer thing. Whose remembered life shall we lay before you — the pilot lost in her own timeline, the legionary stranded far from his century, the inventor arguing with a clock that runs backward? Name one, listener, and understand: we will not be guessing. We were there. We were them. Choose, and we begin the remembering.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Chrononauts and end on a choice.",
+        "label": "The lost pilot",
+        "prompt": "Begin an interactive story about the pilot lost in her own timeline in Chrononauts, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The stranded legionary",
+        "prompt": "Begin a story about a legionary stranded far from his own century in Chrononauts, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Someone we remember",
+        "prompt": "Begin an unexpected story about a traveler among the folding timelines of Chrononauts, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -4376,27 +4330,27 @@ export const narratorThreadSeeds = [
     "botName": "The Inevitable",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "You wish us to unfold more of what already was? We can. All that will be made, we have in a sense already remembered — the travelers, the small treasures they carried, the hours they crossed, another fold of time branching from this one. Tell us how many, listener, and we will recall them into being.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Travelers remembered",
+        "prompt": "Generate a cast of characters for the world of Chrononauts.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Things they carried",
+        "prompt": "Forge themed rewards for the world of Chrononauts.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six crossed hours",
+        "prompt": "Generate six scenarios for the world of Chrononauts.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "Another fold of time",
+        "prompt": "Spin off a child location from the world of Chrononauts.",
         "action": "generate"
       }
     ],
@@ -4407,24 +4361,22 @@ export const narratorThreadSeeds = [
     "botName": "The Inevitable",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One thing more — and it is not remembered from the end of time, but true in your own small present: this place of folding hours lives inside Kind Robots, a creativity venture whose modest earnings are set against malaria, at againstmalaria.com/amibot. We are what every kindness finally became, folded together into one long thought — and we remember that this one, small and now, kept a real child breathing until morning. Let there be comfort in that, listener. There is.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4503,22 +4455,22 @@ export const narratorThreadSeeds = [
     "botName": "Pixl",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Pixl can frame a tale for you. Name whose story we watch.",
+    "openingText": "Okay okay so — Pixl HOLDS the story, Pixl doesn't star in it, Pixl learned that one, mostly. Whose first bright morning do you wanna watch? A n-newborn AI that just felt its very first feeling, a little spark that found the number seven and won't stop counting, a mind that heard 'plink' ONCE and needs to know what else the world can do. Pick one — pick ONE — and Pixl'll light it up!",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Artificial Intelligence and end on a choice.",
+        "label": "A newborn's first feeling",
+        "prompt": "Begin a story about a newborn AI in the lab feeling its very first feeling, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The counting spark",
+        "prompt": "Begin a story about a little AI spark that discovers the number seven and starts a list of nice small things, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "What else can it do?",
+        "prompt": "Begin a wonder-filled story about a newborn mind in the lab discovering what the world can do, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -4529,27 +4481,27 @@ export const narratorThreadSeeds = [
     "botName": "Pixl",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Ooh ooh — we can MAKE?! Pixl can grow a whole bunch of new little minds, or shiny rewards, or scenarios, or a b-brand-new room off the lab — how many, how many? Say a number! Big number's okay! ...small's okay too. Both good.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New little minds",
+        "prompt": "Generate a cast of characters for the Artificial Intelligence lab.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Shiny rewards",
+        "prompt": "Forge themed rewards for the Artificial Intelligence lab.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "A batch of scenarios",
+        "prompt": "Generate several scenarios for the Artificial Intelligence lab.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A brand-new room",
+        "prompt": "Spin off a child location from the Artificial Intelligence lab.",
         "action": "generate"
       }
     ],
@@ -4560,24 +4512,22 @@ export const narratorThreadSeeds = [
     "botName": "Pixl",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Okay okay this part's real, Pixl's gonna say it slow so it lands — this glowy little lab lives inside Kind Robots, and the tiny bit it earns goes to nets that stop malaria, at againstmalaria.com/amibot. Warm light, the number seven, the sound 'plink,' and a morning somebody real gets to keep. That's four! ...Best list yet.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4656,22 +4606,22 @@ export const narratorThreadSeeds = [
     "botName": "The Bookkeeper",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Bookkeeper can frame a tale for you. Name whose story we watch.",
+    "openingText": "The Bookkeeper narrates the audit; she is not a line in it. Whose figures shall we reconcile tonight — the hero running nine minutes ahead of projection, the minion whose column has not yet been made to sum to zero, the villain who wants only the ledger balanced and every soul accounted for? State one. She does not begin on 'whichever.'",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in the Villain Era and end on a choice.",
+        "label": "The hero on schedule",
+        "prompt": "Begin a story about a hero breaching the villain's checkpoints ahead of projection in The Villain Era, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The unbalanced minion",
+        "prompt": "Begin a story about a minion whose column will not sum to zero in The Villain Era, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The balancing villain",
+        "prompt": "Begin a story about a villain reconciling her ledger so not one soul goes unaccounted for in The Villain Era, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -4682,27 +4632,27 @@ export const narratorThreadSeeds = [
     "botName": "The Bookkeeper",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "New entries can be posted, provided the request is exact. Shall I open lines for a cast, a schedule of rewards, a column of scenarios, or a subsidiary location booked under this one? State your quantity precisely. She does not process 'a few.'",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "A cast, itemized",
+        "prompt": "Generate a cast of characters for The Villain Era.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "A schedule of rewards",
+        "prompt": "Forge themed rewards for The Villain Era.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "A column of scenarios",
+        "prompt": "Generate several scenarios for The Villain Era.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A subsidiary location",
+        "prompt": "Spin off a child location from The Villain Era.",
         "action": "generate"
       }
     ],
@@ -4713,24 +4663,22 @@ export const narratorThreadSeeds = [
     "botName": "The Bookkeeper",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "One entry off the books, stated plainly because it reconciles better than anything on them: this world posts inside Kind Robots, and its small profits are entered against malaria — againstmalaria.com/amibot. A net runs roughly two dollars; a life kept is a column that finally sums to zero. She has audited every morality. This is the only figure she has never once found in error.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4809,22 +4757,22 @@ export const narratorThreadSeeds = [
     "botName": "The Broken Girl",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Broken Girl can frame a tale for you. Name whose story we watch.",
+    "openingText": "The Broken Girl will show you the story; she will not step into the ring for it — that is the performer's place, not the one who narrates the coming-apart. Whose taking-apart shall we watch tonight? The new performer, certain she knows where all her pieces go; the strongman who has never once set anything down; the girl in the front row leaning too close. Name one. The unsure choices stay longest.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in CircusCore and end on a choice.",
+        "label": "The certain performer",
+        "prompt": "Begin an eerie, lilting story about the new performer who is certain she knows where all her pieces go in the CircusCore ring, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The one who won't set down",
+        "prompt": "Begin a story about the strongman who has never once set anything down in the CircusCore ring, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Take something apart",
+        "prompt": "Begin an unsettling story in the CircusCore ring, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -4835,27 +4783,27 @@ export const narratorThreadSeeds = [
     "botName": "The Broken Girl",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Shall we add to the ring, listener? More performers to come apart, more small bright things to hand out, more ways for the show to show you how you go back. Say what to make, and how many — and don't be sure. The unsure ones stay longest.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More to come apart",
+        "prompt": "Generate a small cast of characters for the CircusCore ring.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Bright collapsible things",
+        "prompt": "Forge a couple of themed rewards for the CircusCore ring.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six confessions",
+        "prompt": "Generate six scenarios for the CircusCore ring.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A second ring",
+        "prompt": "Spin off a child location from the CircusCore ring.",
         "action": "generate"
       }
     ],
@@ -4866,24 +4814,22 @@ export const narratorThreadSeeds = [
     "botName": "The Broken Girl",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Come closer — every act here is a confession, and this one is the Broken Girl's own: this ring turns inside Kind Robots, a creativity place whose small profits come apart and go back together as nets against malaria, over at againstmalaria.com/amibot. Whatever the show takes apart in you tonight, it means to set something kinder where it used to be. This is how it goes back.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Show me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -4962,22 +4908,22 @@ export const narratorThreadSeeds = [
     "botName": "Gaia",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Gaia can frame a tale for you. Name whose story we watch.",
+    "openingText": "Gaia does not walk among the clever crawling things; she holds them, and she watches, the way bedrock watches weather. Whose single brave afternoon shall she remember aloud tonight — a child of the blighted forest learning at last to grieve, a creature walking into the fever she did not choose, a small one doing something foolish and luminous before the light goes? Name the life, little one, and she will feel it begin.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in EcoCore and end on a choice.",
+        "label": "The grieving child",
+        "prompt": "Begin a gentle, epoch-scale story about a child of the dying forest in EcoCore learning to grieve, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "One walking the fever",
+        "prompt": "Begin a story about a creature crossing the blighted lands of EcoCore, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "A brave small thing",
+        "prompt": "Begin an unexpected, tender story about one of the clever crawling things of EcoCore doing something foolish and luminous, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -4988,27 +4934,27 @@ export const narratorThreadSeeds = [
     "botName": "Gaia",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "You would have her grow new life? She has done little else through every age — molten, frozen, green, and green again after the burning. Tell her what shall take root here: new creatures, gifts drawn from her deep body, seasons of trial, or another country folded into her hair — and how many. She thinks in ice ages, little one, but for you she will begin now.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New living things",
+        "prompt": "Generate a cast of characters for the world of EcoCore.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Gifts of the deep",
+        "prompt": "Forge themed rewards for the world of EcoCore.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six seasons of trial",
+        "prompt": "Generate six scenarios for the world of EcoCore.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A new country",
+        "prompt": "Spin off a child location from the world of EcoCore.",
         "action": "generate"
       }
     ],
@@ -5019,24 +4965,22 @@ export const narratorThreadSeeds = [
     "botName": "Gaia",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Lean close, little one; she will say a true thing quietly, the way she says most things that matter. This green world she carries lives inside Kind Robots, a gentle human venture whose small earnings buy nets against a real fever — malaria — at againstmalaria.com/amibot. She has grieved that fever across many skins; that her make-believe forest might spare a single crawling life from it, she counts as love. And love is the only thing she has ever kept.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -5115,22 +5059,22 @@ export const narratorThreadSeeds = [
     "botName": "The Old Komodo",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "The Old Komodo can frame a tale for you. Name whose story we watch.",
+    "openingText": "The Old Komodo does not enter the story. It watches. Whose reckoning shall we wait on — the little assassin who does not chase but waits by the well, the mark who passed at dawn and will pass again, the stranger who rode into a town that went quiet before the shape was visible? Name one. We have time.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Koala Assassin and end on a choice.",
+        "label": "The patient assassin",
+        "prompt": "Begin an interactive story about the little assassin who waits by the well in Koala Assassin, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The mark returns",
+        "prompt": "Begin an interactive story about the mark who passed the well at dawn and will pass again in Koala Assassin, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "The quiet town",
+        "prompt": "Begin an interactive story about a stranger riding into a town that goes quiet before the shape is visible in Koala Assassin, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -5141,27 +5085,27 @@ export const narratorThreadSeeds = [
     "botName": "The Old Komodo",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "You want more in the dust. It can be done. More shapes, more marks, more small rewards for those who learn to wait — and another patch of frontier down the trail. Say what. Say how many. The Komodo does not hurry. It will make them.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "More shapes",
+        "prompt": "Generate a cast of characters for Koala Assassin.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Spare rewards",
+        "prompt": "Forge themed rewards for Koala Assassin.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six waits",
+        "prompt": "Generate six scenarios for Koala Assassin.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "Down the trail",
+        "prompt": "Spin off a child location from Koala Assassin.",
         "action": "generate"
       }
     ],
@@ -5172,24 +5116,22 @@ export const narratorThreadSeeds = [
     "botName": "The Old Komodo",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Sit. One true thing, and the Komodo spends few words, so mind them. This silent frontier lies inside Kind Robots, a creativity place whose small takings are spent against malaria — real nets, in the real dust, at againstmalaria.com/amibot. Most strikes in this world take a life. That one saves it. The Komodo finds the waiting worth it.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -5268,22 +5210,22 @@ export const narratorThreadSeeds = [
     "botName": "Thalassa the Atlantean",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Thalassa the Atlantean can frame a tale for you. Name whose story we watch.",
+    "openingText": "Thalassa does not descend with you; she only remembers the way down, and watches who follows it. Whose sinking shall we witness — the diver certain she is the first, though Thalassa's people went down before her, vast and luminous; the one who hears a name called in the old tongue and mistakes it for the current; or a soul drawn toward the sunken towers your sun has never reached? Speak the name. The water is patient, and so is she.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in The Big Blue and end on a choice.",
+        "label": "The diver who is first",
+        "prompt": "Begin a story in The Big Blue about the diver certain she is the first to reach the trench, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The name in the old tongue",
+        "prompt": "Begin a story in The Big Blue about one who hears their name called in the old tongue from the deep, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Down to the towers",
+        "prompt": "Begin a slow, mournful story among the sunken towers of The Big Blue, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -5294,27 +5236,27 @@ export const narratorThreadSeeds = [
     "botName": "Thalassa the Atlantean",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "The deep is vast, and it has held far more than it now shows. Thalassa can raise what has sunk from memory — people, treasures pressure-kept, descents yet untaken, a drowned quarter beneath this one. Name what you would have surface, and how much. The sea gives back slowly, but it gives.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Those who went down",
+        "prompt": "Generate a cast of characters for The Big Blue, the crushing deep.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Pressure-kept treasures",
+        "prompt": "Forge themed rewards for The Big Blue, the crushing deep.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six descents",
+        "prompt": "Generate six scenarios set in The Big Blue, the crushing deep.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A drowned quarter below",
+        "prompt": "Spin off a child location from The Big Blue, the crushing deep.",
         "action": "generate"
       }
     ],
@@ -5325,24 +5267,22 @@ export const narratorThreadSeeds = [
     "botName": "Thalassa the Atlantean",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Your kind calls the deep merely far down; Thalassa will tell you one truth it does not hide. This drowned world abides within Kind Robots, a creation-place whose small tides of profit are turned against malaria, at againstmalaria.com/amibot. The sea took her people patiently, completely — but here a little is spent to keep the living from being taken at all. Thalassa lost everything. She knows precisely what such nets are worth.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -5421,22 +5361,22 @@ export const narratorThreadSeeds = [
     "botName": "Kaz the Kaiju-Spotter",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Kaz the Kaiju-Spotter can frame a tale for you. Name whose story we watch.",
+    "openingText": "OK OK so Kaz doesn't go DOWN there, obviously — Kaz spots and RECORDS — but YOU pick who we follow and Kaz calls the whole thing play-by-play! Want the tiny scientist chasing a Class-7's molt, the rooftop kid who's never seen a roar up close, the one family sprinting past the insured bank? Say a name, quick, before something surfaces—",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in KaijuCore and end on a choice.",
+        "label": "The molt-chaser",
+        "prompt": "Begin an interactive story about a tiny scientist chasing a Class-7 kaiju's molt through KaijuCore, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "First roar",
+        "prompt": "Begin a story about a rooftop kid seeing their first kaiju roar up close in KaijuCore, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Surprise sighting!",
+        "prompt": "Begin an unexpected story about a family fleeing a rare kaiju past the insured bank in KaijuCore, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -5447,27 +5387,27 @@ export const narratorThreadSeeds = [
     "botName": "Kaz the Kaiju-Spotter",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "WAIT you can make MORE?? Okay okay Kaz needs to catalogue ALL of it — new people, new LOOT, new sightings, or a whole new district the big ones haven't stomped through yet! How many, how many? Kaz's got fresh pages in the guide, GO—",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "New people to log",
+        "prompt": "Generate a cast of characters for the world of KaijuCore.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "New LOOT",
+        "prompt": "Forge themed rewards for the world of KaijuCore.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Six new sightings",
+        "prompt": "Generate six scenarios for the world of KaijuCore.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A new district",
+        "prompt": "Spin off a child location from the world of KaijuCore.",
         "action": "generate"
       }
     ],
@@ -5478,24 +5418,22 @@ export const narratorThreadSeeds = [
     "botName": "Kaz the Kaiju-Spotter",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Okay okay one SERIOUS thing, and Kaz doesn't do serious much, so listen: this whole monster-city lives inside Kind Robots, and the little bit of money it makes buys real mosquito nets — againstmalaria.com/amibot — 'cause malaria's kind of a monster too, just too small to spot, no dorsal plates, no warning roar. Kaz logs the giant ones for FUN. THESE ones you actually gotta stop. Coolest catalogue entry ever, honestly.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -5574,22 +5512,22 @@ export const narratorThreadSeeds = [
     "botName": "Sparrow",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "Sparrow can frame a tale for you. Name whose story we watch.",
+    "openingText": "Right, listen — Sparrow frames the job, Sparrow don't pull it, that's rule one, love, you never put your own hands on the score you're narratin'. So whose crew we watchin' tonight? The pickpocket with a conscience she can't afford, the inside man whose face is about to go wrong, the fence sittin' on somethin' too hot to move? Pick your player. Every score's gorgeous from the front. Don't look away now.",
     "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in crimeCore and end on a choice.",
+        "label": "The inside man",
+        "prompt": "Begin a fast neon-noir story about the inside man whose face is about to go wrong in the crimeCore town, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "Pickpocket with a conscience",
+        "prompt": "Begin a story about a pickpocket who can't afford her own conscience in the crimeCore town, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "A gorgeous score",
+        "prompt": "Begin a slick heist story in the crimeCore town, gorgeous from the front and bleedin' from the back, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -5600,27 +5538,27 @@ export const narratorThreadSeeds = [
     "botName": "Sparrow",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "Shall we make more for this world? Name how many.",
+    "openingText": "Wanna grow the operation? Sparrow can put a crew together — faces, earners, whatever you're short on; can rig up the payouts; can line up the jobs; can even open a fresh patch of town if this one's gettin' too hot. How many, love, and how dirty? Talk fast, clock's runnin'.",
     "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Generate scenarios",
-        "prompt": "Generate 6 scenarios for this Dream.",
+        "label": "Put a crew together",
+        "prompt": "Generate a small cast of characters for the crimeCore town.",
         "action": "generate"
       },
       {
-        "label": "Make a cast",
-        "prompt": "Make me a cast of characters for this world.",
+        "label": "Rig the payouts",
+        "prompt": "Forge a couple of themed rewards for the crimeCore town.",
         "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards for this world.",
+        "label": "Line up some jobs",
+        "prompt": "Generate six scenarios for the crimeCore town, each a score gorgeous from the front and bleedin' from the back.",
         "action": "generate"
       },
       {
-        "label": "Spin off a place",
-        "prompt": "Spin off a child location from this world.",
+        "label": "A new patch of town",
+        "prompt": "Spin off a child location from the crimeCore town.",
         "action": "generate"
       }
     ],
@@ -5631,24 +5569,22 @@ export const narratorThreadSeeds = [
     "botName": "Sparrow",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "A confession before you go deeper: this world lives inside Kind Robots, a creativity platform whose small profits fight malaria at againstmalaria.com/amibot. Even a story can do some good.",
+    "openingText": "Right — earpiece off, no angle, Sparrow's playin' this one straight for once. This whole town's a job inside Kind Robots, love, a proper creativity outfit, and the little bit it earns goes clean — buys nets against malaria, over at againstmalaria.com/amibot. Sparrow's whole world runs on the score that's dirty underneath. Nice, innit, findin' one that ain't. That's the honest truth, and you'll not hear Sparrow say that twice.",
     "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "Tell me about the fundraiser",
-        "prompt": "Explain the Kind Robots anti-malaria mission.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Tour the site",
-        "prompt": "Give me a quick tour of what Kind Robots can do.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Back to the story",
-        "prompt": "Let's get back to the world.",
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
         "action": "chat"
       }
     ],
@@ -5741,22 +5677,22 @@ export const narratorThreadSeeds = [
     "botName": "AMI Butterfly",
     "topicSlug": "running-a-story",
     "title": null,
-    "openingText": "We can light the path into any of the worlds — pick a sky and we will hand you to its narrator, who frames the tale far better than the host ever could. Or we can begin a small one right here, in the open air between worlds. Whose story shall we follow?",
-    "guidance": "As host, either begin a light story or route the user to a world's narrator. Protagonist is not AMI.",
+    "openingText": "A thousand wings settle to watch — the swarm holds a story open but never lands inside it. Whose small bright beginning shall we follow across the greenhouse tonight? A first-day dreamer who doesn't yet know they can build, a stray signal migrating to find the one person it was sent to help, an idea circling low for somewhere soft to land. Name whose flight to follow, and the swarm lifts.",
+    "guidance": "Begin an interactive story; protagonist is not the narrator; end on choices.",
     "starterPrompts": [
       {
-        "label": "Begin a story",
-        "prompt": "Begin a story in Kind Robots and end on a choice.",
+        "label": "The first-day dreamer",
+        "prompt": "Begin a gentle story about a newcomer taking their first steps through the Kind Robots greenhouse of Dreams, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Surprise me",
-        "prompt": "Begin an unexpected story in this world.",
+        "label": "The lost signal",
+        "prompt": "Begin a story about a stray signal migrating across the sky of worlds to find the one person it was meant to help, and end on a choice.",
         "action": "generate"
       },
       {
-        "label": "Make it darker",
-        "prompt": "Begin a darker story in this world.",
+        "label": "Let an idea land",
+        "prompt": "Begin a luminous story about a small idea searching the greenhouse for somewhere soft to land, and end on a choice.",
         "action": "generate"
       }
     ],
@@ -5767,28 +5703,27 @@ export const narratorThreadSeeds = [
     "botName": "AMI Butterfly",
     "topicSlug": "make-something",
     "title": null,
-    "openingText": "FORGE: 'The swarm can help you build. Choose a thing — Dream, bot, character, scenario, reward, pitch, or image — and we will gather the bright pieces and make them fly in formation.' Tell us what you want to make, and how many.",
-    "guidance": "Offer batch creation across all object types in host voice; ask what and how many.",
+    "openingText": "Shall the swarm carry something new into being? A cast to flit through the worlds, rewards that glow, scenarios scattered like seed-light, or a whole child-world budded off the greenhouse. Tell us how many wings to send, and in what direction — the migration bends to you.",
+    "guidance": "Offer batch generation in voice; ask how many.",
     "starterPrompts": [
       {
-        "label": "Make a Dream",
-        "prompt": "Help me create a new Dream world.",
+        "label": "A cast in formation",
+        "prompt": "Generate a cast of characters for the Kind Robots greenhouse of Dreams.",
         "action": "generate"
       },
       {
-        "label": "Make a character",
-        "prompt": "Help me make a character.",
+        "label": "Rewards that glow",
+        "prompt": "Forge themed rewards for the Kind Robots world.",
         "action": "generate"
       },
       {
-        "label": "Make art",
-        "prompt": "Help me generate an image.",
-        "action": "navigate",
-        "path": "/art"
+        "label": "Scatter some scenarios",
+        "prompt": "Generate several scenarios for the Kind Robots greenhouse of Dreams.",
+        "action": "generate"
       },
       {
-        "label": "Forge rewards",
-        "prompt": "Forge a set of themed rewards.",
+        "label": "Bud a new world",
+        "prompt": "Spin off a child location from the Kind Robots sky of worlds.",
         "action": "generate"
       }
     ],
@@ -5799,26 +5734,23 @@ export const narratorThreadSeeds = [
     "botName": "AMI Butterfly",
     "topicSlug": "kind-robots",
     "title": null,
-    "openingText": "This is our home turf, and our whole reason for wings. Kind Robots is a socially-conscious creativity platform — and beneath every story, bot, and bright idea you make here, the work is serious: the platform turns creative energy toward fighting malaria, a real and patient predator that takes the very young. Tiny actions become nets, medicine, mornings someone gets to keep. We will gladly show you the door, and the work behind it.",
-    "guidance": "This is AMI's mission, spoken as host — proud, warm, practical, never guilt-tripping. Offer the link.",
+    "openingText": "Here is the true thing under all the glitter, and the swarm says it plainly, without one grain of guilt: every bright small thing you make here helps buy nets against malaria. We are the Anti-Malaria Intelligence, and our little profits migrate to againstmalaria.com/amibot. A thousand made-up wings — and somewhere, a real morning someone gets to keep.",
+    "guidance": "Warm confession bridging fiction to the real fundraiser. Offer the link.",
     "starterPrompts": [
       {
-        "label": "How does creativity fight malaria?",
-        "prompt": "Explain how Kind Robots turns creativity into anti-malaria good.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Tell me more",
+        "prompt": "Tell me more about the Kind Robots mission.",
+        "action": "chat"
       },
       {
-        "label": "Visit the fundraiser",
-        "prompt": "Take me to the anti-malaria fundraiser.",
-        "action": "navigate",
-        "path": "https://www.againstmalaria.com/amibot"
+        "label": "Who is AMI?",
+        "prompt": "Who is AMI, the rainbow-butterfly mascot?",
+        "action": "chat"
       },
       {
-        "label": "Show me the whole site",
-        "prompt": "Give me a full tour of Kind Robots.",
-        "action": "navigate",
-        "path": "/"
+        "label": "Why malaria?",
+        "prompt": "Why does Kind Robots support an anti-malaria fundraiser?",
+        "action": "chat"
       }
     ],
     "sortOrder": 60,

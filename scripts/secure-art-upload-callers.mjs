@@ -13,18 +13,22 @@ function replaceExact(path, target, replacement, label) {
   writeFileSync(path, updated.replace(/\n/g, newline), 'utf8')
 }
 
+const normalizerBlock = [
+  "// API/storage expects the short form ('png', 'jpeg', 'webp'), not the MIME type.",
+  'function normalizeFileType(value: string | null | undefined): string {',
+  "  if (!value) return 'png'",
+  '  const lower = value.toLowerCase().trim()',
+  "  const short = lower.replace(/^image\\//, '')",
+  "  return short === 'jpg' ? 'jpeg' : short || 'png'",
+  '}',
+  '',
+  '',
+].join('\n')
+
 replaceExact(
   'stores/uploadStore.ts',
-  String.raw`// API/storage expects the short form ('png', 'jpeg', 'webp'), not the MIME type.
-function normalizeFileType(value: string | null | undefined): string {
-  if (!value) return 'png'
-  const lower = value.toLowerCase().trim()
-  const short = lower.replace(/^image\//, '')
-  return short === 'jpg' ? 'jpeg' : short || 'png'
-}
-
-`,
-  ``,
+  normalizerBlock,
+  '',
   'dead client file-type normalizer',
 )
 
@@ -50,7 +54,7 @@ replaceExact(
   'stores/uploadStore.ts',
   `    userId: number,
 `,
-  ``,
+  '',
   'upload form user ID parameter',
 )
 
@@ -60,7 +64,7 @@ replaceExact(
     connectedModelType?: ConnectableModel | null,
     connectedModelId?: number | null,
 `,
-  ``,
+  '',
   'upload form relationship parameters',
 )
 
@@ -68,7 +72,7 @@ replaceExact(
   'stores/uploadStore.ts',
   `    const galleryId = target.galleryId ?? 21
 `,
-  ``,
+  '',
   'upload form gallery ID',
 )
 
@@ -76,7 +80,7 @@ replaceExact(
   'stores/uploadStore.ts',
   `    const collectionId = getSelectedCollectionId(target)
 `,
-  ``,
+  '',
   'upload form collection ID',
 )
 
@@ -86,7 +90,7 @@ replaceExact(
     formData.append('userId', String(userId))
     formData.append('fileType', normalizeFileType(file.type))
 `,
-  ``,
+  '',
   'upload identity and derived file type fields',
 )
 
@@ -98,7 +102,7 @@ replaceExact(
     appendOptionalNumber(formData, 'collectionId', collectionId)
 
 `,
-  ``,
+  '',
   'upload collection relationship fields',
 )
 
@@ -106,7 +110,7 @@ replaceExact(
   'stores/uploadStore.ts',
   `    appendOptionalString(formData, 'checkpoint', metadata?.checkpoint)
 `,
-  ``,
+  '',
   'unsupported checkpoint field',
 )
 
@@ -115,7 +119,7 @@ replaceExact(
   `    appendOptionalString(formData, 'serverName', metadata?.serverName)
     appendOptionalString(formData, 'serverUrl', metadata?.serverUrl)
 `,
-  ``,
+  '',
   'unsupported server metadata fields',
 )
 
@@ -124,7 +128,7 @@ replaceExact(
   `    appendOptionalNumber(formData, 'rarity', metadata?.rarity)
     appendOptionalNumber(formData, 'serverId', metadata?.serverId)
 `,
-  ``,
+  '',
   'unsupported rarity and server fields',
 )
 
@@ -136,7 +140,7 @@ replaceExact(
       formData.append('connectedModelId', String(connectedModelId))
     }
 `,
-  ``,
+  '',
   'upload target relationship fields',
 )
 
@@ -206,23 +210,21 @@ replaceExact(
 
 replaceExact(
   'docs/notes/backend-sweep-2026-07-05.md',
-  `Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; the unused unauthenticated SD model-switch route and its dead Pinia action were removed.`,
-  `Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art uploads now derive ownership from authentication and reject relationship fields.`,
+  'Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; the unused unauthenticated SD model-switch route and its dead Pinia action were removed.',
+  'Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art uploads now derive ownership from authentication and reject relationship fields.',
   'art upload security resolution note',
 )
 
 replaceExact(
   'docs/notes/backend-sweep-2026-07-05.md',
-  String.raw`| \`server/api/art/upload.post.ts:97\`                    | unauth; \`userId = getNumberField(...) \|\| 10\` → anon uploads as any user                |
-`,
-  ``,
+  '| `server/api/art/upload.post.ts:97`                    | unauth; `userId = getNumberField(...) \\|\\| 10` → anon uploads as any user                |\n',
+  '',
   'resolved art upload exposure row',
 )
 
 replaceExact(
   'docs/architecture/thin-resource-api-audit.md',
-  `| SD model switch | Unauthenticated route hard-coded a live GPU server, disagreed with the store request shape, and had no repository caller | Removed the dead route, unused Pinia action, and setter-only helper instead of preserving an unsafe global server mutation |`,
-  `| SD model switch | Unauthenticated route hard-coded a live GPU server, disagreed with the store request shape, and had no repository caller | Removed the dead route, unused Pinia action, and setter-only helper instead of preserving an unsafe global server mutation |
-| Art upload | Public multipart POST trusted caller user IDs, defaulted ownership to user 10, and connected unrelated resources during file creation | Upload requires authentication, derives owner from the token, validates image type/size, rejects identity and relationship fields, and creates only one ArtImage; callers link collections and targets through explicit APIs |`,
+  '| SD model switch | Unauthenticated route hard-coded a live GPU server, disagreed with the store request shape, and had no repository caller | Removed the dead route, unused Pinia action, and setter-only helper instead of preserving an unsafe global server mutation |',
+  '| SD model switch | Unauthenticated route hard-coded a live GPU server, disagreed with the store request shape, and had no repository caller | Removed the dead route, unused Pinia action, and setter-only helper instead of preserving an unsafe global server mutation |\n| Art upload | Public multipart POST trusted caller user IDs, defaulted ownership to user 10, and connected unrelated resources during file creation | Upload requires authentication, derives owner from the token, validates image type/size, rejects identity and relationship fields, and creates only one ArtImage; callers link collections and targets through explicit APIs |',
   'art upload audit row',
 )

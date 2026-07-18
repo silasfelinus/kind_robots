@@ -1,81 +1,103 @@
 // /server/api/achievements/records.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { requireApiUser } from '../../utils/authGuard'
 
-export default defineEventHandler(async (event) => {
-  let response
+function parseAchievementId(body: unknown): number {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw createError({
+      statusCode: 400,
+      message: 'Achievement record payload is required.',
+    })
+  }
 
+  const record = body as Record<string, unknown>
+  const unsupportedFields = Object.keys(record).filter(
+    (field) => field !== 'achievementId',
+  )
+
+  if (unsupportedFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Achievement record fields: ${unsupportedFields.join(', ')}. User identity comes from authentication.`,
+    })
+  }
+
+  const achievementId = Number(record.achievementId)
+
+  if (!Number.isInteger(achievementId) || achievementId <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: '"achievementId" must be a positive integer.',
+    })
+  }
+
+  return achievementId
+}
+
+export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
-    const authenticatedUserId = user.id
-    const username = user.username
-    const recordData = await readBody(event)
+    const achievementId = parseAchievementId(await readBody<unknown>(event))
 
-    const missingFields = []
-    if (typeof recordData?.achievementId !== 'number') {
-      missingFields.push('achievementId')
-    }
-    if (typeof recordData?.userId !== 'number') {
-      missingFields.push('userId')
-    }
+    const achievement = await prisma.achievement.findUnique({
+      where: { id: achievementId },
+      select: { id: true },
+    })
 
-    if (missingFields.length > 0) {
+    if (!achievement) {
       throw createError({
-        statusCode: 400,
-        message: `Missing required fields: ${missingFields.join(', ')}.`,
-      })
-    }
-
-    const { achievementId, userId } = recordData
-
-    if (userId !== authenticatedUserId) {
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
+        statusCode: 404,
+        message: `Achievement ID not found: ${achievementId}.`,
       })
     }
 
     const existingRecord = await prisma.achievementRecord.findFirst({
       where: {
         achievementId,
-        userId,
+        userId: user.id,
       },
     })
 
     if (existingRecord) {
+      event.node.res.statusCode = 200
+
       return {
-        success: false,
-        message: 'Achievement already awarded to this user.',
-        statusCode: 409,
+        success: true,
+        message: 'Achievement was already recorded for this user.',
+        data: existingRecord,
+        statusCode: 200,
       }
     }
 
     const data = await prisma.achievementRecord.create({
       data: {
         achievementId,
-        userId,
-        username,
+        userId: user.id,
+        username: user.username || user.name || `user-${user.id}`,
       },
     })
 
-    response = {
+    event.node.res.statusCode = 201
+
+    return {
       success: true,
       message: 'Achievement record created successfully.',
       data,
       statusCode: 201,
     }
-    event.node.res.statusCode = 201
   } catch (error) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
-      message: handledError.message || 'Failed to create achievement record.',
-      statusCode: event.node.res.statusCode,
+      message: handled.message || 'Failed to create achievement record.',
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

@@ -634,11 +634,14 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       }
 
       upsertScenario(res.data)
-      selectedScenario.value = res.data
-      scenarioForm.value = toScenarioForm(res.data)
+      const created =
+        (await fetchScenarioById(res.data.id, true)) ?? res.data
+
+      selectedScenario.value = created
+      scenarioForm.value = toScenarioForm(created)
       syncToLocalStorage()
 
-      return res.data
+      return created
     } catch (error) {
       handleError(error, 'creating scenario')
       setLastError(error, 'Failed to create scenario')
@@ -673,11 +676,13 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       }
 
       upsertScenario(res.data)
-      selectedScenario.value = res.data
-      scenarioForm.value = toScenarioForm(res.data)
+      const updated = (await fetchScenarioById(id, true)) ?? res.data
+
+      selectedScenario.value = updated
+      scenarioForm.value = toScenarioForm(updated)
       syncToLocalStorage()
 
-      return res.data
+      return updated
     } catch (error) {
       handleError(error, 'updating scenario')
       setLastError(error, 'Failed to update scenario')
@@ -713,10 +718,11 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
   async function fetchScenarioById(
     id: number,
+    force = false,
   ): Promise<ScenarioWithRelations | null> {
     const existing = scenarios.value.find((scenario) => scenario.id === id)
 
-    if (existing) {
+    if (existing && !force) {
       return existing
     }
 

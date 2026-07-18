@@ -33,11 +33,10 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; the unused unauthenticated SD model-switch route and its dead Pinia action were removed.
+Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art uploads now derive ownership from authentication and reject relationship fields.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `server/api/art/upload.post.ts:97`                    | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
 
 `users/register.post.ts` and `auth/login.post.ts` are legitimately public.
 

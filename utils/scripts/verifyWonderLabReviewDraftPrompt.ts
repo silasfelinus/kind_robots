@@ -67,7 +67,7 @@ const threads: WonderLabNarratorThreadExcerpt[] = [
     openingText: 'Kindness needs reliable machinery and a readable control panel.',
   },
   {
-    topicKey: 'overflow-topic',
+    topicKey: 'zz-overflow-topic',
     title: 'This fifth thread should be excluded',
     openingText: 'Do not include this text.',
   },
@@ -95,7 +95,7 @@ assert.match(prompt.user, /components\/bots\/bot-manager\.vue/)
 assert.match(prompt.user, /Dotti bot-building affinity/)
 assert.match(prompt.user, /NARRATOR THREAD VOICE REFERENCES/)
 assert.match(prompt.user, /Do not quote or continue the threads/)
-assert.doesNotMatch(prompt.user, /overflow-topic/)
+assert.doesNotMatch(prompt.user, /zz-overflow-topic/)
 assert.doesNotMatch(prompt.user, /Do not include this text/)
 
 const backgroundIndex = prompt.user.indexOf('Topic: background')

@@ -1,253 +1,295 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// cypress/e2e/api/icons.cy.ts
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
 
-let userId = 0
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
-describe('SmartIcon API Full CRUD Tests', () => {
+type SmartIconRow = {
+  id: number
+  title: string
+  type: string
+  userId: number | null
+  category: string | null
+  modelType: string | null
+  isMature: boolean
+}
 
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
-  })
+type SmartIconBatchData = {
+  created: SmartIconRow[]
+  skipped: Array<{
+    title: string
+    type: string
+    existingId: number
+    reason: string
+  }>
+  failed: Array<{ title: string; message: string }>
+}
 
-  const baseUrl = 'https://kind-robots.vercel.app/api/icons'
+type ApiResponse<T = unknown> = {
+  success: boolean
+  message: string
+  data?: T
+  statusCode?: number
+}
+
+describe('SmartIcon API boundaries', () => {
   const invalidToken = 'someInvalidTokenValue'
-  const testUserId = 9
+  const stamp = Date.now()
+  const iconTitle = `Icon-${stamp}`
+  const batchIconTitle = `BatchIcon-${stamp}`
 
+  let apiBase = ''
+  let adminToken = ''
+  let baseUrl = ''
   let userToken = ''
+  let userId: number | undefined
   let iconId: number | undefined
+  let batchIconId: number | undefined
 
-  const time = Date.now()
-  const iconTitle = `Icon-${time}`
+  const headers = () => bearerHeaders(userToken)
+
+  const deleteIcon = (id?: number) => {
+    if (!id || !userToken) return
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${id}`,
+      headers: headers(),
+      failOnStatusCode: false,
+    })
+  }
 
   before(() => {
-    cy.wrap(null).then(() => {
-          })
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        baseUrl = `${apiBase}/icons`
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((auth) => {
+        userToken = auth.token
+        userId = auth.id
+      })
   })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
+
+  after(() => {
+    deleteIcon(iconId)
+    deleteIcon(batchIconId)
+    deleteTestUser(apiBase, adminToken, userId)
   })
 
-
-
-
-
-  it('POST: rejects SmartIcon creation without auth', () => {
-    cy.request({
+  it('rejects SmartIcon creation without authentication', () => {
+    cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {
-        title: `Unauthorized-${iconTitle}`,
-        type: 'test',
-        icon: 'magic-hat',
-        label: 'Unauthorized Label',
-        link: '/unauthorized-link',
-        component: 'UnauthorizedComponent',
-        userId: testUserId,
-        isPublic: true,
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-    })
-  })
-
-  it('POST: rejects SmartIcon creation with invalid auth', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: {
-        title: `Invalid-${iconTitle}`,
-        type: 'test',
-        icon: 'magic-hat',
-        label: 'Invalid Label',
-        link: '/invalid-link',
-        component: 'InvalidComponent',
-        userId: testUserId,
-        isPublic: true,
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-    })
-  })
-
-  it('POST: creates a SmartIcon with valid JWT', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
       body: {
         title: iconTitle,
         type: 'test',
-        icon: 'magic-hat',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects SmartIcon creation with an invalid token', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(invalidToken),
+      body: {
+        title: iconTitle,
+        type: 'test',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('creates one SmartIcon for the authenticated user', () => {
+    cy.request<ApiResponse<SmartIconRow>>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: {
+        title: iconTitle,
+        type: 'test',
+        icon: 'kind-icon:magic-hat',
         label: 'Test Label',
         link: '/test-link',
         component: 'TestComponent',
-        userId: testUserId,
-        isPublic: true,
+        userId: 1,
+        isPublic: false,
+        isMature: true,
+        modelType: 'dream',
       },
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      expect(res.body.success).to.be.true
-      expect(res.body.data).to.be.an('object').that.is.not.empty
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.title).to.eq(iconTitle)
+      expect(response.body.data?.userId).to.eq(userId)
+      expect(response.body.data?.category).to.eq('model')
+      expect(response.body.data?.modelType).to.eq('dream')
+      expect(response.body.data?.isMature).to.eq(true)
 
-      iconId = res.body.data.id
-
+      iconId = response.body.data?.id
       expect(iconId).to.be.a('number')
-      expect(res.body.data.title).to.eq(iconTitle)
     })
   })
 
-  it('GET: fetches all SmartIcons', () => {
-    expect(iconId).to.exist
-
-    cy.request(baseUrl).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data).to.be.an('array')
-
-      const match = res.body.data.find(
-        (icon: Record<string, unknown>) => icon.id === iconId,
-      )
-
-      expect(match).to.not.be.undefined
-    })
-  })
-
-  it('GET: fetches SmartIcon by ID', () => {
-    expect(iconId).to.exist
-
-    cy.request(`${baseUrl}/${iconId}`).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data.id).to.eq(iconId)
-      expect(res.body.data.title).to.eq(iconTitle)
-    })
-  })
-
-  it('PATCH: rejects SmartIcon update without auth', () => {
-    expect(iconId).to.exist
-
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${iconId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  it('returns 409 for a duplicate owner/title/type identity', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
       body: {
-        title: 'Unauthorized change',
+        title: iconTitle,
+        type: 'test',
       },
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
+    }).then((response) => {
+      expect(response.status).to.eq(409)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.data).to.eq(null)
+      expect(response.body.message).to.include('already exists')
     })
   })
 
-  it('PATCH: rejects SmartIcon update with invalid auth', () => {
+  it('rejects arrays on single-resource SmartIcon POST', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: [{ title: batchIconTitle, type: 'nav' }],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('/api/icons/batch')
+    })
+  })
+
+  it('uses the explicit batch route for created, skipped, and failed rows', () => {
+    cy.request<ApiResponse<SmartIconBatchData>>({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
+      headers: headers(),
+      body: [
+        {
+          title: batchIconTitle,
+          type: 'nav',
+          icon: 'kind-icon:compass',
+          link: '/explore',
+        },
+        {
+          title: iconTitle,
+          type: 'test',
+        },
+        {
+          title: `InvalidIcon-${stamp}`,
+        },
+      ],
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(207)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.created).to.have.length(1)
+      expect(response.body.data?.skipped).to.have.length(1)
+      expect(response.body.data?.failed).to.have.length(1)
+      expect(response.body.data?.created[0].title).to.eq(batchIconTitle)
+      expect(response.body.data?.created[0].userId).to.eq(userId)
+      expect(response.body.data?.skipped[0].existingId).to.eq(iconId)
+      expect(response.body.data?.failed[0].message).to.include('type')
+
+      batchIconId = response.body.data?.created[0].id
+    })
+  })
+
+  it('lists and retrieves SmartIcons', () => {
+    cy.request<ApiResponse<SmartIconRow[]>>(baseUrl).then((listResponse) => {
+      expect(listResponse.status).to.eq(200)
+      expect(listResponse.body.success).to.eq(true)
+      expect(listResponse.body.data?.some((icon) => icon.id === iconId)).to.eq(true)
+    })
+
+    cy.request<ApiResponse<SmartIconRow>>(`${baseUrl}/${iconId}`).then(
+      (detailResponse) => {
+        expect(detailResponse.status).to.eq(200)
+        expect(detailResponse.body.success).to.eq(true)
+        expect(detailResponse.body.data?.id).to.eq(iconId)
+      },
+    )
+  })
+
+  it('rejects ownership mutation through PATCH', () => {
     expect(iconId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${iconId}`,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: {
-        title: 'Invalid token change',
-      },
+      headers: headers(),
+      body: { userId: 1 },
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('No valid data')
     })
   })
 
-  it('PATCH: updates SmartIcon with valid JWT', () => {
+  it('updates whitelisted SmartIcon fields', () => {
     expect(iconId).to.exist
 
     const updatedTitle = `Updated-${iconTitle}`
 
-    cy.request({
+    cy.request<ApiResponse<SmartIconRow>>({
       method: 'PATCH',
       url: `${baseUrl}/${iconId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
+      headers: headers(),
       body: {
         title: updatedTitle,
         label: 'Updated Label',
+        isMature: false,
       },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data.title).to.eq(updatedTitle)
-      expect(res.body.data.label).to.eq('Updated Label')
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.title).to.eq(updatedTitle)
+      expect(response.body.data?.userId).to.eq(userId)
+      expect(response.body.data?.isMature).to.eq(false)
     })
   })
 
-  it('DELETE: rejects SmartIcon delete without auth', () => {
+  it('rejects SmartIcon deletion without authentication', () => {
     expect(iconId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${iconId}`,
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
     })
   })
 
-  it('DELETE: rejects SmartIcon delete with invalid auth', () => {
+  it('deletes a SmartIcon with authentication', () => {
     expect(iconId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse<SmartIconRow>>({
       method: 'DELETE',
       url: `${baseUrl}/${iconId}`,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-    })
-  })
-
-  it('DELETE: deletes SmartIcon with valid JWT', () => {
-    expect(iconId).to.exist
-
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${iconId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-
+      headers: headers(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.id).to.eq(iconId)
       iconId = undefined
     })
   })

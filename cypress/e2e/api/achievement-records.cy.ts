@@ -1,270 +1,358 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// cypress/e2e/api/achievement-records.cy.ts
+import {
+  adminHeaders,
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+  jsonHeaders,
+} from '../../support/api-auth'
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+
+type AchievementRow = {
+  id: number
+  triggerCode: string
+}
+
+type AchievementRecordRow = {
+  id: number
+  achievementId: number
+  userId: number
+  username: string
+  isConfirmed: boolean
+}
 
 type ApiResponse<T = unknown> = {
   success: boolean
-  message?: string
-  data?: T
-  user?: {
-    id?: number
-    token?: string
-  }
-  token?: string
+  message: string
+  data?: T | null
+  statusCode?: number
 }
 
-let userId = 0
-describe('Achievement Record Management API Tests', () => {
+describe('Achievement Record Ownership API Tests', () => {
+  const stamp = Date.now()
+  const triggerCode = `record-security-${stamp}`
 
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
-  const baseUrl = 'https://kind-robots.vercel.app/api'
-  const recordsUrl = `${baseUrl}/achievements/records`
-  const usersUrl = `${baseUrl}/users`
-  const achievementId = 10
-  const invalidToken = 'invalidTokenValue'
-
+  let apiBase = ''
+  let definitionsUrl = ''
+  let recordsUrl = ''
   let adminToken = ''
-  let achievementRecordId: number | undefined
-  let createdUserId: number | undefined
-  let createdUserToken: string | undefined
-  let uniqueUsername = ''
-  const testPassword = 'testpassword123'
+  let ownerToken = ''
+  let otherToken = ''
+  let ownerId: number | undefined
+  let otherId: number | undefined
+  let achievementId: number | undefined
+  let recordId: number | undefined
 
-  const jsonHeaders = () => ({
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  })
-
-  const betaAdminHeaders = () => ({
-    ...jsonHeaders(),
-    'x-beta-admin-token': adminToken,
-  })
-
-  const bearerHeaders = (token: string) => ({
-    ...jsonHeaders(),
-    Authorization: `Bearer ${token}`,
-  })
-
-  const extractToken = (body: ApiResponse): string => {
-    return String(
-      body.data && typeof body.data === 'object' && 'token' in body.data
-        ? body.data.token
-        : body.token ||
-            body.user?.token ||
-            (body.data &&
-            typeof body.data === 'object' &&
-            'user' in body.data &&
-            body.data.user &&
-            typeof body.data.user === 'object' &&
-            'token' in body.data.user
-              ? body.data.user.token
-              : ''),
-    )
-  }
+  const adminAuth = () => adminHeaders(adminToken)
+  const ownerAuth = () => bearerHeaders(ownerToken)
+  const otherAuth = () => bearerHeaders(otherToken)
 
   before(() => {
-    cy.env(['BETA_ADMIN_TOKEN', 'API_KEY']).then((env) => {
-      adminToken = String(env.BETA_ADMIN_TOKEN || env.API_KEY || '')
-
-      expect(adminToken, 'BETA_ADMIN_TOKEN or API_KEY').to.be.a('string').and.not
-        .be.empty
-    })
-
-    uniqueUsername = `testuser${Date.now()}`
-    const userEmail = `${uniqueUsername}@kindrobots.org`
-
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: `${usersUrl}/register`,
-      headers: betaAdminHeaders(),
-      body: {
-        username: uniqueUsername,
-        email: userEmail,
-        password: testPassword,
-      },
-      failOnStatusCode: false,
-    })
-      .then((response) => {
-        expect(response.status).to.be.oneOf([200, 201])
-        expect(response.body).to.have.property('success', true)
-
-        createdUserId =
-          response.body.user?.id ||
-          (response.body.data &&
-          typeof response.body.data === 'object' &&
-          'id' in response.body.data
-            ? Number(response.body.data.id)
-            : undefined)
-
-        expect(createdUserId, 'created user id').to.be.a('number')
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        definitionsUrl = `${apiBase}/achievements`
+        recordsUrl = `${apiBase}/achievements/records`
+        return createLoggedInTestUser()
       })
-      .then(() => {
-        return cy.request<ApiResponse>({
-          method: 'POST',
-          url: `${baseUrl}/auth/login`,
-          headers: jsonHeaders(),
-          body: {
-            username: uniqueUsername,
-            password: testPassword,
-          },
-          failOnStatusCode: false,
-        })
+      .then((owner) => {
+        ownerToken = owner.token
+        ownerId = owner.id
+        return createLoggedInTestUser({ role: 'second' })
       })
-      .then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('success', true)
-
-        const token = extractToken(response.body)
-
-        expect(token, 'created user JWT')
-          .to.be.a('string')
-          .and.have.length.greaterThan(10)
-
-        createdUserToken = token
+      .then((other) => {
+        otherToken = other.token
+        otherId = other.id
       })
-  })
-
-  it('should not allow creating a achievement record without an authorization token', () => {
-    expect(createdUserId).to.exist
-
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: recordsUrl,
-      headers: jsonHeaders(),
-      body: {
-        userId: createdUserId,
-        achievementId,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body.message || '').to.match(
-        /authorization token|invalid or expired/i,
-      )
-    })
-  })
-
-  it('should not allow creating a achievement record with an invalid authorization token', () => {
-    expect(createdUserId).to.exist
-
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: recordsUrl,
-      headers: bearerHeaders(invalidToken),
-      body: {
-        userId: createdUserId,
-        achievementId,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body.message || '').to.match(/invalid or expired/i)
-    })
-  })
-
-  it('Create a New Achievement Record for the New User with Valid Authentication', () => {
-    expect(createdUserId).to.exist
-    expect(createdUserToken).to.be.a('string').and.not.be.empty
-
-    cy.request<ApiResponse<{ id: number }>>({
-      method: 'POST',
-      url: recordsUrl,
-      headers: bearerHeaders(createdUserToken as string),
-      body: {
-        userId: createdUserId,
-        achievementId,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body.success).to.be.true
-      expect(response.body.data).to.be.an('object').that.is.not.empty
-
-      achievementRecordId = response.body.data?.id
-
-      expect(achievementRecordId).to.be.a('number')
-    })
-  })
-
-  it('Attempt to Delete Achievement Record without Authentication (expect failure)', () => {
-    expect(achievementRecordId).to.exist
-
-    cy.request<ApiResponse>({
-      method: 'DELETE',
-      url: `${recordsUrl}/${achievementRecordId}`,
-      headers: jsonHeaders(),
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body.message || '').to.match(
-        /authorization token|invalid or expired/i,
-      )
-    })
-  })
-
-  it('Attempt to Delete Achievement Record with Invalid Token (expect failure)', () => {
-    expect(achievementRecordId).to.exist
-
-    cy.request<ApiResponse>({
-      method: 'DELETE',
-      url: `${recordsUrl}/${achievementRecordId}`,
-      headers: bearerHeaders(invalidToken),
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body.message || '').to.match(/invalid or expired/i)
-    })
-  })
-
-  it('Delete Achievement Record with Authentication', () => {
-    expect(achievementRecordId).to.exist
-    expect(createdUserToken).to.be.a('string').and.not.be.empty
-
-    cy.request<ApiResponse>({
-      method: 'DELETE',
-      url: `${recordsUrl}/${achievementRecordId}`,
-      headers: bearerHeaders(createdUserToken as string),
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body.success).to.be.true
-      expect(response.body.message || '').to.include(
-        `Achievement Record with ID ${achievementRecordId} successfully deleted`,
-      )
-
-      cy.log('Deleted Achievement Record ID:', String(achievementRecordId))
-      achievementRecordId = undefined
-    })
   })
 
   after(() => {
-    cy.then(() => {
-      if (!createdUserId || !adminToken) {
-        return
-      }
-
-      cy.request<ApiResponse>({
+    if (recordId && ownerToken) {
+      cy.request({
         method: 'DELETE',
-        url: `${usersUrl}/${createdUserId}`,
-        headers: betaAdminHeaders(),
+        url: `${recordsUrl}/${recordId}`,
+        headers: ownerAuth(),
         failOnStatusCode: false,
-      }).then((response) => {
-        if (response.status === 200) {
-          expect(response.body).to.have.property('success', true)
-          cy.log(`User with ID ${createdUserId} successfully deleted`)
-          return
-        }
-
-        cy.log(
-          `User cleanup skipped or refused. Status: ${response.status}. Message: ${response.body?.message || 'none'}`,
-        )
+      }).then(() => {
+        recordId = undefined
       })
+    }
+
+    if (achievementId && adminToken) {
+      cy.request({
+        method: 'DELETE',
+        url: `${definitionsUrl}/${achievementId}`,
+        headers: adminAuth(),
+        failOnStatusCode: false,
+      }).then(() => {
+        achievementId = undefined
+      })
+    }
+
+    deleteTestUser(apiBase, adminToken, ownerId)
+    deleteTestUser(apiBase, adminToken, otherId)
+  })
+
+  it('creates an admin-owned Achievement definition fixture', () => {
+    cy.request<ApiResponse<AchievementRow>>({
+      method: 'POST',
+      url: definitionsUrl,
+      headers: adminAuth(),
+      body: {
+        label: 'Cypress Record Security',
+        message: 'Awarded by the record ownership suite.',
+        triggerCode,
+        icon: 'kind-icon:shield-check',
+        karma: 1,
+      },
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.triggerCode).to.eq(triggerCode)
+
+      achievementId = response.body.data?.id
+      expect(achievementId).to.be.a('number')
+    })
+  })
+
+  it('rejects record reads without authentication', () => {
+    cy.request<ApiResponse>({
+      method: 'GET',
+      url: recordsUrl,
+      headers: jsonHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.data).to.deep.eq([])
+    })
+  })
+
+  it('rejects record creation without authentication', () => {
+    expect(achievementId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: recordsUrl,
+      headers: jsonHeaders(),
+      body: { achievementId },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects caller-supplied record identity', () => {
+    expect(achievementId).to.exist
+    expect(otherId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: recordsUrl,
+      headers: ownerAuth(),
+      body: {
+        achievementId,
+        userId: otherId,
+        username: 'definitely-not-the-owner',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include(
+        'User identity comes from authentication',
+      )
+    })
+  })
+
+  it('creates a record for the authenticated owner', () => {
+    expect(achievementId).to.exist
+    expect(ownerId).to.exist
+
+    cy.request<ApiResponse<AchievementRecordRow>>({
+      method: 'POST',
+      url: recordsUrl,
+      headers: ownerAuth(),
+      body: { achievementId },
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.achievementId).to.eq(achievementId)
+      expect(response.body.data?.userId).to.eq(ownerId)
+      expect(response.body.data?.isConfirmed).to.eq(false)
+
+      recordId = response.body.data?.id
+      expect(recordId).to.be.a('number')
+    })
+  })
+
+  it('treats duplicate awards as idempotent success', () => {
+    expect(achievementId).to.exist
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse<AchievementRecordRow>>({
+      method: 'POST',
+      url: recordsUrl,
+      headers: ownerAuth(),
+      body: { achievementId },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.id).to.eq(recordId)
+      expect(response.body.message).to.include('already recorded')
+    })
+  })
+
+  it('returns only the authenticated user records', () => {
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse<AchievementRecordRow[]>>({
+      method: 'GET',
+      url: recordsUrl,
+      headers: ownerAuth(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.some((record) => record.id === recordId)).to.eq(
+        true,
+      )
+      expect(
+        response.body.data?.every((record) => record.userId === ownerId),
+      ).to.eq(true)
+    })
+
+    cy.request<ApiResponse<AchievementRecordRow[]>>({
+      method: 'GET',
+      url: recordsUrl,
+      headers: otherAuth(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.some((record) => record.id === recordId)).to.eq(
+        false,
+      )
+      expect(
+        response.body.data?.every((record) => record.userId === otherId),
+      ).to.eq(true)
+    })
+  })
+
+  it('prevents another user from updating the record', () => {
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'PATCH',
+      url: `${recordsUrl}/${recordId}`,
+      headers: otherAuth(),
+      body: { isConfirmed: true },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects record identity and relation changes', () => {
+    expect(recordId).to.exist
+    expect(otherId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'PATCH',
+      url: `${recordsUrl}/${recordId}`,
+      headers: ownerAuth(),
+      body: {
+        isConfirmed: true,
+        userId: otherId,
+        achievementId: 999999,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include(
+        'Unsupported Achievement record update fields',
+      )
+    })
+  })
+
+  it('lets the owner confirm the record', () => {
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse<AchievementRecordRow>>({
+      method: 'PATCH',
+      url: `${recordsUrl}/${recordId}`,
+      headers: ownerAuth(),
+      body: { isConfirmed: true },
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.isConfirmed).to.eq(true)
+      expect(response.body.data?.userId).to.eq(ownerId)
+      expect(response.body.data?.achievementId).to.eq(achievementId)
+    })
+  })
+
+  it('lets admins inspect all records', () => {
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse<AchievementRecordRow[]>>({
+      method: 'GET',
+      url: recordsUrl,
+      headers: adminAuth(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.some((record) => record.id === recordId)).to.eq(
+        true,
+      )
+    })
+  })
+
+  it('prevents another user from deleting the record', () => {
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'DELETE',
+      url: `${recordsUrl}/${recordId}`,
+      headers: otherAuth(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('deletes the record as its owner', () => {
+    expect(recordId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'DELETE',
+      url: `${recordsUrl}/${recordId}`,
+      headers: ownerAuth(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.message).to.include(
+        `Achievement Record with ID ${recordId} successfully deleted`,
+      )
+      recordId = undefined
+    })
+  })
+
+  it('deletes the Achievement definition fixture', () => {
+    expect(achievementId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'DELETE',
+      url: `${definitionsUrl}/${achievementId}`,
+      headers: adminAuth(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      achievementId = undefined
     })
   })
 })

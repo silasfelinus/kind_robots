@@ -63,6 +63,11 @@ type PagePayload = {
   page: ContentCollectionItem | null
 }
 
+type NarratedContentPage = ContentCollectionItem & {
+  narrator?: unknown
+  narratorSlug?: unknown
+}
+
 const route = useRoute()
 const pageStore = usePageStore()
 
@@ -116,11 +121,35 @@ const hasResolvedCurrentPath = computed(() => {
   return pagePayload.value?.path === contentPath.value
 })
 
+function normalizePageNarrator(
+  page: ContentCollectionItem | null,
+): ContentCollectionItem | null {
+  if (!page) return null
+
+  const narratedPage = page as NarratedContentPage
+  if (narratedPage.narrator) return page
+
+  const narratorSlug =
+    typeof narratedPage.narratorSlug === 'string'
+      ? narratedPage.narratorSlug.trim()
+      : ''
+
+  if (!narratorSlug) return page
+
+  return {
+    ...page,
+    narrator: {
+      type: 'bot',
+      slug: narratorSlug,
+    },
+  } as ContentCollectionItem
+}
+
 const activePage = computed(() => {
   if (isLoginPath.value) return null
   if (!hasResolvedCurrentPath.value) return null
 
-  return pagePayload.value?.page ?? null
+  return normalizePageNarrator(pagePayload.value?.page ?? null)
 })
 
 const isPageLoading = computed(() => {

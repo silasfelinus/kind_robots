@@ -121,6 +121,9 @@ jobs:
       - name: WonderLab component manifest source contract
         run: npx tsx utils/scripts/verifyWonderLabComponentManifest.ts
 
+      - name: WonderLab registry health contract
+        run: npx tsx utils/scripts/verifyWonderLabRegistryHealth.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

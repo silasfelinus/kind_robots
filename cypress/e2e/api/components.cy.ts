@@ -1,38 +1,43 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/components.cy.ts
 
-let userId = 0
+import { adminHeaders, getApiEnv } from '../../support/api-auth'
 
 describe('Component Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
-  const baseUrl = 'https://kind-robots.vercel.app/api/components'
   const uniqueFolderName = `test-folder-${Date.now()}`
   const uniqueComponentName = `TestComponent-${Date.now()}`
 
-  let apiKey = ''
-  let componentId: number
+  let apiBase = ''
+  let adminToken = ''
+  let componentId: number | undefined
 
   before(() => {
-    cy.env(['API_KEY']).then((env) => {
-      apiKey = String(env.API_KEY || '')
-      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+    getApiEnv().then((env) => {
+      apiBase = `${env.apiBase}/components`
+      adminToken = env.adminToken
     })
   })
 
+  after(() => {
+    if (!componentId) return
 
+    cy.request({
+      method: 'DELETE',
+      url: `${apiBase}/${componentId}`,
+      headers: adminHeaders(adminToken),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(
+        response.status,
+        `component cleanup ${componentId}: ${JSON.stringify(response.body)}`,
+      ).to.be.oneOf([200, 404])
+    })
+  })
 
   it('Get All Folder Names', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/folders`,
+      url: `${apiBase}/folders`,
       headers: {
         Accept: 'application/json',
       },
@@ -48,12 +53,8 @@ describe('Component Management API Tests', () => {
   it('Create New Component', () => {
     cy.request({
       method: 'POST',
-      url: baseUrl,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
+      url: apiBase,
+      headers: adminHeaders(adminToken),
       body: {
         folderName: uniqueFolderName,
         componentName: uniqueComponentName,
@@ -61,22 +62,32 @@ describe('Component Management API Tests', () => {
         underConstruction: false,
         isBroken: false,
         title: 'Test Component',
-        userId,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
 
       componentId = response.body.data.id
-
       expect(componentId).to.be.a('number')
+
+      cy.task(
+        'cypressCleanup:register',
+        {
+          label: `component fixture ${componentId}`,
+          method: 'DELETE',
+          url: `${apiBase}/${componentId}`,
+          headers: adminHeaders(adminToken),
+          expectedStatuses: [200, 404],
+        },
+        { log: false },
+      )
     })
   })
 
   it('Get All Components', () => {
     cy.request({
       method: 'GET',
-      url: baseUrl,
+      url: apiBase,
       headers: {
         Accept: 'application/json',
       },
@@ -92,7 +103,7 @@ describe('Component Management API Tests', () => {
   it('Get Components from Specific Folder', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/folder/${uniqueFolderName}`,
+      url: `${apiBase}/folder/${uniqueFolderName}`,
       headers: {
         Accept: 'application/json',
       },
@@ -117,7 +128,7 @@ describe('Component Management API Tests', () => {
 
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/${componentId}`,
+      url: `${apiBase}/${componentId}`,
       headers: {
         Accept: 'application/json',
       },
@@ -140,25 +151,18 @@ describe('Component Management API Tests', () => {
 
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${componentId}`,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
+      url: `${apiBase}/${componentId}`,
+      headers: adminHeaders(adminToken),
       body: {
         isWorking: false,
         underConstruction: true,
         title: 'Updated Test Component',
       },
     }).then((response) => {
-      cy.log(JSON.stringify(response.body))
-
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
 
       const updatedComponent = response.body.data
-
       expect(updatedComponent.isWorking).to.be.false
       expect(updatedComponent.underConstruction).to.be.true
       expect(updatedComponent.title).to.eq('Updated Test Component')
@@ -170,17 +174,16 @@ describe('Component Management API Tests', () => {
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${componentId}`,
-      headers: {
-        Accept: 'application/json',
-        'x-api-key': apiKey,
-      },
+      url: `${apiBase}/${componentId}`,
+      headers: adminHeaders(adminToken),
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.message).to.include(
         `Component with ID ${componentId} deleted successfully`,
       )
+
+      componentId = undefined
     })
   })
 })

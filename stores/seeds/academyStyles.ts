@@ -999,6 +999,50 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'ashcan-school',
+    name: 'Ashcan School',
+    era: 'c. 1900–1913',
+    sortYear: 1900,
+    region: 'United States',
+    keyIdeas:
+      'Robert Henri told his students to forget the polite academy subjects and go paint what was actually outside their studio windows: tenements, saloons, boxing clubs, and crowded snow-covered streets. His circle — nicknamed "the Ashcan School" by a critic who meant it as an insult — believed a fire escape or a prize fight deserved the same serious, confident brushwork as a mythological scene. Their work reads like photojournalism painted in oil, decades before photojournalism existed as a form.',
+    recognitionCues: [
+      'Loose, confident, visibly gestural brushwork — energy and immediacy over polished finish',
+      'A dark, murky, earthy palette (browns, blacks, muddy grays) punctuated by small bright accents',
+      'Everyday urban subjects treated with the same seriousness as history painting: city streets, tenements, saloons, crowds, boxing matches',
+      'Dramatic, low, often artificial lighting (gaslight, ring lights) rather than even daylight',
+    ],
+    artists: [
+      {
+        name: 'Robert Henri',
+        years: '1865–1929',
+        note: 'The movement\'s teacher and organizer; urged students to paint life "with such vitality" that gallery walls would seem to disappear.',
+      },
+      {
+        name: 'George Bellows',
+        years: '1882–1925',
+        note: 'Best known for his ringside boxing scenes, rendered with blurred, aggressive brushwork that puts the viewer in the crowd.',
+      },
+      {
+        name: 'John Sloan',
+        years: '1871–1951',
+        note: 'Chronicler of Greenwich Village street life, rooftops, and working-class New Yorkers going about ordinary days.',
+      },
+      {
+        name: 'William Glackens',
+        years: '1870–1938',
+        note: "Painted the city's social scenes — cafes, restaurants, parks — in a looser, more colorful hand than his Ashcan peers.",
+      },
+    ],
+    failureMode:
+      'Shares Realism\'s risk of under-cooking into a lightly-graded photo, but its darker palette and visibly loose brushwork give the model more to grab onto than straight Realism does — lean on "gestural," "murky," and "low-key lighting" to keep it from reading as a generic sepia filter.',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image in the Ashcan School style: loose, gestural brushwork, a dark and earthy urban palette, unglamorized everyday city subject matter, and dramatic, low-key lighting like a newspaper illustrator working in oil',
+    },
+  },
+  {
     slug: 'expressionism',
     name: 'Expressionism',
     era: 'c. 1905–1930',

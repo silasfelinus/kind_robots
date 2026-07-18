@@ -145,6 +145,15 @@ reactions = replaceRequired(
 )
 write('server/api/reactions/index.post.ts', reactions)
 
+let reactionStore = read('stores/reactionStore.ts')
+reactionStore = replaceRequired(
+  reactionStore,
+  "  'MESSAGE',\n  'POST',\n  'PROMPT',\n",
+  "  'MESSAGE',\n  'PROMPT',\n",
+  'reactionStore POST category',
+)
+write('stores/reactionStore.ts', reactionStore)
+
 let feedPreferences = read('stores/feedPreferenceStore.ts')
 feedPreferences = replaceRequired(
   feedPreferences,

@@ -334,6 +334,7 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
           description: `Captured by Serendipity for conductor task ${question.projectSlug}/${question.conductorTaskId} ("${context?.title ?? ''}").\n\nProtagonist's answer: ${beat.answer.text}\n\nThe conductor task stays needs-human until Silas edits the roadmap.`,
           category: 'AGENT',
           projectId: projectId.value,
+          icon: 'kind-icon:sparkles',
         })
         ok = created !== null
       }

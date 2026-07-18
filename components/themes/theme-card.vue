@@ -146,7 +146,7 @@
     </div>
 
     <button
-      v-if="showApplyButton"
+      v-if="showApplyButton && allowApply"
       class="btn btn-sm mt-auto rounded-xl"
       :class="selected ? 'btn-primary text-white' : 'btn-outline'"
       type="button"
@@ -202,6 +202,7 @@ const props = withDefaults(
     showDebug?: boolean
     allowEdit?: boolean
     allowCopy?: boolean
+    allowApply?: boolean
   }>(),
   {
     selected: false,
@@ -213,6 +214,7 @@ const props = withDefaults(
     showDebug: false,
     allowEdit: true,
     allowCopy: true,
+    allowApply: true,
   },
 )
 
@@ -269,7 +271,6 @@ const cardClass = computed(() => {
 
 const themeValues = computed(() => {
   if (typeof props.theme === 'string') return {}
-
   return safeThemeValues(props.theme.values)
 })
 
@@ -341,6 +342,7 @@ function toThemeInput(theme: string | Theme) {
 }
 
 async function applyTheme() {
+  if (!props.allowApply) return
   localMessage.value = ''
 
   try {
@@ -386,6 +388,7 @@ function editTheme() {
 }
 
 async function copyThemeValues() {
+  if (!props.allowCopy) return
   const values = JSON.stringify(themeValues.value, null, 2)
 
   await navigator.clipboard.writeText(values)

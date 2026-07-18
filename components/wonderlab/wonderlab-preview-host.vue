@@ -134,7 +134,7 @@ import {
 import {
   getWonderLabPreviewFixture,
   type WonderLabPreviewViewport,
-} from '@/utils/wonderlab/previewFixtures'
+} from '@/utils/wonderlab/previewFixtureCatalog'
 
 const props = withDefaults(
   defineProps<{

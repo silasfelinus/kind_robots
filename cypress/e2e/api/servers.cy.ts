@@ -10,7 +10,8 @@ interface ApiResponse<T = any> {
   user?: T
 }
 
-type ServerType = 'A1111' | 'COMFY' | 'OPENAI' | 'ANTHROPIC' | 'CUSTOM'
+type ServerType =
+  'A1111' | 'COMFY' | 'OPENAI' | 'ANTHROPIC' | 'OLLAMA' | 'CUSTOM'
 type ServerAccessMode = 'BROWSER' | 'BACKEND' | 'TAILSCALE' | 'PUBLIC' | 'LOCAL'
 type ServerAuthType = 'NONE' | 'BEARER' | 'HEADER' | 'QUERY' | 'API_KEY'
 type ServerStatus = 'ONLINE' | 'OFFLINE' | 'DEGRADED' | 'UNKNOWN'
@@ -53,7 +54,6 @@ let userToken = ''
 let userId = 0
 
 describe('Server API Full CRUD + Auth Tests', () => {
-
   // Auth migration: fresh disposable JWT user
   before(() => {
     createLoggedInTestUser().then((auth) => {
@@ -79,12 +79,8 @@ describe('Server API Full CRUD + Auth Tests', () => {
     cy.env(['API_BASE']).then((env) => {
       apiBase = String(env.API_BASE || fallbackApiBase)
       baseUrl = `${apiBase}/api/server`
-})
+    })
   })
-
-
-
-
 
   it('POST: User A creates a private A1111 server', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty

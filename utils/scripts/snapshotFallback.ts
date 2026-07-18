@@ -25,7 +25,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  createDatabaseAdapter,
+  databaseConfigUsesSsl,
+} from './../../server/utils/databaseAdapterConfig'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
@@ -33,7 +36,9 @@ if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 // The mariadb driver's default connectTimeout is 1000ms, and GitHub-hosted
 // runners take longer than that to open a socket to the database host — every
 // model failed with "failed to create socket" until this was raised. Query
-// params survive the adapter's mysql:// → mariadb:// rewrite.
+// params survive the adapter's mysql:// → mariadb:// rewrite, and
+// buildDatabaseConfig() only fills a default when connectTimeout is absent, so
+// this 30s value is preserved through the shared builder.
 const withConnectTimeout = (url: string, ms: number): string => {
   const parsed = new URL(url)
   if (!parsed.searchParams.has('connectTimeout')) {
@@ -42,9 +47,17 @@ const withConnectTimeout = (url: string, ms: number): string => {
   return parsed.toString()
 }
 
+// Use the same SSL-aware adapter the running app uses (server/utils/prisma.ts)
+// so this script completes the CA-verified TLS handshake ProxySQL enforces —
+// a bare `new PrismaMariaDb(url)` is rejected with "SSL is required".
 const prisma = new PrismaClient({
-  adapter: new PrismaMariaDb(withConnectTimeout(databaseUrl, 30_000)),
+  adapter: createDatabaseAdapter(withConnectTimeout(databaseUrl, 30_000)),
 })
+
+// Booleans only — never the host, credentials, or the certificate.
+console.log(
+  `[snapshot] TLS to database: ${databaseConfigUsesSsl() ? 'on' : 'OFF'}`,
+)
 
 const dryRun = process.argv.includes('--dry-run')
 

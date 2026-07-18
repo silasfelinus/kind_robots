@@ -18,13 +18,14 @@
 
 import 'dotenv/config'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 import { slugify } from '../slugify'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
-const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+// SSL-aware adapter (see server/utils/prisma.ts) — ProxySQL enforces TLS.
+const prisma = new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 
 const WRITE = process.argv.includes('--write')
 const ALL_COLLECTIONS = process.argv.includes('--collections-all')

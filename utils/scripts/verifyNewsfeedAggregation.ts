@@ -8,6 +8,8 @@
 // "one broken source can't blank the homepage" guarantee this module exists
 // to provide.
 import assert from 'node:assert/strict'
+import http from 'node:http'
+import type { AddressInfo } from 'node:net'
 
 import {
   aggregateFeed,
@@ -204,9 +206,64 @@ async function run() {
     'unknown source ids are skipped, not errored',
   )
 
+  // --- fetchSourceItems: stale-source tolerance -----------------------------
+  // A source that has previously succeeded, then goes down, must keep serving
+  // its last-known-good items (flagged `stale: true`) instead of dropping to
+  // zero -- the actual gap t-009 closes on top of t-005's existing "one
+  // broken source can't blank the homepage" guarantee.
+
+  const server = http.createServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/rss+xml' })
+    res.end(RSS_FIXTURE)
+  })
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  const { port } = server.address() as AddressInfo
+
+  const flakySource: FeedSourceDefinition = {
+    id: 'flaky-fixture',
+    name: 'Flaky Fixture',
+    url: `http://127.0.0.1:${port}/feed.xml`,
+    kind: 'rss',
+    verified: false,
+  }
+
+  const liveResult = await fetchSourceItems(flakySource)
+  assert.equal(liveResult.items.length, 2, 'live fetch must parse both items')
+  assert.equal(liveResult.stale, undefined, 'a live fetch is never stale')
+  assert.equal(liveResult.error, undefined, 'a successful fetch has no error')
+
+  await new Promise<void>((resolve) => server.close(() => resolve()))
+
+  const staleResult = await fetchSourceItems(flakySource)
+  assert.deepEqual(
+    staleResult.items,
+    liveResult.items,
+    'once the source goes down, its last successful items must still be served',
+  )
+  assert.equal(
+    staleResult.stale,
+    true,
+    'items served from the fallback cache must be flagged stale',
+  )
+  assert.ok(
+    staleResult.error,
+    'a stale-fallback result must still report the underlying fetch error',
+  )
+
+  // A source that has never succeeded has nothing to fall back to -- it must
+  // keep the original always-empty behavior, not synthesize items from thin air.
+  const neverSucceededResult = await fetchSourceItems(unreachableSource)
+  assert.deepEqual(
+    neverSucceededResult.items,
+    [],
+    'a source with no prior success has no stale cache to fall back to',
+  )
+  assert.equal(neverSucceededResult.stale, undefined)
+
   console.log(
     'newsfeed aggregation verified: RSS + Atom parsing, sanitization, category ' +
-      'extraction, malformed-input safety, and unreachable-source resilience.',
+      'extraction, malformed-input safety, unreachable-source resilience, and ' +
+      'stale-source fallback.',
   )
 }
 

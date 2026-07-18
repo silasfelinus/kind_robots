@@ -12,6 +12,46 @@
         <p class="mt-1 break-all font-mono text-xs text-base-content/50">
           {{ resolvedPath || expectedPath }}
         </p>
+
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          <span
+            v-if="manifestEntry"
+            class="badge badge-success badge-outline badge-sm"
+          >
+            manifest matched
+          </span>
+          <span
+            v-else-if="manifestLoaded"
+            class="badge badge-warning badge-outline badge-sm"
+          >
+            manifest unmatched
+          </span>
+          <span
+            v-if="manifestEntry"
+            class="badge badge-ghost badge-sm font-mono"
+            :title="manifestEntry.sourceHash"
+          >
+            sha {{ manifestEntry.sourceHash.slice(0, 12) }}
+          </span>
+          <a
+            v-if="sourceUrl"
+            :href="sourceUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-ghost btn-xs rounded-xl"
+          >
+            <Icon name="kind-icon:external-link" class="size-3.5" />
+            Source
+          </a>
+        </div>
+
+        <p
+          v-if="manifestError"
+          class="mt-2 text-xs leading-relaxed text-warning"
+        >
+          {{ manifestError }} Preview fallback resolution is still available.
+        </p>
+
         <p
           v-if="fixture?.description"
           class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65"
@@ -128,6 +168,7 @@ import {
   computed,
   defineAsyncComponent,
   onErrorCaptured,
+  onMounted,
   ref,
   watch,
 } from 'vue'
@@ -135,6 +176,12 @@ import {
   getWonderLabPreviewFixture,
   type WonderLabPreviewViewport,
 } from '@/utils/wonderlab/previewFixtureCatalog'
+import {
+  loadWonderLabComponentManifest,
+  resolveWonderLabManifestEntry,
+  wonderLabSourceUrl,
+  type WonderLabComponentManifest,
+} from '@/utils/wonderlab/componentManifest'
 
 const props = withDefaults(
   defineProps<{
@@ -158,20 +205,44 @@ const allModules = import.meta.glob('@/components/**/*.vue')
 const dynamicComponent = ref<ReturnType<typeof defineAsyncComponent> | null>(
   null,
 )
+const manifest = ref<WonderLabComponentManifest | null>(null)
+const manifestError = ref('')
 const resolvedPath = ref('')
 const previewNotFound = ref(false)
 const previewError = ref('')
 const renderKey = ref(0)
 const viewport = ref<WonderLabPreviewViewport>('desktop')
 
+const manifestEntry = computed(() =>
+  resolveWonderLabManifestEntry(
+    manifest.value?.entries || [],
+    props.componentName,
+    props.folderName,
+    props.sourcePath,
+  ),
+)
+
+const manifestLoaded = computed(() => Boolean(manifest.value))
+
+const fixtureSourcePath = computed(
+  () => props.sourcePath || manifestEntry.value?.sourcePath || '',
+)
+
 const fixture = computed(() =>
-  getWonderLabPreviewFixture(props.componentName, props.sourcePath),
+  getWonderLabPreviewFixture(props.componentName, fixtureSourcePath.value),
 )
 
 const expectedPath = computed(() => {
+  const manifestPath = manifestEntry.value?.sourcePath
+  if (manifestPath) return normalizedSourcePath(manifestPath)
+
   const name = props.componentName.replace(/\.vue$/i, '')
   return `/components/${props.folderName}/${name}.vue`
 })
+
+const sourceUrl = computed(() =>
+  manifestEntry.value ? wonderLabSourceUrl(manifestEntry.value) : '',
+)
 
 const viewportClass = computed(() => {
   switch (viewport.value) {
@@ -198,7 +269,7 @@ function normalizedSourcePath(value: string): string {
 
 function buildCandidates(): string[] {
   const name = props.componentName.replace(/\.vue$/i, '')
-  const explicit = normalizedSourcePath(props.sourcePath)
+  const explicit = normalizedSourcePath(fixtureSourcePath.value)
 
   return [
     explicit,
@@ -243,11 +314,41 @@ function resetPreview(): void {
   resolveComponent()
 }
 
+async function fetchManifestAsset(): Promise<unknown> {
+  const response = await fetch('/wonderlab-components.json', {
+    headers: { accept: 'application/json' },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Component manifest request failed (${response.status}).`)
+  }
+
+  return response.json() as Promise<unknown>
+}
+
+async function loadManifest(): Promise<void> {
+  manifestError.value = ''
+
+  try {
+    manifest.value = await loadWonderLabComponentManifest(fetchManifestAsset)
+    resolveComponent()
+  } catch (error) {
+    manifestError.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to load the component manifest.'
+  }
+}
+
 watch(
   () => [props.componentName, props.folderName, props.sourcePath],
   resolveComponent,
   { immediate: true },
 )
+
+onMounted(() => {
+  void loadManifest()
+})
 
 onErrorCaptured((error) => {
   const message = error instanceof Error ? error.message : String(error)

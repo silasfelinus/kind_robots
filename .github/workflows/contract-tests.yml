@@ -103,6 +103,9 @@ jobs:
       - name: WonderLab achievement and navigation fixtures contract
         run: npm run test:wonderlab-achievement-navigation-fixtures
 
+      - name: WonderLab passive card fixtures contract
+        run: npm run test:wonderlab-passive-card-fixtures
+
       - name: WonderLab preview coverage audit
         run: npm run audit:wonderlab-previews 2>&1 | tee wonderlab-preview-audit.txt
 

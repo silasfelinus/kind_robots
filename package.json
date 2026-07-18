@@ -67,6 +67,7 @@
     "test:wonderlab-visual-fixtures": "tsx utils/scripts/verifyWonderLabVisualFixtures.ts",
     "test:wonderlab-ui-fixtures": "tsx utils/scripts/verifyWonderLabUiFixtures.ts",
     "test:wonderlab-achievement-navigation-fixtures": "tsx utils/scripts/verifyWonderLabAchievementNavigationFixtures.ts",
+    "test:wonderlab-passive-card-fixtures": "tsx utils/scripts/verifyWonderLabPassiveCardFixtures.ts",
     "test:newsfeed-aggregation": "tsx utils/scripts/verifyNewsfeedAggregation.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",

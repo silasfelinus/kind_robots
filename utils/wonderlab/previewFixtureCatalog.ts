@@ -7,6 +7,10 @@ import {
   getWonderLabAchievementNavigationFixture,
   listWonderLabAchievementNavigationFixtureKeys,
 } from './previewFixturesAchievementNavigation'
+import {
+  getWonderLabPassiveCardFixture,
+  listWonderLabPassiveCardFixtureKeys,
+} from './previewFixturesPassiveCards'
 
 export type {
   WonderLabPreviewFixture,
@@ -19,7 +23,8 @@ export function getWonderLabPreviewFixture(
 ) {
   return (
     getCoreFixture(componentName, sourcePath) ??
-    getWonderLabAchievementNavigationFixture(componentName, sourcePath)
+    getWonderLabAchievementNavigationFixture(componentName, sourcePath) ??
+    getWonderLabPassiveCardFixture(componentName, sourcePath)
   )
 }
 
@@ -28,6 +33,7 @@ export function listWonderLabPreviewFixtureKeys(): string[] {
     ...new Set([
       ...listCoreFixtureKeys(),
       ...listWonderLabAchievementNavigationFixtureKeys(),
+      ...listWonderLabPassiveCardFixtureKeys(),
     ]),
   ].sort()
 }

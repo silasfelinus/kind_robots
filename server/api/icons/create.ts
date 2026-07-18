@@ -16,6 +16,8 @@ export type SmartIconBatchFailure = {
   message: string
 }
 
+type SmartIconCategoryState = Pick<SmartIcon, 'category' | 'modelType'>
+
 function requiredText(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim()) {
     throw createError({
@@ -101,9 +103,15 @@ export async function findExistingSmartIcon(options: {
   title: string
   type: string
   userId: number
+  excludeId?: number
 }) {
+  const { excludeId, ...identity } = options
+
   return await prisma.smartIcon.findFirst({
-    where: options,
+    where: {
+      ...identity,
+      ...(excludeId ? { id: { not: excludeId } } : {}),
+    },
     select: {
       id: true,
       title: true,
@@ -114,6 +122,7 @@ export async function findExistingSmartIcon(options: {
 
 export function buildSmartIconUpdateInput(
   body: Record<string, unknown>,
+  existing: SmartIconCategoryState,
 ): Prisma.SmartIconUpdateInput {
   const data: Prisma.SmartIconUpdateInput = {}
 
@@ -147,10 +156,19 @@ export function buildSmartIconUpdateInput(
   }
 
   if (body.category !== undefined || body.modelType !== undefined) {
+    const categorySource =
+      body.category !== undefined
+        ? body.category
+        : body.modelType !== undefined
+          ? undefined
+          : existing.category
+    const modelTypeSource =
+      body.modelType !== undefined ? body.modelType : existing.modelType
     const { category, modelType } = resolveCategory({
-      category: body.category,
-      modelType: body.modelType,
+      category: categorySource,
+      modelType: modelTypeSource,
     })
+
     data.category = category
     data.modelType = modelType
   }

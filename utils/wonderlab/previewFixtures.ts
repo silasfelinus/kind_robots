@@ -10,7 +10,90 @@ export type WonderLabPreviewFixture = {
   skipReason?: string
 }
 
+const fixtureDate = new Date('2026-01-01T00:00:00.000Z')
+
 const fixtures: Record<string, WonderLabPreviewFixture> = {
+  'bot-card': {
+    title: 'Bot Card specimen',
+    description:
+      'Uses a synthetic bot with all live actions, reactions, image lookups, and chat launch controls disabled.',
+    viewport: 'mobile',
+    minHeight: '24rem',
+    props: {
+      bot: {
+        id: -101,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+        BotType: 'ASSISTANT',
+        name: 'Dotti Fixturewright',
+        subtitle: 'A careful specimen bot',
+        description:
+          'A synthetic WonderLab record for checking bot-card typography, badges, spacing, and responsive behavior.',
+        personality:
+          'Precise, curious, and delighted by well-labeled component boundaries.',
+        prompt: '',
+        theme: '',
+        designer: 'WonderLab',
+        serverName: null,
+        avatarImage: null,
+        imagePath: null,
+        artImageId: null,
+        userId: 0,
+        isPublic: true,
+        isActive: true,
+        isMature: false,
+        underConstruction: false,
+        canDelete: false,
+      },
+      showImage: false,
+      showActions: false,
+      showReaction: false,
+      showLaunchButton: false,
+      showDescription: true,
+      showMeta: true,
+      allowEdit: false,
+      allowClone: false,
+      allowDelete: false,
+    },
+  },
+  'character-card': {
+    title: 'Character Card specimen',
+    description:
+      'Uses a synthetic public character and disables reactions, editing, cloning, deletion, and inline interactions.',
+    viewport: 'mobile',
+    minHeight: '24rem',
+    props: {
+      character: {
+        id: -102,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+        name: 'Mira',
+        honorific: 'the Mapmaker',
+        class: 'Cartographer',
+        species: 'Human',
+        genre: 'Hopeful fantasy',
+        presentation:
+          'Mira charts paths through unfinished worlds and leaves clear notes for whoever explores next.',
+        personality: 'Observant, patient, and quietly adventurous.',
+        backstory: '',
+        imagePath: null,
+        artImageId: null,
+        userId: 0,
+        isPublic: true,
+        isMature: false,
+      },
+      showImage: false,
+      showActions: false,
+      showReaction: false,
+      showModeButtons: false,
+      showInlineInteract: false,
+      showDescription: true,
+      showMeta: true,
+      allowEdit: false,
+      allowClone: false,
+      allowDelete: false,
+    },
+  },
   'component-card': {
     title: 'Component Card specimen',
     description:
@@ -20,8 +103,8 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     props: {
       component: {
         id: -1,
-        createdAt: new Date('2026-01-01T00:00:00.000Z'),
-        updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
         folderName: 'wonderlab',
         componentName: 'component-card',
         isWorking: true,
@@ -39,10 +122,129 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
       showSelectButton: false,
     },
   },
+  'component-review-feed': {
+    title: 'Component Review Feed',
+    description:
+      'Uses a non-persistent negative component ID so the feed renders its ordinary empty state without making an API request.',
+    viewport: 'desktop',
+    props: {
+      componentId: -1,
+      targetTitle: 'Synthetic Component Exhibit',
+    },
+  },
+  'reward-card': {
+    title: 'Reward Card specimen',
+    description:
+      'Uses a synthetic reward with story, edit, delete, selection, reactions, and image loading disabled.',
+    viewport: 'mobile',
+    minHeight: '20rem',
+    props: {
+      reward: {
+        id: -103,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+        title: 'Lantern of Useful Errors',
+        slug: 'lantern-of-useful-errors',
+        description:
+          'Illuminates the exact boundary where a component needs clearer context.',
+        effect:
+          'Reveal one actionable diagnostic instead of a mysterious blank panel.',
+        icon: 'kind-icon:gift',
+        collection: 'WonderLab',
+        rarity: 'RARE',
+        rewardType: 'STORY',
+        imagePath: null,
+        artImageId: null,
+        userId: 0,
+        isPublic: true,
+        isMature: false,
+      },
+      showImage: false,
+      showActions: false,
+      showReaction: false,
+      showSelectButton: false,
+      showDescription: true,
+      showMeta: true,
+      showStats: true,
+      allowEdit: false,
+      allowDelete: false,
+    },
+  },
+  'scenario-card': {
+    title: 'Scenario Card specimen',
+    description:
+      'Uses a synthetic scenario with image loading, reactions, editing, cloning, deletion, and store selection controls disabled.',
+    viewport: 'tablet',
+    minHeight: '20rem',
+    props: {
+      scenario: {
+        id: -104,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+        title: 'The Museum After Midnight',
+        description:
+          'Every component wakes up and tries to explain what context it expected from its parent.',
+        intros: JSON.stringify([
+          'At midnight, a tiny status badge clears its throat.',
+          'The gallery lights flicker on one exhibit at a time.',
+        ]),
+        genres: 'Whimsical mystery',
+        locations: 'WonderLab archive',
+        inspirations: 'Component museums, backstage tours, and helpful error messages',
+        imagePath: null,
+        artImageId: null,
+        userId: 0,
+        isPublic: true,
+        isMature: false,
+      },
+      showImage: false,
+      showActions: false,
+      showReaction: false,
+      showDescription: true,
+      showMeta: true,
+      showInspirations: true,
+      allowEdit: false,
+      allowDelete: false,
+      allowClone: false,
+    },
+  },
+  'wonderlab-preview-host': {
+    title: 'Preview Host specimen',
+    description:
+      'Demonstrates the preview harness by safely mounting the synthetic Component Card fixture inside it.',
+    viewport: 'desktop',
+    minHeight: '28rem',
+    props: {
+      componentName: 'component-card',
+      folderName: 'wonderlab',
+      sourcePath: 'components/wonderlab/component-card.vue',
+      showControls: true,
+    },
+  },
   'component-sync': {
     title: 'Component reconciliation',
     skipReason:
       'This admin tool requires an authenticated admin session and performs deliberate server actions. Preview it from the WonderLab admin surface instead.',
+  },
+  'component-test-fixture-cleanup': {
+    title: 'Historical test-fixture cleanup',
+    skipReason:
+      'This destructive admin utility is intentionally available only inside the authenticated Component reconciliation panel after a reviewed dry run.',
+  },
+  'lab-interact': {
+    title: 'Component WonderLab museum',
+    skipReason:
+      'The museum is the current application surface and depends on live Component, User, Reaction, and router stores. Previewing the museum inside itself would create a recursive operational shell.',
+  },
+  'lab-manager': {
+    title: 'WonderLab route manager',
+    skipReason:
+      'This route-level manager chooses between the museum, Memory Dungeon, and Screen FX using router and dashboard state. Test it through its explicit routes instead of mounting it as an exhibit.',
+  },
+  'wonderlab-selection-router': {
+    title: 'WonderLab selection router',
+    skipReason:
+      'This headless router synchronizes the selected Component with the page query string and has no standalone visual surface.',
   },
   'workspace-narrator': {
     title: 'Workspace Narrator',

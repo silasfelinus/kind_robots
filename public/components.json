@@ -275,7 +275,8 @@
     "folderName": "newsfeed",
     "components": [
       "feed-card",
-      "newsfeed-feed"
+      "newsfeed-feed",
+      "newsfeed-preferences"
     ]
   },
   {

@@ -40,17 +40,38 @@
         </button>
       </div>
 
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm rounded-xl"
-        :disabled="isLoading"
-        @click="loadFeed()"
-      >
-        <span v-if="isLoading" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
-        Refresh
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
+          @click="showManageFeeds = !showManageFeeds"
+        >
+          <Icon name="kind-icon:sliders" class="size-4" />
+          Manage feeds
+          <Icon
+            :name="
+              showManageFeeds
+                ? 'kind-icon:chevron-up'
+                : 'kind-icon:chevron-down'
+            "
+            class="size-3.5"
+          />
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm rounded-xl"
+          :disabled="isLoading"
+          @click="loadFeed()"
+        >
+          <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:refresh" class="size-4" />
+          Refresh
+        </button>
+      </div>
     </header>
+
+    <NewsfeedPreferences v-if="showManageFeeds" />
 
     <div
       v-if="errorMessage"
@@ -136,8 +157,10 @@ const errorMessage = ref('')
 const groups = ref<FeedGroup[]>([])
 const sourceErrorCount = ref(0)
 const activeSlug = ref<string>('all')
+const showManageFeeds = ref(false)
 const pageSize = 12
 const visibleLimit = ref(props.initialLimit || pageSize)
+let hasLoadedOnce = false
 
 const allItems = computed<NewsFeedItem[]>(() => {
   const seen = new Set<string>()
@@ -216,12 +239,25 @@ async function loadFeed(): Promise<void> {
       error instanceof Error ? error.message : 'Failed to load the newsfeed.'
   } finally {
     isLoading.value = false
+    hasLoadedOnce = true
   }
 }
 
 watch(activeSlug, () => {
   visibleLimit.value = props.initialLimit || pageSize
 })
+
+// Reordering only changes array position, but .join(',') still changes since
+// it's order-sensitive -- catches both membership and reorder edits made via
+// NewsfeedPreferences. Ignored until the first load resolves, so hydrate()'s
+// own initial mutation (inside loadFeed) can't trigger a redundant refetch.
+watch(
+  () => feedPreferenceStore.enabledFeedSlugs.join(','),
+  () => {
+    if (!hasLoadedOnce) return
+    void loadFeed()
+  },
+)
 
 onMounted(() => {
   void loadFeed()

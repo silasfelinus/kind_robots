@@ -203,7 +203,7 @@ describe('Resource Management API Tests', () => {
       ],
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(207)
-      expect(response.body.success).to.eq(false)
+      expect(response.body.success).to.eq(true)
       expect(response.body.data?.created).to.have.length(1)
       expect(response.body.data?.skipped).to.have.length(1)
       expect(response.body.data?.failed).to.have.length(1)

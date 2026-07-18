@@ -370,6 +370,7 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs ml-auto h-6 min-h-0 px-2"
+                :aria-label="`Unlink ${connectedModelType} #${connectedModelId}`"
                 @click="clearModelSelection"
               >
                 <Icon name="mdi:close" class="h-3 w-3" />

@@ -1,0 +1,37 @@
+name: Thin Reward Codemod
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/thin-reward-codemod.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: contains(github.event.head_commit.message, 'run Reward codemod')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/thin-reward-api
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Apply guarded codemod
+        run: node scripts/refactor-thin-reward-api.mjs
+
+      - name: Commit transformed file
+        run: |
+          git config user.name "kind-robots-refactor"
+          git config user.email "kind-robots-refactor@users.noreply.github.com"
+          git add server/api/rewards/index.ts
+          git diff --staged --quiet && exit 1
+          git commit -m "refactor(rewards): return lean mutation rows [skip ci]"
+          git push origin HEAD:refactor/thin-reward-api

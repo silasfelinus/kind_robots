@@ -130,6 +130,9 @@ jobs:
       - name: WonderLab single load-owner contract
         run: npx tsx utils/scripts/verifyWonderLabLoadOwnership.ts
 
+      - name: WonderLab canonical manifest contract
+        run: npx tsx utils/scripts/verifyWonderLabCanonicalManifest.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

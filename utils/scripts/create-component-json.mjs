@@ -5,7 +5,6 @@ import path from 'node:path'
 
 const ROOT = process.cwd()
 const COMPONENT_ROOT = path.resolve(ROOT, 'components')
-const LEGACY_OUTPUT = path.resolve(ROOT, 'public/components.json')
 const MANIFEST_OUTPUT = path.resolve(ROOT, 'public/wonderlab-components.json')
 
 const ignoredSegments = new Set(['abandonware', '__tests__', '__fixtures__'])
@@ -68,25 +67,6 @@ async function buildManifestEntry(absolutePath) {
   }
 }
 
-function buildLegacyFolders(entries) {
-  const folders = new Map()
-
-  for (const entry of entries) {
-    const names = folders.get(entry.folderName) ?? []
-    names.push(entry.componentName)
-    folders.set(entry.folderName, names)
-  }
-
-  return [...folders.entries()]
-    .sort(([left], [right]) => left.localeCompare(right, 'en'))
-    .map(([folderName, components]) => ({
-      folderName,
-      components: components.sort((left, right) =>
-        left.localeCompare(right, 'en'),
-      ),
-    }))
-}
-
 async function generateComponentManifest() {
   const files = await collectVueFiles(COMPONENT_ROOT)
   const entries = await Promise.all(files.map(buildManifestEntry))
@@ -103,13 +83,10 @@ async function generateComponentManifest() {
   }
 
   await fs.mkdir(path.dirname(MANIFEST_OUTPUT), { recursive: true })
-  await Promise.all([
-    fs.writeFile(MANIFEST_OUTPUT, `${JSON.stringify(manifest, null, 2)}\n`),
-    fs.writeFile(
-      LEGACY_OUTPUT,
-      `${JSON.stringify(buildLegacyFolders(entries), null, 2)}\n`,
-    ),
-  ])
+  await fs.writeFile(
+    MANIFEST_OUTPUT,
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  )
 
   console.log(
     `Generated ${entries.length} WonderLab component entries at ${path.relative(ROOT, MANIFEST_OUTPUT)}.`,

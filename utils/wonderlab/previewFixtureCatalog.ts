@@ -19,6 +19,10 @@ import {
   getWonderLabBuilderRulerFixture,
   listWonderLabBuilderRulerFixtureKeys,
 } from './previewFixturesBuilderRuler'
+import {
+  getWonderLabInteractionDisplayFixture,
+  listWonderLabInteractionDisplayFixtureKeys,
+} from './previewFixturesInteractionDisplays'
 
 export type {
   WonderLabPreviewFixture,
@@ -34,7 +38,8 @@ export function getWonderLabPreviewFixture(
     getWonderLabAchievementNavigationFixture(componentName, sourcePath) ??
     getWonderLabPassiveCardFixture(componentName, sourcePath) ??
     getWonderLabLearningControlFixture(componentName, sourcePath) ??
-    getWonderLabBuilderRulerFixture(componentName, sourcePath)
+    getWonderLabBuilderRulerFixture(componentName, sourcePath) ??
+    getWonderLabInteractionDisplayFixture(componentName, sourcePath)
   )
 }
 
@@ -46,6 +51,7 @@ export function listWonderLabPreviewFixtureKeys(): string[] {
       ...listWonderLabPassiveCardFixtureKeys(),
       ...listWonderLabLearningControlFixtureKeys(),
       ...listWonderLabBuilderRulerFixtureKeys(),
+      ...listWonderLabInteractionDisplayFixtureKeys(),
     ]),
   ].sort()
 }

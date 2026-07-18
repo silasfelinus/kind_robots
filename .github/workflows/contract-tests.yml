@@ -112,6 +112,9 @@ jobs:
       - name: WonderLab Builder and Ruler Hooked fixtures contract
         run: npx tsx utils/scripts/verifyWonderLabBuilderRulerFixtures.ts
 
+      - name: WonderLab interaction and display fixtures contract
+        run: npx tsx utils/scripts/verifyWonderLabInteractionDisplayFixtures.ts
+
       - name: WonderLab preview coverage audit
         run: npm run audit:wonderlab-previews 2>&1 | tee wonderlab-preview-audit.txt
 

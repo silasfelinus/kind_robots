@@ -27,6 +27,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Achievement records | GET exposed every user's awards; POST accepted caller identity; PATCH was unauthenticated raw model input | Reads are self-scoped except for admins, POST derives owner/username from auth, duplicate awards are idempotent, and PATCH permits only owner/admin confirmation |
 | Stripe checkout | One-time checkout trusted a body user ID and loosely shaped cart entries before creating Stripe customers and sessions | Checkout derives billing identity from authentication, validates trusted catalog IDs and bounded quantities before Stripe calls, and UI/store callers no longer pass user IDs |
 | Bot seed command | Public POST could trigger bulk seed-data updates with no authentication or safe inspection mode | Command requires an admin, accepts only an optional dry-run flag, and exposes a no-write validation path for operational tests |
+| SD model switch | Unauthenticated route hard-coded a live GPU server, disagreed with the store request shape, and had no repository caller | Removed the dead route, unused Pinia action, and setter-only helper instead of preserving an unsafe global server mutation |
 
 ### P1 — Completed response and resource-boundary cleanup
 

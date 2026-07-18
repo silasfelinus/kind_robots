@@ -1,5 +1,5 @@
 // /server/api/reactions/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
@@ -9,16 +9,15 @@ export default defineEventHandler(async (event) => {
   const reactionId = Number(event.context.params?.id)
 
   try {
-    // Validate Reaction ID
-    if (isNaN(reactionId) || reactionId <= 0) {
+    if (!Number.isInteger(reactionId) || reactionId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid reaction ID. It must be a positive integer.',
       })
     }
 
-    // Authenticate API key
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -26,7 +25,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check Reaction existence and ownership
     const reaction = await prisma.reaction.findUnique({
       where: { id: reactionId },
       select: { userId: true },
@@ -46,25 +44,28 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Delete the reaction
     await prisma.reaction.delete({ where: { id: reactionId } })
 
-    // Successful deletion response
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: `Reaction with ID ${reactionId} successfully deleted.`,
-      data: [],
+      data: null,
+      statusCode: 200,
     }
   } catch (error) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
+
     return {
       success: false,
       message:
-        handledError.message ||
-        `Failed to delete reaction with ID ${reactionId}.`,
-      data: [],
+        handled.message || `Failed to delete reaction with ID ${reactionId}.`,
+      data: null,
+      statusCode,
     }
   }
 })

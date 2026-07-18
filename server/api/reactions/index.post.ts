@@ -391,7 +391,6 @@ export default defineEventHandler(async (event) => {
         ? 'Reaction updated successfully.'
         : 'Reaction created successfully.',
       data,
-      reaction: data,
       statusCode: event.node.res.statusCode,
     }
   } catch (error) {

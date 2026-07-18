@@ -1,263 +1,321 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// cypress/e2e/api/reactions.cy.ts
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
+
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
+type ReactionRow = {
+  id: number
+  userId: number
+  reactionType: string
+  reactionCategory: string
+  comment: string | null
+  rating: number
+  themeId: number | null
+}
+
+type ThemeRow = {
+  id: number
+  name: string
+}
+
+type ApiResponse<T = unknown> = {
+  success: boolean
+  message: string
+  data?: T | null
+  statusCode?: number
+}
 
 describe('Reaction Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api'
   const invalidToken = 'someInvalidTokenValue'
-  let userId = 0
-  let userToken = ''
-  let apiKey = ''
-  let artImageId: number | undefined
+  const stamp = Date.now()
+  const themeName = `ReactionTheme-${stamp}`
+
+  let apiBase = ''
+  let adminToken = ''
+  let reactionBaseUrl = ''
+  let themeBaseUrl = ''
+  let ownerToken = ''
+  let otherToken = ''
+  let ownerId: number | undefined
+  let otherId: number | undefined
+  let themeId: number | undefined
   let reactionId: number | undefined
 
-  const authHeaders = () => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${userToken}`,
-  })
-
-  const cleanupHeaders = () => ({
-    ...authHeaders(),
-    ...(apiKey ? { 'x-api-key': apiKey } : {}),
-  })
+  const ownerHeaders = () => bearerHeaders(ownerToken)
+  const otherHeaders = () => bearerHeaders(otherToken)
 
   before(() => {
-    cy.env(['API_KEY', 'BETA_ADMIN_TOKEN']).then((env) => {
-      apiKey = String(env.BETA_ADMIN_TOKEN || env.API_KEY || '')
-    })
-
-    return createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        reactionBaseUrl = `${apiBase}/reactions`
+        themeBaseUrl = `${apiBase}/themes`
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((owner) => {
+        ownerToken = owner.token
+        ownerId = owner.id
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((other) => {
+        otherToken = other.token
+        otherId = other.id
+      })
   })
 
   after(() => {
-    if (reactionId) {
+    if (reactionId && ownerToken) {
       cy.request({
         method: 'DELETE',
-        url: `${baseUrl}/reactions/${reactionId}`,
-        headers: cleanupHeaders(),
+        url: `${reactionBaseUrl}/${reactionId}`,
+        headers: ownerHeaders(),
         failOnStatusCode: false,
       }).then(() => {
         reactionId = undefined
       })
     }
 
-    if (artImageId) {
+    if (themeId && ownerToken) {
       cy.request({
         method: 'DELETE',
-        url: `${baseUrl}/art/image/${artImageId}`,
-        headers: cleanupHeaders(),
+        url: `${themeBaseUrl}/${themeId}`,
+        headers: ownerHeaders(),
         failOnStatusCode: false,
       }).then(() => {
-        artImageId = undefined
+        themeId = undefined
       })
     }
+
+    deleteTestUser(apiBase, adminToken, ownerId)
+    deleteTestUser(apiBase, adminToken, otherId)
   })
 
-  it('Create a New ArtImage Fixture', () => {
-    const stamp = Date.now()
-
-    cy.request({
+  it('creates a lightweight Theme fixture', () => {
+    cy.request<ApiResponse<ThemeRow>>({
       method: 'POST',
-      url: `${baseUrl}/art/image`,
-      headers: authHeaders(),
+      url: themeBaseUrl,
+      headers: ownerHeaders(),
       body: {
-        promptString: 'surreal, A beautiful pancake sunrise over the mountains',
-        artPrompt: 'surreal, A beautiful pancake sunrise over the mountains',
-        steps: 10,
-        path: `/images/testing/reaction-fixture-${stamp}.webp`,
-        imagePath: `/images/testing/reaction-fixture-${stamp}.webp`,
-        fileName: `reaction-fixture-${stamp}.webp`,
-        fileType: 'webp',
-        seed: -1,
-        userId,
+        name: themeName,
+        values: {
+          '--color-primary': '#3366ff',
+          '--color-secondary': '#ff66aa',
+        },
         isPublic: false,
-        isMature: false,
-        isActive: true,
+        prefersDark: false,
+        colorScheme: 'light',
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('id')
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.name).to.eq(themeName)
 
-      artImageId = response.body.data.id
-
-      expect(artImageId).to.be.a('number')
+      themeId = response.body.data?.id
+      expect(themeId).to.be.a('number')
     })
   })
 
-  it('should not allow creating a reaction without an authorization token', () => {
-    expect(artImageId).to.exist
+  it('rejects Reaction creation without authentication', () => {
+    expect(themeId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      url: reactionBaseUrl,
       body: {
-        userId,
         reactionType: 'LOVED',
-        reactionCategory: 'ART_IMAGE',
-        artImageId,
-        comment: 'Love this pancake sunrise art!',
+        reactionCategory: 'THEME',
+        themeId,
         rating: 5,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token.')
+      expect(response.body.success).to.eq(false)
     })
   })
 
-  it('should not allow creating a reaction with an invalid authorization token', () => {
-    expect(artImageId).to.exist
+  it('rejects Reaction creation with an invalid token', () => {
+    expect(themeId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      url: reactionBaseUrl,
+      headers: bearerHeaders(invalidToken),
       body: {
-        userId,
         reactionType: 'LOVED',
-        reactionCategory: 'ART_IMAGE',
-        artImageId,
-        comment: 'Love this pancake sunrise art!',
+        reactionCategory: 'THEME',
+        themeId,
         rating: 5,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.match(
-        /authorization token|invalid or expired token/i,
-      )
+      expect(response.body.success).to.eq(false)
     })
   })
 
-  it('Create a New ArtImage Reaction with Authentication', () => {
-    expect(artImageId).to.exist
+  it('creates a Reaction under the authenticated owner', () => {
+    expect(themeId).to.exist
+    expect(ownerId).to.exist
+    expect(otherId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse<ReactionRow>>({
       method: 'POST',
-      url: `${baseUrl}/reactions`,
-      headers: authHeaders(),
+      url: reactionBaseUrl,
+      headers: ownerHeaders(),
       body: {
-        userId,
+        userId: otherId,
         reactionType: 'LOVED',
-        reactionCategory: 'ART_IMAGE',
-        artImageId,
-        comment: 'Love this pancake sunrise art!',
+        reactionCategory: 'THEME',
+        themeId,
+        comment: 'A temporary Reaction fixture.',
         rating: 5,
-        chatId: null,
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('id')
-      expect(response.body.data.artImageId).to.eq(artImageId)
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.userId).to.eq(ownerId)
+      expect(response.body.data?.reactionCategory).to.eq('THEME')
+      expect(response.body.data?.themeId).to.eq(themeId)
 
-      reactionId = response.body.data.id
-
+      reactionId = response.body.data?.id
       expect(reactionId).to.be.a('number')
     })
   })
 
-  it('Edit the ArtImage Reaction with Authentication', () => {
+  it('accepts a genuinely partial Reaction PATCH', () => {
     expect(reactionId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse<ReactionRow>>({
       method: 'PATCH',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: authHeaders(),
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: ownerHeaders(),
       body: {
-        reactionType: 'CLAPPED',
-        reactionCategory: 'ART_IMAGE',
-        comment: 'Actually, clapping for this artwork!',
+        comment: 'Updated without resending category or target.',
         rating: 4,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('rating', 4)
-      expect(response.body.data.comment).to.eq(
-        'Actually, clapping for this artwork!',
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.comment).to.eq(
+        'Updated without resending category or target.',
       )
+      expect(response.body.data?.rating).to.eq(4)
+      expect(response.body.data?.reactionCategory).to.eq('THEME')
+      expect(response.body.data?.themeId).to.eq(themeId)
     })
   })
 
-  it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
+  it('rejects ownership, category, and target mutation attempts', () => {
     expect(reactionId).to.exist
+    expect(otherId).to.exist
 
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
+    cy.request<ApiResponse>({
+      method: 'PATCH',
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: ownerHeaders(),
+      body: {
+        userId: otherId,
+        reactionCategory: 'MESSAGE',
+        themeId: null,
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body).to.have.property('message').and.to.be.a('string')
-      expect(response.body.message).to.match(
-        /authorization token|invalid or expired token/i,
-      )
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('immutable')
     })
   })
 
-  it('Attempt to Delete Reaction with Invalid Token (expect failure)', () => {
+  it('rejects invalid Reaction PATCH values', () => {
     expect(reactionId).to.exist
 
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
+    cy.request<ApiResponse>({
+      method: 'PATCH',
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: ownerHeaders(),
+      body: {
+        rating: 9001,
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body).to.have.property('message').and.to.be.a('string')
-      expect(response.body.message).to.match(
-        /authorization token|invalid or expired token/i,
-      )
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('0 to 5')
     })
   })
 
-  it('Delete the ArtImage Reaction with Authentication', () => {
+  it('prevents another user from updating the Reaction', () => {
     expect(reactionId).to.exist
 
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/reactions/${reactionId}`,
-      headers: cleanupHeaders(),
+    cy.request<ApiResponse>({
+      method: 'PATCH',
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: otherHeaders(),
+      body: {
+        reactionType: 'BOOED',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('updates only the Reaction type', () => {
+    expect(reactionId).to.exist
+
+    cy.request<ApiResponse<ReactionRow>>({
+      method: 'PATCH',
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: ownerHeaders(),
+      body: {
+        reactionType: 'CLAPPED',
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.reactionType).to.eq('CLAPPED')
+      expect(response.body.data?.themeId).to.eq(themeId)
+    })
+  })
+
+  it('prevents another user from deleting the Reaction', () => {
+    expect(reactionId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'DELETE',
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: otherHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.data).to.eq(null)
+    })
+  })
+
+  it('deletes the Reaction with a normalized response', () => {
+    expect(reactionId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'DELETE',
+      url: `${reactionBaseUrl}/${reactionId}`,
+      headers: ownerHeaders(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data).to.eq(null)
       expect(response.body.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted`,
       )
 
       reactionId = undefined
-    })
-  })
-
-  it('Delete the Created ArtImage Fixture with Authentication', () => {
-    expect(artImageId).to.exist
-
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/art/image/${artImageId}`,
-      headers: cleanupHeaders(),
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect([200, 204, 404]).to.include(response.status)
-
-      artImageId = undefined
     })
   })
 })

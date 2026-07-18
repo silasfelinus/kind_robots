@@ -33,11 +33,10 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: click/match high-score writes now use authenticated identity and monotonic validation. Achievement definition create/update/delete now require admin access, reject model-shaped fields, and separate single CRUD from batch import.
+Resolved since this audit: achievement scores use authenticated identity and monotonic validation; definition mutations require admins; record reads/writes are owner-scoped, derive identity from auth, and whitelist confirmation updates.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `server/api/achievements/records/[id].patch.ts:45`    | unauth update + mass-assignment                                                          |
 | `server/api/components/[id].delete.ts:21`             | no auth import at all                                                                    |
 | `server/api/components/[id].patch.ts:128`             | unauth update                                                                            |
 | `server/api/components/index.post.ts:89`              | unauth upsert                                                                            |

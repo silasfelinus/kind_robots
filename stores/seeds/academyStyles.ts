@@ -1098,6 +1098,35 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'suprematism',
+    name: 'Suprematism',
+    era: '1913–1919',
+    sortYear: 1913,
+    region: 'Russia',
+    keyIdeas:
+      'Kazimir Malevich pushed abstraction as far as it would go: not reducing a subject to shapes, but throwing the subject away entirely. He called it Suprematism — "the supremacy of pure feeling" over the depiction of objects — and within a few years was floating clusters of squares, bars, and circles across bare white canvases, as if geometry itself had come unmoored from gravity.',
+    recognitionCues: [
+      'A small number of flat, hard-edged geometric shapes — squares, rectangles, circles, bars',
+      'Shapes float freely, tilted off the horizontal/vertical axis, with no ground line, horizon, or perspective',
+      'A plain white or near-white background used as infinite, weightless space',
+      'Black, red, and white as the dominant palette; total absence of recognizable objects, figures, or texture',
+    ],
+    artists: [
+      {
+        name: 'Kazimir Malevich',
+        years: '1879–1935',
+        note: 'Founder and sole originator of Suprematism; unveiled the style at the 1915 "Last Futurist Exhibition 0,10" in Petrograd.',
+      },
+    ],
+    failureMode:
+      "The most radically non-representational style in the curriculum — a faithful remix discards the source photo's content entirely, even more so than De Stijl; treat it as translating a photo's mood into pure geometry, not preserving anything recognizable",
+    remix: {
+      mode: 'prompt',
+      template:
+        'Reduce this image to a Suprematist composition: a small number of flat geometric shapes — squares, circles, bars — in black, red, and a few pure colors, floating freely against a plain white ground, no outline or perspective, pure weightless geometry',
+    },
+  },
+  {
     slug: 'de-stijl',
     name: 'De Stijl',
     era: 'c. 1917–1931',

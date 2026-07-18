@@ -1,142 +1,153 @@
 // /server/api/socials/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { serializeSocialMedia } from '@/server/utils/socialMedia'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type {
+  PostAudience,
   Prisma,
   SocialPlatform,
-  PostAudience,
 } from '~/prisma/generated/prisma/client'
+import { socialPostMutationSelect } from './selects'
 
 type IncomingPost = {
-  title?: string
-  body?: string
+  title?: unknown
+  body?: unknown
   mediaUrls?: unknown
-  isPublic?: boolean
-  isMature?: boolean
+  isPublic?: unknown
+  isMature?: unknown
+  isActive?: unknown
   audience?: PostAudience
-  sourceType?: string | null
-  sourceId?: number | null
+  sourceType?: unknown
+  sourceId?: unknown
   platforms?: SocialPlatform[]
-  designer?: string | null
+  designer?: unknown
+  scheduledAt?: unknown
+}
+
+function normalizeOptionalText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function normalizeOptionalId(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+
+  const id = Number(value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: 'sourceId must be a positive integer or null when provided.',
+    })
+  }
+
+  return id
+}
+
+function normalizeScheduledAt(value: unknown): Date | null {
+  if (value === null || value === undefined || value === '') return null
+
+  const date = new Date(String(value))
+
+  if (Number.isNaN(date.getTime())) {
+    throw createError({
+      statusCode: 400,
+      message: 'scheduledAt must be a valid date when provided.',
+    })
+  }
+
+  return date
 }
 
 export default defineEventHandler(async (event) => {
-  const singularLabel = 'SocialPost'
-  const pluralLabel = 'SocialPosts'
-
   try {
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
-    const userId = user.id
 
     const body = await readBody<IncomingPost | IncomingPost[]>(event)
 
-    const buildCreate = (entry: IncomingPost): Prisma.SocialPostCreateInput => {
-      const {
-        title,
-        body: postBody,
-        mediaUrls,
-        isPublic,
-        isMature,
-        audience,
-        sourceType,
-        sourceId,
-        platforms,
-        designer,
-      } = entry
-
-      if (!title || typeof title !== 'string') {
-        throw createError({
-          statusCode: 400,
-          message: 'The "title" field is required.',
-        })
-      }
-      if (!postBody || typeof postBody !== 'string') {
-        throw createError({
-          statusCode: 400,
-          message: 'The "body" field is required.',
-        })
-      }
-
-      const uniquePlatforms = Array.from(new Set(platforms ?? []))
-
-      return {
-        title,
-        body: postBody,
-        mediaUrls: serializeSocialMedia(mediaUrls),
-        isPublic: isPublic ?? false,
-        isMature: isMature ?? false,
-        audience: audience ?? ('SOCIAL' as PostAudience),
-        sourceType: sourceType ?? null,
-        sourceId: sourceId ?? null,
-        designer: designer ?? null,
-        status: 'DRAFT',
-        User: { connect: { id: userId } },
-        targets: uniquePlatforms.length
-          ? {
-              create: uniquePlatforms.map((platform) => ({
-                platform,
-                status: 'PENDING' as const,
-              })),
-            }
-          : undefined,
-      }
-    }
-
     if (Array.isArray(body)) {
-      const created = []
-      const skipped: string[] = []
-      for (const entry of body) {
-        const data = buildCreate(entry)
-        try {
-          const result = await prisma.socialPost.create({
-            data,
-            include: { targets: true },
-          })
-          created.push(result)
-        } catch (err: any) {
-          if (err.code === 'P2002') skipped.push(data.title)
-          else throw err
-        }
-      }
-      event.node.res.statusCode = 201
-      return {
-        success: true,
-        message: `${created.length} ${pluralLabel} created, ${skipped.length} skipped.`,
-        data: created,
-        skipped,
-        count: created.length,
-        statusCode: 201,
-      }
+      throw createError({
+        statusCode: 400,
+        message:
+          'POST /api/socials creates one SocialPost. Coordinate multiple creates through socialStore.',
+      })
     }
 
-    const data = await prisma.socialPost.create({
-      data: buildCreate(body),
-      include: { targets: true },
+    const title = normalizeOptionalText(body?.title)
+    const postBody = normalizeOptionalText(body?.body)
+
+    if (!title) {
+      throw createError({
+        statusCode: 400,
+        message: 'The "title" field is required.',
+      })
+    }
+
+    if (!postBody) {
+      throw createError({
+        statusCode: 400,
+        message: 'The "body" field is required.',
+      })
+    }
+
+    const platforms = Array.isArray(body.platforms)
+      ? Array.from(new Set(body.platforms))
+      : []
+    const data: Prisma.SocialPostCreateInput = {
+      title,
+      body: postBody,
+      mediaUrls: serializeSocialMedia(body.mediaUrls),
+      isPublic: body.isPublic === true,
+      isMature: body.isMature === true,
+      isActive: body.isActive !== false,
+      audience: body.audience ?? ('SOCIAL' as PostAudience),
+      sourceType: normalizeOptionalText(body.sourceType),
+      sourceId: normalizeOptionalId(body.sourceId),
+      designer: normalizeOptionalText(body.designer),
+      scheduledAt: normalizeScheduledAt(body.scheduledAt),
+      status: 'DRAFT',
+      User: { connect: { id: user.id } },
+      targets: platforms.length
+        ? {
+            create: platforms.map((platform) => ({
+              platform,
+              status: 'PENDING' as const,
+            })),
+          }
+        : undefined,
+    }
+
+    const created = await prisma.socialPost.create({
+      data,
+      select: socialPostMutationSelect,
     })
+
     event.node.res.statusCode = 201
+
     return {
       success: true,
-      message: `${singularLabel} created successfully.`,
-      data,
+      message: 'SocialPost created successfully.',
+      data: created,
       statusCode: 201,
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+    event.node.res.statusCode = statusCode
+
     return {
       success: false,
-      message: message || 'Failed to create SocialPost.',
+      message: handled.message || 'Failed to create SocialPost.',
       data: null,
-      statusCode: event.node.res.statusCode,
+      statusCode,
     }
   }
 })

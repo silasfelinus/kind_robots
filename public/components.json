@@ -79,8 +79,8 @@
     "components": [
       "art-builder",
       "builder-art-input",
-      "builder-card-grid",
       "builder-card",
+      "builder-card-grid",
       "builder-custom-input",
       "builder-input",
       "builder-list-input",
@@ -100,9 +100,9 @@
     "folderName": "butterfly",
     "components": [
       "ami-butterfly",
+      "ami-link",
       "ami-link-butterflies",
       "ami-link-iframe",
-      "ami-link",
       "ami-loader",
       "base-butterfly",
       "butterfly-back",
@@ -157,6 +157,8 @@
       "davinci-page",
       "humboldt-scoop-page",
       "newsfeed-page",
+      "packmaker-admin-panel",
+      "packmaker-pack-editor",
       "packmaker-page",
       "project-deliverables-panel",
       "project-front-page",
@@ -472,8 +474,8 @@
       "user-builder",
       "user-dashboard",
       "user-galleries",
-      "user-manager-directory",
       "user-manager",
+      "user-manager-directory",
       "user-panel",
       "user-picture"
     ]
@@ -483,14 +485,18 @@
     "components": [
       "component-card",
       "component-count",
+      "component-review-feed",
       "component-sync",
+      "component-test-fixture-cleanup",
       "lab-gallery",
       "lab-interact",
       "lab-manager",
       "mural-manager",
       "new-eyeball",
       "reactable-card",
-      "reaction-card"
+      "reaction-card",
+      "wonderlab-preview-host",
+      "wonderlab-selection-router"
     ]
   }
 ]

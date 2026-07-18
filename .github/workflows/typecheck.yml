@@ -11,9 +11,6 @@ concurrency:
   group: typecheck-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-
 jobs:
   typecheck:
     name: TypeScript
@@ -25,9 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -38,42 +32,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Server boundary cleanup
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/server-create-boundaries'
-        run: node scripts/build-server-create-boundaries.mjs
-
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Format changed source
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/server-create-boundaries'
-        run: >-
-          npx prettier --write
-          components/servers/add-server.vue
-          cypress/e2e/api/server-create-boundaries.cy.ts
-          cypress/e2e/api/servers.cy.ts
-          docs/architecture/thin-resource-api-audit.md
-          server/api/server/[id].patch.ts
-          server/api/server/batch.post.ts
-          server/api/server/index.post.ts
-          server/utils/serverApi.ts
-          stores/serverStore.ts
-
       - name: Type check
         run: npm run test > /tmp/typecheck.log 2>&1
-
-      - name: Commit verified Server cleanup
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/server-create-boundaries'
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f public/wonderlab-components.json
-          git config user.name "kind-robots-refactor"
-          git config user.email "kind-robots-refactor@users.noreply.github.com"
-          git add -A
-          git diff --cached --quiet && exit 1
-          git commit -m "refactor: separate Server CRUD and batch creation [skip ci]"
-          git push origin HEAD:${{ github.head_ref }}
 
       - name: Upload TypeScript diagnostics
         if: always()

@@ -1,5 +1,5 @@
 // /server/api/dreams/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -9,7 +9,6 @@ import type {
   Prisma,
 } from '~/prisma/generated/prisma/client'
 import {
-  dreamInclude,
   normalizeCreationSource,
   normalizeDreamType,
   normalizeIdArray,
@@ -18,6 +17,7 @@ import {
   normalizeScenarioIds,
   normalizeSlug,
 } from './index'
+import { dreamMutationSelect } from './selects'
 
 type DreamCreateBody = {
   title?: string
@@ -30,9 +30,12 @@ type DreamCreateBody = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
   highlightImage?: string | null
   icon?: string | null
   designer?: string | null
+  allowReviews?: boolean
   artImageId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
@@ -45,7 +48,6 @@ type DreamCreateBody = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  createCollection?: boolean
 }
 
 export default defineEventHandler(async (event) => {
@@ -61,52 +63,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const dreamTypeNormalized = normalizeDreamType(body.dreamType)
-
-    const userRecord = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { username: true },
-    })
-
-    const sender = userRecord?.username || `User ${user.id}`
+    const sender = user.username || `User ${user.id}`
     const slug = body.slug?.trim()
       ? normalizeSlug(body.slug)
       : normalizeSlug(title)
-
-    const isPublic = body.isPublic ?? true
-    const isMature = body.isMature ?? false
-    const isActive = body.isActive ?? true
-
     const artImageId = normalizeNullableId(body.artImageId)
-    let artCollectionId = normalizeNullableId(body.artCollectionId)
-
-    if (body.createCollection && !artCollectionId) {
-      // Set slug = the dream slug so the collection matches its folder and
-      // folder-sync reuses it (see batch.post.ts). Never leave slug null to be
-      // backfilled from the label. Reuse an existing collection on this slug.
-      const existingBySlug = slug
-        ? await prisma.artCollection.findUnique({ where: { slug }, select: { id: true } })
-        : null
-
-      if (existingBySlug) {
-        artCollectionId = existingBySlug.id
-      } else {
-        const collection = await prisma.artCollection.create({
-          data: {
-            ...(slug ? { slug } : {}),
-            label: `${title} Collection`,
-            description: `Curated art for ${title}`,
-            userId: user.id,
-            username: sender,
-            isPublic,
-            isMature,
-          },
-        })
-
-        artCollectionId = collection.id
-      }
-    }
-
+    const artCollectionId = normalizeNullableId(body.artCollectionId)
     const scenarioIds = normalizeScenarioIds(body)
     const characterIds = normalizeIdArray(body.characterIds)
     const rewardIds = normalizeIdArray(body.rewardIds)
@@ -116,7 +78,7 @@ export default defineEventHandler(async (event) => {
     const dataInput: Prisma.DreamCreateInput = {
       title,
       slug,
-      dreamType: dreamTypeNormalized,
+      dreamType: normalizeDreamType(body.dreamType),
       creationSource: normalizeCreationSource(body.creationSource),
       description: normalizeOptionalText(body.description) ?? null,
       pitch: normalizeOptionalText(body.pitch) ?? null,
@@ -124,12 +86,15 @@ export default defineEventHandler(async (event) => {
       examples: normalizeOptionalText(body.examples) ?? null,
       artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
       imagePath: normalizeOptionalText(body.imagePath) ?? null,
+      cardPath: normalizeOptionalText(body.cardPath) ?? null,
+      heroPath: normalizeOptionalText(body.heroPath) ?? null,
       highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
       icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
       designer: normalizeOptionalText(body.designer) ?? sender,
-      isPublic,
-      isMature,
-      isActive,
+      allowReviews: body.allowReviews ?? false,
+      isPublic: body.isPublic ?? true,
+      isMature: body.isMature ?? false,
+      isActive: body.isActive ?? true,
       User: {
         connect: { id: user.id },
       },
@@ -186,33 +151,7 @@ export default defineEventHandler(async (event) => {
 
     const data = await prisma.dream.create({
       data: dataInput,
-      include: dreamInclude,
-    })
-
-    if (data.artImageId && data.artCollectionId) {
-      await prisma.artCollection.update({
-        where: { id: data.artCollectionId },
-        data: {
-          ArtImages: {
-            connect: { id: data.artImageId },
-          },
-        },
-      })
-    }
-
-    await prisma.chat.create({
-      data: {
-        type: 'Dream',
-        sender,
-        content: `Dream started: ${title}`,
-        title,
-        userId: user.id,
-        dreamId: data.id,
-        artImageId: data.artImageId ?? undefined,
-        isPublic: data.isPublic,
-        isMature: data.isMature,
-        channel: `dream-${data.id}`,
-      },
+      select: dreamMutationSelect,
     })
 
     event.node.res.statusCode = 201

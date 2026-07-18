@@ -94,7 +94,7 @@
     </div>
 
     <div
-      v-else-if="!isCompactHeader"
+      v-else-if="!isCompactHeader && showTitle"
       class="flex w-full items-center justify-center"
       style="height: 22%"
     >
@@ -134,7 +134,17 @@ const componentMap: Record<string, any> = {
   'jellybean-icon': JellybeanIcon,
 }
 
-const props = defineProps<{ icon: SmartIcon; showTitle?: boolean }>()
+const props = withDefaults(
+  defineProps<{
+    icon: SmartIcon
+    showTitle?: boolean
+    allowEditActions?: boolean
+  }>(),
+  {
+    showTitle: true,
+    allowEditActions: true,
+  },
+)
 
 const smartbarStore = useSmartbarStore()
 const displayStore = useDisplayStore()
@@ -146,7 +156,9 @@ const route = useRoute()
 
 const { butterflies } = storeToRefs(butterflyStore)
 
-const isEditing = computed(() => smartbarStore.isEditing)
+const isEditing = computed(
+  () => smartbarStore.isEditing && props.allowEditActions,
+)
 const isCompactHeader = computed(() => displayStore.headerState === 'compact')
 
 const confirmingDelete = ref(false)
@@ -156,6 +168,7 @@ const activeButterflyCount = computed(
 )
 
 function removeIcon() {
+  if (!props.allowEditActions) return
   smartbarStore.removeFromEditableIcons(props.icon.id)
   confirmingDelete.value = false
 }

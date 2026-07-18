@@ -465,28 +465,32 @@ export const useServerStore = defineStore('serverStore', () => {
     artServers.value
       .slice()
       .sort((a: Server, b: Server): number => sortServers(a, b))
-      .map((server: Server): ServerOption => ({
-        value: server.id,
-        label: server.label || server.title,
-        description: server.description || '',
-        serverType: server.serverType,
-        isOfficial: Boolean(server.isOfficial),
-        isDefault: Boolean(server.isDefault),
-      })),
+      .map(
+        (server: Server): ServerOption => ({
+          value: server.id,
+          label: server.label || server.title,
+          description: server.description || '',
+          serverType: server.serverType,
+          isOfficial: Boolean(server.isOfficial),
+          isDefault: Boolean(server.isDefault),
+        }),
+      ),
   )
 
   const textServerOptions = computed<ServerOption[]>(() =>
     textServers.value
       .slice()
       .sort((a: Server, b: Server): number => sortServers(a, b))
-      .map((server: Server): ServerOption => ({
-        value: server.id,
-        label: server.label || server.title,
-        description: server.description || '',
-        serverType: server.serverType,
-        isOfficial: Boolean(server.isOfficial),
-        isDefault: Boolean(server.isDefault),
-      })),
+      .map(
+        (server: Server): ServerOption => ({
+          value: server.id,
+          label: server.label || server.title,
+          description: server.description || '',
+          serverType: server.serverType,
+          isOfficial: Boolean(server.isOfficial),
+          isDefault: Boolean(server.isDefault),
+        }),
+      ),
   )
 
   function setStoreError(

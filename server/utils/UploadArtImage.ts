@@ -17,7 +17,6 @@ export type UploadArtImageInput = {
   galleryName?: string
   fileType?: string
   fileName?: string | null
-  rarity?: number | null
   path?: string | null
   promptString?: string | null
   artPrompt?: string | null
@@ -66,7 +65,6 @@ export async function uploadArtImage(
       userId,
       galleryName = 'userUpload',
       fileType = 'png',
-      rarity = null,
       path: sourcePath = null,
       promptString = null,
       artPrompt = null,
@@ -134,7 +132,6 @@ export async function uploadArtImage(
       steps: cleanNumber(steps),
       cfg: cleanNumber(cfg),
       cfgHalf: Boolean(cfgHalf),
-      rarity: cleanNumber(rarity),
       designer: cleanText(designer),
       genres: cleanText(genres),
       isPublic: Boolean(isPublic),

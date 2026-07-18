@@ -1,6 +1,15 @@
 <!-- /components/conductor/newsfeed-page.vue -->
 <template>
-  <ProjectFrontPage slug="newsfeed" :fallback="config" />
+  <ProjectFrontPage slug="newsfeed" :fallback="config">
+    <template #interactive>
+      <section
+        class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+      >
+        <h2 class="mb-4 text-base font-black text-base-content">Live feed</h2>
+        <NewsfeedFeed />
+      </section>
+    </template>
+  </ProjectFrontPage>
 </template>
 
 <script setup lang="ts">
@@ -30,8 +39,13 @@ const config: ProjectFrontConfig = {
     },
   ],
   deliverables: {
-    done: ['Feed concept and content sources mapped'],
-    next: ['Feed builder + item renderers', 'Homepage placement'],
+    done: [
+      'Feed concept and content sources mapped',
+      'Server-side RSS/Atom aggregation pipeline',
+      'Feed builder + item renderers',
+      'Homepage placement',
+    ],
+    next: ['Category filtering beyond feed slugs', 'Perspective balancing UI'],
   },
 }
 </script>

@@ -34,12 +34,16 @@
       </label>
     </header>
 
-    <academy-style-detail
+    <div
       v-if="expandedStyle"
-      :lesson="expandedStyle"
-      @close="closeStyle"
-      @remix="emit('remix', $event)"
-    />
+      :id="`academy-style-detail-${expandedStyle.slug}`"
+    >
+      <academy-style-detail
+        :lesson="expandedStyle"
+        @close="closeStyle"
+        @remix="emit('remix', $event)"
+      />
+    </div>
 
     <div
       class="grid gap-3"
@@ -59,6 +63,7 @@
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
         :aria-expanded="expandedSlug === style.slug"
+        :aria-controls="`academy-style-detail-${style.slug}`"
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
         <div class="flex items-center justify-between gap-2">

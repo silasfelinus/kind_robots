@@ -187,6 +187,7 @@ model Character {
   designer             String?                @db.VarChar(256)
   personality          String?                @db.Text
   sampleResponse       String?                @db.Text
+  voice                String?                @db.Text
   isMature             Boolean                @default(false)
   isActive             Boolean                @default(true)
   charm                Rarity                 @default(COMMON)

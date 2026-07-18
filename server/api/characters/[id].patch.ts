@@ -270,6 +270,8 @@ export default defineEventHandler(async (event) => {
       genre: getStringOrUndefined(body.genre),
       alignment: getStringOrUndefined(body.alignment),
       personality: getStringOrUndefined(body.personality),
+      sampleResponse: getStringOrUndefined(body.sampleResponse),
+      voice: getStringOrUndefined(body.voice),
       drive: getStringOrUndefined(body.drive),
       backstory: getStringOrUndefined(body.backstory),
       achievements: getStringOrUndefined(body.achievements),

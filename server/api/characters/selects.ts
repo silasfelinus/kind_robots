@@ -25,6 +25,7 @@ export const characterMutationSelect = {
   designer: true,
   personality: true,
   sampleResponse: true,
+  voice: true,
   isMature: true,
   isActive: true,
   charm: true,

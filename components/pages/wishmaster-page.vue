@@ -92,7 +92,6 @@ async function submitWish() {
     isPublic: false,
     isMature: false,
     isActive: true,
-    createCollection: false,
   })
   if (result.success) {
     newWishTitle.value = ''

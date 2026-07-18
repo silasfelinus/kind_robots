@@ -1,15 +1,17 @@
 // /server/api/sheets/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
+import { pitchSheetMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
   let id = 0
 
   try {
     id = Number(event.context.params?.id)
+
     if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
@@ -18,6 +20,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -41,6 +44,7 @@ export default defineEventHandler(async (event) => {
       existing.userId === user.id ||
       existing.Dream?.userId === user.id ||
       existing.Project?.userId === user.id
+
     if (user.Role !== 'ADMIN' && !isOwner) {
       throw createError({
         statusCode: 403,
@@ -48,9 +52,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<Record<string, unknown>>(event).catch(
-      () => ({}),
-    )
+    const body = await readBody<Record<string, unknown>>(event).catch(() => ({}))
     const data = sanitizePitchSheetPayload(body || {})
 
     if (Object.keys(data).length === 0) {
@@ -63,22 +65,11 @@ export default defineEventHandler(async (event) => {
     const updated = await prisma.pitchSheet.update({
       where: { id },
       data,
-      include: {
-        Dream: true,
-        Project: true,
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            thumbnailData: true,
-            fileName: true,
-            fileType: true,
-          },
-        },
-      },
+      select: pitchSheetMutationSelect,
     })
 
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'PitchSheet updated successfully.',
@@ -88,6 +79,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
+
     return {
       success: false,
       message: handled.message || `Failed to update PitchSheet with ID ${id}.`,

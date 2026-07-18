@@ -547,6 +547,37 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       .catch((error) => handleError(error, 'saving build item'))
   }
 
+  // Background persistence of a whole group edit in one round-trip. Callers
+  // mutate local state first (optimistic) and pass only the changed fields per
+  // item, same contract as pushItem — this just collapses N per-item PATCH
+  // requests into a single batch request.
+  function batchPushItems(
+    entries: Array<{
+      item: BuildItem
+      payload: Record<string, unknown>
+      meta?: { stage?: string; reason?: string }
+    }>,
+  ): void {
+    if (!entries.length) return
+    performFetch('/api/model-builder/items/batch', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: entries.map(({ item, payload, meta }) => ({
+          id: item.id,
+          ...payload,
+          ...meta,
+        })),
+      }),
+    })
+      .then((response) => {
+        if (!response.success) {
+          setStatus('error', response.message || 'Failed to save changes.')
+        }
+      })
+      .catch((error) => handleError(error, 'saving build items'))
+  }
+
   // Stale-invalidation: editing an upstream stage marks every downstream stage
   // stale (unless still locked). Commit is always downstream of everything.
   function markDownstreamStale(item: BuildItem, fromStage: BuildStageKey): void {
@@ -1073,21 +1104,35 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // Set one model field to the same value on every item in a group (e.g. rarity =
   // RARE across 10 rewards). Only rewrites items whose value actually changes.
+  // Persists the whole group in a single batch request rather than one PATCH
+  // per changed item.
   function batchSetField(
     outputKey: string,
     fieldKey: string,
     value: string,
   ): void {
     const items = groupItems(outputKey)
-    let changed = 0
+    const entries: Array<{
+      item: BuildItem
+      payload: Record<string, unknown>
+      meta?: { stage?: string; reason?: string }
+    }> = []
     for (const item of items) {
       const next = setFieldLine(item.fieldsDraft, fieldKey, value)
-      if (next !== item.fieldsDraft) {
-        updateFields(item.id, next)
-        changed++
-      }
+      if (next === item.fieldsDraft) continue
+      item.fieldsDraft = next
+      markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
+      entries.push({
+        item,
+        payload: { stageStatuses: item.stages, fieldsDraft: item.fieldsDraft },
+        meta: { stage: 'FIELDS_AND_PROMPTS', reason: 'edited fields' },
+      })
     }
-    setStatus('success', `Set ${fieldKey} on ${changed}/${items.length} items.`)
+    batchPushItems(entries)
+    setStatus(
+      'success',
+      `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
+    )
   }
 
   // Approve a stage for every (unlocked) item in a group at once.

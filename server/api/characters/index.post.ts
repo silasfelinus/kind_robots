@@ -140,6 +140,8 @@ export default defineEventHandler(async (event) => {
       genre: cleanShortText(characterData.genre),
       alignment: cleanShortText(characterData.alignment),
       personality: cleanText(characterData.personality),
+      sampleResponse: cleanText(characterData.sampleResponse),
+      voice: cleanText(characterData.voice),
       drive: cleanShortText(characterData.drive),
       backstory: cleanText(characterData.backstory),
       achievements: cleanShortText(characterData.achievements),

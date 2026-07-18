@@ -24,6 +24,7 @@ export type CharacterPersona = {
   quirks?: string | null
   drive?: string | null
   presentation?: string | null
+  voice?: string | null
   sampleResponse?: string | null
   achievements?: string | null
   luck?: string | null
@@ -126,6 +127,7 @@ export function buildCharacterPersonaPrompt(
     labelled('Gender', character.gender),
     '',
     VOICE_GUIDANCE,
+    labelled('Voice card', character.voice),
     labelled('Personality', character.personality),
     labelled('Presentation', character.presentation),
     labelled('Quirks', character.quirks),

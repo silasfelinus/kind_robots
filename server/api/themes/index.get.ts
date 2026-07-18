@@ -32,20 +32,21 @@ export default defineEventHandler(async (event) => {
       message: includeUser
         ? `Themes retrieved for user ${user!.id}.`
         : 'Public themes retrieved successfully.',
-      data: {
-        themes,
-      },
-      themes,
+      data: { themes },
       count: themes.length,
+      statusCode: 200,
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    event.node.res.statusCode = statusCode || 500
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
-      message: message || 'Failed to retrieve themes.',
+      message: handled.message || 'Failed to retrieve themes.',
+      data: null,
+      statusCode,
     }
   }
 })

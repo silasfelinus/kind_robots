@@ -127,6 +127,9 @@ jobs:
       - name: WonderLab museum URL query contract
         run: npx tsx utils/scripts/verifyWonderLabMuseumQuery.ts
 
+      - name: WonderLab single load-owner contract
+        run: npx tsx utils/scripts/verifyWonderLabLoadOwnership.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

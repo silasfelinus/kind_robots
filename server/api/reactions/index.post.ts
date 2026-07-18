@@ -49,7 +49,6 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   CHARACTER: Reaction_reactionCategory.CHARACTER,
   COMPONENT: Reaction_reactionCategory.COMPONENT,
   DREAM: Reaction_reactionCategory.DREAM,
-  POST: Reaction_reactionCategory.POST,
   PROMPT: Reaction_reactionCategory.PROMPT,
   RESOURCE: Reaction_reactionCategory.RESOURCE,
   REWARD: Reaction_reactionCategory.REWARD,
@@ -169,7 +168,6 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.SCENARIO]: 'scenarioId',
     [Reaction_reactionCategory.THEME]: 'themeId',
     [Reaction_reactionCategory.MESSAGE]: null,
-    [Reaction_reactionCategory.POST]: null,
   }
 
   return map[category] ?? null

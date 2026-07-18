@@ -1176,47 +1176,7 @@ model SmartIcon {
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 
-model SocialPost {
-  id          Int            @id @default(autoincrement())
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  designer    String?        @db.VarChar(256)
-  title       String         @db.VarChar(255)
-  body        String         @db.Text
-  mediaUrls   String?        @db.LongText
-  status      PostStatus     @default(DRAFT)
-  sourceType  String?
-  sourceId    Int?
-  scheduledAt DateTime?
-  isPublic    Boolean        @default(false)
-  userId      Int?
-  isActive    Boolean        @default(true)
-  isMature    Boolean        @default(false)
-  audience    PostAudience   @default(SOCIAL)
-  User        User?          @relation(fields: [userId], references: [id])
-  targets     SocialTarget[]
 
-  @@index([userId])
-  @@index([status])
-  @@index([audience])
-}
-
-model SocialTarget {
-  id           Int            @id @default(autoincrement())
-  postId       Int
-  platform     SocialPlatform
-  status       TargetStatus   @default(PENDING)
-  remoteId     String?
-  remoteUrl    String?
-  errorMessage String?
-  sentAt       DateTime?
-  Post         SocialPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, platform])
-  @@index([postId])
-  @@index([platform])
-  @@index([status])
-}
 
 model Theme {
   id          Int        @id @default(autoincrement())
@@ -1342,7 +1302,6 @@ model User {
   Scenarios              Scenario[]
   Servers                Server[]
   SmartIcons             SmartIcon[]
-  SocialPosts            SocialPost[]
   StylistAppointments    StylistAppointment[]
   StylistClients         StylistClient[]
   Themes                 Theme[]
@@ -1887,40 +1846,9 @@ enum ScenarioOutputType {
   MIXED
 }
 
-enum SocialPlatform {
-  DISCORD
-  MASTODON
-  BLUESKY
-  REDDIT
-  FACEBOOK
-  INSTAGRAM
-  RSS
-}
 
-enum PostAudience {
-  PUBLIC
-  SOCIAL
-  WORK
-  FRIENDS
-  FAMILY
-  PRIVATE
-}
 
-enum PostStatus {
-  DRAFT
-  SCHEDULED
-  PUBLISHING
-  PUBLISHED
-  FAILED
-}
 
-enum TargetStatus {
-  PENDING
-  SENT
-  FAILED
-  SKIPPED
-  COPIED
-}
 
 enum ArtJobStatus {
   PENDING
@@ -2100,7 +2028,6 @@ enum Reaction_reactionCategory {
   FACET
   PROJECT
   MESSAGE
-  POST
   PROMPT
   RESOURCE
   REWARD

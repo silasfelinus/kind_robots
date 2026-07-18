@@ -4,7 +4,7 @@
 // balance) per conductor projects/newsfeed/DESIGN-BRIEF.md and
 // BIAS-CONTROLS.md. No Pinia-persistence plugin exists in this repo — this
 // follows the established hand-rolled safeGetLocalStorage/safeSetLocalStorage
-// pattern (stores/navStore.ts, stores/socialStore.ts) rather than a database
+// pattern (stores/navStore.ts) rather than a database
 // table, per t-004's note. Rendering (t-006) and the aggregation pipeline
 // (t-005) consume this store; it owns no network I/O itself.
 

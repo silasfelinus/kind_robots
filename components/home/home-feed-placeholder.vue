@@ -1,45 +1,36 @@
 <!-- /components/home/home-feed-placeholder.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col items-center justify-center gap-6 rounded-2xl border border-base-300 bg-base-200 p-8 text-center"
+    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto p-1"
   >
-    <div
-      class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15"
+    <header
+      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
     >
-      <Icon name="kind-icon:scroll" class="h-8 w-8 text-primary" />
-    </div>
+      <div>
+        <h1 class="text-lg font-black text-base-content sm:text-xl">
+          {{ headline }}
+        </h1>
+        <p class="text-sm text-base-content/60">
+          AI news, activism, and the rest of the swarm's activity, curated right
+          here.
+        </p>
+      </div>
 
-    <div class="flex max-w-md flex-col items-center gap-2">
-      <h1 class="text-xl font-black text-base-content">
-        {{ headline }}
-      </h1>
-      <p class="text-sm text-base-content/60">
-        The recommended newsfeed is on its way — AI news, activism, and the rest
-        of the swarm's activity, curated right here. Until it lands, here's
-        where to go next.
-      </p>
-    </div>
-
-    <div class="flex flex-wrap items-center justify-center gap-3">
       <NuxtLink
         v-if="isLoggedIn"
         to="/dashboard"
-        class="btn btn-primary rounded-xl px-6"
+        class="btn btn-primary btn-sm rounded-xl"
       >
         <Icon name="kind-icon:dashboard" class="size-4" />
-        Go to your Dashboard
+        Dashboard
       </NuxtLink>
-
-      <NuxtLink v-else to="/login" class="btn btn-primary rounded-xl px-6">
+      <NuxtLink v-else to="/login" class="btn btn-primary btn-sm rounded-xl">
         <Icon name="kind-icon:login" class="size-4" />
         Log In
       </NuxtLink>
+    </header>
 
-      <NuxtLink to="/newsfeed" class="btn btn-ghost rounded-xl px-6">
-        <Icon name="kind-icon:news" class="size-4" />
-        Preview the Newsfeed Lab
-      </NuxtLink>
-    </div>
+    <NewsfeedFeed :initial-limit="9" />
   </section>
 </template>
 

@@ -34,9 +34,9 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 
 ### P2 — Moderate response weight or combined command behavior
 
-| Resource | Finding | Planned action |
+| Resource | Finding | Action |
 | --- | --- | --- |
-| Bot | Creates only Bot and uses a bounded include, but mutation callers receive relation summaries by default | Add a mutation projection and explicitly refresh detail in `botStore` |
+| Bot | POST/PATCH returned User, Server, and ArtImage summaries; the helper used a nonexistent singular route and posted arrays to single-resource CRUD | Added `botMutationSelect`; mutations return Bot scalars. `botHelper` now uses `/api/bots` and coordinates multiple creates as individual POSTs |
 | Project | Returns manager, art, collection, pitch sheet, and six counts after create | Return Project mutation fields; retain the stale-connection fallback as persistence infrastructure |
 | PitchSheet | One create route handles standalone and Dream-derived creation and returns Dream plus ArtImage | Keep Dream-derived creation as an explicit command route; use lean PitchSheet mutation responses |
 | SocialPost | Creates owned SocialTarget children as part of the post aggregate | Keep aggregate creation; replace full target rows with the smallest useful response where callers allow it |
@@ -81,9 +81,9 @@ For Dreams, collection creation remains an explicit `collectionStore` action. Ch
 1. ✅ Dream mutation boundaries and regression tests.
 2. ✅ Dream store/form cleanup and removal of obsolete collection/chat flags.
 3. ✅ Character, Scenario, Reward, and Prompt resource projections.
-4. Bot, Project, PitchSheet, and SocialPost response cleanup.
+4. Bot, Project, PitchSheet, and SocialPost response cleanup. Bot is complete; Project is next.
 5. Database referential-action migration for deletes that currently require manual cross-resource cleanup.
-6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when the account build-rate limit clears.
+6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when production catches up to the merged API tier.
 
 ## Definition of Done
 

@@ -42,12 +42,9 @@ import type {
 
 export interface DreamForm extends Partial<Dream> {
   scenarioId?: number | null
-  createCollection?: boolean
   tagIds?: number[]
   characterIds?: number[]
   rewardIds?: number[]
-  addArtToCollection?: boolean
-  updateNote?: string | null
   promptIds?: number[]
 }
 
@@ -55,7 +52,6 @@ export interface DreamChatForm extends Partial<Chat> {
   dreamId?: number | null
   updateDream?: boolean
   artId?: number | null
-  addArtToCollection?: boolean
   description?: string | null
   pitch?: string | null
   flavorText?: string | null
@@ -63,7 +59,6 @@ export interface DreamChatForm extends Partial<Chat> {
   artPrompt?: string | null
   imagePath?: string | null
   highlightImage?: string | null
-  updateNote?: string | null
 }
 
 export interface DreamNarratorEmotionImage extends ExpressionMedia {
@@ -1074,10 +1069,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       rewardIds: normalizeIds(source.rewardIds),
     })
 
-    delete mutation.createCollection
-    delete mutation.addArtToCollection
-    delete mutation.updateNote
-
     return mutation
   }
 
@@ -1386,9 +1377,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
           imagePath: payload.imagePath ?? undefined,
           highlightImage: payload.highlightImage ?? undefined,
           artImageId: payload.artImageId ?? undefined,
-          updateNote:
-            payload.updateNote ??
-            (body.content ? `Dream chat update: ${body.content}` : undefined),
         }
 
         const hasDreamUpdates = Object.values(dreamUpdates).some(
@@ -1462,7 +1450,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       serverId: options.serverId ?? null,
       serverName: options.serverName ?? null,
       updateDream: options.updateDream ?? false,
-      addArtToCollection: options.addArtToCollection ?? false,
       isPublic: selectedDream.value?.isPublic ?? true,
       isMature: selectedDream.value?.isMature ?? false,
     })
@@ -1651,8 +1638,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       artImageId: art.artImageId ?? art.id ?? null,
-      addArtToCollection: true,
-      updateNote: 'Updated the active Dream image.',
     })
   }
 
@@ -1667,7 +1652,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       pitch,
-      updateNote: 'Updated the Dream seed.',
     })
   }
 
@@ -1688,7 +1672,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       flavorText: currentVibe,
-      updateNote: 'Updated the Dream flavor text.',
     })
   }
 
@@ -1703,7 +1686,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       description,
-      updateNote: 'Updated the Dream description.',
     })
   }
 
@@ -1718,7 +1700,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       artPrompt,
-      updateNote: 'Updated the Dream art prompt.',
     })
   }
 
@@ -1733,7 +1714,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       dreamType: parseDreamType(dreamType),
-      updateNote: 'Updated the Dream type.',
     })
   }
 
@@ -1748,9 +1728,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       scenarioId,
-      updateNote: scenarioId
-        ? 'Attached a Scenario to this Dream.'
-        : 'Removed the Scenario from this Dream.',
     })
   }
 
@@ -1765,7 +1742,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       characterIds: normalizeIds(characterIds),
-      updateNote: 'Updated the Dream cast.',
     })
   }
 
@@ -1780,7 +1756,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     return await updateDream(selectedDream.value.id, {
       rewardIds: normalizeIds(rewardIds),
-      updateNote: 'Updated the Dream rewards.',
     })
   }
 

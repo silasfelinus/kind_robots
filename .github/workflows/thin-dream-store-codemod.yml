@@ -35,3 +35,5 @@ jobs:
           git diff --staged --quiet && exit 1
           git commit -m "refactor(dreams): coordinate lean mutations in store [skip ci]"
           git push origin HEAD:refactor/thin-resource-apis
+
+# One-shot workflow; delete after the guarded transform lands.

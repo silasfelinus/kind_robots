@@ -36,4 +36,4 @@ jobs:
           git commit -m "fix(sheets): correct command status and deletion test [skip ci]"
           git push origin HEAD:refactor/thin-pitch-sheet-api
 
-# One-shot workflow; delete after the guarded corrections land.
+# Retry marker for the one-shot workflow.

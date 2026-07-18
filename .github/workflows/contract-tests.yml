@@ -136,6 +136,9 @@ jobs:
       - name: WonderLab reviewer affinity contract
         run: npx tsx utils/scripts/verifyWonderLabReviewerAffinity.ts
 
+      - name: WonderLab review draft prompt contract
+        run: npx tsx utils/scripts/verifyWonderLabReviewDraftPrompt.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

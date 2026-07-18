@@ -2,6 +2,7 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { requireAdminApiUser } from '../../utils/authGuard'
 import type { Component, Prisma } from '~/prisma/generated/prisma/client'
 import {
   hasLegacyStatusUpdate,
@@ -43,6 +44,8 @@ async function assertArtImageExists(artImageId?: number) {
 
 export default defineEventHandler(async (event) => {
   try {
+    await requireAdminApiUser(event)
+
     const componentData = await readBody<ComponentCreateBody>(event)
 
     const componentName = getStringOrDefault(componentData.componentName, '')

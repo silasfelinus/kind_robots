@@ -38,7 +38,6 @@ const ALLOWED_FIELDS = new Set([
   'seed',
   'steps',
   'cfg',
-  'rarity',
   'cfgHalf',
   'isPublic',
   'isMature',
@@ -126,7 +125,10 @@ function assertAllowedFields(form: MultipartForm): void {
     ...new Set(
       (form || [])
         .map((field) => field.name)
-        .filter((name): name is string => Boolean(name) && !ALLOWED_FIELDS.has(name)),
+        .filter(
+          (name): name is string =>
+            typeof name === 'string' && name.length > 0 && !ALLOWED_FIELDS.has(name),
+        ),
     ),
   ]
 
@@ -192,7 +194,6 @@ export default defineEventHandler(async (event) => {
       galleryName: getTextField(form, 'galleryName', 80) || 'userUpload',
       fileType,
       fileName,
-      rarity: getNumberField(form, 'rarity'),
       path: getTextField(form, 'path', 512),
       promptString: getTextField(form, 'promptString', 10_000),
       artPrompt: getTextField(form, 'artPrompt', 10_000),

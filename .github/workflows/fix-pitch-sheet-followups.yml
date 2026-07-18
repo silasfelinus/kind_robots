@@ -35,3 +35,5 @@ jobs:
           git diff --staged --quiet && exit 1
           git commit -m "fix(sheets): correct command status and deletion test [skip ci]"
           git push origin HEAD:refactor/thin-pitch-sheet-api
+
+# One-shot workflow; delete after the guarded corrections land.

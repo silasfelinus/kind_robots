@@ -1,351 +1,208 @@
 // /server/api/art/image/connections/[id].patch.ts
-import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
-import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
+import { createError, defineEventHandler, readBody } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
-import { validateApiKey } from '../../../../utils/validateKey'
+import { requireApiUser } from '../../../../utils/authGuard'
 
-type ValidatedUser = {
-  id?: number | null
-  Role?: string | null
-  role?: string | null
-  isAdmin?: boolean | null
+type ArtCollectionConnectionBody = {
+  artCollectionIds?: unknown
+  disconnectArtCollectionIds?: unknown
+  clearArtCollections?: unknown
 }
 
-type PatchUser = {
-  id: number
-  isAdmin: boolean
-}
+const ALLOWED_FIELDS = new Set([
+  'artCollectionIds',
+  'disconnectArtCollectionIds',
+  'clearArtCollections',
+])
 
-type ArtImageConnectionBody = {
-  botId?: number | null
-  componentId?: number | null
-  achievementId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  characterId?: number | null
-  butterflyId?: number | null
-  userId?: number | null
-  serverId?: number | null
-  checkpointResourceId?: number | null
+const MAX_COLLECTION_IDS = 100
 
-  dreamId?: number | null
-  dreamIds?: number[]
-  scenarioIds?: number[]
-  reactionIds?: number[]
-  butterflyIds?: number[]
-  artCollectionIds?: number[]
-  botIds?: number[]
-  componentIds?: number[]
-  achievementIds?: number[]
-  promptIds?: number[]
-  resourceIds?: number[]
-  rewardIds?: number[]
-  chatIds?: number[]
-  characterIds?: number[]
+function parseIdList(value: unknown, fieldName: string): number[] {
+  if (typeof value === 'undefined') return []
 
-  disconnectDreamId?: number | null
-  disconnectDreamIds?: number[]
-  disconnectScenarioIds?: number[]
-  disconnectReactionIds?: number[]
-  disconnectButterflyIds?: number[]
-  disconnectArtCollectionIds?: number[]
-  disconnectBotIds?: number[]
-  disconnectComponentIds?: number[]
-  disconnectAchievementIds?: number[]
-  disconnectPromptIds?: number[]
-  disconnectResourceIds?: number[]
-  disconnectRewardIds?: number[]
-  disconnectChatIds?: number[]
-  disconnectCharacterIds?: number[]
-
-  clearDirectLinks?: boolean
-  clearDreams?: boolean
-  clearScenarios?: boolean
-  clearReactions?: boolean
-  clearButterflies?: boolean
-  clearArtCollections?: boolean
-  clearBots?: boolean
-  clearComponents?: boolean
-  clearAchievements?: boolean
-  clearPrompts?: boolean
-  clearResources?: boolean
-  clearRewards?: boolean
-  clearChats?: boolean
-  clearCharacters?: boolean
-}
-
-type ListConnectionKey =
-  | 'Bots'
-  | 'Chats'
-  | 'Characters'
-  | 'Components'
-  | 'Achievements'
-  | 'Scenarios'
-  | 'Dreams'
-  | 'Reactions'
-  | 'Prompts'
-  | 'Rewards'
-  | 'Resources'
-  | 'ArtCollections'
-
-function isAdminUser(user: ValidatedUser | null | undefined): boolean {
-  if (!user) return false
-
-  const role = String(user.Role || user.role || '').toLowerCase()
-
-  return Boolean(user.isAdmin || role === 'admin' || role === 'system')
-}
-
-async function requirePatchUser(event: H3Event): Promise<PatchUser> {
-  const auth = await validateApiKey(event)
-  const user = auth.user as ValidatedUser | null | undefined
-
-  if (!auth.isValid || typeof user?.id !== 'number') {
+  if (!Array.isArray(value)) {
     throw createError({
-      statusCode: 401,
-      message: 'Valid authorization token required.',
+      statusCode: 400,
+      message: `${fieldName} must be an array of positive integers.`,
     })
   }
 
-  return {
-    id: Number(user.id),
-    isAdmin: isAdminUser(user),
+  if (value.length > MAX_COLLECTION_IDS) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} may contain at most ${MAX_COLLECTION_IDS} IDs.`,
+    })
+  }
+
+  const ids = value.map((entry) => Number(entry))
+
+  if (!ids.every((id) => Number.isInteger(id) && id > 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must contain only positive integers.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
+function assertKnownFields(body: Record<string, unknown>): void {
+  const unknownFields = Object.keys(body).filter(
+    (field) => !ALLOWED_FIELDS.has(field),
+  )
+
+  if (unknownFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported ArtImage connection fields: ${unknownFields.join(', ')}. This endpoint manages collection membership only.`,
+    })
   }
 }
 
-function cleanId(value: unknown): number | null {
-  const parsed = Number(value)
+async function readCollections(ids: number[]) {
+  if (!ids.length) return []
 
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
-}
+  const collections = await prisma.artCollection.findMany({
+    where: {
+      id: { in: ids },
+      isActive: true,
+    },
+    select: {
+      id: true,
+      userId: true,
+    },
+  })
 
-function cleanIds(values: unknown): number[] {
-  if (!Array.isArray(values)) return []
+  const foundIds = new Set(collections.map((collection) => collection.id))
+  const missingIds = ids.filter((id) => !foundIds.has(id))
 
-  return [...new Set(values)]
-    .map((value) => Number(value))
-    .filter((value) => Number.isInteger(value) && value > 0)
-}
+  if (missingIds.length) {
+    throw createError({
+      statusCode: 404,
+      message: `Art collections not found: ${missingIds.join(', ')}.`,
+    })
+  }
 
-function mergeIds(...groups: unknown[]): number[] {
-  return [...new Set(groups.flatMap((group) => cleanIds(group)))]
-}
-
-function connectMany(ids: number[]) {
-  return ids.length ? ids.map((id) => ({ id })) : undefined
-}
-
-function disconnectMany(ids: number[]) {
-  return ids.length ? ids.map((id) => ({ id })) : undefined
-}
-
-function addListConnection(
-  data: Prisma.ArtImageUpdateInput,
-  key: ListConnectionKey,
-  connectIds: number[],
-  disconnectIds: number[],
-  clear = false,
-): void {
-  if (!connectIds.length && !disconnectIds.length && !clear) return
-
-  data[key] = {
-    ...(clear ? { set: [] } : {}),
-    ...(connectIds.length ? { connect: connectMany(connectIds) } : {}),
-    ...(disconnectIds.length
-      ? { disconnect: disconnectMany(disconnectIds) }
-      : {}),
-  } as never
-}
-
-function setOptionalSingleRelation(
-  data: Prisma.ArtImageUpdateInput,
-  key: 'User' | 'Server' | 'CheckpointResource',
-  id: unknown,
-): void {
-  if (id === undefined) return
-
-  const clean = cleanId(id)
-
-  data[key] = clean
-    ? {
-        connect: {
-          id: clean,
-        },
-      }
-    : {
-        disconnect: true,
-      }
+  return collections
 }
 
 export default defineEventHandler(async (event) => {
-  const id = Number(event.context.params?.id)
+  const imageId = Number(event.context.params?.id)
 
   try {
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(imageId) || imageId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid ArtImage ID. It must be a positive integer.',
       })
     }
 
-    const user = await requirePatchUser(event)
-
-    const existing = await prisma.artImage.findUnique({
-      where: { id },
+    const auth = await requireApiUser(event)
+    const image = await prisma.artImage.findUnique({
+      where: { id: imageId },
       select: {
         id: true,
         userId: true,
       },
     })
 
-    if (!existing) {
+    if (!image) {
       throw createError({
         statusCode: 404,
-        message: `ArtImage #${id} not found.`,
+        message: `ArtImage #${imageId} not found.`,
       })
     }
 
-    if (!user.isAdmin && existing.userId !== user.id) {
+    if (!auth.isAdmin && image.userId !== auth.user.id) {
       throw createError({
         statusCode: 403,
-        message: 'You are not allowed to update this art image.',
+        message: 'You are not allowed to change this image’s collections.',
       })
     }
 
-    const body = await readBody<ArtImageConnectionBody>(event)
+    const body = await readBody<ArtCollectionConnectionBody>(event)
 
-    if (!body || typeof body !== 'object') {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
       throw createError({
         statusCode: 400,
-        message: 'No connection data provided.',
+        message: 'A JSON object is required.',
       })
     }
 
-    const data: Prisma.ArtImageUpdateInput = {}
+    const record = body as Record<string, unknown>
+    assertKnownFields(record)
 
-    if (body.clearDirectLinks) {
-      data.User = { disconnect: true }
-      data.Server = { disconnect: true }
-      data.CheckpointResource = { disconnect: true }
-    }
-
-    setOptionalSingleRelation(data, 'User', body.userId)
-    setOptionalSingleRelation(data, 'Server', body.serverId)
-    setOptionalSingleRelation(
-      data,
-      'CheckpointResource',
-      body.checkpointResourceId,
+    const connectIds = parseIdList(body.artCollectionIds, 'artCollectionIds')
+    const disconnectIds = parseIdList(
+      body.disconnectArtCollectionIds,
+      'disconnectArtCollectionIds',
     )
+    const clearCollections = body.clearArtCollections === true
 
-    addListConnection(
-      data,
-      'Bots',
-      mergeIds(body.botIds, body.botId ? [body.botId] : []),
-      cleanIds(body.disconnectBotIds),
-      Boolean(body.clearBots),
-    )
-
-    addListConnection(
-      data,
-      'Components',
-      mergeIds(body.componentIds, body.componentId ? [body.componentId] : []),
-      cleanIds(body.disconnectComponentIds),
-      Boolean(body.clearComponents),
-    )
-
-    addListConnection(
-      data,
-      'Achievements',
-      mergeIds(body.achievementIds, body.achievementId ? [body.achievementId] : []),
-      cleanIds(body.disconnectAchievementIds),
-      Boolean(body.clearAchievements),
-    )
-
-
-    addListConnection(
-      data,
-      'Prompts',
-      mergeIds(body.promptIds, body.promptId ? [body.promptId] : []),
-      cleanIds(body.disconnectPromptIds),
-      Boolean(body.clearPrompts),
-    )
-
-    addListConnection(
-      data,
-      'Resources',
-      mergeIds(body.resourceIds, body.resourceId ? [body.resourceId] : []),
-      cleanIds(body.disconnectResourceIds),
-      Boolean(body.clearResources),
-    )
-
-    addListConnection(
-      data,
-      'Rewards',
-      mergeIds(body.rewardIds, body.rewardId ? [body.rewardId] : []),
-      cleanIds(body.disconnectRewardIds),
-      Boolean(body.clearRewards),
-    )
-
-    addListConnection(
-      data,
-      'Chats',
-      mergeIds(body.chatIds, body.chatId ? [body.chatId] : []),
-      cleanIds(body.disconnectChatIds),
-      Boolean(body.clearChats),
-    )
-
-    addListConnection(
-      data,
-      'Characters',
-      mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
-      cleanIds(body.disconnectCharacterIds),
-      Boolean(body.clearCharacters),
-    )
-
-    addListConnection(
-      data,
-      'Dreams',
-      mergeIds(body.dreamIds, body.dreamId ? [body.dreamId] : []),
-      mergeIds(body.disconnectDreamIds, body.disconnectDreamId ? [body.disconnectDreamId] : []),
-      Boolean(body.clearDreams),
-    )
-
-    addListConnection(
-      data,
-      'Scenarios',
-      cleanIds(body.scenarioIds),
-      cleanIds(body.disconnectScenarioIds),
-      Boolean(body.clearScenarios),
-    )
-
-    addListConnection(
-      data,
-      'Reactions',
-      cleanIds(body.reactionIds),
-      cleanIds(body.disconnectReactionIds),
-      Boolean(body.clearReactions),
-    )
-
-    addListConnection(
-      data,
-      'ArtCollections',
-      cleanIds(body.artCollectionIds),
-      cleanIds(body.disconnectArtCollectionIds),
-      Boolean(body.clearArtCollections),
-    )
-
-    if (Object.keys(data).length === 0) {
+    if (
+      typeof body.clearArtCollections !== 'undefined' &&
+      typeof body.clearArtCollections !== 'boolean'
+    ) {
       throw createError({
         statusCode: 400,
-        message: 'No valid ArtImage connections provided.',
+        message: 'clearArtCollections must be a boolean.',
       })
     }
 
-    const updated: ArtImage = await prisma.artImage.update({
-      where: { id },
+    if (!connectIds.length && !disconnectIds.length && !clearCollections) {
+      throw createError({
+        statusCode: 400,
+        message: 'No collection connection changes were provided.',
+      })
+    }
+
+    const overlappingIds = connectIds.filter((id) => disconnectIds.includes(id))
+
+    if (overlappingIds.length) {
+      throw createError({
+        statusCode: 400,
+        message: `Collection IDs cannot be connected and disconnected together: ${overlappingIds.join(', ')}.`,
+      })
+    }
+
+    const referencedCollections = await readCollections([
+      ...new Set([...connectIds, ...disconnectIds]),
+    ])
+
+    if (!auth.isAdmin && connectIds.length) {
+      const connectIdSet = new Set(connectIds)
+      const unauthorizedIds = referencedCollections
+        .filter(
+          (collection) =>
+            connectIdSet.has(collection.id) &&
+            collection.userId !== auth.user.id,
+        )
+        .map((collection) => collection.id)
+
+      if (unauthorizedIds.length) {
+        throw createError({
+          statusCode: 403,
+          message: `You may only add images to your own collections. Refused collection IDs: ${unauthorizedIds.join(', ')}.`,
+        })
+      }
+    }
+
+    const data: Prisma.ArtImageUpdateInput = {
+      ArtCollections: {
+        ...(clearCollections ? { set: [] } : {}),
+        ...(connectIds.length
+          ? { connect: connectIds.map((id) => ({ id })) }
+          : {}),
+        ...(disconnectIds.length
+          ? { disconnect: disconnectIds.map((id) => ({ id })) }
+          : {}),
+      },
+    }
+
+    const updated = await prisma.artImage.update({
+      where: { id: imageId },
       data,
     })
 
@@ -353,8 +210,9 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: `ArtImage #${id} connections updated.`,
+      message: `ArtImage #${imageId} collection membership updated.`,
       data: updated,
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
@@ -363,8 +221,11 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || `Failed to update ArtImage #${id}.`,
+      message:
+        handled.message ||
+        `Failed to update ArtImage #${Number.isInteger(imageId) ? imageId : 'unknown'} collections.`,
       data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

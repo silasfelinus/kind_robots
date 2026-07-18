@@ -1,62 +1,31 @@
-<!-- /components/content/wonderlab/component-sync.vue -->
-// /components/content/wonderlab/component-sync.vue
+<!-- /components/wonderlab/component-sync.vue -->
 <template>
-  <div class="flex flex-col items-center p-4 bg-base-200 rounded-lg shadow-md">
-    <h2 class="text-lg font-bold mb-4">Component Sync</h2>
-    <button class="btn btn-primary" :disabled="isSyncing" @click="handleSync">
-      {{ isSyncing ? 'Syncing...' : 'Sync Components' }}
-    </button>
-    <p v-if="progressMessage" class="mt-4 text-info">{{ progressMessage }}</p>
-    <p v-if="syncMessage" class="mt-4 text-success">{{ syncMessage }}</p>
-    <p v-if="syncError" class="mt-4 text-error">{{ syncError }}</p>
-  </div>
+  <section
+    class="rounded-2xl border border-warning/40 bg-warning/10 p-4 shadow-sm"
+  >
+    <div class="flex items-start gap-3">
+      <Icon
+        name="kind-icon:alert"
+        class="mt-0.5 size-5 shrink-0 text-warning"
+      />
+
+      <div class="min-w-0 flex-1">
+        <h2 class="text-base font-black text-base-content">
+          Component reconciliation paused
+        </h2>
+
+        <p class="mt-2 text-sm leading-relaxed text-base-content/75">
+          The previous browser-side sync could delete museum records that were
+          absent from a stale or incomplete component manifest. It has been
+          disabled while WonderLab moves to an explicit server-side dry-run and
+          apply workflow.
+        </p>
+
+        <p class="mt-2 text-xs leading-relaxed text-base-content/60">
+          Browsing, previews, notes, and reactions remain available. Existing
+          component records will not be modified from this control.
+        </p>
+      </div>
+    </div>
+  </section>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useComponentStore } from '@/stores/componentStore'
-
-const componentStore = useComponentStore()
-const isSyncing = ref(false)
-const progressMessage = ref('')
-const syncMessage = ref('')
-const syncError = ref('')
-
-const handleSync = async () => {
-  isSyncing.value = true
-  syncMessage.value = ''
-  syncError.value = ''
-  progressMessage.value = 'Initializing sync...'
-
-  try {
-    await componentStore.syncComponents((progress: string) => {
-      console.log('[ComponentSync] Progress:', progress)
-      progressMessage.value = progress
-    })
-    syncMessage.value = 'Components synced successfully!'
-  } catch (error) {
-    console.error('[ComponentSync] Sync error:', error)
-    syncError.value =
-      error instanceof Error
-        ? error.message
-        : typeof error === 'string'
-          ? error
-          : 'An unexpected error occurred during the sync process.'
-  } finally {
-    isSyncing.value = false
-    progressMessage.value = ''
-  }
-}
-</script>
-
-<style scoped>
-.text-info {
-  color: var(--color-info);
-}
-.text-success {
-  color: var(--color-success);
-}
-.text-error {
-  color: var(--color-error);
-}
-</style>

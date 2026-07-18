@@ -71,6 +71,25 @@ export const useTodoStore = defineStore('todoStore', () => {
   const agentTodos = computed(() =>
     openTodos.value.filter((todo) => !todo.category || todo.category === 'AGENT'),
   )
+
+  function isSerendipityAgentTodo(todo: Todo): boolean {
+    if (todo.category && todo.category !== 'AGENT') return false
+    const title = todo.title.toLowerCase()
+    const description = todo.description?.toLowerCase() ?? ''
+    return (
+      todo.icon === 'kind-icon:sparkles' ||
+      title.startsWith('story decision on ') ||
+      description.startsWith('captured by serendipity for conductor task ')
+    )
+  }
+
+  const serendipityAgentTodos = computed(() =>
+    agentTodos.value.filter((todo) => isSerendipityAgentTodo(todo)),
+  )
+  const regularAgentTodos = computed(() =>
+    agentTodos.value.filter((todo) => !isSerendipityAgentTodo(todo)),
+  )
+
   const kaizenTodos = computed(() =>
     openTodos.value.filter((todo) => todo.category === 'KAIZEN'),
   )
@@ -274,6 +293,9 @@ export const useTodoStore = defineStore('todoStore', () => {
     doneTodos,
     archivedTodos,
     agentTodos,
+    serendipityAgentTodos,
+    regularAgentTodos,
+    isSerendipityAgentTodo,
     kaizenTodos,
     honeyDoTodos,
     dreamKaizens,

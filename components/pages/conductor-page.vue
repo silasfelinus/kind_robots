@@ -810,9 +810,23 @@
               >
                 🤖 Agent
                 <span
-                  v-if="todoStore.agentTodos.length"
+                  v-if="todoStore.regularAgentTodos.length"
                   class="badge badge-xs badge-primary"
-                  >{{ todoStore.agentTodos.length }}</span
+                  >{{ todoStore.regularAgentTodos.length }}</span
+                >
+              </button>
+              <button
+                type="button"
+                role="tab"
+                class="tab gap-1 text-xs"
+                :class="taskTab === 'SERENDIPITY' ? 'tab-active' : ''"
+                @click="taskTab = 'SERENDIPITY'"
+              >
+                ✨ Story
+                <span
+                  v-if="todoStore.serendipityAgentTodos.length"
+                  class="badge badge-xs badge-secondary"
+                  >{{ todoStore.serendipityAgentTodos.length }}</span
                 >
               </button>
               <button
@@ -954,6 +968,11 @@
                     v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'"
                     class="badge badge-secondary badge-xs shrink-0"
                     >✨ kaizen</span
+                  >
+                  <span
+                    v-if="todoStore.isSerendipityAgentTodo(todo)"
+                    class="badge badge-secondary badge-xs shrink-0"
+                    >✨ story</span
                   >
                   <div class="flex shrink-0 gap-1">
                     <button
@@ -2098,7 +2117,7 @@ const newTodoPriority = ref<ProjectPriorityLevel>('NORMAL')
 const newTodoCategory = ref<TodoCategory>('AGENT')
 const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
 const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
-const taskTab = ref<'AGENT' | 'KAIZEN' | 'HONEYDO'>('AGENT')
+const taskTab = ref<'AGENT' | 'SERENDIPITY' | 'KAIZEN' | 'HONEYDO'>('AGENT')
 const requestingPitches = ref(false)
 
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
@@ -2230,12 +2249,14 @@ const filteredTodos = computed(() => {
   if (todoFilter.value === 'DONE') return todoStore.doneTodos
   if (todoFilter.value === 'ARCHIVED') return todoStore.archivedTodos
   switch (taskTab.value) {
+    case 'SERENDIPITY':
+      return todoStore.serendipityAgentTodos
     case 'KAIZEN':
       return todoStore.kaizenTodos
     case 'HONEYDO':
       return todoStore.honeyDoTodos
     default:
-      return todoStore.agentTodos
+      return todoStore.regularAgentTodos
   }
 })
 
@@ -2442,7 +2463,7 @@ watch(viewMode, async (mode) => {
 })
 
 watch(taskTab, (tab) => {
-  newTodoCategory.value = tab
+  newTodoCategory.value = tab === 'SERENDIPITY' ? 'AGENT' : tab
 })
 
 watch(
@@ -2617,7 +2638,7 @@ async function submitNewTodo() {
   newTodoTitle.value = ''
   newTodoDescription.value = ''
   newTodoPriority.value = 'NORMAL'
-  newTodoCategory.value = taskTab.value
+  newTodoCategory.value = taskTab.value === 'SERENDIPITY' ? 'AGENT' : taskTab.value
   todoFilter.value = 'OPEN'
 }
 

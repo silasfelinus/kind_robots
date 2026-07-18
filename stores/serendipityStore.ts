@@ -149,17 +149,14 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
   const userStore = useUserStore()
 
   const session = ref<SerendipitySession | null>(null)
-  const weaveStartChatCount = ref<number | null>(null)
   const isWeaving = ref(false)
   const errorMessage = ref('')
 
-  // generateText pushes the new chat into chatStore.chats before streaming
-  // into its botResponse, and only resolves once the stream ends — so the
-  // live text is on the chat added after weaving began.
+  // chatStore tracks the in-flight streaming chat directly via pendingText,
+  // so this no longer needs to guess at it from the last entry in `chats`.
   const streamingText = computed(() => {
-    if (!isWeaving.value || weaveStartChatCount.value === null) return ''
-    if (chatStore.chats.length <= weaveStartChatCount.value) return ''
-    return chatStore.chats[chatStore.chats.length - 1]?.botResponse ?? ''
+    if (!isWeaving.value) return ''
+    return chatStore.pendingText
   })
 
   const currentBeat = computed(
@@ -337,6 +334,7 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
           description: `Captured by Serendipity for conductor task ${question.projectSlug}/${question.conductorTaskId} ("${context?.title ?? ''}").\n\nProtagonist's answer: ${beat.answer.text}\n\nThe conductor task stays needs-human until Silas edits the roadmap.`,
           category: 'AGENT',
           projectId: projectId.value,
+          icon: 'kind-icon:sparkles',
         })
         ok = created !== null
       }
@@ -409,7 +407,6 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
 
   function resetSession() {
     session.value = null
-    weaveStartChatCount.value = null
     errorMessage.value = ''
     saveToLocalStorage()
   }
@@ -551,7 +548,6 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
     if (!session.value) return false
     isWeaving.value = true
     errorMessage.value = ''
-    weaveStartChatCount.value = chatStore.chats.length
     try {
       const result = await chatStore.generateText({
         prompt,
@@ -593,7 +589,6 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
       return false
     } finally {
       isWeaving.value = false
-      weaveStartChatCount.value = null
     }
   }
 

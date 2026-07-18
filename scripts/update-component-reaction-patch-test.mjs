@@ -23,7 +23,7 @@ writeFileSync(testPath, testSource.replace(testTarget, testReplacement), 'utf8')
 const auditPath = 'docs/architecture/thin-resource-api-audit.md'
 const auditSource = readFileSync(auditPath, 'utf8')
 const auditTarget = '| Reaction                  | Store sent partial updates while PATCH required type and category, then passed raw `Partial<Reaction>` into Prisma; delete returned fake arrays   | PATCH now accepts only optional type, comment, and rating fields while keeping owner, category, and target immutable. Delete responses use `data: null`, and Cypress covers ownership and partial-update behavior                                           |'
-const auditReplacement = '| Reaction                  | Store sent partial updates while PATCH required type and category; generic and target-specific routes passed raw `Partial<Reaction>` into Prisma | Generic PATCH now accepts only optional type, comment, and rating while keeping owner, category, and target immutable. Redundant chat/component PATCH routes were removed; target GET routes remain for hydration                                            |'
+const auditReplacement = '| Reaction                  | Store sent partial updates while PATCH required type and category; generic and target-specific routes passed raw `Partial<Reaction>` into Prisma | Generic PATCH now owns mutation with immutable targets; redundant chat/component PATCH routes were removed. The malformed chat GET route was corrected and now returns the array envelope expected by `reactionStore`                                       |'
 
 if (!auditSource.includes(auditTarget)) {
   throw new Error('Expected Reaction audit row was not found.')

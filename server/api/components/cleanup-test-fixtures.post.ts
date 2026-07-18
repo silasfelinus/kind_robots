@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
         updatedAt: true,
         _count: {
           select: {
-            Reaction: true,
+            Reactions: true,
           },
         },
       },
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
         title: component.title,
         createdAt: component.createdAt,
         updatedAt: component.updatedAt,
-        reactionCount: component._count.Reaction,
+        reactionCount: component._count.Reactions,
       }),
     )
 

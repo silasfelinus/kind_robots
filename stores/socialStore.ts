@@ -15,9 +15,13 @@ import type {
   PostAudience,
 } from '~/prisma/generated/prisma/client'
 
-// A post with its child targets hydrated (the API includes them).
+export type SocialTargetSummary = Pick<
+  SocialTarget,
+  'id' | 'postId' | 'platform' | 'status'
+>
+
 export type SocialPostWithTargets = SocialPost & {
-  targets?: SocialTarget[]
+  targets?: SocialTargetSummary[]
 }
 
 export interface SocialPostForm extends Partial<SocialPost> {
@@ -122,22 +126,59 @@ export const useSocialStore = defineStore('socialStore', () => {
     }
   }
 
+  function mergeTargets(
+    existing: SocialTargetSummary[] = [],
+    incoming: SocialTargetSummary[] = [],
+  ): SocialTargetSummary[] {
+    const current = new Map(existing.map((target) => [target.id, target]))
+
+    return incoming.map((target) => ({
+      ...current.get(target.id),
+      ...target,
+    }))
+  }
+
+  function mergePost(
+    existing: SocialPostWithTargets,
+    incoming: SocialPostWithTargets,
+  ): SocialPostWithTargets {
+    return {
+      ...existing,
+      ...incoming,
+      targets:
+        incoming.targets !== undefined
+          ? mergeTargets(existing.targets, incoming.targets)
+          : existing.targets,
+    }
+  }
+
   // Merge, never overwrite: a remote fetch must not drop locally-created
-  // drafts the server response doesn't include (the old code assigned
-  // items.value = res.data, silently discarding unsynced posts). Existing
-  // rows come first so a just-created post stays at the top of the list.
+  // drafts the server response doesn't include. Existing rows keep their
+  // position, while bounded mutation targets merge into any richer GET data.
   function mergeItems(incoming: SocialPostWithTargets[]) {
     const map = new Map<number, SocialPostWithTargets>()
     for (const item of items.value) map.set(item.id, item)
     for (const item of incoming) {
-      if (item && item.id) map.set(item.id, item)
+      if (!item?.id) continue
+      const existing = map.get(item.id)
+      map.set(item.id, existing ? mergePost(existing, item) : item)
     }
     items.value = Array.from(map.values())
     syncToLocalStorage()
   }
 
   function upsertItem(item: SocialPostWithTargets) {
-    mergeItems([item])
+    const index = items.value.findIndex((entry) => entry.id === item.id)
+    const existing = index >= 0 ? items.value[index] : null
+    const next = existing ? mergePost(existing, item) : item
+
+    if (index >= 0) items.value[index] = next
+    else items.value.unshift(next)
+
+    if (selected.value?.id === item.id) selected.value = next
+    syncToLocalStorage()
+
+    return next
   }
 
   function syncToLocalStorage() {
@@ -189,7 +230,7 @@ export const useSocialStore = defineStore('socialStore', () => {
       const res = await performFetch<SocialPostWithTargets>(
         `/api/socials/${id}`,
       )
-      if (res.success && res.data) return res.data
+      if (res.success && res.data) return upsertItem(res.data)
       throw new Error(res.message)
     } catch (err) {
       handleError(err, 'fetching social post by ID')
@@ -227,10 +268,9 @@ export const useSocialStore = defineStore('socialStore', () => {
         throw new Error(res.message || 'Failed to create social post')
       }
 
-      items.value.unshift(res.data)
-      syncToLocalStorage()
+      const created = upsertItem(res.data)
 
-      return { success: true, data: res.data }
+      return { success: true, data: created }
     } catch (err) {
       handleError(err, 'creating social post')
       return { success: false, message: (err as Error).message }
@@ -256,13 +296,9 @@ export const useSocialStore = defineStore('socialStore', () => {
         throw new Error(res.message || 'Failed to update social post')
       }
 
-      const idx = items.value.findIndex((i) => i.id === id)
-      if (idx !== -1) items.value[idx] = res.data
-      if (selected.value?.id === id) selected.value = res.data
+      const updated = upsertItem(res.data)
 
-      syncToLocalStorage()
-
-      return { success: true, data: res.data }
+      return { success: true, data: updated }
     } catch (err) {
       handleError(err, 'updating social post')
       return { success: false, message: (err as Error).message }
@@ -301,12 +337,7 @@ export const useSocialStore = defineStore('socialStore', () => {
       if (!res.success) throw new Error(res.message)
       // Refresh the post so target statuses reflect the dispatch.
       const refreshed = await fetchById(id)
-      if (refreshed) {
-        const idx = items.value.findIndex((i) => i.id === id)
-        if (idx !== -1) items.value[idx] = refreshed
-        if (selected.value?.id === id) selected.value = refreshed
-      }
-      syncToLocalStorage()
+      if (refreshed) upsertItem(refreshed)
       return { success: true, data: res.data }
     } catch (err) {
       handleError(err, 'publishing social post')
@@ -333,11 +364,7 @@ export const useSocialStore = defineStore('socialStore', () => {
         throw new Error(res.message || 'Failed to mark target copied')
       }
 
-      const idx = items.value.findIndex((i) => i.id === postId)
-      if (idx !== -1) items.value[idx] = res.data
-      if (selected.value?.id === postId) selected.value = res.data
-
-      syncToLocalStorage()
+      upsertItem(res.data)
 
       return { success: true }
     } catch (err) {

@@ -1,11 +1,10 @@
 // /server/api/socials/[id].get.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
-  let response
 
   try {
     if (!Number.isInteger(id) || id <= 0) {
@@ -28,7 +27,8 @@ export default defineEventHandler(async (event) => {
     }
 
     event.node.res.statusCode = 200
-    response = {
+
+    return {
       success: true,
       message: 'SocialPost fetched successfully.',
       data,
@@ -36,18 +36,23 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
-    console.error('Error fetching SocialPost:', handled)
-    event.node.res.statusCode = handled.statusCode || 500
-    response = {
+    const statusCode = handled.statusCode || 500
+
+    if (statusCode >= 500) {
+      console.error('Error fetching SocialPost:', handled)
+    }
+
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
       message:
         handled.message ||
         (Number.isInteger(id) && id > 0
           ? `Failed to fetch SocialPost with ID ${id}.`
           : 'Failed to fetch SocialPost.'),
-      statusCode: event.node.res.statusCode,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

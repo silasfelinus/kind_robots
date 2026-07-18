@@ -28,7 +28,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Resource  | Previous finding                                                                               | Completed action                                                                                                                                                                                    |
 | --------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Character | POST/PATCH returned ArtImage, Rewards, Scenarios, and Dreams                                   | Added `characterMutationSelect`; mutation routes return Character scalars while relationship fetches remain explicit                                                                                |
-| Scenario  | Single/batch create and PATCH returned ArtImage, User, Characters, and Dreams                  | Added `scenarioMutationSelect`; `scenarioStore` force-hydrates detail after mutations. The existing single-or-array POST contract remains temporarily for compatibility                             |
+| Scenario  | Single/batch create and PATCH returned ArtImage, User, Characters, and Dreams; single-resource POST also accepted arrays and returned skipped pseudo-records | Added `scenarioMutationSelect`; `scenarioStore` force-hydrates detail after mutations. `POST /api/scenarios` now creates one Scenario and returns `409` for duplicates; `POST /api/scenarios/batch` owns array, skip, and partial-success behavior |
 | Reward    | Shared helpers returned ArtImage, Characters, Dreams, Reactions, and User after every mutation | Added `rewardMutationSelect`; create, batch create, and update return Reward scalars while GET routes retain detail                                                                                 |
 | Prompt    | Create returned User, Bot, and ArtImage; GET also fetched related art IDs                      | Added `promptResourceSelect`; Prompt POST/PATCH/GET return Prompt only. Related art remains on the existing art-by-prompt endpoint. Public-content karma remains isolated server-side domain policy |
 
@@ -79,7 +79,7 @@ For Dreams, collection creation remains an explicit `collectionStore` action. Ch
 
 1. ✅ Dream mutation boundaries and regression tests.
 2. ✅ Dream store/form cleanup and removal of obsolete collection/chat flags.
-3. ✅ Character, Scenario, Reward, and Prompt resource projections.
+3. ✅ Character, Scenario, Reward, and Prompt resource projections, including explicit Scenario single/batch create routes.
 4. ✅ Bot, Project, and PitchSheet response cleanup; retired the unused SocialPost/SocialTarget prototype instead of preserving dead CRUD.
 5. ✅ Dream delete referential actions and route simplification; continue the same audit for other resources only where manual cleanup remains.
 6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when production catches up to the merged API tier.

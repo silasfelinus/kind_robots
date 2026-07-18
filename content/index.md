@@ -11,11 +11,9 @@ amiTip: It was ready the moment we decided weird things should exist. Everything
 sort: highlight
 channelKey: home
 tabKey: dashboard
-dashboardKey: user
-dashboardTab: dashboard
 cards: navCards
-loadingMessage: Loading user dashboard
-refreshLabel: Refresh dashboard
+loadingMessage: Loading the homepage
+refreshLabel: Refresh
 ---
 
-:user-manager
+:home-feed-placeholder

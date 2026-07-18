@@ -2,8 +2,6 @@
 contentType: tab
 channelKey: home
 tabKey: dashboard
-dashboardKey: user
-dashboardTab: dashboard
 label: Dashboard
 title: Home Dashboard
 subtitle: Your Kind Robots activity at a glance

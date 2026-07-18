@@ -330,8 +330,6 @@ function defaultDreamForm(
     rewardIds: [],
     tagIds: [],
     promptIds: [],
-    createCollection: true,
-    addArtToCollection: true,
   } as DreamForm
 }
 
@@ -778,7 +776,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       isPublic: dream.isPublic,
       isMature: dream.isMature,
       isActive: dream.isActive,
-      createCollection: false,
       characterIds: dream.Characters?.map((character) => character.id) ?? [],
       rewardIds: dream.Rewards?.map((reward) => reward.id) ?? [],
       scenarioId: dream.Scenarios?.[0]?.id ?? dream.Scenario?.id ?? null,
@@ -1065,7 +1062,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
       designer: source.designer || userStore.username || 'Kind Designer',
     }) as DreamForm
 
-    return normalizeDreamForm({
+    const mutation = normalizeDreamForm({
       ...source,
       ...built,
       title: built.title || source.title || fallbackDreamTitle(built.pitch),
@@ -1075,9 +1072,13 @@ export const useDreamStore = defineStore('dreamStore', () => {
       tagIds: normalizeIds(source.tagIds),
       characterIds: normalizeIds(source.characterIds),
       rewardIds: normalizeIds(source.rewardIds),
-      createCollection: source.createCollection ?? !existingDream,
-      addArtToCollection: source.addArtToCollection ?? !existingDream,
     })
+
+    delete mutation.createCollection
+    delete mutation.addArtToCollection
+    delete mutation.updateNote
+
+    return mutation
   }
 
   async function createDream(
@@ -1100,7 +1101,10 @@ export const useDreamStore = defineStore('dreamStore', () => {
         if (!res.success || !res.data)
           throw new Error(res.message || 'Failed to create dream.')
 
-        const created = upsertDream(res.data)
+        const createdSummary = upsertDream(res.data)
+        const created =
+          (await fetchDreamById(createdSummary.id, true)) ?? createdSummary
+
         selectedDream.value = created
         selectedDreams.value = [created]
         dreamForm.value = toDreamForm(created)
@@ -1167,7 +1171,10 @@ export const useDreamStore = defineStore('dreamStore', () => {
         if (!res.success || !res.data)
           throw new Error(res.message || `Failed to update dream ${dreamId}.`)
 
-        const updated = upsertDream(res.data)
+        const updatedSummary = upsertDream(res.data)
+        const updated =
+          (await fetchDreamById(dreamId, true)) ?? updatedSummary
+
         selectedDream.value = updated
         selectedDreams.value = [updated]
         dreamForm.value = toDreamForm(updated)
@@ -1560,7 +1567,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       userId: currentUserId.value,
       designer: userStore.username || source.designer || 'Kind Designer',
       isPublic: overrides.isPublic ?? false,
-      createCollection: overrides.createCollection ?? true,
     })
     saveStateToLocalStorage()
 

@@ -16,21 +16,21 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 
 ### P0 — Cross-resource side effects
 
-| Resource | Current problem | Action |
+| Resource | Previous problem | Completed action |
 | --- | --- | --- |
 | Dream create | Created ArtCollection and Chat records, updated ArtCollection, and returned `dreamInclude` | Removed unrelated writes and replaced the response with `dreamMutationSelect` |
-| Dream patch | Updated ArtCollection, created Chat records as an update log, re-read `dreamInclude` | Removed unrelated writes and second read; return the updated Dream projection |
+| Dream patch | Updated ArtCollection, created Chat records as an update log, re-read `dreamInclude` | Removed unrelated writes and second read; returns the updated Dream projection |
 | Dream batch create | Created ArtCollection, three ArtImage rows, Chat rows, updated Dream and collection, then re-read every Dream | Reduced to batch Dream creation with optional links to existing records |
-| Dream delete | Manually detaches Chats, Reactions, and many-to-many links before deletion | Keep temporarily for referential integrity; replace with explicit database delete behavior in a migration before simplifying the route |
+| Dream delete | Manually detaches Chats, Reactions, and many-to-many links before deletion | Kept temporarily for referential integrity; replace with explicit database delete behavior in a migration before simplifying the route |
 
-### P1 — Oversized mutation responses or mixed single/batch behavior
+### P1 — Completed response and resource-boundary cleanup
 
-| Resource | Finding | Planned action |
+| Resource | Previous finding | Completed action |
 | --- | --- | --- |
-| Character | Creates only Character, but accepts several relation sets and returns ArtImage, Rewards, Scenarios, and Dreams | Add a scalar mutation projection; let `characterStore` refresh detail when needed |
-| Scenario | One route handles both single and batch creation and returns ArtImage, User, Characters, and Dreams | Move batch behavior to the batch route and make single create return a scalar projection |
-| Reward | Shared helpers return ArtImage, Characters, Dreams, Reactions, and User after every mutation | Split mutation and detail projections; update `rewardStore` hydration |
-| Prompt | Returns User, Bot, and ArtImage after create and also awards public-content karma | Return a scalar Prompt projection; keep karma as server-side domain policy but isolate it from response shaping |
+| Character | POST/PATCH returned ArtImage, Rewards, Scenarios, and Dreams | Added `characterMutationSelect`; mutation routes return Character scalars while relationship fetches remain explicit |
+| Scenario | Single/batch create and PATCH returned ArtImage, User, Characters, and Dreams | Added `scenarioMutationSelect`; `scenarioStore` force-hydrates detail after mutations. The existing single-or-array POST contract remains temporarily for compatibility |
+| Reward | Shared helpers returned ArtImage, Characters, Dreams, Reactions, and User after every mutation | Added `rewardMutationSelect`; create, batch create, and update return Reward scalars while GET routes retain detail |
+| Prompt | Create returned User, Bot, and ArtImage; GET also fetched related art IDs | Added `promptResourceSelect`; Prompt POST/PATCH/GET return Prompt only. Related art remains on the existing art-by-prompt endpoint. Public-content karma remains isolated server-side domain policy |
 
 ### P2 — Moderate response weight or combined command behavior
 
@@ -78,12 +78,12 @@ For Dreams, collection creation remains an explicit `collectionStore` action. Ch
 
 ## Execution Order
 
-1. Dream mutation boundaries and regression tests.
-2. Dream store/form cleanup and removal of obsolete collection/chat flags.
-3. Character, Scenario, Reward, and Prompt mutation projections.
+1. ✅ Dream mutation boundaries and regression tests.
+2. ✅ Dream store/form cleanup and removal of obsolete collection/chat flags.
+3. ✅ Character, Scenario, Reward, and Prompt resource projections.
 4. Bot, Project, PitchSheet, and SocialPost response cleanup.
 5. Database referential-action migration for deletes that currently require manual cross-resource cleanup.
-6. Re-run API Cypress tests and compare Vercel mutation duration/error volume before merging each tier.
+6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when the account build-rate limit clears.
 
 ## Definition of Done
 

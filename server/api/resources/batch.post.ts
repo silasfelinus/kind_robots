@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode
 
     return {
-      success: failed.length === 0,
+      success: created.length > 0 || failed.length === 0,
       message: `${created.length} created, ${skipped.length} skipped, ${failed.length} failed.`,
       data: { created, skipped, failed },
       statusCode,

@@ -15,10 +15,10 @@ import {
   normalizeNullableId,
   normalizeOptionalText,
   normalizeSlug,
-  projectInclude,
   projectPriorities,
   projectStatuses,
 } from './index'
+import { projectMutationSelect } from './selects'
 
 type ProjectCreateBody = {
   title?: unknown
@@ -56,7 +56,7 @@ async function createProjectWithDirectFallback(
   try {
     return await prisma.project.create({
       data,
-      include: projectInclude,
+      select: projectMutationSelect,
     })
   } catch (error: unknown) {
     if (!isStaleDatabaseConnectionError(error)) throw error
@@ -65,6 +65,7 @@ async function createProjectWithDirectFallback(
       conductorSlug,
       action: 'upsert',
     })
+
     return upsertProjectDirect(data, conductorSlug)
   }
 }
@@ -149,6 +150,7 @@ export default defineEventHandler(async (event) => {
     )
 
     event.node.res.statusCode = 201
+
     return {
       success: true,
       message: 'Project created successfully.',
@@ -159,6 +161,7 @@ export default defineEventHandler(async (event) => {
     const handled = errorHandler(error)
     const statusCode = handled.statusCode ?? 500
     event.node.res.statusCode = statusCode
+
     return { ...handled, statusCode }
   }
 })

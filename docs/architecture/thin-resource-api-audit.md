@@ -37,7 +37,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Resource | Finding | Action |
 | --- | --- | --- |
 | Bot | POST/PATCH returned User, Server, and ArtImage summaries; the helper used a nonexistent singular route and posted arrays to single-resource CRUD | Added `botMutationSelect`; mutations return Bot scalars. `botHelper` now uses `/api/bots` and coordinates multiple creates as individual POSTs |
-| Project | Returns manager, art, collection, pitch sheet, and six counts after create | Return Project mutation fields; retain the stale-connection fallback as persistence infrastructure |
+| Project | POST/PATCH returned manager, art, collection, pitch sheet, and six counts; direct fallback fabricated empty relation objects | Added `projectMutationSelect`; Prisma and direct-write paths return the same Project scalar shape. `projectStore` merges lean rows into loaded detail and clears stale relation objects when foreign keys change |
 | PitchSheet | One create route handles standalone and Dream-derived creation and returns Dream plus ArtImage | Keep Dream-derived creation as an explicit command route; use lean PitchSheet mutation responses |
 | SocialPost | Creates owned SocialTarget children as part of the post aggregate | Keep aggregate creation; replace full target rows with the smallest useful response where callers allow it |
 
@@ -81,7 +81,7 @@ For Dreams, collection creation remains an explicit `collectionStore` action. Ch
 1. ✅ Dream mutation boundaries and regression tests.
 2. ✅ Dream store/form cleanup and removal of obsolete collection/chat flags.
 3. ✅ Character, Scenario, Reward, and Prompt resource projections.
-4. Bot, Project, PitchSheet, and SocialPost response cleanup. Bot is complete; Project is next.
+4. Bot, Project, PitchSheet, and SocialPost response cleanup. Bot and Project are complete; PitchSheet is next.
 5. Database referential-action migration for deletes that currently require manual cross-resource cleanup.
 6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when production catches up to the merged API tier.
 

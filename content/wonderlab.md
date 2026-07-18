@@ -9,11 +9,11 @@ icon: kind-icon:gearhammer
 sort: highlight
 dottiTip: AMI, is it safe to let people poke around in the lab?
 amiTip: Don't worry about them breaking anything. It was probably broken before they touched it.
+narratorSlug: the-real-princess_donut
 channelKey: lab
 tabKey: museum
 dashboardKey: wonder
 dashboardTab: wonder-lab
-requiredRole: ADMIN
 cards: labCards
 loadingMessage: Loading the museum...
 refreshLabel: Refresh Museum

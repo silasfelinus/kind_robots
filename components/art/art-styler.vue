@@ -641,7 +641,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  generated: [image: ArtImage]
+  generated: [image: ArtImage, style: StyleEntry | null]
   close: []
   styleSelected: [style: StyleEntry | null]
 }>()
@@ -1365,7 +1365,7 @@ async function runStyleTransfer(): Promise<void> {
 
     resultImage.value = result.data
     successMessage.value = `Style applied! Image #${result.data.id} created.`
-    emit('generated', result.data)
+    emit('generated', result.data, style)
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Generation failed.'

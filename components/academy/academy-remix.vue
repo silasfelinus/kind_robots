@@ -89,9 +89,9 @@ function onStyleSelected(entry: StyleEntry | null) {
   academyStore.selectStyle(entry?.slug ?? null)
 }
 
-function onGenerated(_image: ArtImage) {
-  if (academyStore.selectedStyleSlug) {
-    academyStore.markStyleRemixed(academyStore.selectedStyleSlug)
+function onGenerated(_image: ArtImage, style: StyleEntry | null) {
+  if (style?.slug) {
+    academyStore.markStyleRemixed(style.slug)
   }
 }
 </script>

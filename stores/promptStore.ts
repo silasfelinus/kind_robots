@@ -602,11 +602,24 @@ export const usePromptStore = defineStore('promptStore', () => {
       try {
         clearError()
 
+        const payload = Object.fromEntries(
+          Object.entries({
+            prompt: updates.prompt,
+            artPrompt: updates.artPrompt,
+            creationSource: updates.creationSource,
+            isMature: updates.isMature,
+            isPublic: updates.isPublic,
+            isActive: updates.isActive,
+            botId: updates.botId,
+            artImageId: updates.artImageId,
+          }).filter(([, value]) => value !== undefined),
+        )
+
         const response = await performFetch<Prompt>(
           `/api/prompts/${promptId}`,
           {
             method: 'PATCH',
-            body: JSON.stringify(updates),
+            body: JSON.stringify(payload),
           },
         )
 

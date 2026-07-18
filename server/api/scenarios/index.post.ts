@@ -255,7 +255,7 @@ function buildScenarioCreateInput(
 }
 
 async function findExistingScenario(title: string, userId: number) {
-  return await Prisma.getExtensionContext(prisma).scenario.findFirst({
+  return await prisma.scenario.findFirst({
     where: { title, userId },
     select: { id: true, title: true },
   })
@@ -312,9 +312,7 @@ export default defineEventHandler(async (event) => {
           continue
         }
 
-        const createdScenario = await Prisma.getExtensionContext(
-          prisma,
-        ).scenario.create({
+        const createdScenario = await prisma.scenario.create({
           data: createInput,
           select: scenarioMutationSelect,
         })

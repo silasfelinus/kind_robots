@@ -1,13 +1,18 @@
 // /server/api/icons/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Prisma, SmartIcon } from '~/prisma/generated/prisma/client'
+import {
+  buildSmartIconCreateInput,
+  findExistingSmartIcon,
+  type SmartIconCreateBody,
+} from './create'
 
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -15,132 +20,58 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<Partial<SmartIcon> | Partial<SmartIcon>[]>(
-      event,
-    )
-
-    // Helper to resolve category/modelType with your defaults:
-    // - If modelType is present and category is missing => category = 'model'
-    // - If both are missing => category = 'giftshop'
-    function resolveCategoryAndModelType(entry: Partial<SmartIcon>) {
-      const modelType = entry.modelType ?? undefined
-
-      let category = entry.category
-      if (!category) {
-        if (modelType) {
-          category = 'model'
-        } else {
-          category = 'giftshop'
-        }
-      }
-
-      return {
-        category,
-        modelType,
-      }
-    }
-
-    // SINGLE: SmartIconCreateInput
-    const normalizeSingle = (
-      entry: Partial<SmartIcon>,
-    ): Prisma.SmartIconCreateInput => {
-      if (!entry.title || typeof entry.title !== 'string') {
-        throw createError({
-          statusCode: 400,
-          message: 'The "title" field is required.',
-        })
-      }
-      if (!entry.type || typeof entry.type !== 'string') {
-        throw createError({
-          statusCode: 400,
-          message: 'The "type" field is required.',
-        })
-      }
-
-      const { category, modelType } = resolveCategoryAndModelType(entry)
-
-      return {
-        title: entry.title,
-        type: entry.type,
-        designer: entry.designer || '',
-        icon: entry.icon || '',
-        label: entry.label || '',
-        description: entry.description || '',
-        link: entry.link || '',
-        component: entry.component || '',
-        isPublic: entry.isPublic ?? true,
-        category,
-        modelType,
-        User: { connect: { id: user.id } }, // ✅ for single
-      }
-    }
-
-    // BATCH: SmartIconCreateManyInput
-    const normalizeBatch = (
-      entry: Partial<SmartIcon>,
-    ): Prisma.SmartIconCreateManyInput => {
-      if (!entry.title || typeof entry.title !== 'string') {
-        throw createError({
-          statusCode: 400,
-          message: 'Each entry must have a "title"',
-        })
-      }
-      if (!entry.type || typeof entry.type !== 'string') {
-        throw createError({
-          statusCode: 400,
-          message: 'Each entry must have a "type"',
-        })
-      }
-
-      const { category, modelType } = resolveCategoryAndModelType(entry)
-
-      return {
-        title: entry.title,
-        type: entry.type,
-        designer: entry.designer || '',
-        icon: entry.icon || '',
-        label: entry.label || '',
-        link: entry.link || '',
-        description: entry.description || '',
-        component: entry.component || '',
-        isPublic: entry.isPublic ?? true,
-        userId: user.id, // ✅ for batch
-        category,
-        modelType,
-      }
-    }
+    const body = await readBody<SmartIconCreateBody | SmartIconCreateBody[]>(event)
 
     if (Array.isArray(body)) {
-      const entries = body.map(normalizeBatch)
-      const data = await prisma.smartIcon.createMany({
-        data: entries,
-        skipDuplicates: true,
+      throw createError({
+        statusCode: 400,
+        message:
+          'POST /api/icons creates one SmartIcon. Use /api/icons/batch for arrays.',
       })
+    }
 
-      event.node.res.statusCode = 201
-      return {
-        success: true,
-        data,
-        message: `Created ${data.count} SmartIcons.`,
-      }
-    } else {
-      const data = await prisma.smartIcon.create({
-        data: normalizeSingle(body),
+    if (!body || typeof body !== 'object') {
+      throw createError({
+        statusCode: 400,
+        message: 'SmartIcon data is required.',
       })
-      event.node.res.statusCode = 201
-      return {
-        success: true,
-        data,
-        message: 'SmartIcon created successfully.',
-      }
+    }
+
+    const data = buildSmartIconCreateInput(body, user.id)
+    const existing = await findExistingSmartIcon({
+      title: data.title,
+      type: data.type,
+      userId: user.id,
+    })
+
+    if (existing) {
+      throw createError({
+        statusCode: 409,
+        message: `SmartIcon already exists with ID ${existing.id}.`,
+      })
+    }
+
+    const icon = await prisma.smartIcon.create({ data })
+
+    event.node.res.statusCode = 201
+
+    return {
+      success: true,
+      data: icon,
+      message: 'SmartIcon created successfully.',
+      statusCode: 201,
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
+
     return {
       success: false,
       data: null,
-      message: message || 'Failed to create SmartIcon.',
+      message: handled.message || 'Failed to create SmartIcon.',
+      statusCode,
     }
   }
 })

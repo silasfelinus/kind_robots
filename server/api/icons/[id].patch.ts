@@ -1,17 +1,21 @@
 // /server/api/icons/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import {
+  buildSmartIconUpdateInput,
+  findExistingSmartIcon,
+  hasSmartIconUpdate,
+} from './create'
 
 export default defineEventHandler(async (event) => {
-  let id
-  let response
+  let id = 0
 
   try {
     id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid SmartIcon ID. It must be a positive integer.',
@@ -19,6 +23,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -26,11 +31,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id
-
     const existingIcon = await prisma.smartIcon.findUnique({
       where: { id },
+      select: {
+        id: true,
+        userId: true,
+        title: true,
+        type: true,
+        category: true,
+        modelType: true,
+      },
     })
+
     if (!existingIcon) {
       throw createError({
         statusCode: 404,
@@ -38,43 +50,64 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (existingIcon.userId !== userId && user.Role !== 'ADMIN') {
+    if (existingIcon.userId !== user.id && user.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this SmartIcon.',
       })
     }
 
-    const iconData: Prisma.SmartIconUpdateInput = await readBody(event)
-    if (!iconData || Object.keys(iconData).length === 0) {
+    const body = await readBody<Record<string, unknown>>(event)
+    const data = buildSmartIconUpdateInput(body ?? {}, existingIcon)
+
+    if (!hasSmartIconUpdate(data)) {
       throw createError({
         statusCode: 400,
-        message: 'No data provided for update.',
+        message: 'No valid data provided for update.',
       })
     }
 
-    const data = await prisma.smartIcon.update({
-      where: { id },
-      data: iconData,
+    const nextTitle =
+      typeof data.title === 'string' ? data.title : existingIcon.title
+    const nextType = typeof data.type === 'string' ? data.type : existingIcon.type
+    const duplicate = await findExistingSmartIcon({
+      title: nextTitle,
+      type: nextType,
+      userId: existingIcon.userId ?? user.id,
+      excludeId: id,
     })
 
-    response = {
+    if (duplicate) {
+      throw createError({
+        statusCode: 409,
+        message: `SmartIcon already exists with ID ${duplicate.id}.`,
+      })
+    }
+
+    const updated = await prisma.smartIcon.update({
+      where: { id },
+      data,
+    })
+
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       message: 'SmartIcon updated successfully.',
-      data,
+      data: updated,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+  } catch (error) {
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
-      message:
-        handledError.message || `Failed to update SmartIcon with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+      message: handled.message || `Failed to update SmartIcon with ID ${id}.`,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

@@ -1,26 +1,24 @@
 // /server/api/icons/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let id
+  let id = 0
 
   try {
-    // Parse and validate ID
     id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid SmartIcon ID. It must be a positive integer.',
       })
     }
 
-    console.log(`Attempting to delete SmartIcon with ID: ${id}`)
-
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -28,11 +26,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id
-
     const icon = await prisma.smartIcon.findUnique({
       where: { id },
-      select: { userId: true },
+      select: { id: true, userId: true },
     })
 
     if (!icon) {
@@ -42,42 +38,34 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Admin override
-    if (user.Role === 'ADMIN') {
-      await prisma.smartIcon.delete({ where: { id } })
-      return {
-        success: true,
-        message: `SmartIcon with ID ${id} deleted successfully by admin.`,
-      }
-    }
-
-    // Owner check
-    if (icon.userId !== userId) {
+    if (icon.userId !== user.id && user.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
         message: 'You are not authorized to delete this SmartIcon.',
       })
     }
 
-    await prisma.smartIcon.delete({ where: { id } })
+    const deleted = await prisma.smartIcon.delete({ where: { id } })
 
-    console.log(`SmartIcon with ID ${id} successfully deleted.`)
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       message: `SmartIcon with ID ${id} successfully deleted.`,
+      data: deleted,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error) {
     const handled = errorHandler(error)
-    console.error('Error while deleting SmartIcon:', handled)
-    event.node.res.statusCode = handled.statusCode || 500
-    response = {
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
       message: handled.message || `Failed to delete SmartIcon with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

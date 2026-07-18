@@ -1,7 +1,7 @@
 // /utils/scripts/auditWonderLabPreviews.ts
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { getWonderLabPreviewFixture } from '../wonderlab/previewFixtures'
+import { getWonderLabPreviewFixture } from '../wonderlab/previewFixtureCatalog'
 
 const componentRoot = path.resolve(process.cwd(), 'components')
 const ignoredSegments = new Set(['abandonware', '__tests__', '__fixtures__'])

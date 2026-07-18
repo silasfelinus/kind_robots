@@ -2,31 +2,38 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { requireApiUser } from '../../utils/authGuard'
 
-export default defineEventHandler(async () => {
-  let response
-
+export default defineEventHandler(async (event) => {
   try {
-    const data = await prisma.achievementRecord.findMany()
+    const { user, isAdmin } = await requireApiUser(event)
 
-    // Prepare the success response
-    response = {
+    const data = await prisma.achievementRecord.findMany({
+      where: isAdmin ? undefined : { userId: user.id },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    })
+
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
-      message: 'Achievement records fetched successfully.',
-      data, // Wrap records in a data field
+      message: isAdmin
+        ? 'Achievement records fetched successfully.'
+        : 'Your achievement records were fetched successfully.',
+      data,
       statusCode: 200,
     }
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error('Error fetching achievement records:', handledError)
+  } catch (error) {
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    // Set the response and status code based on the handled error
-    response = {
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
-      message: handledError.message || 'Failed to fetch achievement records.',
-      statusCode: handledError.statusCode || 500,
+      message: handled.message || 'Failed to fetch achievement records.',
+      data: [],
+      statusCode,
     }
   }
-
-  return response
 })

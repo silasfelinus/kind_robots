@@ -24,6 +24,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Dream delete       | Manually detached Chats, deleted Reactions, and cleared many-to-many links before deletion                    | Declared preserve-vs-cascade behavior in Prisma, migrated Dream reactions to cascade, and reduced the route to one Dream delete |
 | Achievement scores   | Unauthenticated score routes accepted arbitrary user IDs and overwrote click/match records                    | Routes require the authenticated user, reject identity fields, validate safe integer scores, and preserve monotonic high scores |
 | Achievement definitions | Create/update/delete were unauthenticated; POST silently required arrays; PATCH accepted raw model fields      | Definition mutations require admins, use explicit field validation, separate single POST from /batch imports, and reject server-owned fields |
+| Achievement records | GET exposed every user's awards; POST accepted caller identity; PATCH was unauthenticated raw model input | Reads are self-scoped except for admins, POST derives owner/username from auth, duplicate awards are idempotent, and PATCH permits only owner/admin confirmation |
 
 ### P1 — Completed response and resource-boundary cleanup
 

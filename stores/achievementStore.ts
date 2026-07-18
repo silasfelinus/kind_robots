@@ -584,7 +584,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         `/api/achievements/records/${record.id}`,
         {
           method: 'PATCH',
-          body: JSON.stringify(record),
+          body: JSON.stringify({ isConfirmed: record.isConfirmed }),
         },
       )
 
@@ -653,7 +653,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         '/api/achievements/records',
         {
           method: 'POST',
-          body: JSON.stringify(record),
+          body: JSON.stringify({ achievementId: record.achievementId }),
         },
       )
 
@@ -685,11 +685,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     }
 
     try {
-      return await addAchievementRecord({
-        userId,
-        achievementId,
-        username: userStore.username,
-      })
+      return await addAchievementRecord({ achievementId })
     } catch (error) {
       handleError(error, 'recording achievement')
       return {

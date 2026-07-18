@@ -1,76 +1,102 @@
 // /server/api/achievements/records/[id].patch.ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import type { AchievementRecord } from '~/prisma/generated/prisma/client'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
+import { requireApiUser } from '../../../utils/authGuard'
+
+function parseConfirmed(body: unknown): boolean {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw createError({
+      statusCode: 400,
+      message: 'Achievement record update payload is required.',
+    })
+  }
+
+  const record = body as Record<string, unknown>
+  const unsupportedFields = Object.keys(record).filter(
+    (field) => field !== 'isConfirmed',
+  )
+
+  if (unsupportedFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Achievement record update fields: ${unsupportedFields.join(', ')}.`,
+    })
+  }
+
+  if (typeof record.isConfirmed !== 'boolean') {
+    throw createError({
+      statusCode: 400,
+      message: '"isConfirmed" must be a boolean.',
+    })
+  }
+
+  return record.isConfirmed
+}
 
 export default defineEventHandler(async (event) => {
-  let response
-  let recordId: number | null = null
+  const recordId = Number(event.context.params?.id)
 
   try {
-    // Validate and parse the record ID from the URL parameters
-    recordId = Number(event.context.params?.id)
-    if (isNaN(recordId) || recordId <= 0) {
+    if (!Number.isInteger(recordId) || recordId <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Achievement Record ID. It must be a positive integer.',
       })
     }
 
-    // Fetch the existing achievement record to ensure it exists
+    const { user, isAdmin } = await requireApiUser(event)
+
     const existingRecord = await prisma.achievementRecord.findUnique({
       where: { id: recordId },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
 
     if (!existingRecord) {
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: 'Achievement Record not found.',
       })
     }
 
-    // Read the update data from the request body
-    const recordData: Partial<AchievementRecord> = await readBody(event)
-
-    // Validate the update payload (optional but recommended)
-    if (Object.keys(recordData).length === 0) {
+    if (!isAdmin && existingRecord.userId !== user.id) {
       throw createError({
-        statusCode: 400, // Bad Request
-        message: 'Update payload cannot be empty.',
+        statusCode: 403,
+        message: 'You do not have permission to update this achievement record.',
       })
     }
 
-    // Update the achievement record in the database
     const data = await prisma.achievementRecord.update({
       where: { id: recordId },
-      data: recordData,
+      data: {
+        isConfirmed: parseConfirmed(await readBody<unknown>(event)),
+      },
     })
 
-    // Return success response
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
+      message: 'Achievement record updated successfully.',
       data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error(
-      `Error updating achievement record with ID ${recordId}:`,
-      handledError,
-    )
+  } catch (error) {
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    // Set the response and status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
       message:
-        handledError.message ||
+        handled.message ||
         `Failed to update achievement record with ID ${recordId}.`,
-      statusCode: event.node.res.statusCode,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

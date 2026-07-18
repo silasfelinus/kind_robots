@@ -81,12 +81,16 @@
       <!-- Upload -->
       <div
         v-show="sourceTab === 'upload' && !sourceImageData"
+        role="button"
+        tabindex="0"
+        aria-label="Upload a client photo"
         class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed p-6 text-center text-xs transition"
         :class="isDragging ? 'border-primary bg-primary/5' : 'border-base-300 hover:border-primary/60'"
         @click="fileInput?.click()"
         @dragover.prevent="isDragging = true"
         @dragleave.prevent="isDragging = false"
         @drop.prevent="handleDrop"
+        @keydown.enter.space.prevent="fileInput?.click()"
       >
         <Icon name="kind-icon:upload" class="h-6 w-6 text-base-content/50" />
         <span class="font-bold text-base-content/70">Drop a photo or click to browse</span>
@@ -208,6 +212,7 @@
       <button
         type="button"
         class="text-left text-[11px] text-base-content/50 underline"
+        :aria-expanded="advancedOpen"
         @click="advancedOpen = !advancedOpen"
       >
         {{ advancedOpen ? 'Hide' : 'Show' }} advanced settings

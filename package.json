@@ -64,6 +64,7 @@
     "test:wonderlab-selection": "tsx utils/scripts/verifyWonderLabSelection.ts",
     "test:wonderlab-fixture-cleanup": "tsx utils/scripts/verifyComponentTestFixtures.ts",
     "test:wonderlab-core-fixtures": "tsx utils/scripts/verifyWonderLabCoreFixtures.ts",
+    "test:wonderlab-visual-fixtures": "tsx utils/scripts/verifyWonderLabVisualFixtures.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",

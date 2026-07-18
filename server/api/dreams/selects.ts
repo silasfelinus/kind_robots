@@ -24,6 +24,7 @@ export const dreamMutationSelect = {
   userId: true,
   artImageId: true,
   artCollectionId: true,
+  narratorId: true,
   isPublic: true,
   isMature: true,
   isActive: true,

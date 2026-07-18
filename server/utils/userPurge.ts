@@ -59,10 +59,6 @@ export async function deleteUserWithOwnedData(
       track('dreams', await tx.dream.deleteMany({ where: { userId } }))
       track('characters', await tx.character.deleteMany({ where: { userId } }))
       track('scenarios', await tx.scenario.deleteMany({ where: { userId } }))
-      track(
-        'socialPosts',
-        await tx.socialPost.deleteMany({ where: { userId } }),
-      )
 
       // ArtImages may reference prompts and servers, so remove them first.
       track('artImages', await tx.artImage.deleteMany({ where: { userId } }))

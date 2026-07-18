@@ -802,7 +802,6 @@ export type UserWhereInput = {
   Scenarios?: Prisma.ScenarioListRelationFilter
   Servers?: Prisma.ServerListRelationFilter
   SmartIcons?: Prisma.SmartIconListRelationFilter
-  SocialPosts?: Prisma.SocialPostListRelationFilter
   StylistAppointments?: Prisma.StylistAppointmentListRelationFilter
   StylistClients?: Prisma.StylistClientListRelationFilter
   Themes?: Prisma.ThemeListRelationFilter
@@ -915,7 +914,6 @@ export type UserOrderByWithRelationInput = {
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
   Servers?: Prisma.ServerOrderByRelationAggregateInput
   SmartIcons?: Prisma.SmartIconOrderByRelationAggregateInput
-  SocialPosts?: Prisma.SocialPostOrderByRelationAggregateInput
   StylistAppointments?: Prisma.StylistAppointmentOrderByRelationAggregateInput
   StylistClients?: Prisma.StylistClientOrderByRelationAggregateInput
   Themes?: Prisma.ThemeOrderByRelationAggregateInput
@@ -1032,7 +1030,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Scenarios?: Prisma.ScenarioListRelationFilter
   Servers?: Prisma.ServerListRelationFilter
   SmartIcons?: Prisma.SmartIconListRelationFilter
-  SocialPosts?: Prisma.SocialPostListRelationFilter
   StylistAppointments?: Prisma.StylistAppointmentListRelationFilter
   StylistClients?: Prisma.StylistClientListRelationFilter
   Themes?: Prisma.ThemeListRelationFilter
@@ -1295,7 +1292,6 @@ export type UserCreateInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -1408,7 +1404,6 @@ export type UserUncheckedCreateInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -1518,7 +1513,6 @@ export type UserUpdateInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -1631,7 +1625,6 @@ export type UserUncheckedUpdateInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -2507,22 +2500,6 @@ export type UserUpdateOneWithoutSmartIconsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSmartIconsInput, Prisma.UserUpdateWithoutSmartIconsInput>, Prisma.UserUncheckedUpdateWithoutSmartIconsInput>
 }
 
-export type UserCreateNestedOneWithoutSocialPostsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutSocialPostsInput, Prisma.UserUncheckedCreateWithoutSocialPostsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSocialPostsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutSocialPostsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutSocialPostsInput, Prisma.UserUncheckedCreateWithoutSocialPostsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSocialPostsInput
-  upsert?: Prisma.UserUpsertWithoutSocialPostsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSocialPostsInput, Prisma.UserUpdateWithoutSocialPostsInput>, Prisma.UserUncheckedUpdateWithoutSocialPostsInput>
-}
-
 export type UserCreateNestedOneWithoutThemesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutThemesInput, Prisma.UserUncheckedCreateWithoutThemesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutThemesInput
@@ -2880,7 +2857,6 @@ export type UserCreateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -2992,7 +2968,6 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -3107,7 +3082,6 @@ export type UserCreateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -3218,7 +3192,6 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -3348,7 +3321,6 @@ export type UserUpdateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -3460,7 +3432,6 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -3660,7 +3631,6 @@ export type UserCreateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -3772,7 +3742,6 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -3897,7 +3866,6 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -4009,7 +3977,6 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -4118,7 +4085,6 @@ export type UserCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -4230,7 +4196,6 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -4355,7 +4320,6 @@ export type UserUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -4467,7 +4431,6 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -4576,7 +4539,6 @@ export type UserCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -4688,7 +4650,6 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -4813,7 +4774,6 @@ export type UserUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -4925,7 +4885,6 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -5034,7 +4993,6 @@ export type UserCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -5146,7 +5104,6 @@ export type UserUncheckedCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -5271,7 +5228,6 @@ export type UserUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -5383,7 +5339,6 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -5492,7 +5447,6 @@ export type UserCreateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -5604,7 +5558,6 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -5729,7 +5682,6 @@ export type UserUpdateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -5841,7 +5793,6 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -5950,7 +5901,6 @@ export type UserCreateWithoutProjectsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -6062,7 +6012,6 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -6187,7 +6136,6 @@ export type UserUpdateWithoutProjectsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -6299,7 +6247,6 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -6408,7 +6355,6 @@ export type UserCreateWithoutFacetsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -6520,7 +6466,6 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -6645,7 +6590,6 @@ export type UserUpdateWithoutFacetsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -6757,7 +6701,6 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -6866,7 +6809,6 @@ export type UserCreateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -6978,7 +6920,6 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -7103,7 +7044,6 @@ export type UserUpdateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -7215,7 +7155,6 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -7324,7 +7263,6 @@ export type UserCreateWithoutManaTransactionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -7436,7 +7374,6 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -7561,7 +7498,6 @@ export type UserUpdateWithoutManaTransactionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -7673,7 +7609,6 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -7782,7 +7717,6 @@ export type UserCreateWithoutOrdersInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -7894,7 +7828,6 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -8019,7 +7952,6 @@ export type UserUpdateWithoutOrdersInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -8131,7 +8063,6 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -8240,7 +8171,6 @@ export type UserCreateWithoutEntitlementsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -8352,7 +8282,6 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -8477,7 +8406,6 @@ export type UserUpdateWithoutEntitlementsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -8589,7 +8517,6 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -8698,7 +8625,6 @@ export type UserCreateWithoutAchievementsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -8810,7 +8736,6 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -8935,7 +8860,6 @@ export type UserUpdateWithoutAchievementsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -9047,7 +8971,6 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -9156,7 +9079,6 @@ export type UserCreateWithoutPitchSheetsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -9268,7 +9190,6 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -9393,7 +9314,6 @@ export type UserUpdateWithoutPitchSheetsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -9505,7 +9425,6 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -9614,7 +9533,6 @@ export type UserCreateWithoutClaimedPromptsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -9726,7 +9644,6 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -9840,7 +9757,6 @@ export type UserCreateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -9952,7 +9868,6 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -10077,7 +9992,6 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -10189,7 +10103,6 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -10309,7 +10222,6 @@ export type UserUpdateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -10421,7 +10333,6 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -10530,7 +10441,6 @@ export type UserCreateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -10642,7 +10552,6 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -10767,7 +10676,6 @@ export type UserUpdateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -10879,7 +10787,6 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -10988,7 +10895,6 @@ export type UserCreateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -11100,7 +11006,6 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -11225,7 +11130,6 @@ export type UserUpdateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -11337,7 +11241,6 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -11446,7 +11349,6 @@ export type UserCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -11558,7 +11460,6 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -11683,7 +11584,6 @@ export type UserUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -11795,7 +11695,6 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -11904,7 +11803,6 @@ export type UserCreateWithoutScenariosInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -12016,7 +11914,6 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -12141,7 +12038,6 @@ export type UserUpdateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -12253,7 +12149,6 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -12362,7 +12257,6 @@ export type UserCreateWithoutServersInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -12474,7 +12368,6 @@ export type UserUncheckedCreateWithoutServersInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -12599,7 +12492,6 @@ export type UserUpdateWithoutServersInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -12711,7 +12603,6 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -12820,7 +12711,6 @@ export type UserCreateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -12932,7 +12822,6 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -13057,7 +12946,6 @@ export type UserUpdateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -13169,465 +13057,6 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
-  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
-  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
-  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
-  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
-  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutSocialPostsInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  username: string
-  email?: string | null
-  questPoints?: number
-  emailVerified?: Date | string | null
-  name?: string | null
-  address1?: string | null
-  address2?: string | null
-  avatarImage?: string | null
-  bio?: string | null
-  birthday?: Date | string | null
-  city?: string | null
-  country?: string | null
-  discordUrl?: string | null
-  facebookUrl?: string | null
-  instagramUrl?: string | null
-  kindrobotsUrl?: string | null
-  languages?: string | null
-  phone?: string | null
-  state?: string | null
-  timezone?: string | null
-  twitterUrl?: string | null
-  apiKey?: string | null
-  password?: string | null
-  karma?: number
-  mana?: number
-  clickRecord?: number | null
-  matchRecord?: number | null
-  showMature?: boolean
-  Role?: $Enums.Role
-  token?: string | null
-  designerName?: string | null
-  googleEmail?: string | null
-  googleId?: string | null
-  blockList?: string | null
-  isPublic?: boolean
-  smartBar?: string | null
-  customIcons?: boolean
-  isMember?: boolean
-  preferredArtServerId?: number | null
-  preferredTextServerId?: number | null
-  memberUntil?: Date | string | null
-  stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  artModels?: string | null
-  lastReward?: string | null
-  textModels?: string | null
-  vibes?: string | null
-  hiddenServerIds?: string | null
-  isActive?: boolean
-  artPrompt?: string | null
-  isGuest?: boolean
-  lastManaRefill?: Date | string | null
-  manaCap?: number
-  signupBonusGiven?: boolean
-  referralCode?: string | null
-  allowFriendRequests?: boolean
-  brevoContactId?: string | null
-  isRestricted?: boolean
-  listInDirectory?: boolean
-  messagePolicy?: $Enums.MessagePolicy
-  newsletterConfirmedAt?: Date | string | null
-  newsletterFrequency?: $Enums.NewsletterFrequency
-  restrictedAt?: Date | string | null
-  restrictedById?: number | null
-  restrictedReason?: string | null
-  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
-  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
-  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
-  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
-  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
-  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
-  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
-  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
-  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
-  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
-  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
-  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
-  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
-  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
-  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
-  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
-  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
-  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
-  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
-  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
-  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
-  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
-  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
-  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
-  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
-  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
-  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
-  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
-  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutSocialPostsInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  username: string
-  email?: string | null
-  questPoints?: number
-  emailVerified?: Date | string | null
-  name?: string | null
-  address1?: string | null
-  address2?: string | null
-  avatarImage?: string | null
-  bio?: string | null
-  birthday?: Date | string | null
-  city?: string | null
-  country?: string | null
-  discordUrl?: string | null
-  facebookUrl?: string | null
-  instagramUrl?: string | null
-  kindrobotsUrl?: string | null
-  languages?: string | null
-  phone?: string | null
-  state?: string | null
-  timezone?: string | null
-  twitterUrl?: string | null
-  apiKey?: string | null
-  password?: string | null
-  karma?: number
-  mana?: number
-  clickRecord?: number | null
-  matchRecord?: number | null
-  showMature?: boolean
-  Role?: $Enums.Role
-  artImageId?: number | null
-  token?: string | null
-  designerName?: string | null
-  googleEmail?: string | null
-  googleId?: string | null
-  blockList?: string | null
-  isPublic?: boolean
-  smartBar?: string | null
-  customIcons?: boolean
-  isMember?: boolean
-  preferredArtServerId?: number | null
-  preferredTextServerId?: number | null
-  memberUntil?: Date | string | null
-  stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  artModels?: string | null
-  lastReward?: string | null
-  textModels?: string | null
-  vibes?: string | null
-  hiddenServerIds?: string | null
-  isActive?: boolean
-  artPrompt?: string | null
-  isGuest?: boolean
-  lastManaRefill?: Date | string | null
-  manaCap?: number
-  signupBonusGiven?: boolean
-  referralCode?: string | null
-  allowFriendRequests?: boolean
-  brevoContactId?: string | null
-  isRestricted?: boolean
-  listInDirectory?: boolean
-  messagePolicy?: $Enums.MessagePolicy
-  newsletterConfirmedAt?: Date | string | null
-  newsletterFrequency?: $Enums.NewsletterFrequency
-  restrictedAt?: Date | string | null
-  restrictedById?: number | null
-  restrictedReason?: string | null
-  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
-  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
-  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
-  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
-  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
-  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
-  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
-  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
-  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
-  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
-  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
-  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
-  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
-  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
-  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
-  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
-  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
-  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
-  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
-  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
-  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
-  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
-  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
-  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
-  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
-  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
-  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
-  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
-  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutSocialPostsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutSocialPostsInput, Prisma.UserUncheckedCreateWithoutSocialPostsInput>
-}
-
-export type UserUpsertWithoutSocialPostsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutSocialPostsInput, Prisma.UserUncheckedUpdateWithoutSocialPostsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutSocialPostsInput, Prisma.UserUncheckedCreateWithoutSocialPostsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutSocialPostsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutSocialPostsInput, Prisma.UserUncheckedUpdateWithoutSocialPostsInput>
-}
-
-export type UserUpdateWithoutSocialPostsInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  mana?: Prisma.IntFieldUpdateOperationsInput | number
-  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
-  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
-  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
-  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
-  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
-  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
-  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
-  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
-  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
-  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
-  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
-  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
-  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
-  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
-  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
-  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
-  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
-  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
-  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
-  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
-  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
-  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
-  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
-  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
-  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
-  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
-  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
-  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
-  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
-  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
-  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
-  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutSocialPostsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  mana?: Prisma.IntFieldUpdateOperationsInput | number
-  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
-  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
-  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
-  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
-  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
-  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
-  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
-  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
-  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
-  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
-  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
-  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
-  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
-  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
-  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
-  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
-  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
-  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
-  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
-  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
-  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
-  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
-  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
-  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
-  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
-  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
-  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
-  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -13737,7 +13166,6 @@ export type UserCreateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
@@ -13849,7 +13277,6 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
@@ -13974,7 +13401,6 @@ export type UserUpdateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
@@ -14086,7 +13512,6 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
@@ -14195,7 +13620,6 @@ export type UserCreateWithoutStylistClientsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
@@ -14307,7 +13731,6 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
@@ -14432,7 +13855,6 @@ export type UserUpdateWithoutStylistClientsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
@@ -14544,7 +13966,6 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
@@ -14653,7 +14074,6 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
@@ -14765,7 +14185,6 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
@@ -14890,7 +14309,6 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
@@ -15002,7 +14420,6 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
@@ -15110,7 +14527,6 @@ export type UserCreateWithoutArtJobsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -15222,7 +14638,6 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -15347,7 +14762,6 @@ export type UserUpdateWithoutArtJobsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -15459,7 +14873,6 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -15568,7 +14981,6 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -15680,7 +15092,6 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -15805,7 +15216,6 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -15917,7 +15327,6 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -16026,7 +15435,6 @@ export type UserCreateWithoutReferredByInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -16138,7 +15546,6 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -16252,7 +15659,6 @@ export type UserCreateWithoutReferralsMadeInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -16364,7 +15770,6 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -16489,7 +15894,6 @@ export type UserUpdateWithoutReferredByInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -16601,7 +16005,6 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -16721,7 +16124,6 @@ export type UserUpdateWithoutReferralsMadeInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -16833,7 +16235,6 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -16943,7 +16344,6 @@ export type UserCreateWithoutRelationsReceivedInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -17055,7 +16455,6 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -17169,7 +16568,6 @@ export type UserCreateWithoutRelationsOwnedInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -17281,7 +16679,6 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -17406,7 +16803,6 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -17518,7 +16914,6 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -17638,7 +17033,6 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -17750,7 +17144,6 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -17858,7 +17251,6 @@ export type UserCreateWithoutChallengesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -17970,7 +17362,6 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -18095,7 +17486,6 @@ export type UserUpdateWithoutChallengesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -18207,7 +17597,6 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -18316,7 +17705,6 @@ export type UserCreateWithoutLifeRunsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -18428,7 +17816,6 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -18553,7 +17940,6 @@ export type UserUpdateWithoutLifeRunsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -18665,7 +18051,6 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -18774,7 +18159,6 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -18886,7 +18270,6 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -19011,7 +18394,6 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -19123,7 +18505,6 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -19232,7 +18613,6 @@ export type UserCreateWithoutAuthTokensInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -19344,7 +18724,6 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -19469,7 +18848,6 @@ export type UserUpdateWithoutAuthTokensInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -19581,7 +18959,6 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -19690,7 +19067,6 @@ export type UserCreateWithoutConversationsInInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -19802,7 +19178,6 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -19927,7 +19302,6 @@ export type UserUpdateWithoutConversationsInInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -20039,7 +19413,6 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -20148,7 +19521,6 @@ export type UserCreateWithoutSentMessagesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -20260,7 +19632,6 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -20385,7 +19756,6 @@ export type UserUpdateWithoutSentMessagesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -20497,7 +19867,6 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -20606,7 +19975,6 @@ export type UserCreateWithoutActedNotificationsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -20718,7 +20086,6 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -20832,7 +20199,6 @@ export type UserCreateWithoutNotificationsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
@@ -20944,7 +20310,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  SocialPosts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutUserInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
   StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
@@ -21069,7 +20434,6 @@ export type UserUpdateWithoutActedNotificationsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -21181,7 +20545,6 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -21301,7 +20664,6 @@ export type UserUpdateWithoutNotificationsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -21413,7 +20775,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -21594,7 +20955,6 @@ export type UserUpdateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
@@ -21705,7 +21065,6 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  SocialPosts?: Prisma.SocialPostUncheckedUpdateManyWithoutUserNestedInput
   StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
   StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
@@ -21823,7 +21182,6 @@ export type UserCountOutputType = {
   Scenarios: number
   Servers: number
   SmartIcons: number
-  SocialPosts: number
   StylistAppointments: number
   StylistClients: number
   Themes: number
@@ -21865,7 +21223,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Scenarios?: boolean | UserCountOutputTypeCountScenariosArgs
   Servers?: boolean | UserCountOutputTypeCountServersArgs
   SmartIcons?: boolean | UserCountOutputTypeCountSmartIconsArgs
-  SocialPosts?: boolean | UserCountOutputTypeCountSocialPostsArgs
   StylistAppointments?: boolean | UserCountOutputTypeCountStylistAppointmentsArgs
   StylistClients?: boolean | UserCountOutputTypeCountStylistClientsArgs
   Themes?: boolean | UserCountOutputTypeCountThemesArgs
@@ -22117,13 +21474,6 @@ export type UserCountOutputTypeCountSmartIconsArgs<ExtArgs extends runtime.Types
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountSocialPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SocialPostWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountStylistAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.StylistAppointmentWhereInput
 }
@@ -22261,7 +21611,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Scenarios?: boolean | Prisma.User$ScenariosArgs<ExtArgs>
   Servers?: boolean | Prisma.User$ServersArgs<ExtArgs>
   SmartIcons?: boolean | Prisma.User$SmartIconsArgs<ExtArgs>
-  SocialPosts?: boolean | Prisma.User$SocialPostsArgs<ExtArgs>
   StylistAppointments?: boolean | Prisma.User$StylistAppointmentsArgs<ExtArgs>
   StylistClients?: boolean | Prisma.User$StylistClientsArgs<ExtArgs>
   Themes?: boolean | Prisma.User$ThemesArgs<ExtArgs>
@@ -22381,7 +21730,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Scenarios?: boolean | Prisma.User$ScenariosArgs<ExtArgs>
   Servers?: boolean | Prisma.User$ServersArgs<ExtArgs>
   SmartIcons?: boolean | Prisma.User$SmartIconsArgs<ExtArgs>
-  SocialPosts?: boolean | Prisma.User$SocialPostsArgs<ExtArgs>
   StylistAppointments?: boolean | Prisma.User$StylistAppointmentsArgs<ExtArgs>
   StylistClients?: boolean | Prisma.User$StylistClientsArgs<ExtArgs>
   Themes?: boolean | Prisma.User$ThemesArgs<ExtArgs>
@@ -22428,7 +21776,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
     Servers: Prisma.$ServerPayload<ExtArgs>[]
     SmartIcons: Prisma.$SmartIconPayload<ExtArgs>[]
-    SocialPosts: Prisma.$SocialPostPayload<ExtArgs>[]
     StylistAppointments: Prisma.$StylistAppointmentPayload<ExtArgs>[]
     StylistClients: Prisma.$StylistClientPayload<ExtArgs>[]
     Themes: Prisma.$ThemePayload<ExtArgs>[]
@@ -22880,7 +22227,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Scenarios<T extends Prisma.User$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Servers<T extends Prisma.User$ServersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ServersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   SmartIcons<T extends Prisma.User$SmartIconsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SmartIconsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SmartIconPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  SocialPosts<T extends Prisma.User$SocialPostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SocialPostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   StylistAppointments<T extends Prisma.User$StylistAppointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$StylistAppointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistAppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   StylistClients<T extends Prisma.User$StylistClientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$StylistClientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StylistClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Themes<T extends Prisma.User$ThemesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ThemesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -24141,30 +23487,6 @@ export type User$SmartIconsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.SmartIconScalarFieldEnum | Prisma.SmartIconScalarFieldEnum[]
-}
-
-/**
- * User.SocialPosts
- */
-export type User$SocialPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the SocialPost
-   */
-  select?: Prisma.SocialPostSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the SocialPost
-   */
-  omit?: Prisma.SocialPostOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SocialPostInclude<ExtArgs> | null
-  where?: Prisma.SocialPostWhereInput
-  orderBy?: Prisma.SocialPostOrderByWithRelationInput | Prisma.SocialPostOrderByWithRelationInput[]
-  cursor?: Prisma.SocialPostWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SocialPostScalarFieldEnum | Prisma.SocialPostScalarFieldEnum[]
 }
 
 /**

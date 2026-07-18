@@ -47,13 +47,6 @@
       </section>
 
       <section
-        v-else-if="activeTab === 'social'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-      >
-        <social-publisher class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
-
-      <section
         v-else-if="activeTab === 'mana'"
         class="flex h-full min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-4"
       >
@@ -183,8 +176,6 @@ const swarmMemo = computed(() => {
       'Sanctuary first. Commerce second. Tiny winged governance always.',
     giftshop:
       'Every artifact is inspected for whimsy, structural integrity, and whether AMI thinks it has main character energy.',
-    social:
-      'Broadcast tower humming. The butterflies are megaphoning your latest dispatch to every corner of the swarm, with tiny press badges and zero editorial restraint.',
     forum:
       'Forum open. The butterflies are moderating discourse with tiny clipboards and unreasonable confidence.',
     mana: 'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',

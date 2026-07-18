@@ -20,7 +20,7 @@ follow-up tasks.
 > its own scoped `ready` task.
 
 > **Status (Part B).** The four **B1 CRITICAL** store bugs (`codeStore`,
-> `compositionStore`, `socialStore`, `componentStore`) have since been fixed
+> `compositionStore`, `componentStore`) have since been fixed; the unused `socialStore` and SocialPost publishing prototype were removed
 > on this branch — merge-not-overwrite fetches, SSR-safe localStorage, and
 > `performFetch` for the circuit breaker. The B2 HIGH overwrite-on-fetch
 > stores and all of Part A remain open.
@@ -33,23 +33,23 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-| File:line                                           | Exposure                                                                                 |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| File:line                                             | Exposure                                                                                 |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `server/api/achievements/updateClickRecord.put.ts:26` | unauth `prisma.user.update` on any userId from body                                      |
 | `server/api/achievements/updateMatchRecord.put.ts:26` | same — writes matchRecord on any user                                                    |
 | `server/api/achievements/[id].patch.ts:37`            | unauth update + raw body mass-assignment                                                 |
 | `server/api/achievements/[id].delete.ts:21`           | unauth delete                                                                            |
 | `server/api/achievements/index.post.ts:24`            | unauth batch create                                                                      |
 | `server/api/achievements/records/[id].patch.ts:45`    | unauth update + mass-assignment                                                          |
-| `server/api/components/[id].delete.ts:21`           | no auth import at all                                                                    |
-| `server/api/components/[id].patch.ts:128`           | unauth update                                                                            |
-| `server/api/components/index.post.ts:89`            | unauth upsert                                                                            |
-| `server/api/components/name/[name].patch.ts:76`     | unauth + raw body update                                                                 |
-| `server/api/stripe/checkout.post.ts:30`             | unauth; userId from body → attaches/overwrites Stripe customer, opens checkout as victim |
-| `server/api/stripe/subscribe.post.ts:26`            | same for subscriptions                                                                   |
-| `server/api/art/upload.post.ts:97`                  | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
-| `server/api/bots/seed.post.ts:9`                    | unauth bot seed/overwrite                                                                |
-| `server/api/art/sd/setModel.post.ts:17`             | unauth POST to live SD server (GPU model-switch/DoS)                                     |
+| `server/api/components/[id].delete.ts:21`             | no auth import at all                                                                    |
+| `server/api/components/[id].patch.ts:128`             | unauth update                                                                            |
+| `server/api/components/index.post.ts:89`              | unauth upsert                                                                            |
+| `server/api/components/name/[name].patch.ts:76`       | unauth + raw body update                                                                 |
+| `server/api/stripe/checkout.post.ts:30`               | unauth; userId from body → attaches/overwrites Stripe customer, opens checkout as victim |
+| `server/api/stripe/subscribe.post.ts:26`              | same for subscriptions                                                                   |
+| `server/api/art/upload.post.ts:97`                    | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
+| `server/api/bots/seed.post.ts:9`                      | unauth bot seed/overwrite                                                                |
+| `server/api/art/sd/setModel.post.ts:17`               | unauth POST to live SD server (GPU model-switch/DoS)                                     |
 
 `users/register.post.ts` and `auth/login.post.ts` are legitimately public.
 
@@ -106,7 +106,7 @@ a field-guarded typed `UpdateInput` builder (see `sample/[id].patch.ts`).
 
 - **`codeStore.ts`** (3,365 lines, 7 uses) — `initialize()` calls `fetchAllModels()` which does `items.value = res.data` (line 2073) **before** the merge on 2054-2058 runs, so the merge is dead code and locally-saved unsynced blueprints are dropped, then persisted-over. No force/dedupe, zero error state.
 - **`compositionStore.ts`** (284 lines, 5 uses) — same clobber-before-merge (overwrite line 82) + **unguarded** `localStorage` (38-39, 53-54; survives SSR only via try/catch).
-- **`socialStore.ts`** (389 lines, 1 use) — identical twin of compositionStore.
+- **`socialStore.ts`** — removed with the abandoned SocialPost/SocialTarget publishing prototype.
 - **`componentStore.ts`** (7 uses) — raw `fetch()` + `.json()` (39-41, 144, 156), bypassing `performFetch`'s auth injection, timeout, and the 3-strike circuit breaker; a dead DB hangs navigation.
 
 ### B2. HIGH — overwrite-on-fetch (clobbers optimistic/local rows)
@@ -132,7 +132,7 @@ filtered fetches replace the whole collection; also no snapshot), `achievementSt
 ### Store fix order (top 10)
 
 1. `codeStore` — fix merge + add dedupe (actively loses blueprints)
-2. `compositionStore` + `socialStore` — same bug, small files, one rewrite each
+2. `compositionStore` — same bug pattern; `socialStore` was removed with the abandoned publishing prototype
 3. `componentStore` — swap raw fetch → performFetch (circuit breaker)
 4. `dreamStore` — 20 uses, filtered-fetch clobber, no snapshot
 5. `userStore` — 81 uses, overwrite + lastError (touch carefully, it's auth)
@@ -154,7 +154,7 @@ comfyStore, contentStore, editStore, flipStore, friendStore, generatorStore
 
 1. File the Section A1 unauth-write endpoints as individual security-flagged
    `ready` tasks (Silas reviews before any fix ships — outward-facing/DB-write).
-2. Batch the store CRITICAL fixes (codeStore, composition/social, component)
+2. Batch the remaining store CRITICAL fixes (codeStore, composition, component)
    as one "store data-loss sweep" task — all four share the merge/fetch pattern
    the refreshed `sample/sampleStore.ts` now demonstrates.
 3. The consistency items (admin-check drift, console noise, envelope) are

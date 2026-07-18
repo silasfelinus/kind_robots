@@ -31,7 +31,6 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'COMPONENT',
   'DREAM',
   'MESSAGE',
-  'POST',
   'PROMPT',
   'RESOURCE',
   'REWARD',

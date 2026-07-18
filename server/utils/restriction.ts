@@ -42,10 +42,6 @@ export async function privatizeUserContent(userId: number): Promise<void> {
       data: { isPublic: false },
     }),
     prisma.chat.updateMany({ where: { userId }, data: { isPublic: false } }),
-    prisma.socialPost.updateMany({
-      where: { userId },
-      data: { isPublic: false },
-    }),
     prisma.dream.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.prompt.updateMany({ where: { userId }, data: { isPublic: false } }),
     prisma.scenario.updateMany({

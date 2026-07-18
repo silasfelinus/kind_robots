@@ -115,53 +115,6 @@ export const ScenarioOutputType = {
 export type ScenarioOutputType = (typeof ScenarioOutputType)[keyof typeof ScenarioOutputType]
 
 
-export const SocialPlatform = {
-  DISCORD: 'DISCORD',
-  MASTODON: 'MASTODON',
-  BLUESKY: 'BLUESKY',
-  REDDIT: 'REDDIT',
-  FACEBOOK: 'FACEBOOK',
-  INSTAGRAM: 'INSTAGRAM',
-  RSS: 'RSS'
-} as const
-
-export type SocialPlatform = (typeof SocialPlatform)[keyof typeof SocialPlatform]
-
-
-export const PostAudience = {
-  PUBLIC: 'PUBLIC',
-  SOCIAL: 'SOCIAL',
-  WORK: 'WORK',
-  FRIENDS: 'FRIENDS',
-  FAMILY: 'FAMILY',
-  PRIVATE: 'PRIVATE'
-} as const
-
-export type PostAudience = (typeof PostAudience)[keyof typeof PostAudience]
-
-
-export const PostStatus = {
-  DRAFT: 'DRAFT',
-  SCHEDULED: 'SCHEDULED',
-  PUBLISHING: 'PUBLISHING',
-  PUBLISHED: 'PUBLISHED',
-  FAILED: 'FAILED'
-} as const
-
-export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
-
-
-export const TargetStatus = {
-  PENDING: 'PENDING',
-  SENT: 'SENT',
-  FAILED: 'FAILED',
-  SKIPPED: 'SKIPPED',
-  COPIED: 'COPIED'
-} as const
-
-export type TargetStatus = (typeof TargetStatus)[keyof typeof TargetStatus]
-
-
 export const ArtJobStatus = {
   PENDING: 'PENDING',
   RUNNING: 'RUNNING',
@@ -394,7 +347,6 @@ export const Reaction_reactionCategory = {
   FACET: 'FACET',
   PROJECT: 'PROJECT',
   MESSAGE: 'MESSAGE',
-  POST: 'POST',
   PROMPT: 'PROMPT',
   RESOURCE: 'RESOURCE',
   REWARD: 'REWARD',

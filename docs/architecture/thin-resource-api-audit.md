@@ -26,6 +26,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Achievement definitions | Create/update/delete were unauthenticated; POST silently required arrays; PATCH accepted raw model fields      | Definition mutations require admins, use explicit field validation, separate single POST from /batch imports, and reject server-owned fields |
 | Achievement records | GET exposed every user's awards; POST accepted caller identity; PATCH was unauthenticated raw model input | Reads are self-scoped except for admins, POST derives owner/username from auth, duplicate awards are idempotent, and PATCH permits only owner/admin confirmation |
 | Stripe checkout | One-time checkout trusted a body user ID and loosely shaped cart entries before creating Stripe customers and sessions | Checkout derives billing identity from authentication, validates trusted catalog IDs and bounded quantities before Stripe calls, and UI/store callers no longer pass user IDs |
+| Bot seed command | Public POST could trigger bulk seed-data updates with no authentication or safe inspection mode | Command requires an admin, accepts only an optional dry-run flag, and exposes a no-write validation path for operational tests |
 
 ### P1 — Completed response and resource-boundary cleanup
 

@@ -33,12 +33,11 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement scores use authenticated identity and monotonic validation; definition mutations require admins; record reads/writes are owner-scoped; Stripe checkout and subscription derive billing identity from authentication and reject caller-supplied user IDs. Component mutation routes now require admins and use explicit update contracts.
+Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; the bot seed command is admin-only and offers a no-write dry run.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `server/api/art/upload.post.ts:97`                    | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
-| `server/api/bots/seed.post.ts:9`                      | unauth bot seed/overwrite                                                                |
 | `server/api/art/sd/setModel.post.ts:17`               | unauth POST to live SD server (GPU model-switch/DoS)                                     |
 
 `users/register.post.ts` and `auth/login.post.ts` are legitimately public.
@@ -58,7 +57,6 @@ Resolved since this audit: Prompt, SmartIcon, Reaction, Achievement, and Compone
 ### A4. Bugs
 
 - `server/api/logs/[id].delete.ts:12-16` — returns `errorHandler({...})` as the body **without** setting `event.node.res.statusCode`, so failures return HTTP 200 with a `{success:false}` body — breaks clients that trust HTTP status.
-- `server/api/reactions/chat/[id].patch.ts:53` and `reactions/component/[id].patch.ts:56` — double-nested `data: { reaction }` / `data: { updatedReaction }`, off-pattern vs every other reaction endpoint.
 - `server/api/prompts/[id].patch.ts:1` — stale header comment (`// /server/api/art/prompts/...`).
 - `server/api/chats/[id].delete.ts:17,85` — "Communication" messages left over from an old model name.
 - No cross-model prisma-accessor mismatches found (the old sample SmartIcon-style bug is not present elsewhere).
@@ -66,7 +64,7 @@ Resolved since this audit: Prompt, SmartIcon, Reaction, Achievement, and Compone
 ### A5. Consistency
 
 - **Admin-check drift:** ~25 files still use `Role === 'ADMIN'`-only instead of the newer `Role === 'ADMIN' || user.id === 1` (available as `userIsAdmin()` in `server/utils/authUser.ts`) — including the canonical `scenarios/[id].patch.ts|delete.ts|batch.patch.ts` themselves. `users/*` and `prompts/[id].patch.ts` are owner-only with no admin bypass at all.
-- **Envelope drift:** `achievements/*` omit `message`; `bots/seed.post.ts` returns `{success,data}`; `art/sd/setModel.post.ts` returns `{success,message,model}` (no data); `relations/*` use `setResponseStatus` and omit `statusCode`.
+- **Envelope drift:** `art/sd/setModel.post.ts` returns `{success,message,model}` (no data); `relations/*` use `setResponseStatus` and omit `statusCode`.
 - **console.log noise:** 47 hits; worst `characters/generate.ts` (17), `users/register.post.ts` (5), and 2 in the canonical `scenarios/[id].delete.ts`.
 - **Batch pattern:** full `created/skipped/failed` + 207 only in `scenarios/*`; `bots/batch.post.ts` and `characters/batch.post.ts` have neither.
 

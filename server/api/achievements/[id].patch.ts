@@ -1,68 +1,68 @@
 // /server/api/achievements/[id].patch.ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import type { Achievement } from '~/prisma/generated/prisma/client'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { requireAdminApiUser } from '../../utils/authGuard'
+import {
+  buildAchievementUpdateInput,
+  prismaErrorCode,
+} from './definition'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let achievementId: number | null = null
+  const achievementId = Number(event.context.params?.id)
 
   try {
-    // Validate and parse the achievement ID from the URL parameters
-    achievementId = Number(event.context.params?.id)
-    if (isNaN(achievementId) || achievementId <= 0) {
+    await requireAdminApiUser(event)
+
+    if (!Number.isInteger(achievementId) || achievementId <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Achievement ID. It must be a positive integer.',
       })
     }
 
-    // Fetch the existing achievement to ensure it exists
-    const existingAchievement = await prisma.achievement.findUnique({
+    const existing = await prisma.achievement.findUnique({
       where: { id: achievementId },
+      select: { id: true },
     })
 
-    if (!existingAchievement) {
+    if (!existing) {
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: 'Achievement not found.',
       })
     }
 
-    // Read the update data from the request body
-    const achievementData: Partial<Achievement> = await readBody(event)
-
-    // Update the achievement in the database
     const data = await prisma.achievement.update({
       where: { id: achievementId },
-      data: achievementData,
+      data: await buildAchievementUpdateInput(await readBody<unknown>(event)),
     })
 
-    // Return success response
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
+      message: 'Achievement updated successfully.',
       data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error(
-      `Error updating achievement with ID ${achievementId}:`,
-      handledError,
-    )
+  } catch (error) {
+    const handled = errorHandler(error)
+    const statusCode = prismaErrorCode(error) === 'P2002'
+      ? 409
+      : handled.statusCode || 500
 
-    // Set the response and status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
       message:
-        handledError.message ||
-        `Failed to update achievement with ID ${achievementId}.`,
-      statusCode: event.node.res.statusCode,
+        statusCode === 409
+          ? 'An Achievement with that triggerCode already exists.'
+          : handled.message ||
+            `Failed to update Achievement with ID ${achievementId}.`,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

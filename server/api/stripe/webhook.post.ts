@@ -110,6 +110,81 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
   )
 }
 
+// digital-storefront Product purchase (digital-storefront/t-022): checkout
+// sessions for catalog items carry `metadata.productSlug` (set by the
+// checkout-creation route, mirroring mana_topup's `metadata.kind` convention)
+// so this handler knows which Product to fulfill. Order.stripeSessionId is
+// the idempotency key (unique constraint from t-011's migration) — a
+// redelivered webhook event finds the existing Order and returns without
+// double-fulfilling.
+async function handleProductPurchase(session: Stripe.Checkout.Session) {
+  const slug = session.metadata?.productSlug
+  const userId = Number(session.metadata?.userId)
+
+  if (!slug || !Number.isInteger(userId) || userId <= 0) {
+    console.error(
+      `⚠️ Stripe webhook: payment session ${session.id} missing productSlug/userId metadata`,
+    )
+    return
+  }
+
+  const existingOrder = await prisma.order.findUnique({
+    where: { stripeSessionId: session.id },
+  })
+  if (existingOrder) {
+    console.log(
+      `💤 Stripe webhook: session ${session.id} already fulfilled, skipping`,
+    )
+    return
+  }
+
+  const product = await prisma.product.findUnique({ where: { slug } })
+  if (!product || !product.active) {
+    console.error(
+      `⚠️ Stripe webhook: session ${session.id} references unknown/inactive product "${slug}"`,
+    )
+    return
+  }
+
+  const customerId =
+    typeof session.customer === 'string'
+      ? session.customer
+      : session.customer?.id
+
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.create({
+      data: {
+        userId,
+        stripeSessionId: session.id,
+        stripeCustomerId: customerId ?? null,
+        status: 'PAID',
+        totalCents: session.amount_total ?? product.priceCents,
+      },
+    })
+
+    const item = await tx.orderItem.create({
+      data: {
+        orderId: order.id,
+        productId: product.id,
+        quantity: 1,
+        priceCents: product.priceCents,
+      },
+    })
+
+    await tx.entitlement.create({
+      data: {
+        userId,
+        productId: product.id,
+        orderItemId: item.id,
+      },
+    })
+  })
+
+  console.log(
+    `🎟️ Granted entitlement for product "${slug}" to user ${userId} (session ${session.id})`,
+  )
+}
+
 // customer.subscription.updated/deleted — keeps isMember in sync with Stripe's
 // view of the subscription (renewal, cancellation, payment failure) independent
 // of whether the cancellation was initiated from our UI or the Stripe dashboard.
@@ -185,6 +260,8 @@ export default defineEventHandler(async (event) => {
         await handleManaTopup(session)
       } else if (session.mode === 'subscription') {
         await handleSubscriptionCheckout(session)
+      } else if (session.mode === 'payment' && session.metadata?.productSlug) {
+        await handleProductPurchase(session)
       }
     } else if (
       stripeEvent.type === 'customer.subscription.updated' ||

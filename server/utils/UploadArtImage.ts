@@ -1,4 +1,4 @@
-// /server/api/utils/UploadArtImage.ts
+// /server/utils/UploadArtImage.ts
 import path from 'node:path'
 import fs from 'node:fs/promises'
 import prisma from '~/server/utils/prisma'
@@ -11,24 +11,12 @@ export type UploadedImageFile = {
   filename: string
 }
 
-export type UploadArtImageDirectModel =
-  | 'bot'
-  | 'character'
-  | 'dream'
-  | 'prompt'
-  | 'resource'
-  | 'reward'
-
 export type UploadArtImageInput = {
   uploadedFile: UploadedImageFile
+  userId: number
   galleryName?: string
-  userId?: number
-  galleryId?: number
   fileType?: string
-  artCollectionId?: number | null
-  artCollectionIds?: number[]
   fileName?: string | null
-  imagePath?: string | null
   rarity?: number | null
   path?: string | null
   promptString?: string | null
@@ -43,14 +31,6 @@ export type UploadArtImageInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
-  botId?: number | null
-  characterId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  dreamId?: number | null
-  scenarioId?: number | null
-  tagIds?: number[]
 }
 
 const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
@@ -77,47 +57,15 @@ function cleanNumber(value?: number | null): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
-function cleanPositiveId(value?: number | null): number | null {
-  return typeof value === 'number' && Number.isInteger(value) && value > 0
-    ? value
-    : null
-}
-
-function cleanPositiveIds(values?: number[]): number[] {
-  if (!Array.isArray(values)) return []
-
-  return [...new Set(values)]
-    .map((value) => Number(value))
-    .filter((value) => Number.isInteger(value) && value > 0)
-}
-
-function connectById(id?: number | null) {
-  const cleanId = cleanPositiveId(id)
-  return cleanId ? { connect: { id: cleanId } } : undefined
-}
-
-function connectMany(ids?: number[]) {
-  const cleanIds = cleanPositiveIds(ids)
-
-  return cleanIds.length
-    ? {
-        connect: cleanIds.map((id) => ({ id })),
-      }
-    : undefined
-}
-
 export async function uploadArtImage(
   input: UploadArtImageInput,
 ): Promise<ArtImage> {
   try {
     const {
       uploadedFile,
+      userId,
       galleryName = 'userUpload',
-      userId = 10,
-      galleryId = 21,
       fileType = 'png',
-      artCollectionId = null,
-      artCollectionIds = [],
       rarity = null,
       path: sourcePath = null,
       promptString = null,
@@ -132,15 +80,11 @@ export async function uploadArtImage(
       genres = null,
       isPublic = false,
       isMature = false,
-      botId = null,
-      characterId = null,
-      promptId = null,
-      resourceId = null,
-      rewardId = null,
-      dreamId = null,
-      scenarioId = null,
-      tagIds = [],
     } = input
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      throw new Error('A valid authenticated user ID is required.')
+    }
 
     const normalizedFileType = normalizeFileType(fileType)
 
@@ -159,7 +103,7 @@ export async function uploadArtImage(
     const timestamp = Date.now()
     const finalFileName = `${safeGalleryName}-${originalName || 'image'}-${timestamp}.${normalizedFileType}`
 
-    let savedImagePath = cleanText(input.imagePath)
+    let savedImagePath: string | null = null
 
     if (process.env.APP_ENV !== 'production') {
       const imageRoot = getImageStorageRoot()
@@ -176,12 +120,6 @@ export async function uploadArtImage(
       savedImagePath = `/images/${safeGalleryName}/${finalFileName}`
     }
 
-    const collectionIds = cleanPositiveIds(
-      [artCollectionId, ...artCollectionIds].filter(
-        (id): id is number => typeof id === 'number',
-      ),
-    )
-
     const createData: Prisma.ArtImageCreateInput = {
       imageData: uploadedFile.data.toString('base64'),
       fileName: finalFileName,
@@ -196,18 +134,14 @@ export async function uploadArtImage(
       steps: cleanNumber(steps),
       cfg: cleanNumber(cfg),
       cfgHalf: Boolean(cfgHalf),
+      rarity: cleanNumber(rarity),
       designer: cleanText(designer),
       genres: cleanText(genres),
       isPublic: Boolean(isPublic),
       isMature: Boolean(isMature),
-      User: connectById(userId),
-      Characters: connectMany(characterId ? [characterId] : []),
-      Prompts: connectMany(promptId ? [promptId] : []),
-      Resources: connectMany(resourceId ? [resourceId] : []),
-      Rewards: connectMany(rewardId ? [rewardId] : []),
-      Dreams: connectMany(dreamId ? [dreamId] : []),
-      Scenarios: connectMany(scenarioId ? [scenarioId] : []),
-      ArtCollections: connectMany(collectionIds),
+      User: {
+        connect: { id: userId },
+      },
     }
 
     return await prisma.artImage.create({

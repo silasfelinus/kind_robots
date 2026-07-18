@@ -1,7 +1,7 @@
 // /components/content/art/art-reactions.vue
 <template>
   <div
-    class="relative mx-auto w-full max-w-3xl space-y-6 rounded-2xl border border-base-300 bg-base-200 p-6 shadow-lg"
+    class="kr-panel-muted relative mx-auto w-full max-w-3xl space-y-6 shadow-lg"
   >
     <h2 class="text-xl font-bold text-primary">React to this Image</h2>
 

@@ -116,6 +116,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'bubble-effect',
+    label: 'Soap Bubbles',
+    reveal: 'Bubbles!',
+    icon: 'kind-icon:bubbles',
+    tooltip: 'Colorful bubbles drift up and pop 🫧',
+    color: '#67e8f9',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'ripple-effect',
     label: 'Ripple',
     reveal: 'Still waters',

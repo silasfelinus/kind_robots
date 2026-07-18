@@ -18,4 +18,4 @@ loadingMessage: Loading user dashboard
 refreshLabel: Refresh dashboard
 ---
 
-:user-manager
+:home-feed

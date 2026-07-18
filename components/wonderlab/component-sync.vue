@@ -163,6 +163,10 @@
         </ul>
       </details>
     </template>
+
+    <div class="mt-5 border-t border-base-300 pt-5">
+      <component-test-fixture-cleanup />
+    </div>
   </section>
 </template>
 

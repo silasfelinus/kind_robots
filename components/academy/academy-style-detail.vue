@@ -207,8 +207,13 @@ const props = withDefaults(
     lesson: AcademyStyle
     showClose?: boolean
     showRemixButton?: boolean
+    allowMarkViewed?: boolean
   }>(),
-  { showClose: true, showRemixButton: true },
+  {
+    showClose: true,
+    showRemixButton: true,
+    allowMarkViewed: true,
+  },
 )
 
 const emit = defineEmits<{
@@ -248,6 +253,8 @@ const reflectPrompts = computed(() => {
 })
 
 onMounted(() => {
-  academyStore.markLessonViewed(props.lesson.slug)
+  if (props.allowMarkViewed) {
+    academyStore.markLessonViewed(props.lesson.slug)
+  }
 })
 </script>

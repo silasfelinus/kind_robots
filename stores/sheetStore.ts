@@ -16,9 +16,8 @@ export type SheetWithDream = PitchSheet & {
   ArtImage?: Partial<ArtImage> | null
 }
 
-export type SheetCreatePayload = Partial<PitchSheet> & {
-  dreamId: number
-}
+export type SheetCreatePayload = Partial<PitchSheet> &
+  Pick<PitchSheet, 'title'>
 
 export type WorkspaceSheetOverride = {
   source?: string
@@ -54,6 +53,26 @@ export type SheetUpdatePayload = Partial<
   Omit<PitchSheet, 'id' | 'createdAt' | 'updatedAt'>
 >
 
+function mergeSheetDetail(
+  existing: SheetWithDream,
+  incoming: PitchSheet,
+): SheetWithDream {
+  const merged: SheetWithDream = {
+    ...existing,
+    ...incoming,
+  }
+
+  if (incoming.dreamId !== existing.dreamId) {
+    merged.Dream = null
+  }
+
+  if (incoming.artImageId !== existing.artImageId) {
+    merged.ArtImage = null
+  }
+
+  return merged
+}
+
 export const useSheetStore = defineStore('sheetStore', () => {
   const sheets = ref<SheetWithDream[]>([])
   const selectedSheet = ref<SheetWithDream | null>(null)
@@ -64,29 +83,43 @@ export const useSheetStore = defineStore('sheetStore', () => {
 
   const sheetsById = computed(() => {
     const map = new Map<number, SheetWithDream>()
+
     for (const sheet of sheets.value) map.set(sheet.id, sheet)
+
     return map
   })
 
   const sheetsByDreamId = computed(() => {
     const map = new Map<number, SheetWithDream>()
+
     for (const sheet of sheets.value) {
       if (sheet.dreamId !== null) map.set(sheet.dreamId, sheet)
     }
+
     return map
   })
 
-  function upsertLocal(sheet: SheetWithDream) {
+  function upsertLocal(sheet: PitchSheet): SheetWithDream {
     const index = sheets.value.findIndex((item) => item.id === sheet.id)
-    if (index === -1) sheets.value.push(sheet)
-    else sheets.value[index] = sheet
+    const previous =
+      index >= 0
+        ? sheets.value[index]
+        : selectedSheet.value?.id === sheet.id
+          ? selectedSheet.value
+          : null
+    const next = previous ? mergeSheetDetail(previous, sheet) : sheet
 
-    if (selectedSheet.value?.id === sheet.id) selectedSheet.value = sheet
-    return sheet
+    if (index === -1) sheets.value.push(next)
+    else sheets.value[index] = next
+
+    if (selectedSheet.value?.id === sheet.id) selectedSheet.value = next
+
+    return next
   }
 
   function removeLocal(id: number) {
     sheets.value = sheets.value.filter((sheet) => sheet.id !== id)
+
     if (selectedSheet.value?.id === id) selectedSheet.value = null
   }
 
@@ -96,14 +129,18 @@ export const useSheetStore = defineStore('sheetStore', () => {
 
     try {
       const res = await performFetch<SheetWithDream[]>('/api/sheets')
-      if (!res.success || !res.data)
+
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to fetch sheets')
+      }
 
       sheets.value = res.data
+
       return res.data
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'fetching sheets')
+
       return []
     } finally {
       loading.value = false
@@ -116,22 +153,26 @@ export const useSheetStore = defineStore('sheetStore', () => {
 
     try {
       const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`)
-      if (!res.success || !res.data)
+
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to fetch sheet')
+      }
 
       return upsertLocal(res.data)
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'fetching sheet')
+
       return null
     } finally {
       loading.value = false
     }
   }
 
-  async function fetchSheetByDreamId(dreamId: number) {
+  async function fetchSheetByDreamId(dreamId: number, force = false) {
     const cached = sheetsByDreamId.value.get(dreamId)
-    if (cached) return cached
+
+    if (cached && !force) return cached
 
     loading.value = true
     error.value = null
@@ -140,13 +181,16 @@ export const useSheetStore = defineStore('sheetStore', () => {
       const res = await performFetch<SheetWithDream>(
         `/api/sheets/by-dream/${dreamId}`,
       )
-      if (!res.success || !res.data)
+
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to fetch sheet by Dream')
+      }
 
       return upsertLocal(res.data)
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'fetching sheet by Dream')
+
       return null
     } finally {
       loading.value = false
@@ -155,27 +199,36 @@ export const useSheetStore = defineStore('sheetStore', () => {
 
   async function ensureSheetForDream(dreamId: number) {
     const cached = sheetsByDreamId.value.get(dreamId)
+
     if (cached) return { success: true, data: cached, created: false }
 
     isSaving.value = true
     error.value = null
 
     try {
-      const res = await performFetch<SheetWithDream>(
+      const res = await performFetch<PitchSheet>(
         `/api/sheets/by-dream/${dreamId}`,
         {
           method: 'POST',
         },
       )
 
-      if (!res.success || !res.data)
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to create sheet')
+      }
 
-      const sheet = upsertLocal(res.data)
-      return { success: true, data: sheet, created: true }
+      const summary = upsertLocal(res.data)
+      const sheet = (await fetchSheetByDreamId(dreamId, true)) ?? summary
+
+      return {
+        success: true,
+        data: sheet,
+        created: res.statusCode === 201,
+      }
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'creating sheet for Dream')
+
       return { success: false, message: (err as Error).message }
     } finally {
       isSaving.value = false
@@ -193,6 +246,7 @@ export const useSheetStore = defineStore('sheetStore', () => {
     try {
       for (const dream of dreams) {
         const dreamId = Number(dream.id)
+
         if (!Number.isInteger(dreamId) || dreamId <= 0) continue
 
         if (sheetsByDreamId.value.has(dreamId)) {
@@ -201,9 +255,14 @@ export const useSheetStore = defineStore('sheetStore', () => {
         }
 
         const result = await ensureSheetForDream(dreamId)
+
         if (result.success && result.data) created.push(result.data)
-        else
-          failed.push({ dreamId, message: result.message || 'Unknown error' })
+        else {
+          failed.push({
+            dreamId,
+            message: result.message || 'Unknown error',
+          })
+        }
       }
 
       return {
@@ -223,19 +282,21 @@ export const useSheetStore = defineStore('sheetStore', () => {
     error.value = null
 
     try {
-      const res = await performFetch<SheetWithDream>('/api/sheets', {
+      const res = await performFetch<PitchSheet>('/api/sheets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
-      if (!res.success || !res.data)
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to create sheet')
+      }
 
       return { success: true, data: upsertLocal(res.data) }
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'creating sheet')
+
       return { success: false, message: (err as Error).message }
     } finally {
       isSaving.value = false
@@ -247,19 +308,21 @@ export const useSheetStore = defineStore('sheetStore', () => {
     error.value = null
 
     try {
-      const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`, {
+      const res = await performFetch<PitchSheet>(`/api/sheets/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
-      if (!res.success || !res.data)
+      if (!res.success || !res.data) {
         throw new Error(res.message || 'Failed to update sheet')
+      }
 
       return { success: true, data: upsertLocal(res.data) }
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'updating sheet')
+
       return { success: false, message: (err as Error).message }
     } finally {
       isSaving.value = false
@@ -275,13 +338,17 @@ export const useSheetStore = defineStore('sheetStore', () => {
         method: 'DELETE',
       })
 
-      if (!res.success) throw new Error(res.message || 'Failed to delete sheet')
+      if (!res.success) {
+        throw new Error(res.message || 'Failed to delete sheet')
+      }
 
       removeLocal(id)
+
       return { success: true }
     } catch (err) {
       error.value = (err as Error).message
       handleError(err, 'deleting sheet')
+
       return { success: false, message: (err as Error).message }
     } finally {
       isSaving.value = false
@@ -290,11 +357,13 @@ export const useSheetStore = defineStore('sheetStore', () => {
 
   function selectSheet(id: number) {
     selectedSheet.value = sheetsById.value.get(id) ?? null
+
     return selectedSheet.value
   }
 
   function selectSheetByDreamId(dreamId: number) {
     selectedSheet.value = sheetsByDreamId.value.get(dreamId) ?? null
+
     return selectedSheet.value
   }
 

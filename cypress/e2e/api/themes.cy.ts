@@ -1,188 +1,280 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// cypress/e2e/api/themes.cy.ts
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
+type ThemeRow = {
+  id: number
+  name: string
+  values: Record<string, string>
+  prefersDark: boolean
+  colorScheme: 'light' | 'dark'
+  isPublic: boolean
+}
+
+type ThemeBatchData = {
+  created: ThemeRow[]
+  skipped: Array<{ name: string; reason: string }>
+  failed: Array<{ name: string; message: string }>
+}
+
+type ApiResponse<T = unknown> = {
+  success: boolean
+  message: string
+  data?: T
+  statusCode?: number
+  count?: number
+}
+
 describe('Theme Management API Tests', () => {
-
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
-  const baseUrl = 'https://kind-robots.vercel.app/api/themes'
   const invalidToken = 'someInvalidTokenValue'
-  const uniqueThemeName = `TestTheme-${Date.now()}`
+  const stamp = Date.now()
+  const uniqueThemeName = `TestTheme-${stamp}`
+  const batchThemeName = `BatchTheme-${stamp}`
 
+  let apiBase = ''
+  let adminToken = ''
+  let baseUrl = ''
   let userToken = ''
+  let userId: number | undefined
   let themeId: number | undefined
+  let batchThemeId: number | undefined
 
-  before(() => {
-    cy.wrap(null).then(() => {
-          })
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
-  })
+  const themeValues = {
+    '--color-primary': '#1e90ff',
+    '--color-secondary': '#ff69b4',
+    '--color-accent': '#ffd700',
+    '--color-neutral': '#1a1a1a',
+    '--color-base-100': '#ffffff',
+    '--color-success': '#32cd32',
+    '--color-warning': '#ffa500',
+    '--color-error': '#dc143c',
+  }
 
+  const headers = () => bearerHeaders(userToken)
 
+  const deleteTheme = (id?: number) => {
+    if (!id || !userToken) return
 
-
-
-  it('should create a new theme with valid authentication', () => {
     cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${id}`,
+      headers: headers(),
+      failOnStatusCode: false,
+    })
+  }
+
+  before(() => {
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        baseUrl = `${apiBase}/themes`
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((auth) => {
+        userToken = auth.token
+        userId = auth.id
+      })
+  })
+
+  after(() => {
+    deleteTheme(themeId)
+    deleteTheme(batchThemeId)
+    deleteTestUser(apiBase, adminToken, userId)
+  })
+
+  it('creates one Theme with a normalized data response', () => {
+    cy.request<ApiResponse<ThemeRow>>({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
       body: {
         name: uniqueThemeName,
-        values: {
-          '--color-primary': '#1e90ff',
-          '--color-secondary': '#ff69b4',
-          '--color-accent': '#ffd700',
-          '--color-neutral': '#1a1a1a',
-          '--color-base-100': '#ffffff',
-          '--color-success': '#32cd32',
-          '--color-warning': '#ffa500',
-          '--color-error': '#dc143c',
-        },
+        values: themeValues,
         tagline: 'Bold moves in basic colors.',
         room: 'splash',
         isPublic: false,
         prefersDark: true,
         colorScheme: 'dark',
       },
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      expect(res.body.success).to.be.true
-      expect(res.body.theme).to.have.property('id')
-      expect(res.body.theme.name).to.eq(uniqueThemeName)
-      expect(res.body.theme.prefersDark).to.be.true
-      expect(res.body.theme.colorScheme).to.eq('dark')
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.be.true
+      expect(response.body).to.not.have.property('theme')
+      expect(response.body).to.not.have.property('themes')
+      expect(response.body.data?.name).to.eq(uniqueThemeName)
+      expect(response.body.data?.prefersDark).to.be.true
+      expect(response.body.data?.colorScheme).to.eq('dark')
 
-      themeId = res.body.theme.id
-
+      themeId = response.body.data?.id
       expect(themeId).to.be.a('number')
     })
   })
 
-  it('should retrieve the created theme by ID', () => {
-    expect(themeId).to.exist
-
-    cy.request(`${baseUrl}/${themeId}`).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data.name).to.eq(uniqueThemeName)
-      expect(res.body.data).to.have.property('values')
-      expect(res.body.data.values).to.have.property('--color-primary')
-      expect(res.body.data.prefersDark).to.be.true
-      expect(res.body.data.colorScheme).to.eq('dark')
+  it('returns 409 for duplicate single-resource creates', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: {
+        name: uniqueThemeName,
+        values: themeValues,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(409)
+      expect(response.body.success).to.be.false
+      expect(response.body.data).to.eq(null)
+      expect(response.body.message).to.include('already exists')
     })
   })
 
-  it('should retrieve all public themes', () => {
-    cy.request(baseUrl).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.themes).to.be.an('array')
+  it('rejects arrays on single-resource Theme POST', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: [{ name: batchThemeName, values: themeValues }],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('/api/themes/batch')
     })
   })
 
-  it('should update a theme’s name and public status with auth', () => {
+  it('uses the explicit batch route for created, skipped, and failed rows', () => {
+    cy.request<ApiResponse<ThemeBatchData>>({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
+      headers: headers(),
+      body: [
+        {
+          name: batchThemeName,
+          values: themeValues,
+          colorScheme: 'light',
+        },
+        {
+          name: uniqueThemeName,
+          values: themeValues,
+        },
+        {
+          name: `InvalidTheme-${stamp}`,
+          values: ['not', 'an', 'object'],
+        },
+      ],
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(207)
+      expect(response.body.success).to.be.false
+      expect(response.body.data?.created).to.have.length(1)
+      expect(response.body.data?.skipped).to.have.length(1)
+      expect(response.body.data?.failed).to.have.length(1)
+      expect(response.body.data?.created[0].name).to.eq(batchThemeName)
+      expect(response.body.data?.skipped[0].name).to.eq(uniqueThemeName)
+      expect(response.body.data?.failed[0].message).to.include('values')
+
+      batchThemeId = response.body.data?.created[0].id
+    })
+  })
+
+  it('retrieves the created Theme by ID without response aliases', () => {
     expect(themeId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse<ThemeRow>>(`${baseUrl}/${themeId}`).then(
+      (response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.success).to.be.true
+        expect(response.body).to.not.have.property('theme')
+        expect(response.body.data?.name).to.eq(uniqueThemeName)
+        expect(response.body.data?.values).to.have.property('--color-primary')
+      },
+    )
+  })
+
+  it('retrieves visible Themes through data.themes', () => {
+    cy.request<ApiResponse<{ themes: ThemeRow[] }>>({
+      method: 'GET',
+      url: baseUrl,
+      headers: headers(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body).to.not.have.property('themes')
+      expect(response.body.data?.themes).to.be.an('array')
+      expect(
+        response.body.data?.themes.some((theme) => theme.id === themeId),
+      ).to.be.true
+    })
+  })
+
+  it('updates Theme metadata through data only', () => {
+    expect(themeId).to.exist
+
+    cy.request<ApiResponse<ThemeRow>>({
       method: 'PATCH',
       url: `${baseUrl}/${themeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
       body: {
         name: `Renamed-${uniqueThemeName}`,
         isPublic: true,
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.theme.name).to.include('Renamed-')
-      expect(res.body.theme.isPublic).to.be.true
-    })
-  })
-
-  it('should update theme metadata with auth', () => {
-    expect(themeId).to.exist
-
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${themeId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
         prefersDark: false,
         colorScheme: 'light',
       },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.theme.prefersDark).to.be.false
-      expect(res.body.theme.colorScheme).to.eq('light')
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body).to.not.have.property('theme')
+      expect(response.body.data?.name).to.include('Renamed-')
+      expect(response.body.data?.isPublic).to.be.true
+      expect(response.body.data?.prefersDark).to.be.false
+      expect(response.body.data?.colorScheme).to.eq('light')
     })
   })
 
-  it('should not allow deleting a theme without authentication', () => {
+  it('rejects delete without authentication', () => {
     expect(themeId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${themeId}`,
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('Invalid or expired token')
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  it('should not allow deleting a theme with invalid authentication', () => {
+  it('rejects delete with invalid authentication', () => {
     expect(themeId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${themeId}`,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: bearerHeaders(invalidToken),
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('Invalid or expired token')
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
     })
   })
 
-  it('should delete a theme with valid authentication', () => {
+  it('deletes a Theme with valid authentication', () => {
     expect(themeId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${themeId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.message).to.include('deleted')
-
+      headers: headers(),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.message).to.include('deleted')
       themeId = undefined
     })
   })

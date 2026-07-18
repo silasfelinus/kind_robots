@@ -45,6 +45,10 @@ const prismaSource = readFileSync(
   new URL('../../server/utils/prisma.ts', import.meta.url),
   'utf8',
 )
+const adapterSource = readFileSync(
+  new URL('../../server/utils/databaseAdapterConfig.ts', import.meta.url),
+  'utf8',
+)
 const directProbeSource = readFileSync(
   new URL('../../server/utils/databaseDirectProbe.ts', import.meta.url),
   'utf8',
@@ -58,20 +62,25 @@ const projectCreateSource = readFileSync(
   'utf8',
 )
 
-assert.match(prismaSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
-assert.match(prismaSource, /pingTimeout:\s*readPositiveInteger/)
-assert.match(prismaSource, /DEFAULT_IDLE_TIMEOUT_SECONDS/)
-assert.match(prismaSource, /DEFAULT_MINIMUM_IDLE/)
-assert.doesNotMatch(prismaSource, /DATABASE_IDLE_TIMEOUT_SECONDS,\s*15/)
-assert.doesNotMatch(prismaSource, /DATABASE_MINIMUM_IDLE,\s*0/)
-assert.match(prismaSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
+// Pool configuration lives in the shared, side-effect-free adapter module so
+// request-time Prisma and standalone maintenance scripts use identical defaults.
+assert.match(adapterSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
+assert.match(adapterSource, /pingTimeout:\s*readPositiveInteger/)
+assert.match(adapterSource, /DEFAULT_IDLE_TIMEOUT_SECONDS/)
+assert.match(adapterSource, /DEFAULT_MINIMUM_IDLE/)
+assert.doesNotMatch(adapterSource, /DATABASE_IDLE_TIMEOUT_SECONDS,\s*15/)
+assert.doesNotMatch(adapterSource, /DATABASE_MINIMUM_IDLE,\s*0/)
+assert.match(adapterSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
+assert.match(
+  adapterSource,
+  /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
+)
+
+// The request-time singleton must consume the shared pool builder and protocol
+// reader rather than growing an independent adapter configuration again.
 assert.match(
   prismaSource,
   /new PrismaMariaDb\(buildDatabaseConfig\(databaseUrl\),\s*\{\s*useTextProtocol/,
-)
-assert.match(
-  prismaSource,
-  /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
 )
 
 // A stale socket poisons the adapter client that owns its pool. Recovery must

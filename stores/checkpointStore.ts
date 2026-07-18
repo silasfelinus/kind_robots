@@ -115,17 +115,6 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
-function isSuccessNoise(message: unknown): boolean {
-  const cleaned = cleanName(message).toLowerCase()
-
-  return (
-    !cleaned ||
-    cleaned === 'request completed successfully' ||
-    cleaned === 'ok' ||
-    cleaned === 'success'
-  )
-}
-
 function getServerFallbackModel(server: Server | null | undefined): string {
   if (!server) return ''
 
@@ -712,72 +701,6 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     return report
   }
 
-  async function setCurrentModelInApi(
-    name: unknown,
-  ): Promise<ApiResponse<unknown>> {
-    const checkpointName = cleanName(name)
-
-    if (!checkpointName) {
-      const message = 'Cannot set model without a checkpoint name.'
-
-      errorStore.setError(ErrorType.GENERAL_ERROR, message)
-
-      return {
-        success: false,
-        message,
-      }
-    }
-
-    modelUpdating.value = true
-
-    try {
-      const server = getActiveServer()
-      const body = server?.id
-        ? { checkpoint: checkpointName, serverId: server.id }
-        : { checkpoint: checkpointName }
-
-      const res = await performFetch('/api/art/sd/setModel', {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (res.success) {
-        currentApiModel.value = checkpointName
-        selectCheckpointByName(checkpointName)
-
-        setModelStatusReport(
-          createModelStatusReport({
-            server,
-            selectedCheckpoint: checkpointName,
-            activeModel: checkpointName,
-            source: 'options',
-            raw: res.data || res,
-          }),
-        )
-      } else {
-        const message = isSuccessNoise(res.message)
-          ? 'Failed to set current model.'
-          : cleanName(res.message)
-
-        errorStore.setError(ErrorType.GENERAL_ERROR, message)
-      }
-
-      return res
-    } catch (error) {
-      const message = getErrorMessage(error, 'Failed to set current model.')
-
-      errorStore.setError(ErrorType.NETWORK_ERROR, message)
-
-      return {
-        success: false,
-        message,
-      }
-    } finally {
-      modelUpdating.value = false
-    }
-  }
-
   function clearModelStatus() {
     modelStatus.value = null
     lastGenerationStatus.value = null
@@ -813,7 +736,6 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     checkActiveModel,
     recordA1111GenerationStatus,
     recordComfyGenerationStatus,
-    setCurrentModelInApi,
     clearModelStatus,
     findCheckpointByName,
     findSamplerByName,

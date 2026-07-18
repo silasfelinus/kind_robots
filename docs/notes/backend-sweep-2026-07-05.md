@@ -33,12 +33,11 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; the bot seed command is admin-only and offers a no-write dry run.
+Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; the unused unauthenticated SD model-switch route and its dead Pinia action were removed.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `server/api/art/upload.post.ts:97`                    | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
-| `server/api/art/sd/setModel.post.ts:17`               | unauth POST to live SD server (GPU model-switch/DoS)                                     |
 
 `users/register.post.ts` and `auth/login.post.ts` are legitimately public.
 
@@ -64,7 +63,7 @@ Resolved since this audit: Prompt, SmartIcon, Reaction, Achievement, and Compone
 ### A5. Consistency
 
 - **Admin-check drift:** ~25 files still use `Role === 'ADMIN'`-only instead of the newer `Role === 'ADMIN' || user.id === 1` (available as `userIsAdmin()` in `server/utils/authUser.ts`) — including the canonical `scenarios/[id].patch.ts|delete.ts|batch.patch.ts` themselves. `users/*` and `prompts/[id].patch.ts` are owner-only with no admin bypass at all.
-- **Envelope drift:** `art/sd/setModel.post.ts` returns `{success,message,model}` (no data); `relations/*` use `setResponseStatus` and omit `statusCode`.
+- **Envelope drift:** `relations/*` use `setResponseStatus` and omit `statusCode`.
 - **console.log noise:** 47 hits; worst `characters/generate.ts` (17), `users/register.post.ts` (5), and 2 in the canonical `scenarios/[id].delete.ts`.
 - **Batch pattern:** full `created/skipped/failed` + 207 only in `scenarios/*`; `bots/batch.post.ts` and `characters/batch.post.ts` have neither.
 

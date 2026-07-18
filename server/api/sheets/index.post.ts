@@ -9,7 +9,9 @@ import { pitchSheetMutationSelect } from './selects'
 export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
-    const body = await readBody<Record<string, unknown>>(event).catch(() => ({}))
+    const body = await readBody<Record<string, unknown>>(event).catch(
+      () => ({} as Record<string, unknown>),
+    )
 
     if (body.dreamId !== undefined && body.dreamId !== null) {
       throw createError({

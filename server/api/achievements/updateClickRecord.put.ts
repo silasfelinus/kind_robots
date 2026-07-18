@@ -1,53 +1,43 @@
 // /server/api/achievements/updateClickRecord.put.ts
-
-import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '../../utils/prisma'
+import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
+import { requireApiUser } from '../../utils/authGuard'
+import {
+  parseAchievementScoreBody,
+  updateAchievementHighScore,
+} from './scoreRecord'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
-    const recordData = await readBody(event)
-
-    // Check if recordData, newScore, and userId exist and are in the correct format
-    if (
-      !recordData ||
-      typeof recordData.newScore !== 'number' ||
-      typeof recordData.userId !== 'number'
-    ) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid JSON body. Ensure newScore and userId are provided.',
-      })
-    }
-
-    // Update the user's click record score
-    const updatedUser = await prisma.user.update({
-      where: { id: recordData.userId },
-      data: { clickRecord: recordData.newScore },
+    const { user } = await requireApiUser(event)
+    const newScore = parseAchievementScoreBody(await readBody<unknown>(event))
+    const data = await updateAchievementHighScore({
+      userId: user.id,
+      field: 'clickRecord',
+      newScore,
     })
 
-    // Return success response
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
-      message: 'Click record updated successfully.',
-      data: { userId: updatedUser.id, newScore: updatedUser.clickRecord },
+      message: data.improved
+        ? 'Click high score updated successfully.'
+        : 'Click score did not exceed the existing high score.',
+      data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error('Error updating click record:', handledError)
+  } catch (error) {
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    // Set the response and status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
-      message: handledError.message || 'Failed to update click record.',
-      statusCode: event.node.res.statusCode,
+      message: handled.message || 'Failed to update click high score.',
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

@@ -2,6 +2,7 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import { requireAdminApiUser } from '../../../utils/authGuard'
 import type { Component, Prisma } from '~/prisma/generated/prisma/client'
 import {
   hasLegacyStatusUpdate,
@@ -14,6 +15,8 @@ export default defineEventHandler(async (event) => {
   let requestBody: Partial<Component> | null = null
 
   try {
+    await requireAdminApiUser(event)
+
     if (!componentName || !/^[a-zA-Z0-9\s-]+$/.test(componentName)) {
       throw createError({
         statusCode: 400,

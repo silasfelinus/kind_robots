@@ -1,6 +1,7 @@
 // server/api/components/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
+import { requireAdminApiUser } from '../../utils/authGuard'
 import prisma from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -8,28 +9,27 @@ export default defineEventHandler(async (event) => {
   let componentId: number | null = null
 
   try {
-    // Validate and parse the component ID
+    await requireAdminApiUser(event)
+
     componentId = Number(event.context.params?.id)
-    if (isNaN(componentId) || componentId <= 0) {
+    if (Number.isNaN(componentId) || componentId <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Component ID. It must be a positive integer.',
       })
     }
 
-    // Attempt to delete the component by ID
     const deletedComponent = await prisma.component.delete({
       where: { id: componentId },
     })
 
     if (!deletedComponent) {
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Component with ID ${componentId} does not exist.`,
       })
     }
 
-    // Successful deletion response
     response = {
       success: true,
       message: `Component with ID ${componentId} deleted successfully.`,
@@ -44,7 +44,6 @@ export default defineEventHandler(async (event) => {
       handledError,
     )
 
-    // Set the appropriate status code and response based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

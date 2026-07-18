@@ -2,6 +2,7 @@
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { requireAdminApiUser } from '../../utils/authGuard'
 import type { Component, Prisma } from '~/prisma/generated/prisma/client'
 import {
   hasLegacyStatusUpdate,
@@ -49,6 +50,8 @@ export default defineEventHandler(async (event) => {
   const componentId = Number(getRouterParam(event, 'id'))
 
   try {
+    await requireAdminApiUser(event)
+
     if (!Number.isInteger(componentId) || componentId <= 0) {
       throw createError({
         statusCode: 400,

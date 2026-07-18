@@ -358,7 +358,7 @@
 
             <div
               v-if="job.error"
-              class="rounded-2xl border border-error/30 bg-error/10 p-2 text-xs text-error"
+              class="kr-note kr-note-error p-2 text-xs font-normal"
             >
               {{ job.error }}
             </div>

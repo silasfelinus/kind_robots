@@ -124,6 +124,9 @@ jobs:
       - name: WonderLab registry health contract
         run: npx tsx utils/scripts/verifyWonderLabRegistryHealth.ts
 
+      - name: WonderLab museum URL query contract
+        run: npx tsx utils/scripts/verifyWonderLabMuseumQuery.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

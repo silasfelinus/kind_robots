@@ -22,6 +22,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Dream patch        | Updated ArtCollection, created Chat records as an update log, re-read `dreamInclude`                          | Removed unrelated writes and second read; returns the updated Dream projection                                                  |
 | Dream batch create | Created ArtCollection, three ArtImage rows, Chat rows, updated Dream and collection, then re-read every Dream | Reduced to batch Dream creation with optional links to existing records                                                         |
 | Dream delete       | Manually detached Chats, deleted Reactions, and cleared many-to-many links before deletion                    | Declared preserve-vs-cascade behavior in Prisma, migrated Dream reactions to cascade, and reduced the route to one Dream delete |
+| Achievement scores   | Unauthenticated score routes accepted arbitrary user IDs and overwrote click/match records                    | Routes require the authenticated user, reject identity fields, validate safe integer scores, and preserve monotonic high scores |
 
 ### P1 — Completed response and resource-boundary cleanup
 

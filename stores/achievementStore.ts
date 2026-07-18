@@ -529,11 +529,9 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     if (userStore.isGuest) return 'Guest'
 
     try {
-      const userId = userStore.userId
-
       const response = await performFetch('/api/achievements/updateClickRecord', {
         method: 'PUT',
-        body: JSON.stringify({ newScore, userId }),
+        body: JSON.stringify({ newScore }),
       })
 
       return response.success ? 'Updated' : 'Failed'
@@ -547,11 +545,9 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     if (userStore.isGuest) return
 
     try {
-      const userId = userStore.userId
-
       await performFetch('/api/achievements/updateMatchRecord', {
         method: 'PUT',
-        body: JSON.stringify({ newScore, userId }),
+        body: JSON.stringify({ newScore }),
       })
 
       await fetchHighMatchScores(true)

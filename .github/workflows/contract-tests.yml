@@ -118,6 +118,9 @@ jobs:
       - name: WonderLab final coverage fixtures contract
         run: npx tsx utils/scripts/verifyWonderLabCoverageClosureFixtures.ts
 
+      - name: WonderLab component manifest source contract
+        run: npx tsx utils/scripts/verifyWonderLabComponentManifest.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

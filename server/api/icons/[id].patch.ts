@@ -5,6 +5,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import {
   buildSmartIconUpdateInput,
+  findExistingSmartIcon,
   hasSmartIconUpdate,
 } from './create'
 
@@ -35,6 +36,10 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         userId: true,
+        title: true,
+        type: true,
+        category: true,
+        modelType: true,
       },
     })
 
@@ -53,12 +58,29 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<Record<string, unknown>>(event)
-    const data = buildSmartIconUpdateInput(body ?? {})
+    const data = buildSmartIconUpdateInput(body ?? {}, existingIcon)
 
     if (!hasSmartIconUpdate(data)) {
       throw createError({
         statusCode: 400,
         message: 'No valid data provided for update.',
+      })
+    }
+
+    const nextTitle =
+      typeof data.title === 'string' ? data.title : existingIcon.title
+    const nextType = typeof data.type === 'string' ? data.type : existingIcon.type
+    const duplicate = await findExistingSmartIcon({
+      title: nextTitle,
+      type: nextType,
+      userId: existingIcon.userId ?? user.id,
+      excludeId: id,
+    })
+
+    if (duplicate) {
+      throw createError({
+        statusCode: 409,
+        message: `SmartIcon already exists with ID ${duplicate.id}.`,
       })
     }
 

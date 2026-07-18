@@ -27,8 +27,8 @@ export const useComponentStore = defineStore('componentStore', () => {
   const getSelectedFolder = computed(() => selectedFolder.value)
   const getIsInitialized = computed(() => isInitialized.value)
 
-  async function initialize() {
-    if (isInitialized.value) return
+  async function initialize(force = false) {
+    if (isInitialized.value && !force) return
 
     try {
       // performFetch (not raw fetch) so a dead DB trips the shared circuit

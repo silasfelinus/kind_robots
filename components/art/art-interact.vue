@@ -111,7 +111,7 @@
     <!-- Empty state -->
     <div
       v-if="!currentArtImage"
-      class="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/55"
+      class="flex min-h-72 flex-col items-center justify-center kr-panel text-center text-base-content/55"
     >
       <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
       <p class="mt-2 text-lg font-bold">No image selected.</p>

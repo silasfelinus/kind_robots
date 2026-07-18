@@ -312,16 +312,6 @@
                 />
               </label>
 
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-              >
-                <span class="label-text font-bold">Create art collection</span>
-                <input
-                  v-model="dreamStore.dreamForm.createCollection"
-                  type="checkbox"
-                  class="toggle toggle-secondary"
-                />
-              </label>
             </div>
           </section>
 
@@ -438,9 +428,7 @@ const checks = computed(() => [
     label: 'Collection',
     value: dreamStore.dreamForm.artCollectionId
       ? `#${dreamStore.dreamForm.artCollectionId}`
-      : dreamStore.dreamForm.createCollection
-        ? 'Create'
-        : 'None',
+      : 'None',
     class: 'text-info font-bold',
   },
 ])

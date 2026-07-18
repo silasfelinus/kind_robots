@@ -8,6 +8,7 @@ import type {
   Prisma,
   ScenarioOutputType,
 } from '~/prisma/generated/prisma/client'
+import { scenarioMutationSelect } from './selects'
 
 type ScenarioPatchInput = {
   title?: unknown
@@ -418,17 +419,7 @@ export default defineEventHandler(async (event) => {
     const updatedScenario = await prisma.scenario.update({
       where: { id },
       data,
-      include: {
-        ArtImage: true,
-        User: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        Characters: true,
-        Dreams: true,
-      },
+      select: scenarioMutationSelect,
     })
 
     event.node.res.statusCode = 200

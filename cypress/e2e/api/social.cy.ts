@@ -1,287 +1,314 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// /cypress/e2e/api/social.cy.ts
-/// <reference types="cypress" />
+// cypress/e2e/api/social.cy.ts
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+  jsonHeaders,
+} from '../../support/api-auth'
 
-interface ApiResponse<T = any> {
-  success: boolean
-  message: string
-  data?: T
-  statusCode?: number
+const expectLeanSocialPost = (post: Record<string, any>) => {
+  expect(post).to.not.have.property('User')
+  expect(post).to.not.have.property('_count')
+  expect(post.targets).to.be.an('array')
+
+  for (const target of post.targets) {
+    expect(target).to.include.keys('id', 'postId', 'platform', 'status')
+    expect(target).to.not.have.property('remoteUrl')
+    expect(target).to.not.have.property('errorMessage')
+    expect(target).to.not.have.property('publishedAt')
+  }
 }
 
-describe('SocialPost API Full CRUD + Auth + Publish Tests', () => {
+describe('Social Publisher API', () => {
+  const stamp = Date.now()
+  const title = `Cypress social post ${stamp}`
+  const invalidToken = 'definitely-not-valid'
 
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-    })
-  })
-
-  const fallbackApiBase = 'https://kind-robots.vercel.app'
-  const invalidToken = 'definitely-not-a-real-token'
-
-  let apiBase = fallbackApiBase
-  let baseUrl = `${fallbackApiBase}/api/socials`
-  let userToken = ''
-  let itemId: number
-
-  const time = Date.now()
-  const itemTitle = `SOCIAL-${time}`
+  let apiBase = ''
+  let baseUrl = ''
+  let adminToken = ''
+  let token = ''
+  let userId = 0
+  let itemId = 0
+  let deletedItemId = 0
 
   before(() => {
-    cy.env(['API_BASE']).then((env) => {
-      apiBase = String(env.API_BASE || fallbackApiBase)
-      baseUrl = `${apiBase}/api/socials`
-})
-  })
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-    userToken = auth.token
-    })
-  })
-
-
-
-
-
-  it('POST: rejects creation without auth', () => {
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: baseUrl,
-      headers: { 'Content-Type': 'application/json' },
-      body: { title: `Unauth-${itemTitle}`, body: 'no auth' },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        baseUrl = `${apiBase}/socials`
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((auth) => {
+        token = auth.token
+        userId = auth.id
+      })
   })
 
-  it('POST: rejects creation with invalid auth', () => {
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        Authorization: `Bearer ${invalidToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: { title: `Invalid-${itemTitle}`, body: 'bad auth' },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('POST: creates a post with targets, audience, mature flag', () => {
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: {
-        title: itemTitle,
-        body: 'Hello from **Kind Robots** social test.',
-        isPublic: true,
-        isMature: true,
-        audience: 'WORK',
-        platforms: ['DISCORD', 'BLUESKY', 'REDDIT'],
-      },
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.have.property('id')
-      expect(res.body.data.audience).to.eq('WORK')
-      expect(res.body.data.isMature).to.eq(true)
-      expect(res.body.data.targets).to.be.an('array').and.have.length(3)
-      itemId = res.body.data.id
-      expect(itemId).to.be.a('number')
-    })
-  })
-
-  it('GET: fetch all public records (active only)', () => {
-    cy.request<ApiResponse<any[]>>({ method: 'GET', url: baseUrl }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
-      expect(res.body.data?.find((i: any) => i.id === itemId)).to.not.eq(undefined)
-    })
-  })
-
-  it('GET: audience filter narrows results', () => {
-    cy.request<ApiResponse<any[]>>({
-      method: 'GET',
-      url: `${baseUrl}?audience=WORK`,
-      headers: { Authorization: `Bearer ${userToken}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      const allWork = (res.body.data ?? []).every((p: any) => p.audience === 'WORK')
-      expect(allWork).to.eq(true)
-    })
-  })
-
-  it('GET: fetch record by ID with targets', () => {
-    cy.request<ApiResponse>({ method: 'GET', url: `${baseUrl}/${itemId}` }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(itemId)
-      expect(res.body.data.targets).to.be.an('array')
-    })
-  })
-
-  it('PATCH: rejects update without auth', () => {
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: { 'Content-Type': 'application/json' },
-      body: { title: 'No Auth Edit' },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('PATCH: updates post + resyncs platforms with valid auth', () => {
-    const newTitle = `Updated-${itemTitle}`
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: { title: newTitle, audience: 'PUBLIC', platforms: ['DISCORD', 'MASTODON'] },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.title).to.eq(newTitle)
-      expect(res.body.data.audience).to.eq('PUBLIC')
-      const platforms = res.body.data.targets.map((t: any) => t.platform).sort()
-      expect(platforms).to.deep.eq(['DISCORD', 'MASTODON'])
-    })
-  })
-
-  it('PATCH: marks a manual target COPIED', () => {
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: { platforms: ['DISCORD', 'MASTODON', 'REDDIT'] },
-    }).then(() => {
-      cy.request<ApiResponse>({
-        method: 'PATCH',
+  after(() => {
+    if (itemId && token) {
+      cy.request({
+        method: 'DELETE',
         url: `${baseUrl}/${itemId}`,
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          'Content-Type': 'application/json',
+        headers: bearerHeaders(token),
+        failOnStatusCode: false,
+      })
+    }
+
+    deleteTestUser(apiBase, adminToken, userId)
+  })
+
+  it('rejects creation without authentication', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: jsonHeaders(),
+      body: {
+        title,
+        body: 'This should not be created.',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+    })
+  })
+
+  it('rejects creation with invalid authentication', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(invalidToken),
+      body: {
+        title,
+        body: 'This should also not be created.',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+    })
+  })
+
+  it('rejects arrays on the single-resource collection route', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(token),
+      body: [
+        {
+          title,
+          body: 'Multi-create belongs in socialStore orchestration.',
         },
-        body: { targetUpdate: { platform: 'REDDIT', status: 'COPIED' } },
-      }).then((res) => {
-        expect(res.status).to.eq(200)
-        const reddit = res.body.data.targets.find((t: any) => t.platform === 'REDDIT')
-        expect(reddit.status).to.eq('COPIED')
+      ],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('creates one SocialPost')
+    })
+  })
+
+  it('creates one SocialPost aggregate with bounded target summaries', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(token),
+      body: {
+        title,
+        body: 'A Cypress-created social publisher draft.',
+        mediaUrls: [
+          {
+            type: 'image',
+            url: '/images/kindart.webp',
+            alt: 'Kind Robots test art',
+          },
+        ],
+        audience: 'SOCIAL',
+        platforms: ['DISCORD', 'MASTODON'],
+        isPublic: false,
+        isMature: false,
+      },
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.title).to.eq(title)
+      expect(response.body.data.userId).to.eq(userId)
+      expect(response.body.data.targets).to.have.length(2)
+      expectLeanSocialPost(response.body.data)
+      itemId = response.body.data.id
+    })
+  })
+
+  it('keeps full SocialTarget detail on the query route', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${itemId}`,
+      headers: bearerHeaders(token),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.id).to.eq(itemId)
+      expect(response.body.data.targets).to.have.length(2)
+      expect(response.body.data.targets[0]).to.have.property('remoteUrl')
+      expect(response.body.data.targets[0]).to.have.property('errorMessage')
+      expect(response.body.data.targets[0]).to.have.property('publishedAt')
+    })
+  })
+
+  it('updates the aggregate and returns bounded target summaries', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${itemId}`,
+      headers: bearerHeaders(token),
+      body: {
+        title: `${title} updated`,
+        audience: 'COMMUNITY',
+        platforms: ['DISCORD'],
+        isPublic: true,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.title).to.eq(`${title} updated`)
+      expect(response.body.data.audience).to.eq('COMMUNITY')
+      expect(response.body.data.targets).to.have.length(1)
+      expect(response.body.data.targets[0].platform).to.eq('DISCORD')
+      expectLeanSocialPost(response.body.data)
+    })
+  })
+
+  it('updates target status within the SocialPost aggregate', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${itemId}`,
+      headers: bearerHeaders(token),
+      body: {
+        targetUpdate: {
+          platform: 'DISCORD',
+          status: 'COPIED',
+        },
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.targets[0]).to.include({
+        platform: 'DISCORD',
+        status: 'COPIED',
+      })
+      expectLeanSocialPost(response.body.data)
+    })
+  })
+
+  it('lists the authenticated user SocialPosts', () => {
+    cy.request({
+      method: 'GET',
+      url: baseUrl,
+      headers: bearerHeaders(token),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array')
+      expect(
+        response.body.data.some(
+          (post: { id: number }) => post.id === itemId,
+        ),
+      ).to.be.true
+    })
+  })
+
+  it('supports dry-run publishing without sending externally', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/${itemId}/publish`,
+      headers: bearerHeaders(token),
+      body: {
+        dryRun: true,
+        platforms: ['DISCORD'],
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.dryRun).to.eq(true)
+      expect(response.body.data.variants).to.be.an('array').and.not.be.empty
+    })
+  })
+
+  it('reports an unwired platform as skipped instead of failing', () => {
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${itemId}`,
+      headers: bearerHeaders(token),
+      body: {
+        platforms: ['MASTODON'],
+      },
+    })
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/${itemId}/publish`,
+      headers: bearerHeaders(token),
+      body: {
+        platforms: ['MASTODON'],
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.results[0]).to.include({
+        platform: 'MASTODON',
+        status: 'SKIPPED',
       })
     })
   })
 
-  it('PUBLISH: dryRun returns variants without sending', () => {
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: `${baseUrl}/${itemId}/publish`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: { dryRun: true },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.dryRun).to.eq(true)
-      expect(res.body.data.variants).to.be.an('array').and.not.be.empty
-    })
-  })
-
-  it('PUBLISH: un-wired Mastodon skips, not fails', () => {
-    // Targets are DISCORD + MASTODON. Mastodon adapter is un-wired, so it
-    // should come back SKIPPED. Discord may SENT (if webhook set) or FAILED
-    // (if not configured) — either is acceptable here; we only assert Mastodon.
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: `${baseUrl}/${itemId}/publish`,
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: { platforms: ['MASTODON'] },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      const mastodon = res.body.data.results.find((r: any) => r.platform === 'MASTODON')
-      expect(mastodon.status).to.eq('SKIPPED')
-    })
-  })
-
-  it('PUBLISH: rejects without auth', () => {
-    cy.request<ApiResponse>({
-      method: 'POST',
-      url: `${baseUrl}/${itemId}/publish`,
-      headers: { 'Content-Type': 'application/json' },
-      body: { dryRun: true },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('DELETE: rejects delete without auth', () => {
-    cy.request<ApiResponse>({
-      method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('DELETE: removes post (cascades targets) with valid auth', () => {
-    cy.request<ApiResponse>({
-      method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
-      headers: { Authorization: `Bearer ${userToken}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(itemId)
-    })
-  })
-
-  it('GET: deleted record returns 404', () => {
-    cy.request<ApiResponse>({
-      method: 'GET',
-      url: `${baseUrl}/${itemId}`,
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(404)
-      expect(res.body.success).to.eq(false)
-    })
-  })
-
-  after(() => {
-    if (!itemId || !userToken) return
+  it('rejects deletion without authentication', () => {
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${itemId}`,
-      headers: { Authorization: `Bearer ${userToken}` },
+      headers: jsonHeaders(),
       failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+    })
+  })
+
+  it('rejects deletion with invalid authentication', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${itemId}`,
+      headers: bearerHeaders(invalidToken),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+    })
+  })
+
+  it('deletes the SocialPost aggregate', () => {
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${itemId}`,
+      headers: bearerHeaders(token),
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      deletedItemId = itemId
+      itemId = 0
+    })
+  })
+
+  it('returns a quiet 404 after deletion', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${deletedItemId}`,
+      headers: bearerHeaders(token),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(404)
+      expect(response.body.success).to.be.false
     })
   })
 })

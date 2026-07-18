@@ -34,12 +34,16 @@
       </label>
     </header>
 
-    <academy-style-detail
+    <div
       v-if="expandedStyle"
-      :lesson="expandedStyle"
-      @close="expandedSlug = null"
-      @remix="emit('remix', $event)"
-    />
+      :id="`academy-style-detail-${expandedStyle.slug}`"
+    >
+      <academy-style-detail
+        :lesson="expandedStyle"
+        @close="closeStyle"
+        @remix="emit('remix', $event)"
+      />
+    </div>
 
     <div
       class="grid gap-3"
@@ -50,6 +54,7 @@
       <button
         v-for="style in filteredStyles"
         :key="style.slug"
+        :ref="(el) => setGridRef(style.slug, el)"
         type="button"
         class="group flex flex-col gap-2 rounded-2xl border-2 p-4 text-left transition-all duration-150"
         :class="
@@ -58,6 +63,7 @@
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
         :aria-expanded="expandedSlug === style.slug"
+        :aria-controls="`academy-style-detail-${style.slug}`"
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
         <div class="flex items-center justify-between gap-2">
@@ -99,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, type ComponentPublicInstance } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'
 
@@ -111,6 +117,31 @@ const academyStore = useAcademyStore()
 
 const searchQuery = ref('')
 const expandedSlug = ref<string | null>(null)
+
+// The grid button stays mounted while its detail panel is open, but the
+// panel's own close button unmounts (v-if) the instant it's clicked — the
+// browser drops focus to <body> with nothing to restore it. Track each
+// grid button so we can return focus to it after closing.
+const gridRefs = new Map<string, HTMLButtonElement>()
+
+function setGridRef(
+  slug: string,
+  el: Element | ComponentPublicInstance | null,
+) {
+  if (el instanceof HTMLButtonElement) {
+    gridRefs.set(slug, el)
+  } else {
+    gridRefs.delete(slug)
+  }
+}
+
+function closeStyle() {
+  const slug = expandedSlug.value
+  expandedSlug.value = null
+  nextTick(() => {
+    if (slug) gridRefs.get(slug)?.focus()
+  })
+}
 
 const expandedStyle = computed<AcademyStyle | null>(() => {
   if (!expandedSlug.value) return null

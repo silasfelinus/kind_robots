@@ -65,6 +65,7 @@ export type CharacterMinAggregateOutputType = {
   imagePath: string | null
   designer: string | null
   personality: string | null
+  sampleResponse: string | null
   isMature: boolean | null
   isActive: boolean | null
   charm: $Enums.Rarity | null
@@ -103,6 +104,7 @@ export type CharacterMaxAggregateOutputType = {
   imagePath: string | null
   designer: string | null
   personality: string | null
+  sampleResponse: string | null
   isMature: boolean | null
   isActive: boolean | null
   charm: $Enums.Rarity | null
@@ -141,6 +143,7 @@ export type CharacterCountAggregateOutputType = {
   imagePath: number
   designer: number
   personality: number
+  sampleResponse: number
   isMature: number
   isActive: number
   charm: number
@@ -197,6 +200,7 @@ export type CharacterMinAggregateInputType = {
   imagePath?: true
   designer?: true
   personality?: true
+  sampleResponse?: true
   isMature?: true
   isActive?: true
   charm?: true
@@ -235,6 +239,7 @@ export type CharacterMaxAggregateInputType = {
   imagePath?: true
   designer?: true
   personality?: true
+  sampleResponse?: true
   isMature?: true
   isActive?: true
   charm?: true
@@ -273,6 +278,7 @@ export type CharacterCountAggregateInputType = {
   imagePath?: true
   designer?: true
   personality?: true
+  sampleResponse?: true
   isMature?: true
   isActive?: true
   charm?: true
@@ -398,6 +404,7 @@ export type CharacterGroupByOutputType = {
   imagePath: string | null
   designer: string | null
   personality: string | null
+  sampleResponse: string | null
   isMature: boolean
   isActive: boolean
   charm: $Enums.Rarity
@@ -459,6 +466,7 @@ export type CharacterWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
   designer?: Prisma.StringNullableFilter<"Character"> | string | null
   personality?: Prisma.StringNullableFilter<"Character"> | string | null
+  sampleResponse?: Prisma.StringNullableFilter<"Character"> | string | null
   isMature?: Prisma.BoolFilter<"Character"> | boolean
   isActive?: Prisma.BoolFilter<"Character"> | boolean
   charm?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
@@ -508,6 +516,7 @@ export type CharacterOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   personality?: Prisma.SortOrderInput | Prisma.SortOrder
+  sampleResponse?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   charm?: Prisma.SortOrder
@@ -562,6 +571,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
   designer?: Prisma.StringNullableFilter<"Character"> | string | null
   personality?: Prisma.StringNullableFilter<"Character"> | string | null
+  sampleResponse?: Prisma.StringNullableFilter<"Character"> | string | null
   isMature?: Prisma.BoolFilter<"Character"> | boolean
   isActive?: Prisma.BoolFilter<"Character"> | boolean
   charm?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
@@ -610,6 +620,7 @@ export type CharacterOrderByWithAggregationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   personality?: Prisma.SortOrderInput | Prisma.SortOrder
+  sampleResponse?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   charm?: Prisma.SortOrder
@@ -656,6 +667,7 @@ export type CharacterScalarWhereWithAggregatesInput = {
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   personality?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  sampleResponse?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
   charm?: Prisma.EnumRarityWithAggregatesFilter<"Character"> | $Enums.Rarity
@@ -691,6 +703,7 @@ export type CharacterCreateInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -740,6 +753,7 @@ export type CharacterUncheckedCreateInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -784,6 +798,7 @@ export type CharacterUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -833,6 +848,7 @@ export type CharacterUncheckedUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -880,6 +896,7 @@ export type CharacterCreateManyInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -915,6 +932,7 @@ export type CharacterUpdateManyMutationInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -953,6 +971,7 @@ export type CharacterUncheckedUpdateManyInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -1007,6 +1026,7 @@ export type CharacterCountOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   personality?: Prisma.SortOrder
+  sampleResponse?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   charm?: Prisma.SortOrder
@@ -1053,6 +1073,7 @@ export type CharacterMaxOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   personality?: Prisma.SortOrder
+  sampleResponse?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   charm?: Prisma.SortOrder
@@ -1091,6 +1112,7 @@ export type CharacterMinOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   personality?: Prisma.SortOrder
+  sampleResponse?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   charm?: Prisma.SortOrder
@@ -1437,6 +1459,7 @@ export type CharacterCreateWithoutArtImageInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1484,6 +1507,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1560,6 +1584,7 @@ export type CharacterScalarWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
   designer?: Prisma.StringNullableFilter<"Character"> | string | null
   personality?: Prisma.StringNullableFilter<"Character"> | string | null
+  sampleResponse?: Prisma.StringNullableFilter<"Character"> | string | null
   isMature?: Prisma.BoolFilter<"Character"> | boolean
   isActive?: Prisma.BoolFilter<"Character"> | boolean
   charm?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
@@ -1595,6 +1620,7 @@ export type CharacterCreateWithoutChatsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1643,6 +1669,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1702,6 +1729,7 @@ export type CharacterUpdateWithoutChatsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -1750,6 +1778,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -1793,6 +1822,7 @@ export type CharacterCreateWithoutDreamsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1841,6 +1871,7 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1905,6 +1936,7 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -1953,6 +1985,7 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2012,6 +2045,7 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2060,6 +2094,7 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2103,6 +2138,7 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2151,6 +2187,7 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2210,6 +2247,7 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2258,6 +2296,7 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2301,6 +2340,7 @@ export type CharacterCreateWithoutReactionsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2349,6 +2389,7 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2408,6 +2449,7 @@ export type CharacterUpdateWithoutReactionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2456,6 +2498,7 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2499,6 +2542,7 @@ export type CharacterCreateWithoutRewardsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2547,6 +2591,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2611,6 +2656,7 @@ export type CharacterCreateWithoutScenariosInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2659,6 +2705,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2723,6 +2770,7 @@ export type CharacterCreateWithoutUserInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2770,6 +2818,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2840,6 +2889,7 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2888,6 +2938,7 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -2947,6 +2998,7 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -2995,6 +3047,7 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3038,6 +3091,7 @@ export type CharacterCreateWithoutLifeRunsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -3086,6 +3140,7 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -3145,6 +3200,7 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3193,6 +3249,7 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3238,6 +3295,7 @@ export type CharacterCreateManyArtImageInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -3273,6 +3331,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3320,6 +3379,7 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3366,6 +3426,7 @@ export type CharacterUncheckedUpdateManyWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3401,6 +3462,7 @@ export type CharacterUpdateWithoutDreamsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3449,6 +3511,7 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3495,6 +3558,7 @@ export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3530,6 +3594,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3578,6 +3643,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3624,6 +3690,7 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3659,6 +3726,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3707,6 +3775,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3753,6 +3822,7 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3790,6 +3860,7 @@ export type CharacterCreateManyUserInput = {
   imagePath?: string | null
   designer?: string | null
   personality?: string | null
+  sampleResponse?: string | null
   isMature?: boolean
   isActive?: boolean
   charm?: $Enums.Rarity
@@ -3825,6 +3896,7 @@ export type CharacterUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3872,6 +3944,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -3918,6 +3991,7 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
@@ -4059,6 +4133,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   imagePath?: boolean
   designer?: boolean
   personality?: boolean
+  sampleResponse?: boolean
   isMature?: boolean
   isActive?: boolean
   charm?: boolean
@@ -4111,6 +4186,7 @@ export type CharacterSelectScalar = {
   imagePath?: boolean
   designer?: boolean
   personality?: boolean
+  sampleResponse?: boolean
   isMature?: boolean
   isActive?: boolean
   charm?: boolean
@@ -4126,7 +4202,7 @@ export type CharacterSelectScalar = {
   slug?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "artPrompt" | "honorific" | "imagePath" | "designer" | "personality" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "artPrompt" | "honorific" | "imagePath" | "designer" | "personality" | "sampleResponse" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
@@ -4180,6 +4256,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     imagePath: string | null
     designer: string | null
     personality: string | null
+    sampleResponse: string | null
     isMature: boolean
     isActive: boolean
     charm: $Enums.Rarity
@@ -4595,6 +4672,7 @@ export interface CharacterFieldRefs {
   readonly imagePath: Prisma.FieldRef<"Character", 'String'>
   readonly designer: Prisma.FieldRef<"Character", 'String'>
   readonly personality: Prisma.FieldRef<"Character", 'String'>
+  readonly sampleResponse: Prisma.FieldRef<"Character", 'String'>
   readonly isMature: Prisma.FieldRef<"Character", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Character", 'Boolean'>
   readonly charm: Prisma.FieldRef<"Character", 'Rarity'>

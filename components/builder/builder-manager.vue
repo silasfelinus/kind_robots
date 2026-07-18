@@ -97,7 +97,7 @@
           <div class="absolute inset-0 bg-base-300/60 backdrop-blur-sm" />
 
           <div
-            class="relative w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-xl"
+            class="kr-panel relative w-full max-w-sm shadow-xl"
           >
             <h3 class="text-lg font-black text-base-content">
               Clear this builder?

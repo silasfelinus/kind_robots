@@ -101,6 +101,10 @@ describe('Character Management API Tests', () => {
       expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
+      expect(response.body.data).to.not.have.property('ArtImage')
+      expect(response.body.data).to.not.have.property('Rewards')
+      expect(response.body.data).to.not.have.property('Scenarios')
+      expect(response.body.data).to.not.have.property('Dreams')
 
       characterId = response.body.data.id
       expect(characterId).to.be.a('number').and.to.be.greaterThan(0)
@@ -155,6 +159,10 @@ describe('Character Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.data.name).to.eq(updatedCharacterName)
+      expect(response.body.data).to.not.have.property('ArtImage')
+      expect(response.body.data).to.not.have.property('Rewards')
+      expect(response.body.data).to.not.have.property('Scenarios')
+      expect(response.body.data).to.not.have.property('Dreams')
     })
   })
 

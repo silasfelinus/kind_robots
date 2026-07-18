@@ -45,26 +45,22 @@
 
       <div
         v-if="artJobStore.error"
-        class="rounded-2xl border border-error/40 bg-error/10 p-2 text-xs text-error"
+        class="kr-note kr-note-error p-2 text-xs font-normal"
       >
         {{ artJobStore.error }}
       </div>
 
       <div
         v-if="bulkRetryMessage"
-        class="rounded-2xl border p-2 text-xs"
-        :class="
-          bulkRetryHasFailures
-            ? 'border-warning/40 bg-warning/10 text-warning'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        class="kr-note p-2 text-xs font-normal"
+        :class="bulkRetryHasFailures ? 'kr-note-warning' : 'kr-note-success'"
       >
         {{ bulkRetryMessage }}
       </div>
 
       <div
         v-if="stats?.oldestPending"
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-2 text-xs text-warning"
+        class="kr-note kr-note-warning p-2 text-xs font-normal"
       >
         Oldest PENDING job #{{ stats.oldestPending.id }} has been waiting
         {{ formatAge(stats.oldestPending.ageSeconds) }} — if this keeps

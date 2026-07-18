@@ -7,6 +7,10 @@ import {
   type Reward,
 } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
+import {
+  rewardMutationSelect,
+  type RewardMutationResult,
+} from './selects'
 
 export type RewardRelationInput = {
   characterIds?: number[]
@@ -390,10 +394,10 @@ export function buildUpdateData(
 export async function createReward(
   input: RewardMutationInput,
   authenticatedUserId: number,
-): Promise<RewardWithRelations> {
+): Promise<RewardMutationResult> {
   return await prisma.reward.create({
     data: buildCreateData(input, authenticatedUserId),
-    include: rewardInclude,
+    select: rewardMutationSelect,
   })
 }
 
@@ -402,10 +406,10 @@ export async function createRewardsBatch(
   authenticatedUserId: number,
 ): Promise<{
   count: number
-  rewards: RewardWithRelations[]
+  rewards: RewardMutationResult[]
   errors: RewardBatchError[]
 }> {
-  const rewards: RewardWithRelations[] = []
+  const rewards: RewardMutationResult[] = []
   const errors: RewardBatchError[] = []
 
   for (const [index, input] of inputs.entries()) {
@@ -471,11 +475,11 @@ export async function fetchAllRewards(): Promise<RewardWithRelations[]> {
 export async function updateRewardById(
   id: number,
   input: RewardMutationInput,
-): Promise<RewardWithRelations> {
+): Promise<RewardMutationResult> {
   return await prisma.reward.update({
     where: { id },
     data: buildUpdateData(input),
-    include: rewardInclude,
+    select: rewardMutationSelect,
   })
 }
 

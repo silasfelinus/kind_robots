@@ -210,6 +210,12 @@
     ]
   },
   {
+    "folderName": "home",
+    "components": [
+      "home-feed-placeholder"
+    ]
+  },
+  {
     "folderName": "icons",
     "components": [
       "add-icon",
@@ -262,6 +268,13 @@
       "workspace-header",
       "workspace-narrator",
       "workspace-sheet"
+    ]
+  },
+  {
+    "folderName": "newsfeed",
+    "components": [
+      "feed-card",
+      "newsfeed-feed"
     ]
   },
   {

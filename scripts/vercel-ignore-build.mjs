@@ -10,6 +10,12 @@ const ignoredPrefixes = [
   'artifacts/',
   'cypress/',
   'docs/',
+  // Nightly public-content snapshot data (see fallback-snapshot.yml). It is
+  // disaster-outage fallback that gets baked into the *next* real deploy
+  // anyway, so a snapshot-only commit does not warrant its own production
+  // deployment. Trade-off: on a day with no code deploys, the baked fallback
+  // can lag by up to a day — acceptable for outage-only data.
+  'stores/fallback/',
 ]
 
 const ignoredRootFiles = new Set([
@@ -18,6 +24,11 @@ const ignoredRootFiles = new Set([
   'CONTROL.md',
   'README.md',
 ])
+
+// Test/spec files never ship to the running app, so a commit that only touches
+// them (e.g. a "add contract test" chore) should not redeploy production.
+// Cypress specs are already covered by the cypress/ prefix above.
+const testFileSuffixes = ['.test.ts', '.test.js', '.test.mjs', '.spec.ts', '.spec.js', '.spec.mjs']
 
 function continueBuild(reason) {
   console.log(`[vercel-ignore] Build required: ${reason}`)
@@ -33,6 +44,7 @@ function isIgnoredPath(filePath) {
   return (
     ignoredRootFiles.has(filePath) ||
     ignoredPrefixes.some((prefix) => filePath.startsWith(prefix)) ||
+    testFileSuffixes.some((suffix) => filePath.endsWith(suffix)) ||
     filePath.endsWith('.bak')
   )
 }

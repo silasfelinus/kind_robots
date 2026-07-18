@@ -1,10 +1,11 @@
 // /server/api/prompts/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { awardKarma } from '../../utils/karma'
 import type { Prisma, Prompt } from '~/prisma/generated/prisma/client'
+import { promptResourceSelect } from './selects'
 
 type PromptCreateBody = Partial<Prompt> & {
   CreationSource?: string
@@ -147,32 +148,15 @@ export default defineEventHandler(async (event) => {
 
     const data = await prisma.prompt.create({
       data: createData,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            Role: true,
-          },
-        },
-        Bot: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-      },
+      select: promptResourceSelect,
     })
 
     if (data.isPublic) {
-      awardKarma({ userId, reason: 'CONTENT_CREATED_PUBLIC', refId: String(data.id) }).catch(() => {})
+      void awardKarma({
+        userId,
+        reason: 'CONTENT_CREATED_PUBLIC',
+        refId: String(data.id),
+      }).catch(() => {})
     }
 
     event.node.res.statusCode = 201

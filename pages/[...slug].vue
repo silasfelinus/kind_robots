@@ -10,7 +10,7 @@
 
   <div
     v-else-if="isPageLoading"
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
   >
     <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
 
@@ -36,7 +36,7 @@
 
   <div
     v-else
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
   >
     <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
 
@@ -61,6 +61,11 @@ import { usePageStore } from '@/stores/pageStore'
 type PagePayload = {
   path: string
   page: ContentCollectionItem | null
+}
+
+type NarratedContentPage = ContentCollectionItem & {
+  narrator?: unknown
+  narratorSlug?: unknown
 }
 
 const route = useRoute()
@@ -116,11 +121,35 @@ const hasResolvedCurrentPath = computed(() => {
   return pagePayload.value?.path === contentPath.value
 })
 
+function normalizePageNarrator(
+  page: ContentCollectionItem | null,
+): ContentCollectionItem | null {
+  if (!page) return null
+
+  const narratedPage = page as NarratedContentPage
+  if (narratedPage.narrator) return page
+
+  const narratorSlug =
+    typeof narratedPage.narratorSlug === 'string'
+      ? narratedPage.narratorSlug.trim()
+      : ''
+
+  if (!narratorSlug) return page
+
+  return {
+    ...page,
+    narrator: {
+      type: 'bot',
+      slug: narratorSlug,
+    },
+  } as ContentCollectionItem
+}
+
 const activePage = computed(() => {
   if (isLoginPath.value) return null
   if (!hasResolvedCurrentPath.value) return null
 
-  return pagePayload.value?.page ?? null
+  return normalizePageNarrator(pagePayload.value?.page ?? null)
 })
 
 const isPageLoading = computed(() => {

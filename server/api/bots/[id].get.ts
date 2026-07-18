@@ -3,6 +3,7 @@ import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,15 +13,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Invalid bot ID.',
-      })
-    }
-
-    const { isValid } = await validateApiKey(event)
-
-    if (!isValid) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
       })
     }
 
@@ -40,7 +32,7 @@ export default defineEventHandler(async (event) => {
             title: true,
             label: true,
             serverType: true,
-            
+
           },
         },
         ArtImage: {
@@ -58,6 +50,28 @@ export default defineEventHandler(async (event) => {
         statusCode: 404,
         message: `Bot with id ${id} does not exist.`,
       })
+    }
+
+    // Public bots are readable without a key (matches the public /api/bots list).
+    // Private bots still require the owner or an admin.
+    if (!bot.isPublic) {
+      const { isValid, user } = await validateApiKey(event)
+
+      if (!isValid || !user) {
+        throw createError({
+          statusCode: 401,
+          message: 'Invalid or expired token.',
+        })
+      }
+
+      const isOwner = bot.userId === user.id
+
+      if (!isOwner && !userIsAdmin(user)) {
+        throw createError({
+          statusCode: 403,
+          message: 'You do not have permission to view this bot.',
+        })
+      }
     }
 
     return {

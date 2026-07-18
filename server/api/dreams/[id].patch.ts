@@ -1,4 +1,5 @@
-import { defineEventHandler, createError, readBody } from 'h3'
+// /server/api/dreams/[id].patch.ts
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -9,7 +10,6 @@ import type {
 } from '~/prisma/generated/prisma/client'
 import {
   assertDreamAccess,
-  dreamInclude,
   dreamTypes,
   getDreamId,
   normalizeCreationSource,
@@ -20,6 +20,7 @@ import {
   relationFromNullableId,
   scenariosRelationFromPatch,
 } from './index'
+import { dreamMutationSelect } from './selects'
 
 type DreamPatchBody = {
   title?: string
@@ -50,8 +51,6 @@ type DreamPatchBody = {
   rewardIds?: number[]
   artImageIds?: number[]
   artCollectionIds?: number[]
-  addArtImageToCollection?: boolean
-  updateNote?: string | null
 }
 
 function uniqueIds(values: Array<number | null | undefined>): number[] {
@@ -113,8 +112,9 @@ async function assertAttachableRelations(
       },
     })
 
-    if (count !== artCollectionIds.length)
+    if (count !== artCollectionIds.length) {
       throw forbiddenRelationError('ArtCollection')
+    }
   }
 
   const scenarioIds = uniqueIds([
@@ -173,65 +173,18 @@ function setTextField<T extends keyof Prisma.DreamUpdateInput>(
   }
 }
 
-function getUpdateSummary(body: DreamPatchBody): string {
-  const changes: string[] = []
-
-  if (body.title !== undefined) changes.push('name')
-  if (body.description !== undefined || body.pitch !== undefined) {
-    changes.push('idea')
-  }
-  if (body.dreamType !== undefined) changes.push('type')
-  if (body.creationSource !== undefined) changes.push('source')
-  if (body.artPrompt !== undefined) changes.push('prompt')
-  if (
-    body.artImageId !== undefined ||
-    body.artImageIds !== undefined ||
-    body.imagePath !== undefined ||
-    body.highlightImage !== undefined
-  ) {
-    changes.push('visuals')
-  }
-  if (
-    body.artCollectionId !== undefined ||
-    body.artCollectionIds !== undefined
-  ) {
-    changes.push('collections')
-  }
-  if (body.scenarioId !== undefined || body.scenarioIds !== undefined) {
-    changes.push('scenarios')
-  }
-  if (body.characterIds !== undefined) changes.push('cast')
-  if (body.rewardIds !== undefined) changes.push('items')
-  if (
-    body.isPublic !== undefined ||
-    body.isMature !== undefined ||
-    body.isActive !== undefined ||
-    body.allowReviews !== undefined
-  ) {
-    changes.push('settings')
-  }
-
-  if (!changes.length) return 'Dream updated.'
-
-  return `Dream updated: ${changes.join(', ')}.`
-}
-
 export default defineEventHandler(async (event) => {
   let id = 0
 
   try {
     id = getDreamId(event)
 
-    const auth = await requireApiUser(event)
-    const user = auth.user
-
+    const { user } = await requireApiUser(event)
     const existingDream = await prisma.dream.findUnique({
       where: { id },
       select: {
         id: true,
         userId: true,
-        title: true,
-        dreamType: true,
         isPublic: true,
       },
     })
@@ -393,50 +346,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const updated = await prisma.dream.update({
+    const data = await prisma.dream.update({
       where: { id },
       data: dataInput,
-      include: dreamInclude,
-    })
-
-    if (
-      body.addArtImageToCollection &&
-      updated.artImageId &&
-      updated.artCollectionId
-    ) {
-      await prisma.artCollection.update({
-        where: { id: updated.artCollectionId },
-        data: {
-          ArtImages: {
-            connect: { id: updated.artImageId },
-          },
-        },
-      })
-    }
-
-    const data =
-      (await prisma.dream.findUnique({
-        where: { id },
-        include: dreamInclude,
-      })) ?? updated
-
-    const sender = user.username || `User ${user.id}`
-    const updateNote = normalizeOptionalText(body.updateNote)
-    const content = updateNote || getUpdateSummary(body)
-
-    await prisma.chat.create({
-      data: {
-        type: 'Dream',
-        sender,
-        content,
-        title: data.title,
-        userId: user.id,
-        dreamId: id,
-        artImageId: data.artImageId ?? undefined,
-        isPublic: data.isPublic,
-        isMature: data.isMature,
-        channel: `dream-${id}`,
-      },
+      select: dreamMutationSelect,
     })
 
     event.node.res.statusCode = 200

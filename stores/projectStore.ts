@@ -60,12 +60,38 @@ export type ApplyPlacementsResult = {
 
 function queryString(options: ProjectListOptions): string {
   const query = new URLSearchParams()
+
   for (const [key, value] of Object.entries(options)) {
     if (value === undefined || value === null || value === '') continue
     query.set(key, String(value))
   }
+
   const value = query.toString()
   return value ? `?${value}` : ''
+}
+
+function mergeProjectDetail(
+  existing: ProjectWithRelations,
+  incoming: Project,
+): ProjectWithRelations {
+  const merged: ProjectWithRelations = {
+    ...existing,
+    ...incoming,
+  }
+
+  if (incoming.managerBotId !== existing.managerBotId) {
+    merged.Manager = null
+  }
+
+  if (incoming.artImageId !== existing.artImageId) {
+    merged.ArtImage = null
+  }
+
+  if (incoming.artCollectionId !== existing.artCollectionId) {
+    merged.ArtCollection = null
+  }
+
+  return merged
 }
 
 export const useProjectStore = defineStore('projectStore', () => {
@@ -102,14 +128,24 @@ export const useProjectStore = defineStore('projectStore', () => {
     return projectsBySlug.value.get(slug) ?? null
   }
 
-  function replaceProject(project: ProjectWithRelations): ProjectWithRelations {
+  function replaceProject(project: Project): ProjectWithRelations {
     const index = projects.value.findIndex((entry) => entry.id === project.id)
-    if (index >= 0) projects.value[index] = project
-    else projects.value.unshift(project)
+    const previous =
+      index >= 0
+        ? projects.value[index]
+        : selectedProject.value?.id === project.id
+          ? selectedProject.value
+          : null
+    const next = previous ? mergeProjectDetail(previous, project) : project
+
+    if (index >= 0) projects.value[index] = next
+    else projects.value.unshift(next)
+
     if (selectedProject.value?.id === project.id) {
-      selectedProject.value = project
+      selectedProject.value = next
     }
-    return project
+
+    return next
   }
 
   async function fetchProjects(
@@ -117,15 +153,19 @@ export const useProjectStore = defineStore('projectStore', () => {
   ): Promise<ProjectWithRelations[]> {
     loading.value = true
     error.value = null
+
     try {
       const response = await performFetch<ProjectWithRelations[]>(
         `/api/projects${queryString(options)}`,
       )
+
       if (!response.success) {
         throw new Error(response.message || 'Failed to fetch Projects.')
       }
+
       projects.value = response.data ?? []
       loaded.value = true
+
       return projects.value
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : String(cause)
@@ -140,15 +180,19 @@ export const useProjectStore = defineStore('projectStore', () => {
   ): Promise<ProjectWithRelations> {
     loading.value = true
     error.value = null
+
     try {
       const response = await performFetch<ProjectWithRelations>(
         `/api/projects/${key}`,
       )
+
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Project not found.')
       }
+
       selectedProject.value = replaceProject(response.data)
-      return response.data
+
+      return selectedProject.value
     } finally {
       loading.value = false
     }
@@ -158,18 +202,18 @@ export const useProjectStore = defineStore('projectStore', () => {
     input: Partial<Project> & Pick<Project, 'title'>,
   ): Promise<ProjectWithRelations> {
     saving.value = true
+
     try {
-      const response = await performFetch<ProjectWithRelations>(
-        '/api/projects',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input),
-        },
-      )
+      const response = await performFetch<Project>('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create Project.')
       }
+
       return replaceProject(response.data)
     } finally {
       saving.value = false
@@ -181,18 +225,18 @@ export const useProjectStore = defineStore('projectStore', () => {
     input: Partial<Project>,
   ): Promise<ProjectWithRelations> {
     saving.value = true
+
     try {
-      const response = await performFetch<ProjectWithRelations>(
-        `/api/projects/${id}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input),
-        },
-      )
+      const response = await performFetch<Project>(`/api/projects/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to update Project.')
       }
+
       return replaceProject(response.data)
     } finally {
       saving.value = false
@@ -201,26 +245,23 @@ export const useProjectStore = defineStore('projectStore', () => {
 
   async function archiveProject(id: number): Promise<ProjectWithRelations> {
     saving.value = true
+
     try {
       const response = await performFetch<ProjectWithRelations>(
         `/api/projects/${id}`,
         { method: 'DELETE' },
       )
+
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to archive Project.')
       }
+
       return replaceProject(response.data)
     } finally {
       saving.value = false
     }
   }
 
-  // Backfill channelKey / tabKey / liveUrl on loaded Project rows from the
-  // canonical PROJECT_PLACEMENTS map, using the existing PATCH endpoint (which is
-  // admin/owner-gated server-side). Runs over projects already in the store, so
-  // load them (admin: includeInactive) before calling. liveUrl is only filled
-  // when empty unless overwriteLiveUrl is set. Individual PATCH failures are
-  // reported per slug so the rest of the migration can continue.
   async function applyPlacements(
     overwriteLiveUrl = false,
   ): Promise<ApplyPlacementsResult> {
@@ -234,6 +275,7 @@ export const useProjectStore = defineStore('projectStore', () => {
         projectForSlug(slug) ??
         projects.value.find((entry) => entry.conductorSlug === slug) ??
         null
+
       if (!project) {
         missing.push(slug)
         continue
@@ -264,7 +306,9 @@ export const useProjectStore = defineStore('projectStore', () => {
         failed.push({
           slug,
           message:
-            cause instanceof Error ? cause.message : 'Unknown Project update error',
+            cause instanceof Error
+              ? cause.message
+              : 'Unknown Project update error',
         })
       }
     }

@@ -14,6 +14,9 @@
 
     <!-- ── Drop zone ──────────────────────────────────────────────────── -->
     <div
+      role="button"
+      tabindex="0"
+      aria-label="Upload images"
       class="flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-all duration-200"
       :class="
         isDragging
@@ -24,6 +27,7 @@
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
       @click="fileInput?.click()"
+      @keydown.enter.space.prevent="fileInput?.click()"
     >
       <span
         class="flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-200 transition-transform"
@@ -366,6 +370,7 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs ml-auto h-6 min-h-0 px-2"
+                :aria-label="`Unlink ${connectedModelType} #${connectedModelId}`"
                 @click="clearModelSelection"
               >
                 <Icon name="mdi:close" class="h-3 w-3" />

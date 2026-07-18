@@ -72,6 +72,9 @@ const sharedNavigationSchema = z.object({
   tooltip: z.string().optional(),
   dottiTip: z.string().optional(),
   amiTip: z.string().optional(),
+  // Simple author-facing narrator selector. The page loader normalizes this
+  // into the richer `narrator` reference used by the narrator system.
+  narratorSlug: z.string().optional(),
   // NOTE: SQLite column names are case-insensitive, so a lowercase `dottitip`/
   // `amitip` field here collides with `dottiTip`/`amiTip` above and makes the
   // collection's CREATE TABLE fail ("duplicate column name"), which leaves the
@@ -134,6 +137,7 @@ export type PageBrief = {
   tooltip: string
   dottiTip: string
   amiTip: string
+  narratorSlug?: string
   narrator?: PageNarratorRef
   artPrompt: string
   channelKey?: string

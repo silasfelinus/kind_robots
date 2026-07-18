@@ -88,6 +88,21 @@ jobs:
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 
+      - name: WonderLab test-fixture cleanup contract
+        run: npm run test:wonderlab-fixture-cleanup
+
+      - name: WonderLab core preview fixtures contract
+        run: npm run test:wonderlab-core-fixtures
+
+      - name: WonderLab visual preview fixtures contract
+        run: npm run test:wonderlab-visual-fixtures
+
+      - name: WonderLab UI preview fixtures contract
+        run: npm run test:wonderlab-ui-fixtures
+
+      - name: WonderLab preview coverage audit
+        run: npm run audit:wonderlab-previews 2>&1 | tee wonderlab-preview-audit.txt
+
       - name: Fetch main for capture-group guard diff
         # actions/checkout only fetches the ref it checks out (the PR's
         # merge ref, not a local `origin/main`), even with fetch-depth: 0 --
@@ -114,5 +129,6 @@ jobs:
           path: |
             academy-examples-contract.txt
             channel-artwork-audit.txt
+            wonderlab-preview-audit.txt
           if-no-files-found: warn
           retention-days: 14

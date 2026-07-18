@@ -1,9 +1,12 @@
 // /server/api/bots/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { normalizeSlugInput } from '../../../utils/slugify'
+import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
+import { botMutationSelect } from './selects'
 
 type BotCreateBody = Partial<Bot> & {
   Dreams?: { connect?: { id: number }[] } | { id: number }[]
@@ -28,8 +31,11 @@ function getDreamConnect(
   const raw = (value as any)?.connect ?? value
   if (!Array.isArray(raw)) return undefined
   const ids = raw
-    .map((x: any) => (typeof x === 'object' ? Number(x.id) : Number(x)))
-    .filter((n) => Number.isInteger(n) && n > 0)
+    .map((entry: any) =>
+      typeof entry === 'object' ? Number(entry.id) : Number(entry),
+    )
+    .filter((id) => Number.isInteger(id) && id > 0)
+
   return ids.length ? { connect: ids.map((id) => ({ id })) } : undefined
 }
 
@@ -93,7 +99,6 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requireApiUser(event)
     const { user } = auth
-
     const botData = await readBody<BotCreateBody>(event)
 
     const isServerKey = auth.isServerKey
@@ -135,12 +140,17 @@ export default defineEventHandler(async (event) => {
       artImageId,
     })
 
+    const requestedSlug = normalizeSlugInput(botData.slug)
+    const slug = await getUniqueBotSlug(prisma, requestedSlug ?? name)
+
     const data: Prisma.BotCreateInput = {
       BotType: getStringOrDefault(botData.BotType, 'PROMPTBOT'),
       name,
+      slug,
       subtitle: getStringOrNull(botData.subtitle),
       description: getStringOrNull(botData.description),
       avatarImage: getStringOrNull(botData.avatarImage),
+      imagePath: getStringOrNull(botData.imagePath),
       botIntro: getStringOrDefault(
         botData.botIntro,
         'I am a freshly created bot.',
@@ -155,6 +165,7 @@ export default defineEventHandler(async (event) => {
       tagline: getStringOrNull(botData.tagline),
       narrativeVoice: getStringOrNull(botData.narrativeVoice),
       forgeIntro: getStringOrNull(botData.forgeIntro),
+      chatBorderImage: getStringOrNull(botData.chatBorderImage),
       designer: getStringOrDefault(botData.designer, 'silasfelinus'),
       serverName: getStringOrNull(botData.serverName),
       artPrompt: getStringOrNull(botData.artPrompt),
@@ -176,35 +187,12 @@ export default defineEventHandler(async (event) => {
             connect: { id: artImageId },
           }
         : undefined,
-      Dreams: getDreamConnect(botData.Dreams ?? (botData as any).dreamIds),
+      Dreams: getDreamConnect(botData.Dreams ?? botData.dreamIds),
     }
 
     const bot = await prisma.bot.create({
       data,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            Role: true,
-          },
-        },
-        Server: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-          },
-        },
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-      },
+      select: botMutationSelect,
     })
 
     event.node.res.statusCode = 201

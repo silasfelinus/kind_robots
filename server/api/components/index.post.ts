@@ -1,8 +1,14 @@
 // /server/api/components/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { requireAdminApiUser } from '../../utils/authGuard'
 import type { Component, Prisma } from '~/prisma/generated/prisma/client'
+import {
+  hasLegacyStatusUpdate,
+  legacyFieldsForComponentStatus,
+  resolveLegacyStatusUpdate,
+} from '@/utils/wonderlab/componentStatus'
 
 type ComponentCreateBody = Partial<Component>
 
@@ -12,10 +18,6 @@ function getStringOrDefault(value: unknown, fallback: string): string {
 
 function getStringOrNull(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
-}
-
-function getBooleanOrDefault(value: unknown, fallback: boolean): boolean {
-  return typeof value === 'boolean' ? value : fallback
 }
 
 function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
@@ -42,6 +44,8 @@ async function assertArtImageExists(artImageId?: number) {
 
 export default defineEventHandler(async (event) => {
   try {
+    await requireAdminApiUser(event)
+
     const componentData = await readBody<ComponentCreateBody>(event)
 
     const componentName = getStringOrDefault(componentData.componentName, '')
@@ -65,17 +69,33 @@ export default defineEventHandler(async (event) => {
     }
 
     const artImageId = getPositiveIntegerOrUndefined(componentData.artImageId)
-
     await assertArtImageExists(artImageId)
 
-    const baseData = {
+    const existingComponent = await prisma.component.findUnique({
+      where: { componentName },
+      select: {
+        isWorking: true,
+        underConstruction: true,
+        isBroken: true,
+      },
+    })
+
+    const statusWasProvided = hasLegacyStatusUpdate(componentData)
+    const createStatus = statusWasProvided
+      ? resolveLegacyStatusUpdate(
+          legacyFieldsForComponentStatus('UNREVIEWED'),
+          componentData,
+        )
+      : legacyFieldsForComponentStatus('UNREVIEWED')
+    const updateStatus =
+      statusWasProvided && existingComponent
+        ? resolveLegacyStatusUpdate(existingComponent, componentData)
+        : statusWasProvided
+          ? createStatus
+          : null
+
+    const commonData = {
       folderName,
-      isWorking: getBooleanOrDefault(componentData.isWorking, true),
-      underConstruction: getBooleanOrDefault(
-        componentData.underConstruction,
-        false,
-      ),
-      isBroken: getBooleanOrDefault(componentData.isBroken, false),
       title: getStringOrDefault(componentData.title, componentName),
       notes: getStringOrNull(componentData.notes),
       updatedAt: new Date(),
@@ -84,18 +104,30 @@ export default defineEventHandler(async (event) => {
             connect: { id: artImageId },
           }
         : undefined,
-    } satisfies Omit<Prisma.ComponentUpdateInput, 'componentName'>
+    }
+
+    const updateData: Prisma.ComponentUpdateInput = {
+      ...commonData,
+      isWorking: updateStatus?.isWorking,
+      underConstruction: updateStatus?.underConstruction,
+      isBroken: updateStatus?.isBroken,
+    }
+
+    const createData: Prisma.ComponentCreateInput = {
+      ...commonData,
+      componentName,
+      createdAt: new Date(),
+      isWorking: createStatus.isWorking,
+      underConstruction: createStatus.underConstruction,
+      isBroken: createStatus.isBroken,
+    }
 
     const data = await prisma.component.upsert({
       where: {
         componentName,
       },
-      update: baseData,
-      create: {
-        ...baseData,
-        componentName,
-        createdAt: new Date(),
-      },
+      update: updateData,
+      create: createData,
       include: {
         ArtImage: {
           select: {

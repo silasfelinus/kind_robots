@@ -54,6 +54,7 @@
 
         <button
           v-if="expandedSlug !== style.slug"
+          :ref="(el) => setToggleRef(style.slug, el)"
           type="button"
           class="group flex w-full flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-all hover:border-primary/50 hover:shadow-sm"
           aria-expanded="false"
@@ -88,7 +89,7 @@
         <academy-style-detail
           v-else
           :lesson="style"
-          @close="expandedSlug = null"
+          @close="closeLesson(style.slug)"
           @remix="emit('remix', $event)"
         />
       </li>
@@ -97,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { nextTick, ref, type ComponentPublicInstance } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 
 const emit = defineEmits<{
@@ -107,4 +108,28 @@ const emit = defineEmits<{
 const academyStore = useAcademyStore()
 
 const expandedSlug = ref<string | null>(null)
+
+// Collapsing an expanded lesson unmounts its close button (v-if/v-else swap
+// with the toggle button), so the browser drops focus to <body> with no
+// fix — keyboard/screen-reader users lose their place in the timeline.
+// Track each toggle button so we can restore focus to it after closing.
+const toggleRefs = new Map<string, HTMLButtonElement>()
+
+function setToggleRef(
+  slug: string,
+  el: Element | ComponentPublicInstance | null,
+) {
+  if (el instanceof HTMLButtonElement) {
+    toggleRefs.set(slug, el)
+  } else {
+    toggleRefs.delete(slug)
+  }
+}
+
+function closeLesson(slug: string) {
+  expandedSlug.value = null
+  nextTick(() => {
+    toggleRefs.get(slug)?.focus()
+  })
+}
 </script>

@@ -120,16 +120,18 @@ export default defineNuxtConfig({
 
   hooks: {
     'build:before': async () => {
-      if (process.env.NODE_ENV !== 'development') {
-        console.log('Skipping component JSON generation in production mode.')
-        return
-      }
-      const { execSync } = await import('node:child_process')
+      const { execFileSync } = await import('node:child_process')
+
       try {
-        const out = execSync('node utils/scripts/create-component-json.mjs')
-        console.log(out.toString())
-      } catch (err) {
-        console.error('Failed to generate components JSON:', err)
+        const output = execFileSync(
+          process.execPath,
+          ['utils/scripts/create-component-json.mjs'],
+          { encoding: 'utf8' },
+        )
+        console.log(output.trim())
+      } catch (error) {
+        console.error('Failed to generate WonderLab component manifest:', error)
+        throw error
       }
     },
   },

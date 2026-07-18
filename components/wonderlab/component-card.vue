@@ -1,4 +1,4 @@
-<!-- /components/content/wonderlab/component-card.vue -->
+<!-- /components/wonderlab/component-card.vue -->
 <template>
   <reactable-card
     :selected="activeSelected"
@@ -76,22 +76,8 @@
     </p>
 
     <div v-if="showStatus" class="flex flex-wrap gap-2">
-      <span
-        class="badge badge-sm"
-        :class="component.isWorking ? 'badge-success' : 'badge-ghost'"
-      >
-        {{ component.isWorking ? 'Working' : 'Not verified' }}
-      </span>
-
-      <span
-        v-if="component.underConstruction"
-        class="badge badge-warning badge-sm"
-      >
-        Building
-      </span>
-
-      <span v-if="component.isBroken" class="badge badge-error badge-sm">
-        Broken
+      <span class="badge badge-sm" :class="statusBadgeClass">
+        {{ statusLabel }}
       </span>
 
       <span v-if="component.artImageId" class="badge badge-primary badge-sm">
@@ -158,10 +144,13 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/wonderlab/component-card.vue
 import { computed } from 'vue'
 import type { KindComponent as Component } from '@/stores/componentStore'
 import { useComponentStore } from '@/stores/componentStore'
+import {
+  getLegacyComponentStatus,
+  type LegacyComponentStatus,
+} from '@/utils/wonderlab/componentStatus'
 
 const props = withDefaults(
   defineProps<{
@@ -215,44 +204,69 @@ const componentTitle = computed(() => {
   )
 })
 
-const statusLabel = computed(() => {
-  if (props.component.isBroken) return 'Broken'
-  if (props.component.underConstruction) return 'Building'
-  if (props.component.isWorking) return 'Working'
+const componentStatus = computed(() =>
+  getLegacyComponentStatus(props.component),
+)
 
-  return 'Unverified'
-})
+const statusLabels: Record<LegacyComponentStatus, string> = {
+  UNREVIEWED: 'Unreviewed',
+  WORKING: 'Working',
+  UNDER_CONSTRUCTION: 'Building',
+  BROKEN: 'Broken',
+}
+
+const statusLabel = computed(() => statusLabels[componentStatus.value])
 
 const statusIcon = computed(() => {
-  if (props.component.isBroken) return 'kind-icon:warning'
-  if (props.component.underConstruction) return 'kind-icon:hammer'
-  if (props.component.isWorking) return 'kind-icon:check'
-
-  return 'kind-icon:sparkles'
+  switch (componentStatus.value) {
+    case 'BROKEN':
+      return 'kind-icon:warning'
+    case 'UNDER_CONSTRUCTION':
+      return 'kind-icon:hammer'
+    case 'WORKING':
+      return 'kind-icon:check'
+    default:
+      return 'kind-icon:sparkles'
+  }
 })
 
 const statusIconClass = computed(() => {
-  if (props.component.isBroken) {
-    return 'border-error bg-error/10 text-error'
+  switch (componentStatus.value) {
+    case 'BROKEN':
+      return 'border-error bg-error/10 text-error'
+    case 'UNDER_CONSTRUCTION':
+      return 'border-warning bg-warning/10 text-warning'
+    case 'WORKING':
+      return 'border-success bg-success/10 text-success'
+    default:
+      return 'border-accent bg-accent/10 text-accent'
   }
+})
 
-  if (props.component.underConstruction) {
-    return 'border-warning bg-warning/10 text-warning'
+const statusBadgeClass = computed(() => {
+  switch (componentStatus.value) {
+    case 'BROKEN':
+      return 'badge-error'
+    case 'UNDER_CONSTRUCTION':
+      return 'badge-warning'
+    case 'WORKING':
+      return 'badge-success'
+    default:
+      return 'badge-ghost'
   }
-
-  if (props.component.isWorking) {
-    return 'border-success bg-success/10 text-success'
-  }
-
-  return 'border-accent bg-accent/10 text-accent'
 })
 
 const statusCardClass = computed(() => {
-  if (props.component.isBroken) return 'border-error/50'
-  if (props.component.underConstruction) return 'border-warning/50'
-  if (props.component.isWorking) return 'border-success/40'
-
-  return ''
+  switch (componentStatus.value) {
+    case 'BROKEN':
+      return 'border-error/50'
+    case 'UNDER_CONSTRUCTION':
+      return 'border-warning/50'
+    case 'WORKING':
+      return 'border-success/40'
+    default:
+      return ''
+  }
 })
 
 const updatedLabel = computed(() => {

@@ -68,16 +68,23 @@
 
     <!-- Public -->
     <label class="form-control inline-flex items-center gap-2">
-      <input type="checkbox" v-model="form.isPublic" class="checkbox" />
+      <input v-model="form.isPublic" type="checkbox" class="checkbox" />
       <span class="label-text">Public</span>
     </label>
 
     <!-- Buttons -->
-    <div class="flex justify-end gap-2 pt-2">
-      <button class="btn btn-outline btn-sm" @click="$emit('close')">
+    <div v-if="showFooterActions" class="flex justify-end gap-2 pt-2">
+      <button class="btn btn-outline btn-sm" type="button" @click="$emit('close')">
         Cancel
       </button>
-      <button class="btn btn-primary btn-sm" @click="save">Save</button>
+      <button
+        v-if="allowSave"
+        class="btn btn-primary btn-sm"
+        type="button"
+        @click="save"
+      >
+        Save
+      </button>
     </div>
   </div>
 </template>
@@ -88,7 +95,17 @@ import { ref, watch } from 'vue'
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import type { SmartIcon } from '~/prisma/generated/prisma/client'
 
-const props = defineProps<{ icon: SmartIcon }>()
+const props = withDefaults(
+  defineProps<{
+    icon: SmartIcon
+    allowSave?: boolean
+    showFooterActions?: boolean
+  }>(),
+  {
+    allowSave: true,
+    showFooterActions: true,
+  },
+)
 const emit = defineEmits(['close'])
 
 const smartbarStore = useSmartbarStore()
@@ -102,7 +119,7 @@ watch(
 )
 
 async function save() {
-  if (!form.value.id) return
+  if (!props.allowSave || !form.value.id) return
   const { success } = await smartbarStore.updateIcon(form.value.id, form.value)
   if (success) {
     emit('close')

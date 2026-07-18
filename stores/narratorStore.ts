@@ -1231,6 +1231,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         'You are the workspace Narrator, a focused assistant for building and playing Dream experiences.',
       bot?.personality ? `Personality: ${bot.personality}` : '',
       bot?.narrativeVoice ? `Narrative voice: ${bot.narrativeVoice}` : '',
+      bot?.sampleResponse ? `Voice sample: ${bot.sampleResponse}` : '',
       bot?.forgeIntro ? `Forge guidance: ${bot.forgeIntro}` : '',
       bot?.botIntro ? `Bot intro: ${bot.botIntro}` : '',
       dream
@@ -1270,10 +1271,23 @@ export const useNarratorStore = defineStore('narratorStore', () => {
             .join('\n')
         : '',
       narratorThreads.value.length
-        ? `Available narrator threads: ${narratorThreads.value
-            .map((thread) => thread.title || thread.Topic?.title)
-            .filter(Boolean)
-            .join(', ')}.`
+        ? [
+            'Preplanned conversation threads you can draw on. Offer these topics, and weave their openings and anecdotes into your replies in your own voice — you do not need to wait for the user to pick one:',
+            ...narratorThreads.value.map((thread) => {
+              const topic = thread.Topic
+              const title = thread.title || topic?.title || 'Thread'
+              const subtitle = topic?.subtitle ? ` — ${topic.subtitle}` : ''
+              const opening = (thread.openingText || '').trim()
+              const guidance = (thread.guidance || topic?.prompt || '').trim()
+              return [
+                `- ${title}${subtitle}`,
+                opening ? `  Opening (your voice): ${opening}` : '',
+                guidance ? `  Guidance: ${guidance}` : '',
+              ]
+                .filter(Boolean)
+                .join('\n')
+            }),
+          ].join('\n')
         : '',
       'Site context: Kind Robots is a socially conscious, server-agnostic AI creativity playground. Its mascot is AMI, the Anti-Malaria Intelligence — a horde of rainbow butterflies. Creativity here supports an anti-malaria fundraiser (againstmalaria.com/amibot). Built by Silas. You may answer questions about the site, its mission, mascot, and founder.',
       `Available screen effects you can describe or suggest the user trigger: ${availableAnimations.value

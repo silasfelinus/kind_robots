@@ -1,17 +1,19 @@
 // /server/api/sheets/by-dream/[dreamId].post.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { buildPitchSheetFromDream } from '@/server/utils/pitchSheets/defaults'
 import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
+import { pitchSheetMutationSelect } from '../selects'
 
 export default defineEventHandler(async (event) => {
   let dreamId = 0
 
   try {
     dreamId = Number(event.context.params?.dreamId)
-    if (Number.isNaN(dreamId) || dreamId <= 0) {
+
+    if (!Number.isInteger(dreamId) || dreamId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid Dream ID. Must be a positive integer.',
@@ -19,8 +21,8 @@ export default defineEventHandler(async (event) => {
     }
 
     const { user } = await requireApiUser(event)
-
     const dream = await prisma.dream.findUnique({ where: { id: dreamId } })
+
     if (!dream) {
       throw createError({
         statusCode: 404,
@@ -37,22 +39,12 @@ export default defineEventHandler(async (event) => {
 
     const existing = await prisma.pitchSheet.findUnique({
       where: { dreamId },
-      include: {
-        Dream: true,
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            thumbnailData: true,
-            fileName: true,
-            fileType: true,
-          },
-        },
-      },
+      select: pitchSheetMutationSelect,
     })
 
     if (existing) {
       event.node.res.statusCode = 200
+
       return {
         success: true,
         message: 'PitchSheet already exists for this Dream.',
@@ -62,28 +54,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<Record<string, unknown>>(event).catch(
-      () => ({}),
+      () => ({} as Record<string, unknown>),
     )
-    const overrides = sanitizePitchSheetPayload(body || {})
+    const overrides = sanitizePitchSheetPayload(body)
     const data = buildPitchSheetFromDream(dream, user.id, overrides)
-
     const created = await prisma.pitchSheet.create({
       data,
-      include: {
-        Dream: true,
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            thumbnailData: true,
-            fileName: true,
-            fileType: true,
-          },
-        },
-      },
+      select: pitchSheetMutationSelect,
     })
 
     event.node.res.statusCode = 201
+
     return {
       success: true,
       message: 'PitchSheet created successfully.',
@@ -93,6 +74,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
+
     return {
       success: false,
       message:

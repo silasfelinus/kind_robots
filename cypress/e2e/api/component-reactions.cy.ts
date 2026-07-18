@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import {
+  adminHeaders,
   bearerHeaders,
   createLoggedInTestUser,
   deleteTestUser,
@@ -12,15 +13,7 @@ import {
 
 type CleanupResponse = Cypress.Response<unknown> | null
 
-let userId = 0
-
 describe('Component Reactions API Tests', () => {
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
   let apiBase = ''
   let adminToken = ''
   let componentId: number | undefined
@@ -71,7 +64,7 @@ describe('Component Reactions API Tests', () => {
       cy.request({
         method: 'POST',
         url: `${apiBase}/components`,
-        headers: authHeaders(),
+        headers: adminHeaders(adminToken),
         body: {
           folderName: 'test-folder',
           componentName: `TestComponent_${Date.now()}`,
@@ -85,10 +78,22 @@ describe('Component Reactions API Tests', () => {
         expect(response.body).to.have.property('success', true)
 
         componentId = response.body.data.id
-
         expect(componentId).to.be.a('number')
 
-        createdComponents.push(assertDefined(componentId, 'componentId'))
+        const id = assertDefined(componentId, 'componentId')
+        createdComponents.push(id)
+
+        cy.task(
+          'cypressCleanup:register',
+          {
+            label: `component-reaction fixture component ${id}`,
+            method: 'DELETE',
+            url: `${apiBase}/components/${id}`,
+            headers: adminHeaders(adminToken),
+            expectedStatuses: [200, 404],
+          },
+          { log: false },
+        )
       })
     })
   })
@@ -130,10 +135,22 @@ describe('Component Reactions API Tests', () => {
       expect(response.body).to.have.property('success', true)
 
       reactionId = response.body.data.id
-
       expect(reactionId).to.be.a('number')
 
-      createdReactions.push(assertDefined(reactionId, 'reactionId'))
+      const id = assertDefined(reactionId, 'reactionId')
+      createdReactions.push(id)
+
+      cy.task(
+        'cypressCleanup:register',
+        {
+          label: `component reaction fixture ${id}`,
+          method: 'DELETE',
+          url: `${apiBase}/reactions/${id}`,
+          headers: authHeaders(),
+          expectedStatuses: [200, 404],
+        },
+        { log: false },
+      )
     })
   })
 
@@ -165,7 +182,6 @@ describe('Component Reactions API Tests', () => {
       expect(response.body).to.have.property('success', true)
 
       const reaction = response.body.data
-
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
       expect(reaction.userId).to.eq(testUser!.id)
@@ -269,6 +285,8 @@ describe('Component Reactions API Tests', () => {
           url: `${apiBase}/reactions/${id}`,
           headers: authHeaders(),
           failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.be.oneOf([200, 404])
         })
       })
 
@@ -276,8 +294,10 @@ describe('Component Reactions API Tests', () => {
         cy.request({
           method: 'DELETE',
           url: `${apiBase}/components/${id}`,
-          headers: authHeaders(),
+          headers: adminHeaders(adminToken),
           failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.be.oneOf([200, 404])
         })
       })
     }

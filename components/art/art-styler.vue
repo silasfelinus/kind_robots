@@ -38,6 +38,7 @@
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-100 text-base-content/60 hover:bg-base-200'
             "
+            :aria-pressed="sourceTab === 'upload'"
             @click="sourceTab = 'upload'"
           >
             Upload
@@ -50,6 +51,7 @@
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-100 text-base-content/60 hover:bg-base-200'
             "
+            :aria-pressed="sourceTab === 'gallery'"
             @click="sourceTab = 'gallery'"
           >
             Gallery
@@ -62,6 +64,7 @@
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-100 text-base-content/60 hover:bg-base-200'
             "
+            :aria-pressed="sourceTab === 'starters'"
             @click="sourceTab = 'starters'"
           >
             Starters
@@ -179,6 +182,7 @@
                 : 'border-transparent hover:border-primary/50'
             "
             :title="image.fileName || `Image #${image.id}`"
+            :aria-pressed="selectedSourceImage?.id === image.id"
             @click="selectGalleryImage(image)"
           >
             <img
@@ -241,6 +245,7 @@
             "
             :disabled="isLoadingStarterImage"
             :title="`${entry.workTitle} — ${entry.artist}`"
+            :aria-pressed="selectedStarterFile === entry.file"
             @click="selectStarterEntry(entry)"
           >
             <img
@@ -368,6 +373,7 @@
             ? 'badge-primary border-primary font-bold'
             : 'badge-ghost border-base-300 hover:border-primary/40 hover:text-primary'
         "
+        :aria-pressed="activeCategory === cat"
         @click="activeCategory = activeCategory === cat ? null : cat"
       >
         <span class="mr-1">{{ CATEGORY_ICONS[cat] }}</span>
@@ -392,6 +398,7 @@
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
         :title="style.triggerPhrase"
+        :aria-pressed="isSelectedStyle(style)"
         @click="selectStyle(style)"
       >
         <div
@@ -634,7 +641,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  generated: [image: ArtImage]
+  generated: [image: ArtImage, style: StyleEntry | null]
   close: []
   styleSelected: [style: StyleEntry | null]
 }>()
@@ -1358,7 +1365,7 @@ async function runStyleTransfer(): Promise<void> {
 
     resultImage.value = result.data
     successMessage.value = `Style applied! Image #${result.data.id} created.`
-    emit('generated', result.data)
+    emit('generated', result.data, style)
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Generation failed.'

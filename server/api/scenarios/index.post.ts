@@ -1,13 +1,14 @@
 // /server/api/scenarios/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { normalizeSlugInput } from '~/utils/slugify'
 import { Prisma } from '~/prisma/generated/prisma/client'
-import type {
-  Scenario,
-  ScenarioOutputType,
-} from '~/prisma/generated/prisma/client'
+import type { ScenarioOutputType } from '~/prisma/generated/prisma/client'
+import {
+  scenarioMutationSelect,
+  type ScenarioMutationResult,
+} from './selects'
 
 type ScenarioPostInput = {
   title?: unknown
@@ -287,7 +288,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const created: Scenario[] = []
+    const created: ScenarioMutationResult[] = []
     const skipped: SkippedScenario[] = []
     const failed: FailedScenario[] = []
 
@@ -313,12 +314,7 @@ export default defineEventHandler(async (event) => {
 
         const createdScenario = await prisma.scenario.create({
           data: createInput,
-          include: {
-            ArtImage: true,
-            User: { select: { id: true, username: true } },
-            Characters: true,
-            Dreams: true,
-          },
+          select: scenarioMutationSelect,
         })
 
         created.push(createdScenario)

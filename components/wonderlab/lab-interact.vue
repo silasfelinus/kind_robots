@@ -111,6 +111,7 @@
               v-model="searchQuery"
               class="input input-bordered input-sm w-full bg-base-200"
               type="search"
+              aria-label="Search WonderLab components"
               placeholder="Search components..."
             />
 
@@ -118,6 +119,7 @@
               <select
                 v-model="folderFilter"
                 class="select select-bordered select-sm bg-base-200"
+                aria-label="Filter WonderLab components by folder"
               >
                 <option value="">All folders</option>
 
@@ -133,6 +135,7 @@
               <select
                 v-model="statusFilter"
                 class="select select-bordered select-sm bg-base-200"
+                aria-label="Filter WonderLab components by status"
               >
                 <option value="all">All statuses</option>
                 <option value="UNREVIEWED">Unreviewed</option>
@@ -140,6 +143,22 @@
                 <option value="UNDER_CONSTRUCTION">Building</option>
                 <option value="BROKEN">Broken</option>
               </select>
+            </div>
+
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs text-base-content/55">
+                {{ filteredComponents.length }} of {{ componentCount }} exhibits
+              </p>
+
+              <button
+                v-if="hasActiveFilters"
+                class="btn btn-ghost btn-xs rounded-xl"
+                type="button"
+                @click="clearMuseumFilters"
+              >
+                <Icon name="kind-icon:x" class="size-3.5" />
+                Clear filters
+              </button>
             </div>
           </div>
         </div>
@@ -381,6 +400,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { Component as PrismaComponent } from '~/prisma/generated/prisma/client'
 import { useComponentStore } from '@/stores/componentStore'
 import { useUserStore } from '@/stores/userStore'
@@ -389,8 +409,14 @@ import {
   legacyFieldsForComponentStatus,
   type LegacyComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
-
-type ComponentStatusFilter = 'all' | LegacyComponentStatus
+import {
+  normalizeWonderLabMuseumQuery,
+  sameWonderLabMuseumQuery,
+  wonderLabMuseumQuery,
+  type WonderLabMuseumQueryState,
+  type WonderLabQuery,
+  type WonderLabStatusFilter,
+} from '@/utils/wonderlab/museumQuery'
 
 const statusOptions: Array<{
   value: LegacyComponentStatus
@@ -402,12 +428,30 @@ const statusOptions: Array<{
   { value: 'BROKEN', label: 'Broken' },
 ]
 
+const route = useRoute()
+const router = useRouter()
 const componentStore = useComponentStore()
 const userStore = useUserStore()
 
-const searchQuery = ref('')
-const folderFilter = ref('')
-const statusFilter = ref<ComponentStatusFilter>('all')
+const museumQueryState = computed(() =>
+  normalizeWonderLabMuseumQuery(route.query as WonderLabQuery),
+)
+
+const searchQuery = computed<string>({
+  get: () => museumQueryState.value.search,
+  set: (search) => setMuseumQuery({ search }, 'replace'),
+})
+
+const folderFilter = computed<string>({
+  get: () => museumQueryState.value.folder,
+  set: (folder) => setMuseumQuery({ folder }, 'push'),
+})
+
+const statusFilter = computed<WonderLabStatusFilter>({
+  get: () => museumQueryState.value.status,
+  set: (status) => setMuseumQuery({ status }, 'push'),
+})
+
 const isLoading = ref(false)
 const isSavingComponent = ref(false)
 const statusMessage = ref('')
@@ -415,6 +459,12 @@ const statusTone = ref<'success' | 'error'>('success')
 const reviewFeedVersion = ref(0)
 
 const isAdmin = computed(() => userStore.isAdmin)
+const hasActiveFilters = computed(
+  () =>
+    Boolean(museumQueryState.value.search) ||
+    Boolean(museumQueryState.value.folder) ||
+    museumQueryState.value.status !== 'all',
+)
 
 const components = computed<PrismaComponent[]>(() => {
   const fromAll = componentStore.allComponents || []
@@ -502,6 +552,35 @@ const filteredComponents = computed(() => {
     return leftLabel.localeCompare(rightLabel)
   })
 })
+
+function setMuseumQuery(
+  partial: Partial<WonderLabMuseumQueryState>,
+  historyMode: 'push' | 'replace',
+): void {
+  const current = museumQueryState.value
+  const next = { ...current, ...partial }
+  if (sameWonderLabMuseumQuery(current, next)) return
+
+  const location = {
+    path: route.path,
+    query: wonderLabMuseumQuery(route.query as WonderLabQuery, next),
+    hash: route.hash,
+  }
+
+  if (historyMode === 'replace') void router.replace(location)
+  else void router.push(location)
+}
+
+function clearMuseumFilters(): void {
+  setMuseumQuery(
+    {
+      search: '',
+      folder: '',
+      status: 'all',
+    },
+    'push',
+  )
+}
 
 function componentStatus(component: PrismaComponent): LegacyComponentStatus {
   return getLegacyComponentStatus(component)

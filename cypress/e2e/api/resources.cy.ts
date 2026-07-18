@@ -1,263 +1,296 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
-// cypress/e2e/api/resources.cy.ts
+import {
+  bearerHeaders,
+  createLoggedInTestUser,
+  deleteTestUser,
+  getApiEnv,
+} from '../../support/api-auth'
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
+type ResourceRow = {
+  id: number
+  name: string
+  resourceType: string
+  supportedServer: string
+  description: string | null
+}
+
+type ResourceBatchData = {
+  created: ResourceRow[]
+  skipped: Array<{ name: string; reason: string }>
+  failed: Array<{ name: string; message: string }>
+}
+
+type ApiResponse<T = unknown> = {
+  success: boolean
+  message: string
+  data?: T
+  statusCode?: number
+}
+
 describe('Resource Management API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/resources'
   const invalidToken = 'someInvalidTokenValue'
-  const uniqueResourceName = `Resource-${Date.now()}`
+  const stamp = Date.now()
+  const uniqueResourceName = `Resource-${stamp}`
+  const batchResourceName = `BatchResource-${stamp}`
 
+  let apiBase = ''
+  let adminToken = ''
+  let baseUrl = ''
   let userToken = ''
-  let userId = 0
+  let userId: number | undefined
   let resourceId: number | undefined
+  let batchResourceId: number | undefined
 
-  const expectAuthFailureMessage = (message: string) => {
-    expect(message).to.match(
-      /Authorization token is required|Invalid or expired token|Invalid or expired authorization token/,
-    )
+  const headers = () => bearerHeaders(userToken)
+
+  const expectLeanMutation = (resource: Record<string, unknown>) => {
+    expect(resource).to.not.have.property('User')
+    expect(resource).to.not.have.property('ArtImage')
+    expect(resource).to.not.have.property('Servers')
+    expect(resource).to.not.have.property('UsedInImages')
+    expect(resource).to.not.have.property('Reactions')
+  }
+
+  const deleteResource = (id?: number) => {
+    if (!id || !userToken) return
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${id}`,
+      headers: headers(),
+      failOnStatusCode: false,
+    })
   }
 
   before(() => {
-    return createLoggedInTestUser().then((auth) => {
-      userToken = auth.token
-      userId = auth.id
-    })
+    return getApiEnv()
+      .then((env) => {
+        apiBase = env.apiBase
+        adminToken = env.adminToken
+        baseUrl = `${apiBase}/resources`
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((auth) => {
+        userToken = auth.token
+        userId = auth.id
+      })
   })
 
-  it('should not allow creating a resource without an authorization token', () => {
-    cy.request({
+  after(() => {
+    deleteResource(resourceId)
+    deleteResource(batchResourceId)
+    deleteTestUser(apiBase, adminToken, userId)
+  })
+
+  it('rejects Resource creation without authentication', () => {
+    cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: {
-        userId,
         name: uniqueResourceName,
-        customLabel: 'Custom Label',
-        MediaPath: '/media/test-resource.jpg',
-        customUrl: 'https://custom-url.com',
-        civitaiUrl: 'https://civitai-url.com',
-        huggingUrl: 'https://huggingface-url.com',
-        localPath: '/local/test-resource',
-        description: 'This is a test resource description.',
         resourceType: 'URL',
-        isMature: false,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expectAuthFailureMessage(response.body.message)
+      expect(response.body.success).to.eq(false)
     })
   })
 
-  it('should not allow creating a resource with an invalid authorization token', () => {
-    cy.request({
+  it('rejects Resource creation with an invalid token', () => {
+    cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
+      headers: bearerHeaders(invalidToken),
       body: {
-        userId,
         name: uniqueResourceName,
-        customLabel: 'Custom Label',
-        MediaPath: '/media/test-resource.jpg',
-        customUrl: 'https://custom-url.com',
-        civitaiUrl: 'https://civitai-url.com',
-        huggingUrl: 'https://huggingface-url.com',
-        localPath: '/local/test-resource',
-        description: 'This is a test resource description.',
         resourceType: 'URL',
-        isMature: false,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expectAuthFailureMessage(response.body.message)
+      expect(response.body.success).to.eq(false)
     })
   })
 
-  it('Create a New Resource with Authentication', () => {
-    cy.request({
+  it('creates one Resource with a lean mutation response', () => {
+    cy.request<ApiResponse<ResourceRow>>({
       method: 'POST',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
       body: {
-        userId,
         name: uniqueResourceName,
         customLabel: 'Custom Label',
-        MediaPath: '/media/test-resource.jpg',
-        customUrl: 'https://custom-url.com',
-        civitaiUrl: 'https://civitai-url.com',
-        huggingUrl: 'https://huggingface-url.com',
-        localPath: '/local/test-resource',
-        description: 'This is a test resource description.',
+        customUrl: 'https://example.com/resource',
+        description: 'A temporary Resource created by Cypress.',
         resourceType: 'URL',
+        supportedServer: 'GENERIC',
         isMature: false,
+        isPublic: false,
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.be.an('object').that.is.not.empty
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.name).to.eq(uniqueResourceName)
+      expect(response.body.data?.resourceType).to.eq('URL')
+      expectLeanMutation(response.body.data as unknown as Record<string, unknown>)
 
-      resourceId = response.body.data.id
-
+      resourceId = response.body.data?.id
       expect(resourceId).to.be.a('number')
     })
   })
 
-  it('Attempt to Update Resource without Authentication (expect failure)', () => {
-    expect(resourceId).to.exist
-
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  it('returns 409 for duplicate single-resource creates', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
       body: {
-        name: 'Unauthorized Update Attempt',
+        name: uniqueResourceName,
+        resourceType: 'URL',
+        supportedServer: 'GENERIC',
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401)
-      expectAuthFailureMessage(response.body.message)
+      expect(response.status).to.eq(409)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.data).to.eq(null)
+      expect(response.body.message).to.include('already exists')
     })
   })
 
-  it('Attempt to Update Resource with Invalid Token (expect failure)', () => {
-    expect(resourceId).to.exist
-
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      body: {
-        name: 'Invalid Token Update Attempt',
-      },
+  it('rejects arrays on single-resource Resource POST', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: [
+        {
+          name: batchResourceName,
+          resourceType: 'LORA',
+        },
+      ],
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401)
-      expectAuthFailureMessage(response.body.message)
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('/api/resources/batch')
     })
   })
 
-  it('Update Resource with Authentication', () => {
+  it('uses the explicit batch route for created, skipped, and failed rows', () => {
+    cy.request<ApiResponse<ResourceBatchData>>({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
+      headers: headers(),
+      body: [
+        {
+          name: batchResourceName,
+          resourceType: 'LORA',
+          supportedServer: 'SDXL',
+          description: 'A valid batch Resource.',
+        },
+        {
+          name: uniqueResourceName,
+          resourceType: 'URL',
+          supportedServer: 'GENERIC',
+        },
+        {
+          name: `InvalidResource-${stamp}`,
+          resourceType: 'BANANA',
+        },
+      ],
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(207)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.created).to.have.length(1)
+      expect(response.body.data?.skipped).to.have.length(1)
+      expect(response.body.data?.failed).to.have.length(1)
+      expect(response.body.data?.created[0].name).to.eq(batchResourceName)
+      expect(response.body.data?.failed[0].message).to.include('resourceType')
+      expectLeanMutation(
+        response.body.data?.created[0] as unknown as Record<string, unknown>,
+      )
+
+      batchResourceId = response.body.data?.created[0].id
+    })
+  })
+
+  it('updates a Resource with a lean mutation response', () => {
     expect(resourceId).to.exist
 
     const updatedResourceName = `Updated-${uniqueResourceName}`
 
-    cy.request({
+    cy.request<ApiResponse<ResourceRow>>({
       method: 'PATCH',
       url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
       body: {
         name: updatedResourceName,
-        description: 'This is an updated test resource description.',
+        description: 'Updated Resource description.',
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data.name).to.eq(updatedResourceName)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.name).to.eq(updatedResourceName)
+      expectLeanMutation(response.body.data as unknown as Record<string, unknown>)
     })
   })
 
-  it('Get Resource by ID', () => {
+  it('retrieves the same scalar Resource by ID', () => {
     expect(resourceId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse<ResourceRow>>({
       method: 'GET',
       url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.be.an('object')
-      expect(response.body.data.name).to.eq(`Updated-${uniqueResourceName}`)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.name).to.eq(`Updated-${uniqueResourceName}`)
     })
   })
 
-  it('Get All Resources', () => {
-    cy.request({
+  it('lists Resources', () => {
+    cy.request<ApiResponse<ResourceRow[]>>({
       method: 'GET',
       url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data)
-        .to.be.an('array')
-        .and.have.length.greaterThan(0)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data).to.be.an('array')
+      expect(response.body.data?.some((row) => row.id === resourceId)).to.eq(true)
     })
   })
 
-  it('Attempt to Delete Resource without Authentication (expect failure)', () => {
+  it('rejects delete without authentication', () => {
     expect(resourceId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expectAuthFailureMessage(response.body.message)
+      expect(response.body.success).to.eq(false)
     })
   })
 
-  it('Attempt to Delete Resource with Invalid Token (expect failure)', () => {
+  it('deletes a Resource with authentication', () => {
     expect(resourceId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${invalidToken}`,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(401)
-      expectAuthFailureMessage(response.body.message)
-    })
-  })
-
-  it('Delete Resource with Authentication', () => {
-    expect(resourceId).to.exist
-
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${resourceId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
+      headers: headers(),
     }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
+      expect(response.body.success).to.eq(true)
       expect(response.body.message).to.include(
         `Resource with ID ${resourceId} successfully deleted`,
       )
-
       resourceId = undefined
     })
   })

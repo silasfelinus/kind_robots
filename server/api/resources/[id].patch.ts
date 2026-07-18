@@ -1,9 +1,10 @@
 // /server/api/resources/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { normalizeSlugInput } from '~/utils/slugify'
 import { validateApiKey } from '../../utils/validateKey'
+import { resourceMutationSelect } from './selects'
 import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
 
 type ResourcePatchBody = Partial<Resource> & {
@@ -15,9 +16,14 @@ type ResourcePatchBody = Partial<Resource> & {
 
 function normalizeIdArray(value: unknown): number[] {
   if (!Array.isArray(value)) return []
-  return value
-    .map((id) => Number(id))
-    .filter((id) => Number.isInteger(id) && id > 0)
+
+  return [
+    ...new Set(
+      value
+        .map((id) => Number(id))
+        .filter((id) => Number.isInteger(id) && id > 0),
+    ),
+  ]
 }
 
 function hasUpdateData(data: Record<string, unknown>): boolean {
@@ -28,7 +34,7 @@ export default defineEventHandler(async (event) => {
   const resourceId = Number(event.context.params?.id)
 
   try {
-    if (Number.isNaN(resourceId) || resourceId <= 0) {
+    if (!Number.isInteger(resourceId) || resourceId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid resource ID. It must be a positive integer.',
@@ -46,16 +52,7 @@ export default defineEventHandler(async (event) => {
 
     const existingResource = await prisma.resource.findUnique({
       where: { id: resourceId },
-      include: {
-        Servers: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-          },
-        },
-      },
+      select: { userId: true },
     })
 
     if (!existingResource) {
@@ -81,56 +78,76 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (typeof body.userId === 'number' && !isAdmin) {
+      throw createError({
+        statusCode: 403,
+        message: 'Only admins can reassign Resource ownership.',
+      })
+    }
+
     const connectServerIds = normalizeIdArray(body.connectServerIds)
     const disconnectServerIds = normalizeIdArray(body.disconnectServerIds)
     const connectLoraImageIds = normalizeIdArray(body.connectLoraImageIds)
     const disconnectLoraImageIds = normalizeIdArray(body.disconnectLoraImageIds)
 
-    if (connectServerIds.length) {
-      const foundServers = await prisma.server.findMany({
-        where: { id: { in: connectServerIds } },
-        select: { id: true },
+    const [foundServers, foundLoraImages] = await Promise.all([
+      connectServerIds.length
+        ? prisma.server.findMany({
+            where: { id: { in: connectServerIds } },
+            select: { id: true },
+          })
+        : [],
+      connectLoraImageIds.length
+        ? prisma.artImage.findMany({
+            where: { id: { in: connectLoraImageIds } },
+            select: { id: true },
+          })
+        : [],
+    ])
+
+    const foundServerIds = new Set(foundServers.map((server) => server.id))
+    const missingServerIds = connectServerIds.filter(
+      (id) => !foundServerIds.has(id),
+    )
+
+    if (missingServerIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Server IDs not found: ${missingServerIds.join(', ')}.`,
       })
-      const foundServerIds = new Set(foundServers.map((s) => s.id))
-      const missingServerIds = connectServerIds.filter(
-        (id) => !foundServerIds.has(id),
-      )
-      if (missingServerIds.length) {
-        throw createError({
-          statusCode: 404,
-          message: `Server IDs not found: ${missingServerIds.join(', ')}.`,
-        })
-      }
     }
 
-    // Strip all relation fields and connection arrays from scalar fields
+    const foundLoraImageIds = new Set(
+      foundLoraImages.map((artImage) => artImage.id),
+    )
+    const missingLoraImageIds = connectLoraImageIds.filter(
+      (id) => !foundLoraImageIds.has(id),
+    )
+
+    if (missingLoraImageIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `LoRA ArtImage IDs not found: ${missingLoraImageIds.join(', ')}.`,
+      })
+    }
+
     const {
-      connectServerIds: _css,
-      disconnectServerIds: _dss,
-      connectLoraImageIds: _cli,
-      disconnectLoraImageIds: _dli,
+      connectServerIds: _connectServerIds,
+      disconnectServerIds: _disconnectServerIds,
+      connectLoraImageIds: _connectLoraImageIds,
+      disconnectLoraImageIds: _disconnectLoraImageIds,
       id: _id,
       createdAt: _createdAt,
       updatedAt: _updatedAt,
-      ArtImages: _ArtImages,
-      UsedInImages: _UsedInImages,
-      Reactions: _Reactions,
-      ArtImage: _ArtImage,
-      User: _User,
-      Servers: _Servers,
       ...resourceFields
-    } = body as ResourcePatchBody & {
-      ArtImages?: unknown
-      UsedInImages?: unknown
-      Reactions?: unknown
-      ArtImage?: unknown
-      User?: unknown
-      Servers?: unknown
-    }
+    } = body
 
     const updateData: Prisma.ResourceUpdateInput = {
       name: resourceFields.name,
-      slug: normalizeSlugInput(resourceFields.slug),
+      slug:
+        resourceFields.slug !== undefined
+          ? normalizeSlugInput(resourceFields.slug)
+          : undefined,
       customLabel: resourceFields.customLabel,
       MediaPath: resourceFields.MediaPath,
       customUrl: resourceFields.customUrl,
@@ -163,7 +180,6 @@ export default defineEventHandler(async (event) => {
               disconnect: disconnectServerIds.map((id) => ({ id })),
             }
           : undefined,
-      // M2M: LoRA usage in images
       UsedInImages:
         connectLoraImageIds.length || disconnectLoraImageIds.length
           ? {
@@ -183,24 +199,7 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.resource.update({
       where: { id: resourceId },
       data: updateData,
-      include: {
-        Servers: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-            model: true,
-            isActive: true,
-          },
-        },
-        ArtImage: {
-          select: { id: true, imagePath: true, fileName: true },
-        },
-        UsedInImages: {
-          select: { id: true, fileName: true },
-        },
-      },
+      select: resourceMutationSelect,
     })
 
     event.node.res.statusCode = 200
@@ -209,15 +208,19 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: `Resource with ID ${resourceId} updated successfully.`,
       data,
+      statusCode: 200,
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
-      message: message || `Failed to update resource with ID ${resourceId}.`,
+      message: handled.message || `Failed to update resource with ID ${resourceId}.`,
       data: null,
+      statusCode,
     }
   }
 })

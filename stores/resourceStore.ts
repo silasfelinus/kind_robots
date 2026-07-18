@@ -569,7 +569,11 @@ export const useResourceStore = defineStore('resourceStore', () => {
 
   async function addResources(data: Partial<Resource>[]): Promise<Resource[]> {
     try {
-      const res = await performFetch<Resource[]>('/api/resources', {
+      const res = await performFetch<{
+        created: Resource[]
+        skipped: Array<{ name: string; reason: string }>
+        failed: Array<{ name: string; message: string }>
+      }>('/api/resources/batch', {
         method: 'POST',
         body: JSON.stringify(data),
       })
@@ -578,7 +582,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
         throw new Error(res.message || 'Failed to add resources')
       }
 
-      const created = res.data
+      const created = res.data.created
       const createdIds = new Set(created.map((resource) => resource.id))
 
       resources.value = [

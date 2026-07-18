@@ -123,18 +123,6 @@ export async function upsertProjectDirect(
       isPublic: booleanValue(project.isPublic),
       isMature: booleanValue(project.isMature),
       isActive: booleanValue(project.isActive),
-      Manager: null,
-      ArtImage: null,
-      ArtCollection: null,
-      PitchSheet: null,
-      _count: {
-        Chats: 0,
-        Todos: 0,
-        Reactions: 0,
-        ArtJobs: 0,
-        ArtImageLinks: 0,
-        ArtCollectionLinks: 0,
-      },
     }
   } finally {
     await connection.end().catch((disconnectError: unknown) => {

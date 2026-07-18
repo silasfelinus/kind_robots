@@ -311,7 +311,7 @@ export function rankWonderLabReviewers(
     })
     .filter(
       (entry): entry is WonderLabReviewerAffinity =>
-        Boolean(entry) && entry.score >= minimumScore,
+        entry !== null && entry.score >= minimumScore,
     )
     .sort((left, right) => {
       if (right.score !== left.score) return right.score - left.score

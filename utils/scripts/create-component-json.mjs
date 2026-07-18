@@ -78,17 +78,21 @@ function buildLegacyFolders(entries) {
   }
 
   return [...folders.entries()]
-    .sort(([left], [right]) => left.localeCompare(right))
+    .sort(([left], [right]) => left.localeCompare(right, 'en'))
     .map(([folderName, components]) => ({
       folderName,
-      components: components.sort((left, right) => left.localeCompare(right)),
+      components: components.sort((left, right) =>
+        left.localeCompare(right, 'en'),
+      ),
     }))
 }
 
 async function generateComponentManifest() {
   const files = await collectVueFiles(COMPONENT_ROOT)
   const entries = await Promise.all(files.map(buildManifestEntry))
-  entries.sort((left, right) => left.sourcePath.localeCompare(right.sourcePath))
+  entries.sort((left, right) =>
+    left.sourcePath.localeCompare(right.sourcePath, 'en'),
+  )
 
   const manifest = {
     version: 1,

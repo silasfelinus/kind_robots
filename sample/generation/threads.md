@@ -33,7 +33,7 @@ Required: `botId` (or `botName` — the endpoint resolves it), `topicId`,
 | Field | Fill with |
 | --- | --- |
 | `title` | Optional thread title; falls back to topic title |
-| `openingText` | The narrator's in-voice opener for this topic — written in that bot's `narrativeVoice`, not generic |
+| `openingText` | The narrator's in-voice opener for this topic — written in that bot's `narrativeVoice`, not generic. See `voices.md` for the voice-card convention |
 | `guidance` | Topic-specific steering for the LLM, layered on the bot's `botIntro` |
 | `starterPrompts` | Json array of `{ label, prompt, action, path?, flavor?, key?, screen? }` — the suggestion chips |
 | `sortOrder`, `isActive` | Menu position / soft delete |

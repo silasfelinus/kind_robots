@@ -3,6 +3,8 @@ import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { normalizeSlugInput } from '../../../utils/slugify'
+import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 
 type BotPatchBody = Partial<Bot>
@@ -124,6 +126,8 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         userId: true,
+        name: true,
+        slug: true,
       },
     })
 
@@ -171,9 +175,25 @@ export default defineEventHandler(async (event) => {
       artImageId,
     })
 
+    // Slug handling: dedupe an explicitly provided slug; otherwise backfill a
+    // missing slug from the (new or existing) name so every bot ends up with one.
+    let slugUpdate: string | null | undefined
+    const requestedSlug = normalizeSlugInput(body.slug)
+    if (requestedSlug !== undefined) {
+      slugUpdate = requestedSlug
+        ? await getUniqueBotSlug(prisma, requestedSlug, { excludeId: id })
+        : null
+    } else if (!existingBot.slug) {
+      const slugSource = getStringOrUndefined(body.name) || existingBot.name
+      slugUpdate = slugSource
+        ? await getUniqueBotSlug(prisma, slugSource, { excludeId: id })
+        : undefined
+    }
+
     const updateData: Prisma.BotUpdateInput = {
       BotType: getStringOrUndefined(body.BotType),
       name: getStringOrUndefined(body.name),
+      slug: slugUpdate,
       subtitle: getStringOrUndefined(body.subtitle),
       description: getStringOrUndefined(body.description),
       avatarImage: getStringOrUndefined(body.avatarImage),

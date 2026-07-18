@@ -1,8 +1,12 @@
 // /server/api/components/[id].patch.ts
-import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import type { Component, Prisma } from '~/prisma/generated/prisma/client'
+import {
+  hasLegacyStatusUpdate,
+  resolveLegacyStatusUpdate,
+} from '@/utils/wonderlab/componentStatus'
 
 type ComponentPatchBody = Partial<Component>
 
@@ -13,10 +17,6 @@ function getStringOrUndefined(value: unknown): string | undefined {
 function getStringOrNullOrUndefined(value: unknown): string | null | undefined {
   if (value === null) return null
   return typeof value === 'string' ? value : undefined
-}
-
-function getBooleanOrUndefined(value: unknown): boolean | undefined {
-  return typeof value === 'boolean' ? value : undefined
 }
 
 function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
@@ -84,6 +84,9 @@ export default defineEventHandler(async (event) => {
       where: { id: componentId },
       select: {
         id: true,
+        isWorking: true,
+        underConstruction: true,
+        isBroken: true,
       },
     })
 
@@ -95,15 +98,18 @@ export default defineEventHandler(async (event) => {
     }
 
     const artImageId = getPositiveIntegerOrUndefined(body.artImageId)
-
     await assertArtImageExists(artImageId)
+
+    const normalizedStatus = hasLegacyStatusUpdate(body)
+      ? resolveLegacyStatusUpdate(existingComponent, body)
+      : null
 
     const updateData: Prisma.ComponentUpdateInput = {
       componentName: getStringOrUndefined(body.componentName),
       folderName: getStringOrUndefined(body.folderName),
-      isWorking: getBooleanOrUndefined(body.isWorking),
-      underConstruction: getBooleanOrUndefined(body.underConstruction),
-      isBroken: getBooleanOrUndefined(body.isBroken),
+      isWorking: normalizedStatus?.isWorking,
+      underConstruction: normalizedStatus?.underConstruction,
+      isBroken: normalizedStatus?.isBroken,
       title: getStringOrUndefined(body.title),
       notes: getStringOrNullOrUndefined(body.notes),
       ArtImage:

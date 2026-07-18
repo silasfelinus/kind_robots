@@ -1,6 +1,12 @@
 // /server/api/art/upload.post.ts
-import { defineEventHandler, readMultipartFormData } from 'h3'
+import {
+  createError,
+  defineEventHandler,
+  getHeader,
+  readMultipartFormData,
+} from 'h3'
 import { errorHandler } from '../../utils/error'
+import { requireApiUser } from '../../utils/authGuard'
 import {
   uploadArtImage,
   type UploadArtImageInput,
@@ -8,31 +14,74 @@ import {
 
 type MultipartForm = Awaited<ReturnType<typeof readMultipartFormData>>
 
+const MAX_IMAGE_BYTES = 15 * 1024 * 1024
+const MAX_REQUEST_BYTES = MAX_IMAGE_BYTES + 1024 * 1024
+
+const IMAGE_TYPES = {
+  'image/png': 'png',
+  'image/jpeg': 'jpeg',
+  'image/webp': 'webp',
+} as const
+
+const ALLOWED_FIELDS = new Set([
+  'file',
+  'image',
+  'galleryName',
+  'fileName',
+  'designer',
+  'promptString',
+  'artPrompt',
+  'path',
+  'negativePrompt',
+  'sampler',
+  'genres',
+  'seed',
+  'steps',
+  'cfg',
+  'rarity',
+  'cfgHalf',
+  'isPublic',
+  'isMature',
+])
+
 function getField(form: MultipartForm, name: string): string | undefined {
   return form?.find((field) => field.name === name)?.data?.toString()
+}
+
+function getTextField(
+  form: MultipartForm,
+  name: string,
+  maxLength: number,
+): string | null {
+  const value = getField(form, name)?.trim()
+
+  if (!value) return null
+
+  if (value.length > maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `${name} must be ${maxLength} characters or fewer.`,
+    })
+  }
+
+  return value
 }
 
 function getNumberField(form: MultipartForm, name: string): number | null {
   const value = getField(form, name)
 
-  if (!value) return null
+  if (value === undefined || value.trim() === '') return null
 
   const parsed = Number(value)
 
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
-}
+  if (!Number.isFinite(parsed)) {
+    throw createError({
+      statusCode: 400,
+      message: `${name} must be a finite number.`,
+    })
+  }
 
-function getNullableNumberField(
-  form: MultipartForm,
-  name: string,
-): number | null {
-  const value = getField(form, name)
-
-  if (!value) return null
-
-  const parsed = Number(value)
-
-  return Number.isFinite(parsed) ? parsed : null
+  return parsed
 }
 
 function getBooleanField(
@@ -44,102 +93,120 @@ function getBooleanField(
 
   if (value === undefined) return fallback
 
-  return ['true', '1', 'yes', 'on'].includes(value.toLowerCase())
-}
+  const normalized = value.trim().toLowerCase()
 
-function getNumberListField(form: MultipartForm, name: string): number[] {
-  const directValues =
-    form
-      ?.filter((field) => field.name === name)
-      .map((field) => field.data?.toString())
-      .filter(Boolean) || []
+  if (['true', '1', 'yes', 'on'].includes(normalized)) return true
+  if (['false', '0', 'no', 'off'].includes(normalized)) return false
 
-  const bracketValues =
-    form
-      ?.filter((field) => field.name === `${name}[]`)
-      .map((field) => field.data?.toString())
-      .filter(Boolean) || []
-
-  return [...directValues, ...bracketValues]
-    .flatMap((value) => String(value).split(','))
-    .map((value) => Number(value.trim()))
-    .filter((value) => Number.isInteger(value) && value > 0)
+  throw createError({
+    statusCode: 400,
+    message: `${name} must be a boolean.`,
+  })
 }
 
 function getImageFile(form: MultipartForm) {
-  return form?.find((file) => {
-    return file.name === 'file' || file.name === 'image'
+  return form?.find((field) => {
+    return field.name === 'file' || field.name === 'image'
   })
+}
+
+function assertRequestSize(event: Parameters<typeof getHeader>[0]): void {
+  const contentLength = Number(getHeader(event, 'content-length') || 0)
+
+  if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
+    throw createError({
+      statusCode: 413,
+      message: 'Image upload is too large. Maximum image size is 15 MB.',
+    })
+  }
+}
+
+function assertAllowedFields(form: MultipartForm): void {
+  const unknownFields = [
+    ...new Set(
+      (form || [])
+        .map((field) => field.name)
+        .filter((name): name is string => Boolean(name) && !ALLOWED_FIELDS.has(name)),
+    ),
+  ]
+
+  if (unknownFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported upload fields: ${unknownFields.join(', ')}. Ownership and relationships are managed by authenticated resource APIs.`,
+    })
+  }
 }
 
 export default defineEventHandler(async (event) => {
   try {
+    const { user } = await requireApiUser(event)
+    assertRequestSize(event)
+
     const form = await readMultipartFormData(event)
 
     if (!form?.length) {
-      event.node.res.statusCode = 400
-      return {
-        success: false,
-        message: 'No form data received.',
-      }
+      throw createError({
+        statusCode: 400,
+        message: 'No multipart form data received.',
+      })
     }
+
+    assertAllowedFields(form)
 
     const imageFile = getImageFile(form)
 
     if (!imageFile?.data?.length) {
-      event.node.res.statusCode = 400
-      return {
-        success: false,
+      throw createError({
+        statusCode: 400,
         message: 'No image file received.',
-      }
+      })
     }
 
-    const userId = getNumberField(form, 'userId') || 10
-    const galleryId = getNumberField(form, 'galleryId') || 21
-    const galleryName = getField(form, 'galleryName') || 'userUpload'
-    const fileType = getField(form, 'fileType') || imageFile.type || 'png'
-    const fileName = getField(form, 'fileName') || imageFile.filename || null
+    if (imageFile.data.length > MAX_IMAGE_BYTES) {
+      throw createError({
+        statusCode: 413,
+        message: 'Image upload is too large. Maximum image size is 15 MB.',
+      })
+    }
+
+    const mimeType = String(imageFile.type || '').toLowerCase()
+    const fileType = IMAGE_TYPES[mimeType as keyof typeof IMAGE_TYPES]
+
+    if (!fileType) {
+      throw createError({
+        statusCode: 415,
+        message: 'Only PNG, JPEG, and WebP images are supported.',
+      })
+    }
+
+    const fileName =
+      getTextField(form, 'fileName', 255) || imageFile.filename || 'Kind Image'
 
     const input: UploadArtImageInput = {
       uploadedFile: {
         data: imageFile.data,
-        filename: imageFile.filename || fileName || 'Kind Image',
+        filename: imageFile.filename || fileName,
       },
-      galleryName,
-      userId,
-      galleryId,
+      userId: user.id,
+      galleryName: getTextField(form, 'galleryName', 80) || 'userUpload',
       fileType,
       fileName,
-      artCollectionId:
-        getNumberField(form, 'artCollectionId') ||
-        getNumberField(form, 'collectionId'),
-      artCollectionIds: [
-        ...getNumberListField(form, 'artCollectionIds'),
-        ...getNumberListField(form, 'collectionIds'),
-      ],
-      imagePath: getField(form, 'imagePath') || null,
-      rarity: getNullableNumberField(form, 'rarity'),
-      path: getField(form, 'path') || null,
-      promptString: getField(form, 'promptString') || null,
-      artPrompt: getField(form, 'artPrompt') || null,
-      negativePrompt: getField(form, 'negativePrompt') || null,
-      sampler: getField(form, 'sampler') || null,
-      seed: getNullableNumberField(form, 'seed'),
-      steps: getNullableNumberField(form, 'steps'),
-      cfg: getNullableNumberField(form, 'cfg'),
+      rarity: getNumberField(form, 'rarity'),
+      path: getTextField(form, 'path', 512),
+      promptString: getTextField(form, 'promptString', 10_000),
+      artPrompt: getTextField(form, 'artPrompt', 10_000),
+      negativePrompt: getTextField(form, 'negativePrompt', 10_000),
+      sampler: getTextField(form, 'sampler', 255),
+      seed: getNumberField(form, 'seed'),
+      steps: getNumberField(form, 'steps'),
+      cfg: getNumberField(form, 'cfg'),
       cfgHalf: getBooleanField(form, 'cfgHalf', false),
-      designer: getField(form, 'designer') || null,
-      genres: getField(form, 'genres') || null,
+      designer:
+        getTextField(form, 'designer', 255) || user.username || `User ${user.id}`,
+      genres: getTextField(form, 'genres', 2_000),
       isPublic: getBooleanField(form, 'isPublic', false),
       isMature: getBooleanField(form, 'isMature', false),
-      botId: getNumberField(form, 'botId'),
-      characterId: getNumberField(form, 'characterId'),
-      promptId: getNumberField(form, 'promptId'),
-      resourceId: getNumberField(form, 'resourceId'),
-      rewardId: getNumberField(form, 'rewardId'),
-      dreamId: getNumberField(form, 'dreamId'),
-      scenarioId: getNumberField(form, 'scenarioId'),
-      tagIds: getNumberListField(form, 'tagIds'),
     }
 
     const data = await uploadArtImage(input)
@@ -150,6 +217,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'ArtImage uploaded.',
       data,
+      statusCode: 201,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -159,7 +227,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: handledError.message || 'Error uploading the art image.',
-      error: handledError.message || 'An unknown error occurred.',
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

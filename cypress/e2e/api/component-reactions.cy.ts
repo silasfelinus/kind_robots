@@ -195,7 +195,6 @@ describe('Component Reactions API Tests', () => {
 
     const patchBody = {
       reactionType: 'BOOED',
-      reactionCategory: 'COMPONENT',
       comment: 'Actually, I have second thoughts...',
       rating: 2,
     }

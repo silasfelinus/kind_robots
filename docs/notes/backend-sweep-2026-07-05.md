@@ -33,16 +33,10 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement scores use authenticated identity and monotonic validation; definition mutations require admins; record reads/writes are owner-scoped, derive identity from auth, and whitelist confirmation updates.
+Resolved since this audit: achievement scores use authenticated identity and monotonic validation; definition mutations require admins; record reads/writes are owner-scoped; Stripe checkout and subscription derive billing identity from authentication and reject caller-supplied user IDs. Component mutation routes now require admins and use explicit update contracts.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `server/api/components/[id].delete.ts:21`             | no auth import at all                                                                    |
-| `server/api/components/[id].patch.ts:128`             | unauth update                                                                            |
-| `server/api/components/index.post.ts:89`              | unauth upsert                                                                            |
-| `server/api/components/name/[name].patch.ts:76`       | unauth + raw body update                                                                 |
-| `server/api/stripe/checkout.post.ts:30`               | unauth; userId from body → attaches/overwrites Stripe customer, opens checkout as victim |
-| `server/api/stripe/subscribe.post.ts:26`              | same for subscriptions                                                                   |
 | `server/api/art/upload.post.ts:97`                    | unauth; `userId = getNumberField(...) \|\| 10` → anon uploads as any user                |
 | `server/api/bots/seed.post.ts:9`                      | unauth bot seed/overwrite                                                                |
 | `server/api/art/sd/setModel.post.ts:17`               | unauth POST to live SD server (GPU model-switch/DoS)                                     |
@@ -59,12 +53,7 @@ Resolved since this audit: achievement scores use authenticated identity and mon
 Even with auth+ownership, the caller can set `userId`/`id`/any column. Fix with
 a field-guarded typed `UpdateInput` builder (see `sample/[id].patch.ts`).
 
-- `server/api/prompts/[id].patch.ts:60`
-- `server/api/icons/[id].patch.ts:56`
-- `server/api/reactions/[id].patch.ts:61-63`
-- `server/api/reactions/chat/[id].patch.ts:40-42`
-- `server/api/reactions/component/[id].patch.ts:41-43`
-- plus the unauthenticated achievements/components ones above
+Resolved since this audit: Prompt, SmartIcon, Reaction, Achievement, and Component mutations now use explicit field whitelists. The specialized Reaction PATCH routes and duplicate Component-by-name route were removed.
 
 ### A4. Bugs
 

@@ -241,7 +241,7 @@ export const useCartStore = defineStore('cartStore', () => {
     }
   }
 
-  async function checkout(userId: number): Promise<CartCheckoutResult> {
+  async function checkout(): Promise<CartCheckoutResult> {
     if (checkoutPromise.value) return checkoutPromise.value
 
     checkoutPromise.value = (async () => {
@@ -265,7 +265,7 @@ export const useCartStore = defineStore('cartStore', () => {
           '/api/stripe/checkout',
           {
             method: 'POST',
-            body: JSON.stringify({ userId, cart: cartPayload }),
+            body: JSON.stringify({ cart: cartPayload }),
             headers: { 'Content-Type': 'application/json' },
           },
         )
@@ -302,7 +302,7 @@ export const useCartStore = defineStore('cartStore', () => {
     return checkoutPromise.value
   }
 
-  async function subscribe(userId: number): Promise<CartCheckoutResult> {
+  async function subscribe(): Promise<CartCheckoutResult> {
     if (subscribePromise.value) return subscribePromise.value
 
     subscribePromise.value = (async () => {
@@ -314,8 +314,6 @@ export const useCartStore = defineStore('cartStore', () => {
           '/api/stripe/subscribe',
           {
             method: 'POST',
-            body: JSON.stringify({ userId }),
-            headers: { 'Content-Type': 'application/json' },
           },
         )
 

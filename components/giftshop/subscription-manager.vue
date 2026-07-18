@@ -96,7 +96,7 @@ const isPatron = computed(() => userStore.user?.isMember === true)
 const startSubscription = async () => {
   try {
     if (!userStore.user?.id) throw new Error('User not logged in')
-    await cartStore.subscribe(userStore.user.id)
+    await cartStore.subscribe()
   } catch (err: any) {
     error.value = err.message || 'Subscription failed.'
   }

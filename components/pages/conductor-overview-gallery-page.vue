@@ -246,7 +246,7 @@
                 class="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-widest text-base-content/45"
               >
                 <span>{{ item.kindLabel }}</span>
-                <span v-if="item.totalTasks"
+                <span v-if="item.hasConductorTaskCounts && item.totalTasks"
                   >{{ item.done }}/{{ item.totalTasks }} done</span
                 >
                 <span>{{ item.progress }}%</span>
@@ -331,7 +331,7 @@
                   {{ item.progress }}% progress
                 </span>
                 <span
-                  v-if="item.totalTasks"
+                  v-if="item.hasConductorTaskCounts && item.totalTasks"
                   class="badge badge-success badge-sm rounded-2xl"
                 >
                   {{ item.done }}/{{ item.totalTasks }} done
@@ -413,7 +413,7 @@
               {{ item.status }}
             </span>
             <span
-              v-if="item.totalTasks"
+              v-if="item.hasConductorTaskCounts && item.totalTasks"
               class="badge badge-info badge-sm rounded-2xl"
             >
               {{ item.done }}/{{ item.totalTasks }} done
@@ -521,7 +521,11 @@
             <div class="grid flex-1 grid-cols-3 gap-2 text-center md:w-full">
               <div class="rounded-xl bg-base-100 p-2">
                 <p class="font-black text-success">
-                  {{ item.done }}/{{ item.totalTasks }}
+                  {{
+                    item.hasConductorTaskCounts
+                      ? `${item.done}/${item.totalTasks}`
+                      : '—'
+                  }}
                 </p>
                 <p class="text-[0.65rem] text-base-content/40">done</p>
               </div>
@@ -585,6 +589,7 @@ type ProjectGalleryItem = {
   review: number
   done: number
   totalTasks: number
+  hasConductorTaskCounts: boolean
   projectId: number | null
   iconPath: string
   cardPath: string
@@ -843,6 +848,7 @@ function itemFromProject(project: ConductorProject): ProjectGalleryItem {
     review: counts.review,
     done: counts.done,
     totalTasks: project.tasks.length,
+    hasConductorTaskCounts: true,
     projectId: record?.id ?? null,
     iconPath:
       record?.imagePath ||
@@ -889,6 +895,7 @@ function itemFromProjectRecord(
     review: 0,
     done: record.status === 'DONE' ? 1 : 0,
     totalTasks: record._count?.Todos ?? 0,
+    hasConductorTaskCounts: false,
     projectId: record.id,
     iconPath:
       record.imagePath || `${CONDUCTOR_IMG_BASE}/${record.slug}-icon.webp`,

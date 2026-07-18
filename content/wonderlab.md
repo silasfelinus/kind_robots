@@ -18,4 +18,6 @@ loadingMessage: Loading the museum...
 refreshLabel: Refresh Museum
 ---
 
+:component-registry-health
+
 :lab-manager

@@ -211,7 +211,7 @@ npx prisma generate
 
 
 Run Typescript tests:
-npm run test
+ npm run test
 
 Run cypress Tests:
  npm run cypress:run

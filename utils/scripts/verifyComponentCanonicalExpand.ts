@@ -35,7 +35,7 @@ for (const column of [
   'lastSeenAt',
   'isDiscovered',
 ]) {
-  assert.match(sql, new RegExp(`ADD COLUMN \\`${column}\\``))
+  assert.match(sql, new RegExp('ADD COLUMN `' + column + '`'))
 }
 
 assert.match(sql, /`status`[\s\S]*NOT NULL DEFAULT 'UNREVIEWED'/)
@@ -63,12 +63,15 @@ for (const indexName of [
   'Component_lastSeenAt_idx',
   'Component_isDiscovered_idx',
 ]) {
-  assert.match(sql, new RegExp(`\\`${indexName}\\``))
+  assert.match(sql, new RegExp('`' + indexName + '`'))
 }
 
 assert.doesNotMatch(sql, /\bDELETE\s+FROM\s+`?Component`?/i)
 assert.doesNotMatch(sql, /\bDROP\s+(?:COLUMN|TABLE|INDEX)\b/i)
-assert.doesNotMatch(sql, /ALTER\s+COLUMN\s+`?(?:isWorking|underConstruction|isBroken)`?/i)
+assert.doesNotMatch(
+  sql,
+  /ALTER\s+COLUMN\s+`?(?:isWorking|underConstruction|isBroken)`?/i,
+)
 assert.doesNotMatch(sql, /DROP\s+INDEX\s+`?Component_componentName_key`?/i)
 
 const alterIndex = sql.indexOf('ALTER TABLE `Component`')

@@ -422,8 +422,6 @@ async function setHighlightImage(image: ArtImageLike) {
       buildDreamArtPatch({
         artImageId: image.id,
         artCollectionId: collectionId ?? null,
-        addArtToCollection: Boolean(collectionId),
-        updateNote: `Selected Dream highlight image #${image.id}.`,
       }),
     )
 
@@ -456,7 +454,6 @@ async function attachSelectedCollection() {
     const result = await dreamStore.updateSelectedDream(
       buildDreamArtPatch({
         artCollectionId: collectionId,
-        updateNote: `Attached art collection #${collectionId}.`,
       }),
     )
 
@@ -486,7 +483,6 @@ async function clearDreamCollection() {
     const result = await dreamStore.updateSelectedDream(
       buildDreamArtPatch({
         artCollectionId: null,
-        updateNote: 'Detached the Dream art collection.',
       }),
     )
 
@@ -566,10 +562,6 @@ async function useRandomCollectionImage() {
       buildDreamArtPatch({
         artImageId: chosen.id,
         artCollectionId: chosenCollectionId ?? activeCollectionId.value ?? null,
-        addArtToCollection: Boolean(chosenCollectionId),
-        updateNote: `Set random highlight image #${chosen.id}${
-          chosenCollectionId ? ` from collection #${chosenCollectionId}` : ''
-        }.`,
       }),
     )
 
@@ -597,7 +589,6 @@ async function clearHighlightImage() {
     const result = await dreamStore.updateSelectedDream(
       buildDreamArtPatch({
         artImageId: null,
-        updateNote: 'Cleared the Dream highlight image.',
       }),
     )
 

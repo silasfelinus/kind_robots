@@ -115,8 +115,11 @@ jobs:
       - name: WonderLab interaction and display fixtures contract
         run: npx tsx utils/scripts/verifyWonderLabInteractionDisplayFixtures.ts
 
-      - name: WonderLab preview coverage audit
-        run: npm run audit:wonderlab-previews 2>&1 | tee wonderlab-preview-audit.txt
+      - name: WonderLab final coverage fixtures contract
+        run: npx tsx utils/scripts/verifyWonderLabCoverageClosureFixtures.ts
+
+      - name: WonderLab preview coverage no-regression gate
+        run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 
       - name: Fetch main for capture-group guard diff
         # actions/checkout only fetches the ref it checks out (the PR's

@@ -1,52 +1,62 @@
 // /server/api/achievements/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { requireAdminApiUser } from '../../utils/authGuard'
+import { prismaErrorCode } from './definition'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let achievementId: number | null = null
+  const achievementId = Number(event.context.params?.id)
 
   try {
-    // Validate and parse the achievement ID from the URL parameters
-    achievementId = Number(event.context.params?.id)
-    if (isNaN(achievementId) || achievementId <= 0) {
+    await requireAdminApiUser(event)
+
+    if (!Number.isInteger(achievementId) || achievementId <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Achievement ID must be a positive integer.',
       })
     }
 
-    // Attempt to delete the achievement with the given ID
-    const deletedAchievement = await prisma.achievement.delete({
+    const existing = await prisma.achievement.findUnique({
       where: { id: achievementId },
+      select: { id: true },
     })
 
-    // Return success response
-    response = {
+    if (!existing) {
+      throw createError({
+        statusCode: 404,
+        message: 'Achievement not found.',
+      })
+    }
+
+    await prisma.achievement.delete({ where: { id: achievementId } })
+
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       message: `Achievement with ID ${achievementId} successfully deleted.`,
-      data: deletedAchievement, // Optional, can include the deleted achievement data if needed
+      data: null,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error(
-      `Error deleting achievement with ID ${achievementId}:`,
-      handledError,
-    )
+  } catch (error) {
+    const handled = errorHandler(error)
+    const statusCode = prismaErrorCode(error) === 'P2003'
+      ? 409
+      : handled.statusCode || 500
 
-    // Set the status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
       message:
-        handledError.message ||
-        `Failed to delete achievement with ID ${achievementId}.`,
-      statusCode: event.node.res.statusCode,
+        statusCode === 409
+          ? 'Achievement cannot be deleted while award records still reference it.'
+          : handled.message ||
+            `Failed to delete Achievement with ID ${achievementId}.`,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

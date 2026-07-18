@@ -91,6 +91,9 @@ jobs:
       - name: WonderLab test-fixture cleanup contract
         run: npm run test:wonderlab-fixture-cleanup
 
+      - name: WonderLab core preview fixtures contract
+        run: npm run test:wonderlab-core-fixtures
+
       - name: Fetch main for capture-group guard diff
         # actions/checkout only fetches the ref it checks out (the PR's
         # merge ref, not a local `origin/main`), even with fetch-depth: 0 --

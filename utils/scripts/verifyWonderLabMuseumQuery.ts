@@ -81,16 +81,17 @@ assert.equal(
   false,
 )
 
-const [labSource, selectionRouterSource] = await Promise.all([
+const [querySource, labSource, selectionRouterSource] = await Promise.all([
+  readFile('utils/wonderlab/museumQuery.ts', 'utf8'),
   readFile('components/wonderlab/lab-interact.vue', 'utf8'),
   readFile('components/wonderlab/wonderlab-selection-router.vue', 'utf8'),
 ])
 
 for (const queryKey of ['q', 'folder', 'status']) {
   assert.match(
-    labSource,
+    querySource,
     new RegExp(`\\b${queryKey}\\b`),
-    `lab-interact should expose the ${queryKey} query key`,
+    `museumQuery should own the ${queryKey} query key`,
   )
 }
 

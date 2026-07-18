@@ -141,7 +141,7 @@
 
           <div
             v-else-if="filteredComponents.length === 0"
-            class="flex h-full flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
+            class="flex h-full flex-col items-center justify-center kr-panel-muted text-center text-base-content/55"
           >
             <Icon name="kind-icon:sparkles" class="h-12 w-12 text-accent" />
 

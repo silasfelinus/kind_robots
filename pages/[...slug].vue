@@ -10,7 +10,7 @@
 
   <div
     v-else-if="isPageLoading"
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
   >
     <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
 
@@ -36,7 +36,7 @@
 
   <div
     v-else
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
   >
     <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
 

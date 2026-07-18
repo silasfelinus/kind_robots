@@ -3,7 +3,7 @@
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager"
-      class="flex h-full min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6"
+      class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
     >
       <div class="flex flex-col items-center gap-3 text-center">
         <span class="loading loading-spinner loading-lg text-primary" />

@@ -13,7 +13,7 @@
 
     <div
       v-if="!activeUserId"
-      class="flex min-h-48 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center"
+      class="flex min-h-48 flex-1 items-center justify-center kr-panel text-center"
     >
       <div>
         <p class="text-lg font-black">No user selected.</p>

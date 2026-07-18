@@ -1,33 +1,5 @@
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
-    <div class="flex shrink-0 justify-end">
-      <button
-        class="btn btn-ghost btn-sm rounded-xl"
-        type="button"
-        :disabled="isLoading"
-        @click="refreshLab"
-      >
-        <span v-if="isLoading" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
-        Refresh
-      </button>
-    </div>
-
-    <div
-      v-if="managerError"
-      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
-    >
-      {{ managerError }}
-    </div>
-
-    <div
-      v-if="isLoading"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-4"
-    >
-      <span class="loading loading-spinner loading-sm" />
-      <span class="ml-2">Warming up the lab goblins...</span>
-    </div>
-
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <section
       v-if="activeTab === 'memory-dungeon'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
@@ -69,9 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useComponentStore } from '@/stores/componentStore'
 import { useNavStore } from '@/stores/navStore'
 
 import LabInteract from '@/components/wonderlab/lab-interact.vue'
@@ -87,10 +58,6 @@ const validTabs: LabTab[] = ['memory-dungeon', 'wonder-lab', 'screen-fx']
 
 const route = useRoute()
 const navStore = useNavStore()
-const componentStore = useComponentStore()
-
-const isLoading = ref(false)
-const managerError = ref<string | null>(null)
 
 const activeTab = computed<LabTab>(() => {
   const routePath = route.path.replace(/\/+$/, '') || '/'
@@ -108,23 +75,5 @@ const activeTab = computed<LabTab>(() => {
   }
 
   return fallbackTab
-})
-
-async function refreshLab() {
-  isLoading.value = true
-  managerError.value = null
-
-  try {
-    await componentStore.initialize()
-  } catch (error) {
-    managerError.value =
-      error instanceof Error ? error.message : 'Failed to refresh WonderLab.'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(async () => {
-  await refreshLab()
 })
 </script>

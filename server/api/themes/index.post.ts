@@ -1,126 +1,14 @@
 // /server/api/themes/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import type { Theme } from '~/prisma/generated/prisma/client'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
-
-type ThemeColorScheme = 'light' | 'dark'
-
-type ThemeCreateInput = {
-  name?: unknown
-  values?: unknown
-  isPublic?: unknown
-  tagline?: unknown
-  room?: unknown
-  prefersDark?: unknown
-  colorScheme?: unknown
-  artPrompt?: unknown
-}
-
-type ParsedTheme = Omit<Theme, 'values'> & {
-  values: Record<string, unknown>
-}
-
-function stringifyThemeValues(values: unknown): string {
-  if (!values) {
-    return ''
-  }
-
-  if (typeof values === 'string') {
-    try {
-      const parsed = JSON.parse(values)
-
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        return ''
-      }
-
-      return JSON.stringify(parsed)
-    } catch {
-      return ''
-    }
-  }
-
-  if (typeof values !== 'object' || Array.isArray(values)) {
-    return ''
-  }
-
-  try {
-    return JSON.stringify(values)
-  } catch {
-    return ''
-  }
-}
-
-function parseTheme(theme: Theme): ParsedTheme {
-  let values: Record<string, unknown> = {}
-
-  try {
-    const parsed = JSON.parse(theme.values)
-
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      values = parsed
-    }
-  } catch {
-    values = {}
-  }
-
-  return {
-    ...theme,
-    values,
-  }
-}
-
-function normalizeThemeInput(entry: ThemeCreateInput, userId: number) {
-  const {
-    name,
-    values,
-    isPublic = false,
-    tagline = null,
-    room = null,
-    prefersDark = false,
-    colorScheme = 'light',
-    artPrompt = null,
-  } = entry || {}
-
-  if (!name || typeof name !== 'string') {
-    throw createError({
-      statusCode: 400,
-      message: '"name" is required.',
-    })
-  }
-
-  if (
-    typeof colorScheme !== 'string' ||
-    !['light', 'dark'].includes(colorScheme)
-  ) {
-    throw createError({
-      statusCode: 400,
-      message: '"colorScheme" must be either "light" or "dark".',
-    })
-  }
-
-  const valuesString = stringifyThemeValues(values)
-
-  if (!valuesString) {
-    throw createError({
-      statusCode: 400,
-      message: '"values" must be a valid object or JSON string.',
-    })
-  }
-
-  return {
-    name,
-    values: valuesString,
-    isPublic: Boolean(isPublic),
-    tagline: typeof tagline === 'string' ? tagline : null,
-    room: typeof room === 'string' ? room : null,
-    prefersDark: Boolean(prefersDark),
-    colorScheme: colorScheme as ThemeColorScheme,
-    artPrompt: typeof artPrompt === 'string' ? artPrompt : null,
-    userId,
-  }
-}
+import {
+  isThemeDuplicateError,
+  normalizeThemeInput,
+  parseTheme,
+  type ThemeCreateInput,
+} from './index'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -136,63 +24,54 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<ThemeCreateInput | ThemeCreateInput[]>(event)
 
     if (Array.isArray(body)) {
-      if (!body.length) {
-        throw createError({
-          statusCode: 400,
-          message: 'Theme array cannot be empty.',
-        })
-      }
+      throw createError({
+        statusCode: 400,
+        message:
+          'POST /api/themes creates one Theme. Use /api/themes/batch for arrays.',
+      })
+    }
 
-      const themes: ParsedTheme[] = []
-      const skipped: string[] = []
+    if (!body || typeof body !== 'object') {
+      throw createError({
+        statusCode: 400,
+        message: 'Request body is required.',
+      })
+    }
 
-      for (const entry of body) {
-        const data = normalizeThemeInput(entry, user.id)
+    const createInput = normalizeThemeInput(body, user.id)
 
-        try {
-          const theme = await prisma.theme.create({ data })
-          themes.push(parseTheme(theme))
-        } catch (error: any) {
-          if (error?.code === 'P2002') {
-            skipped.push(data.name)
-            continue
-          }
-
-          throw error
-        }
-      }
+    try {
+      const theme = await prisma.theme.create({ data: createInput })
 
       event.node.res.statusCode = 201
 
       return {
         success: true,
-        message: `${themes.length} theme(s) created, ${skipped.length} duplicate(s) skipped.`,
-        data: themes,
-        themes,
-        skipped,
-        count: themes.length,
+        message: 'Theme created successfully.',
+        data: parseTheme(theme),
+        statusCode: 201,
       }
-    }
+    } catch (error) {
+      if (isThemeDuplicateError(error)) {
+        throw createError({
+          statusCode: 409,
+          message: `Theme "${createInput.name}" already exists.`,
+        })
+      }
 
-    const data = normalizeThemeInput(body, user.id)
-    const theme = await prisma.theme.create({ data })
-
-    event.node.res.statusCode = 201
-
-    return {
-      success: true,
-      message: 'Theme created successfully.',
-      data: parseTheme(theme),
-      theme: parseTheme(theme),
+      throw error
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    event.node.res.statusCode = statusCode || 500
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
-      message: message || 'Failed to create theme.',
+      message: handled.message || 'Failed to create theme.',
+      data: null,
+      statusCode,
     }
   }
 })

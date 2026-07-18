@@ -1,0 +1,37 @@
+name: Thin Dream Caller Codemod
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/thin-dream-caller-codemod.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: contains(github.event.head_commit.message, 'run Dream caller codemod')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/thin-resource-apis
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Apply guarded codemod
+        run: node scripts/refactor-thin-dream-callers.mjs
+
+      - name: Commit transformed files
+        run: |
+          git config user.name "kind-robots-refactor"
+          git config user.email "kind-robots-refactor@users.noreply.github.com"
+          git add stores/dreamStore.ts components/dreams/dream-art-chooser.vue
+          git diff --staged --quiet && exit 1
+          git commit -m "refactor(dreams): remove obsolete mutation side-effect flags [skip ci]"
+          git push origin HEAD:refactor/thin-resource-apis

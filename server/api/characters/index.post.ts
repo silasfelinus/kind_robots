@@ -1,5 +1,5 @@
 // /server/api/characters/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import prisma from '../../utils/prisma'
@@ -10,10 +10,11 @@ import {
   getUniqueCharacterSlug,
 } from '../../utils/characterSlug'
 import type {
-  Prisma,
   Character,
+  Prisma,
   Rarity,
 } from '~/prisma/generated/prisma/client'
+import { characterMutationSelect } from './selects'
 
 type CharacterCreateBody = Partial<Character> & {
   rewardIds?: number[]
@@ -114,7 +115,6 @@ export default defineEventHandler(async (event) => {
 
     const requestedSlug = normalizeSlugInput(characterData.slug)
     const slug = await getUniqueCharacterSlug(prisma, requestedSlug ?? name)
-
     const rewardIds = normalizeIdArray(characterData.rewardIds, 'rewardIds')
     const scenarioIds = normalizeIdArray(
       characterData.scenarioIds,
@@ -128,7 +128,6 @@ export default defineEventHandler(async (event) => {
           id: user.id,
         },
       },
-
       name,
       slug,
       honorific: cleanShortText(characterData.honorific) ?? 'adventurer',
@@ -145,14 +144,12 @@ export default defineEventHandler(async (event) => {
       backstory: cleanText(characterData.backstory),
       achievements: cleanShortText(characterData.achievements),
       quirks: cleanText(characterData.quirks),
-
       luck: normalizeRarity(characterData.luck),
       might: normalizeRarity(characterData.might),
       wits: normalizeRarity(characterData.wits),
       grace: normalizeRarity(characterData.grace),
       charm: normalizeRarity(characterData.charm),
       empathy: normalizeRarity(characterData.empathy),
-
       artPrompt: cleanText(characterData.artPrompt),
       imagePath: cleanShortText(characterData.imagePath),
       experience: Number.isInteger(characterData.experience)
@@ -166,7 +163,6 @@ export default defineEventHandler(async (event) => {
       isPublic: characterData.isPublic ?? true,
       isMature: characterData.isMature ?? false,
       isActive: characterData.isActive ?? true,
-
       ArtImage: characterData.artImageId
         ? {
             connect: {
@@ -174,19 +170,16 @@ export default defineEventHandler(async (event) => {
             },
           }
         : undefined,
-
       Rewards: rewardIds.length
         ? {
             connect: rewardIds.map((id) => ({ id })),
           }
         : undefined,
-
       Scenarios: scenarioIds.length
         ? {
             connect: scenarioIds.map((id) => ({ id })),
           }
         : undefined,
-
       Dreams: dreamIds.length
         ? {
             connect: dreamIds.map((id) => ({ id })),
@@ -196,12 +189,7 @@ export default defineEventHandler(async (event) => {
 
     const data = await prisma.character.create({
       data: fullData,
-      include: {
-        ArtImage: true,
-        Rewards: true,
-        Scenarios: true,
-        Dreams: true,
-      },
+      select: characterMutationSelect,
     })
 
     event.node.res.statusCode = 201
@@ -210,6 +198,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       data,
       message: 'Character created successfully.',
+      statusCode: 201,
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
@@ -219,6 +208,7 @@ export default defineEventHandler(async (event) => {
       success: false,
       data: null,
       message: message || 'Failed to create character.',
+      statusCode: event.node.res.statusCode,
     }
   }
 })

@@ -172,6 +172,12 @@ function handlePrismaError(
         message: 'Cannot connect to database.',
         statusCode: 503,
       }
+    case 'P2025':
+      return {
+        success: false,
+        message: 'Record not found.',
+        statusCode: 404,
+      }
     default:
       return {
         success: false,

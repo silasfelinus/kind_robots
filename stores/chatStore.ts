@@ -255,6 +255,12 @@ export const useChatStore = defineStore('chatStore', () => {
   const selectedRecipientId = ref<number | null>(null)
   const isInitialized = ref(false)
 
+  // Set to the chat's id while generateText is streaming its response, and
+  // cleared once the stream settles (success or failure). Lets streaming
+  // consumers (e.g. Serendipity) reference the in-flight chat directly
+  // instead of assuming it is always the last entry in `chats`.
+  const pendingChatId = ref<number | null>(null)
+
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchChatsPromise = ref<Promise<void> | null>(null)
   const lastFetchedUserId = ref<number | null>(null)
@@ -395,6 +401,13 @@ export const useChatStore = defineStore('chatStore', () => {
   const canGenerateText = computed(() => {
     return Boolean(!state.isGenerating && state.textForm.prompt.trim())
   })
+
+  const pendingChat = computed<Chat | null>(() => {
+    if (pendingChatId.value === null) return null
+    return chats.value.find((chat) => chat.id === pendingChatId.value) ?? null
+  })
+
+  const pendingText = computed(() => pendingChat.value?.botResponse ?? '')
 
   function setGenerationMessage(
     tone: 'success' | 'error',
@@ -1320,6 +1333,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
       const newChat = await createChat(chatPayload)
       chats.value.push(newChat)
+      pendingChatId.value = newChat.id
       refreshUnreadMessages()
       saveToLocalStorage()
 
@@ -1352,6 +1366,7 @@ export const useChatStore = defineStore('chatStore', () => {
       }
     } finally {
       state.isGenerating = false
+      pendingChatId.value = null
     }
   }
 
@@ -1653,6 +1668,9 @@ export const useChatStore = defineStore('chatStore', () => {
     selectedChat,
     selectedRecipientId,
     isInitialized,
+    pendingChatId,
+    pendingChat,
+    pendingText,
     initializePromise,
     fetchChatsPromise,
     lastFetchedUserId,

@@ -80,7 +80,10 @@ export function buildSmartIconCreateInput(
 ): Prisma.SmartIconUncheckedCreateInput {
   const title = requiredText(entry.title, 'title')
   const type = requiredText(entry.type, 'type')
-  const { category, modelType } = resolveCategory(entry)
+  const { category, modelType } = resolveCategory({
+    category: entry.category,
+    modelType: entry.modelType,
+  })
 
   return {
     title,

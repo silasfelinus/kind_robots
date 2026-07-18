@@ -5,8 +5,10 @@
      Any matching /images/ruler-hooked/{region}-{state}[-{time}].webp is overlaid
      on top via the asset fallback ladder; missing art simply shows the band. -->
 <template>
-  <div class="relative w-full overflow-hidden rounded-xl border border-base-300 shadow-inner"
-       :aria-label="`Lakeside kingdom at ${scene?.time ?? 'day'}`">
+  <div
+    class="relative w-full overflow-hidden rounded-xl border border-base-300 shadow-inner"
+    :aria-label="`Lakeside kingdom at ${scene?.time ?? 'day'}`"
+  >
     <div class="flex h-72 flex-col sm:h-96">
       <div
         v-for="layer in layers"
@@ -21,12 +23,16 @@
           class="pointer-events-none absolute inset-0 h-full w-full object-cover"
           @error="onImgError(layer.region)"
         />
-        <span class="absolute bottom-1 left-2 text-[10px] font-medium uppercase tracking-wide text-white/70 drop-shadow">
+        <span
+          class="absolute bottom-1 left-2 text-[10px] font-medium uppercase tracking-wide text-white/70 drop-shadow"
+        >
           {{ layer.label }}
         </span>
       </div>
     </div>
-    <div class="pointer-events-none absolute right-2 top-2 rounded-full bg-black/40 px-2 py-0.5 text-xs text-white">
+    <div
+      class="pointer-events-none absolute right-2 top-2 rounded-full bg-black/40 px-2 py-0.5 text-xs text-white"
+    >
       {{ scene?.time ?? 'day' }}
     </div>
   </div>
@@ -34,12 +40,22 @@
 
 <script setup lang="ts">
 import { assetCandidates } from '~/utils/rulerHooked/compositor'
-import type { RegionKey, RegionsManifest, SceneState } from '~/types/ruler-hooked'
+import type {
+  RegionKey,
+  RegionsManifest,
+  SceneState,
+} from '~/types/ruler-hooked'
 
-const props = defineProps<{
-  scene: SceneState | null
-  regions: RegionsManifest
-}>()
+const props = withDefaults(
+  defineProps<{
+    scene: SceneState | null
+    regions: RegionsManifest
+    showImages?: boolean
+  }>(),
+  {
+    showImages: true,
+  },
+)
 
 // Per-region index into the asset fallback ladder (advances on <img> error).
 const errIndex = reactive<Record<string, number>>({})
@@ -73,7 +89,12 @@ const STATE_CLASS: Record<string, string> = {
   fishing: 'bg-gradient-to-b from-amber-200 to-amber-400',
 }
 
-interface Layer { region: RegionKey; label: string; classes: string; src: string | null }
+interface Layer {
+  region: RegionKey
+  label: string
+  classes: string
+  src: string | null
+}
 
 const layers = computed<Layer[]>(() => {
   const scene = props.scene
@@ -84,7 +105,9 @@ const layers = computed<Layer[]>(() => {
     .sort((a, b) => (regs[a]!.z ?? 0) - (regs[b]!.z ?? 0))
     .map((region) => {
       const state = scene.regionStates[region]
-      const cands = assetCandidates(region, state, scene.time)
+      const cands = props.showImages
+        ? assetCandidates(region, state, scene.time)
+        : []
       const idx = errIndex[region] ?? 0
       return {
         region,

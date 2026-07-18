@@ -4,7 +4,7 @@
     type="button"
     class="group flex min-h-44 w-full flex-col overflow-hidden rounded-2xl border-2 bg-base-200 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:min-h-52 md:min-h-56 xl:min-h-[8.5rem] xl:flex-row"
     :class="cardClass"
-    @click="store.selectCard(card.key)"
+    @click="selectCard"
   >
     <div
       class="relative flex min-h-36 w-full shrink-0 items-center justify-center overflow-hidden bg-base-300 sm:min-h-44 md:min-h-52 xl:min-h-full xl:w-2/5 xl:max-w-[10rem]"
@@ -95,7 +95,15 @@ import { computed } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 
-const props = defineProps<{ card: BuilderCard }>()
+const props = withDefaults(
+  defineProps<{
+    card: BuilderCard
+    allowSelect?: boolean
+  }>(),
+  {
+    allowSelect: true,
+  },
+)
 
 const store = useBuilderStore()
 
@@ -107,4 +115,10 @@ const cardClass = computed(() => {
   if (isCompleted.value) return 'border-success/50 bg-success/5'
   return 'border-base-300 hover:border-primary/60'
 })
+
+function selectCard() {
+  if (props.allowSelect) {
+    store.selectCard(props.card.key)
+  }
+}
 </script>

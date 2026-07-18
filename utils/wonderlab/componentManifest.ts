@@ -47,19 +47,28 @@ function isManifest(value: unknown): value is WonderLabComponentManifest {
 export function loadWonderLabComponentManifest(
   fetcher: () => Promise<unknown>,
 ): Promise<WonderLabComponentManifest> {
-  manifestPromise ??= fetcher().then((payload) => {
-    if (!isManifest(payload)) {
-      throw new Error('WonderLab component manifest has an invalid shape.')
-    }
+  manifestPromise ??= fetcher()
+    .then((payload) => {
+      if (!isManifest(payload)) {
+        throw new Error('WonderLab component manifest has an invalid shape.')
+      }
 
-    return payload
-  })
+      return payload
+    })
+    .catch((error) => {
+      manifestPromise = null
+      throw error
+    })
 
   return manifestPromise
 }
 
-export function resetWonderLabManifestCacheForTests(): void {
+export function clearWonderLabManifestCache(): void {
   manifestPromise = null
+}
+
+export function resetWonderLabManifestCacheForTests(): void {
+  clearWonderLabManifestCache()
 }
 
 export function resolveWonderLabManifestEntry(

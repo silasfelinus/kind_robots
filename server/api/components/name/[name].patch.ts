@@ -1,14 +1,19 @@
-import { defineEventHandler, createError, readBody } from 'h3'
+// /server/api/components/name/[name].patch.ts
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
-import type { Component } from '~/prisma/generated/prisma/client'
+import type { Component, Prisma } from '~/prisma/generated/prisma/client'
+import {
+  hasLegacyStatusUpdate,
+  resolveLegacyStatusUpdate,
+} from '@/utils/wonderlab/componentStatus'
 
 export default defineEventHandler(async (event) => {
   let response
   const componentName = event.context.params?.name
+  let requestBody: Partial<Component> | null = null
 
   try {
-    // Validate the component name from the URL params
     if (!componentName || !/^[a-zA-Z0-9\s-]+$/.test(componentName)) {
       throw createError({
         statusCode: 400,
@@ -16,29 +21,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Parse the incoming request body
-    const updatedComponentData: Partial<Component> = await readBody(event)
+    requestBody = await readBody<Partial<Component>>(event)
 
-    // Ensure the request body contains valid fields
-    if (
-      !updatedComponentData ||
-      Object.keys(updatedComponentData).length === 0
-    ) {
+    if (!requestBody || Object.keys(requestBody).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No valid component data provided.',
       })
     }
 
-    // Validate each field in the payload
-    if (updatedComponentData.title && updatedComponentData.title.length > 100) {
+    if (requestBody.title && requestBody.title.length > 100) {
       throw createError({
         statusCode: 400,
         message: 'Invalid title: Must not exceed 100 characters.',
       })
     }
 
-    // Optional: Check for disallowed or unexpected fields
     const allowedFields = [
       'folderName',
       'createdAt',
@@ -50,9 +48,10 @@ export default defineEventHandler(async (event) => {
       'notes',
       'artImageId',
     ]
-    const invalidFields = Object.keys(updatedComponentData).filter(
+    const invalidFields = Object.keys(requestBody).filter(
       (field) => !allowedFields.includes(field),
     )
+
     if (invalidFields.length > 0) {
       throw createError({
         statusCode: 400,
@@ -60,7 +59,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Fetch the existing component by name to ensure it exists
     const existingComponent = await prisma.component.findUnique({
       where: { componentName },
     })
@@ -72,27 +70,42 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Update the component in the database
+    const normalizedStatus = hasLegacyStatusUpdate(requestBody)
+      ? resolveLegacyStatusUpdate(existingComponent, requestBody)
+      : null
+
+    const {
+      isWorking: _isWorking,
+      underConstruction: _underConstruction,
+      isBroken: _isBroken,
+      ...nonStatusData
+    } = requestBody
+
+    const updateData: Prisma.ComponentUpdateInput = {
+      ...nonStatusData,
+      isWorking: normalizedStatus?.isWorking,
+      underConstruction: normalizedStatus?.underConstruction,
+      isBroken: normalizedStatus?.isBroken,
+    }
+
     const data = await prisma.component.update({
       where: { componentName },
-      data: updatedComponentData,
+      data: updateData,
     })
 
-    // Return the updated component in the expected response format
     response = {
       success: true,
       data,
-      statusCode: 200, // OK
+      statusCode: 200,
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     console.error(`Failed to update component with name "${componentName}":`, {
       error: handledError,
-      requestBody: await readBody(event),
+      requestBody,
     })
 
-    // Set response and status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

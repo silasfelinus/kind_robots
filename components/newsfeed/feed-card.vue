@@ -1,9 +1,10 @@
 <!-- /components/newsfeed/feed-card.vue -->
 <template>
-  <a
-    :href="item.url"
-    target="_blank"
-    rel="noopener noreferrer"
+  <component
+    :is="allowNavigation ? 'a' : 'article'"
+    :href="allowNavigation ? item.url : undefined"
+    :target="allowNavigation ? '_blank' : undefined"
+    :rel="allowNavigation ? 'noopener noreferrer' : undefined"
     class="group flex h-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl"
   >
     <figure
@@ -61,11 +62,15 @@
         >
           <Icon name="kind-icon:clock" class="size-3" />
           {{ relativeTime(item.publishedAt) }}
-          <Icon name="kind-icon:external-link" class="size-3" />
+          <Icon
+            v-if="allowNavigation"
+            name="kind-icon:external-link"
+            class="size-3"
+          />
         </span>
       </div>
     </div>
-  </a>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -76,16 +81,17 @@ const props = withDefaults(
   defineProps<{
     item: NewsFeedItem
     showImage?: boolean
+    allowNavigation?: boolean
   }>(),
   {
     showImage: true,
+    allowNavigation: true,
   },
 )
 
 const imageFailed = ref(false)
 
 const imageSrc = computed(() => props.item.image || '')
-
 const primaryCategory = computed(() => props.item.category?.[0] || '')
 
 function relativeTime(iso: string): string {

@@ -33,10 +33,10 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
+Resolved since this audit: the click/match high-score endpoints now require authentication, derive user identity from the token, reject identity fields, and preserve monotonic high scores.
+
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `server/api/achievements/updateClickRecord.put.ts:26` | unauth `prisma.user.update` on any userId from body                                      |
-| `server/api/achievements/updateMatchRecord.put.ts:26` | same — writes matchRecord on any user                                                    |
 | `server/api/achievements/[id].patch.ts:37`            | unauth update + raw body mass-assignment                                                 |
 | `server/api/achievements/[id].delete.ts:21`           | unauth delete                                                                            |
 | `server/api/achievements/index.post.ts:24`            | unauth batch create                                                                      |

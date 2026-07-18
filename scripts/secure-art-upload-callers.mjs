@@ -2,12 +2,15 @@ import { readFileSync, writeFileSync } from 'node:fs'
 
 function replaceExact(path, target, replacement, label) {
   const source = readFileSync(path, 'utf8')
+  const newline = source.includes('\r\n') ? '\r\n' : '\n'
+  const normalizedSource = source.replace(/\r\n/g, '\n')
 
-  if (!source.includes(target)) {
+  if (!normalizedSource.includes(target)) {
     throw new Error(`Expected ${label} was not found in ${path}.`)
   }
 
-  writeFileSync(path, source.replace(target, replacement), 'utf8')
+  const updated = normalizedSource.replace(target, replacement)
+  writeFileSync(path, updated.replace(/\n/g, newline), 'utf8')
 }
 
 replaceExact(

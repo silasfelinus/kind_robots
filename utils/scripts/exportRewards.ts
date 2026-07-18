@@ -1,12 +1,13 @@
 // scripts/exportRewards.ts
 import 'dotenv/config'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
-const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+// SSL-aware adapter (see server/utils/prisma.ts) — ProxySQL enforces TLS.
+const prisma = new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 
 async function main() {
   const rows = await prisma.$queryRaw`SELECT * FROM Reward ORDER BY id ASC`

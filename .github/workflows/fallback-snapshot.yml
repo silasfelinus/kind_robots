@@ -21,6 +21,14 @@ name: Nightly fallback snapshot & backup
 #   DATABASE_URL         mysql://user:pass@host:port/db — host must be the
 #                        Unraid machine's tailnet address (MagicDNS name or
 #                        100.x.y.z IP), NOT its public hostname
+#   DATABASE_SSL_CA_BASE64  base64-encoded PEM of the CA that signed ProxySQL's
+#                        server certificate. ProxySQL now ENFORCES TLS, so both
+#                        the Prisma snapshot script and the mysqldump backup
+#                        must present a CA-verified TLS connection or the DB
+#                        rejects them with "Access denied ... SSL is required".
+#                        Same secret the app runtime and prisma-migrate-deploy
+#                        already use. (DATABASE_SSL_CA, raw PEM, is also honored
+#                        by the snapshot script as a fallback.)
 #   BACKUP_PASSPHRASE    symmetric key for the encrypted dump
 #   TS_OAUTH_CLIENT_ID   Tailscale OAuth client (scope: Auth Keys, with
 #   TS_OAUTH_SECRET      tag:ci) — admin console → Settings → OAuth clients.
@@ -53,6 +61,12 @@ jobs:
       # prisma.config.ts resolves DATABASE_URL at config-load time, so every
       # prisma-adjacent step needs it — not just the snapshot script.
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # ProxySQL enforces TLS: the snapshot script's SSL-aware adapter (shared
+      # with server/utils/prisma.ts) reads this CA to complete the handshake.
+      # Both forms the runtime accepts are forwarded — set EITHER one:
+      # DATABASE_SSL_CA_BASE64 (base64 of the PEM) or DATABASE_SSL_CA (raw PEM).
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
     steps:
       - name: Require secrets
         env:
@@ -66,6 +80,9 @@ jobs:
           if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
             echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. Create a Tailscale OAuth client (admin console → Settings → OAuth clients, scope 'Auth Keys' with tag:ci) and add both as repository Actions secrets."
             exit 1
+          fi
+          if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
+            echo "::warning::No database CA secret is set (DATABASE_SSL_CA_BASE64 / DATABASE_SSL_CA are both empty). ProxySQL enforces TLS and the Prisma snapshot needs an explicit CA, so it will fail with 'Access denied ... SSL is required'. Add the ProxySQL CA as a repository Actions secret — the same CA the app runtime and prisma-migrate-deploy use."
           fi
 
       # No explicit ref: scheduled runs check out main (the default branch),
@@ -152,6 +169,25 @@ jobs:
           export MYSQL_PWD="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" password)"
           DB_HOST="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" host)"
           DB_PORT="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" port)"
+
+          # ProxySQL enforces TLS, so the CLI must present the CA too. VERIFY_CA
+          # validates the server cert against the CA without checking the
+          # hostname — the DB host is a tailnet IP/MagicDNS name that need not
+          # appear in the cert's SAN. CA written 0600 and removed on step exit.
+          # Accept either secret form (base64 preferred, raw PEM fallback).
+          MYSQL_SSL_OPTS=()
+          CA_FILE=""
+          if [ -n "$DATABASE_SSL_CA_BASE64" ]; then
+            CA_FILE="$(mktemp)"
+            printf '%s' "$DATABASE_SSL_CA_BASE64" | base64 -d > "$CA_FILE"
+          elif [ -n "$DATABASE_SSL_CA" ]; then
+            CA_FILE="$(mktemp)"
+            printf '%b' "$DATABASE_SSL_CA" > "$CA_FILE"
+          fi
+          if [ -n "$CA_FILE" ]; then
+            trap 'rm -f "$CA_FILE"' EXIT
+            MYSQL_SSL_OPTS=(--ssl-mode=VERIFY_CA "--ssl-ca=$CA_FILE")
+          fi
           if command -v tailscale >/dev/null 2>&1; then
             if tailscale ping -c 2 --timeout 3s "$DB_HOST" >/dev/null 2>&1; then
               echo "tailscale ping: ok"
@@ -169,7 +205,7 @@ jobs:
               }'
           fi
 
-          if mysql --connect-timeout=12 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -e 'SELECT 1' >/dev/null 2>&1; then
+          if mysql --connect-timeout=12 "${MYSQL_SSL_OPTS[@]}" -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -e 'SELECT 1' >/dev/null 2>&1; then
             echo "mysql CLI: ok"
           else
             echo "mysql CLI: fail (exit $?)"
@@ -233,6 +269,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          # ProxySQL enforces TLS — mysqldump must present the CA (see snapshot).
+          DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+          DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
         run: |
           # Without pipefail a failed mysqldump still exits 0 through the
           # gzip|openssl pipeline and uploads a ~200-byte encrypted-empty
@@ -246,10 +285,34 @@ jobs:
           DB_PORT="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" port)"
           DB_NAME="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" name)"
 
+          # ProxySQL enforces TLS. VERIFY_CA checks the server cert against the
+          # CA without hostname verification (the host is a tailnet IP/MagicDNS
+          # name that need not be in the cert SAN). CA file is 0600 and removed
+          # on step exit. Accept either secret form (base64 preferred, raw PEM
+          # fallback). Without a CA, mysqldump still negotiates opportunistic
+          # (unverified) TLS by default, which ProxySQL accepts — so add the CA
+          # to upgrade this to a verified connection.
+          MYSQL_SSL_OPTS=()
+          CA_FILE=""
+          if [ -n "$DATABASE_SSL_CA_BASE64" ]; then
+            CA_FILE="$(mktemp)"
+            printf '%s' "$DATABASE_SSL_CA_BASE64" | base64 -d > "$CA_FILE"
+          elif [ -n "$DATABASE_SSL_CA" ]; then
+            CA_FILE="$(mktemp)"
+            printf '%b' "$DATABASE_SSL_CA" > "$CA_FILE"
+          fi
+          if [ -n "$CA_FILE" ]; then
+            trap 'rm -f "$CA_FILE"' EXIT
+            MYSQL_SSL_OPTS=(--ssl-mode=VERIFY_CA "--ssl-ca=$CA_FILE")
+          else
+            echo "::warning::No database CA secret is set — mysqldump will use unverified opportunistic TLS. Add DATABASE_SSL_CA_BASE64 (or DATABASE_SSL_CA) to verify the ProxySQL certificate."
+          fi
+
           # --column-statistics=0: the runner's MySQL 8 mysqldump queries
           # information_schema.COLUMN_STATISTICS, which MariaDB doesn't have.
           mysqldump \
             --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" \
+            "${MYSQL_SSL_OPTS[@]}" \
             --single-transaction --skip-lock-tables --routines --triggers \
             --column-statistics=0 \
             "$DB_NAME" \

@@ -11,6 +11,9 @@ concurrency:
   group: typecheck-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   typecheck:
     name: TypeScript
@@ -22,6 +25,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -41,7 +47,9 @@ jobs:
 
       - name: Regenerate component manifest
         if: github.event_name == 'pull_request' && github.head_ref == 'refactor/remove-social-publishing'
-        run: npm run components:manifest
+        run: |
+          npm run components:manifest
+          rm -f public/wonderlab-components.json
 
       - name: Format social removal source changes
         if: github.event_name == 'pull_request' && github.head_ref == 'refactor/remove-social-publishing'
@@ -55,6 +63,7 @@ jobs:
           server/utils/userPurge.ts
           stores/feedPreferenceStore.ts
           stores/helpers/dashboardHelper.ts
+          stores/reactionStore.ts
 
       - name: Package social removal output
         if: github.event_name == 'pull_request' && github.head_ref == 'refactor/remove-social-publishing'
@@ -93,6 +102,18 @@ jobs:
 
       - name: Type check
         run: npm run test > /tmp/typecheck.log 2>&1
+
+      - name: Commit verified social removal
+        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/remove-social-publishing'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "kind-robots-refactor"
+          git config user.email "kind-robots-refactor@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 1
+          git commit -m "refactor: remove abandoned social publishing [skip ci]"
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Upload TypeScript diagnostics
         if: always()

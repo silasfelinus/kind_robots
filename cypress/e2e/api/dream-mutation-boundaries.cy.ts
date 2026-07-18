@@ -35,11 +35,23 @@ describe('Dream mutation boundaries', () => {
   let adminToken = ''
   let user: TestUserAuth | undefined
   let dreamId = 0
+  let batchDreamId = 0
 
   const time = Date.now()
   const dreamsUrl = () => `${apiBase}/dreams`
   const chatsUrl = () => `${apiBase}/chats`
   const authHeaders = () => bearerHeaders(user!.token)
+
+  const deleteDream = (id: number) => {
+    if (!id || !user) return
+
+    cy.request({
+      method: 'DELETE',
+      url: `${dreamsUrl()}/${id}`,
+      headers: authHeaders(),
+      failOnStatusCode: false,
+    })
+  }
 
   before(() => {
     return getApiEnv()
@@ -54,15 +66,8 @@ describe('Dream mutation boundaries', () => {
   })
 
   after(() => {
-    if (dreamId && user) {
-      cy.request({
-        method: 'DELETE',
-        url: `${dreamsUrl()}/${dreamId}`,
-        headers: authHeaders(),
-        failOnStatusCode: false,
-      })
-    }
-
+    deleteDream(dreamId)
+    deleteDream(batchDreamId)
     deleteTestUser(apiBase, adminToken, user?.id)
   })
 
@@ -136,6 +141,53 @@ describe('Dream mutation boundaries', () => {
     cy.request<ApiResponse<ChatResponse[]>>({
       method: 'GET',
       url: `${chatsUrl()}?dreamId=${dreamId}`,
+      headers: authHeaders(),
+    }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body.success).to.eq(true)
+      expect(res.body.data || []).to.deep.eq([])
+    })
+  })
+
+  it('batch creation also creates only Dream rows', () => {
+    cy.request<ApiResponse<DreamResponse[]>>({
+      method: 'POST',
+      url: `${dreamsUrl()}/batch`,
+      headers: authHeaders(),
+      body: [
+        {
+          title: `Cypress Thin Batch Dream ${time}`,
+          slug: `cypress-thin-batch-dream-${time}`,
+          description: 'A batch Dream used to verify mutation boundaries.',
+          dreamType: 'LOCATION',
+          creationSource: 'HUMAN',
+          isPublic: false,
+          createCollection: true,
+          seedStarterImages: true,
+        },
+      ],
+    }).then((res) => {
+      expect(res.status, JSON.stringify(res.body)).to.eq(201)
+      expect(res.body.success).to.eq(true)
+      expect(res.body.data).to.be.an('array').with.length(1)
+
+      const dream = res.body.data![0]!
+      batchDreamId = dream.id
+
+      expect(dream.id).to.be.a('number').and.greaterThan(0)
+      expect(dream.title).to.eq(`Cypress Thin Batch Dream ${time}`)
+      expect(dream.artCollectionId).to.eq(null)
+      expect(dream.artImageId).to.eq(null)
+      expect(dream).to.not.have.property('Chats')
+      expect(dream).to.not.have.property('ArtCollection')
+      expect(dream).to.not.have.property('ArtImages')
+    })
+  })
+
+  it('batch creation does not create Dream chats', () => {
+    cy.request<ApiResponse<ChatResponse[]>>({
+      method: 'GET',
+      url: `${chatsUrl()}?dreamId=${batchDreamId}`,
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)

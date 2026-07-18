@@ -168,7 +168,7 @@
 
       <div
         v-else-if="filteredCharacters.length === 0"
-        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
+        class="flex h-full flex-col items-center justify-center gap-3 kr-panel-muted text-center text-base-content/60"
       >
         <Icon name="kind-icon:theater" class="h-12 w-12 text-primary" />
 

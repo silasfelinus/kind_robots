@@ -118,10 +118,47 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  it('should return lean rows for batch creation too', () => {
+  it('should return 409 instead of a skipped pseudo-Scenario for duplicates', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        title: uniqueScenarioTitle,
+        description: 'This duplicate must not masquerade as a Scenario row.',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(409)
+      expect(response.body.success).to.be.false
+      expect(response.body.data).to.eq(null)
+      expect(response.body.message).to.include('Scenario already exists')
+    })
+  })
+
+  it('should reject arrays on single-resource Scenario POST', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: [
+        {
+          title: uniqueBatchScenarioTitle,
+          description: 'This belongs on the explicit batch route.',
+        },
+      ],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('/api/scenarios/batch')
+    })
+  })
+
+  it('should return lean rows from the explicit batch route', () => {
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
       headers: bearerHeaders(userToken),
       body: [
         {
@@ -136,6 +173,8 @@ describe('Scenario Management API Tests', () => {
       expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data.created).to.be.an('array').with.length(1)
+      expect(response.body.data.skipped).to.deep.eq([])
+      expect(response.body.data.failed).to.deep.eq([])
 
       const scenario = response.body.data.created[0]
       expectLeanMutation(scenario)

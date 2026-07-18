@@ -1,5 +1,5 @@
 // /server/api/dreams/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
 
     const auth = await requireApiUser(event)
     const user = auth.user
-
     const dream = await prisma.dream.findUnique({
       where: { id },
       select: {
@@ -40,28 +39,7 @@ export default defineEventHandler(async (event) => {
     })
 
     const actor = user.username || `User ${user.id}`
-
-    const data = await prisma.$transaction(async (tx) => {
-      await tx.chat.updateMany({
-        where: { dreamId: id },
-        data: { dreamId: null },
-      })
-
-      await tx.reaction.deleteMany({ where: { dreamId: id } })
-
-      await tx.dream.update({
-        where: { id },
-        data: {
-          Scenarios: { set: [] },
-          Characters: { set: [] },
-          Rewards: { set: [] },
-          ArtImages: { set: [] },
-          ArtCollections: { set: [] },
-        },
-      })
-
-      return tx.dream.delete({ where: { id } })
-    })
+    const data = await prisma.dream.delete({ where: { id } })
 
     event.node.res.statusCode = 200
 

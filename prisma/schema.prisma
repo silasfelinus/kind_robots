@@ -255,7 +255,7 @@ model Chat {
   ArtImage        ArtImage?    @relation(fields: [artImageId], references: [id])
   Bot             Bot?         @relation(fields: [botId], references: [id])
   Character       Character?   @relation(fields: [characterId], references: [id])
-  Dream           Dream?       @relation(fields: [dreamId], references: [id])
+  Dream           Dream?       @relation(fields: [dreamId], references: [id], onDelete: SetNull)
   Project         Project?     @relation(fields: [projectId], references: [id])
   Prompt          Prompt?      @relation(fields: [promptId], references: [id])
   Server          Server?      @relation(fields: [serverId], references: [id])
@@ -943,7 +943,7 @@ model Reaction {
   Character             Character?                @relation(fields: [characterId], references: [id])
   Chat                  Chat?                     @relation(fields: [chatId], references: [id])
   Component             Component?                @relation(fields: [componentId], references: [id])
-  Dream                 Dream?                    @relation(fields: [dreamId], references: [id])
+  Dream                 Dream?                    @relation(fields: [dreamId], references: [id], onDelete: Cascade)
   Facet                 Facet?                    @relation(fields: [facetId], references: [id])
   Project               Project?                  @relation(fields: [projectId], references: [id])
   Prompt                Prompt?                   @relation(fields: [promptId], references: [id])
@@ -1175,8 +1175,6 @@ model SmartIcon {
 
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
-
-
 
 model Theme {
   id          Int        @id @default(autoincrement())
@@ -1451,7 +1449,7 @@ model Todo {
   dreamId     Int?
   order       Int?
   projectId   Int?
-  Dream       Dream?       @relation(fields: [dreamId], references: [id])
+  Dream       Dream?       @relation(fields: [dreamId], references: [id], onDelete: SetNull)
   Project     Project?     @relation(fields: [projectId], references: [id])
 
   @@index([userId])
@@ -1563,7 +1561,7 @@ model LifeRun {
   ArtCollection   ArtCollection?          @relation(fields: [artCollectionId], references: [id])
   Bot             Bot?                    @relation(fields: [botId], references: [id])
   Character       Character?              @relation(fields: [characterId], references: [id])
-  Dream           Dream?                  @relation(fields: [dreamId], references: [id])
+  Dream           Dream?                  @relation(fields: [dreamId], references: [id], onDelete: SetNull)
   Ending          LifeEnding?             @relation(fields: [endingId], references: [id])
   User            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   Art             LifeRunArt[]
@@ -1845,10 +1843,6 @@ enum ScenarioOutputType {
   SCENARIO
   MIXED
 }
-
-
-
-
 
 enum ArtJobStatus {
   PENDING

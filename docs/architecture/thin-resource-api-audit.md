@@ -16,12 +16,12 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 
 ### P0 — Cross-resource side effects
 
-| Resource           | Previous problem                                                                                              | Completed action                                                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Dream create       | Created ArtCollection and Chat records, updated ArtCollection, and returned `dreamInclude`                    | Removed unrelated writes and replaced the response with `dreamMutationSelect`                                                          |
-| Dream patch        | Updated ArtCollection, created Chat records as an update log, re-read `dreamInclude`                          | Removed unrelated writes and second read; returns the updated Dream projection                                                         |
-| Dream batch create | Created ArtCollection, three ArtImage rows, Chat rows, updated Dream and collection, then re-read every Dream | Reduced to batch Dream creation with optional links to existing records                                                                |
-| Dream delete       | Manually detaches Chats, Reactions, and many-to-many links before deletion                                    | Kept temporarily for referential integrity; replace with explicit database delete behavior in a migration before simplifying the route |
+| Resource           | Previous problem                                                                                              | Completed action                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Dream create       | Created ArtCollection and Chat records, updated ArtCollection, and returned `dreamInclude`                    | Removed unrelated writes and replaced the response with `dreamMutationSelect`                                                   |
+| Dream patch        | Updated ArtCollection, created Chat records as an update log, re-read `dreamInclude`                          | Removed unrelated writes and second read; returns the updated Dream projection                                                  |
+| Dream batch create | Created ArtCollection, three ArtImage rows, Chat rows, updated Dream and collection, then re-read every Dream | Reduced to batch Dream creation with optional links to existing records                                                         |
+| Dream delete       | Manually detached Chats, deleted Reactions, and cleared many-to-many links before deletion                    | Declared preserve-vs-cascade behavior in Prisma, migrated Dream reactions to cascade, and reduced the route to one Dream delete |
 
 ### P1 — Completed response and resource-boundary cleanup
 
@@ -81,7 +81,7 @@ For Dreams, collection creation remains an explicit `collectionStore` action. Ch
 2. ✅ Dream store/form cleanup and removal of obsolete collection/chat flags.
 3. ✅ Character, Scenario, Reward, and Prompt resource projections.
 4. ✅ Bot, Project, and PitchSheet response cleanup; retired the unused SocialPost/SocialTarget prototype instead of preserving dead CRUD.
-5. Database referential-action migration for deletes that currently require manual cross-resource cleanup.
+5. ✅ Dream delete referential actions and route simplification; continue the same audit for other resources only where manual cleanup remains.
 6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when production catches up to the merged API tier.
 
 ## Definition of Done

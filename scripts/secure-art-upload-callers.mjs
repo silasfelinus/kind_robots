@@ -12,11 +12,11 @@ function replaceExact(path, target, replacement, label) {
 
 replaceExact(
   'stores/uploadStore.ts',
-  `// API/storage expects the short form ('png', 'jpeg', 'webp'), not the MIME type.
+  String.raw`// API/storage expects the short form ('png', 'jpeg', 'webp'), not the MIME type.
 function normalizeFileType(value: string | null | undefined): string {
   if (!value) return 'png'
   const lower = value.toLowerCase().trim()
-  const short = lower.replace(/^image\\//, '')
+  const short = lower.replace(/^image\//, '')
   return short === 'jpg' ? 'jpeg' : short || 'png'
 }
 
@@ -45,142 +45,111 @@ replaceExact(
 
 replaceExact(
   'stores/uploadStore.ts',
-  `  function buildUploadFormData(
-    file: File,
-    target: ImageUploadTarget,
-    userId: number,
-    username: string,
-    collectionLabel?: string,
-    connectedModelType?: ConnectableModel | null,
-    connectedModelId?: number | null,
-    metadata?: UploadMetadata | null,
-  ): FormData {
-    const formData = new FormData()
-    const galleryId = target.galleryId ?? 21
-    const galleryName = target.galleryName ?? 'userUpload'
-    const collectionId = getSelectedCollectionId(target)
-    const designer = metadata?.designer?.trim() || username
-
-    formData.append('image', file)
-    formData.append('galleryName', galleryName)
-    formData.append('galleryId', String(galleryId))
-    formData.append('userId', String(userId))
-    formData.append('fileType', normalizeFileType(file.type))
-    formData.append('fileName', file.name)
-    formData.append('designer', designer)
-
-    appendOptionalString(
-      formData,
-      'promptString',
-      metadata?.promptString ||
-        target.promptString ||
-        target.artPrompt ||
-        '[UploadedImage]',
-    )
-    appendOptionalString(
-      formData,
-      'artPrompt',
-      target.artPrompt ||
-        metadata?.promptString ||
-        target.promptString ||
-        '[UploadedImage]',
-    )
-    appendOptionalString(formData, 'path', target.path || '[UploadedImage]')
-    appendOptionalString(formData, 'collectionLabel', collectionLabel)
-
-    appendOptionalNumber(formData, 'artCollectionId', collectionId)
-    appendOptionalNumber(formData, 'collectionId', collectionId)
-
-    // Optional generation metadata
-    appendOptionalString(formData, 'negativePrompt', metadata?.negativePrompt)
-    appendOptionalString(formData, 'checkpoint', metadata?.checkpoint)
-    appendOptionalString(formData, 'sampler', metadata?.sampler)
-    appendOptionalString(formData, 'genres', metadata?.genres)
-    appendOptionalString(formData, 'serverName', metadata?.serverName)
-    appendOptionalString(formData, 'serverUrl', metadata?.serverUrl)
-
-    appendOptionalNumber(formData, 'seed', metadata?.seed)
-    appendOptionalNumber(formData, 'steps', metadata?.steps)
-    appendOptionalNumber(formData, 'cfg', metadata?.cfg)
-    appendOptionalNumber(formData, 'rarity', metadata?.rarity)
-    appendOptionalNumber(formData, 'serverId', metadata?.serverId)
-
-    appendOptionalBoolean(formData, 'cfgHalf', metadata?.cfgHalf)
-    appendOptionalBoolean(formData, 'isPublic', metadata?.isPublic)
-    appendOptionalBoolean(formData, 'isMature', metadata?.isMature)
-
-    if (connectedModelType && connectedModelId) {
-      formData.append('connectedModelType', connectedModelType)
-      formData.append('connectedModelId', String(connectedModelId))
-    }
-
-    return formData
-  }`,
-  `  function buildUploadFormData(
-    file: File,
-    target: ImageUploadTarget,
-    username: string,
-    metadata?: UploadMetadata | null,
-  ): FormData {
-    const formData = new FormData()
-    const galleryName = target.galleryName ?? 'userUpload'
-    const designer = metadata?.designer?.trim() || username
-
-    formData.append('image', file)
-    formData.append('galleryName', galleryName)
-    formData.append('fileName', file.name)
-    formData.append('designer', designer)
-
-    appendOptionalString(
-      formData,
-      'promptString',
-      metadata?.promptString ||
-        target.promptString ||
-        target.artPrompt ||
-        '[UploadedImage]',
-    )
-    appendOptionalString(
-      formData,
-      'artPrompt',
-      target.artPrompt ||
-        metadata?.promptString ||
-        target.promptString ||
-        '[UploadedImage]',
-    )
-    appendOptionalString(formData, 'path', target.path || '[UploadedImage]')
-    appendOptionalString(formData, 'negativePrompt', metadata?.negativePrompt)
-    appendOptionalString(formData, 'sampler', metadata?.sampler)
-    appendOptionalString(formData, 'genres', metadata?.genres)
-
-    appendOptionalNumber(formData, 'seed', metadata?.seed)
-    appendOptionalNumber(formData, 'steps', metadata?.steps)
-    appendOptionalNumber(formData, 'cfg', metadata?.cfg)
-    appendOptionalNumber(formData, 'rarity', metadata?.rarity)
-
-    appendOptionalBoolean(formData, 'cfgHalf', metadata?.cfgHalf)
-    appendOptionalBoolean(formData, 'isPublic', metadata?.isPublic)
-    appendOptionalBoolean(formData, 'isMature', metadata?.isMature)
-
-    return formData
-  }`,
-  'art upload multipart payload',
+  `    userId: number,
+`,
+  ``,
+  'upload form user ID parameter',
 )
 
 replaceExact(
   'stores/uploadStore.ts',
-  `  async function uploadSingleFile(
-    file: File,
-    target: ImageUploadTarget,
-    userId: number,
-    username: string,
-    collectionLabel?: string,
+  `    collectionLabel?: string,
     connectedModelType?: ConnectableModel | null,
     connectedModelId?: number | null,
-    metadata?: UploadMetadata | null,
-  ): Promise<ArtImage> {
-    const artStore = useArtStore()
+`,
+  ``,
+  'upload form relationship parameters',
+)
 
-    const formData = buildUploadFormData(
+replaceExact(
+  'stores/uploadStore.ts',
+  `    const galleryId = target.galleryId ?? 21
+`,
+  ``,
+  'upload form gallery ID',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    const collectionId = getSelectedCollectionId(target)
+`,
+  ``,
+  'upload form collection ID',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    formData.append('galleryId', String(galleryId))
+    formData.append('userId', String(userId))
+    formData.append('fileType', normalizeFileType(file.type))
+`,
+  ``,
+  'upload identity and derived file type fields',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    appendOptionalString(formData, 'collectionLabel', collectionLabel)
+
+    appendOptionalNumber(formData, 'artCollectionId', collectionId)
+    appendOptionalNumber(formData, 'collectionId', collectionId)
+
+`,
+  ``,
+  'upload collection relationship fields',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    appendOptionalString(formData, 'checkpoint', metadata?.checkpoint)
+`,
+  ``,
+  'unsupported checkpoint field',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    appendOptionalString(formData, 'serverName', metadata?.serverName)
+    appendOptionalString(formData, 'serverUrl', metadata?.serverUrl)
+`,
+  ``,
+  'unsupported server metadata fields',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    appendOptionalNumber(formData, 'rarity', metadata?.rarity)
+    appendOptionalNumber(formData, 'serverId', metadata?.serverId)
+`,
+  ``,
+  'unsupported rarity and server fields',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `
+    if (connectedModelType && connectedModelId) {
+      formData.append('connectedModelType', connectedModelType)
+      formData.append('connectedModelId', String(connectedModelId))
+    }
+`,
+  ``,
+  'upload target relationship fields',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    userId: number,
+    username: string,
+`,
+  `    username: string,
+`,
+  'single upload user ID parameter',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
+  `    const formData = buildUploadFormData(
       file,
       target,
       userId,
@@ -190,62 +159,46 @@ replaceExact(
       connectedModelId,
       metadata,
     )`,
-  `  async function uploadSingleFile(
-    file: File,
-    target: ImageUploadTarget,
-    username: string,
-    collectionLabel?: string,
-    connectedModelType?: ConnectableModel | null,
-    connectedModelId?: number | null,
-    metadata?: UploadMetadata | null,
-  ): Promise<ArtImage> {
-    const artStore = useArtStore()
-
-    const formData = buildUploadFormData(file, target, username, metadata)`,
+  `    const formData = buildUploadFormData(file, target, username, metadata)`,
   'single upload payload call',
 )
 
 replaceExact(
   'stores/uploadStore.ts',
   `      const { userId, username } = getCurrentUser()
-      const label = getSelectedCollectionLabel(target, collectionLabel)
-
-      const artImage = await uploadSingleFile(
-        file,
-        target,
-        userId,
-        username,`,
+`,
   `      const username = getCurrentUsername()
-      const label = getSelectedCollectionLabel(target, collectionLabel)
-
-      const artImage = await uploadSingleFile(
-        file,
-        target,
-        username,`,
+`,
   'single upload authenticated identity removal',
 )
 
 replaceExact(
   'stores/uploadStore.ts',
+  `        userId,
+        username,
+`,
+  `        username,
+`,
+  'single upload user ID argument',
+)
+
+replaceExact(
+  'stores/uploadStore.ts',
   `    const { userId, username } = getCurrentUser()
-    const label = getSelectedCollectionLabel(target, collectionLabel)`,
+`,
   `    const username = getCurrentUsername()
-    const label = getSelectedCollectionLabel(target, collectionLabel)`,
+`,
   'batch upload authenticated identity removal',
 )
 
 replaceExact(
   'stores/uploadStore.ts',
-  `        const artImage = await uploadSingleFile(
-          file,
-          target,
-          userId,
-          username,`,
-  `        const artImage = await uploadSingleFile(
-          file,
-          target,
-          username,`,
-  'batch upload payload call',
+  `          userId,
+          username,
+`,
+  `          username,
+`,
+  'batch upload user ID argument',
 )
 
 replaceExact(
@@ -257,7 +210,7 @@ replaceExact(
 
 replaceExact(
   'docs/notes/backend-sweep-2026-07-05.md',
-  `| \`server/api/art/upload.post.ts:97\`                    | unauth; \`userId = getNumberField(...) \\|\\| 10\` → anon uploads as any user                |
+  String.raw`| \`server/api/art/upload.post.ts:97\`                    | unauth; \`userId = getNumberField(...) \|\| 10\` → anon uploads as any user                |
 `,
   ``,
   'resolved art upload exposure row',

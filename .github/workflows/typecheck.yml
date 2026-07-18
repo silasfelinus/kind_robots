@@ -11,9 +11,6 @@ concurrency:
   group: typecheck-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-
 jobs:
   typecheck:
     name: TypeScript
@@ -25,9 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -38,28 +32,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Apply Component update contract
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/component-update-contract'
-        run: node scripts/fix-component-update-contract.mjs
-
       - name: Generate Prisma client
         run: npx prisma generate
 
       - name: Type check
         run: npm run test > /tmp/typecheck.log 2>&1
-
-      - name: Commit verified Component contract
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/component-update-contract'
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f public/wonderlab-components.json
-          git config user.name "kind-robots-refactor"
-          git config user.email "kind-robots-refactor@users.noreply.github.com"
-          git add server/api/components/[id].patch.ts stores/helpers/componentHelper.ts stores/componentStore.ts components/wonderlab/lab-interact.vue cypress/e2e/api/components.cy.ts docs/architecture/thin-resource-api-audit.md
-          git diff --cached --quiet && exit 1
-          git commit -m "fix: consolidate Component updates on ID route [skip ci]"
-          git push origin HEAD:${{ github.head_ref }}
 
       - name: Upload TypeScript diagnostics
         if: always()

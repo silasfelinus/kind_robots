@@ -100,6 +100,9 @@ jobs:
       - name: WonderLab UI preview fixtures contract
         run: npm run test:wonderlab-ui-fixtures
 
+      - name: WonderLab achievement and navigation fixtures contract
+        run: npm run test:wonderlab-achievement-navigation-fixtures
+
       - name: WonderLab preview coverage audit
         run: npm run audit:wonderlab-previews 2>&1 | tee wonderlab-preview-audit.txt
 

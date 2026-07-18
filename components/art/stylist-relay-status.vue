@@ -43,10 +43,7 @@
         </button>
       </div>
 
-      <div
-        v-if="error"
-        class="rounded-2xl border border-error/40 bg-error/10 p-2 text-xs text-error"
-      >
+      <div v-if="error" class="kr-note kr-note-error p-2 text-xs font-normal">
         {{ error }}
       </div>
 

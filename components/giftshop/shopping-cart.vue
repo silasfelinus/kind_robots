@@ -82,7 +82,7 @@ function checkout() {
     alert('You must be logged in to check out.')
     return
   }
-  cartStore.checkout(userStore.userId)
+  cartStore.checkout()
 }
 
 const cartStore = useCartStore()

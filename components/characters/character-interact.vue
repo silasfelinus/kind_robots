@@ -702,29 +702,11 @@ function seedGettingToKnowYouQuestion() {
 }
 
 function buildCharacterSystemPrompt(): string {
-  const character = characterStore.selectedCharacter
-
-  if (!character) {
-    return 'You are a vivid fictional character. Respond in character.'
-  }
-
-  return [
-    `You are roleplaying as ${selectedCharacterName.value}.`,
-    `Species: ${character.species || 'Unknown'}`,
-    `Class: ${character.class || 'Unknown'}`,
-    `Genre: ${character.genre || 'Unknown'}`,
-    `Personality: ${character.personality || 'Unknown'}`,
-    `Backstory: ${character.backstory || 'No backstory provided.'}`,
-    `Quirks: ${character.quirks || 'No quirks listed.'}`,
-    `Achievements: ${character.achievements || 'No achievements listed.'}`,
-    `Drive: ${character.drive || 'No drive listed.'}`,
-    `Stats: luck ${character.luck}, might ${character.might}, wits ${character.wits}, grace ${character.grace}, charm ${character.charm}, empathy ${character.empathy}`,
-    '',
-    'Stay in character.',
-    'Answer directly, vividly, and conversationally.',
-    'Be amusing and thought-provoking, but do not narrate as the user.',
-    'Keep replies between 2 and 6 short paragraphs unless the user asks for more.',
-  ].join('\n')
+  // Shared voice/persona builder (utils/personaPrompt.ts) so chat and future
+  // WonderLab page commentary speak with the same distinct character voice.
+  return buildCharacterPersonaPrompt(characterStore.selectedCharacter, {
+    mode: 'chat',
+  })
 }
 
 function buildCharacterMessages(content: string): BotCafeMessage[] {

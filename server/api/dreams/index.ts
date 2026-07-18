@@ -233,6 +233,7 @@ export const dreamInclude = {
       id: true,
       BotType: true,
       name: true,
+      slug: true,
       subtitle: true,
       description: true,
       tagline: true,
@@ -244,6 +245,7 @@ export const dreamInclude = {
       botIntro: true,
       userIntro: true,
       prompt: true,
+      sampleResponse: true,
       serverId: true,
       serverName: true,
       ExpressionMedia: {
@@ -266,6 +268,13 @@ export const dreamInclude = {
         },
         orderBy: {
           expression: 'asc',
+        },
+      },
+      NarratorThreads: {
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' },
+        include: {
+          Topic: true,
         },
       },
     },

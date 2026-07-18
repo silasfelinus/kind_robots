@@ -3,6 +3,8 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { normalizeSlugInput } from '../../../utils/slugify'
+import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 
 type BotCreateBody = Partial<Bot> & {
@@ -135,9 +137,13 @@ export default defineEventHandler(async (event) => {
       artImageId,
     })
 
+    const requestedSlug = normalizeSlugInput(botData.slug)
+    const slug = await getUniqueBotSlug(prisma, requestedSlug ?? name)
+
     const data: Prisma.BotCreateInput = {
       BotType: getStringOrDefault(botData.BotType, 'PROMPTBOT'),
       name,
+      slug,
       subtitle: getStringOrNull(botData.subtitle),
       description: getStringOrNull(botData.description),
       avatarImage: getStringOrNull(botData.avatarImage),

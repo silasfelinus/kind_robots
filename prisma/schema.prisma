@@ -186,6 +186,7 @@ model Character {
   imagePath            String?                @db.VarChar(764)
   designer             String?                @db.VarChar(256)
   personality          String?                @db.Text
+  sampleResponse       String?                @db.Text
   isMature             Boolean                @default(false)
   isActive             Boolean                @default(true)
   charm                Rarity                 @default(COMMON)

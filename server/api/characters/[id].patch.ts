@@ -10,6 +10,7 @@ import {
   getUniqueCharacterSlug,
 } from '../../utils/characterSlug'
 import type { Character, Prisma } from '~/prisma/generated/prisma/client'
+import { characterMutationSelect } from './selects'
 
 type CharacterPatchBody = Partial<Character> & {
   rewardIds?: unknown
@@ -321,44 +322,7 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.character.update({
       where: { id },
       data: updateData,
-      include: {
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-        Rewards: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            flavorText: true,
-            effect: true,
-            icon: true,
-            collection: true,
-            rarity: true,
-            rewardType: true,
-            imagePath: true,
-            artPrompt: true,
-            isPublic: true,
-            isMature: true,
-          },
-        },
-        Scenarios: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        Dreams: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
+      select: characterMutationSelect,
     })
 
     event.node.res.statusCode = 200

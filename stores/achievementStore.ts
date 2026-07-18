@@ -436,11 +436,27 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     }
 
     try {
+      const payload = {
+        label: achievement.label,
+        message: achievement.message,
+        icon: achievement.icon,
+        karma: achievement.karma,
+        pageHint: achievement.pageHint,
+        subtleHint: achievement.subtleHint,
+        triggerCode: achievement.triggerCode,
+        tooltip: achievement.tooltip,
+        isActive: achievement.isActive,
+        isRepeatable: achievement.isRepeatable,
+        artImageId: achievement.artImageId,
+        artPrompt: achievement.artPrompt,
+        imagePath: achievement.imagePath,
+      }
+
       const response = await performFetch<Achievement>(
         `/api/achievements/${achievement.id}`,
         {
           method: 'PATCH',
-          body: JSON.stringify(achievement),
+          body: JSON.stringify(payload),
         },
       )
 

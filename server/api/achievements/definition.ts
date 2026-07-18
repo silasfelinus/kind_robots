@@ -5,6 +5,14 @@ import type { Achievement, Prisma } from '~/prisma/generated/prisma/client'
 
 export type AchievementDefinitionBody = Partial<Achievement>
 
+export type ValidatedAchievementCreateInput =
+  Prisma.AchievementUncheckedCreateInput & {
+    label: string
+    message: string
+    icon: string
+    triggerCode: string
+  }
+
 export type AchievementBatchFailure = {
   label: string
   message: string
@@ -169,7 +177,7 @@ export function fallbackAchievementLabel(body: unknown): string {
 
 export async function buildAchievementCreateInput(
   body: unknown,
-): Promise<Prisma.AchievementUncheckedCreateInput> {
+): Promise<ValidatedAchievementCreateInput> {
   const input = validateObject(body)
   const artImageId = optionalArtImageId(input.artImageId)
 

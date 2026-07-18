@@ -1,65 +1,49 @@
 // /server/api/prompts/[id].get.ts
-import { defineEventHandler } from 'h3'
+import { createError, defineEventHandler } from 'h3'
+import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { fetchArtByPromptId, fetchPromptById } from '.'
+import { promptResourceSelect } from './selects'
 
-// Event handler for fetching Prompt and related Art by ID
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
     const id = Number(event.context.params?.id)
 
-    if (isNaN(id) || id <= 0) {
-      throw new Error('Invalid ID format. It must be a positive integer.')
+    if (!Number.isInteger(id) || id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid prompt ID. It must be a positive integer.',
+      })
     }
 
-    console.log(`Fetching Prompt with ID: ${id}`)
+    const data = await prisma.prompt.findUnique({
+      where: { id },
+      select: promptResourceSelect,
+    })
 
-    // Fetch Prompt by ID
-    const prompt = await fetchPromptById(id)
-
-    if (!prompt) {
-      console.warn(`Prompt with ID ${id} not found`)
-      return {
-        success: false,
-        message: 'Prompt not found',
-        statusCode: 404, // Not Found
-      }
+    if (!data) {
+      throw createError({
+        statusCode: 404,
+        message: 'Prompt not found.',
+      })
     }
 
-    console.log(`Fetched Prompt: ${JSON.stringify(prompt)}`)
+    event.node.res.statusCode = 200
 
-    // Fetch related Art by Prompt ID
-    const art = await fetchArtByPromptId(id)
-    console.log(`Fetched related Art: ${JSON.stringify(art)}`)
-
-    // Extract Art IDs
-    const artIds = art.map((a) => a.id)
-
-    // Successful response with prompt and art IDs
-    response = {
+    return {
       success: true,
-      data: {
-        prompt: prompt.prompt,
-        artIds,
-      },
+      data,
+      message: 'Prompt fetched successfully.',
       statusCode: 200,
     }
   } catch (error: unknown) {
-    console.error('Error fetching prompt or related art:', error)
-    // Use the errorHandler to process the error
-    const { message, statusCode } = errorHandler({
-      error,
-      context: 'Fetching Prompt and related Art by ID',
-    })
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
 
-    response = {
+    return {
       success: false,
-      message: message || 'Failed to fetch prompt and related art.',
-      statusCode: statusCode || 500,
+      data: null,
+      message: message || 'Failed to fetch prompt.',
+      statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

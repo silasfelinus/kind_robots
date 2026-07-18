@@ -1,8 +1,11 @@
 // /server/api/model-builder/runs/index.ts
 import { createError, getRouterParam } from 'h3'
 import type { H3Event } from 'h3'
-import { Prisma } from '~/prisma/generated/prisma/client'
-import type { ModelBuildStatus } from '~/prisma/generated/prisma/client'
+import type {
+  Prisma,
+  ModelBuildStatus,
+  ModelBuildItem,
+} from '~/prisma/generated/prisma/client'
 
 export const modelBuildStatuses = new Set<ModelBuildStatus>([
   'DRAFT',
@@ -109,15 +112,122 @@ export function normalizeJson(value: unknown): string | null | undefined {
   }
 }
 
-export function parseStoredJson<T = unknown>(
-  value: unknown,
-  fallback: T,
-): T {
+export function parseStoredJson<T = unknown>(value: unknown, fallback: T): T {
   if (typeof value !== 'string' || !value.trim()) return fallback
 
   try {
     return JSON.parse(value) as T
   } catch {
     return fallback
+  }
+}
+
+export type ItemPatchBody = {
+  stageStatuses?: unknown
+  pitch?: unknown
+  fieldsDraft?: unknown
+  promptDraft?: unknown
+  relationshipDraft?: unknown
+  staleReason?: unknown
+  error?: unknown
+  artImageId?: unknown
+  targetType?: unknown
+  targetId?: unknown
+  // Revision metadata (optional):
+  stage?: unknown
+  reason?: unknown
+}
+
+export type PreparedItemUpdate = {
+  data: Prisma.ModelBuildItemUncheckedUpdateInput
+  // Present only when editable draft content changed, so the caller records a
+  // ModelBuildRevision alongside the update.
+  revision: {
+    stage: string
+    reason: string | null
+    actor: string
+    previousPayload: string
+    nextPayload: string
+  } | null
+}
+
+// Shared by the single-item and batch PATCH routes: validates/normalizes an
+// ItemPatchBody against an existing item and builds the Prisma update input
+// plus (when editable content changed) the revision-history entry to record
+// alongside it. Stage-status-only transitions (approve/reject/stale) are
+// frequent and not themselves revisions.
+export function prepareItemUpdate(
+  existing: Pick<
+    ModelBuildItem,
+    | 'pitch'
+    | 'fieldsDraft'
+    | 'promptDraft'
+    | 'stageStatuses'
+    | 'relationshipDraft'
+  >,
+  body: ItemPatchBody,
+  actor: string,
+): PreparedItemUpdate {
+  const data: Prisma.ModelBuildItemUncheckedUpdateInput = {}
+
+  if (body.stageStatuses !== undefined && body.stageStatuses !== null) {
+    const stageStatuses = normalizeJson(body.stageStatuses)
+    if (typeof stageStatuses === 'string') data.stageStatuses = stageStatuses
+  }
+  if (body.pitch !== undefined) data.pitch = normalizeText(body.pitch)
+  if (body.fieldsDraft !== undefined)
+    data.fieldsDraft = normalizeText(body.fieldsDraft)
+  if (body.promptDraft !== undefined)
+    data.promptDraft = normalizeText(body.promptDraft)
+  const relationshipDraft = normalizeJson(body.relationshipDraft)
+  if (relationshipDraft !== undefined)
+    data.relationshipDraft = relationshipDraft
+  if (body.staleReason !== undefined)
+    data.staleReason = normalizeText(body.staleReason)
+  if (body.error !== undefined) data.error = normalizeText(body.error)
+  if (body.artImageId !== undefined)
+    data.artImageId = normalizeNullableId(body.artImageId)
+  if (body.targetType !== undefined)
+    data.targetType = normalizeText(body.targetType)
+  if (body.targetId !== undefined)
+    data.targetId = normalizeNullableId(body.targetId)
+
+  const contentChanged =
+    body.pitch !== undefined ||
+    body.fieldsDraft !== undefined ||
+    body.promptDraft !== undefined ||
+    body.relationshipDraft !== undefined
+
+  if (!contentChanged) return { data, revision: null }
+
+  const stageLabel =
+    typeof body.stage === 'string' ? body.stage.slice(0, 48) : 'EDIT'
+  const reason =
+    typeof body.reason === 'string' ? body.reason.slice(0, 255) : null
+
+  const previousPayload = JSON.stringify({
+    pitch: existing.pitch,
+    fieldsDraft: existing.fieldsDraft,
+    promptDraft: existing.promptDraft,
+    stageStatuses: existing.stageStatuses,
+    relationshipDraft: existing.relationshipDraft,
+  })
+  const nextPayload = JSON.stringify({
+    pitch: data.pitch ?? existing.pitch,
+    fieldsDraft: data.fieldsDraft ?? existing.fieldsDraft,
+    promptDraft: data.promptDraft ?? existing.promptDraft,
+    stageStatuses: data.stageStatuses ?? existing.stageStatuses,
+    relationshipDraft: data.relationshipDraft ?? existing.relationshipDraft,
+  })
+
+  return {
+    data,
+    revision: {
+      stage: stageLabel,
+      reason,
+      actor,
+      previousPayload,
+      nextPayload,
+    },
   }
 }

@@ -179,6 +179,7 @@
                 : 'border-transparent hover:border-primary/50'
             "
             :title="image.fileName || `Image #${image.id}`"
+            :aria-pressed="selectedSourceImage?.id === image.id"
             @click="selectGalleryImage(image)"
           >
             <img
@@ -241,6 +242,7 @@
             "
             :disabled="isLoadingStarterImage"
             :title="`${entry.workTitle} — ${entry.artist}`"
+            :aria-pressed="selectedStarterFile === entry.file"
             @click="selectStarterEntry(entry)"
           >
             <img
@@ -368,6 +370,7 @@
             ? 'badge-primary border-primary font-bold'
             : 'badge-ghost border-base-300 hover:border-primary/40 hover:text-primary'
         "
+        :aria-pressed="activeCategory === cat"
         @click="activeCategory = activeCategory === cat ? null : cat"
       >
         <span class="mr-1">{{ CATEGORY_ICONS[cat] }}</span>
@@ -392,6 +395,7 @@
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
         :title="style.triggerPhrase"
+        :aria-pressed="isSelectedStyle(style)"
         @click="selectStyle(style)"
       >
         <div

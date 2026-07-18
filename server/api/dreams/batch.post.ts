@@ -225,6 +225,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { username: true },
+    })
     const callerIsAdmin = user.Role === 'ADMIN' || user.id === 1
     const dreams: DreamMutationResult[] = []
     const errors: DreamBatchError[] = []
@@ -234,7 +238,7 @@ export default defineEventHandler(async (event) => {
         const dream = await createDreamFromInput(
           dreamData,
           user.id,
-          user.username,
+          userRecord?.username,
           callerIsAdmin,
         )
 

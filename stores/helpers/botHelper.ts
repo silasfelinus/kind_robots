@@ -38,7 +38,7 @@ export async function updateBot(
 
 export async function addBot(botData: BotPayload): Promise<Bot | null> {
   try {
-    const response = await performFetch<Bot>('/api/bot', {
+    const response = await performFetch<Bot>('/api/bots', {
       method: 'POST',
       body: JSON.stringify(botData),
     })
@@ -55,17 +55,9 @@ export async function addBot(botData: BotPayload): Promise<Bot | null> {
 }
 
 export async function addBots(botsData: BotPayload[]): Promise<Bot[]> {
-  try {
-    const response = await performFetch<Bot[]>('/api/bots', {
-      method: 'POST',
-      body: JSON.stringify(botsData),
-    })
+  const results = await Promise.all(botsData.map((bot) => addBot(bot)))
 
-    return response.success && response.data ? response.data : []
-  } catch (error: unknown) {
-    handleError(error, 'adding bots')
-    return []
-  }
+  return results.filter((bot): bot is Bot => bot !== null)
 }
 
 export async function deleteBot(id: number): Promise<boolean> {

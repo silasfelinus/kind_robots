@@ -1,38 +1,46 @@
 // /server/api/bots/[id].patch.ts
-import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
+import { botMutationSelect } from './selects'
 
-type BotPatchBody = Partial<Bot>
+type BotPatchBody = Partial<Bot> & {
+  dreamIds?: unknown
+  addDreamIds?: unknown
+  removeDreamIds?: unknown
+}
 
 function getStringOrUndefined(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
 }
 
 function getDreamRelationUpdate(
-  body: any,
+  body: BotPatchBody,
 ): Prisma.DreamUpdateManyWithoutBotsNestedInput | undefined {
-  const toIds = (v: unknown) =>
-    Array.isArray(v)
-      ? v
-          .map((x: any) => (typeof x === 'object' ? Number(x.id) : Number(x)))
-          .filter((n) => Number.isInteger(n) && n > 0)
+  const toIds = (value: unknown) =>
+    Array.isArray(value)
+      ? value
+          .map((entry: any) =>
+            typeof entry === 'object' ? Number(entry.id) : Number(entry),
+          )
+          .filter((id) => Number.isInteger(id) && id > 0)
           .map((id) => ({ id }))
       : []
 
   const set = body.dreamIds !== undefined ? toIds(body.dreamIds) : undefined
   const connect = toIds(body.addDreamIds)
   const disconnect = toIds(body.removeDreamIds)
+  const relation: Prisma.DreamUpdateManyWithoutBotsNestedInput = {}
 
-  const op: any = {}
-  if (set !== undefined) op.set = set
-  if (connect.length) op.connect = connect
-  if (disconnect.length) op.disconnect = disconnect
-  return Object.keys(op).length ? op : undefined
+  if (set !== undefined) relation.set = set
+  if (connect.length) relation.connect = connect
+  if (disconnect.length) relation.disconnect = disconnect
+
+  return Object.keys(relation).length ? relation : undefined
 }
 
 function getBooleanOrUndefined(value: unknown): boolean | undefined {
@@ -175,10 +183,9 @@ export default defineEventHandler(async (event) => {
       artImageId,
     })
 
-    // Slug handling: dedupe an explicitly provided slug; otherwise backfill a
-    // missing slug from the (new or existing) name so every bot ends up with one.
     let slugUpdate: string | null | undefined
     const requestedSlug = normalizeSlugInput(body.slug)
+
     if (requestedSlug !== undefined) {
       slugUpdate = requestedSlug
         ? await getUniqueBotSlug(prisma, requestedSlug, { excludeId: id })
@@ -197,6 +204,7 @@ export default defineEventHandler(async (event) => {
       subtitle: getStringOrUndefined(body.subtitle),
       description: getStringOrUndefined(body.description),
       avatarImage: getStringOrUndefined(body.avatarImage),
+      imagePath: getStringOrUndefined(body.imagePath),
       botIntro: getStringOrUndefined(body.botIntro),
       userIntro: getStringOrUndefined(body.userIntro),
       prompt: getStringOrUndefined(body.prompt),
@@ -206,8 +214,9 @@ export default defineEventHandler(async (event) => {
       modules: getStringOrUndefined(body.modules),
       sampleResponse: getStringOrUndefined(body.sampleResponse),
       tagline: getStringOrUndefined(body.tagline),
-      narrativeVoice: getStringOrUndefined(body.narrativeVoice), // ADD
-      forgeIntro: getStringOrUndefined(body.forgeIntro), // ADD
+      narrativeVoice: getStringOrUndefined(body.narrativeVoice),
+      forgeIntro: getStringOrUndefined(body.forgeIntro),
+      chatBorderImage: getStringOrUndefined(body.chatBorderImage),
       designer: getStringOrUndefined(body.designer),
       serverName: getStringOrUndefined(body.serverName),
       artPrompt: getStringOrUndefined(body.artPrompt),
@@ -233,7 +242,7 @@ export default defineEventHandler(async (event) => {
           : artImageId
             ? { connect: { id: artImageId } }
             : undefined,
-      Dreams: getDreamRelationUpdate(body), // ADD
+      Dreams: getDreamRelationUpdate(body),
     }
 
     if (!hasUpdateData(updateData as Record<string, unknown>)) {
@@ -246,30 +255,7 @@ export default defineEventHandler(async (event) => {
     const data = await prisma.bot.update({
       where: { id },
       data: updateData,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            Role: true,
-          },
-        },
-        Server: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-          },
-        },
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-      },
+      select: botMutationSelect,
     })
 
     event.node.res.statusCode = 200

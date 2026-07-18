@@ -1,11 +1,12 @@
 import {
   bearerHeaders,
   createLoggedInTestUser,
+  deleteTestUser,
   getApiEnv,
   jsonHeaders,
 } from '../../support/api-auth'
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// cypress/e2e/api/bots.cy.ts
 
 type Bot = {
   id: number
@@ -13,9 +14,19 @@ type Bot = {
   description?: string
 }
 
+const expectLeanBot = (bot: Record<string, unknown>) => {
+  expect(bot).to.not.have.property('User')
+  expect(bot).to.not.have.property('Server')
+  expect(bot).to.not.have.property('ArtImage')
+  expect(bot).to.not.have.property('Dreams')
+  expect(bot).to.not.have.property('ExpressionMedia')
+  expect(bot).to.not.have.property('_count')
+}
+
 describe('Bot Management API Tests', () => {
-  let apiRoot = 'https://kind-robots.vercel.app/api'
-  let baseUrl = `${apiRoot}/bots`
+  let apiRoot = ''
+  let baseUrl = ''
+  let adminToken = ''
   const invalidToken = 'someInvalidTokenValue'
 
   let userToken = ''
@@ -25,11 +36,12 @@ describe('Bot Management API Tests', () => {
   const botName = `testbot-${Date.now()}`
 
   before(() => {
-    getApiEnv()
+    return getApiEnv()
       .then((env) => {
         apiRoot = env.apiBase
+        adminToken = env.adminToken
         baseUrl = `${apiRoot}/bots`
-        return createLoggedInTestUser()
+        return createLoggedInTestUser({ fresh: true })
       })
       .then((auth) => {
         userToken = auth.token
@@ -46,6 +58,8 @@ describe('Bot Management API Tests', () => {
         failOnStatusCode: false,
       })
     }
+
+    deleteTestUser(apiRoot, adminToken, userId)
   })
 
   it('should not allow creating a bot without an authorization token', () => {
@@ -88,7 +102,7 @@ describe('Bot Management API Tests', () => {
     })
   })
 
-  it('Create a New Bot with Valid Authentication', () => {
+  it('creates a Bot with a lean mutation response', () => {
     expect(userId, 'shared Cypress user id').to.be.a('number').and.be.greaterThan(0)
 
     cy.request({
@@ -114,9 +128,10 @@ describe('Bot Management API Tests', () => {
         userId,
       },
     }).then((response) => {
-      expect(response.status).to.eq(201)
+      expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('data')
+      expectLeanBot(response.body.data)
 
       createdBotId = response.body.data.id
       expect(createdBotId).to.be.a('number')
@@ -159,7 +174,7 @@ describe('Bot Management API Tests', () => {
     })
   })
 
-  it('Update Bot with Valid Authentication', () => {
+  it('updates a Bot with the same lean mutation response', () => {
     expect(createdBotId, 'createdBotId').to.be.a('number')
 
     cy.request({
@@ -175,15 +190,16 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.have.property('id')
       expect(response.body.data).to.include({
+        id: createdBotId,
         description: 'Updated description for the test bot',
         tagline: 'Now with advanced features',
       })
+      expectLeanBot(response.body.data)
     })
   })
 
-  it('Fetch Bot Details in General Listing', () => {
+  it('fetches Bot details in the general listing', () => {
     expect(createdBotId, 'createdBotId').to.be.a('number')
 
     cy.request({
@@ -195,7 +211,9 @@ describe('Bot Management API Tests', () => {
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('array')
 
-      const bot = response.body.data.find((candidate: Bot) => candidate.id === createdBotId)
+      const bot = response.body.data.find(
+        (candidate: Bot) => candidate.id === createdBotId,
+      )
 
       expect(bot).to.include({
         id: createdBotId,
@@ -235,7 +253,7 @@ describe('Bot Management API Tests', () => {
     })
   })
 
-  it('Delete Bot with Valid Authentication', () => {
+  it('deletes a Bot with valid authentication', () => {
     expect(createdBotId, 'createdBotId').to.be.a('number')
 
     cy.request({

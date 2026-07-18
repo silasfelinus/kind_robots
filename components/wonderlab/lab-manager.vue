@@ -80,7 +80,7 @@ import ScreenFx from '@/components/screenfx/screen-fx.vue'
 type LabTab = 'memory-dungeon' | 'wonder-lab' | 'screen-fx'
 
 const dashboardKey = 'wonder' as const
-const fallbackTab: LabTab = 'memory-dungeon'
+const fallbackTab: LabTab = 'wonder-lab'
 const validTabs: LabTab[] = ['memory-dungeon', 'wonder-lab', 'screen-fx']
 
 const route = useRoute()
@@ -92,6 +92,11 @@ const managerError = ref<string | null>(null)
 
 const activeTab = computed<LabTab>(() => {
   const routePath = route.path.replace(/\/+$/, '') || '/'
+
+  // Explicit routes are authoritative. Remembered dashboard state is only a
+  // fallback for embedded/global Lab surfaces and must never hijack a URL.
+  if (routePath === '/wonderlab') return 'wonder-lab'
+  if (routePath === '/memory') return 'memory-dungeon'
   if (routePath === '/screenfx') return 'screen-fx'
 
   const selectedTab = navStore.getDashboardTab(dashboardKey)

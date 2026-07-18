@@ -20,6 +20,21 @@ import { getFeedSources } from '../../stores/helpers/newsfeed'
 const MAX_SUMMARY_LENGTH = 280
 const MAX_TITLE_LENGTH = 200
 const FETCH_TIMEOUT_MS = 8000
+// Stale-source tolerance: when a source's live fetch fails, serve its last
+// successful result instead of dropping it to zero items -- as long as that
+// result isn't older than this bound. Beyond the bound we'd rather show
+// nothing than pass off week-old headlines as current, so the fallback
+// expires like the live fetch would have anyway. In-memory only (per
+// process), so it's a pure improvement over always-empty on a warm instance
+// and a no-op (same as before) on a cold one.
+const STALE_FALLBACK_MAX_AGE_MS = 24 * 60 * 60 * 1000
+
+interface SourceCacheEntry {
+  items: NewsFeedItem[]
+  fetchedAt: number
+}
+
+const lastGoodSourceItems = new Map<string, SourceCacheEntry>()
 
 interface RawFeedEntry {
   title?: string
@@ -172,6 +187,20 @@ export interface SourceFetchResult {
   sourceId: string
   items: NewsFeedItem[]
   error?: string
+  /** True when `items` came from the last-known-good cache, not this fetch. */
+  stale?: boolean
+}
+
+/** Falls back to the last successful fetch for this source, if any and not too old. */
+function staleFallback(
+  sourceId: string,
+  error: string,
+): SourceFetchResult | null {
+  const cached = lastGoodSourceItems.get(sourceId)
+  if (!cached) return null
+  if (Date.now() - cached.fetchedAt > STALE_FALLBACK_MAX_AGE_MS) return null
+
+  return { sourceId, items: cached.items, error, stale: true }
 }
 
 export async function fetchSourceItems(
@@ -195,7 +224,14 @@ export async function fetchSourceItems(
     }
 
     if (!res.ok) {
-      return { sourceId: source.id, items: [], error: `HTTP ${res.status}` }
+      const error = `HTTP ${res.status}`
+      return (
+        staleFallback(source.id, error) || {
+          sourceId: source.id,
+          items: [],
+          error,
+        }
+      )
     }
 
     const xml = await res.text()
@@ -203,19 +239,26 @@ export async function fetchSourceItems(
       .map((raw) => normalizeEntry(raw, source))
       .filter((item): item is NewsFeedItem => item !== null)
 
+    lastGoodSourceItems.set(source.id, { items, fetchedAt: Date.now() })
     return { sourceId: source.id, items }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unknown fetch error'
     console.warn(`📰 Newsfeed source "${source.id}" failed: ${message}`)
-    return { sourceId: source.id, items: [], error: message }
+    return (
+      staleFallback(source.id, message) || {
+        sourceId: source.id,
+        items: [],
+        error: message,
+      }
+    )
   }
 }
 
 export interface AggregatedFeed {
   slug: string
   items: NewsFeedItem[]
-  sourceErrors: Array<{ sourceId: string; error: string }>
+  sourceErrors: Array<{ sourceId: string; error: string; stale?: boolean }>
 }
 
 function matchesTagFilters(item: NewsFeedItem, feed: FeedDefinition): boolean {
@@ -243,11 +286,15 @@ export async function aggregateFeed(
 
   const seen = new Set<string>()
   const items: NewsFeedItem[] = []
-  const sourceErrors: Array<{ sourceId: string; error: string }> = []
+  const sourceErrors: AggregatedFeed['sourceErrors'] = []
 
   for (const result of results) {
     if (result.error)
-      sourceErrors.push({ sourceId: result.sourceId, error: result.error })
+      sourceErrors.push({
+        sourceId: result.sourceId,
+        error: result.error,
+        ...(result.stale ? { stale: true } : {}),
+      })
 
     for (const item of result.items) {
       if (seen.has(item.id)) continue

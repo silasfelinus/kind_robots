@@ -1,4 +1,4 @@
-<!-- /components/content/wonderlab/lab-interact.vue -->
+<!-- /components/wonderlab/lab-interact.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
@@ -73,7 +73,18 @@
       </div>
 
       <div class="flex items-center justify-end gap-2">
-        <component-sync v-if="isAdmin" />
+        <details v-if="isAdmin" class="dropdown dropdown-end">
+          <summary class="btn btn-sm btn-outline rounded-xl">
+            <Icon name="kind-icon:gearhammer" class="h-4 w-4" />
+            Reconcile
+          </summary>
+
+          <div
+            class="dropdown-content z-30 mt-2 max-h-[75vh] w-[min(92vw,52rem)] overflow-auto rounded-3xl bg-base-100 shadow-2xl"
+          >
+            <component-sync />
+          </div>
+        </details>
 
         <button
           class="btn btn-sm btn-ghost rounded-xl"
@@ -81,7 +92,8 @@
           :disabled="isLoading"
           @click="refreshComponents"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           Refresh
         </button>
       </div>
@@ -123,9 +135,10 @@
                 class="select select-bordered select-sm bg-base-200"
               >
                 <option value="all">All statuses</option>
-                <option value="working">Working</option>
-                <option value="building">Building</option>
-                <option value="broken">Broken</option>
+                <option value="UNREVIEWED">Unreviewed</option>
+                <option value="WORKING">Working</option>
+                <option value="UNDER_CONSTRUCTION">Building</option>
+                <option value="BROKEN">Broken</option>
               </select>
             </div>
           </div>
@@ -168,36 +181,20 @@
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
                   <p class="truncate text-sm font-black">
-                    {{ component.componentName }}
+                    {{ component.title || component.componentName }}
                   </p>
 
                   <p class="truncate text-xs text-base-content/55">
-                    {{ component.folderName }}
+                    {{ component.componentName }} · {{ component.folderName }}
                   </p>
                 </div>
 
-                <div class="flex shrink-0 gap-1">
-                  <span
-                    v-if="component.isWorking"
-                    class="badge badge-success badge-xs"
-                  >
-                    ok
-                  </span>
-
-                  <span
-                    v-if="component.underConstruction"
-                    class="badge badge-warning badge-xs"
-                  >
-                    wip
-                  </span>
-
-                  <span
-                    v-if="component.isBroken"
-                    class="badge badge-error badge-xs"
-                  >
-                    bug
-                  </span>
-                </div>
+                <span
+                  class="badge badge-xs shrink-0"
+                  :class="statusBadgeClass(componentStatus(component))"
+                >
+                  {{ statusShortLabel(componentStatus(component)) }}
+                </span>
               </div>
 
               <p
@@ -224,14 +221,13 @@
             <p class="text-2xl font-black">Pick a component</p>
 
             <p class="mt-2 max-w-lg text-sm text-base-content/65">
-              Select a component from the list to inspect its status, notes, and
-              community reactions.
+              Select a component from the list to inspect its status, preview,
+              notes, and community reviews.
             </p>
           </div>
         </div>
 
         <article v-else class="flex flex-col gap-4">
-          <!-- Identity -->
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div
               class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
@@ -246,11 +242,13 @@
                 <h2
                   class="mt-1 wrap-break-word text-3xl font-black text-primary"
                 >
-                  {{ selectedComponent.componentName }}
+                  {{ selectedComponent.title || selectedComponent.componentName }}
                 </h2>
 
                 <p class="mt-2 text-sm text-base-content/65">
-                  Component #{{ selectedComponent.id }}
+                  {{ selectedComponent.componentName }} · Component #{{
+                    selectedComponent.id
+                  }}
                 </p>
               </div>
 
@@ -265,139 +263,33 @@
             </div>
 
             <div class="mt-4 flex flex-wrap gap-2">
-              <span
-                class="badge"
-                :class="
-                  selectedComponent.isWorking ? 'badge-success' : 'badge-ghost'
-                "
-              >
-                {{
-                  selectedComponent.isWorking ? 'Working' : 'Not marked working'
-                }}
+              <span class="badge" :class="statusBadgeClass(selectedStatus)">
+                {{ statusLabel(selectedStatus) }}
               </span>
 
               <span
-                class="badge"
-                :class="
-                  selectedComponent.underConstruction
-                    ? 'badge-warning'
-                    : 'badge-ghost'
-                "
+                v-if="componentStore.usingSnapshot"
+                class="badge badge-warning badge-outline"
               >
-                {{
-                  selectedComponent.underConstruction
-                    ? 'Under construction'
-                    : 'Not under construction'
-                }}
-              </span>
-
-              <span
-                class="badge"
-                :class="
-                  selectedComponent.isBroken ? 'badge-error' : 'badge-ghost'
-                "
-              >
-                {{ selectedComponent.isBroken ? 'Broken' : 'Not broken' }}
+                Snapshot data
               </span>
             </div>
           </section>
 
-          <!-- Live Preview -->
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <div class="mb-3 flex items-center justify-between gap-2">
-              <div>
-                <h3 class="text-lg font-black">Live Preview</h3>
-                <p class="text-sm text-base-content/60">
-                  {{ previewPath || 'Resolving component...' }}
-                </p>
-              </div>
+          <wonderlab-preview-host
+            :component-name="selectedComponent.componentName"
+            :folder-name="selectedComponent.folderName"
+          />
 
-              <div class="flex gap-2">
-                <button
-                  class="btn btn-xs btn-ghost rounded-xl"
-                  type="button"
-                  :class="previewExpanded ? 'btn-active' : ''"
-                  @click="previewExpanded = !previewExpanded"
-                >
-                  <Icon
-                    :name="
-                      previewExpanded
-                        ? 'kind-icon:minimize'
-                        : 'kind-icon:maximize'
-                    "
-                    class="h-3 w-3"
-                  />
-                  {{ previewExpanded ? 'Collapse' : 'Expand' }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Not found -->
-            <div
-              v-if="previewNotFound"
-              class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-base-content/50"
-            >
-              <Icon name="kind-icon:sparkles" class="h-10 w-10 opacity-30" />
-              <p class="text-sm font-bold">No preview available</p>
-              <p class="text-xs">
-                Could not locate
-                <code class="rounded bg-base-200 px-1 py-0.5 text-xs">
-                  {{ selectedComponent.folderName }}/{{
-                    selectedComponent.componentName
-                  }}.vue
-                </code>
-              </p>
-            </div>
-
-            <!-- Error state -->
-            <div
-              v-else-if="previewError"
-              class="rounded-2xl border border-error/30 bg-error/5 p-4 text-sm text-error"
-            >
-              <p class="font-bold">Component threw an error during render:</p>
-              <pre
-                class="mt-2 overflow-x-auto whitespace-pre-wrap text-xs opacity-80"
-                >{{ previewError }}</pre
-              >
-            </div>
-
-            <!-- Live render -->
-            <div
-              v-else-if="dynamicComponent"
-              class="overflow-auto rounded-2xl border border-base-300 bg-base-100 p-4 transition-all"
-              :class="previewExpanded ? 'min-h-96' : 'max-h-96'"
-            >
-              <Suspense>
-                <component :is="dynamicComponent" />
-                <template #fallback>
-                  <div class="flex items-center justify-center py-8">
-                    <span
-                      class="loading loading-spinner loading-md text-accent"
-                    />
-                  </div>
-                </template>
-              </Suspense>
-            </div>
-
-            <!-- Resolving -->
-            <div
-              v-else
-              class="flex items-center justify-center rounded-2xl border border-base-300 bg-base-100 py-8"
-            >
-              <span class="loading loading-spinner loading-md text-accent" />
-            </div>
-          </section>
-
-          <!-- Notes and Status -->
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div
               class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <h3 class="text-lg font-black">Notes and Status</h3>
+                <h3 class="text-lg font-black">Curator Notes and Status</h3>
 
                 <p class="text-sm text-base-content/60">
-                  Admins can mark component state here.
+                  Public notes remain readable; editing is restricted to admins.
                 </p>
               </div>
 
@@ -412,73 +304,63 @@
                   v-if="isSavingComponent"
                   class="loading loading-spinner loading-xs"
                 />
-
+                <Icon v-else name="kind-icon:check" class="h-4 w-4" />
                 Save
               </button>
             </div>
 
-            <textarea
-              v-if="isAdmin"
-              v-model="selectedComponent.notes"
-              class="textarea textarea-bordered min-h-32 w-full bg-base-100"
-              placeholder="Notes, TODOs, dramatic warnings..."
-            />
+            <div v-if="isAdmin" class="grid gap-4 lg:grid-cols-[1fr_16rem]">
+              <textarea
+                v-model="selectedComponent.notes"
+                class="textarea textarea-bordered min-h-32 w-full bg-base-100"
+                placeholder="Notes, TODOs, dramatic warnings..."
+              />
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Canonical status</span>
+                </span>
+                <select
+                  v-model="selectedStatus"
+                  class="select select-bordered bg-base-100"
+                >
+                  <option
+                    v-for="option in statusOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+                <span class="mt-2 text-xs leading-relaxed text-base-content/50">
+                  One status replaces all three legacy flags.
+                </span>
+              </label>
+            </div>
 
             <div
               v-else
               class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm whitespace-pre-wrap text-base-content/75"
             >
-              {{ selectedComponent.notes || 'No notes available.' }}
-            </div>
-
-            <div
-              v-if="isAdmin"
-              class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3"
-            >
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-              >
-                <span class="label-text font-bold">Working</span>
-
-                <input
-                  v-model="selectedComponent.isWorking"
-                  type="checkbox"
-                  class="toggle toggle-success"
-                />
-              </label>
-
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-              >
-                <span class="label-text font-bold">Building</span>
-
-                <input
-                  v-model="selectedComponent.underConstruction"
-                  type="checkbox"
-                  class="toggle toggle-warning"
-                />
-              </label>
-
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-              >
-                <span class="label-text font-bold">Broken</span>
-
-                <input
-                  v-model="selectedComponent.isBroken"
-                  type="checkbox"
-                  class="toggle toggle-error"
-                />
-              </label>
+              {{ selectedComponent.notes || 'No curator notes available.' }}
             </div>
           </section>
 
-          <reaction-card
-            :target-id="selectedComponent.id"
-            target-type="component"
-            reaction-category="COMPONENT"
-            :target-title="selectedComponent.componentName"
-          />
+          <section class="grid gap-4 xl:grid-cols-2">
+            <component-review-feed
+              :key="`${selectedComponent.id}-${reviewFeedVersion}`"
+              :component-id="selectedComponent.id"
+              :target-title="selectedComponent.title || selectedComponent.componentName"
+            />
+
+            <reaction-card
+              :target-id="selectedComponent.id"
+              target-type="component"
+              reaction-category="COMPONENT"
+              :target-title="selectedComponent.title || selectedComponent.componentName"
+              @submitted="handleReactionSubmitted"
+            />
+          </section>
         </article>
       </main>
     </section>
@@ -498,24 +380,27 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/wonderlab/lab-interact.vue
-import {
-  computed,
-  defineAsyncComponent,
-  onErrorCaptured,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Component as PrismaComponent } from '~/prisma/generated/prisma/client'
 import { useComponentStore } from '@/stores/componentStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  getLegacyComponentStatus,
+  legacyFieldsForComponentStatus,
+  type LegacyComponentStatus,
+} from '@/utils/wonderlab/componentStatus'
 
-type ComponentStatusFilter = 'all' | 'working' | 'building' | 'broken'
+type ComponentStatusFilter = 'all' | LegacyComponentStatus
 
-// Glob all .vue files under /components at build time so Vite can code-split them.
-// The keys look like: /components/pages/some-page.vue
-const allModules = import.meta.glob('@/components/**/*.vue')
+const statusOptions: Array<{
+  value: LegacyComponentStatus
+  label: string
+}> = [
+  { value: 'UNREVIEWED', label: 'Unreviewed' },
+  { value: 'WORKING', label: 'Working' },
+  { value: 'UNDER_CONSTRUCTION', label: 'Under construction' },
+  { value: 'BROKEN', label: 'Broken' },
+]
 
 const componentStore = useComponentStore()
 const userStore = useUserStore()
@@ -527,15 +412,7 @@ const isLoading = ref(false)
 const isSavingComponent = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
-
-// Preview state
-const dynamicComponent = ref<ReturnType<typeof defineAsyncComponent> | null>(
-  null,
-)
-const previewNotFound = ref(false)
-const previewError = ref<string | null>(null)
-const previewExpanded = ref(false)
-const previewPath = ref<string | null>(null)
+const reviewFeedVersion = ref(0)
 
 const isAdmin = computed(() => userStore.isAdmin)
 
@@ -552,21 +429,38 @@ const selectedComponent = computed({
   },
 })
 
+const selectedStatus = computed<LegacyComponentStatus>({
+  get: () =>
+    selectedComponent.value
+      ? getLegacyComponentStatus(selectedComponent.value)
+      : 'UNREVIEWED',
+  set: (status) => {
+    if (!selectedComponent.value) return
+    Object.assign(
+      selectedComponent.value,
+      legacyFieldsForComponentStatus(status),
+    )
+  },
+})
+
 const componentCount = computed(() => components.value.length)
 const workingCount = computed(
-  () => components.value.filter((c) => c.isWorking).length,
+  () => components.value.filter((component) => componentStatus(component) === 'WORKING').length,
 )
 const buildingCount = computed(
-  () => components.value.filter((c) => c.underConstruction).length,
+  () =>
+    components.value.filter(
+      (component) => componentStatus(component) === 'UNDER_CONSTRUCTION',
+    ).length,
 )
 const brokenCount = computed(
-  () => components.value.filter((c) => c.isBroken).length,
+  () => components.value.filter((component) => componentStatus(component) === 'BROKEN').length,
 )
 
 const folderNames = computed(() => {
   const folders = new Set<string>()
-  components.value.forEach((c) => {
-    if (c.folderName) folders.add(c.folderName)
+  components.value.forEach((component) => {
+    if (component.folderName) folders.add(component.folderName)
   })
   return Array.from(folders).sort()
 })
@@ -574,19 +468,27 @@ const folderNames = computed(() => {
 const filteredComponents = computed(() => {
   let result = components.value
 
-  if (folderFilter.value)
-    result = result.filter((c) => c.folderName === folderFilter.value)
+  if (folderFilter.value) {
+    result = result.filter(
+      (component) => component.folderName === folderFilter.value,
+    )
+  }
 
-  if (statusFilter.value === 'working')
-    result = result.filter((c) => c.isWorking)
-  if (statusFilter.value === 'building')
-    result = result.filter((c) => c.underConstruction)
-  if (statusFilter.value === 'broken') result = result.filter((c) => c.isBroken)
+  if (statusFilter.value !== 'all') {
+    result = result.filter(
+      (component) => componentStatus(component) === statusFilter.value,
+    )
+  }
 
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim().toLowerCase()
-    result = result.filter((c) => {
-      const haystack = [c.componentName, c.folderName, c.title, c.notes]
+    result = result.filter((component) => {
+      const haystack = [
+        component.componentName,
+        component.folderName,
+        component.title,
+        component.notes,
+      ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -594,59 +496,46 @@ const filteredComponents = computed(() => {
     })
   }
 
-  return result
+  return [...result].sort((left, right) => {
+    const leftLabel = left.title || left.componentName
+    const rightLabel = right.title || right.componentName
+    return leftLabel.localeCompare(rightLabel)
+  })
 })
 
-// --- Preview resolution ---
-
-function resolvePreview(component: PrismaComponent | null) {
-  dynamicComponent.value = null
-  previewNotFound.value = false
-  previewError.value = null
-  previewPath.value = null
-  previewExpanded.value = false
-
-  if (!component?.componentName || !component?.folderName) return
-
-  // Try several path patterns the store might use.
-  // Keys from import.meta.glob look like "/components/pages/foo.vue"
-  const name = component.componentName.replace(/\.vue$/, '')
-  const folder = component.folderName
-
-  const candidates = [
-    `/components/${folder}/${name}.vue`,
-    `/components/content/${folder}/${name}.vue`,
-    `/components/${name}.vue`,
-  ]
-
-  const matchedKey = candidates.find((c) => allModules[c])
-
-  if (!matchedKey) {
-    previewNotFound.value = true
-    return
-  }
-
-  previewPath.value = matchedKey
-  dynamicComponent.value = defineAsyncComponent({
-    loader: allModules[matchedKey] as () => Promise<{ default: unknown }>,
-    timeout: 8000,
-    onError(error, retry, fail) {
-      previewError.value =
-        error instanceof Error ? error.message : String(error)
-      fail()
-    },
-  })
+function componentStatus(component: PrismaComponent): LegacyComponentStatus {
+  return getLegacyComponentStatus(component)
 }
 
-watch(selectedComponent, resolvePreview, { immediate: true })
+function statusLabel(status: LegacyComponentStatus): string {
+  return statusOptions.find((option) => option.value === status)?.label || status
+}
 
-// Catch render errors so the lab itself doesn't crash
-onErrorCaptured((err) => {
-  previewError.value = err instanceof Error ? err.message : String(err)
-  return false // don't propagate
-})
+function statusShortLabel(status: LegacyComponentStatus): string {
+  switch (status) {
+    case 'WORKING':
+      return 'ok'
+    case 'UNDER_CONSTRUCTION':
+      return 'wip'
+    case 'BROKEN':
+      return 'bug'
+    default:
+      return 'new'
+  }
+}
 
-// --- Actions ---
+function statusBadgeClass(status: LegacyComponentStatus): string {
+  switch (status) {
+    case 'WORKING':
+      return 'badge-success'
+    case 'UNDER_CONSTRUCTION':
+      return 'badge-warning'
+    case 'BROKEN':
+      return 'badge-error'
+    default:
+      return 'badge-ghost'
+  }
+}
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message
@@ -655,19 +544,28 @@ function setStatus(message: string, tone: 'success' | 'error' = 'success') {
 
 function selectComponent(component: PrismaComponent) {
   componentStore.selectedComponent = component
+  statusMessage.value = ''
 }
 
 function clearSelectedComponent() {
   componentStore.selectedComponent = null
+  statusMessage.value = ''
 }
 
 async function refreshComponents() {
+  const selectedId = selectedComponent.value?.id
   isLoading.value = true
   statusMessage.value = ''
 
   try {
-    await componentStore.initialize()
-    setStatus('Components refreshed.')
+    await componentStore.initialize(true)
+
+    if (selectedId) {
+      componentStore.selectedComponent =
+        components.value.find((component) => component.id === selectedId) || null
+    }
+
+    setStatus('Components refreshed from the live API.')
   } catch (error) {
     setStatus(
       error instanceof Error ? error.message : 'Failed to refresh components.',
@@ -685,11 +583,12 @@ async function saveSelectedComponent() {
   statusMessage.value = ''
 
   try {
-    await componentStore.createOrUpdateComponent(
+    const updated = await componentStore.createOrUpdateComponent(
       selectedComponent.value,
       'update',
     )
-    setStatus('Component saved.')
+    componentStore.selectedComponent = updated
+    setStatus('Component curator notes and status saved.')
   } catch (error) {
     setStatus(
       error instanceof Error ? error.message : 'Failed to save component.',
@@ -698,6 +597,11 @@ async function saveSelectedComponent() {
   } finally {
     isSavingComponent.value = false
   }
+}
+
+function handleReactionSubmitted() {
+  reviewFeedVersion.value += 1
+  setStatus('Review submitted and the exhibit feed was refreshed.')
 }
 
 onMounted(async () => {

@@ -40,7 +40,10 @@ jobs:
 
       - name: Secure art upload callers
         if: github.event_name == 'pull_request' && github.head_ref == 'security/art-upload-ownership'
-        run: node scripts/secure-art-upload-callers.mjs 2>&1 | tee /tmp/art-upload-guard.log
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/secure-art-upload-callers.mjs 2>&1 | tee /tmp/art-upload-guard.log
 
       - name: Generate Prisma client
         run: npx prisma generate

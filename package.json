@@ -61,6 +61,7 @@
     "test:parse-mysql-url": "tsx utils/scripts/verifyParseMysqlUrl.ts",
     "test:wonderlab-reconcile": "tsx utils/scripts/verifyWonderLabReconcile.ts",
     "test:wonderlab-status": "tsx utils/scripts/verifyWonderLabStatus.ts",
+    "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

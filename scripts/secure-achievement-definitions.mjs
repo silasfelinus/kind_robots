@@ -11,6 +11,28 @@ function replaceExact(path, target, replacement, label) {
 }
 
 replaceExact(
+  'server/api/achievements/definition.ts',
+  `export type AchievementDefinitionBody = Partial<Achievement>`,
+  `export type AchievementDefinitionBody = Partial<Achievement>
+
+export type ValidatedAchievementCreateInput =
+  Prisma.AchievementUncheckedCreateInput & {
+    label: string
+    message: string
+    icon: string
+    triggerCode: string
+  }`,
+  'validated Achievement create input type',
+)
+
+replaceExact(
+  'server/api/achievements/definition.ts',
+  `): Promise<Prisma.AchievementUncheckedCreateInput> {`,
+  `): Promise<ValidatedAchievementCreateInput> {`,
+  'Achievement create builder return type',
+)
+
+replaceExact(
   'stores/achievementStore.ts',
   `      const response = await performFetch<Achievement>(
         \`/api/achievements/\${achievement.id}\`,

@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Update component Reaction PATCH test
+      - name: Update canonical Reaction coverage
         if: github.event_name == 'pull_request' && github.head_ref == 'refactor/remove-specialized-reaction-patches'
         run: node scripts/update-component-reaction-patch-test.mjs
 
@@ -48,7 +48,7 @@ jobs:
       - name: Type check
         run: npm run test > /tmp/typecheck.log 2>&1
 
-      - name: Commit verified Reaction test update
+      - name: Commit verified Reaction coverage update
         if: github.event_name == 'pull_request' && github.head_ref == 'refactor/remove-specialized-reaction-patches'
         shell: bash
         run: |
@@ -56,9 +56,9 @@ jobs:
           rm -f public/wonderlab-components.json
           git config user.name "kind-robots-refactor"
           git config user.email "kind-robots-refactor@users.noreply.github.com"
-          git add cypress/e2e/api/component-reactions.cy.ts
+          git add cypress/e2e/api/component-reactions.cy.ts docs/architecture/thin-resource-api-audit.md
           git diff --cached --quiet && exit 1
-          git commit -m "test: use canonical partial Reaction PATCH [skip ci]"
+          git commit -m "test: consolidate Reaction mutation coverage [skip ci]"
           git push origin HEAD:${{ github.head_ref }}
 
       - name: Upload TypeScript diagnostics

@@ -13,14 +13,30 @@ const safeCoreCards = [
   'scenario-card',
 ] as const
 
+const liveActionFlags = [
+  'allowEdit',
+  'allowCopyName',
+  'allowClone',
+  'allowDelete',
+  'showLaunchButton',
+  'showModeButtons',
+  'showInlineInteract',
+  'showSelectButton',
+] as const
+
 for (const key of safeCoreCards) {
   const fixture = getWonderLabPreviewFixture(key)
   assert.ok(fixture, `${key} must have a WonderLab preview fixture.`)
   assert.ok(fixture.props, `${key} must provide synthetic props.`)
-  assert.equal(
-    fixture.props?.showActions,
-    false,
-    `${key} must disable live action controls.`,
+
+  const actionContainerDisabled = fixture.props?.showActions === false
+  const liveCapability = liveActionFlags.find(
+    (flag) => fixture.props?.[flag] === true,
+  )
+
+  assert.ok(
+    actionContainerDisabled || !liveCapability,
+    `${key} must disable its action container or every live action capability.`,
   )
   assert.equal(
     fixture.props?.showReaction,

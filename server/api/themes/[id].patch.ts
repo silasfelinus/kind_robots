@@ -106,8 +106,24 @@ export default defineEventHandler(async (event) => {
         continue
       }
 
+      if (key === 'name') {
+        if (typeof raw.name !== 'string' || !raw.name.trim()) {
+          throw createError({
+            statusCode: 400,
+            message: '"name" must be a non-empty string.',
+          })
+        }
+
+        data.name = raw.name.trim()
+        continue
+      }
+
       const value = raw[key]
-      data[key] = typeof value === 'string' && value.trim() ? value.trim() : null
+      const normalized =
+        typeof value === 'string' && value.trim() ? value.trim() : null
+
+      if (key === 'tagline') data.tagline = normalized
+      if (key === 'room') data.room = normalized
     }
 
     const updated = await prisma.theme.update({ where: { id }, data })

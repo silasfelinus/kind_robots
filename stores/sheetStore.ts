@@ -223,7 +223,7 @@ export const useSheetStore = defineStore('sheetStore', () => {
       return {
         success: true,
         data: sheet,
-        created: res.statusCode === 201,
+        created: res.status === 201,
       }
     } catch (err) {
       error.value = (err as Error).message

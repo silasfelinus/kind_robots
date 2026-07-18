@@ -35,6 +35,7 @@ describe('Sheets API CRUD + Auth Tests', () => {
   let userId: number | undefined
   let dreamId = 0
   let pitchSheetId = 0
+  let deletedPitchSheetId = 0
   let standaloneSheetId = 0
 
   before(() => {
@@ -304,6 +305,7 @@ describe('Sheets API CRUD + Auth Tests', () => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.eq(true)
       expect(res.body.data.id).to.eq(pitchSheetId)
+      deletedPitchSheetId = pitchSheetId
       pitchSheetId = 0
     })
   })
@@ -311,11 +313,11 @@ describe('Sheets API CRUD + Auth Tests', () => {
   it('GET deleted PitchSheet returns 404', () => {
     cy.request<ApiResponse>({
       method: 'GET',
-      url: `${sheetsUrl}/${pitchSheetId || 0}`,
+      url: `${sheetsUrl}/${deletedPitchSheetId}`,
       headers: bearerHeaders(userToken),
       failOnStatusCode: false,
     }).then((res) => {
-      expect([400, 404]).to.include(res.status)
+      expect(res.status).to.eq(404)
       expect(res.body.success).to.eq(false)
     })
   })

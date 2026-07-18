@@ -42,6 +42,7 @@
       v-else-if="activeTab === 'wonder-lab'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
+      <wonderlab-selection-router />
       <lab-interact
         class="h-full min-h-0 flex-1 overflow-hidden"
         :show-header="false"
@@ -76,6 +77,7 @@ import { useNavStore } from '@/stores/navStore'
 import LabInteract from '@/components/wonderlab/lab-interact.vue'
 import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
+import WonderlabSelectionRouter from '@/components/wonderlab/wonderlab-selection-router.vue'
 
 type LabTab = 'memory-dungeon' | 'wonder-lab' | 'screen-fx'
 

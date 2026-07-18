@@ -5,7 +5,7 @@ import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { buildPitchSheetFromDream } from '@/server/utils/pitchSheets/defaults'
 import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
-import { pitchSheetMutationSelect } from '../../selects'
+import { pitchSheetMutationSelect } from '../selects'
 
 export default defineEventHandler(async (event) => {
   let dreamId = 0
@@ -53,8 +53,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const body = await readBody<Record<string, unknown>>(event).catch(() => ({}))
-    const overrides = sanitizePitchSheetPayload(body || {})
+    const body = await readBody<Record<string, unknown>>(event).catch(
+      () => ({} as Record<string, unknown>),
+    )
+    const overrides = sanitizePitchSheetPayload(body)
     const data = buildPitchSheetFromDream(dream, user.id, overrides)
     const created = await prisma.pitchSheet.create({
       data,

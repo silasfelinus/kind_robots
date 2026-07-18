@@ -2,48 +2,22 @@
 import { createError } from 'h3'
 import type { H3Event } from 'h3'
 import prisma from './prisma'
-import type {
-  Server,
+import {
   ServerAccessMode,
   ServerAuthType,
   ServerStatus,
   ServerType,
+  type Server,
 } from '~/prisma/generated/prisma/client'
 import { getOptionalApiUser, requireApiUser } from './authGuard'
 import type { AuthUser } from './authUser'
 
 type ServerInput = Record<string, unknown>
 
-const serverTypes: ServerType[] = [
-  'A1111',
-  'COMFY',
-  'OPENAI',
-  'ANTHROPIC',
-  'CUSTOM',
-]
-
-const accessModes: ServerAccessMode[] = [
-  'BROWSER',
-  'BACKEND',
-  'TAILSCALE',
-  'PUBLIC',
-  'LOCAL',
-]
-
-const authTypes: ServerAuthType[] = [
-  'NONE',
-  'BEARER',
-  'HEADER',
-  'QUERY',
-  'API_KEY',
-]
-
-const serverStatuses: ServerStatus[] = [
-  'ONLINE',
-  'OFFLINE',
-  'DEGRADED',
-  'UNKNOWN',
-]
+const serverTypes = Object.values(ServerType)
+const accessModes = Object.values(ServerAccessMode)
+const authTypes = Object.values(ServerAuthType)
+const serverStatuses = Object.values(ServerStatus)
 
 function cleanText(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -73,6 +47,30 @@ function cleanEnum<T extends string>(
 ): T | undefined {
   if (typeof value !== 'string') return undefined
   return allowed.includes(value as T) ? (value as T) : undefined
+}
+
+function validateEnumField(
+  input: ServerInput,
+  field: string,
+  allowedValues: readonly string[],
+): void {
+  const value = input[field]
+
+  if (value === undefined || value === null) return
+
+  if (typeof value !== 'string' || !allowedValues.includes(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `Invalid ${field}. Expected one of: ${allowedValues.join(', ')}.`,
+    })
+  }
+}
+
+export function validateServerEnums(input: ServerInput): void {
+  validateEnumField(input, 'serverType', serverTypes)
+  validateEnumField(input, 'accessMode', accessModes)
+  validateEnumField(input, 'authType', authTypes)
+  validateEnumField(input, 'lastStatus', serverStatuses)
 }
 
 export function parseId(value: string | undefined): number {

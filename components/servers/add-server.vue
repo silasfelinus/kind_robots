@@ -4,13 +4,16 @@
     class="flex max-h-[min(760px,88vh)] flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
     @submit.prevent="saveServer"
   >
-    <header class="flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-200 p-4">
+    <header
+      class="flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-200 p-4"
+    >
       <div class="min-w-0">
         <h2 class="text-xl font-black text-primary">
           {{ form.id ? 'Edit Server' : 'Add Server' }}
         </h2>
         <p class="text-sm text-base-content/60">
-          Servers are now simple access cards: type, URL, endpoint, health path, and auth.
+          Servers are now simple access cards: type, URL, endpoint, health path,
+          and auth.
         </p>
       </div>
 
@@ -56,13 +59,17 @@
             <option value="COMFY">COMFY</option>
             <option value="OPENAI">OPENAI</option>
             <option value="ANTHROPIC">ANTHROPIC</option>
+            <option value="OLLAMA">OLLAMA</option>
             <option value="CUSTOM">CUSTOM</option>
           </select>
         </label>
 
         <label class="form-control">
           <span class="label-text font-bold">Access Mode</span>
-          <select v-model="form.accessMode" class="select select-bordered rounded-xl">
+          <select
+            v-model="form.accessMode"
+            class="select select-bordered rounded-xl"
+          >
             <option value="BROWSER">BROWSER</option>
             <option value="BACKEND">BACKEND</option>
             <option value="TAILSCALE">TAILSCALE</option>
@@ -119,14 +126,19 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-        <h3 class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60">
+        <h3
+          class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60"
+        >
           Auth
         </h3>
 
         <div class="grid gap-3 md:grid-cols-2">
           <label class="form-control">
             <span class="label-text font-bold">Auth Type</span>
-            <select v-model="form.authType" class="select select-bordered rounded-xl">
+            <select
+              v-model="form.authType"
+              class="select select-bordered rounded-xl"
+            >
               <option value="NONE">NONE</option>
               <option value="BEARER">BEARER</option>
               <option value="HEADER">HEADER</option>
@@ -161,7 +173,10 @@
               type="button"
               @click="showApiKey = !showApiKey"
             >
-              <Icon :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'" class="h-4 w-4" />
+              <Icon
+                :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'"
+                class="h-4 w-4"
+              />
               {{ showApiKey ? 'Hide key' : 'Show key' }}
             </button>
 
@@ -178,28 +193,46 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-        <h3 class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60">
+        <h3
+          class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60"
+        >
           Visibility
         </h3>
 
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label class="flex items-center gap-2 rounded-xl bg-base-100 p-3">
-            <input v-model="form.isActive" class="checkbox checkbox-primary" type="checkbox" />
+            <input
+              v-model="form.isActive"
+              class="checkbox checkbox-primary"
+              type="checkbox"
+            />
             <span class="font-bold">Active</span>
           </label>
 
           <label class="flex items-center gap-2 rounded-xl bg-base-100 p-3">
-            <input v-model="form.isDefault" class="checkbox checkbox-primary" type="checkbox" />
+            <input
+              v-model="form.isDefault"
+              class="checkbox checkbox-primary"
+              type="checkbox"
+            />
             <span class="font-bold">Default</span>
           </label>
 
           <label class="flex items-center gap-2 rounded-xl bg-base-100 p-3">
-            <input v-model="form.isPublic" class="checkbox checkbox-primary" type="checkbox" />
+            <input
+              v-model="form.isPublic"
+              class="checkbox checkbox-primary"
+              type="checkbox"
+            />
             <span class="font-bold">Public</span>
           </label>
 
           <label class="flex items-center gap-2 rounded-xl bg-base-100 p-3">
-            <input v-model="form.isMature" class="checkbox checkbox-primary" type="checkbox" />
+            <input
+              v-model="form.isMature"
+              class="checkbox checkbox-primary"
+              type="checkbox"
+            />
             <span class="font-bold">Mature</span>
           </label>
         </div>
@@ -223,12 +256,17 @@
         />
       </label>
 
-      <p v-if="message" class="rounded-xl border border-base-300 bg-base-200 p-3 text-sm">
+      <p
+        v-if="message"
+        class="rounded-xl border border-base-300 bg-base-200 p-3 text-sm"
+      >
         {{ message }}
       </p>
     </main>
 
-    <footer class="flex shrink-0 flex-wrap justify-end gap-2 border-t border-base-300 bg-base-200 p-4">
+    <footer
+      class="flex shrink-0 flex-wrap justify-end gap-2 border-t border-base-300 bg-base-200 p-4"
+    >
       <button class="btn btn-ghost rounded-xl" type="button" @click="closeForm">
         Cancel
       </button>
@@ -238,7 +276,10 @@
         type="submit"
         :disabled="serverStore.isSaving || !form.title || !form.baseUrl"
       >
-        <span v-if="serverStore.isSaving" class="loading loading-spinner loading-sm" />
+        <span
+          v-if="serverStore.isSaving"
+          class="loading loading-spinner loading-sm"
+        />
         Save Server
       </button>
     </footer>
@@ -288,6 +329,16 @@ function applyServerTypeDefaults() {
     return
   }
 
+  if (serverType === 'OLLAMA') {
+    form.value.baseUrl ||= 'http://127.0.0.1:11434'
+    form.value.endpointPath ||= '/api/chat'
+    form.value.healthPath ||= '/api/tags'
+    form.value.accessMode ||= 'LOCAL'
+    form.value.authType ||= 'NONE'
+    form.value.category ||= 'text'
+    return
+  }
+
   if (serverType === 'ANTHROPIC') {
     form.value.baseUrl ||= 'https://api.anthropic.com'
     form.value.endpointPath ||= '/v1/messages'
@@ -320,7 +371,8 @@ async function saveServer() {
     })
 
     if (!keyResult.success) {
-      message.value = keyResult.message || 'Server saved, but API key update failed.'
+      message.value =
+        keyResult.message || 'Server saved, but API key update failed.'
       return
     }
   }
@@ -337,7 +389,9 @@ async function clearApiKey() {
     authType: 'NONE',
   })
 
-  message.value = result.message || (result.success ? 'API key cleared.' : 'Could not clear API key.')
+  message.value =
+    result.message ||
+    (result.success ? 'API key cleared.' : 'Could not clear API key.')
 }
 
 function closeForm() {

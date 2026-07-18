@@ -886,7 +886,7 @@ export const useServerStore = defineStore('serverStore', () => {
     try {
       clearStoreError()
 
-      const res = (await performFetch('/api/server', {
+      const res = (await performFetch('/api/server/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

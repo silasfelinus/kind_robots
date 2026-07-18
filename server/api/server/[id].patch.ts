@@ -9,42 +9,8 @@ import {
   readServerById,
   requireAuthUser,
   safeServer,
+  validateServerEnums,
 } from './../../utils/serverApi'
-
-const serverTypes = ['A1111', 'COMFY', 'OPENAI', 'ANTHROPIC', 'CUSTOM'] as const
-const accessModes = [
-  'BROWSER',
-  'BACKEND',
-  'TAILSCALE',
-  'PUBLIC',
-  'LOCAL',
-] as const
-const authTypes = ['NONE', 'BEARER', 'HEADER', 'QUERY', 'API_KEY'] as const
-const statuses = ['ONLINE', 'OFFLINE', 'DEGRADED', 'UNKNOWN'] as const
-
-function validateEnumField(
-  body: Record<string, unknown>,
-  field: string,
-  allowedValues: readonly string[],
-) {
-  const value = body[field]
-
-  if (value === undefined || value === null) return
-
-  if (typeof value !== 'string' || !allowedValues.includes(value)) {
-    throw createError({
-      statusCode: 400,
-      message: `Invalid ${field}. Expected one of: ${allowedValues.join(', ')}.`,
-    })
-  }
-}
-
-function validateServerEnums(body: Record<string, unknown>) {
-  validateEnumField(body, 'serverType', serverTypes)
-  validateEnumField(body, 'accessMode', accessModes)
-  validateEnumField(body, 'authType', authTypes)
-  validateEnumField(body, 'lastStatus', statuses)
-}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -68,16 +34,19 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody(event)
     const safeBody =
-      body && typeof body === 'object' ? (body as Record<string, unknown>) : {}
+      body && typeof body === 'object' && !Array.isArray(body)
+        ? (body as Record<string, unknown>)
+        : {}
 
     validateServerEnums(safeBody)
 
     const data = buildServerUpdateData(safeBody, user)
-
     const updatedServer = await prisma.server.update({
       where: { id },
       data,
     })
+
+    event.node.res.statusCode = 200
 
     return {
       success: true,
@@ -87,12 +56,15 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
+    const statusCode = handledError.statusCode || 500
+
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
       message: handledError.message || 'Failed to update server.',
-      statusCode: handledError.statusCode || 500,
+      data: null,
+      statusCode,
     }
   }
 })

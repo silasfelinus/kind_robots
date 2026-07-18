@@ -38,6 +38,7 @@
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-100 text-base-content/60 hover:bg-base-200'
             "
+            :aria-pressed="sourceTab === 'upload'"
             @click="sourceTab = 'upload'"
           >
             Upload
@@ -50,6 +51,7 @@
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-100 text-base-content/60 hover:bg-base-200'
             "
+            :aria-pressed="sourceTab === 'gallery'"
             @click="sourceTab = 'gallery'"
           >
             Gallery
@@ -62,6 +64,7 @@
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-100 text-base-content/60 hover:bg-base-200'
             "
+            :aria-pressed="sourceTab === 'starters'"
             @click="sourceTab = 'starters'"
           >
             Starters

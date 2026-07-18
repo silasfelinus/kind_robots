@@ -61,6 +61,7 @@
             type="button"
             class="px-2.5 py-1 font-bold transition"
             :class="sourceTab === 'upload' ? 'bg-primary text-primary-content' : 'bg-base-100 text-base-content/60 hover:bg-base-200'"
+            :aria-pressed="sourceTab === 'upload'"
             @click="sourceTab = 'upload'"
           >
             Upload
@@ -69,6 +70,7 @@
             type="button"
             class="px-2.5 py-1 font-bold transition"
             :class="sourceTab === 'camera' ? 'bg-primary text-primary-content' : 'bg-base-100 text-base-content/60 hover:bg-base-200'"
+            :aria-pressed="sourceTab === 'camera'"
             @click="openCamera"
           >
             Camera

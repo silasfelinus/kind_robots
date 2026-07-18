@@ -59,6 +59,7 @@
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",
     "test:pack-scaffold-extraction": "tsx utils/scripts/verifyPackScaffoldExtraction.test.ts",
     "test:parse-mysql-url": "tsx utils/scripts/verifyParseMysqlUrl.ts",
+    "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs"

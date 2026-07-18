@@ -103,14 +103,6 @@ export interface BatchUploadOptions {
 
 const allowedFileTypes = ['image/png', 'image/jpeg', 'image/webp']
 
-// API/storage expects the short form ('png', 'jpeg', 'webp'), not the MIME type.
-function normalizeFileType(value: string | null | undefined): string {
-  if (!value) return 'png'
-  const lower = value.toLowerCase().trim()
-  const short = lower.replace(/^image\//, '')
-  return short === 'jpg' ? 'jpeg' : short || 'png'
-}
-
 export const useUploadStore = defineStore('UploadStore', () => {
   const activeTarget = ref<ImageUploadTarget | null>(null)
   const isUploading = ref(false)
@@ -233,13 +225,10 @@ export const useUploadStore = defineStore('UploadStore', () => {
     }
   }
 
-  function getCurrentUser() {
+  function getCurrentUsername(): string {
     const userStore = useUserStore()
 
-    return {
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
-      username: userStore.username ?? userStore.user?.username ?? 'Kind Guest',
-    }
+    return userStore.username ?? userStore.user?.username ?? 'Kind Designer'
   }
 
   function getSelectedCollectionId(target: ImageUploadTarget): number | null {
@@ -274,24 +263,15 @@ export const useUploadStore = defineStore('UploadStore', () => {
   function buildUploadFormData(
     file: File,
     target: ImageUploadTarget,
-    userId: number,
     username: string,
-    collectionLabel?: string,
-    connectedModelType?: ConnectableModel | null,
-    connectedModelId?: number | null,
     metadata?: UploadMetadata | null,
   ): FormData {
     const formData = new FormData()
-    const galleryId = target.galleryId ?? 21
     const galleryName = target.galleryName ?? 'userUpload'
-    const collectionId = getSelectedCollectionId(target)
     const designer = metadata?.designer?.trim() || username
 
     formData.append('image', file)
     formData.append('galleryName', galleryName)
-    formData.append('galleryId', String(galleryId))
-    formData.append('userId', String(userId))
-    formData.append('fileType', normalizeFileType(file.type))
     formData.append('fileName', file.name)
     formData.append('designer', designer)
 
@@ -312,33 +292,18 @@ export const useUploadStore = defineStore('UploadStore', () => {
         '[UploadedImage]',
     )
     appendOptionalString(formData, 'path', target.path || '[UploadedImage]')
-    appendOptionalString(formData, 'collectionLabel', collectionLabel)
-
-    appendOptionalNumber(formData, 'artCollectionId', collectionId)
-    appendOptionalNumber(formData, 'collectionId', collectionId)
-
     // Optional generation metadata
     appendOptionalString(formData, 'negativePrompt', metadata?.negativePrompt)
-    appendOptionalString(formData, 'checkpoint', metadata?.checkpoint)
     appendOptionalString(formData, 'sampler', metadata?.sampler)
     appendOptionalString(formData, 'genres', metadata?.genres)
-    appendOptionalString(formData, 'serverName', metadata?.serverName)
-    appendOptionalString(formData, 'serverUrl', metadata?.serverUrl)
 
     appendOptionalNumber(formData, 'seed', metadata?.seed)
     appendOptionalNumber(formData, 'steps', metadata?.steps)
     appendOptionalNumber(formData, 'cfg', metadata?.cfg)
-    appendOptionalNumber(formData, 'rarity', metadata?.rarity)
-    appendOptionalNumber(formData, 'serverId', metadata?.serverId)
 
     appendOptionalBoolean(formData, 'cfgHalf', metadata?.cfgHalf)
     appendOptionalBoolean(formData, 'isPublic', metadata?.isPublic)
     appendOptionalBoolean(formData, 'isMature', metadata?.isMature)
-
-    if (connectedModelType && connectedModelId) {
-      formData.append('connectedModelType', connectedModelType)
-      formData.append('connectedModelId', String(connectedModelId))
-    }
 
     return formData
   }
@@ -380,7 +345,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
   async function uploadSingleFile(
     file: File,
     target: ImageUploadTarget,
-    userId: number,
     username: string,
     collectionLabel?: string,
     connectedModelType?: ConnectableModel | null,
@@ -389,16 +353,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
   ): Promise<ArtImage> {
     const artStore = useArtStore()
 
-    const formData = buildUploadFormData(
-      file,
-      target,
-      userId,
-      username,
-      collectionLabel,
-      connectedModelType,
-      connectedModelId,
-      metadata,
-    )
+    const formData = buildUploadFormData(file, target, username, metadata)
 
     const uploadResult = await artStore.uploadImage(formData)
 
@@ -479,13 +434,12 @@ export const useUploadStore = defineStore('UploadStore', () => {
     message.value = null
 
     try {
-      const { userId, username } = getCurrentUser()
+      const username = getCurrentUsername()
       const label = getSelectedCollectionLabel(target, collectionLabel)
 
       const artImage = await uploadSingleFile(
         file,
         target,
-        userId,
         username,
         label,
         connectedModelType,
@@ -570,7 +524,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
     message.value = null
     lastBatchArtImages.value = []
 
-    const { userId, username } = getCurrentUser()
+    const username = getCurrentUsername()
     const label = getSelectedCollectionLabel(target, collectionLabel)
     const succeeded: ImageUploadResult[] = []
     const failed: ImageUploadResult[] = []
@@ -580,7 +534,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
         const artImage = await uploadSingleFile(
           file,
           target,
-          userId,
           username,
           label,
           connectedModelType,

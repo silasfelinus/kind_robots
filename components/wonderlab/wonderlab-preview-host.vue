@@ -314,13 +314,23 @@ function resetPreview(): void {
   resolveComponent()
 }
 
+async function fetchManifestAsset(): Promise<unknown> {
+  const response = await fetch('/wonderlab-components.json', {
+    headers: { accept: 'application/json' },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Component manifest request failed (${response.status}).`)
+  }
+
+  return response.json() as Promise<unknown>
+}
+
 async function loadManifest(): Promise<void> {
   manifestError.value = ''
 
   try {
-    manifest.value = await loadWonderLabComponentManifest(() =>
-      $fetch('/wonderlab-components.json'),
-    )
+    manifest.value = await loadWonderLabComponentManifest(fetchManifestAsset)
     resolveComponent()
   } catch (error) {
     manifestError.value =

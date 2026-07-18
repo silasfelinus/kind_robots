@@ -56,7 +56,7 @@ jobs:
           rm -f public/wonderlab-components.json
           git config user.name "kind-robots-security"
           git config user.email "kind-robots-security@users.noreply.github.com"
-          git add stores/achievementStore.ts docs/notes/backend-sweep-2026-07-05.md docs/architecture/thin-resource-api-audit.md
+          git add server/api/achievements/definition.ts stores/achievementStore.ts docs/notes/backend-sweep-2026-07-05.md docs/architecture/thin-resource-api-audit.md
           git diff --cached --quiet && exit 1
           git commit -m "security: sanitize Achievement definition updates [skip ci]"
           git push origin HEAD:${{ github.head_ref }}

@@ -3,34 +3,110 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
-import type { Component, Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   hasLegacyStatusUpdate,
   resolveLegacyStatusUpdate,
+  type LegacyComponentStatusFields,
 } from '@/utils/wonderlab/componentStatus'
 
-type ComponentPatchBody = Partial<Component>
-
-function getStringOrUndefined(value: unknown): string | undefined {
-  return typeof value === 'string' ? value : undefined
+type ComponentPatchBody = LegacyComponentStatusFields & {
+  componentName?: unknown
+  folderName?: unknown
+  title?: unknown
+  notes?: unknown
+  artImageId?: unknown
 }
 
-function getStringOrNullOrUndefined(value: unknown): string | null | undefined {
+const allowedPatchFields = new Set([
+  'componentName',
+  'folderName',
+  'isWorking',
+  'underConstruction',
+  'isBroken',
+  'title',
+  'notes',
+  'artImageId',
+])
+
+function requiredText(value: unknown, field: string, maxLength: number): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw createError({
+      statusCode: 400,
+      message: `"${field}" must be a non-empty string.`,
+    })
+  }
+
+  const text = value.trim()
+
+  if (text.length > maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `"${field}" must be ${maxLength} characters or fewer.`,
+    })
+  }
+
+  return text
+}
+
+function nullableText(value: unknown, field: string): string | null {
   if (value === null) return null
-  return typeof value === 'string' ? value : undefined
+
+  if (typeof value !== 'string') {
+    throw createError({
+      statusCode: 400,
+      message: `"${field}" must be a string or null.`,
+    })
+  }
+
+  const text = value.trim()
+  return text.length ? text : null
 }
 
-function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
-  const parsed = Number(value)
+function componentNameValue(value: unknown): string {
+  const name = requiredText(value, 'componentName', 255)
 
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+  if (!/^[a-zA-Z0-9\s-]+$/.test(name)) {
+    throw createError({
+      statusCode: 400,
+      message:
+        '"componentName" may contain only alphanumeric characters, spaces, or hyphens.',
+    })
+  }
+
+  return name
 }
 
-function hasUpdateData(data: Record<string, unknown>): boolean {
-  return Object.values(data).some((value) => value !== undefined)
+function optionalBoolean(value: unknown, field: string): boolean | undefined {
+  if (value === undefined) return undefined
+
+  if (typeof value !== 'boolean') {
+    throw createError({
+      statusCode: 400,
+      message: `"${field}" must be a boolean.`,
+    })
+  }
+
+  return value
 }
 
-async function assertArtImageExists(artImageId?: number) {
+function optionalArtImageId(value: unknown): number | null | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return null
+
+  const id = Number(value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: '"artImageId" must be a positive integer or null.',
+    })
+  }
+
+  return id
+}
+
+async function assertArtImageExists(artImageId?: number | null) {
   if (!artImageId) return
 
   const artImage = await prisma.artImage.findUnique({
@@ -46,6 +122,36 @@ async function assertArtImageExists(artImageId?: number) {
   }
 }
 
+function parsePatchBody(body: unknown): ComponentPatchBody {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw createError({
+      statusCode: 400,
+      message: 'Component update payload is required.',
+    })
+  }
+
+  const record = body as Record<string, unknown>
+  const invalidFields = Object.keys(record).filter(
+    (field) => !allowedPatchFields.has(field),
+  )
+
+  if (invalidFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Component update fields: ${invalidFields.join(', ')}.`,
+    })
+  }
+
+  if (!Object.keys(record).length) {
+    throw createError({
+      statusCode: 400,
+      message: 'No Component update fields were provided.',
+    })
+  }
+
+  return record as ComponentPatchBody
+}
+
 export default defineEventHandler(async (event) => {
   const componentId = Number(getRouterParam(event, 'id'))
 
@@ -56,30 +162,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Invalid or missing component ID.',
-      })
-    }
-
-    const body = await readBody<ComponentPatchBody>(event)
-
-    if (!body || Object.keys(body).length === 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'No valid component data provided.',
-      })
-    }
-
-    if (body.componentName && !/^[a-zA-Z0-9\s-]+$/.test(body.componentName)) {
-      throw createError({
-        statusCode: 400,
-        message:
-          'Invalid componentName: Must contain only alphanumeric characters, spaces, or hyphens.',
-      })
-    }
-
-    if (body.title && body.title.length > 100) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid title: Must not exceed 100 characters.',
       })
     }
 
@@ -100,52 +182,51 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const artImageId = getPositiveIntegerOrUndefined(body.artImageId)
+    const body = parsePatchBody(await readBody<unknown>(event))
+    const statusPatch: LegacyComponentStatusFields = {
+      isWorking: optionalBoolean(body.isWorking, 'isWorking'),
+      underConstruction: optionalBoolean(
+        body.underConstruction,
+        'underConstruction',
+      ),
+      isBroken: optionalBoolean(body.isBroken, 'isBroken'),
+    }
+    const normalizedStatus = hasLegacyStatusUpdate(statusPatch)
+      ? resolveLegacyStatusUpdate(existingComponent, statusPatch)
+      : null
+    const artImageId = optionalArtImageId(body.artImageId)
+
     await assertArtImageExists(artImageId)
 
-    const normalizedStatus = hasLegacyStatusUpdate(body)
-      ? resolveLegacyStatusUpdate(existingComponent, body)
-      : null
-
     const updateData: Prisma.ComponentUpdateInput = {
-      componentName: getStringOrUndefined(body.componentName),
-      folderName: getStringOrUndefined(body.folderName),
+      componentName:
+        body.componentName === undefined
+          ? undefined
+          : componentNameValue(body.componentName),
+      folderName:
+        body.folderName === undefined
+          ? undefined
+          : requiredText(body.folderName, 'folderName', 255),
+      title:
+        body.title === undefined
+          ? undefined
+          : requiredText(body.title, 'title', 100),
+      notes:
+        body.notes === undefined ? undefined : nullableText(body.notes, 'notes'),
       isWorking: normalizedStatus?.isWorking,
       underConstruction: normalizedStatus?.underConstruction,
       isBroken: normalizedStatus?.isBroken,
-      title: getStringOrUndefined(body.title),
-      notes: getStringOrNullOrUndefined(body.notes),
       ArtImage:
-        body.artImageId === null
-          ? {
-              disconnect: true,
-            }
+        artImageId === null
+          ? { disconnect: true }
           : artImageId
-            ? {
-                connect: { id: artImageId },
-              }
+            ? { connect: { id: artImageId } }
             : undefined,
-    }
-
-    if (!hasUpdateData(updateData as Record<string, unknown>)) {
-      throw createError({
-        statusCode: 400,
-        message: 'No valid component fields provided.',
-      })
     }
 
     const data = await prisma.component.update({
       where: { id: componentId },
       data: updateData,
-      include: {
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-      },
     })
 
     event.node.res.statusCode = 200
@@ -157,17 +238,18 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error) {
-    const handledError = errorHandler(error)
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    event.node.res.statusCode = handledError.statusCode || 500
+    event.node.res.statusCode = statusCode
 
     return {
       success: false,
       message:
-        handledError.message ||
+        handled.message ||
         `Failed to update component with ID ${componentId}.`,
       data: null,
-      statusCode: event.node.res.statusCode,
+      statusCode,
     }
   }
 })

@@ -220,6 +220,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   edit: [id: number]
   copied: [name: string]
+  selected: [component: Component]
 }>()
 
 const componentStore = useComponentStore()
@@ -346,8 +347,12 @@ const statusCardClass = computed(() => {
   }
 })
 
-const updatedLabel = computed(() => formatDate(props.component.updatedAt || props.component.createdAt))
-const reviewedLabel = computed(() => formatDate(props.component.lastReviewedAt))
+const updatedLabel = computed(() =>
+  formatDate(props.component.updatedAt || props.component.createdAt),
+)
+const reviewedLabel = computed(() =>
+  formatDate(props.component.lastReviewedAt),
+)
 
 function formatDate(value: Date | string | null | undefined): string {
   if (!value) return ''
@@ -358,6 +363,7 @@ function formatDate(value: Date | string | null | undefined): string {
 
 function selectComponent() {
   componentStore.selectedComponent = props.component
+  emit('selected', props.component)
 }
 
 async function copyComponentName() {

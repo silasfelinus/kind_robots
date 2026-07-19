@@ -1,0 +1,39 @@
+name: Bot Mutation Ownership
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/bots/index.post.ts'
+      - 'server/api/bots/[id].patch.ts'
+      - 'server/api/bots/batch.post.ts'
+      - 'stores/helpers/botHelper.ts'
+      - 'cypress/e2e/api/bots.cy.ts'
+      - 'utils/scripts/verifyBotMutationOwnership.ts'
+      - '.github/workflows/bot-mutation-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify Bot ownership boundary
+        run: npx tsx utils/scripts/verifyBotMutationOwnership.ts

@@ -1,6 +1,7 @@
 {
   "version": 1,
   "stage": "publish",
+  "minimumProductionCommit": "7dc69b3e475f7396ad170435e45a58d042baa404",
   "component": {
     "id": 96,
     "sourceKey": "components/bots/bot-card.vue",

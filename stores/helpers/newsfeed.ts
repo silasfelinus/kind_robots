@@ -164,8 +164,16 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     url: 'https://www.globalcitizen.org/en/rss/',
     kind: 'rss',
     verified: false,
+    perspective: {
+      label: 'center-left',
+      source: 'Media Bias/Fact Check (mediabiasfactcheck.com/global-citizen)',
+      confidence: 'medium',
+    },
   },
   {
+    // Media Bias/Fact Check has no profile for Devex, and Ground News reports
+    // its bias/factuality as unrated too (checked 2026-07-19) -- no `perspective`
+    // per BIAS-CONTROLS.md "unrated sources remain usable and visibly unrated".
     id: 'devex-news',
     name: 'Devex — Global Development News',
     url: 'https://www.devex.com/rss/news',
@@ -452,13 +460,14 @@ export function applyNewsfeedFilters(
 
 type PerspectiveBucketKey = PerspectiveLabel | 'unrated'
 
-const LABEL_TO_WEIGHT_KEY: Record<PerspectiveLabel, keyof PerspectiveWeights> = {
-  left: 'left',
-  'center-left': 'centerLeft',
-  center: 'center',
-  'center-right': 'centerRight',
-  right: 'right',
-}
+const LABEL_TO_WEIGHT_KEY: Record<PerspectiveLabel, keyof PerspectiveWeights> =
+  {
+    left: 'left',
+    'center-left': 'centerLeft',
+    center: 'center',
+    'center-right': 'centerRight',
+    right: 'right',
+  }
 
 function bucketKeyFor(item: NewsFeedItem): PerspectiveBucketKey {
   return item.perspective?.label ?? 'unrated'
@@ -490,7 +499,10 @@ function weightedRoundRobinMerge<T>(
   const total = buckets.reduce((sum, bucket) => sum + bucket.weight, 0)
   const cursors = new Map(buckets.map((bucket) => [bucket.key, 0]))
   const currents = new Map(buckets.map((bucket) => [bucket.key, 0]))
-  const remaining = buckets.reduce((sum, bucket) => sum + bucket.items.length, 0)
+  const remaining = buckets.reduce(
+    (sum, bucket) => sum + bucket.items.length,
+    0,
+  )
   const result: T[] = []
 
   while (result.length < remaining) {
@@ -558,9 +570,7 @@ export function applyPerspectiveBalance(
   }))
 
   const hasWeight = buckets.some((bucket) => bucket.weight > 0)
-  const merged = hasWeight
-    ? weightedRoundRobinMerge(buckets)
-    : politicalItems // every bucket weighted to zero -- leave order untouched
+  const merged = hasWeight ? weightedRoundRobinMerge(buckets) : politicalItems // every bucket weighted to zero -- leave order untouched
 
   const result = [...items]
   politicalIndices.forEach((originalIndex, i) => {

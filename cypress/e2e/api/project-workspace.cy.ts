@@ -8,7 +8,6 @@ describe('First-class Project workspace API', () => {
   const stamp = Date.now()
   const slug = `cypress-project-workspace-${stamp}`
   let token = ''
-  let userId = 0
   let projectId = 0
   let todoId = 0
   let chatId = 0
@@ -16,7 +15,6 @@ describe('First-class Project workspace API', () => {
   before(() => {
     createLoggedInTestUser().then((auth) => {
       token = auth.token
-      userId = auth.id
     })
   })
 
@@ -126,7 +124,6 @@ describe('First-class Project workspace API', () => {
         botResponse: 'Persisted Project response.',
         channel: `project-${projectId}-assistant`,
         isPublic: false,
-        userId,
         projectId,
         dreamId: null,
       },

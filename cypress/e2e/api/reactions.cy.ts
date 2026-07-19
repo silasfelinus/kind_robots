@@ -55,12 +55,12 @@ describe('Reaction Management API Tests', () => {
         adminToken = env.adminToken
         reactionBaseUrl = `${apiBase}/reactions`
         themeBaseUrl = `${apiBase}/themes`
-        return createLoggedInTestUser({ fresh: true })
+        return createLoggedInTestUser()
       })
       .then((owner) => {
         ownerToken = owner.token
         ownerId = owner.id
-        return createLoggedInTestUser({ fresh: true })
+        return createLoggedInTestUser({ role: 'second' })
       })
       .then((other) => {
         otherToken = other.token

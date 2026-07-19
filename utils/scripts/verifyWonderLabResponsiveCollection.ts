@@ -2,14 +2,25 @@
 import assert from 'node:assert/strict'
 import { access, readFile } from 'node:fs/promises'
 
-const [labSource, cardSource, querySource, patchSource, catalogApiSource] =
-  await Promise.all([
-    readFile('components/wonderlab/lab-interact.vue', 'utf8'),
-    readFile('components/wonderlab/component-card.vue', 'utf8'),
-    readFile('utils/wonderlab/museumQuery.ts', 'utf8'),
-    readFile('server/api/components/[id].patch.ts', 'utf8'),
-    readFile('server/api/components/index.get.ts', 'utf8'),
-  ])
+const [
+  labSource,
+  cardSource,
+  querySource,
+  patchSource,
+  catalogApiSource,
+  componentApiSource,
+  folderApiSource,
+  projectionSource,
+] = await Promise.all([
+  readFile('components/wonderlab/lab-interact.vue', 'utf8'),
+  readFile('components/wonderlab/component-card.vue', 'utf8'),
+  readFile('utils/wonderlab/museumQuery.ts', 'utf8'),
+  readFile('server/api/components/[id].patch.ts', 'utf8'),
+  readFile('server/api/components/index.get.ts', 'utf8'),
+  readFile('server/api/components/[id].get.ts', 'utf8'),
+  readFile('server/api/components/folder/[name].get.ts', 'utf8'),
+  readFile('server/utils/componentProjection.ts', 'utf8'),
+])
 
 assert.match(
   labSource,
@@ -84,13 +95,26 @@ for (const protectedField of ['sourceKey', 'sourcePath', 'sourceHash', 'slug']) 
   )
 }
 
-assert.match(catalogApiSource, /getOptionalApiUser\(event\)/)
-assert.match(catalogApiSource, /if \(auth\?\.isAdmin\) return catalogItem/)
+assert.match(projectionSource, /projectComponentForViewer/)
+assert.match(projectionSource, /if \(isAdmin\) return component/)
 assert.match(
-  catalogApiSource,
-  /const \{ notes: _internalNotes, \.\.\.publicCatalogItem \} = catalogItem/,
+  projectionSource,
+  /const \{ notes: _internalNotes, \.\.\.publicComponent \} = component/,
 )
-assert.match(catalogApiSource, /return publicCatalogItem/)
+assert.match(projectionSource, /return publicComponent/)
+
+for (const publicReadSource of [
+  catalogApiSource,
+  componentApiSource,
+  folderApiSource,
+]) {
+  assert.match(publicReadSource, /getOptionalApiUser\(event\)/)
+  assert.match(publicReadSource, /projectComponentForViewer/)
+  assert.match(publicReadSource, /auth\?\.isAdmin === true/)
+}
+assert.doesNotMatch(catalogApiSource, /return catalogItem\s*$/m)
+assert.doesNotMatch(componentApiSource, /data,\s*statusCode: 200/)
+assert.doesNotMatch(folderApiSource, /data:\s*components,/) 
 
 assert.match(cardSource, /component\.description/)
 assert.match(cardSource, /component\.statusReason/)

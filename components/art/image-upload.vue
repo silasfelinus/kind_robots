@@ -673,14 +673,16 @@ function makeQueuedFile(file: File): QueuedFile {
 }
 
 function addFiles(incoming: FileList | File[]) {
-  const valid = Array.from(incoming).filter(
-    (file) => !uploadStore.validateFile(file),
-  )
+  const files = Array.from(incoming)
+  const valid = files.filter((file) => !uploadStore.validateFile(file))
+  const skipped = files.length - valid.length
   queuedFiles.value.push(...valid.map(makeQueuedFile))
   succeededFiles.value = new Set()
   failedFiles.value = new Set()
   message.value = ''
-  error.value = ''
+  error.value = skipped
+    ? `${skipped} file${skipped === 1 ? '' : 's'} skipped — PNG, JPEG, or WebP only`
+    : ''
 }
 
 function clearQueue() {

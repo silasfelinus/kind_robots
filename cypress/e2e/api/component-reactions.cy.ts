@@ -182,33 +182,85 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.id).to.eq(reactionId)
+
+      const reaction = response.body.data
+      expect(reaction.id).to.eq(reactionId)
+      expect(reaction.componentId).to.eq(componentId)
+      expect(reaction.userId).to.eq(testUser!.id)
+      expect(reaction.comment).to.eq('Great job on this component!')
+      expect(reaction.rating).to.eq(4)
     })
   })
 
-  it('Update Reaction with Authentication', () => {
+  it('Update an Existing Component Reaction with Valid and Invalid Authentication', () => {
     expect(reactionId).to.exist
+
+    const patchBody = {
+      reactionType: 'BOOED',
+      comment: 'Actually, I have second thoughts...',
+      rating: 2,
+    }
+
+    cy.request({
+      method: 'PATCH',
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: jsonHeaders(),
+      body: patchBody,
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
+    })
+
+    cy.request({
+      method: 'PATCH',
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: invalidBearerHeaders(),
+      body: patchBody,
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
+    })
 
     cy.request({
       method: 'PATCH',
       url: `${apiBase}/reactions/${reactionId}`,
       headers: authHeaders(),
-      body: {
-        comment: 'This component is even better after review.',
-        rating: 5,
-      },
+      body: patchBody,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.data.reactionType).to.eq('BOOED')
       expect(response.body.data.comment).to.eq(
-        'This component is even better after review.',
+        'Actually, I have second thoughts...',
       )
-      expect(response.body.data.rating).to.eq(5)
+      expect(response.body.data.rating).to.eq(2)
     })
   })
 
-  it('Delete Reaction with Authentication', () => {
+  it('Delete a Component Reaction with Valid and Invalid Authentication', () => {
     expect(reactionId).to.exist
+
+    cy.request({
+      method: 'DELETE',
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: jsonHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
+    })
+
+    cy.request({
+      method: 'DELETE',
+      url: `${apiBase}/reactions/${reactionId}`,
+      headers: invalidBearerHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body).to.have.property('success', false)
+    })
 
     cy.request({
       method: 'DELETE',
@@ -217,7 +269,12 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+      expect(response.body.message).to.include(
+        `Reaction with ID ${reactionId} successfully deleted.`,
+      )
+
       reactionId = undefined
+      createdReactions.length = 0
     })
   })
 
@@ -254,9 +311,8 @@ describe('Component Reactions API Tests', () => {
       reactionCleanup,
     )
 
-    componentCleanup.then(() => {
-      if (!testUser) return
-      return deleteTestUser(testUser)
-    })
+    componentCleanup.then(() =>
+      deleteTestUser(apiBase, adminToken, testUser?.id),
+    )
   })
 })

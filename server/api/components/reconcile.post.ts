@@ -6,9 +6,8 @@ import { requireAdminApiUser } from '../../utils/authGuard'
 import {
   buildComponentReconcilePlan,
   parseWonderLabManifest,
-  type ComponentReconcileChanges,
 } from '../../utils/wonderlabComponentReconcile'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import { Prisma } from '~/prisma/generated/prisma/client'
 
 type ReconcileMode = 'dry-run' | 'apply'
 
@@ -16,6 +15,14 @@ type ReconcileRequestBody = {
   mode?: ReconcileMode
   manifest?: unknown
 }
+
+type ComponentUpdateAction = ReturnType<
+  typeof buildComponentReconcilePlan
+>['updates'][number] & {
+  existingId: number
+}
+
+type ComponentUpdateValue = string | number | boolean | Date
 
 function parseMode(value: unknown): ReconcileMode {
   if (value === undefined || value === 'dry-run') return 'dry-run'
@@ -27,20 +34,100 @@ function parseMode(value: unknown): ReconcileMode {
   })
 }
 
-function updateDataForChanges(
-  changes: ComponentReconcileChanges,
-): Prisma.ComponentUpdateInput {
-  return {
-    componentName: changes.componentName,
-    folderName: changes.folderName,
-    slug: changes.slug,
-    sourcePath: changes.sourcePath,
-    sourceKey: changes.sourceKey,
-    sourceHash: changes.sourceHash,
-    isDiscovered: changes.isDiscovered,
-    lastSeenAt: changes.lastSeenAt ? new Date(changes.lastSeenAt) : undefined,
-    updatedAt: new Date(),
+function hasExistingId(
+  action: ReturnType<typeof buildComponentReconcilePlan>['updates'][number],
+): action is ComponentUpdateAction {
+  return Number.isInteger(action.existingId)
+}
+
+function buildCaseBranches(
+  actions: ComponentUpdateAction[],
+  valueFor: (action: ComponentUpdateAction) => ComponentUpdateValue | undefined,
+): Prisma.Sql[] {
+  return actions.flatMap((action) => {
+    const value = valueFor(action)
+    return value === undefined
+      ? []
+      : [Prisma.sql`WHEN ${action.existingId} THEN ${value}`]
+  })
+}
+
+function addCaseAssignment(
+  assignments: Prisma.Sql[],
+  column: Prisma.Sql,
+  branches: Prisma.Sql[],
+): void {
+  if (!branches.length) return
+
+  assignments.push(
+    Prisma.sql`${column} = CASE \`id\` ${Prisma.join(branches, ' ')} ELSE ${column} END`,
+  )
+}
+
+function buildBulkUpdateQuery(
+  actions: ReturnType<typeof buildComponentReconcilePlan>['updates'],
+  updatedAt: Date,
+): Prisma.Sql | null {
+  const updateActions = actions.filter(hasExistingId)
+  if (updateActions.length !== actions.length) {
+    throw new Error('Component reconciliation update is missing an existing ID.')
   }
+  if (!updateActions.length) return null
+
+  const assignments: Prisma.Sql[] = []
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`componentName\``,
+    buildCaseBranches(updateActions, (action) => action.changes.componentName),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`folderName\``,
+    buildCaseBranches(updateActions, (action) => action.changes.folderName),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`slug\``,
+    buildCaseBranches(updateActions, (action) => action.changes.slug),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`sourcePath\``,
+    buildCaseBranches(updateActions, (action) => action.changes.sourcePath),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`sourceKey\``,
+    buildCaseBranches(updateActions, (action) => action.changes.sourceKey),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`sourceHash\``,
+    buildCaseBranches(updateActions, (action) => action.changes.sourceHash),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`isDiscovered\``,
+    buildCaseBranches(updateActions, (action) => action.changes.isDiscovered),
+  )
+  addCaseAssignment(
+    assignments,
+    Prisma.sql`\`lastSeenAt\``,
+    buildCaseBranches(updateActions, (action) =>
+      action.changes.lastSeenAt
+        ? new Date(action.changes.lastSeenAt)
+        : undefined,
+    ),
+  )
+  assignments.push(Prisma.sql`\`updatedAt\` = ${updatedAt}`)
+
+  return Prisma.sql`
+    UPDATE \`Component\`
+    SET ${Prisma.join(assignments, ', ')}
+    WHERE \`id\` IN (${Prisma.join(
+      updateActions.map((action) => action.existingId),
+    )})
+  `
 }
 
 function createDataForAction(
@@ -105,32 +192,21 @@ export default defineEventHandler(async (event) => {
     let applied = false
 
     if (mode === 'apply') {
-      // Keep the full reconciliation atomic without an interactive transaction.
-      // Production manifests can require hundreds of writes, and the callback
-      // transaction timeout expired even at 30 seconds. A batch transaction has
-      // no interactive callback deadline, while createMany collapses all new
-      // records into one statement instead of one round trip per Component.
-      const updateOperations = plan.updates.flatMap((action) =>
-        action.existingId
+      const updateQuery = buildBulkUpdateQuery(plan.updates, new Date())
+      const operations = [
+        ...(updateQuery ? [prisma.$executeRaw(updateQuery)] : []),
+        ...(plan.creates.length
           ? [
-              prisma.component.update({
-                where: { id: action.existingId },
-                data: updateDataForChanges(action.changes),
+              prisma.component.createMany({
+                data: plan.creates.map((action) =>
+                  createDataForAction(action, manifest.generatedAt),
+                ),
               }),
             ]
-          : [],
-      )
-      const createOperations = plan.creates.length
-        ? [
-            prisma.component.createMany({
-              data: plan.creates.map((action) =>
-                createDataForAction(action, manifest.generatedAt),
-              ),
-            }),
-          ]
-        : []
+          : []),
+      ]
 
-      await prisma.$transaction([...updateOperations, ...createOperations])
+      if (operations.length) await prisma.$transaction(operations)
       applied = true
     }
 

@@ -11,9 +11,6 @@ concurrency:
   group: typecheck-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-
 jobs:
   typecheck:
     name: TypeScript
@@ -25,9 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -38,32 +32,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Migrate Dream store fetch cache
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/dream-store-fetch-cache'
-        run: node scripts/migrate-dream-store-fetch-cache.mjs
-
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Verify Dream store merge contract
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/dream-store-fetch-cache'
-        run: npx tsx utils/scripts/verifyDreamStoreFetchMerge.ts
-
       - name: Type check
         run: npm run test > /tmp/typecheck.log 2>&1
-
-      - name: Commit verified Dream store migration
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/dream-store-fetch-cache'
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f public/wonderlab-components.json
-          git config user.name "kind-robots-refactor"
-          git config user.email "kind-robots-refactor@users.noreply.github.com"
-          git add stores/dreamStore.ts
-          git diff --cached --quiet && exit 1
-          git commit -m "refactor: merge Dream fetch results safely [skip ci]"
-          git push origin HEAD:${{ github.head_ref }}
 
       - name: Upload TypeScript diagnostics
         if: always()

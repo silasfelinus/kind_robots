@@ -55,7 +55,11 @@ export default defineEventHandler(async (event) => {
       const fallbackTitle = fallbackScenarioTitle(scenarioData)
 
       try {
-        const createInput = await buildScenarioCreateInput(scenarioData, user.id)
+        const createInput = await buildScenarioCreateInput(
+          scenarioData,
+          user.id,
+          { batch: true },
+        )
         const existingScenario = await findExistingScenario(
           createInput.title,
           user.id,

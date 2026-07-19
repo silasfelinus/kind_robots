@@ -84,6 +84,8 @@ jobs:
           PY
 
       - name: Regenerate Prisma client
+        env:
+          DATABASE_URL: mysql://user:password@localhost:3306/kindrobots
         run: npx prisma generate
 
       - name: Commit generated contract

@@ -51,7 +51,7 @@ type NarratorThreadRecord = {
   openingText: string | null
   guidance: string | null
   starterPrompts: unknown
-  Topic: { key: string; title: string | null } | null
+  Topic: { slug: string; title: string | null } | null
 }
 
 function stringArray(value: unknown): string[] {
@@ -199,12 +199,12 @@ async function loadNarratorThreads(
       openingText: true,
       guidance: true,
       starterPrompts: true,
-      Topic: { select: { key: true, title: true } },
+      Topic: { select: { slug: true, title: true } },
     },
   })) as NarratorThreadRecord[]
 
   return threads.map((thread) => ({
-    topicKey: thread.Topic?.key || thread.title || 'general',
+    topicKey: thread.Topic?.slug || thread.title || 'general',
     title: thread.Topic?.title || thread.title,
     openingText: thread.openingText,
     guidance: thread.guidance,

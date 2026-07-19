@@ -8,9 +8,19 @@ import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
 
-type BotCreateBody = Partial<Bot> & {
-  Dreams?: { connect?: { id: number }[] } | { id: number }[]
-  dreamIds?: number[]
+type BotCreateBody = Partial<Omit<Bot, 'userId'>> &
+  Record<string, unknown> & {
+    Dreams?: { connect?: { id: number }[] } | { id: number }[]
+    dreamIds?: number[]
+  }
+
+function assertOwnershipIsServerManaged(body: Record<string, unknown>) {
+  if (Object.prototype.hasOwnProperty.call(body, 'userId')) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Bot field: userId. Ownership is server-owned.',
+    })
+  }
 }
 
 function getStringOrDefault(value: unknown, fallback: string): string {
@@ -48,23 +58,10 @@ function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
 }
 
 async function assertRelatedRecordsExist(options: {
-  userId: number
   serverId?: number
   artImageId?: number
 }) {
-  const { userId, serverId, artImageId } = options
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  })
-
-  if (!user) {
-    throw createError({
-      statusCode: 404,
-      message: `User ID not found: ${userId}.`,
-    })
-  }
+  const { serverId, artImageId } = options
 
   if (serverId) {
     const server = await prisma.server.findUnique({
@@ -97,30 +94,17 @@ async function assertRelatedRecordsExist(options: {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireApiUser(event)
-    const { user } = auth
+    const { user } = await requireApiUser(event)
     const botData = await readBody<BotCreateBody>(event)
 
-    const isServerKey = auth.isServerKey
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    const authenticatedUserId = user.id
-    const requestedUserId = getPositiveIntegerOrUndefined(botData.userId)
-    const userId =
-      (isAdmin || isServerKey) && requestedUserId
-        ? requestedUserId
-        : authenticatedUserId
-
-    if (
-      !isAdmin &&
-      !isServerKey &&
-      requestedUserId &&
-      requestedUserId !== userId
-    ) {
+    if (!botData || typeof botData !== 'object' || Array.isArray(botData)) {
       throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the provided authorization token.',
+        statusCode: 400,
+        message: 'Request body is required.',
       })
     }
+
+    assertOwnershipIsServerManaged(botData)
 
     const name = getStringOrDefault(botData.name, '')
 
@@ -134,11 +118,7 @@ export default defineEventHandler(async (event) => {
     const serverId = getPositiveIntegerOrUndefined(botData.serverId)
     const artImageId = getPositiveIntegerOrUndefined(botData.artImageId)
 
-    await assertRelatedRecordsExist({
-      userId,
-      serverId,
-      artImageId,
-    })
+    await assertRelatedRecordsExist({ serverId, artImageId })
 
     const requestedSlug = normalizeSlugInput(botData.slug)
     const slug = await getUniqueBotSlug(prisma, requestedSlug ?? name)
@@ -175,7 +155,7 @@ export default defineEventHandler(async (event) => {
       isMature: getBooleanOrDefault(botData.isMature, false),
       isActive: getBooleanOrDefault(botData.isActive, true),
       User: {
-        connect: { id: userId },
+        connect: { id: user.id },
       },
       Server: serverId
         ? {

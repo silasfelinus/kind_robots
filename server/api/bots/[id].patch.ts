@@ -8,10 +8,20 @@ import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
 
-type BotPatchBody = Partial<Bot> & {
-  dreamIds?: unknown
-  addDreamIds?: unknown
-  removeDreamIds?: unknown
+type BotPatchBody = Partial<Omit<Bot, 'userId'>> &
+  Record<string, unknown> & {
+    dreamIds?: unknown
+    addDreamIds?: unknown
+    removeDreamIds?: unknown
+  }
+
+function assertOwnershipIsServerManaged(body: Record<string, unknown>) {
+  if (Object.prototype.hasOwnProperty.call(body, 'userId')) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Bot field: userId. Ownership is server-owned.',
+    })
+  }
 }
 
 function getStringOrUndefined(value: unknown): string | undefined {
@@ -60,25 +70,10 @@ function hasUpdateData(data: Record<string, unknown>): boolean {
 }
 
 async function assertRelatedRecordsExist(options: {
-  userId?: number
   serverId?: number
   artImageId?: number
 }) {
-  const { userId, serverId, artImageId } = options
-
-  if (userId) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        message: `User ID not found: ${userId}.`,
-      })
-    }
-  }
+  const { serverId, artImageId } = options
 
   if (serverId) {
     const server = await prisma.server.findUnique({
@@ -159,29 +154,26 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<BotPatchBody>(event)
 
-    if (!body || Object.keys(body).length === 0) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Request body is required.',
+      })
+    }
+
+    if (Object.keys(body).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    const requestedUserId = getPositiveIntegerOrUndefined(body.userId)
+    assertOwnershipIsServerManaged(body)
+
     const serverId = getPositiveIntegerOrUndefined(body.serverId)
     const artImageId = getPositiveIntegerOrUndefined(body.artImageId)
 
-    if (requestedUserId && !isAdmin && !isServerKey) {
-      throw createError({
-        statusCode: 403,
-        message: 'Only admins can reassign bot ownership.',
-      })
-    }
-
-    await assertRelatedRecordsExist({
-      userId: requestedUserId,
-      serverId,
-      artImageId,
-    })
+    await assertRelatedRecordsExist({ serverId, artImageId })
 
     let slugUpdate: string | null | undefined
     const requestedSlug = normalizeSlugInput(body.slug)
@@ -225,11 +217,6 @@ export default defineEventHandler(async (event) => {
       canDelete: getBooleanOrUndefined(body.canDelete),
       isMature: getBooleanOrUndefined(body.isMature),
       isActive: getBooleanOrUndefined(body.isActive),
-      User: requestedUserId
-        ? {
-            connect: { id: requestedUserId },
-          }
-        : undefined,
       Server:
         body.serverId === null
           ? { disconnect: true }

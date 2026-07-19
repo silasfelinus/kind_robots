@@ -83,6 +83,8 @@ for (const sourceField of ['sourceKey', 'sourcePath', 'sourceHash']) {
 }
 assert.match(componentContract, /\/api\/components/)
 assert.match(componentContract, /contractVersion:\s*1/)
+assert.match(componentContract, /canonicalStatusRecordCount:/)
+assert.match(componentContract, /completeDiscoveredIdentityCount:/)
 assert.match(componentContract, /component-contract-verification\.json/)
 assert.match(componentContract, /Object\.prototype\.hasOwnProperty\.call/)
 assert.doesNotMatch(componentContract, /method\s*:/)

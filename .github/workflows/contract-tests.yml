@@ -166,6 +166,9 @@ jobs:
       - name: Reaction first-party author runtime contract
         run: npx tsx utils/scripts/verifyFirstPartyReactionAuthor.ts
 
+      - name: Review draft storage expand contract
+        run: npx tsx utils/scripts/verifyReviewDraftStorageExpand.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

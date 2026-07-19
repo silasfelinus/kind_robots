@@ -159,17 +159,63 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
+  it('rejects spoofed Reaction ownership', () => {
+    expect(themeId).to.exist
+    expect(otherId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: reactionBaseUrl,
+      headers: ownerHeaders(),
+      body: {
+        userId: otherId,
+        reactionType: 'LOVED',
+        reactionCategory: 'THEME',
+        themeId,
+        rating: 5,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Ownership is server-owned')
+    })
+  })
+
+  it('rejects unsupported Reaction create fields', () => {
+    expect(themeId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: reactionBaseUrl,
+      headers: ownerHeaders(),
+      body: {
+        reactionType: 'LOVED',
+        reactionCategory: 'THEME',
+        themeId,
+        rating: 5,
+        createdAt: new Date().toISOString(),
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include(
+        'Unsupported Reaction create fields',
+      )
+    })
+  })
+
   it('creates a Reaction under the authenticated owner', () => {
     expect(themeId).to.exist
     expect(ownerId).to.exist
-    expect(otherId).to.exist
 
     cy.request<ApiResponse<ReactionRow>>({
       method: 'POST',
       url: reactionBaseUrl,
       headers: ownerHeaders(),
       body: {
-        userId: otherId,
+        userId: ownerId,
         reactionType: 'LOVED',
         reactionCategory: 'THEME',
         themeId,

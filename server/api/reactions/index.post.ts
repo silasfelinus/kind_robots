@@ -10,7 +10,7 @@ import {
   type Prisma,
 } from '~/prisma/generated/prisma/client'
 
-type ReactionBody = {
+type ReactionBody = Record<string, unknown> & {
   userId?: unknown
   reactionType?: unknown
   reactionCategory?: unknown
@@ -30,6 +30,27 @@ type ReactionBody = {
   scenarioId?: unknown
   themeId?: unknown
 }
+
+const REACTION_CREATE_FIELDS = new Set([
+  'userId',
+  'reactionType',
+  'reactionCategory',
+  'comment',
+  'rating',
+  'artImageId',
+  'artId',
+  'artCollectionId',
+  'botId',
+  'characterId',
+  'chatId',
+  'componentId',
+  'dreamId',
+  'promptId',
+  'resourceId',
+  'rewardId',
+  'scenarioId',
+  'themeId',
+])
 
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
@@ -54,6 +75,38 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   REWARD: Reaction_reactionCategory.REWARD,
   SCENARIO: Reaction_reactionCategory.SCENARIO,
   THEME: Reaction_reactionCategory.THEME,
+}
+
+function assertReactionCreateFields(body: ReactionBody): void {
+  const unsupportedFields = Object.keys(body).filter(
+    (field) => !REACTION_CREATE_FIELDS.has(field),
+  )
+
+  if (unsupportedFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Reaction create fields: ${unsupportedFields.join(', ')}. IDs, timestamps, and system fields are server-owned.`,
+    })
+  }
+}
+
+function assertReactionOwnershipMatchesAuthentication(
+  value: unknown,
+  authenticatedUserId: number,
+): void {
+  if (value === undefined) return
+
+  const requestedUserId = Number(value)
+
+  if (
+    !Number.isInteger(requestedUserId) ||
+    requestedUserId !== authenticatedUserId
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Reaction ownership assignment. Ownership is server-owned.',
+    })
+  }
 }
 
 function normalizeReactionType(value: unknown): ReactionType {
@@ -331,6 +384,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    assertReactionCreateFields(body)
+    assertReactionOwnershipMatchesAuthentication(body.userId, user.id)
+
     const reactionType = normalizeReactionType(body.reactionType)
     const reactionCategory = normalizeReactionCategory(body.reactionCategory)
     const targets = getTargetFields(body)
@@ -400,6 +456,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: handledError.message || 'Failed to create/update reaction.',
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

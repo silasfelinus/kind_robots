@@ -194,18 +194,37 @@
           />
         </div>
 
-        <button
-          type="button"
-          class="btn btn-sm btn-primary w-full rounded-xl"
-          :disabled="!isEditable('GENERATE_ASSETS') || isGenerating"
-          @click="store.generateItemAsset(item.id)"
+        <div class="flex gap-1.5">
+          <button
+            type="button"
+            class="btn btn-sm btn-primary flex-1 rounded-xl"
+            :disabled="!isEditable('GENERATE_ASSETS') || isGenerating || isQueued"
+            @click="store.generateItemAsset(item.id)"
+          >
+            <span v-if="isGenerating" class="loading loading-dots loading-sm" />
+            <template v-else>
+              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+              {{ item.imagePath ? 'Regenerate candidate' : 'Generate candidate' }}
+            </template>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline btn-primary rounded-xl"
+            :disabled="!isEditable('GENERATE_ASSETS') || isGenerating || isQueued"
+            title="Queue generation and keep working — polls in the background, no need to wait here."
+            @click="store.generateItemAssetAsync(item.id)"
+          >
+            <Icon name="kind-icon:clock" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <div
+          v-if="isQueued"
+          class="mt-1.5 flex items-center gap-1.5 rounded-lg bg-base-200 px-2 py-1 text-xs text-base-content/70"
         >
-          <span v-if="isGenerating" class="loading loading-dots loading-sm" />
-          <template v-else>
-            <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-            {{ item.imagePath ? 'Regenerate candidate' : 'Generate candidate' }}
-          </template>
-        </button>
+          <span class="loading loading-dots loading-xs" />
+          {{ item.queueState === 'rendering' ? 'Rendering…' : 'Queued…' }}
+        </div>
       </template>
 
       <div
@@ -321,6 +340,7 @@ watch(
 )
 
 const isGenerating = computed(() => store.generatingItemId === props.itemId)
+const isQueued = computed(() => Boolean(item.value?.artJobId))
 const isCommitting = computed(() => store.committingItemId === props.itemId)
 const isAutoBuilding = computed(() => store.autoBuildingItemId === props.itemId)
 

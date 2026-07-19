@@ -48,7 +48,7 @@ jobs:
           node --check scripts/wonderlab-production-rollout.mjs
           node <<'NODE'
           const fs = require('node:fs')
-          const assert = require('node:assert/strict')
+          const assert = require('node:assert').strict
           const source = fs.readFileSync('scripts/wonderlab-production-rollout.mjs', 'utf8')
 
           const requiredEndpoints = [

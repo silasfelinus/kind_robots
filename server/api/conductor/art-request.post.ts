@@ -6,7 +6,7 @@ import { errorHandler } from '@/server/utils/error'
 import { userIsAdmin } from '@/server/utils/authUser'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
-import { type ArtQueueEntry, appendRequest } from '@/server/utils/artRequestYaml'
+import { type ArtQueueEntry, type ArtVariant, appendRequest } from '@/server/utils/artRequestYaml'
 
 const GITHUB_API = 'https://api.github.com'
 const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
@@ -20,8 +20,6 @@ const VARIANT_SIZES = {
   hero: '1280x720',
   image: '',
 } as const
-
-type ArtVariant = keyof typeof VARIANT_SIZES
 
 type MissingArtRequestBody = {
   src?: string

@@ -72,6 +72,7 @@
     "test:newsfeed-aggregation": "tsx utils/scripts/verifyNewsfeedAggregation.ts",
     "test:newsfeed-filters": "tsx utils/scripts/verifyNewsfeedFilters.ts",
     "test:newsfeed-perspective-balance": "tsx utils/scripts/verifyNewsfeedPerspectiveBalance.ts",
+    "test:tutorial-channel-resolver": "tsx utils/scripts/verifyTutorialChannelResolver.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",

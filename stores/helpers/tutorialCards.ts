@@ -639,6 +639,12 @@ export function getTutorialEarningsMessage(
 
 export function resolveTutorialChannelFromRoute(
   path: string,
+  // Overridable for tests exercising the exact-vs-prefix precedence rules
+  // with controlled route data; real callers always use the defaults.
+  routeMap: Partial<
+    Record<TutorialChannelKey, string | readonly string[]>
+  > = tutorialRouteMap,
+  keys: readonly TutorialChannelKey[] = tutorialChannelKeys,
 ): TutorialChannelKey | null {
   let cleanPath = path || ''
   const queryIndex = cleanPath.indexOf('?')
@@ -649,8 +655,8 @@ export function resolveTutorialChannelFromRoute(
   let bestKey: TutorialChannelKey | null = null
   let bestLen = -1
 
-  for (const key of tutorialChannelKeys) {
-    const routes = tutorialRouteMap[key]
+  for (const key of keys) {
+    const routes = routeMap[key]
     if (!routes) continue
     const routeList = Array.isArray(routes) ? routes : [routes]
 

@@ -1,20 +1,30 @@
 // /server/api/challenges/index.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import {
+  ChallengeStatus,
+  ChallengeType,
+  Prisma,
+} from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { userIsAdmin } from '~/server/utils/authUser'
+import { challengeMutationSelect } from '~/server/utils/challengeResource'
 import { validateApiKey } from '~/server/utils/validateKey'
 
-const challengeTypes = new Set([
-  'ART',
-  'TEXT',
-  'CHARACTER',
-  'SCENARIO',
-  'REASONING',
+const challengeTypes = Object.values(ChallengeType)
+const challengeStatuses = Object.values(ChallengeStatus)
+const challengeCreateFields = new Set([
+  'slug',
+  'title',
+  'challengeType',
+  'difficulty',
+  'promptText',
+  'judgeNotes',
+  'status',
+  'isMature',
 ])
-const challengeStatuses = new Set(['OPEN', 'JUDGING', 'CLOSED'])
 
-type ChallengeCreateBody = {
+type ChallengeCreateBody = Record<string, unknown> & {
   slug?: unknown
   title?: unknown
   challengeType?: unknown
@@ -23,7 +33,19 @@ type ChallengeCreateBody = {
   judgeNotes?: unknown
   status?: unknown
   isMature?: unknown
-  userId?: unknown
+}
+
+function assertSupportedFields(body: ChallengeCreateBody) {
+  const unsupported = Object.keys(body).filter(
+    (field) => !challengeCreateFields.has(field),
+  )
+
+  if (unsupported.length > 0) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Challenge fields: ${unsupported.join(', ')}. Ownership, IDs, and timestamps are server-owned.`,
+    })
+  }
 }
 
 function requiredString(value: unknown, field: string, maxLength: number): string {
@@ -46,28 +68,55 @@ function requiredString(value: unknown, field: string, maxLength: number): strin
   return normalized
 }
 
-function enumValue(
+function optionalString(
   value: unknown,
-  allowed: Set<string>,
   field: string,
-  fallback?: string,
-): string {
-  if (value === undefined || value === null || value === '') {
-    if (fallback) return fallback
-    throw createError({ statusCode: 400, message: `${field} is required.` })
+  maxLength: number,
+): string | null {
+  if (value === undefined || value === null || value === '') return null
+
+  if (typeof value !== 'string') {
+    throw createError({ statusCode: 400, message: `${field} must be a string.` })
   }
 
-  const normalized = String(value).trim().toUpperCase()
+  const normalized = value.trim()
+  if (!normalized) return null
 
-  if (!allowed.has(normalized)) {
-    throw createError({ statusCode: 400, message: `Invalid ${field}.` })
+  if (normalized.length > maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `${field} must be ${maxLength} characters or fewer.`,
+    })
   }
 
   return normalized
 }
 
-function optionalPositiveInteger(value: unknown, fallback: number): number {
-  if (value === undefined || value === null || value === '') return fallback
+function enumValue<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  field: string,
+  fallback?: T,
+): T {
+  if (value === undefined || value === null || value === '') {
+    if (fallback !== undefined) return fallback
+    throw createError({ statusCode: 400, message: `${field} is required.` })
+  }
+
+  const normalized = String(value).trim().toUpperCase() as T
+
+  if (!allowed.includes(normalized)) {
+    throw createError({
+      statusCode: 400,
+      message: `${field} must be one of: ${allowed.join(', ')}.`,
+    })
+  }
+
+  return normalized
+}
+
+function difficultyValue(value: unknown): number {
+  if (value === undefined || value === null || value === '') return 1
 
   const number = Number(value)
 
@@ -79,6 +128,32 @@ function optionalPositiveInteger(value: unknown, fallback: number): number {
   }
 
   return number
+}
+
+function booleanValue(value: unknown, field: string): boolean {
+  if (value === undefined || value === null) return false
+
+  if (typeof value !== 'boolean') {
+    throw createError({ statusCode: 400, message: `${field} must be a boolean.` })
+  }
+
+  return value
+}
+
+function slugValue(value: unknown): string {
+  const slug = requiredString(value, 'slug', 255)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  if (!slug) {
+    throw createError({
+      statusCode: 400,
+      message: 'slug must contain at least one letter or number.',
+    })
+  }
+
+  return slug
 }
 
 export default defineEventHandler(async (event) => {
@@ -95,43 +170,34 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<ChallengeCreateBody>(event)
 
-    if (!body) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
       throw createError({ statusCode: 400, message: 'Request body is required.' })
     }
 
-    const requestedUserId = Number(body.userId)
-    const userId =
-      Number.isInteger(requestedUserId) && requestedUserId > 0
-        ? requestedUserId
-        : auth.user.id
+    assertSupportedFields(body)
 
     const challenge = await prisma.challenge.create({
       data: {
-        slug: requiredString(body.slug, 'slug', 255)
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-+|-+$/g, ''),
+        slug: slugValue(body.slug),
         title: requiredString(body.title, 'title', 764),
         challengeType: enumValue(
           body.challengeType,
           challengeTypes,
           'challengeType',
-        ) as never,
-        difficulty: optionalPositiveInteger(body.difficulty, 1),
+        ),
+        difficulty: difficultyValue(body.difficulty),
         promptText: requiredString(body.promptText, 'promptText', 50000),
-        judgeNotes:
-          typeof body.judgeNotes === 'string' && body.judgeNotes.trim()
-            ? body.judgeNotes.trim()
-            : null,
+        judgeNotes: optionalString(body.judgeNotes, 'judgeNotes', 50000),
         status: enumValue(
           body.status,
           challengeStatuses,
           'status',
-          'OPEN',
-        ) as never,
-        isMature: body.isMature === true,
-        User: { connect: { id: userId } },
+          ChallengeStatus.OPEN,
+        ),
+        isMature: booleanValue(body.isMature, 'isMature'),
+        userId: auth.user.id,
       },
+      select: challengeMutationSelect,
     })
 
     event.node.res.statusCode = 201
@@ -143,6 +209,18 @@ export default defineEventHandler(async (event) => {
       statusCode: 201,
     }
   } catch (error: unknown) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      event.node.res.statusCode = 409
+      return {
+        success: false,
+        message: 'A Challenge with this slug already exists.',
+        statusCode: 409,
+      }
+    }
+
     const handled = errorHandler(error)
     const statusCode = handled.statusCode ?? 500
     event.node.res.statusCode = statusCode

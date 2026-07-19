@@ -11,6 +11,7 @@ import {
   rewardMutationSelect,
   type RewardMutationResult,
 } from './selects'
+import { assertRewardRelationsExist } from './mutation'
 
 export type RewardRelationInput = {
   characterIds?: number[]
@@ -395,6 +396,8 @@ export async function createReward(
   input: RewardMutationInput,
   authenticatedUserId: number,
 ): Promise<RewardMutationResult> {
+  await assertRewardRelationsExist(input)
+
   return await prisma.reward.create({
     data: buildCreateData(input, authenticatedUserId),
     select: rewardMutationSelect,
@@ -476,6 +479,8 @@ export async function updateRewardById(
   id: number,
   input: RewardMutationInput,
 ): Promise<RewardMutationResult> {
+  await assertRewardRelationsExist(input)
+
   return await prisma.reward.update({
     where: { id },
     data: buildUpdateData(input),

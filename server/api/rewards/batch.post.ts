@@ -3,6 +3,11 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { createRewardsBatch, type RewardMutationInput } from './'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import {
+  assertRewardMutationInput,
+  rewardBatchCreateFields,
+  REWARD_BATCH_LIMIT,
+} from './mutation'
 
 type RewardBatchBody =
   | RewardMutationInput[]
@@ -50,6 +55,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (rewardsData.length > REWARD_BATCH_LIMIT) {
+      throw createError({
+        statusCode: 400,
+        message: `Reward batch may contain at most ${REWARD_BATCH_LIMIT} entries.`,
+      })
+    }
+
     for (const [index, rewardData] of rewardsData.entries()) {
       if (
         !rewardData ||
@@ -72,6 +84,11 @@ export default defineEventHandler(async (event) => {
           message: `User ID in reward at index ${index} does not match the authenticated user.`,
         })
       }
+
+      assertRewardMutationInput(rewardData, {
+        allowedFields: rewardBatchCreateFields,
+        context: `Reward batch item ${index}`,
+      })
     }
 
     const { count, rewards, errors } = await createRewardsBatch(

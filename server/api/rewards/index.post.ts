@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { createReward, type RewardMutationInput } from './'
+import { assertRewardMutationInput, rewardCreateFields } from './mutation'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -39,6 +40,11 @@ export default defineEventHandler(async (event) => {
           'User ID in the reward data does not match the authenticated user.',
       })
     }
+
+    assertRewardMutationInput(rewardData, {
+      allowedFields: rewardCreateFields,
+      context: 'Reward create payload',
+    })
 
     const data = await createReward(rewardData, user.id)
 

@@ -3,57 +3,34 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
-import type {
-  CreationSource,
-  DreamType,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   normalizeCreationSource,
   normalizeDreamType,
-  normalizeIdArray,
-  normalizeNullableId,
   normalizeOptionalText,
-  normalizeScenarioIds,
   normalizeSlug,
 } from './index'
+import {
+  assertDreamMutationInput,
+  dreamCreateFields,
+  normalizeBoundedDreamIdArray,
+  normalizeBoundedDreamNullableId,
+  normalizeBoundedDreamScenarioIds,
+} from './mutation'
 import { dreamMutationSelect } from './selects'
-
-type DreamCreateBody = {
-  title?: string
-  slug?: string | null
-  dreamType?: DreamType
-  creationSource?: CreationSource
-  description?: string | null
-  pitch?: string | null
-  flavorText?: string | null
-  examples?: string | null
-  artPrompt?: string | null
-  imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
-  highlightImage?: string | null
-  icon?: string | null
-  designer?: string | null
-  allowReviews?: boolean
-  artImageId?: number | null
-  artCollectionId?: number | null
-  scenarioId?: number | null
-  scenarioIds?: number[]
-  Scenarios?: number[]
-  characterIds?: number[]
-  rewardIds?: number[]
-  artImageIds?: number[]
-  artCollectionIds?: number[]
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-}
 
 export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
-    const body = await readBody<DreamCreateBody>(event)
+    const rawBody = await readBody<unknown>(event)
+
+    assertDreamMutationInput(rawBody, {
+      allowedFields: dreamCreateFields,
+      context: 'Dream create payload',
+      authenticatedUserId: user.id,
+    })
+
+    const body = rawBody
     const title = body.title?.trim()
 
     if (!title) {
@@ -67,13 +44,31 @@ export default defineEventHandler(async (event) => {
     const slug = body.slug?.trim()
       ? normalizeSlug(body.slug)
       : normalizeSlug(title)
-    const artImageId = normalizeNullableId(body.artImageId)
-    const artCollectionId = normalizeNullableId(body.artCollectionId)
-    const scenarioIds = normalizeScenarioIds(body)
-    const characterIds = normalizeIdArray(body.characterIds)
-    const rewardIds = normalizeIdArray(body.rewardIds)
-    const artImageIds = normalizeIdArray(body.artImageIds)
-    const artCollectionIds = normalizeIdArray(body.artCollectionIds)
+    const artImageId = normalizeBoundedDreamNullableId(
+      body.artImageId,
+      'artImageId',
+    )
+    const artCollectionId = normalizeBoundedDreamNullableId(
+      body.artCollectionId,
+      'artCollectionId',
+    )
+    const scenarioIds = normalizeBoundedDreamScenarioIds(body)
+    const characterIds = normalizeBoundedDreamIdArray(
+      body.characterIds,
+      'characterIds',
+    )
+    const rewardIds = normalizeBoundedDreamIdArray(
+      body.rewardIds,
+      'rewardIds',
+    )
+    const artImageIds = normalizeBoundedDreamIdArray(
+      body.artImageIds,
+      'artImageIds',
+    )
+    const artCollectionIds = normalizeBoundedDreamIdArray(
+      body.artCollectionIds,
+      'artCollectionIds',
+    )
 
     const dataInput: Prisma.DreamCreateInput = {
       title,
@@ -98,14 +93,14 @@ export default defineEventHandler(async (event) => {
       User: {
         connect: { id: user.id },
       },
-      ...(artImageId
+      ...(typeof artImageId === 'number'
         ? {
             ArtImage: {
               connect: { id: artImageId },
             },
           }
         : {}),
-      ...(artCollectionId
+      ...(typeof artCollectionId === 'number'
         ? {
             ArtCollection: {
               connect: { id: artCollectionId },

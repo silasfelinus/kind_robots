@@ -3,91 +3,32 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type {
-  CreationSource,
-  DreamType,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   normalizeCreationSource,
   normalizeDreamType,
-  normalizeIdArray,
-  normalizeNullableId,
   normalizeOptionalText,
-  normalizeScenarioIds,
   normalizeSlug,
 } from './index'
+import {
+  assertDreamMutationInput,
+  dreamBatchCreateFields,
+  normalizeBoundedDreamIdArray,
+  normalizeBoundedDreamNullableId,
+  normalizeBoundedDreamScenarioIds,
+  type DreamMutationBody,
+} from './mutation'
 import {
   dreamMutationSelect,
   type DreamMutationResult,
 } from './selects'
 
-const dreamBatchCreateFields = new Set([
-  'title',
-  'slug',
-  'dreamType',
-  'creationSource',
-  'description',
-  'pitch',
-  'flavorText',
-  'examples',
-  'artPrompt',
-  'imagePath',
-  'cardPath',
-  'heroPath',
-  'highlightImage',
-  'icon',
-  'designer',
-  'allowReviews',
-  'artImageId',
-  'artCollectionId',
-  'scenarioId',
-  'scenarioIds',
-  'Scenarios',
-  'characterIds',
-  'rewardIds',
-  'artImageIds',
-  'artCollectionIds',
-  'isPublic',
-  'isMature',
-  'isActive',
-])
-
-type DreamMutationInput = Record<string, unknown> & {
-  title?: string
-  slug?: string | null
-  dreamType?: DreamType
-  creationSource?: CreationSource
-  description?: string | null
-  pitch?: string | null
-  flavorText?: string | null
-  examples?: string | null
-  artPrompt?: string | null
-  imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
-  highlightImage?: string | null
-  icon?: string | null
-  designer?: string | null
-  allowReviews?: boolean
-  artImageId?: number | null
-  artCollectionId?: number | null
-  scenarioId?: number | null
-  scenarioIds?: number[]
-  Scenarios?: number[]
-  characterIds?: number[]
-  rewardIds?: number[]
-  artImageIds?: number[]
-  artCollectionIds?: number[]
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-}
+const DREAM_BATCH_LIMIT = 100
 
 type DreamBatchBody =
-  | DreamMutationInput[]
+  | DreamMutationBody[]
   | {
-      dreams?: DreamMutationInput[]
+      dreams?: DreamMutationBody[]
     }
 
 type DreamBatchError = {
@@ -97,31 +38,30 @@ type DreamBatchError = {
   statusCode: number
 }
 
-function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
-  if (Array.isArray(body)) return body
+function getDreamsFromBody(body: unknown): DreamMutationBody[] {
+  if (Array.isArray(body)) return body as DreamMutationBody[]
 
-  if (body && typeof body === 'object' && Array.isArray(body.dreams)) {
-    return body.dreams
+  if (body && typeof body === 'object') {
+    const record = body as Record<string, unknown>
+    const unsupported = Object.keys(record).filter((field) => field !== 'dreams')
+
+    if (unsupported.length) {
+      throw createError({
+        statusCode: 400,
+        message: `Unsupported Dream batch fields: ${unsupported.join(', ')}.`,
+      })
+    }
+
+    if (Array.isArray(record.dreams)) {
+      return record.dreams as DreamMutationBody[]
+    }
   }
 
   return []
 }
 
-function assertSupportedFields(body: DreamMutationInput, index: number) {
-  const unsupported = Object.keys(body).filter(
-    (field) => !dreamBatchCreateFields.has(field),
-  )
-
-  if (unsupported.length > 0) {
-    throw createError({
-      statusCode: 400,
-      message: `Unsupported Dream fields at index ${index}: ${unsupported.join(', ')}. Ownership, IDs, and timestamps are server-owned.`,
-    })
-  }
-}
-
 async function createDreamFromInput(
-  body: DreamMutationInput,
+  body: DreamMutationBody,
   callerUserId: number,
   callerUsername: string | null | undefined,
 ): Promise<DreamMutationResult> {
@@ -137,13 +77,31 @@ async function createDreamFromInput(
   const slug = body.slug?.trim()
     ? normalizeSlug(body.slug)
     : normalizeSlug(title)
-  const artImageId = normalizeNullableId(body.artImageId)
-  const artCollectionId = normalizeNullableId(body.artCollectionId)
-  const scenarioIds = normalizeScenarioIds(body)
-  const characterIds = normalizeIdArray(body.characterIds)
-  const rewardIds = normalizeIdArray(body.rewardIds)
-  const artImageIds = normalizeIdArray(body.artImageIds)
-  const artCollectionIds = normalizeIdArray(body.artCollectionIds)
+  const artImageId = normalizeBoundedDreamNullableId(
+    body.artImageId,
+    'artImageId',
+  )
+  const artCollectionId = normalizeBoundedDreamNullableId(
+    body.artCollectionId,
+    'artCollectionId',
+  )
+  const scenarioIds = normalizeBoundedDreamScenarioIds(body)
+  const characterIds = normalizeBoundedDreamIdArray(
+    body.characterIds,
+    'characterIds',
+  )
+  const rewardIds = normalizeBoundedDreamIdArray(
+    body.rewardIds,
+    'rewardIds',
+  )
+  const artImageIds = normalizeBoundedDreamIdArray(
+    body.artImageIds,
+    'artImageIds',
+  )
+  const artCollectionIds = normalizeBoundedDreamIdArray(
+    body.artCollectionIds,
+    'artCollectionIds',
+  )
   const designer =
     normalizeOptionalText(body.designer) ||
     callerUsername ||
@@ -172,14 +130,14 @@ async function createDreamFromInput(
     User: {
       connect: { id: callerUserId },
     },
-    ...(artImageId
+    ...(typeof artImageId === 'number'
       ? {
           ArtImage: {
             connect: { id: artImageId },
           },
         }
       : {}),
-    ...(artCollectionId
+    ...(typeof artCollectionId === 'number'
       ? {
           ArtCollection: {
             connect: { id: artCollectionId },
@@ -250,19 +208,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    for (const [index, dreamData] of dreamsData.entries()) {
-      if (
-        !dreamData ||
-        typeof dreamData !== 'object' ||
-        Array.isArray(dreamData)
-      ) {
-        throw createError({
-          statusCode: 400,
-          message: `Invalid dream at index ${index}. Expected an object.`,
-        })
-      }
+    if (dreamsData.length > DREAM_BATCH_LIMIT) {
+      throw createError({
+        statusCode: 400,
+        message: `Dream batch may contain at most ${DREAM_BATCH_LIMIT} entries.`,
+      })
+    }
 
-      assertSupportedFields(dreamData, index)
+    for (const [index, dreamData] of dreamsData.entries()) {
+      assertDreamMutationInput(dreamData, {
+        allowedFields: dreamBatchCreateFields,
+        context: `Dream batch item ${index}`,
+      })
     }
 
     const userRecord = await prisma.user.findUnique({

@@ -1,0 +1,39 @@
+name: Dream Mutation Input Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/dreams/mutation.ts'
+      - 'server/api/dreams/index.post.ts'
+      - 'server/api/dreams/[id].patch.ts'
+      - 'server/api/dreams/batch.post.ts'
+      - 'cypress/e2e/api/dream-input-boundary.cy.ts'
+      - 'utils/scripts/verifyDreamMutationInputParity.ts'
+      - '.github/workflows/dream-mutation-input-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify Dream mutation input parity
+        run: npx tsx utils/scripts/verifyDreamMutationInputParity.ts

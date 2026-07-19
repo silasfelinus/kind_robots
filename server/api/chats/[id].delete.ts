@@ -1,91 +1,73 @@
 // /server/api/chats/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
-import { errorHandler } from '../../utils/error'
+import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let id: number | null = null // Declare 'id' for broader scope
+  let id: number | null = null
 
   try {
-    // 1. Extract and validate the communication ID from the request parameters
     id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
-        message: 'Invalid Communication ID. ID must be a positive integer.',
+        statusCode: 400,
+        message: 'Invalid chat ID. It must be a positive integer.',
       })
     }
 
-    console.log(`Attempting to delete communication with ID: ${id}`)
-
-    // 2. Use the utility function to validate the API key
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
-        statusCode: 401, // Unauthorized
+        statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const userId = user.id
-
-    // 3. Fetch the communication to verify ownership
     const chat = await prisma.chat.findUnique({
       where: { id },
-      select: { userId: true },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
 
     if (!chat) {
       throw createError({
-        statusCode: 404, // Not Found
-        message: `Communication with ID ${id} does not exist.`,
+        statusCode: 404,
+        message: `Chat with ID ${id} does not exist.`,
       })
     }
 
-    // Check if user is an admin
-    if (user.Role === 'ADMIN') {
-      // Admin bypass: Delete the chat entry directly
-      await prisma.chat.delete({ where: { id } })
-      return {
-        success: true,
-        message: `Chat entry with ID ${id} deleted successfully by admin.`,
-      }
-    }
-
-    // 4. Check if the logged-in user is the owner of the communication
-    if (chat.userId !== userId) {
+    if (chat.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
-        statusCode: 403, // Forbidden
-        message: 'You do not have permission to delete this communication.',
+        statusCode: 403,
+        message: 'You do not have permission to delete this chat.',
       })
     }
 
-    // 5. Attempt to delete the communication
     await prisma.chat.delete({ where: { id } })
 
-    console.log(`Communication with ID ${id} successfully deleted`)
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
-      message: `Communication with ID ${id} successfully deleted.`,
+      message: `Chat with ID ${id} successfully deleted.`,
+      data: null,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error('Error deleting communication:', handledError)
-
-    // Explicitly set the status code based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+
+    return {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to delete communication with ID ${id !== null ? id : 'unknown'}.`,
+      message: handledError.message || `Failed to delete Chat with ID ${id}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

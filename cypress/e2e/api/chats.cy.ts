@@ -10,14 +10,7 @@ import {
 
 describe('Chat API Tests', () => {
 
-  // Auth migration: fresh disposable JWT user
-  before(() => {
-    createLoggedInTestUser().then((auth) => {
-      userId = auth.id
-    })
-  })
-
-  const baseUrl = 'https://kind-robots.vercel.app/api/chats'
+  let baseUrl = ''
   const badJwt = 'definitely-not-valid'
   const botId = 1
 
@@ -30,6 +23,7 @@ describe('Chat API Tests', () => {
   before(() => {
     getApiEnv().then((env) => {
       apiBase = env.apiBase
+      baseUrl = `${apiBase}/chats`
       setupAuth = env.adminToken
     })
 
@@ -208,6 +202,15 @@ describe('Chat API Tests', () => {
     )
   })
 
+  it('returns real status codes for invalid and missing Chat IDs', () => {
+    makeRequest('DELETE', `${baseUrl}/0`, userJwt).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.statusCode).to.eq(400)
+      expect(response.body.message).to.match(/invalid chat id/i)
+    })
+  })
+
   it('Delete Chat with Valid Authentication', () => {
     expect(chatId).to.not.eq(null)
 
@@ -216,8 +219,10 @@ describe('Chat API Tests', () => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
         expect(response.body.message).to.include(
-          `Communication with ID ${chatId} successfully deleted`,
+          `Chat with ID ${chatId} successfully deleted`,
         )
+        expect(response.body.data).to.eq(null)
+        expect(response.body.statusCode).to.eq(200)
 
         chatId = null
       },

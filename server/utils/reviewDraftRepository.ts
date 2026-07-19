@@ -71,6 +71,7 @@ export type CreateReviewDraftInput = {
   reactionType?: string | null
   generationModel?: string | null
   generationProvider?: string | null
+  generationAttempt?: number
 }
 
 export type UpdateReviewDraftInput = {
@@ -228,6 +229,7 @@ export async function createReviewDraft(
   const authorBotId = input.author.kind === 'BOT' ? input.author.id : null
   const authorCharacterId = input.author.kind === 'CHARACTER' ? input.author.id : null
   const payload = input.promptPayload === undefined ? null : JSON.stringify(input.promptPayload)
+  const generationAttempt = Math.max(1, Math.round(input.generationAttempt ?? 1))
 
   const inserted = await prisma.$executeRaw`
     INSERT IGNORE INTO ReviewDraft (
@@ -243,7 +245,8 @@ export async function createReviewDraft(
       rating,
       reactionType,
       generationModel,
-      generationProvider
+      generationProvider,
+      generationAttempt
     ) VALUES (
       'PROPOSED',
       ${draftKey},
@@ -257,7 +260,8 @@ export async function createReviewDraft(
       ${input.rating},
       ${input.reactionType ?? null},
       ${input.generationModel ?? null},
-      ${input.generationProvider ?? null}
+      ${input.generationProvider ?? null},
+      ${generationAttempt}
     )
   `
 

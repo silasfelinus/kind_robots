@@ -56,6 +56,7 @@
     "test:workflow-paths": "tsx utils/scripts/verifyWorkflowPaths.ts",
     "test:deploy-wait-ancestry": "tsx utils/scripts/verifyDeployWaitAncestry.ts",
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",
+    "test:no-unquoted-reserved-word-tables": "tsx utils/scripts/verifyNoUnquotedReservedWordTables.ts",
     "test:capture-group-guards": "tsx utils/scripts/verifyCaptureGroupGuards.ts",
     "test:capture-group-guards-selftest": "tsx utils/scripts/verifyCaptureGroupGuards.test.ts",
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",

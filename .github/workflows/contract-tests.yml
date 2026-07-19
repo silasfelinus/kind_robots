@@ -85,6 +85,9 @@ jobs:
       - name: Prisma JSON-cast contract
         run: npm run test:no-prisma-json-cast
 
+      - name: Unquoted reserved-word table identifier contract
+        run: npm run test:no-unquoted-reserved-word-tables
+
       - name: Capture-group guard checker self-test
         run: npm run test:capture-group-guards-selftest
 

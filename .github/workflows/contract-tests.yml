@@ -58,6 +58,9 @@ jobs:
       - name: Dream store fetch merge contract
         run: npx tsx utils/scripts/verifyDreamStoreFetchMerge.ts
 
+      - name: Workspace store fetch dedupe contract
+        run: npx tsx utils/scripts/verifyWorkspaceStoreFetchDedupe.ts
+
       - name: Known failed Prisma migration repair contract
         run: node utils/scripts/verify-known-migration-repair.mjs
 

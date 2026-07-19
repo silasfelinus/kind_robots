@@ -22,7 +22,38 @@ import {
   type DreamMutationResult,
 } from './selects'
 
-type DreamMutationInput = {
+const dreamBatchCreateFields = new Set([
+  'title',
+  'slug',
+  'dreamType',
+  'creationSource',
+  'description',
+  'pitch',
+  'flavorText',
+  'examples',
+  'artPrompt',
+  'imagePath',
+  'cardPath',
+  'heroPath',
+  'highlightImage',
+  'icon',
+  'designer',
+  'allowReviews',
+  'artImageId',
+  'artCollectionId',
+  'scenarioId',
+  'scenarioIds',
+  'Scenarios',
+  'characterIds',
+  'rewardIds',
+  'artImageIds',
+  'artCollectionIds',
+  'isPublic',
+  'isMature',
+  'isActive',
+])
+
+type DreamMutationInput = Record<string, unknown> & {
   title?: string
   slug?: string | null
   dreamType?: DreamType
@@ -51,7 +82,6 @@ type DreamMutationInput = {
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
-  userId?: number
 }
 
 type DreamBatchBody =
@@ -77,16 +107,24 @@ function getDreamsFromBody(body: DreamBatchBody): DreamMutationInput[] {
   return []
 }
 
+function assertSupportedFields(body: DreamMutationInput, index: number) {
+  const unsupported = Object.keys(body).filter(
+    (field) => !dreamBatchCreateFields.has(field),
+  )
+
+  if (unsupported.length > 0) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Dream fields at index ${index}: ${unsupported.join(', ')}. Ownership, IDs, and timestamps are server-owned.`,
+    })
+  }
+}
+
 async function createDreamFromInput(
   body: DreamMutationInput,
   callerUserId: number,
   callerUsername: string | null | undefined,
-  callerIsAdmin: boolean,
 ): Promise<DreamMutationResult> {
-  const userId =
-    callerIsAdmin && body.userId && Number.isInteger(body.userId) && body.userId > 0
-      ? body.userId
-      : callerUserId
   const title = body.title?.trim()
 
   if (!title) {
@@ -132,7 +170,7 @@ async function createDreamFromInput(
     isMature: body.isMature ?? false,
     isActive: body.isActive ?? true,
     User: {
-      connect: { id: userId },
+      connect: { id: callerUserId },
     },
     ...(artImageId
       ? {
@@ -223,13 +261,14 @@ export default defineEventHandler(async (event) => {
           message: `Invalid dream at index ${index}. Expected an object.`,
         })
       }
+
+      assertSupportedFields(dreamData, index)
     }
 
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id },
       select: { username: true },
     })
-    const callerIsAdmin = user.Role === 'ADMIN' || user.id === 1
     const dreams: DreamMutationResult[] = []
     const errors: DreamBatchError[] = []
 
@@ -239,7 +278,6 @@ export default defineEventHandler(async (event) => {
           dreamData,
           user.id,
           userRecord?.username,
-          callerIsAdmin,
         )
 
         dreams.push(dream)

@@ -5,6 +5,7 @@ import path from 'node:path'
 import { spawn } from 'node:child_process'
 import mariadb from 'mariadb'
 import { repairKnownFailedMigrations } from './repair-known-prisma-migrations.mjs'
+import { withConnectionRetry } from './db-connection-retry.mjs'
 
 const databaseUrl = process.env.DATABASE_URL
 const caFilePath = '/tmp/kindrobots-proxysql-ca.pem'
@@ -106,26 +107,44 @@ async function main() {
 
   await writeFile(caFilePath, `${sslCa}\n`, { mode: 0o600 })
 
-  let connection
   try {
     const parsedUrl = new URL(databaseUrl)
-    connection = await createTlsConnection(parsedUrl, sslCa)
-
     parsedUrl.searchParams.set('sslcert', caFilePath)
     parsedUrl.searchParams.set('sslaccept', 'strict')
     const prismaUrl = parsedUrl.toString()
 
-    await repairKnownFailedMigrations({
-      connection,
-      prismaUrl,
-      runPrismaCommand,
-    })
+    // The repair runs a short sequence of idempotent, existence-guarded
+    // statements against ProxySQL, which can drop the connection mid-sequence
+    // (SQLState 08S01, "socket has unexpectedly been closed"). Reconnect and
+    // re-run the repair on connection-level failures — safe because every step
+    // is idempotent — instead of failing the whole production deploy.
+    await withConnectionRetry(
+      async () => {
+        let connection
+        try {
+          connection = await createTlsConnection(parsedUrl, sslCa)
+          await repairKnownFailedMigrations({
+            connection,
+            prismaUrl,
+            runPrismaCommand,
+          })
+        } finally {
+          await connection?.end().catch(() => undefined)
+        }
+      },
+      {
+        onRetry: ({ attempt, attempts, error, backoff }) => {
+          console.warn(
+            `[database repair] Attempt ${attempt}/${attempts} hit a transient connection error (${
+              error?.code || error?.sqlState || 'unknown'
+            }); reconnecting in ${backoff}ms.`,
+          )
+        },
+      },
+    )
 
-    await connection.end()
-    connection = undefined
     await runPrismaMigrate(prismaUrl)
   } finally {
-    await connection?.end().catch(() => undefined)
     await unlink(caFilePath).catch(() => undefined)
   }
 }

@@ -8,16 +8,22 @@ import { componentStatuses } from '@/utils/wonderlab/componentStatus'
 
 export const wonderLabStatusFilters = componentStatuses
 export const wonderLabCollectionViews = ['grid', 'list'] as const
+export const wonderLabReviewFilters = ['all', 'reviewed', 'unreviewed'] as const
+export const wonderLabDiscoveryFilters = ['all', 'discovered', 'missing'] as const
 
 export type WonderLabStatusFilter =
   | 'all'
   | (typeof wonderLabStatusFilters)[number]
 export type WonderLabCollectionView = (typeof wonderLabCollectionViews)[number]
+export type WonderLabReviewFilter = (typeof wonderLabReviewFilters)[number]
+export type WonderLabDiscoveryFilter = (typeof wonderLabDiscoveryFilters)[number]
 
 export type WonderLabMuseumQueryState = {
   search: string
   folder: string
   status: WonderLabStatusFilter
+  reviews: WonderLabReviewFilter
+  discovery: WonderLabDiscoveryFilter
   sort: ComponentCatalogSort
   view: WonderLabCollectionView
 }
@@ -55,6 +61,24 @@ function normalizedStatus(value: WonderLabQueryValue): WonderLabStatusFilter {
     : 'all'
 }
 
+function normalizedReviewFilter(value: WonderLabQueryValue): WonderLabReviewFilter {
+  const candidate = normalizedText(value, 24).toLowerCase()
+  return wonderLabReviewFilters.includes(candidate as WonderLabReviewFilter)
+    ? (candidate as WonderLabReviewFilter)
+    : 'all'
+}
+
+function normalizedDiscoveryFilter(
+  value: WonderLabQueryValue,
+): WonderLabDiscoveryFilter {
+  const candidate = normalizedText(value, 24).toLowerCase()
+  return wonderLabDiscoveryFilters.includes(
+    candidate as WonderLabDiscoveryFilter,
+  )
+    ? (candidate as WonderLabDiscoveryFilter)
+    : 'all'
+}
+
 function normalizedSort(value: WonderLabQueryValue): ComponentCatalogSort {
   const candidate = normalizedText(value, 40).toUpperCase()
   return isComponentCatalogSort(candidate) ? candidate : 'NAME'
@@ -74,6 +98,8 @@ export function normalizeWonderLabMuseumQuery(
     search: normalizedText(query.q, SEARCH_LIMIT),
     folder: normalizedText(query.folder, FOLDER_LIMIT),
     status: normalizedStatus(query.status),
+    reviews: normalizedReviewFilter(query.reviews),
+    discovery: normalizedDiscoveryFilter(query.discovery),
     sort: normalizedSort(query.sort),
     view: normalizedView(query.view),
   }
@@ -96,6 +122,12 @@ export function wonderLabMuseumQuery(
   if (state.status === 'all') delete query.status
   else query.status = state.status
 
+  if (state.reviews === 'all') delete query.reviews
+  else query.reviews = state.reviews
+
+  if (state.discovery === 'all') delete query.discovery
+  else query.discovery = state.discovery
+
   if (state.sort === 'NAME') delete query.sort
   else query.sort = state.sort
 
@@ -113,6 +145,8 @@ export function sameWonderLabMuseumQuery(
     left.search === right.search &&
     left.folder === right.folder &&
     left.status === right.status &&
+    left.reviews === right.reviews &&
+    left.discovery === right.discovery &&
     left.sort === right.sort &&
     left.view === right.view
   )

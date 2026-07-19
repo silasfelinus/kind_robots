@@ -189,9 +189,12 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error) {
-    console.error('🔥 Stripe Checkout Error:', error)
     const handled = errorHandler(error)
     const statusCode = handled.statusCode || 500
+
+    if (statusCode >= 500) {
+      console.error('Stripe checkout failed:', error)
+    }
 
     event.node.res.statusCode = statusCode
 

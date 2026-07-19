@@ -283,9 +283,6 @@ model Component {
   updatedAt         DateTime?       @default(now()) @updatedAt
   folderName        String
   componentName     String          @unique
-  isWorking         Boolean         @default(true)
-  underConstruction Boolean         @default(false)
-  isBroken          Boolean         @default(false)
   slug              String?         @unique @db.VarChar(255)
   sourcePath        String?         @db.VarChar(1024)
   sourceKey         String?         @unique @db.VarChar(1024)

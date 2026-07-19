@@ -75,9 +75,9 @@ describe('Component Reactions API Tests', () => {
         expect(response.status).to.eq(201)
         expect(response.body).to.have.property('success', true)
         expect(response.body.data.status).to.eq('WORKING')
-        expect(response.body.data.isWorking).to.be.true
-        expect(response.body.data.underConstruction).to.be.false
-        expect(response.body.data.isBroken).to.be.false
+        expect(response.body.data).to.not.have.property('isWorking')
+        expect(response.body.data).to.not.have.property('underConstruction')
+        expect(response.body.data).to.not.have.property('isBroken')
 
         componentId = response.body.data.id
         expect(componentId).to.be.a('number')
@@ -279,43 +279,40 @@ describe('Component Reactions API Tests', () => {
   })
 
   after(() => {
-    if (testUser) {
-      cy.wrap(createdReactions).each((id) => {
-        cy.request({
-          method: 'DELETE',
-          url: `${apiBase}/reactions/${id}`,
-          headers: authHeaders(),
-          failOnStatusCode: false,
-        }).then((response) => {
-          expect(response.status).to.be.oneOf([200, 404])
-        })
-      })
+    const reactionCleanup = createdReactions.reduce<
+      Cypress.Chainable<CleanupResponse>
+    >(
+      (chain, id) =>
+        chain.then(() => {
+          if (!testUser) return null
 
-      cy.wrap(createdComponents).each((id) => {
-        cy.request({
-          method: 'DELETE',
-          url: `${apiBase}/components/${id}`,
-          headers: adminHeaders(adminToken),
-          failOnStatusCode: false,
-        }).then((response) => {
-          expect(response.status).to.be.oneOf([200, 404])
-        })
-      })
-    }
+          return cy.request({
+            method: 'DELETE',
+            url: `${apiBase}/reactions/${id}`,
+            headers: authHeaders(),
+            failOnStatusCode: false,
+          })
+        }),
+      cy.wrap<CleanupResponse>(null, { log: false }),
+    )
 
-    const cleanup = deleteTestUser(
-      apiBase,
-      adminToken,
-      testUser?.id,
-    ) as Cypress.Chainable<CleanupResponse>
+    const componentCleanup = createdComponents.reduce<
+      Cypress.Chainable<CleanupResponse>
+    >(
+      (chain, id) =>
+        chain.then(() =>
+          cy.request({
+            method: 'DELETE',
+            url: `${apiBase}/components/${id}`,
+            headers: adminHeaders(adminToken),
+            failOnStatusCode: false,
+          }),
+        ),
+      reactionCleanup,
+    )
 
-    cleanup.then((response: CleanupResponse) => {
-      if (response) {
-        cy.log(
-          'Component reaction test user cleanup:',
-          JSON.stringify(response.body),
-        )
-      }
-    })
+    componentCleanup.then(() =>
+      deleteTestUser(apiBase, adminToken, testUser?.id),
+    )
   })
 })

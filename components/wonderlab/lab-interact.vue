@@ -527,7 +527,6 @@ import {
 import { useUserStore } from '@/stores/userStore'
 import {
   getComponentStatus,
-  legacyFieldsForComponentStatus,
   type ComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
 import { sortComponentCatalog } from '@/utils/wonderlab/componentCatalog'
@@ -638,10 +637,6 @@ const selectedStatus = computed<ComponentStatus>({
   set: (status) => {
     if (!selectedComponent.value) return
     selectedComponent.value.status = status
-    Object.assign(
-      selectedComponent.value,
-      legacyFieldsForComponentStatus(status),
-    )
   },
 })
 

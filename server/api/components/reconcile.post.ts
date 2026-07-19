@@ -148,9 +148,6 @@ function createDataForAction(
     status: 'UNREVIEWED',
     title: action.componentName,
     notes: null,
-    isWorking: false,
-    underConstruction: false,
-    isBroken: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   }

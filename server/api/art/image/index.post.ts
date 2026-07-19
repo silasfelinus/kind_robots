@@ -1,248 +1,259 @@
 // /server/api/art/image/index.post.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
-import { validateApiKey } from '~/server/utils/validateKey'
-import { userIsAdmin } from '~/server/utils/authUser'
+import { requireApiUser } from '~/server/utils/authGuard'
 
 type CreateArtImagePayload = {
-  userId?: number | null
-  imageData?: string | null
-  thumbnailData?: string | null
-  fileName?: string | null
-  fileType?: string | null
-  imagePath?: string | null
-  rarity?: number | null
-  path?: string | null
-  promptString?: string | null
-  artPrompt?: string | null
-  negativePrompt?: string | null
-  checkpoint?: string | null
-  checkpointResourceId?: number | null
-  sampler?: string | null
-  seed?: number | null
-  steps?: number | null
-  cfg?: number | null
-  cfgHalf?: boolean | null
-  designer?: string | null
-  genres?: string | null
-  isPublic?: boolean | null
-  isMature?: boolean | null
-  isActive?: boolean | null
-  serverId?: number | null
-  serverName?: string | null
-  serverUrl?: string | null
-
-  botId?: number | null
-  componentId?: number | null
-  achievementId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  characterId?: number | null
-  butterflyId?: number | null
-
-  botIds?: number[]
-  componentIds?: number[]
-  achievementIds?: number[]
-  promptIds?: number[]
-  resourceIds?: number[]
-  rewardIds?: number[]
-  chatIds?: number[]
-  characterIds?: number[]
-  butterflyIds?: number[]
-  dreamId?: number | null
-  dreamIds?: number[]
-  scenarioIds?: number[]
-  reactionIds?: number[]
-  artCollectionIds?: number[]
+  imageData?: unknown
+  thumbnailData?: unknown
+  fileName?: unknown
+  fileType?: unknown
+  imagePath?: unknown
+  path?: unknown
+  promptString?: unknown
+  artPrompt?: unknown
+  negativePrompt?: unknown
+  checkpoint?: unknown
+  sampler?: unknown
+  seed?: unknown
+  steps?: unknown
+  cfg?: unknown
+  cfgHalf?: unknown
+  designer?: unknown
+  genres?: unknown
+  isPublic?: unknown
+  isMature?: unknown
+  isActive?: unknown
+  serverName?: unknown
+  serverUrl?: unknown
 }
 
-function cleanText(value?: string | null): string | null {
-  const text = value?.trim()
+const ALLOWED_FIELDS = new Set([
+  'imageData',
+  'thumbnailData',
+  'fileName',
+  'fileType',
+  'imagePath',
+  'path',
+  'promptString',
+  'artPrompt',
+  'negativePrompt',
+  'checkpoint',
+  'sampler',
+  'seed',
+  'steps',
+  'cfg',
+  'cfgHalf',
+  'designer',
+  'genres',
+  'isPublic',
+  'isMature',
+  'isActive',
+  'serverName',
+  'serverUrl',
+])
+
+const ALLOWED_FILE_TYPES = new Set(['png', 'jpeg', 'jpg', 'webp', 'gif', 'avif'])
+const MAX_IMAGE_DATA_CHARS = 30_000_000
+const MAX_THUMBNAIL_DATA_CHARS = 5_000_000
+
+function cleanText(
+  value: unknown,
+  fieldName: string,
+  maxLength: number,
+): string | null {
+  if (typeof value === 'undefined' || value === null) return null
+
+  if (typeof value !== 'string') {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be a string.`,
+    })
+  }
+
+  const text = value.trim()
+
+  if (text.length > maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be ${maxLength} characters or fewer.`,
+    })
+  }
+
   return text && text !== 'UNDEFINED' ? text : null
 }
 
-function cleanPositiveId(value?: number | null): number | null {
+function cleanNumber(value: unknown, fieldName: string): number | null {
+  if (typeof value === 'undefined' || value === null || value === '') return null
+
   const number = Number(value)
-  return Number.isInteger(number) && number > 0 ? number : null
-}
 
-function cleanNumber(value?: number | null): number | null {
-  const number = Number(value)
-  return Number.isFinite(number) ? number : null
-}
-
-function cleanBoolean(value?: boolean | null): boolean {
-  return value === true
-}
-
-function cleanPositiveIds(values?: Array<number | null | undefined>): number[] {
-  if (!Array.isArray(values)) return []
-
-  return [...new Set(values)]
-    .map((value) => Number(value))
-    .filter((value) => Number.isInteger(value) && value > 0)
-}
-
-function mergeIds(
-  ...groups: Array<Array<number | null | undefined> | undefined>
-): number[] {
-  return [...new Set(groups.flatMap((group) => cleanPositiveIds(group)))]
-}
-
-function connectById(id?: number | null) {
-  const cleanId = cleanPositiveId(id)
-  return cleanId ? { connect: { id: cleanId } } : undefined
-}
-
-function connectMany(ids?: Array<number | null | undefined>) {
-  const cleanIds = cleanPositiveIds(ids)
-
-  return cleanIds.length
-    ? {
-        connect: cleanIds.map((id) => ({ id })),
-      }
-    : undefined
-}
-
-function getFallbackFileName(body: CreateArtImagePayload): string {
-  const path = cleanText(body.imagePath) || cleanText(body.path)
-
-  if (path) {
-    const cleanPath = path.split('?')[0] || ''
-    const fileName = cleanPath.split('/').filter(Boolean).at(-1)
-
-    if (fileName) return fileName
+  if (!Number.isFinite(number)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be a finite number.`,
+    })
   }
 
-  return `art-image-${Date.now()}.${getFallbackFileType(body)}`
+  return number
+}
+
+function cleanInteger(
+  value: unknown,
+  fieldName: string,
+  min: number,
+  max: number,
+): number | null {
+  const number = cleanNumber(value, fieldName)
+
+  if (number === null) return null
+
+  if (!Number.isInteger(number) || number < min || number > max) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be an integer from ${min} to ${max}.`,
+    })
+  }
+
+  return number
+}
+
+function cleanBoolean(
+  value: unknown,
+  fieldName: string,
+  fallback: boolean,
+): boolean {
+  if (typeof value === 'undefined' || value === null) return fallback
+
+  if (typeof value !== 'boolean') {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be a boolean.`,
+    })
+  }
+
+  return value
 }
 
 function getFallbackFileType(body: CreateArtImagePayload): string {
   const source =
-    cleanText(body.fileName) ||
-    cleanText(body.imagePath) ||
-    cleanText(body.path) ||
+    cleanText(body.fileName, 'fileName', 255) ||
+    cleanText(body.imagePath, 'imagePath', 2_000) ||
+    cleanText(body.path, 'path', 2_000) ||
     ''
-
   const extension = source.split('?')[0]?.split('.').pop()?.toLowerCase()
 
-  if (extension === 'jpg') return 'jpeg'
-  if (extension === 'jpeg') return 'jpeg'
-  if (extension === 'webp') return 'webp'
-  if (extension === 'gif') return 'gif'
-  if (extension === 'avif') return 'avif'
-
-  return 'png'
+  return extension && ALLOWED_FILE_TYPES.has(extension) ? extension : 'png'
 }
 
-function buildCreateData(
-  body: CreateArtImagePayload,
-): Prisma.ArtImageCreateInput {
-  const imageData = cleanText(body.imageData)
-  const imagePath = cleanText(body.imagePath)
-  const path = cleanText(body.path)
+function getFallbackFileName(body: CreateArtImagePayload, fileType: string): string {
+  const source =
+    cleanText(body.imagePath, 'imagePath', 2_000) ||
+    cleanText(body.path, 'path', 2_000)
 
-  if (!imageData && !imagePath && !path) {
-    throw createError({
-      statusCode: 400,
-      message: 'imageData, imagePath, or path is required.',
-    })
+  if (source) {
+    const fileName = source.split('?')[0]?.split('/').filter(Boolean).at(-1)
+    if (fileName) return fileName.slice(0, 255)
   }
 
-  const fileType = cleanText(body.fileType) || getFallbackFileType(body)
-  const fileName = cleanText(body.fileName) || getFallbackFileName(body)
-
-  return {
-    imageData,
-    thumbnailData: cleanText(body.thumbnailData),
-    fileName,
-    fileType,
-    imagePath,
-    path,
-    promptString: cleanText(body.promptString),
-    artPrompt: cleanText(body.artPrompt),
-    negativePrompt: cleanText(body.negativePrompt),
-    checkpoint: cleanText(body.checkpoint),
-    sampler: cleanText(body.sampler),
-    seed: cleanNumber(body.seed),
-    steps: cleanNumber(body.steps),
-    cfg: cleanNumber(body.cfg),
-    cfgHalf: cleanBoolean(body.cfgHalf),
-    designer: cleanText(body.designer),
-    genres: cleanText(body.genres),
-    isPublic: cleanBoolean(body.isPublic),
-    isMature: cleanBoolean(body.isMature),
-    isActive: body.isActive ?? true,
-    serverName: cleanText(body.serverName),
-    serverUrl: cleanText(body.serverUrl),
-
-    User: connectById(body.userId),
-    Server: connectById(body.serverId),
-    CheckpointResource: connectById(body.checkpointResourceId),
-
-    Bots: connectMany(mergeIds(body.botIds, body.botId ? [body.botId] : [])),
-    Components: connectMany(
-      mergeIds(body.componentIds, body.componentId ? [body.componentId] : []),
-    ),
-    Achievements: connectMany(
-      mergeIds(body.achievementIds, body.achievementId ? [body.achievementId] : []),
-    ),
-    Prompts: connectMany(
-      mergeIds(body.promptIds, body.promptId ? [body.promptId] : []),
-    ),
-    Resources: connectMany(
-      mergeIds(body.resourceIds, body.resourceId ? [body.resourceId] : []),
-    ),
-    Rewards: connectMany(
-      mergeIds(body.rewardIds, body.rewardId ? [body.rewardId] : []),
-    ),
-    Chats: connectMany(
-      mergeIds(body.chatIds, body.chatId ? [body.chatId] : []),
-    ),
-    Characters: connectMany(
-      mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
-    ),
-    Dreams: connectMany(mergeIds(body.dreamIds, body.dreamId ? [body.dreamId] : [])),
-    Scenarios: connectMany(body.scenarioIds),
-    Reactions: connectMany(body.reactionIds),
-    ArtCollections: connectMany(body.artCollectionIds),
-  }
+  return `art-image-${Date.now()}.${fileType}`
 }
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await validateApiKey(event)
-
-    if (!auth.isValid || !auth.user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Valid authorization token required.',
-      })
-    }
-
+    const { user } = await requireApiUser(event)
     const body = await readBody<CreateArtImagePayload>(event)
-    const requestedUserId = cleanPositiveId(body.userId)
-    const userId = requestedUserId || auth.user.id
 
-    if (requestedUserId && requestedUserId !== auth.user.id && !userIsAdmin(auth.user)) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
       throw createError({
-        statusCode: 403,
-        message: 'Token does not match user ID',
+        statusCode: 400,
+        message: 'A JSON ArtImage body is required.',
       })
     }
 
-    const data = buildCreateData({
-      ...body,
-      userId,
-    })
+    const unknownFields = Object.keys(body).filter(
+      (field) => !ALLOWED_FIELDS.has(field),
+    )
 
-    const artImage = await prisma.artImage.create({
-      data,
-    })
+    if (unknownFields.length) {
+      throw createError({
+        statusCode: 400,
+        message: `Unsupported ArtImage create fields: ${unknownFields.join(', ')}. Ownership and relationships are managed by authenticated resource APIs.`,
+      })
+    }
+
+    const imageData = cleanText(
+      body.imageData,
+      'imageData',
+      MAX_IMAGE_DATA_CHARS,
+    )
+    const imagePath = cleanText(body.imagePath, 'imagePath', 2_000)
+    const sourcePath = cleanText(body.path, 'path', 2_000)
+
+    if (!imageData && !imagePath && !sourcePath) {
+      throw createError({
+        statusCode: 400,
+        message: 'imageData, imagePath, or path is required.',
+      })
+    }
+
+    const requestedFileType = cleanText(body.fileType, 'fileType', 32)?.toLowerCase()
+    const fileType = requestedFileType || getFallbackFileType(body)
+
+    if (!ALLOWED_FILE_TYPES.has(fileType)) {
+      throw createError({
+        statusCode: 400,
+        message: `Unsupported fileType: ${fileType}.`,
+      })
+    }
+
+    const fileName =
+      cleanText(body.fileName, 'fileName', 255) ||
+      getFallbackFileName(body, fileType)
+
+    const data: Prisma.ArtImageCreateInput = {
+      imageData,
+      thumbnailData: cleanText(
+        body.thumbnailData,
+        'thumbnailData',
+        MAX_THUMBNAIL_DATA_CHARS,
+      ),
+      fileName,
+      fileType: fileType === 'jpg' ? 'jpeg' : fileType,
+      imagePath,
+      path: sourcePath,
+      promptString: cleanText(body.promptString, 'promptString', 10_000),
+      artPrompt: cleanText(body.artPrompt, 'artPrompt', 10_000),
+      negativePrompt: cleanText(
+        body.negativePrompt,
+        'negativePrompt',
+        10_000,
+      ),
+      checkpoint: cleanText(body.checkpoint, 'checkpoint', 255),
+      sampler: cleanText(body.sampler, 'sampler', 255),
+      seed: cleanNumber(body.seed, 'seed'),
+      steps: cleanInteger(body.steps, 'steps', 1, 1_000),
+      cfg: cleanNumber(body.cfg, 'cfg'),
+      cfgHalf: cleanBoolean(body.cfgHalf, 'cfgHalf', false),
+      designer:
+        cleanText(body.designer, 'designer', 255) ||
+        user.designer ||
+        user.username ||
+        `User ${user.id}`,
+      genres: cleanText(body.genres, 'genres', 2_000),
+      isPublic: cleanBoolean(body.isPublic, 'isPublic', false),
+      isMature: cleanBoolean(body.isMature, 'isMature', false),
+      isActive: cleanBoolean(body.isActive, 'isActive', true),
+      serverName: cleanText(body.serverName, 'serverName', 255),
+      serverUrl: cleanText(body.serverUrl, 'serverUrl', 2_000),
+      User: {
+        connect: { id: user.id },
+      },
+    }
+
+    const artImage = await prisma.artImage.create({ data })
 
     event.node.res.statusCode = 201
 
@@ -250,14 +261,17 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'ArtImage created.',
       data: artImage,
+      statusCode: 201,
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
 
     return {
       success: false,
-      message: handledError.message,
+      message: handled.message || 'Failed to create ArtImage.',
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

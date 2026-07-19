@@ -5,27 +5,41 @@ import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
+  getLegacyComponentStatus,
   hasLegacyStatusUpdate,
+  isComponentStatus,
+  legacyFieldsForComponentStatus,
   resolveLegacyStatusUpdate,
+  type ComponentStatus,
   type LegacyComponentStatusFields,
 } from '@/utils/wonderlab/componentStatus'
 
 type ComponentPatchBody = LegacyComponentStatusFields & {
   componentName?: unknown
   folderName?: unknown
+  status?: unknown
+  statusReason?: unknown
   title?: unknown
+  description?: unknown
   notes?: unknown
+  category?: unknown
+  previewMode?: unknown
   artImageId?: unknown
 }
 
 const allowedPatchFields = new Set([
   'componentName',
   'folderName',
+  'status',
+  'statusReason',
   'isWorking',
   'underConstruction',
   'isBroken',
   'title',
+  'description',
   'notes',
+  'category',
+  'previewMode',
   'artImageId',
 ])
 
@@ -49,7 +63,11 @@ function requiredText(value: unknown, field: string, maxLength: number): string 
   return text
 }
 
-function nullableText(value: unknown, field: string): string | null {
+function nullableText(
+  value: unknown,
+  field: string,
+  maxLength?: number,
+): string | null {
   if (value === null) return null
 
   if (typeof value !== 'string') {
@@ -60,6 +78,14 @@ function nullableText(value: unknown, field: string): string | null {
   }
 
   const text = value.trim()
+
+  if (maxLength && text.length > maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `"${field}" must be ${maxLength} characters or fewer.`,
+    })
+  }
+
   return text.length ? text : null
 }
 
@@ -84,6 +110,19 @@ function optionalBoolean(value: unknown, field: string): boolean | undefined {
     throw createError({
       statusCode: 400,
       message: `"${field}" must be a boolean.`,
+    })
+  }
+
+  return value
+}
+
+function optionalStatus(value: unknown): ComponentStatus | undefined {
+  if (value === undefined) return undefined
+
+  if (!isComponentStatus(value)) {
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid canonical Component status.',
     })
   }
 
@@ -169,6 +208,7 @@ export default defineEventHandler(async (event) => {
       where: { id: componentId },
       select: {
         id: true,
+        status: true,
         isWorking: true,
         underConstruction: true,
         isBroken: true,
@@ -191,8 +231,16 @@ export default defineEventHandler(async (event) => {
       ),
       isBroken: optionalBoolean(body.isBroken, 'isBroken'),
     }
-    const normalizedStatus = hasLegacyStatusUpdate(statusPatch)
-      ? resolveLegacyStatusUpdate(existingComponent, statusPatch)
+    const canonicalStatus = optionalStatus(body.status)
+    const normalizedStatus: ComponentStatus | null = canonicalStatus
+      ? canonicalStatus
+      : hasLegacyStatusUpdate(statusPatch)
+        ? getLegacyComponentStatus(
+            resolveLegacyStatusUpdate(existingComponent, statusPatch),
+          )
+        : null
+    const legacyStatus = normalizedStatus
+      ? legacyFieldsForComponentStatus(normalizedStatus)
       : null
     const artImageId = optionalArtImageId(body.artImageId)
 
@@ -207,15 +255,32 @@ export default defineEventHandler(async (event) => {
         body.folderName === undefined
           ? undefined
           : requiredText(body.folderName, 'folderName', 255),
+      status: normalizedStatus ?? undefined,
+      statusReason:
+        body.statusReason === undefined
+          ? undefined
+          : nullableText(body.statusReason, 'statusReason'),
       title:
         body.title === undefined
           ? undefined
           : requiredText(body.title, 'title', 100),
+      description:
+        body.description === undefined
+          ? undefined
+          : nullableText(body.description, 'description'),
       notes:
         body.notes === undefined ? undefined : nullableText(body.notes, 'notes'),
-      isWorking: normalizedStatus?.isWorking,
-      underConstruction: normalizedStatus?.underConstruction,
-      isBroken: normalizedStatus?.isBroken,
+      category:
+        body.category === undefined
+          ? undefined
+          : nullableText(body.category, 'category', 255),
+      previewMode:
+        body.previewMode === undefined
+          ? undefined
+          : nullableText(body.previewMode, 'previewMode', 64),
+      isWorking: legacyStatus?.isWorking,
+      underConstruction: legacyStatus?.underConstruction,
+      isBroken: legacyStatus?.isBroken,
       ArtImage:
         artImageId === null
           ? { disconnect: true }

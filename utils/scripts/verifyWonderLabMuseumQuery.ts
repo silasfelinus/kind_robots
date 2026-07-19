@@ -19,6 +19,21 @@ assert.deepEqual(normalized, {
   status: 'WORKING',
 })
 
+for (const status of [
+  'UNREVIEWED',
+  'WORKING',
+  'NEEDS_CONTEXT',
+  'UNDER_CONSTRUCTION',
+  'BROKEN',
+  'RETIRED',
+  'PREVIEW_UNSUPPORTED',
+]) {
+  assert.equal(
+    normalizeWonderLabMuseumQuery({ status: status.toLowerCase() }).status,
+    status,
+  )
+}
+
 assert.deepEqual(
   normalizeWonderLabMuseumQuery({
     q: [null, 'second value'],
@@ -44,7 +59,7 @@ const preserved = wonderLabMuseumQuery(
   {
     search: 'preview host',
     folder: 'wonderlab',
-    status: 'UNDER_CONSTRUCTION',
+    status: 'NEEDS_CONTEXT',
   },
 )
 
@@ -53,7 +68,7 @@ assert.deepEqual(preserved, {
   tab: 'museum',
   q: 'preview host',
   folder: 'wonderlab',
-  status: 'UNDER_CONSTRUCTION',
+  status: 'NEEDS_CONTEXT',
 })
 
 assert.deepEqual(
@@ -95,6 +110,7 @@ for (const queryKey of ['q', 'folder', 'status']) {
   )
 }
 
+assert.match(querySource, /componentStatuses/)
 assert.match(labSource, /useRoute\(\)/)
 assert.match(labSource, /useRouter\(\)/)
 assert.match(labSource, /setMuseumQuery\(\{ search \}, 'replace'\)/)
@@ -102,6 +118,9 @@ assert.match(labSource, /setMuseumQuery\(\{ folder \}, 'push'\)/)
 assert.match(labSource, /setMuseumQuery\(\{ status \}, 'push'\)/)
 assert.match(labSource, /clearMuseumFilters/)
 assert.match(labSource, /filteredComponents\.length \}\} of \{\{ componentCount/)
+assert.match(labSource, /value="NEEDS_CONTEXT"/)
+assert.match(labSource, /value="RETIRED"/)
+assert.match(labSource, /value="PREVIEW_UNSUPPORTED"/)
 
 assert.match(
   selectionRouterSource,

@@ -79,6 +79,7 @@ for (const record of payload.data) {
 }
 
 const report = {
+  contractVersion: 1,
   baseUrl,
   checkedAt: new Date().toISOString(),
   recordCount: payload.data.length,

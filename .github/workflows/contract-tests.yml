@@ -88,6 +88,9 @@ jobs:
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 
+      - name: WonderLab reconciliation contract
+        run: npm run test:wonderlab-reconcile
+
       - name: WonderLab test-fixture cleanup contract
         run: npm run test:wonderlab-fixture-cleanup
 
@@ -141,6 +144,9 @@ jobs:
 
       - name: Component canonical expand migration contract
         run: npx tsx utils/scripts/verifyComponentCanonicalExpand.ts
+
+      - name: Component canonical runtime adoption contract
+        run: npx tsx utils/scripts/verifyComponentCanonicalRuntime.ts
 
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt

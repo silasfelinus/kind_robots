@@ -96,6 +96,14 @@ export type ArtImageGenerationEngine =
 
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
+// Shape of a job polled from GET /api/art/queue/:id.
+export type QueuedArtJob = {
+  id: number
+  status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
+  artImageId?: number | null
+  error?: string | null
+}
+
 export interface GenerateArtData {
   promptString: string
   prompt?: string
@@ -648,12 +656,12 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function generateCurrentArt(
-    overrides: Partial<GenerateArtData> = {},
-  ): Promise<ApiResponse<ArtImage>> {
-    clearGenerationMessage()
-
-    const result = await generateArt({
+  // Shared by generateCurrentArt (synchronous) and enqueueCurrentArt (queue-only)
+  // so the "current form + overrides" merge logic can't drift between the two.
+  function mergeCurrentArtOverrides(
+    overrides: Partial<GenerateArtData>,
+  ): GenerateArtData {
+    return {
       ...state.artForm,
       ...overrides,
       promptString:
@@ -678,7 +686,15 @@ export const useArtStore = defineStore('artStore', () => {
         selectedSamplerName.value ||
         state.artForm.sampler ||
         'Euler a',
-    })
+    }
+  }
+
+  async function generateCurrentArt(
+    overrides: Partial<GenerateArtData> = {},
+  ): Promise<ApiResponse<ArtImage>> {
+    clearGenerationMessage()
+
+    const result = await generateArt(mergeCurrentArtOverrides(overrides))
 
     if (!result.success) {
       setGenerationMessage('error', result.message || 'Generation failed.')
@@ -692,6 +708,23 @@ export const useArtStore = defineStore('artStore', () => {
     setGenerationMessage('success', result.message || 'Image generated.')
 
     return result
+  }
+
+  // Queue-only counterpart to generateCurrentArt: enqueues via the ArtJob
+  // queue and returns immediately with a jobId instead of awaiting the
+  // render. Callers that want per-item queued/rendering/done state (e.g.
+  // Model Builder's async generation path) poll getArtJobStatus(jobId) and
+  // call finalizeQueuedArtImage once it reports DONE.
+  async function enqueueCurrentArt(
+    overrides: Partial<GenerateArtData> = {},
+  ): Promise<{
+    success: boolean
+    jobId?: number
+    data?: GenerateArtData
+    message?: string
+  }> {
+    clearGenerationMessage()
+    return enqueueArtGeneration(mergeCurrentArtOverrides(overrides))
   }
 
   const getPromptString = computed<string>(() => {
@@ -2057,13 +2090,6 @@ export const useArtStore = defineStore('artStore', () => {
   const ART_QUEUE_POLL_MS = 5_000
   const ART_QUEUE_TIMEOUT_MS = 10 * 60_000
 
-  type QueuedArtJob = {
-    id: number
-    status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
-    artImageId?: number | null
-    error?: string | null
-  }
-
   function queueSleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
@@ -2291,6 +2317,174 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+  // Resolves the server + generation route for an already-built GenerateArtData
+  // (server selection, hosted-Kontext fallback, sync-vs-queue routing). Shared
+  // by generateArt (awaits the render) and enqueueArtGeneration (returns after
+  // enqueueing) so the routing rules can't drift between the two paths.
+  async function resolveArtGenerationRoute(data: GenerateArtData): Promise<{
+    data: GenerateArtData
+    engine: ArtImageGenerationEngine
+    synchronous: boolean
+  }> {
+    const server = getSelectedArtServer(data)
+
+    const resolvedData: GenerateArtData = server
+      ? {
+          ...data,
+          serverId: server.id,
+          serverName: getServerLabel(server),
+        }
+      : data
+
+    // Hosted Kontext (no explicit server): route through the ArtJob queue so
+    // the home relay renders it, same as every other engine.
+    if (resolvedData.engine === 'kontext' && !server) {
+      return {
+        data: { ...data, serverId: null, serverName: null, engine: 'kontext' },
+        engine: 'kontext',
+        synchronous: false,
+      }
+    }
+
+    if (!server) {
+      throw new Error('No active image generation server selected.')
+    }
+
+    const route = getArtImageGenerationRoute(server, resolvedData)
+
+    return {
+      data: { ...resolvedData, engine: route.engine },
+      // OpenAI runs on the backend directly (no home relay needed), so it
+      // stays synchronous. Every other engine goes through the durable
+      // ArtJob queue.
+      engine: route.engine,
+      synchronous: route.engine === 'openai',
+    }
+  }
+
+  // Validates + resolves a generation request and enqueues it via the ArtJob
+  // queue, returning the jobId immediately instead of awaiting the render.
+  // Mirrors generateArt's guest-promotion and validation steps but stops
+  // short of generateBackendArtImage/enqueueAndRenderArtImage. Callers poll
+  // getArtJobStatus(jobId) and finish with finalizeQueuedArtImage.
+  async function enqueueArtGeneration(artData?: GenerateArtData): Promise<{
+    success: boolean
+    jobId?: number
+    data?: GenerateArtData
+    message?: string
+  }> {
+    const previewPrompt =
+      artData?.promptString?.trim() ||
+      artData?.artPrompt?.trim() ||
+      artData?.prompt?.trim() ||
+      finalPromptString.value ||
+      ''
+    if (!previewPrompt) {
+      return { success: false, message: 'Image prompt is empty.' }
+    }
+
+    if (userStore.isGuest) {
+      const promo = await userStore.ensureRealUser()
+      if (!promo.success) {
+        return {
+          success: false,
+          message:
+            promo.message ||
+            'We could not set up your account for generating. Please try again.',
+        }
+      }
+      void useManaStore().fetch()
+    }
+
+    try {
+      clearError()
+
+      const data = buildGenerateArtData(artData)
+      const promptValidation = validateImagePrompt(data.promptString)
+
+      if (!promptValidation.success) {
+        return {
+          success: false,
+          message: promptValidation.message || 'Invalid image prompt.',
+        }
+      }
+
+      const resolved = await resolveArtGenerationRoute(data)
+
+      if (resolved.synchronous) {
+        throw new Error(
+          'This engine generates synchronously and cannot be queued.',
+        )
+      }
+
+      const jobId = await enqueueArtJob(resolved.data, resolved.engine)
+
+      return { success: true, jobId, data: resolved.data }
+    } catch (error) {
+      handleError(error, 'queueing image generation')
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      }
+    }
+  }
+
+  // Single-shot status check (no polling loop, no shared queueState mutation)
+  // so callers that track multiple concurrent jobs — e.g. Model Builder, one
+  // per build item — can poll independently without stomping on the
+  // interactive generator's global state.queueState/currentJobId.
+  async function getArtJobStatus(jobId: number): Promise<QueuedArtJob | null> {
+    const response = await performFetch<{ job: QueuedArtJob }>(
+      `/api/art/queue/${jobId}`,
+      { method: 'GET' },
+      2,
+      20_000,
+    )
+
+    return response.success ? (response.data?.job ?? null) : null
+  }
+
+  // Loads the finished ArtImage for a DONE job and applies it (collections,
+  // achievements, generation message) — the same completion generateArt runs
+  // inline. Callers own their own polling loop and call this once a
+  // getArtJobStatus() poll reports a terminal status.
+  async function finalizeQueuedArtImage(
+    job: QueuedArtJob,
+    data: GenerateArtData,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      if (job.status !== 'DONE' || !job.artImageId) {
+        throw new Error(
+          job.error || `Art job ${job.id} ${job.status.toLowerCase()}.`,
+        )
+      }
+
+      const image = await getArtImageById(job.artImageId, {
+        force: true,
+        includeImageData: true,
+      })
+
+      if (!image) {
+        throw new Error(
+          `Art job ${job.id} finished but its image (${job.artImageId}) could not be loaded.`,
+        )
+      }
+
+      await applyGeneratedArtImage(image, data)
+
+      return {
+        success: true,
+        data: image,
+        message: 'Image created and added to collections.',
+      }
+    } catch (error) {
+      handleError(error, 'completing queued image generation')
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      setGenerationMessage('error', message)
+      return { success: false, message }
+    }
+  }
+
   async function generateArt(
     artData?: GenerateArtData,
   ): Promise<ApiResponse<ArtImage>> {
@@ -2342,59 +2536,14 @@ export const useArtStore = defineStore('artStore', () => {
           message: promptValidation.message || 'Invalid image prompt.',
         }
       }
-      const server = getSelectedArtServer(data)
 
-      const resolvedData: GenerateArtData = server
-        ? {
-            ...data,
-            serverId: server.id,
-            serverName: getServerLabel(server),
-          }
-        : data
+      const resolved = await resolveArtGenerationRoute(data)
 
-      // Hosted Kontext (no explicit server): enqueue an image-to-image job so
-      // the home relay renders it, same as every other engine.
-      if (resolvedData.engine === 'kontext' && !server) {
-        const dataWithHostedKontext: GenerateArtData = {
-          ...data,
-          serverId: null,
-          serverName: null,
-          engine: 'kontext',
-        }
+      const image = resolved.synchronous
+        ? await generateBackendArtImage(resolved.data, 'openai')
+        : await enqueueAndRenderArtImage(resolved.data, resolved.engine)
 
-        const image = await enqueueAndRenderArtImage(
-          dataWithHostedKontext,
-          'kontext',
-        )
-
-        await applyGeneratedArtImage(image, dataWithHostedKontext)
-
-        return {
-          success: true,
-          data: image,
-          message: 'Image created and added to collections.',
-        }
-      }
-
-      if (!server) {
-        throw new Error('No active image generation server selected.')
-      }
-
-      const route = getArtImageGenerationRoute(server, resolvedData)
-
-      const dataWithServer: GenerateArtData = {
-        ...resolvedData,
-        engine: route.engine,
-      }
-
-      // OpenAI runs on the backend directly (no home relay needed), so it stays
-      // synchronous. Every other engine goes through the durable ArtJob queue.
-      const image =
-        route.engine === 'openai'
-          ? await generateBackendArtImage(dataWithServer, 'openai')
-          : await enqueueAndRenderArtImage(dataWithServer, route.engine)
-
-      await applyGeneratedArtImage(image, dataWithServer)
+      await applyGeneratedArtImage(image, resolved.data)
 
       return {
         success: true,
@@ -2501,6 +2650,10 @@ export const useArtStore = defineStore('artStore', () => {
 
     generateArt,
     generateImageFromBrowserServer,
+    enqueueCurrentArt,
+    enqueueArtGeneration,
+    getArtJobStatus,
+    finalizeQueuedArtImage,
 
     uploadImage,
     deleteArtImage,

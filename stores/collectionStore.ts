@@ -98,11 +98,16 @@ type AddArtImageToCollectionInput = {
 
 type CollectionPatchInput = {
   label?: string
-  description?: string
+  slug?: string | null
+  parentFolder?: string | null
+  description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  artPrompt?: string | null
   artImageIds?: number[]
-  disconnectArtImageIds?: number[]
+  addArtImageIds?: number[]
+  removeArtImageIds?: number[]
+  mode?: 'replace' | 'add'
 }
 
 function isValidId(value: unknown): value is number {
@@ -378,7 +383,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   }
 
   function getCurrentUserId(): number {
-    return Number(userStore.userId ?? userStore.user?.id ?? 10)
+    return Number(userStore.userId ?? userStore.user?.id ?? 0)
   }
 
   function loadSelectedCollectionIds(): void {
@@ -610,11 +615,10 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
   async function createCollection(
     label: string,
-    userId: number,
     isPublic?: boolean,
     isMature?: boolean,
   ): Promise<ArtCollection> {
-    const body: Record<string, unknown> = { label, userId }
+    const body: Record<string, unknown> = { label }
 
     if (typeof isPublic === 'boolean') body.isPublic = isPublic
     if (typeof isMature === 'boolean') body.isMature = isMature
@@ -719,7 +723,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     if (existing) return existing
 
-    return await createCollection(label, userId, isPublic, isMature)
+    return await createCollection(label, isPublic, isMature)
   }
 
   async function resolveCollectionForMutation({
@@ -975,7 +979,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       }
 
       if (!collection) {
-        collection = await createCollection(label, userId, false, false)
+        collection = await createCollection(label, false, false)
       }
 
       return collection

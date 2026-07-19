@@ -86,7 +86,7 @@
       <button
         class="btn btn-primary rounded-2xl text-white"
         type="submit"
-        :disabled="isSaving || disabled || !label.trim() || !resolvedUserId"
+        :disabled="isSaving || disabled || !label.trim()"
       >
         <span v-if="isSaving" class="loading loading-spinner loading-sm" />
         <Icon v-else name="kind-icon:plus" class="h-5 w-5" />
@@ -100,7 +100,6 @@
 import { ref } from 'vue'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
   defineProps<{
@@ -125,7 +124,6 @@ const emit = defineEmits<{
 }>()
 
 const collectionStore = useCollectionStore()
-const userStore = useUserStore()
 
 const isOpen = ref(false)
 const isSaving = ref(false)
@@ -134,10 +132,6 @@ const isPublic = ref(true)
 const isMature = ref(false)
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
-
-const resolvedUserId = computed(() => {
-  return userStore.userId || userStore.user?.id || 0
-})
 
 function openForm() {
   isOpen.value = true
@@ -165,7 +159,6 @@ function setMessage(tone: 'success' | 'error', value: string) {
 
 async function createCollection() {
   const cleanLabel = label.value.trim()
-  const userId = resolvedUserId.value
 
   if (!cleanLabel) {
     setMessage(
@@ -175,18 +168,12 @@ async function createCollection() {
     return
   }
 
-  if (!userId) {
-    setMessage('error', 'You need a user before creating a collection.')
-    return
-  }
-
   isSaving.value = true
   message.value = ''
 
   try {
     const collection = await collectionStore.createCollection(
       cleanLabel,
-      userId,
       isPublic.value,
       isMature.value,
     )

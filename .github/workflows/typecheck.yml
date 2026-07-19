@@ -40,9 +40,7 @@ jobs:
 
       - name: Migrate Dream store fetch cache
         if: github.event_name == 'pull_request' && github.head_ref == 'refactor/dream-store-fetch-cache'
-        run: |
-          node scripts/migrate-dream-store-fetch-cache.mjs
-          node scripts/add-dream-store-contract-step.mjs
+        run: node scripts/migrate-dream-store-fetch-cache.mjs
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -62,7 +60,7 @@ jobs:
           rm -f public/wonderlab-components.json
           git config user.name "kind-robots-refactor"
           git config user.email "kind-robots-refactor@users.noreply.github.com"
-          git add stores/dreamStore.ts .github/workflows/contract-tests.yml
+          git add stores/dreamStore.ts
           git diff --cached --quiet && exit 1
           git commit -m "refactor: merge Dream fetch results safely [skip ci]"
           git push origin HEAD:${{ github.head_ref }}

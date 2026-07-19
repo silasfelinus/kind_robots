@@ -13,12 +13,13 @@
       <div class="flex flex-wrap gap-1.5">
         <button
           type="button"
-          class="btn btn-sm rounded-xl"
+          class="btn btn-sm rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :class="
             activeSlug === 'all'
               ? 'btn-primary'
               : 'btn-ghost border border-base-300'
           "
+          :aria-pressed="activeSlug === 'all'"
           @click="activeSlug = 'all'"
         >
           All
@@ -27,12 +28,13 @@
           v-for="group in groups"
           :key="group.slug"
           type="button"
-          class="btn btn-sm gap-1.5 rounded-xl"
+          class="btn btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :class="
             activeSlug === group.slug
               ? 'btn-primary'
               : 'btn-ghost border border-base-300'
           "
+          :aria-pressed="activeSlug === group.slug"
           @click="activeSlug = group.slug"
         >
           <Icon :name="group.icon" class="size-3.5" />
@@ -43,7 +45,9 @@
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
+          class="btn btn-ghost btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :aria-expanded="showManageFeeds"
+          aria-controls="newsfeed-manage-feeds-panel"
           @click="showManageFeeds = !showManageFeeds"
         >
           <Icon name="kind-icon:sliders" class="size-4" />
@@ -60,8 +64,9 @@
 
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :disabled="isLoading"
+          :aria-busy="isLoading"
           @click="loadFeed()"
         >
           <span v-if="isLoading" class="loading loading-spinner loading-xs" />
@@ -71,45 +76,54 @@
       </div>
     </header>
 
-    <NewsfeedPreferences v-if="showManageFeeds" />
+    <NewsfeedPreferences
+      v-if="showManageFeeds"
+      id="newsfeed-manage-feeds-panel"
+    />
 
-    <div
-      v-if="errorMessage"
-      class="rounded-2xl border border-error/40 bg-error/10 p-4 text-sm text-error"
-    >
-      {{ errorMessage }}
+    <div aria-live="polite" aria-atomic="true">
+      <div
+        v-if="errorMessage"
+        class="rounded-2xl border border-error/40 bg-error/10 p-4 text-sm text-error"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <div
+        v-else-if="isLoading && !allItems.length"
+        class="flex min-h-40 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+      >
+        <span class="loading loading-spinner loading-md text-primary" />
+        <span class="sr-only">Loading the newsfeed…</span>
+      </div>
+
+      <div
+        v-else-if="!visibleItems.length"
+        class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center"
+      >
+        <Icon
+          name="kind-icon:news"
+          class="mx-auto size-10 text-base-content/25"
+        />
+        <p class="mt-2 font-black">Nothing here yet</p>
+        <p class="mt-1 text-sm text-base-content/55">
+          The swarm hasn't published anything for this feed in a bit — check
+          back soon.
+        </p>
+      </div>
     </div>
 
     <div
-      v-else-if="isLoading && !allItems.length"
-      class="flex min-h-40 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+      v-if="!errorMessage && visibleItems.length"
+      class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
     >
-      <span class="loading loading-spinner loading-md text-primary" />
-    </div>
-
-    <div
-      v-else-if="!visibleItems.length"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center"
-    >
-      <Icon
-        name="kind-icon:news"
-        class="mx-auto size-10 text-base-content/25"
-      />
-      <p class="mt-2 font-black">Nothing here yet</p>
-      <p class="mt-1 text-sm text-base-content/55">
-        The swarm hasn't published anything for this feed in a bit — check back
-        soon.
-      </p>
-    </div>
-
-    <div v-else class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <FeedCard v-for="item in displayedItems" :key="item.id" :item="item" />
     </div>
 
     <button
       v-if="canShowMore"
       type="button"
-      class="btn btn-ghost btn-sm mx-auto rounded-xl"
+      class="btn btn-ghost btn-sm mx-auto rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       @click="visibleLimit += pageSize"
     >
       Show more

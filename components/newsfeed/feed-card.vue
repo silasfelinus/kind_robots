@@ -5,7 +5,7 @@
     :href="allowNavigation ? item.url : undefined"
     :target="allowNavigation ? '_blank' : undefined"
     :rel="allowNavigation ? 'noopener noreferrer' : undefined"
-    class="group flex h-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl"
+    class="group flex h-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
   >
     <figure
       v-if="showImage"
@@ -15,7 +15,7 @@
         v-if="imageSrc && !imageFailed"
         :src="imageSrc"
         :alt="item.title"
-        class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+        class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
         loading="lazy"
         @error="imageFailed = true"
       />
@@ -61,7 +61,12 @@
           class="flex shrink-0 items-center gap-1 text-xs text-base-content/45"
         >
           <Icon name="kind-icon:clock" class="size-3" />
-          {{ relativeTime(item.publishedAt) }}
+          <time
+            :datetime="item.publishedAt"
+            :title="absoluteTime(item.publishedAt)"
+          >
+            {{ relativeTime(item.publishedAt) }}
+          </time>
           <Icon
             v-if="allowNavigation"
             name="kind-icon:external-link"
@@ -107,5 +112,14 @@ function relativeTime(iso: string): string {
   if (days < 30) return `${days}d ago`
   const months = Math.round(days / 30)
   return `${months}mo ago`
+}
+
+function absoluteTime(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
 }
 </script>

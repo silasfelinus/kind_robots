@@ -11,6 +11,7 @@ description: Test visual effects, overlays, animations, butterflies, debug grids
 icon: kind-icon:sparkles
 route: /screenfx
 sort: 120
+requiredRole: GUEST
 ---
 
 A flashy little control room for effects that should remain optional, reversible, and at least mildly ridiculous.

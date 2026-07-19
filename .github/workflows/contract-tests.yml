@@ -181,6 +181,12 @@ jobs:
       - name: Review draft generation contract
         run: npx tsx utils/scripts/verifyReviewDraftGeneration.ts
 
+      - name: WonderLab reviewer voice diversity acceptance
+        run: npx tsx utils/scripts/verifyWonderLabReviewVoiceDiversity.ts
+
+      - name: WonderLab review batch planning contract
+        run: npx tsx utils/scripts/verifyWonderLabReviewBatchPlan.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

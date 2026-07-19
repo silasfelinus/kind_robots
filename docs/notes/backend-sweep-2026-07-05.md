@@ -33,7 +33,7 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art upload and ArtImage collections enforce ownership; browser health reports require server mutation permission.
+Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art resources and browser health reports enforce ownership; log reads, writes, and deletion are self-scoped with admin override.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -42,7 +42,6 @@ Resolved since this audit: achievement writes are authenticated and ownership-aw
 
 ### A2. SECURITY — authed but missing ownership / optional-auth writes
 
-- `server/api/logs/[id].delete.ts:41` — any authed user deletes any log (no `existing.userId` compare).
 
 ### A3. Mass assignment — raw `readBody` fed straight to `prisma.update`
 
@@ -53,7 +52,6 @@ Resolved since this audit: Prompt, SmartIcon, Reaction, Achievement, and Compone
 
 ### A4. Bugs
 
-- `server/api/logs/[id].delete.ts:12-16` — returns `errorHandler({...})` as the body **without** setting `event.node.res.statusCode`, so failures return HTTP 200 with a `{success:false}` body — breaks clients that trust HTTP status.
 - `server/api/prompts/[id].patch.ts:1` — stale header comment (`// /server/api/art/prompts/...`).
 - `server/api/chats/[id].delete.ts:17,85` — "Communication" messages left over from an old model name.
 - No cross-model prisma-accessor mismatches found (the old sample SmartIcon-style bug is not present elsewhere).

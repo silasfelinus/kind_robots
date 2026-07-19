@@ -148,8 +148,8 @@ import { computed } from 'vue'
 import type { KindComponent as Component } from '@/stores/componentStore'
 import { useComponentStore } from '@/stores/componentStore'
 import {
-  getLegacyComponentStatus,
-  type LegacyComponentStatus,
+  getComponentStatus,
+  type ComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
 
 const props = withDefaults(
@@ -204,15 +204,16 @@ const componentTitle = computed(() => {
   )
 })
 
-const componentStatus = computed(() =>
-  getLegacyComponentStatus(props.component),
-)
+const componentStatus = computed(() => getComponentStatus(props.component))
 
-const statusLabels: Record<LegacyComponentStatus, string> = {
+const statusLabels: Record<ComponentStatus, string> = {
   UNREVIEWED: 'Unreviewed',
   WORKING: 'Working',
+  NEEDS_CONTEXT: 'Needs context',
   UNDER_CONSTRUCTION: 'Building',
   BROKEN: 'Broken',
+  RETIRED: 'Retired',
+  PREVIEW_UNSUPPORTED: 'Preview unsupported',
 }
 
 const statusLabel = computed(() => statusLabels[componentStatus.value])
@@ -225,6 +226,12 @@ const statusIcon = computed(() => {
       return 'kind-icon:hammer'
     case 'WORKING':
       return 'kind-icon:check'
+    case 'NEEDS_CONTEXT':
+      return 'kind-icon:gearhammer'
+    case 'RETIRED':
+      return 'kind-icon:x'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'kind-icon:warning'
     default:
       return 'kind-icon:sparkles'
   }
@@ -238,6 +245,12 @@ const statusIconClass = computed(() => {
       return 'border-warning bg-warning/10 text-warning'
     case 'WORKING':
       return 'border-success bg-success/10 text-success'
+    case 'NEEDS_CONTEXT':
+      return 'border-info bg-info/10 text-info'
+    case 'RETIRED':
+      return 'border-base-300 bg-base-200 text-base-content/55'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'border-secondary bg-secondary/10 text-secondary'
     default:
       return 'border-accent bg-accent/10 text-accent'
   }
@@ -251,6 +264,10 @@ const statusBadgeClass = computed(() => {
       return 'badge-warning'
     case 'WORKING':
       return 'badge-success'
+    case 'NEEDS_CONTEXT':
+      return 'badge-info'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'badge-secondary'
     default:
       return 'badge-ghost'
   }
@@ -264,6 +281,12 @@ const statusCardClass = computed(() => {
       return 'border-warning/50'
     case 'WORKING':
       return 'border-success/40'
+    case 'NEEDS_CONTEXT':
+      return 'border-info/45'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'border-secondary/40'
+    case 'RETIRED':
+      return 'opacity-70'
     default:
       return ''
   }

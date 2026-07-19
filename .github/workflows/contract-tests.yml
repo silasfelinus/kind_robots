@@ -218,8 +218,9 @@ jobs:
       - name: Capture-group guard contract (new/changed lines vs main)
         run: npm run test:capture-group-guards -- origin/main
 
-      - name: Challenge Center seed validation (dry run, no database)
+      - name: Challenge Center contracts and seed validation (dry run, no database)
         run: |
+          npm run test:challenge-center
           npm run test:seed-challenges
           npm run test:seed-contenders
 

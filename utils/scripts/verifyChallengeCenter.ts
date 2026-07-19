@@ -1,10 +1,34 @@
 // /utils/scripts/verifyChallengeCenter.ts
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   buildChallengeLeaderboard,
   buildFacetLeaderboard,
   scoreChallengeReactions,
 } from '../../server/utils/challengeCenter'
+
+const readSource = (path: string) =>
+  readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
+
+const challengeCreateRoute = readSource('server/api/challenges/index.post.ts')
+const challengeDeleteRoute = readSource(
+  'server/api/challenges/[slug].delete.ts',
+)
+const challengeResource = readSource('server/utils/challengeResource.ts')
+
+assert.match(challengeCreateRoute, /const challengeCreateFields = new Set/)
+assert.match(challengeCreateRoute, /Object\.values\(ChallengeType\)/)
+assert.match(challengeCreateRoute, /Object\.values\(ChallengeStatus\)/)
+assert.match(challengeCreateRoute, /userId:\s*auth\.user\.id/)
+assert.doesNotMatch(challengeCreateRoute, /body\.userId/)
+assert.match(challengeCreateRoute, /select:\s*challengeMutationSelect/)
+assert.match(challengeCreateRoute, /error\.code === 'P2002'/)
+assert.match(challengeDeleteRoute, /userIsAdmin\(auth\.user\)/)
+assert.match(challengeDeleteRoute, /prisma\.challenge\.delete/)
+assert.match(challengeDeleteRoute, /select:\s*challengeMutationSelect/)
+assert.match(challengeDeleteRoute, /error\.code === 'P2003'/)
+assert.match(challengeResource, /satisfies Prisma\.ChallengeSelect/)
+assert.doesNotMatch(challengeResource, /\bUser\b|\bSubmissions\b/)
 
 // scoreChallengeReactions
 assert.deepEqual(
@@ -174,4 +198,4 @@ const byGenerator = buildFacetLeaderboard(
 )
 assert.equal(byGenerator.length, 0)
 
-console.log('Challenge Center leaderboard/facet logic verified.')
+console.log('Challenge Center logic and mutation contracts verified.')

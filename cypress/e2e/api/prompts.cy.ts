@@ -61,12 +61,12 @@ describe('Prompt Management API Tests', () => {
         apiBase = env.apiBase
         adminToken = env.adminToken
         baseUrl = `${apiBase}/prompts`
-        return createLoggedInTestUser({ fresh: true })
+        return createLoggedInTestUser()
       })
       .then((owner) => {
         ownerToken = owner.token
         ownerId = owner.id
-        return createLoggedInTestUser({ fresh: true })
+        return createLoggedInTestUser({ role: 'second' })
       })
       .then((other) => {
         otherToken = other.token

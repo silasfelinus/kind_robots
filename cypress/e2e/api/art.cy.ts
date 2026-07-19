@@ -64,7 +64,6 @@ describe('ArtImage Management API Tests', () => {
           steps: 10,
           path: ' ',
           seed: -1,
-          userId,
           imagePath: 'justfortesting',
         },
         failOnStatusCode: false,

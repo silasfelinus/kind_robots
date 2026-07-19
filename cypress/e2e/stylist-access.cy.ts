@@ -21,7 +21,10 @@ describe('/stylist access', () => {
     cy.visit('/stylist')
 
     cy.location('pathname', { timeout: 15000 }).should('eq', '/login')
-    cy.location('search').should('include', 'redirect=%2Fstylist')
+    // Vue Router's query serializer does not percent-encode `/` in query
+    // values (it's unreserved in the query component per RFC 3986), so the
+    // redirect param may render as either `/stylist` or `%2Fstylist`.
+    cy.location('search').should('match', /redirect=(%2F|\/)stylist/)
     cy.contains('Hair Studio').should('not.exist')
   })
 })

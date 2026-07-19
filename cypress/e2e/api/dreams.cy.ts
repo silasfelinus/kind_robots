@@ -438,7 +438,6 @@ describe('Dream API tests', () => {
         title: 'Cypress first arrival',
         content:
           'Add a silver fox made of moonlight and make the greenhouse warmer.',
-        userId: user?.id,
         dreamId: publicDreamId,
         channel: `dream-${publicDreamId}`,
         isPublic: true,

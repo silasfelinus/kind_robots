@@ -1,37 +1,38 @@
 // /server/api/prompts/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
+import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import prisma from '../../utils/prisma'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
-  const promptId = Number(event.context.params?.id)
+  let promptId: number | null = null
 
   try {
-    // Validate Prompt ID
-    if (isNaN(promptId) || promptId <= 0) {
+    promptId = Number(event.context.params?.id)
+
+    if (!Number.isInteger(promptId) || promptId <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid Prompt ID. It must be a positive integer.',
+        message: 'Invalid prompt ID. It must be a positive integer.',
       })
     }
 
-    // Authenticate API Key
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
+        message: 'Invalid or expired token.',
       })
     }
 
-    const userId = user.id
-
-    // Validate Prompt Existence and Ownership
     const prompt = await prisma.prompt.findUnique({
       where: { id: promptId },
-      select: { userId: true },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
 
     if (!prompt) {
@@ -41,44 +42,39 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if user is an admin
-    if (user.Role === 'ADMIN') {
-      // Admin bypass: Delete the prompt entry directly
-      await prisma.prompt.delete({ where: { id: promptId } })
-      return {
-        success: true,
-        message: `Prompt entry with ID ${promptId} deleted successfully by admin.`,
-      }
-    }
-
-    if (prompt.userId !== userId) {
+    if (prompt.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this prompt.',
       })
     }
 
-    // Perform Deletion
     await prisma.prompt.delete({ where: { id: promptId } })
 
-    // Successful deletion response
-    event.node.res.setHeader('Content-Type', 'application/json')
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: `Prompt with ID ${promptId} successfully deleted.`,
+      data: null,
+      statusCode: 200,
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error('Error deleting prompt:', handledError)
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    // Set the response and status code based on the handled error
-    event.node.res.setHeader('Content-Type', 'application/json')
-    event.node.res.statusCode = handledError.statusCode || 500
+    if (statusCode >= 500) {
+      console.error('Prompt delete failed:', handled)
+    }
+
+    event.node.res.statusCode = statusCode
+
     return {
       success: false,
       message:
-        handledError.message || `Failed to delete prompt with ID ${promptId}.`,
+        handled.message || `Failed to delete prompt with ID ${promptId}.`,
+      data: null,
+      statusCode,
     }
   }
 })

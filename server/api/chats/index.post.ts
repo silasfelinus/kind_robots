@@ -1,163 +1,48 @@
 // /server/api/chats/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Chat, ChatType, Prisma } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
+import {
+  assertChatRelationsAccessible,
+  assertJsonObject,
+  assertOnlyFields,
+  nullableString,
+  optionalBoolean,
+  optionalPositiveId,
+  requiredChatType,
+  requiredString,
+} from '../../utils/chatApi'
+import { chatMutationSelect } from './selects'
 
-type CreateChatBody = Partial<Chat>
-
-const allowedChatTypes: ChatType[] = [
-  'ToBot',
-  'BotResponse',
-  'ToForum',
-  'ToUser',
-  'ToCharacter',
-  'Weirdlandia',
-  'Dream',
-  'Reward',
-  'Story',
-  'Scenario',
-  'Character',
-  'Bot',
-]
-
-function asNullableString(value: unknown): string | null {
-  if (typeof value !== 'string') return null
-
-  const trimmed = value.trim()
-  return trimmed ? trimmed : null
-}
-
-function asOptionalPositiveInt(value: unknown): number | undefined {
-  const parsed = Number(value)
-
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-}
-
-async function assertRelatedRecordsExist(options: {
-  botId?: number
-  characterId?: number
-  promptId?: number
-  artImageId?: number
-  dreamId?: number
-  serverId?: number
-}) {
-  const { botId, characterId, promptId, artImageId, dreamId, serverId } =
-    options
-
-  if (botId) {
-    const bot = await prisma.bot.findUnique({
-      where: { id: botId },
-      select: { id: true },
-    })
-
-    if (!bot) {
-      throw createError({
-        statusCode: 404,
-        message: `Bot ID not found: ${botId}.`,
-      })
-    }
-  }
-
-  if (characterId) {
-    const character = await prisma.character.findUnique({
-      where: { id: characterId },
-      select: { id: true },
-    })
-
-    if (!character) {
-      throw createError({
-        statusCode: 404,
-        message: `Character ID not found: ${characterId}.`,
-      })
-    }
-  }
-
-  if (promptId) {
-    const prompt = await prisma.prompt.findUnique({
-      where: { id: promptId },
-      select: { id: true },
-    })
-
-    if (!prompt) {
-      throw createError({
-        statusCode: 404,
-        message: `Prompt ID not found: ${promptId}.`,
-      })
-    }
-  }
-
-  if (artImageId) {
-    const artImage = await prisma.artImage.findUnique({
-      where: { id: artImageId },
-      select: { id: true },
-    })
-
-    if (!artImage) {
-      throw createError({
-        statusCode: 404,
-        message: `ArtImage ID not found: ${artImageId}.`,
-      })
-    }
-  }
-
-  if (dreamId) {
-    const dream = await prisma.dream.findUnique({
-      where: { id: dreamId },
-      select: { id: true },
-    })
-
-    if (!dream) {
-      throw createError({
-        statusCode: 404,
-        message: `Dream ID not found: ${dreamId}.`,
-      })
-    }
-  }
-
-  if (serverId) {
-    const server = await prisma.server.findUnique({
-      where: { id: serverId },
-      select: { id: true },
-    })
-
-    if (!server) {
-      throw createError({
-        statusCode: 404,
-        message: `Server ID not found: ${serverId}.`,
-      })
-    }
-  }
-}
-
-async function assertProjectChatWriteAccess(options: {
-  projectId?: number
-  authenticatedUserId: number
-  canManageAnyProject: boolean
-}) {
-  const { projectId, authenticatedUserId, canManageAnyProject } = options
-  if (!projectId) return
-
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    select: { id: true, userId: true, isActive: true },
-  })
-
-  if (!project || !project.isActive) {
-    throw createError({
-      statusCode: 404,
-      message: `Project ID not found: ${projectId}.`,
-    })
-  }
-
-  if (!canManageAnyProject && project.userId !== authenticatedUserId) {
-    throw createError({
-      statusCode: 403,
-      message: 'You do not have permission to add chats to this Project.',
-    })
-  }
-}
+const CHAT_CREATE_FIELDS = new Set([
+  'type',
+  'sender',
+  'recipient',
+  'content',
+  'title',
+  'isPublic',
+  'isFavorite',
+  'previousEntryId',
+  'originId',
+  'botId',
+  'recipientId',
+  'artImageId',
+  'promptId',
+  'botName',
+  'channel',
+  'botResponse',
+  'characterId',
+  'isRead',
+  'isMature',
+  'serverId',
+  'serverName',
+  'dreamId',
+  'isActive',
+  'projectId',
+])
 
 export default defineEventHandler(async (event) => {
   try {
@@ -170,181 +55,91 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<CreateChatBody>(event)
+    const rawBody = await readBody<unknown>(event)
+    assertJsonObject(rawBody, 'A JSON Chat body is required.')
+    assertOnlyFields(rawBody, CHAT_CREATE_FIELDS)
 
-    const type = body.type
-    const sender = asNullableString(body.sender)
-    const content = asNullableString(body.content)
+    const type = requiredChatType(rawBody.type)
+    const sender = requiredString(rawBody.sender, 'sender', 255)
+    const content = requiredString(rawBody.content, 'content', 60_000)
 
-    if (!type || !allowedChatTypes.includes(type)) {
-      throw createError({
-        statusCode: 400,
-        message: 'Missing or invalid required field: "type".',
-      })
-    }
+    const botId = optionalPositiveId(rawBody.botId, 'botId', true)
+    const characterId = optionalPositiveId(
+      rawBody.characterId,
+      'characterId',
+      true,
+    )
+    const promptId = optionalPositiveId(rawBody.promptId, 'promptId', true)
+    const artImageId = optionalPositiveId(
+      rawBody.artImageId,
+      'artImageId',
+      true,
+    )
+    const dreamId = optionalPositiveId(rawBody.dreamId, 'dreamId', true)
+    const projectId = optionalPositiveId(rawBody.projectId, 'projectId', true)
+    const serverId = optionalPositiveId(rawBody.serverId, 'serverId', true)
+    const recipientId = optionalPositiveId(
+      rawBody.recipientId,
+      'recipientId',
+      true,
+    )
 
-    if (!sender || !content) {
-      throw createError({
-        statusCode: 400,
-        message: 'Missing required fields: "sender", "content".',
-      })
-    }
+    const canManageAny = userIsAdmin(user) || kind === 'server'
 
-    const requestedUserId = asOptionalPositiveInt(body.userId)
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    const isServerKey = kind === 'server'
-    const canManageAnyProject = isAdmin || isServerKey
-
-    const userId =
-      canManageAnyProject && requestedUserId ? requestedUserId : user.id
-
-    if (
-      requestedUserId &&
-      requestedUserId !== user.id &&
-      !canManageAnyProject
-    ) {
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
-      })
-    }
-
-    const botId = asOptionalPositiveInt(body.botId)
-    const characterId = asOptionalPositiveInt(body.characterId)
-    const promptId = asOptionalPositiveInt(body.promptId)
-    const artImageId = asOptionalPositiveInt(body.artImageId)
-    const dreamId = asOptionalPositiveInt(body.dreamId)
-    const projectId = asOptionalPositiveInt(body.projectId)
-    const serverId = asOptionalPositiveInt(body.serverId)
-
-    await assertRelatedRecordsExist({
-      botId,
-      characterId,
-      promptId,
-      artImageId,
-      dreamId,
-      serverId,
-    })
-    await assertProjectChatWriteAccess({
-      projectId,
-      authenticatedUserId: user.id,
-      canManageAnyProject,
+    await assertChatRelationsAccessible({
+      values: {
+        botId,
+        characterId,
+        promptId,
+        artImageId,
+        dreamId,
+        projectId,
+        serverId,
+        recipientId,
+      },
+      user,
+      canManageAny,
     })
 
     const data: Prisma.ChatCreateInput = {
       type,
       sender,
       content,
-      title: asNullableString(body.title),
-      recipient: asNullableString(body.recipient),
-      isPublic: body.isPublic ?? true,
-      isFavorite: body.isFavorite ?? false,
-      isRead: body.isRead ?? false,
-      isMature: body.isMature ?? false,
-      isActive: body.isActive ?? true,
-      previousEntryId: asOptionalPositiveInt(body.previousEntryId),
-      originId: asOptionalPositiveInt(body.originId),
-      recipientId: asOptionalPositiveInt(body.recipientId),
-      botName: asNullableString(body.botName),
-      channel: asNullableString(body.channel),
-      botResponse: asNullableString(body.botResponse),
+      recipient: nullableString(rawBody.recipient, 'recipient', 255) ?? null,
+      title: nullableString(rawBody.title, 'title', 255) ?? null,
+      isPublic: optionalBoolean(rawBody.isPublic, 'isPublic') ?? true,
+      isFavorite:
+        optionalBoolean(rawBody.isFavorite, 'isFavorite') ?? false,
+      isRead: optionalBoolean(rawBody.isRead, 'isRead') ?? false,
+      isMature: optionalBoolean(rawBody.isMature, 'isMature') ?? false,
+      isActive: optionalBoolean(rawBody.isActive, 'isActive') ?? true,
+      previousEntryId:
+        optionalPositiveId(rawBody.previousEntryId, 'previousEntryId', true) ??
+        null,
+      originId:
+        optionalPositiveId(rawBody.originId, 'originId', true) ?? null,
+      recipientId: recipientId ?? null,
+      botName: nullableString(rawBody.botName, 'botName', 255) ?? null,
+      channel: nullableString(rawBody.channel, 'channel', 255) ?? null,
+      botResponse:
+        nullableString(rawBody.botResponse, 'botResponse', 60_000) ?? null,
+      serverName:
+        nullableString(rawBody.serverName, 'serverName', 256) ?? null,
       User: {
-        connect: { id: userId },
+        connect: { id: user.id },
       },
-      Bot: botId
-        ? {
-            connect: { id: botId },
-          }
-        : undefined,
-      Character: characterId
-        ? {
-            connect: { id: characterId },
-          }
-        : undefined,
-      Prompt: promptId
-        ? {
-            connect: { id: promptId },
-          }
-        : undefined,
-      ArtImage: artImageId
-        ? {
-            connect: { id: artImageId },
-          }
-        : undefined,
-      Dream: dreamId
-        ? {
-            connect: { id: dreamId },
-          }
-        : undefined,
-      Project: projectId
-        ? {
-            connect: { id: projectId },
-          }
-        : undefined,
-      Server: serverId
-        ? {
-            connect: { id: serverId },
-          }
-        : undefined,
+      Bot: botId ? { connect: { id: botId } } : undefined,
+      Character: characterId ? { connect: { id: characterId } } : undefined,
+      Prompt: promptId ? { connect: { id: promptId } } : undefined,
+      ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
+      Dream: dreamId ? { connect: { id: dreamId } } : undefined,
+      Project: projectId ? { connect: { id: projectId } } : undefined,
+      Server: serverId ? { connect: { id: serverId } } : undefined,
     }
 
     const created = await prisma.chat.create({
       data,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            Role: true,
-          },
-        },
-        Bot: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        Character: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        Prompt: {
-          select: {
-            id: true,
-            prompt: true,
-          },
-        },
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-        Dream: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        Project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
-        Server: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-          },
-        },
-      },
+      select: chatMutationSelect,
     })
 
     event.node.res.statusCode = 201
@@ -357,13 +152,12 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-
     event.node.res.statusCode = statusCode || 500
 
     return {
       success: false,
       data: null,
-      message: message || 'Failed to create chat entry due to a server error.',
+      message: message || 'Failed to create Chat.',
       statusCode: event.node.res.statusCode,
     }
   }

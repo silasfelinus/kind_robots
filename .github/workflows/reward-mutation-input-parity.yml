@@ -1,0 +1,40 @@
+name: Reward Mutation Input Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/rewards/mutation.ts'
+      - 'server/api/rewards/index.ts'
+      - 'server/api/rewards/index.post.ts'
+      - 'server/api/rewards/[id].patch.ts'
+      - 'server/api/rewards/batch.post.ts'
+      - 'cypress/e2e/api/reward-input-boundary.cy.ts'
+      - 'utils/scripts/verifyRewardMutationInputParity.ts'
+      - '.github/workflows/reward-mutation-input-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify Reward mutation input parity
+        run: npx tsx utils/scripts/verifyRewardMutationInputParity.ts

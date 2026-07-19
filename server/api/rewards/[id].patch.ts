@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { updateRewardById, type RewardMutationInput } from './index'
+import { assertRewardMutationInput, rewardPatchFields } from './mutation'
 
 export default defineEventHandler(async (event) => {
   const rewardId = Number(event.context.params?.id)
@@ -71,6 +72,13 @@ export default defineEventHandler(async (event) => {
         message: 'Reward ownership cannot be changed here.',
       })
     }
+
+    assertRewardMutationInput(rewardData, {
+      allowedFields: rewardPatchFields,
+      context: 'Reward patch payload',
+      routeId: rewardId,
+      requireNonEmpty: true,
+    })
 
     const data = await updateRewardById(rewardId, rewardData)
 

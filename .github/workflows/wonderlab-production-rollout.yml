@@ -51,11 +51,15 @@ jobs:
           const assert = require('node:assert/strict')
           const source = fs.readFileSync('scripts/wonderlab-production-rollout.mjs', 'utf8')
 
+          const requiredEndpoints = [
+            ['/wonderlab-components.json'],
+            ['/api', '/components', '/reconcile'],
+            ['/api', '/components'],
+            ['/api', '/admin', '/wonderlab', '/review-rollout'],
+          ].map((parts) => parts.join(''))
+
           for (const required of [
-            "'/wonderlab-components.json'",
-            "'/api/components/reconcile'",
-            "'/api/components'",
-            "'/api/admin/wonderlab/review-rollout'",
+            ...requiredEndpoints,
             "mode: 'dry-run'",
             "mode: 'apply'",
             'WONDERLAB_ROLLOUT_APPLY',

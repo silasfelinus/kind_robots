@@ -40,7 +40,10 @@ jobs:
 
       - name: Migrate ArtCollection ownership callers
         if: github.event_name == 'pull_request' && github.head_ref == 'security/art-collection-image-ownership'
-        run: node scripts/migrate-art-collection-ownership-callers.mjs
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/migrate-art-collection-ownership-callers.mjs 2>&1 | tee /tmp/typecheck.log
 
       - name: Generate Prisma client
         run: npx prisma generate

@@ -16,6 +16,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { authAndGate } from '../../../utils/comfyGate'
 import {
+  buildKontextInputImages,
   buildKontextWorkflow,
   getKontextImageExtension,
 } from './utils/workflow'
@@ -107,13 +108,7 @@ export default defineEventHandler(async (event) => {
     const payload = {
       workflow,
       promptString: prompt,
-      images: [
-        {
-          name: imageName,
-          imageData,
-        },
-        ...(maskName ? [{ name: maskName, imageData: maskData }] : []),
-      ],
+      images: buildKontextInputImages(imageName, imageData, maskName, maskData),
       save: {
         isPublic: body.isPublic ?? false,
         isMature: body.isMature ?? false,

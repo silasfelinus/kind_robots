@@ -8,9 +8,13 @@ import { getUniqueCharacterSlug } from '../../utils/characterSlug'
 import {
   assertCharacterMutationInput,
   buildCharacterUpdateInput,
-  characterPatchFields,
   normalizeCharacterName,
 } from './mutation'
+import {
+  assertCharacterPatchCompatibility,
+  characterSingularPatchFields,
+  stripCharacterCompatibilityFields,
+} from './compatibility'
 import { characterMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -61,14 +65,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<unknown>(event)
+    const rawBody = await readBody<unknown>(event)
 
-    assertCharacterMutationInput(body, {
-      allowedFields: characterPatchFields,
+    assertCharacterMutationInput(rawBody, {
+      allowedFields: characterSingularPatchFields,
       context: 'Character patch payload',
       requireNonEmpty: true,
     })
+    assertCharacterPatchCompatibility(rawBody, id, existingCharacter.userId)
 
+    const body = stripCharacterCompatibilityFields(rawBody)
     const data = await buildCharacterUpdateInput(body)
 
     if (body.name !== undefined) {

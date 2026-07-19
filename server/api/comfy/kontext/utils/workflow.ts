@@ -83,7 +83,8 @@ export function buildKontextWorkflow(
   const maskName = input.maskName?.trim() || ''
   const useMask = maskName.length > 0
   const originalWeight =
-    typeof input.originalWeight === 'number' && Number.isFinite(input.originalWeight)
+    typeof input.originalWeight === 'number' &&
+    Number.isFinite(input.originalWeight)
       ? clamp(input.originalWeight, 0, 1)
       : 0
   // Init from the encoded source when preserving the original or when masking
@@ -285,13 +286,34 @@ export function buildKontextWorkflow(
 }
 
 export function getKontextImageExtension(imageData: string): string {
-  const match = imageData
-    .trim()
-    .match(/^data:image\/([a-zA-Z0-9.+-]+);base64,/)
+  const match = imageData.trim().match(/^data:image\/([a-zA-Z0-9.+-]+);base64,/)
   const subtype = (match?.[1] || 'png').toLowerCase()
 
   if (subtype.includes('jpeg') || subtype.includes('jpg')) return 'jpg'
   if (subtype.includes('webp')) return 'webp'
 
   return 'png'
+}
+
+export type KontextInputImage = { name: string; imageData: string }
+
+// The ArtJob payload's `images` array: the source photo, plus an optional
+// hair/region mask image the relay uploads to Comfy's input folder alongside
+// it (see buildKontextWorkflow's `maskName`/LoadImageMask wiring above). Only
+// appended when both a mask name and its data are present -- mirrors the
+// maskName-gated node wiring so the payload and the workflow graph can never
+// disagree about whether a mask is in play.
+export function buildKontextInputImages(
+  imageName: string,
+  imageData: string,
+  maskName?: string | null,
+  maskData?: string | null,
+): KontextInputImage[] {
+  const images: KontextInputImage[] = [{ name: imageName, imageData }]
+
+  if (maskName && maskData) {
+    images.push({ name: maskName, imageData: maskData })
+  }
+
+  return images
 }

@@ -100,6 +100,9 @@ jobs:
       - name: Newsfeed perspective balance contract
         run: npm run test:newsfeed-perspective-balance
 
+      - name: Kontext mask forwarding contract
+        run: npm run test:kontext-mask-forwarding
+
       - name: WonderLab reconciliation contract
         run: npm run test:wonderlab-reconcile
 

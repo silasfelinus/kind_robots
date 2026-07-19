@@ -106,6 +106,9 @@ jobs:
       - name: Newsfeed perspective balance contract
         run: npm run test:newsfeed-perspective-balance
 
+      - name: Tutorial channel resolver contract
+        run: npm run test:tutorial-channel-resolver
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

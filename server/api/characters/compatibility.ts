@@ -85,7 +85,7 @@ export function assertCharacterCreateCompatibility(
 export function assertCharacterPatchCompatibility(
   body: CharacterCompatibilityInput,
   routeId: number,
-  existingUserId: number,
+  existingUserId: number | null,
 ): void {
   if (Object.prototype.hasOwnProperty.call(body, 'id')) {
     const id = integer(body.id, 'id')

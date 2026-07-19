@@ -11,20 +11,30 @@ const endpointPath = resolve(
 )
 const source = readFileSync(endpointPath, 'utf8')
 
-assert.match(
+assert.doesNotMatch(
   source,
-  /const RECONCILE_TRANSACTION_OPTIONS = \{\s*maxWait: 10_000,\s*timeout: 30_000,\s*\} as const/s,
-  'The production reconciliation must explicitly exceed Prisma interactive transactions\' 5-second default.',
+  /prisma\.\$transaction\(async\s*\(/,
+  'Production reconciliation must not use an interactive callback transaction with an expiry deadline.',
 )
 assert.match(
   source,
-  /prisma\.\$transaction\(async \(tx\) => \{[\s\S]*?\}, RECONCILE_TRANSACTION_OPTIONS\)/,
-  'The bounded transaction options must be applied to the atomic reconciliation write transaction.',
+  /const updateOperations = plan\.updates\.flatMap/,
+  'Existing Component updates must be prepared as atomic batch transaction operations.',
+)
+assert.match(
+  source,
+  /prisma\.component\.createMany\(/,
+  'New manifest Components must be collapsed into a single createMany statement.',
+)
+assert.match(
+  source,
+  /await prisma\.\$transaction\(\[\.\.\.updateOperations, \.\.\.createOperations\]\)/,
+  'Updates and the bulk create must commit together in a non-interactive batch transaction.',
 )
 assert.doesNotMatch(
   source,
-  /timeout:\s*5_000/,
-  'The reconciliation must not regress to the timeout that failed the 348-entry production manifest.',
+  /RECONCILE_TRANSACTION_OPTIONS|timeout:\s*\d/,
+  'The reconciliation must not regress to an interactive transaction timeout workaround.',
 )
 
-console.log('WonderLab reconciliation transaction timeout contract passed.')
+console.log('WonderLab reconciliation batch transaction contract passed.')

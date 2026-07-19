@@ -17,11 +17,6 @@ type ReconcileRequestBody = {
   manifest?: unknown
 }
 
-const RECONCILE_TRANSACTION_OPTIONS = {
-  maxWait: 10_000,
-  timeout: 30_000,
-} as const
-
 function parseMode(value: unknown): ReconcileMode {
   if (value === undefined || value === 'dry-run') return 'dry-run'
   if (value === 'apply') return 'apply'
@@ -44,6 +39,32 @@ function updateDataForChanges(
     sourceHash: changes.sourceHash,
     isDiscovered: changes.isDiscovered,
     lastSeenAt: changes.lastSeenAt ? new Date(changes.lastSeenAt) : undefined,
+    updatedAt: new Date(),
+  }
+}
+
+function createDataForAction(
+  action: ReturnType<typeof buildComponentReconcilePlan>['creates'][number],
+  generatedAt: string,
+): Prisma.ComponentCreateManyInput {
+  return {
+    componentName: action.componentName,
+    folderName: action.changes.folderName || 'root',
+    slug: action.changes.slug,
+    sourcePath: action.changes.sourcePath,
+    sourceKey: action.changes.sourceKey,
+    sourceHash: action.changes.sourceHash,
+    lastSeenAt: action.changes.lastSeenAt
+      ? new Date(action.changes.lastSeenAt)
+      : new Date(generatedAt),
+    isDiscovered: action.changes.isDiscovered ?? true,
+    status: 'UNREVIEWED',
+    title: action.componentName,
+    notes: null,
+    isWorking: false,
+    underConstruction: false,
+    isBroken: false,
+    createdAt: new Date(),
     updatedAt: new Date(),
   }
 }
@@ -84,45 +105,32 @@ export default defineEventHandler(async (event) => {
     let applied = false
 
     if (mode === 'apply') {
-      // A full production manifest can require hundreds of sequential writes.
-      // Keep them atomic, but explicitly allow more than Prisma's 5-second
-      // interactive-transaction default while retaining a bounded timeout.
-      await prisma.$transaction(async (tx) => {
-        for (const action of plan.updates) {
-          if (!action.existingId) continue
+      // Keep the full reconciliation atomic without an interactive transaction.
+      // Production manifests can require hundreds of writes, and the callback
+      // transaction timeout expired even at 30 seconds. A batch transaction has
+      // no interactive callback deadline, while createMany collapses all new
+      // records into one statement instead of one round trip per Component.
+      const updateOperations = plan.updates.flatMap((action) =>
+        action.existingId
+          ? [
+              prisma.component.update({
+                where: { id: action.existingId },
+                data: updateDataForChanges(action.changes),
+              }),
+            ]
+          : [],
+      )
+      const createOperations = plan.creates.length
+        ? [
+            prisma.component.createMany({
+              data: plan.creates.map((action) =>
+                createDataForAction(action, manifest.generatedAt),
+              ),
+            }),
+          ]
+        : []
 
-          await tx.component.update({
-            where: { id: action.existingId },
-            data: updateDataForChanges(action.changes),
-          })
-        }
-
-        for (const action of plan.creates) {
-          await tx.component.create({
-            data: {
-              componentName: action.componentName,
-              folderName: action.changes.folderName || 'root',
-              slug: action.changes.slug,
-              sourcePath: action.changes.sourcePath,
-              sourceKey: action.changes.sourceKey,
-              sourceHash: action.changes.sourceHash,
-              lastSeenAt: action.changes.lastSeenAt
-                ? new Date(action.changes.lastSeenAt)
-                : new Date(manifest.generatedAt),
-              isDiscovered: action.changes.isDiscovered ?? true,
-              status: 'UNREVIEWED',
-              title: action.componentName,
-              notes: null,
-              isWorking: false,
-              underConstruction: false,
-              isBroken: false,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-          })
-        }
-      }, RECONCILE_TRANSACTION_OPTIONS)
-
+      await prisma.$transaction([...updateOperations, ...createOperations])
       applied = true
     }
 

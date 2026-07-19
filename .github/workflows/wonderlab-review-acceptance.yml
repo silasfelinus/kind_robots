@@ -173,11 +173,12 @@ jobs:
         if: always()
         env:
           OUTPUT_DIR: wonderlab-review-acceptance-artifacts
+          DEPLOY_EVIDENCE: workflow-production-version.json
         run: |
           set -euo pipefail
           mkdir -p "$OUTPUT_DIR"
           if [ -f production-version.json ]; then
-            cp production-version.json "$OUTPUT_DIR/workflow-production-version.json"
+            cp production-version.json "${OUTPUT_DIR}/${DEPLOY_EVIDENCE}"
           fi
 
       - name: Upload acceptance evidence

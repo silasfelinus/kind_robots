@@ -108,6 +108,17 @@ function exactCypressComponentFixtures(records) {
   })
 }
 
+function likelyCypressFixtureRows(records) {
+  return records.filter((record) => {
+    if (!record || typeof record !== 'object') return false
+    return (
+      /^test-folder(?:-|$)/i.test(String(record.folderName || '')) &&
+      /^TestComponent(?:_|-|$)/.test(String(record.componentName || '')) &&
+      !record.sourceKey
+    )
+  })
+}
+
 function verifyCanonicalCoverage(manifest, records) {
   const bySourceKey = new Map()
   const duplicateSourceKeys = new Map()
@@ -208,7 +219,24 @@ if (!dryRun?.success || !dryRun?.data?.summary) {
 }
 
 const drySummary = dryRun.data.summary
+const databaseOnlyRows = Array.isArray(dryRun.data.plan?.missingFromManifest)
+  ? dryRun.data.plan.missingFromManifest
+  : []
+const likelyFixtureRows = likelyCypressFixtureRows(databaseOnlyRows)
+const databaseOnlyReport = {
+  total: databaseOnlyRows.length,
+  likelyFixtureCount: likelyFixtureRows.length,
+  preservedHistoricalCount: Math.max(0, databaseOnlyRows.length - likelyFixtureRows.length),
+  likelyFixtures: likelyFixtureRows,
+  rows: databaseOnlyRows,
+}
+await writeJson('database-only-components.json', databaseOnlyReport)
 console.log('[wonderlab-rollout] Dry-run summary:', drySummary)
+console.log('[wonderlab-rollout] Database-only rows:', {
+  total: databaseOnlyReport.total,
+  likelyFixtures: databaseOnlyReport.likelyFixtureCount,
+  preservedHistorical: databaseOnlyReport.preservedHistoricalCount,
+})
 if (Number(drySummary.conflicts || 0) !== 0) {
   throw new Error(
     `Refusing production reconciliation with ${drySummary.conflicts} identity conflict(s).`,
@@ -306,6 +334,7 @@ const result = {
   applied: applyChanges,
   manifestCount: manifest.count,
   reconciliation: drySummary,
+  databaseOnly: databaseOnlyReport,
   cleanup: cleanupReport,
   canonicalVerification: verification,
   auditReady: auditResponse.data.ready,

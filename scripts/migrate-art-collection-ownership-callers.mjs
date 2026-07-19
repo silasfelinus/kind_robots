@@ -83,6 +83,13 @@ replaceExact(
 )
 
 replaceExact(
+  'stores/collectionStore.ts',
+  '        collection = await createCollection(label, userId, false, false)',
+  '        collection = await createCollection(label, false, false)',
+  'generated collection create call',
+)
+
+replaceExact(
   'components/art/add-collection.vue',
   `:disabled="isSaving || disabled || !label.trim() || !resolvedUserId"`,
   `:disabled="isSaving || disabled || !label.trim()"`,

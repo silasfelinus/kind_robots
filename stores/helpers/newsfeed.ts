@@ -25,10 +25,10 @@ export interface FeedSourceDefinition {
   url: string
   kind: FeedSourceKind
   /**
-   * This session's sandbox blocked outbound probes to every candidate feed
-   * host (see EGRESS-BLOCKERS.md) — `verified: false` means the URL has not
-   * been fetched by a live pipeline yet. Flip to true once t-005's
-   * aggregation pipeline confirms it resolves and parses.
+   * `verified: true` means this URL was fetched and parsed by the live
+   * aggregation pipeline (t-005/t-013, most recently 2026-07-19 via
+   * GET /api/newsfeed on production). `false` means the last live check
+   * 404/403'd — see the per-entry comment for what was tried.
    */
   verified: boolean
   perspective?: SourcePerspective
@@ -135,35 +135,38 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     name: 'TechCrunch — AI',
     url: 'https://techcrunch.com/category/artificial-intelligence/feed/',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
     id: 'technologyreview-ai',
     name: 'MIT Technology Review — AI',
     url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
     id: 'marktechpost',
     name: 'MarkTechPost',
     url: 'https://www.marktechpost.com/feed/',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
     id: 'huggingface-blog',
     name: 'Hugging Face Blog',
     url: 'https://huggingface.co/blog/feed.xml',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
+    // URL swapped 2026-07-19 (t-013): the original /en/rss/ path 404'd against
+    // the live pipeline. /en/content/feed/ is the site's actual RSS endpoint
+    // (confirmed 200 + application/rss+xml + parses via fetchSourceItems).
     id: 'globalcitizen',
     name: 'Global Citizen',
-    url: 'https://www.globalcitizen.org/en/rss/',
+    url: 'https://www.globalcitizen.org/en/content/feed/',
     kind: 'rss',
-    verified: false,
+    verified: true,
     perspective: {
       label: 'center-left',
       source: 'Media Bias/Fact Check (mediabiasfactcheck.com/global-citizen)',
@@ -174,6 +177,9 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     // Media Bias/Fact Check has no profile for Devex, and Ground News reports
     // its bias/factuality as unrated too (checked 2026-07-19) -- no `perspective`
     // per BIAS-CONTROLS.md "unrated sources remain usable and visibly unrated".
+    // Still unreachable as of 2026-07-19 (t-013): both /rss/news and /news/feed
+    // return HTTP 403 (bot-blocked, not a wrong-path 404) -- no working RSS
+    // endpoint found this cycle. Left verified: false rather than guessing.
     id: 'devex-news',
     name: 'Devex — Global Development News',
     url: 'https://www.devex.com/rss/news',
@@ -185,9 +191,15 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     name: 'World Health Organization — News',
     url: 'https://www.who.int/rss-feeds/news-english.xml',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
+    // Still unreachable as of 2026-07-19 (t-013): gatesfoundation.org has no
+    // working feed at /ideas/rss, /ideas/feed, /feed, or /rss (all 404) --
+    // the site appears to have no RSS at all post-redesign. gatesnotes.com/rss
+    // exists but is Bill Gates' personal blog, a different entity/content
+    // mix than "Gates Foundation Ideas", so not swapped in without a scope
+    // decision. Left verified: false rather than guessing.
     id: 'gatesfoundation-ideas',
     name: 'Gates Foundation — Ideas',
     url: 'https://www.gatesfoundation.org/ideas/rss',
@@ -195,13 +207,23 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     verified: false,
   },
   {
+    // URL swapped 2026-07-19 (t-013): the original /tag/artificial-intelligence/rss
+    // path 404'd against the live pipeline. /tag/ai/feed is the real per-tag
+    // feed (confirmed 200 + application/rss+xml, channel title "AI - Kotaku",
+    // parses via fetchSourceItems).
     id: 'kotaku-ai',
     name: 'Kotaku — AI tag',
-    url: 'https://kotaku.com/tag/artificial-intelligence/rss',
+    url: 'https://kotaku.com/tag/ai/feed',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
+    // Still unreachable as of 2026-07-19 (t-013): no working tag/category feed
+    // found (/tag/ai/rss, /tag/ai/feed, /software/ai/feed, /software/ai/rss all
+    // 404 -- pcgamer.com/tag/ai/ itself 301s to /software/ai/, a page with no
+    // feed variant found). Only the site-wide /rss/ resolves, which is off-topic
+    // breadth for an "AI tag" source, so not swapped in without a scope decision.
+    // Left verified: false rather than guessing.
     id: 'pcgamer-ai',
     name: 'PC Gamer — AI tag',
     url: 'https://www.pcgamer.com/tag/ai/rss/',
@@ -213,16 +235,20 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     name: 'arXiv — cs.LG (Machine Learning)',
     url: 'http://export.arxiv.org/rss/cs.LG',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
     id: 'openai-blog',
     name: 'OpenAI Blog',
     url: 'https://openai.com/blog/rss.xml',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
+    // Still unreachable as of 2026-07-19 (t-013): /news/rss.xml 404s and no
+    // official Anthropic RSS feed appears to exist (only unofficial
+    // third-party scrapers, per web search) -- not swapped in per
+    // BIAS-CONTROLS.md "never invent" guardrail. Left verified: false.
     id: 'anthropic-news',
     name: 'Anthropic News',
     url: 'https://www.anthropic.com/news/rss.xml',
@@ -234,14 +260,14 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     name: 'DEV Community',
     url: 'https://dev.to/feed',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
   {
     id: 'css-tricks',
     name: 'CSS-Tricks',
     url: 'https://css-tricks.com/feed/',
     kind: 'rss',
-    verified: false,
+    verified: true,
   },
 ]
 

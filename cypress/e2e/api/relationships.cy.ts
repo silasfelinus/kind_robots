@@ -330,7 +330,6 @@ describe('Relationship API Tests', () => {
           recipient: 'relationship-suite',
           content: 'Testing linked API records.',
           title: `Cypress Chat ${time}`,
-          userId,
           botId: id('bot'),
           artImageId: id('artImage'),
           promptId: id('prompt'),

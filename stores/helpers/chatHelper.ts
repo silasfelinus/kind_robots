@@ -26,6 +26,38 @@ export interface AddChatInput {
   projectId?: number | null
 }
 
+type ChatCreateRequest = Pick<
+  Chat,
+  | 'type'
+  | 'sender'
+  | 'recipient'
+  | 'content'
+  | 'title'
+  | 'isPublic'
+  | 'isFavorite'
+  | 'previousEntryId'
+  | 'originId'
+  | 'botId'
+  | 'recipientId'
+  | 'artImageId'
+  | 'promptId'
+  | 'botName'
+  | 'channel'
+  | 'botResponse'
+  | 'characterId'
+  | 'isRead'
+  | 'isMature'
+  | 'serverId'
+  | 'serverName'
+  | 'dreamId'
+  | 'isActive'
+  | 'projectId'
+>
+
+type ChatPatchRequest = Partial<
+  Omit<ChatCreateRequest, 'projectId'>
+>
+
 function normalizeChatIdentity(value?: string | null): string {
   return String(value || '')
     .trim()
@@ -135,10 +167,37 @@ export function buildNewChat(
 export async function createChat(
   chat: Omit<Chat, 'id' | 'createdAt' | 'updatedAt'>,
 ): Promise<Chat> {
+  const payload: ChatCreateRequest = {
+    type: chat.type,
+    sender: chat.sender,
+    recipient: chat.recipient,
+    content: chat.content,
+    title: chat.title,
+    isPublic: chat.isPublic,
+    isFavorite: chat.isFavorite,
+    previousEntryId: chat.previousEntryId,
+    originId: chat.originId,
+    botId: chat.botId,
+    recipientId: chat.recipientId,
+    artImageId: chat.artImageId,
+    promptId: chat.promptId,
+    botName: chat.botName,
+    channel: chat.channel,
+    botResponse: chat.botResponse,
+    characterId: chat.characterId,
+    isRead: chat.isRead,
+    isMature: chat.isMature,
+    serverId: chat.serverId,
+    serverName: chat.serverName,
+    dreamId: chat.dreamId,
+    isActive: chat.isActive,
+    projectId: chat.projectId,
+  }
+
   const response = await performFetch<Chat>('/api/chats', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(chat),
+    body: JSON.stringify(payload),
   })
 
   if (!response.success || !response.data) {
@@ -152,10 +211,36 @@ export async function patchChat(
   chatId: number,
   data: Partial<Chat>,
 ): Promise<Chat> {
+  const payload: ChatPatchRequest = {
+    type: data.type,
+    sender: data.sender,
+    recipient: data.recipient,
+    content: data.content,
+    title: data.title,
+    isPublic: data.isPublic,
+    isFavorite: data.isFavorite,
+    previousEntryId: data.previousEntryId,
+    originId: data.originId,
+    botId: data.botId,
+    recipientId: data.recipientId,
+    artImageId: data.artImageId,
+    promptId: data.promptId,
+    botName: data.botName,
+    channel: data.channel,
+    botResponse: data.botResponse,
+    characterId: data.characterId,
+    isRead: data.isRead,
+    isMature: data.isMature,
+    serverId: data.serverId,
+    serverName: data.serverName,
+    dreamId: data.dreamId,
+    isActive: data.isActive,
+  }
+
   const response = await performFetch<Chat>(`/api/chats/${chatId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   })
 
   if (!response.success || !response.data) {

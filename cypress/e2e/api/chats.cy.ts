@@ -20,6 +20,21 @@ describe('Chat API Tests', () => {
   let userId = 0
   let chatId: number | null = null
 
+  function expectLeanMutation(chat: Record<string, unknown>) {
+    for (const relation of [
+      'User',
+      'Bot',
+      'Character',
+      'Prompt',
+      'ArtImage',
+      'Dream',
+      'Project',
+      'Server',
+    ]) {
+      expect(chat).to.not.have.property(relation)
+    }
+  }
+
   before(() => {
     getApiEnv().then((env) => {
       apiBase = env.apiBase
@@ -69,7 +84,6 @@ describe('Chat API Tests', () => {
       sender: 'silasfelinus',
       recipient: 'AMI',
       content: 'Hello, AMI!',
-      userId,
       botId,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -83,11 +97,24 @@ describe('Chat API Tests', () => {
       sender: 'silasfelinus',
       recipient: 'AMI',
       content: 'Hello, AMI!',
-      userId,
       botId,
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
+    })
+  })
+
+  it('rejects caller-owned Chat identity and timestamps', () => {
+    makeRequest('POST', baseUrl, userJwt, {
+      type: 'ToBot',
+      sender: 'forged-user',
+      content: 'This request should be rejected.',
+      userId,
+      createdAt: '2000-01-01T00:00:00.000Z',
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.match(/unsupported chat fields/i)
     })
   })
 
@@ -112,13 +139,14 @@ describe('Chat API Tests', () => {
         artImageId: null,
         promptId: null,
         botName: 'AMI',
-        userId,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('object').that.is.not.empty
+      expect(response.body.data.userId).to.eq(userId)
+      expectLeanMutation(response.body.data)
 
       chatId = response.body.data.id
       expect(chatId).to.exist
@@ -179,6 +207,20 @@ describe('Chat API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.have.property('isFavorite', true)
+      expectLeanMutation(response.body.data)
+    })
+  })
+
+  it('rejects server-owned and unknown Chat PATCH fields', () => {
+    expect(chatId).to.not.eq(null)
+
+    makeRequest('PATCH', `${baseUrl}/${chatId}`, userJwt, {
+      userId,
+      updatedAt: '2000-01-01T00:00:00.000Z',
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.match(/unsupported chat fields/i)
     })
   })
 

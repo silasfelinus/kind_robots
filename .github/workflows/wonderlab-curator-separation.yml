@@ -1,0 +1,45 @@
+name: WonderLab curator separation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/wonderlab-curator-separation.yml
+      - .github/scripts/apply-wonderlab-curator-separation.py
+
+permissions:
+  contents: write
+
+jobs:
+  patch-curator-separation:
+    name: Patch WonderLab curator separation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout curator-separation branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/wonderlab-curator-separation
+          fetch-depth: 0
+
+      - name: Patch curator separation
+        run: python .github/scripts/apply-wonderlab-curator-separation.py
+
+      - name: Validate diff
+        run: git diff --check -- components/wonderlab/lab-interact.vue
+
+      - name: Commit curator separation
+        run: |
+          git config user.name "kind-robots-wonderlab-curator"
+          git config user.email "kind-robots-wonderlab-curator@users.noreply.github.com"
+          git add components/wonderlab/lab-interact.vue
+          if git diff --cached --quiet; then
+            echo "WonderLab curator separation is already current."
+            exit 0
+          fi
+          git commit -m "feat: separate public exhibit and curator controls [curator-separation]"
+          git push origin HEAD:feat/wonderlab-curator-separation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

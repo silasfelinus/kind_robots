@@ -145,4 +145,6 @@ assert.match(storeSource, /\.\.\.existing/)
 assert.match(storeSource, /\.\.\.updated/)
 assert.match(storeSource, /selectedComponent\.value = merged/)
 
+await import('./verifyWonderLabResponsiveCollection')
+
 console.log('WonderLab Component catalog metrics and sorting contract passed.')

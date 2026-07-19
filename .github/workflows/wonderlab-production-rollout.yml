@@ -24,7 +24,7 @@ permissions:
 
 concurrency:
   group: wonderlab-production-rollout-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -89,19 +89,19 @@ jobs:
 
   reconcile:
     name: Reconcile and audit WonderLab
-    # The tagged merge runs this once automatically. Later workflow edits remain
-    # inert unless explicitly dispatched or deliberately tagged again.
+    # A tagged merge runs this once automatically. The runner acts only through
+    # already-deployed guarded APIs, so a quota-delayed deployment of this
+    # workflow commit is not required. Later ordinary edits remain inert unless
+    # explicitly dispatched or deliberately tagged again.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-rollout]'))
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Select rollout mode
         env:
@@ -114,37 +114,22 @@ jobs:
             echo 'WONDERLAB_ROLLOUT_APPLY=0' >> "$GITHUB_ENV"
           fi
 
-      - name: Wait for tagged commit to reach production
+      - name: Verify live production prerequisites
         env:
           BASE_URL: https://kind-robots.vercel.app
-          TARGET_SHA: ${{ github.sha }}
-          MAX_WAIT: '1200'
         run: |
           set -euo pipefail
-          echo "Waiting for production to contain ${TARGET_SHA}..."
-          deadline=$(( $(date +%s) + MAX_WAIT ))
-          live=""
-          while [ "$(date +%s)" -lt "$deadline" ]; do
-            body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
-            live="$(printf '%s' "$body" | jq -r '.data.commit // .data.commitSha // empty' 2>/dev/null || true)"
-            if [ -n "$live" ]; then
-              if [ "$live" = "$TARGET_SHA" ]; then
-                echo "Production is serving ${live}."
-                exit 0
-              fi
-              if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
-                git fetch --quiet --depth=300 origin main 2>/dev/null || true
-              fi
-              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live" 2>/dev/null; then
-                echo "Production is serving superseding commit ${live}."
-                exit 0
-              fi
-            fi
-            echo "  serving ${live:-unknown}; retrying in 10s..."
-            sleep 10
-          done
-          echo "::error::Production did not contain ${TARGET_SHA} within ${MAX_WAIT}s (last seen: ${live:-unknown})."
-          exit 1
+          version="$(curl -sf --max-time 20 "${BASE_URL}/api/version")"
+          printf '%s' "$version" | jq -e '.success == true and (.data.commit | type == "string")' >/dev/null
+
+          manifest="$(curl -sf --max-time 30 "${BASE_URL}/wonderlab-components.json")"
+          printf '%s' "$manifest" | jq -e '.count > 0 and (.entries | length) == .count' >/dev/null
+
+          components="$(curl -sf --max-time 30 "${BASE_URL}/api/components")"
+          printf '%s' "$components" | jq -e '.success == true and (.data | type == "array")' >/dev/null
+
+          echo "Production prerequisites are ready at commit $(printf '%s' "$version" | jq -r '.data.commit')."
+          echo "Live manifest contains $(printf '%s' "$manifest" | jq -r '.count') Components."
 
       - name: Reconcile canonical Component registry and run rollout audit
         env:

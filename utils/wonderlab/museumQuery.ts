@@ -1,10 +1,7 @@
 // /utils/wonderlab/museumQuery.ts
-export const wonderLabStatusFilters = [
-  'UNREVIEWED',
-  'WORKING',
-  'UNDER_CONSTRUCTION',
-  'BROKEN',
-] as const
+import { componentStatuses } from '@/utils/wonderlab/componentStatus'
+
+export const wonderLabStatusFilters = componentStatuses
 
 export type WonderLabStatusFilter =
   | 'all'

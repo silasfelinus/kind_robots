@@ -140,7 +140,7 @@ export default defineEventHandler(async (event) => {
       FROM Reaction r
       INNER JOIN User u ON u.id = r.userId
       LEFT JOIN Bot b ON b.id = r.authorBotId
-      LEFT JOIN Character ch ON ch.id = r.authorCharacterId
+      LEFT JOIN \`Character\` ch ON ch.id = r.authorCharacterId
       WHERE r.componentId = ${componentId}
       ORDER BY r.createdAt DESC, r.id DESC
     `

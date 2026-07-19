@@ -145,7 +145,7 @@ async function scalarCount(sql: 'human' | 'firstParty' | 'duplicates' | 'unsafe'
         SELECT COUNT(*) AS count
         FROM Reaction r
         LEFT JOIN Bot b ON b.id = r.authorBotId
-        LEFT JOIN Character c ON c.id = r.authorCharacterId
+        LEFT JOIN \`Character\` c ON c.id = r.authorCharacterId
         WHERE
           (r.authorBotId IS NOT NULL AND r.authorCharacterId IS NOT NULL)
           OR (r.authorBotId IS NOT NULL AND b.id IS NULL)

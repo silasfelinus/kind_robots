@@ -144,9 +144,9 @@ async function assertSafeAuthorRows(connection) {
          SUM(authorBotId IS NOT NULL AND authorCharacterId IS NOT NULL) AS dualAuthors,
          SUM(authorBotId IS NOT NULL AND b.id IS NULL) AS missingBots,
          SUM(authorCharacterId IS NOT NULL AND c.id IS NULL) AS missingCharacters
-       FROM Reaction r
-       LEFT JOIN Bot b ON b.id = r.authorBotId
-       LEFT JOIN Character c ON c.id = r.authorCharacterId`,
+       FROM \`Reaction\` r
+       LEFT JOIN \`Bot\` b ON b.id = r.authorBotId
+       LEFT JOIN \`Character\` c ON c.id = r.authorCharacterId`,
     ),
   )
   const counts = result[0] || {}

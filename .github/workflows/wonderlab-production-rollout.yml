@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: wonderlab-production-rollout-${{ github.ref }}
@@ -89,13 +90,15 @@ jobs:
 
   reconcile:
     name: Reconcile and audit WonderLab
-    # A tagged merge runs this once automatically. The runner acts only through
-    # already-deployed guarded APIs, so a quota-delayed deployment of this
-    # workflow commit is not required. Later ordinary edits remain inert unless
-    # explicitly dispatched or deliberately tagged again.
+    # [wonderlab-rollout] performs the guarded apply. [wonderlab-audit] runs the
+    # same conflict-checking dry run plus the read-only rollout audit. Ordinary
+    # workflow edits remain inert unless explicitly dispatched or tagged.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-rollout]'))
+      (github.event_name == 'push' && (
+        contains(github.event.head_commit.message, '[wonderlab-rollout]') ||
+        contains(github.event.head_commit.message, '[wonderlab-audit]')
+      ))
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -106,9 +109,16 @@ jobs:
       - name: Select rollout mode
         env:
           REQUESTED_APPLY: ${{ inputs.apply }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           set -euo pipefail
-          if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ "${REQUESTED_APPLY:-false}" = "true" ]; then
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            if [ "${REQUESTED_APPLY:-false}" = "true" ]; then
+              echo 'WONDERLAB_ROLLOUT_APPLY=1' >> "$GITHUB_ENV"
+            else
+              echo 'WONDERLAB_ROLLOUT_APPLY=0' >> "$GITHUB_ENV"
+            fi
+          elif printf '%s' "${COMMIT_MESSAGE:-}" | grep -Fq '[wonderlab-rollout]'; then
             echo 'WONDERLAB_ROLLOUT_APPLY=1' >> "$GITHUB_ENV"
           else
             echo 'WONDERLAB_ROLLOUT_APPLY=0' >> "$GITHUB_ENV"
@@ -153,3 +163,84 @@ jobs:
           path: wonderlab-rollout-artifacts
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Post durable rollout report
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          APPLY_MODE: ${{ env.WONDERLAB_ROLLOUT_APPLY }}
+          OUTPUT_DIR: wonderlab-rollout-artifacts
+        with:
+          script: |
+            const fs = require('node:fs')
+            const path = require('node:path')
+
+            const readJson = (name) => {
+              const target = path.join(process.env.OUTPUT_DIR, name)
+              if (!fs.existsSync(target)) return null
+              try {
+                return JSON.parse(fs.readFileSync(target, 'utf8'))
+              } catch (error) {
+                return { parseError: error.message }
+              }
+            }
+
+            const summary = readJson('rollout-summary.json')
+            const dryRun = readJson('reconcile-dry-run.json')
+            const apply = readJson('reconcile-apply.json')
+            const cleanup = readJson('fixture-cleanup.json')
+            const verification = readJson('canonical-verification.json')
+            const audit = readJson('review-rollout-audit.json')
+            const drySummary = dryRun?.data?.summary || summary?.reconciliation || null
+            const auditData = audit?.data || null
+            const mode = process.env.APPLY_MODE === '1' ? 'apply' : 'read-only audit'
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const lines = [
+              `## WonderLab production ${mode} report`,
+              '',
+              `- **Workflow:** [run ${context.runId}](${runUrl})`,
+              `- **Result:** ${process.env.JOB_STATUS}`,
+              `- **Production base:** ${summary?.baseUrl || 'https://kind-robots.vercel.app'}`,
+            ]
+
+            if (drySummary) {
+              lines.push(
+                `- **Reconciliation dry run:** ${drySummary.creates || 0} creates, ${drySummary.updates || 0} updates, ${drySummary.unchanged || 0} unchanged, ${drySummary.missingFromManifest || 0} database-only, ${drySummary.conflicts || 0} conflicts`,
+              )
+            }
+            if (apply?.data?.applied === true) {
+              lines.push('- **Canonical reconciliation:** applied atomically')
+            }
+            if (cleanup) {
+              const deleted = (cleanup.results || []).filter((entry) => entry.ok).length
+              const failed = (cleanup.results || []).filter((entry) => !entry.ok).length
+              lines.push(`- **Exact Cypress fixture cleanup:** ${deleted} removed, ${failed} failed`)
+            }
+            if (verification) {
+              lines.push(
+                `- **Canonical verification:** ${verification.canonicalRecordCount || 0}/${verification.manifestCount || 0} source identities; ${verification.missingCount || 0} missing; ${verification.mismatchCount || 0} mismatched; ${verification.duplicateSourceKeyCount || 0} duplicate source keys`,
+              )
+            }
+            if (auditData) {
+              const blocked = (auditData.checks || [])
+                .filter((entry) => !entry.ok)
+                .map((entry) => entry.key)
+              lines.push(
+                `- **Personality rollout audit:** ${auditData.ready ? 'Ready' : `Blocked (${blocked.join(', ') || 'see artifact'})`}`,
+              )
+            }
+            if (!summary) {
+              lines.push('- **Evidence:** workflow stopped before the final summary; inspect the uploaded partial JSON artifacts and runtime logs.')
+            }
+            lines.push('', '_Automated evidence report; no review generation, approval, or publication occurs in this workflow._')
+
+            const body = lines.join('\n')
+            for (const issue_number of [381, 472]) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body,
+              })
+            }

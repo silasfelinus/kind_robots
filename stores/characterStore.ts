@@ -7,6 +7,10 @@ import {
   loadSnapshot,
   markSnapshotActive,
 } from '@/stores/helpers/snapshotLoader'
+import {
+  mergeDefinedRecord,
+  reconcileRecordsById,
+} from '@/stores/helpers/recordMerge'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useGeneratorStore } from '@/stores/generatorStore'
@@ -345,12 +349,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   async function fetchCharacters(force = false): Promise<Character[]> {
+    if (fetchPromise.value) return fetchPromise.value
     if (!force && hasLoaded.value) {
       return characters.value
-    }
-
-    if (fetchPromise.value && !force) {
-      return fetchPromise.value
     }
 
     fetchPromise.value = (async () => {
@@ -362,7 +363,10 @@ export const useCharacterStore = defineStore('characterStore', () => {
         const response = await performFetch<Character[]>('/api/characters')
 
         if (response.success && response.data) {
-          characters.value = response.data.slice().sort(sortCharacters)
+          characters.value = reconcileRecordsById(
+            characters.value,
+            response.data,
+          ).sort(sortCharacters)
           hasLoaded.value = true
           usingSnapshot.value = false
           markSnapshotActive('characters', false)
@@ -407,8 +411,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       )
 
       if (response.success && response.data) {
-        upsertCharacter(response.data)
-        return response.data
+        return upsertCharacter(response.data)
       }
 
       throw new Error(response.message || 'Failed to fetch character')
@@ -558,19 +561,30 @@ export const useCharacterStore = defineStore('characterStore', () => {
     }
   }
 
-  function upsertCharacter(character: Character) {
+  function upsertCharacter(character: Character): Character {
     const index = characters.value.findIndex(
       (entry) => entry.id === character.id,
     )
+    const existing =
+      selectedCharacter.value?.id === character.id
+        ? selectedCharacter.value
+        : index >= 0
+          ? characters.value[index]
+          : undefined
+    const merged = mergeDefinedRecord(existing, character)
 
     if (index >= 0) {
-      characters.value.splice(index, 1, character)
+      characters.value.splice(index, 1, merged)
     } else {
-      characters.value.push(character)
+      characters.value.push(merged)
     }
 
+    if (selectedCharacter.value?.id === merged.id) {
+      selectedCharacter.value = merged
+    }
     characters.value.sort(sortCharacters)
     syncToLocalStorage()
+    return merged
   }
 
   async function saveCharacter(): Promise<CharacterSaveResult> {
@@ -622,12 +636,12 @@ export const useCharacterStore = defineStore('characterStore', () => {
       })
 
       if (response.success && response.data) {
-        upsertCharacter(response.data)
-        selectedCharacter.value = response.data
-        characterForm.value = toCharacterForm(response.data)
+        const merged = upsertCharacter(response.data)
+        selectedCharacter.value = merged
+        characterForm.value = toCharacterForm(merged)
         await updateArtImagePath()
 
-        return response.data
+        return merged
       }
 
       throw new Error(response.message || 'Failed to create character')
@@ -649,12 +663,12 @@ export const useCharacterStore = defineStore('characterStore', () => {
       })
 
       if (response.success && response.data) {
-        upsertCharacter(response.data)
-        selectedCharacter.value = response.data
-        characterForm.value = toCharacterForm(response.data)
+        const merged = upsertCharacter(response.data)
+        selectedCharacter.value = merged
+        characterForm.value = toCharacterForm(merged)
         await updateArtImagePath()
 
-        return response.data
+        return merged
       }
 
       throw new Error(response.message || 'Failed to update character')

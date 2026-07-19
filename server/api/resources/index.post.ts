@@ -12,9 +12,9 @@ import { resourceMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user, kind } = await validateApiKey(event)
+    const { isValid, user } = await validateApiKey(event)
 
-    if (!isValid) {
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -38,12 +38,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
     const data = await buildResourceCreateInput({
       entry: body,
-      fallbackUserId: user?.id || 1,
-      canAssignUserId: isAdmin || isServerKey,
+      authenticatedUserId: user.id,
     })
 
     try {

@@ -1,5 +1,4 @@
 // /server/utils/reviewDraftPublisher.ts
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import {
   finalReviewDraftComment,
@@ -22,6 +21,7 @@ type LockedDraftRow = {
 }
 
 type IdRow = { id: number }
+type ReviewDraftTransaction = Pick<typeof prisma, '$queryRaw' | '$executeRaw'>
 
 export type PublishedReviewDraft = {
   draft: ReviewDraftRecord
@@ -36,7 +36,7 @@ function defaultReactionType(rating: number): string {
 }
 
 async function findAuthoredReaction(
-  tx: Prisma.TransactionClient,
+  tx: ReviewDraftTransaction,
   draft: LockedDraftRow,
 ): Promise<number | null> {
   if (draft.authorBotId) {
@@ -73,7 +73,7 @@ async function findAuthoredReaction(
 }
 
 async function supersedeOtherDrafts(
-  tx: Prisma.TransactionClient,
+  tx: ReviewDraftTransaction,
   draft: LockedDraftRow,
 ): Promise<void> {
   if (draft.authorBotId) {

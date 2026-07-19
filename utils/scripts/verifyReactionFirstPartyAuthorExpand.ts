@@ -19,10 +19,25 @@ assert.match(
   sql,
   /FOREIGN KEY \(`authorCharacterId`\) REFERENCES `Character`\(`id`\)[\s\S]*?ON DELETE SET NULL ON UPDATE CASCADE/,
 )
+// MariaDB rejects a CHECK constraint on a column that also carries a
+// FOREIGN KEY (error 1901), in either statement order, so the "at most one
+// first-party author" invariant is enforced with BEFORE INSERT/UPDATE
+// triggers instead of a CHECK clause. See the migration's own comment for
+// the reproduction.
 assert.match(
   sql,
-  /CHECK \(`authorBotId` IS NULL OR `authorCharacterId` IS NULL\)/,
-  'a Reaction must never claim both a Bot and Character display author',
+  /CREATE TRIGGER `Reaction_firstPartyAuthor_check_ins` BEFORE INSERT ON `Reaction`[\s\S]*?NEW\.`authorBotId` IS NOT NULL AND NEW\.`authorCharacterId` IS NOT NULL[\s\S]*?SIGNAL SQLSTATE '45000'/,
+  'a Reaction must never claim both a Bot and Character display author on insert',
+)
+assert.match(
+  sql,
+  /CREATE TRIGGER `Reaction_firstPartyAuthor_check_upd` BEFORE UPDATE ON `Reaction`[\s\S]*?NEW\.`authorBotId` IS NOT NULL AND NEW\.`authorCharacterId` IS NOT NULL[\s\S]*?SIGNAL SQLSTATE '45000'/,
+  'a Reaction must never claim both a Bot and Character display author on update',
+)
+assert.doesNotMatch(
+  sql,
+  /\bCHECK\s*\(/i,
+  'CHECK constraints on FK columns fail on MariaDB (error 1901) — use triggers instead',
 )
 
 for (const destructiveStatement of [

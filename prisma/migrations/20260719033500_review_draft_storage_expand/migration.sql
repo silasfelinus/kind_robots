@@ -33,8 +33,6 @@ CREATE TABLE `ReviewDraft` (
   INDEX `ReviewDraft_authorCharacterId_idx`(`authorCharacterId`),
   INDEX `ReviewDraft_publisherUserId_idx`(`publisherUserId`),
   INDEX `ReviewDraft_publishedReactionId_idx`(`publishedReactionId`),
-  CONSTRAINT `ReviewDraft_single_author_chk`
-    CHECK ((`authorBotId` IS NULL) <> (`authorCharacterId` IS NULL)),
   CONSTRAINT `ReviewDraft_rating_range_chk`
     CHECK (`rating` >= 0 AND `rating` <= 5),
   PRIMARY KEY (`id`)
@@ -64,3 +62,27 @@ ALTER TABLE `ReviewDraft`
   ADD CONSTRAINT `ReviewDraft_publishedReactionId_fkey`
   FOREIGN KEY (`publishedReactionId`) REFERENCES `Reaction`(`id`)
   ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- MariaDB rejects a CHECK constraint on a column that also carries a FOREIGN
+-- KEY (error 1901, "Function or expression '<col>' cannot be used in the
+-- CHECK clause"), regardless of statement order (see the sibling
+-- 20260719031500_reaction_first_party_author_expand fix for the repro).
+-- Enforce the original "exactly one first-party author" invariant with
+-- triggers instead of the CHECK this table was created with above.
+CREATE TRIGGER `ReviewDraft_single_author_chk_ins` BEFORE INSERT ON `ReviewDraft`
+FOR EACH ROW
+BEGIN
+  IF (NEW.`authorBotId` IS NULL) = (NEW.`authorCharacterId` IS NULL) THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'ReviewDraft_single_author_chk: exactly one of authorBotId/authorCharacterId must be set';
+  END IF;
+END;
+
+CREATE TRIGGER `ReviewDraft_single_author_chk_upd` BEFORE UPDATE ON `ReviewDraft`
+FOR EACH ROW
+BEGIN
+  IF (NEW.`authorBotId` IS NULL) = (NEW.`authorCharacterId` IS NULL) THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'ReviewDraft_single_author_chk: exactly one of authorBotId/authorCharacterId must be set';
+  END IF;
+END;

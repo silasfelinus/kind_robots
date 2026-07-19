@@ -21,7 +21,6 @@ for (const fragment of [
   '`generatedComment` TEXT NOT NULL',
   '`editedComment` TEXT NULL',
   'UNIQUE INDEX `ReviewDraft_draftKey_key`',
-  'CONSTRAINT `ReviewDraft_single_author_chk`',
   'CONSTRAINT `ReviewDraft_rating_range_chk`',
   'FOREIGN KEY (`componentId`) REFERENCES `Component`(`id`)',
   'FOREIGN KEY (`authorBotId`) REFERENCES `Bot`(`id`)',
@@ -32,12 +31,28 @@ for (const fragment of [
   assert.match(sql, new RegExp(fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
 }
 
+// MariaDB rejects a CHECK constraint on a column that also carries a
+// FOREIGN KEY (error 1901), in either statement order — authorBotId and
+// authorCharacterId both get FOREIGN KEYs below, so the "exactly one
+// first-party author" invariant is enforced with BEFORE INSERT/UPDATE
+// triggers instead of a CHECK clause on those columns. `rating` carries no
+// FOREIGN KEY, so its CHECK is unaffected and stays as-is.
 assert.match(
   sql,
-  /CHECK \(\(`authorBotId` IS NULL\) <> \(`authorCharacterId` IS NULL\)\)/,
-  'each draft must have exactly one Bot or Character author',
+  /CREATE TRIGGER `ReviewDraft_single_author_chk_ins` BEFORE INSERT ON `ReviewDraft`[\s\S]*?\(NEW\.`authorBotId` IS NULL\) = \(NEW\.`authorCharacterId` IS NULL\)[\s\S]*?SIGNAL SQLSTATE '45000'/,
+  'each draft must have exactly one Bot or Character author on insert',
+)
+assert.match(
+  sql,
+  /CREATE TRIGGER `ReviewDraft_single_author_chk_upd` BEFORE UPDATE ON `ReviewDraft`[\s\S]*?\(NEW\.`authorBotId` IS NULL\) = \(NEW\.`authorCharacterId` IS NULL\)[\s\S]*?SIGNAL SQLSTATE '45000'/,
+  'each draft must have exactly one Bot or Character author on update',
 )
 assert.match(sql, /CHECK \(`rating` >= 0 AND `rating` <= 5\)/)
+assert.doesNotMatch(
+  sql,
+  /CHECK\s*\(\(?`authorBotId`/i,
+  'CHECK constraints on FK columns fail on MariaDB (error 1901) — use triggers instead',
+)
 
 for (const destructive of [
   /DROP\s+TABLE/i,

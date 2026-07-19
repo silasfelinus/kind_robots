@@ -15,6 +15,26 @@ ALTER TABLE `Reaction`
     ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `Reaction_authorCharacterId_fkey`
     FOREIGN KEY (`authorCharacterId`) REFERENCES `Character`(`id`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `Reaction_firstPartyAuthor_check`
-    CHECK (`authorBotId` IS NULL OR `authorCharacterId` IS NULL);
+    ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- MariaDB rejects a CHECK constraint on a column that also carries a FOREIGN
+-- KEY (error 1901, "Function or expression '<col>' cannot be used in the
+-- CHECK clause"), in either statement order. Enforce the same "at most one
+-- first-party author" invariant with triggers instead.
+CREATE TRIGGER `Reaction_firstPartyAuthor_check_ins` BEFORE INSERT ON `Reaction`
+FOR EACH ROW
+BEGIN
+  IF NEW.`authorBotId` IS NOT NULL AND NEW.`authorCharacterId` IS NOT NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Reaction_firstPartyAuthor_check: authorBotId and authorCharacterId cannot both be set';
+  END IF;
+END;
+
+CREATE TRIGGER `Reaction_firstPartyAuthor_check_upd` BEFORE UPDATE ON `Reaction`
+FOR EACH ROW
+BEGIN
+  IF NEW.`authorBotId` IS NOT NULL AND NEW.`authorCharacterId` IS NOT NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Reaction_firstPartyAuthor_check: authorBotId and authorCharacterId cannot both be set';
+  END IF;
+END;

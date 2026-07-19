@@ -83,6 +83,7 @@ jobs:
           if (config.stage !== 'publish') {
             assert.deepEqual(config.publications, [])
           }
+          assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
           assert.equal(config.component.id, 96)
           assert.equal(config.component.sourceKey, 'components/bots/bot-card.vue')
           assert.deepEqual(
@@ -133,27 +134,35 @@ jobs:
           echo "WONDERLAB_REVIEW_ACTION=${stage}" >> "$GITHUB_ENV"
           echo "Selected WonderLab review acceptance stage: ${stage}"
 
-      - name: Wait for this change to reach production
+      - name: Verify compatible production runtime
         env:
           BASE_URL: https://kind-robots.vercel.app
-          TARGET_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
+          baseline_sha="$(jq -r '.minimumProductionCommit // empty' config/wonderlab-review-acceptance.json)"
+          if ! printf '%s' "$baseline_sha" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo '::error::minimumProductionCommit must be a full 40-character commit SHA.'
+            exit 1
+          fi
+
+          git fetch --quiet --no-tags origin main
+          if ! git cat-file -e "${baseline_sha}^{commit}" 2>/dev/null; then
+            echo "::error::Configured production baseline ${baseline_sha} is not available in repository history."
+            exit 1
+          fi
+
           for attempt in $(seq 1 60); do
             payload="$(curl -sS --max-time 20 "${BASE_URL}/api/version" || true)"
             live_sha="$(printf '%s' "$payload" | jq -r 'if .success == true then .data.commit // empty else empty end' 2>/dev/null || true)"
-            if [ -n "$live_sha" ]; then
-              git fetch --quiet --no-tags origin main || true
-              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live_sha"; then
-                printf '%s\n' "$payload" > production-version.json
-                echo "Production contains ${TARGET_SHA} at live commit ${live_sha}."
-                exit 0
-              fi
+            if [ -n "$live_sha" ] && bash scripts/check-deploy-ancestry.sh "$baseline_sha" "$live_sha"; then
+              printf '%s\n' "$payload" > production-version.json
+              echo "Production live commit ${live_sha} contains required runtime baseline ${baseline_sha}."
+              exit 0
             fi
-            echo "Production has not reached ${TARGET_SHA} yet (${attempt}/60; live=${live_sha:-unknown})."
+            echo "Production is not compatible with runtime baseline ${baseline_sha} yet (${attempt}/60; live=${live_sha:-unknown})."
             sleep 10
           done
-          echo "::error::Production did not deploy ${TARGET_SHA} or a descendant."
+          echo "::error::Production did not reach runtime baseline ${baseline_sha} or a descendant."
           exit 1
 
       - name: Run gated acceptance stage

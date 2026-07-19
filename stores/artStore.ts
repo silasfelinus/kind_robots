@@ -167,12 +167,30 @@ type ArtImagePatchInput = Partial<ArtImage> & {
   connectedModelId?: number | null
 }
 
-type ArtImageCreateInput = Partial<ArtImage> &
-  Record<string, unknown> & {
-    rarity?: number | null
-    connectedModelType?: string | null
-    connectedModelId?: number | null
-  }
+type ArtImageCreateInput = {
+  imageData?: string | null
+  thumbnailData?: string | null
+  fileName?: string | null
+  fileType?: string | null
+  imagePath?: string | null
+  path?: string | null
+  promptString?: string | null
+  artPrompt?: string | null
+  negativePrompt?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  designer?: string | null
+  genres?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  isActive?: boolean | null
+  serverName?: string | null
+  serverUrl?: string | null
+}
 
 type ArtStoreState = {
   artImages: ArtImage[]
@@ -1045,9 +1063,34 @@ export const useArtStore = defineStore('artStore', () => {
     try {
       clearError()
 
+      const payload: ArtImageCreateInput = {
+        imageData: input.imageData,
+        thumbnailData: input.thumbnailData,
+        fileName: input.fileName,
+        fileType: input.fileType,
+        imagePath: input.imagePath,
+        path: input.path,
+        promptString: input.promptString,
+        artPrompt: input.artPrompt,
+        negativePrompt: input.negativePrompt,
+        checkpoint: input.checkpoint,
+        sampler: input.sampler,
+        seed: input.seed,
+        steps: input.steps,
+        cfg: input.cfg,
+        cfgHalf: input.cfgHalf,
+        designer: input.designer,
+        genres: input.genres,
+        isPublic: input.isPublic,
+        isMature: input.isMature,
+        isActive: input.isActive,
+        serverName: input.serverName,
+        serverUrl: input.serverUrl,
+      }
+
       const response = await performFetch<ArtImage>('/api/art/image', {
         method: 'POST',
-        body: JSON.stringify(input),
+        body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
       })
 

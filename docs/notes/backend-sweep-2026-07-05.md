@@ -33,7 +33,7 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art resources and browser health reports enforce ownership; log reads, writes, and deletion are self-scoped with admin override.
+Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art upload, ArtImage create/collections, browser health reports, and logs enforce ownership.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |

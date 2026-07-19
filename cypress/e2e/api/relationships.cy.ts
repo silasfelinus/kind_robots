@@ -187,7 +187,6 @@ describe('Relationship API Tests', () => {
       imagePath: `/images/test/relationship-${time}.webp`,
       fileName: `relationship-${time}.webp`,
       fileType: 'webp',
-      userId,
       seed: null,
       steps: 10,
       isPublic: false,

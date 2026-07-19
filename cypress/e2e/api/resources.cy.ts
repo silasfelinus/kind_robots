@@ -43,6 +43,7 @@ describe('Resource Management API Tests', () => {
   let batchResourceId: number | undefined
 
   const headers = () => bearerHeaders(userToken)
+  const spoofedUserId = () => (userId ?? 0) + 1_000_000
 
   const expectLeanMutation = (resource: Record<string, unknown>) => {
     expect(resource).to.not.have.property('User')
@@ -114,6 +115,25 @@ describe('Resource Management API Tests', () => {
     })
   })
 
+  it('rejects Resource creation with spoofed ownership', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: {
+        name: `Spoofed-${uniqueResourceName}`,
+        resourceType: 'URL',
+        supportedServer: 'GENERIC',
+        userId: spoofedUserId(),
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Ownership is server-owned')
+    })
+  })
+
   it('creates one Resource with a lean mutation response', () => {
     cy.request<ApiResponse<ResourceRow>>({
       method: 'POST',
@@ -179,6 +199,31 @@ describe('Resource Management API Tests', () => {
     })
   })
 
+  it('rejects spoofed ownership in Resource batches', () => {
+    cy.request<ApiResponse<ResourceBatchData>>({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
+      headers: headers(),
+      body: [
+        {
+          name: `SpoofedBatch-${stamp}`,
+          resourceType: 'LORA',
+          supportedServer: 'SDXL',
+          userId: spoofedUserId(),
+        },
+      ],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.data?.created).to.have.length(0)
+      expect(response.body.data?.failed).to.have.length(1)
+      expect(response.body.data?.failed[0].message).to.include(
+        'Ownership is server-owned',
+      )
+    })
+  })
+
   it('uses the explicit batch route for created, skipped, and failed rows', () => {
     cy.request<ApiResponse<ResourceBatchData>>({
       method: 'POST',
@@ -214,6 +259,24 @@ describe('Resource Management API Tests', () => {
       )
 
       batchResourceId = response.body.data?.created[0].id
+    })
+  })
+
+  it('rejects Resource ownership reassignment on update', () => {
+    expect(resourceId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'PATCH',
+      url: `${baseUrl}/${resourceId}`,
+      headers: headers(),
+      body: {
+        userId: spoofedUserId(),
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Ownership is server-owned')
     })
   })
 

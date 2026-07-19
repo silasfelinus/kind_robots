@@ -1,0 +1,39 @@
+name: Resource Mutation Ownership
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/resources/create.ts'
+      - 'server/api/resources/index.post.ts'
+      - 'server/api/resources/batch.post.ts'
+      - 'server/api/resources/[id].patch.ts'
+      - 'cypress/e2e/api/resources.cy.ts'
+      - 'utils/scripts/verifyResourceMutationOwnership.ts'
+      - '.github/workflows/resource-mutation-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify Resource ownership boundary
+        run: npx tsx utils/scripts/verifyResourceMutationOwnership.ts

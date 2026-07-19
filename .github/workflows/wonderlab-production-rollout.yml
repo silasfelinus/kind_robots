@@ -1,6 +1,11 @@
 name: WonderLab Production Rollout
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-production-rollout.yml'
+      - 'scripts/wonderlab-production-rollout.mjs'
   push:
     branches: [main]
     paths:
@@ -18,17 +23,73 @@ permissions:
   contents: read
 
 concurrency:
-  group: wonderlab-production-rollout
+  group: wonderlab-production-rollout-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  validate:
+    name: Validate rollout runner
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Check rollout script syntax and safety boundary
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-production-rollout.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert/strict')
+          const source = fs.readFileSync('scripts/wonderlab-production-rollout.mjs', 'utf8')
+
+          for (const required of [
+            "'/wonderlab-components.json'",
+            "'/api/components/reconcile'",
+            "'/api/components'",
+            "'/api/admin/wonderlab/review-rollout'",
+            "mode: 'dry-run'",
+            "mode: 'apply'",
+            'WONDERLAB_ROLLOUT_APPLY',
+          ]) {
+            assert.ok(source.includes(required), `missing required rollout boundary: ${required}`)
+          }
+
+          for (const forbidden of [
+            '/generate',
+            '/publish',
+            '/approve',
+            'ReviewDraft',
+            'Reaction',
+            'DATABASE_URL',
+            '_prisma_migrations',
+          ]) {
+            assert.ok(!source.includes(forbidden), `rollout runner crossed forbidden boundary: ${forbidden}`)
+          }
+
+          assert.match(source, /if \(Number\(drySummary\.conflicts \|\| 0\) !== 0\)/)
+          assert.match(source, /reviewCount === 0/)
+          assert.match(source, /record\.isDiscovered !== true/)
+          assert.match(source, /!record\.sourceKey/)
+          assert.match(source, /!record\.sourcePath/)
+          console.log('WonderLab production rollout safety contract passed.')
+          NODE
+
   reconcile:
     name: Reconcile and audit WonderLab
     # The tagged merge runs this once automatically. Later workflow edits remain
     # inert unless explicitly dispatched or deliberately tagged again.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      contains(github.event.head_commit.message, '[wonderlab-rollout]')
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-rollout]'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
 

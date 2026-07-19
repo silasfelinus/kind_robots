@@ -13,6 +13,7 @@ import {
   type ScenarioPostInput,
   type SkippedScenario,
 } from './create'
+import { SCENARIO_BATCH_LIMIT } from './mutation'
 import {
   scenarioMutationSelect,
   type ScenarioMutationResult,
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<ScenarioPostInput[]>(event)
+    const body = await readBody<unknown>(event)
 
     if (!Array.isArray(body) || !body.length) {
       throw createError({
@@ -38,15 +39,23 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (body.length > SCENARIO_BATCH_LIMIT) {
+      throw createError({
+        statusCode: 400,
+        message: `Scenario batch may contain at most ${SCENARIO_BATCH_LIMIT} entries.`,
+      })
+    }
+
     const created: ScenarioMutationResult[] = []
     const skipped: SkippedScenario[] = []
     const failed: FailedScenario[] = []
 
-    for (const scenarioData of body) {
+    for (const rawScenarioData of body) {
+      const scenarioData = rawScenarioData as ScenarioPostInput
       const fallbackTitle = fallbackScenarioTitle(scenarioData)
 
       try {
-        const createInput = buildScenarioCreateInput(scenarioData, user.id)
+        const createInput = await buildScenarioCreateInput(scenarioData, user.id)
         const existingScenario = await findExistingScenario(
           createInput.title,
           user.id,

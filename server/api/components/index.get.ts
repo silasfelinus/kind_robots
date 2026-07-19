@@ -3,6 +3,7 @@ import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
 import { getOptionalApiUser } from '../../utils/authGuard'
+import { projectComponentForViewer } from '../../utils/componentProjection'
 import type { ComponentCatalogItem } from '@/utils/wonderlab/componentCatalog'
 
 export default defineEventHandler(async (event) => {
@@ -60,10 +61,7 @@ export default defineEventHandler(async (event) => {
         lastReviewedAt: metrics?.lastReviewedAt ?? null,
       }
 
-      if (auth?.isAdmin) return catalogItem
-
-      const { notes: _internalNotes, ...publicCatalogItem } = catalogItem
-      return publicCatalogItem
+      return projectComponentForViewer(catalogItem, auth?.isAdmin === true)
     })
 
     return {

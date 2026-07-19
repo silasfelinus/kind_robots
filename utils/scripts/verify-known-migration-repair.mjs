@@ -176,6 +176,16 @@ assert.match(
   /withConnectionRetry[\s\S]*repairKnownFailedMigrations[\s\S]*await runPrismaMigrate/,
 )
 
+// Migrations must resolve the same URL Prisma uses (MIGRATION_DATABASE_URL ??
+// DATABASE_URL) and force SSL onto it — otherwise a MIGRATION_DATABASE_URL set
+// without TLS params bypasses ProxySQL's SSL requirement and fails with P1000.
+assert.match(
+  deploySource,
+  /process\.env\.MIGRATION_DATABASE_URL\s*\?\?\s*process\.env\.DATABASE_URL/,
+)
+// ...and both vars are forced to the SSL-augmented URL in the child prisma env.
+assert.match(deploySource, /MIGRATION_DATABASE_URL:\s*url/)
+
 // --- Connection-retry classification ---------------------------------------
 // Transient connection-level failures are retryable...
 assert.equal(

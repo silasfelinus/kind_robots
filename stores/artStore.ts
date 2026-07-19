@@ -156,27 +156,8 @@ export interface ArtGenerationRequirement {
 }
 
 type ArtImageConnectionInput = {
-  userId?: number | null
-  serverId?: number | null
-  checkpointResourceId?: number | null
-
-  dreamIds?: number[]
-  scenarioIds?: number[]
-  reactionIds?: number[]
-  butterflyIds?: number[]
   artCollectionIds?: number[]
-
-  disconnectDreamIds?: number[]
-  disconnectScenarioIds?: number[]
-  disconnectReactionIds?: number[]
-  disconnectButterflyIds?: number[]
   disconnectArtCollectionIds?: number[]
-
-  clearDirectLinks?: boolean
-  clearDreams?: boolean
-  clearScenarios?: boolean
-  clearReactions?: boolean
-  clearButterflies?: boolean
   clearArtCollections?: boolean
 }
 
@@ -1360,15 +1341,6 @@ export const useArtStore = defineStore('artStore', () => {
     })
   }
 
-  async function updateArtImageDreams(
-    id: number,
-    dreamIds: number[],
-  ): Promise<ApiResponse<ArtImage>> {
-    return await updateArtImageConnections(id, {
-      dreamIds,
-    })
-  }
-
   async function addArtImageToCollection(
     collectionId: number,
     artImageId: number,
@@ -2504,7 +2476,6 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImageConnections,
     updateArtImage,
     createArtImage,
-    updateArtImageDreams,
     fetchArtImageWithDreams,
 
     showMature,

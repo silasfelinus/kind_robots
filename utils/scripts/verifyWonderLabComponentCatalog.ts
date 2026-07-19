@@ -140,7 +140,9 @@ assert.doesNotMatch(apiSource, /include:[\s\S]*?Reactions/)
 
 assert.match(storeSource, /ComponentCatalogItem\[\]/)
 assert.match(storeSource, /loadSnapshot<ComponentCatalogItem>/)
-assert.match(storeSource, /\.\.\.components\.value\[index\]/)
+assert.match(storeSource, /const merged: ComponentCatalogItem/)
+assert.match(storeSource, /\.\.\.existing/)
 assert.match(storeSource, /\.\.\.updated/)
+assert.match(storeSource, /selectedComponent\.value = merged/)
 
 console.log('WonderLab Component catalog metrics and sorting contract passed.')

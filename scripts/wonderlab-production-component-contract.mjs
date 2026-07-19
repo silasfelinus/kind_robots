@@ -83,7 +83,10 @@ const report = {
   baseUrl,
   checkedAt: new Date().toISOString(),
   recordCount: payload.data.length,
+  canonicalStatusRecordCount: payload.data.length - invalidStatusRows.length,
   discoveredCount,
+  completeDiscoveredIdentityCount:
+    discoveredCount - incompleteDiscoveredRows.length,
   databaseOnlyCount: payload.data.length - discoveredCount,
   statusCounts,
   invalidStatusCount: invalidStatusRows.length,

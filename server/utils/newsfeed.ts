@@ -169,6 +169,7 @@ export function normalizeEntry(
     title: sanitizeText(raw.title, MAX_TITLE_LENGTH),
     summary: raw.description ? sanitizeText(raw.description) : '',
     source: source.name,
+    sourceId: source.id,
     url: raw.link,
     publishedAt: parseDate(raw.pubDate),
     category: raw.categories,

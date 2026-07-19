@@ -71,7 +71,10 @@
       </div>
     </header>
 
-    <NewsfeedPreferences v-if="showManageFeeds" />
+    <div v-if="showManageFeeds" class="flex flex-col gap-3">
+      <NewsfeedPreferences />
+      <NewsfeedFilters :items="rawItems" />
+    </div>
 
     <div
       v-if="errorMessage"
@@ -124,7 +127,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { getFeedDefinition, type NewsFeedItem } from '@/stores/helpers/newsfeed'
+import {
+  applyNewsfeedFilters,
+  getFeedDefinition,
+  type NewsFeedItem,
+} from '@/stores/helpers/newsfeed'
 import { useFeedPreferenceStore } from '@/stores/feedPreferenceStore'
 
 const props = withDefaults(
@@ -162,7 +169,10 @@ const pageSize = 12
 const visibleLimit = ref(props.initialLimit || pageSize)
 let hasLoadedOnce = false
 
-const allItems = computed<NewsFeedItem[]>(() => {
+// Unfiltered union across every loaded feed -- also what NewsfeedFilters uses
+// to derive its category chip list, so a category disappearing behind an
+// active filter doesn't also remove the chip that would clear it.
+const rawItems = computed<NewsFeedItem[]>(() => {
   const seen = new Set<string>()
   const merged: NewsFeedItem[] = []
 
@@ -177,11 +187,25 @@ const allItems = computed<NewsFeedItem[]>(() => {
   return merged.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
 })
 
+function filterPrefs() {
+  return {
+    includeKeywords: feedPreferenceStore.includeKeywords,
+    excludeKeywords: feedPreferenceStore.excludeKeywords,
+    disabledSourceIds: feedPreferenceStore.disabledSourceIds,
+    selectedCategories: feedPreferenceStore.selectedCategories,
+    sortMode: feedPreferenceStore.sortMode,
+  }
+}
+
+const allItems = computed<NewsFeedItem[]>(() =>
+  applyNewsfeedFilters(rawItems.value, filterPrefs()),
+)
+
 const visibleItems = computed<NewsFeedItem[]>(() => {
   if (activeSlug.value === 'all') return allItems.value
-  return (
+  const groupItems =
     groups.value.find((group) => group.slug === activeSlug.value)?.items ?? []
-  )
+  return applyNewsfeedFilters(groupItems, filterPrefs())
 })
 
 const displayedItems = computed(() =>

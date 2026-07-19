@@ -15,8 +15,13 @@ import {
   FEED_DEFINITIONS,
   defaultEnabledFeedSlugs,
   getFeedDefinition,
+  getFeedSources,
   isFeedSlug,
+  isFeedSourceId,
+  sanitizeKeywordList,
   type FeedDefinition,
+  type FeedSortMode,
+  type FeedSourceDefinition,
   type PerspectiveMode,
   type PerspectiveWeights,
 } from '@/stores/helpers/newsfeed'
@@ -27,6 +32,11 @@ export interface NewsfeedPreferences {
   perspectiveWeights: PerspectiveWeights
   labelsVisible: boolean
   contrastPreference: boolean
+  includeKeywords: string[]
+  excludeKeywords: string[]
+  disabledSourceIds: string[]
+  selectedCategories: string[]
+  sortMode: FeedSortMode
 }
 
 const isClient = typeof window !== 'undefined'
@@ -57,6 +67,11 @@ function defaultPreferences(): NewsfeedPreferences {
     perspectiveWeights: { ...DEFAULT_PERSPECTIVE_WEIGHTS },
     labelsVisible: true,
     contrastPreference: false,
+    includeKeywords: [],
+    excludeKeywords: [],
+    disabledSourceIds: [],
+    selectedCategories: [],
+    sortMode: 'recent',
   }
 }
 
@@ -97,6 +112,35 @@ function sanitizePerspectiveMode(value: unknown): PerspectiveMode {
     : 'balanced'
 }
 
+// Never trust stored source ids blindly -- same "registry may change" concern
+// as sanitizeSlugs above.
+function sanitizeSourceIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  const seen = new Set<string>()
+  const clean: string[] = []
+  for (const value of raw) {
+    if (
+      typeof value === 'string' &&
+      isFeedSourceId(value) &&
+      !seen.has(value)
+    ) {
+      seen.add(value)
+      clean.push(value)
+    }
+  }
+  return clean
+}
+
+// Categories are free-form strings sourced from live feed items, not a fixed
+// registry -- just bound the list length/size rather than validate membership.
+function sanitizeCategories(raw: unknown): string[] {
+  return sanitizeKeywordList(raw)
+}
+
+function sanitizeSortMode(value: unknown): FeedSortMode {
+  return value === 'relevance' ? 'relevance' : 'recent'
+}
+
 function parsePreferences(raw: string | null): NewsfeedPreferences {
   const fallback = defaultPreferences()
   if (!raw) return fallback
@@ -121,6 +165,11 @@ function parsePreferences(raw: string | null): NewsfeedPreferences {
         typeof parsed.contrastPreference === 'boolean'
           ? parsed.contrastPreference
           : fallback.contrastPreference,
+      includeKeywords: sanitizeKeywordList(parsed.includeKeywords),
+      excludeKeywords: sanitizeKeywordList(parsed.excludeKeywords),
+      disabledSourceIds: sanitizeSourceIds(parsed.disabledSourceIds),
+      selectedCategories: sanitizeCategories(parsed.selectedCategories),
+      sortMode: sanitizeSortMode(parsed.sortMode),
     }
   } catch {
     return fallback
@@ -135,6 +184,11 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
   })
   const labelsVisible = ref(true)
   const contrastPreference = ref(false)
+  const includeKeywords = ref<string[]>([])
+  const excludeKeywords = ref<string[]>([])
+  const disabledSourceIds = ref<string[]>([])
+  const selectedCategories = ref<string[]>([])
+  const sortMode = ref<FeedSortMode>('recent')
   const isHydrated = ref(false)
 
   const enabledFeeds = computed<FeedDefinition[]>(() =>
@@ -148,6 +202,22 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     return FEED_DEFINITIONS.filter((feed) => !enabledSet.has(feed.slug))
   })
 
+  // Sources across every currently-enabled feed, deduped -- what the source
+  // toggle UI offers. A source disabled here stays disabled even if it also
+  // belongs to another enabled feed.
+  const availableSources = computed<FeedSourceDefinition[]>(() => {
+    const seen = new Set<string>()
+    const sources: FeedSourceDefinition[] = []
+    for (const feed of enabledFeeds.value) {
+      for (const source of getFeedSources(feed)) {
+        if (seen.has(source.id)) continue
+        seen.add(source.id)
+        sources.push(source)
+      }
+    }
+    return sources
+  })
+
   function persist(): void {
     const payload: NewsfeedPreferences = {
       enabledFeedSlugs: enabledFeedSlugs.value,
@@ -155,6 +225,11 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
       perspectiveWeights: perspectiveWeights.value,
       labelsVisible: labelsVisible.value,
       contrastPreference: contrastPreference.value,
+      includeKeywords: includeKeywords.value,
+      excludeKeywords: excludeKeywords.value,
+      disabledSourceIds: disabledSourceIds.value,
+      selectedCategories: selectedCategories.value,
+      sortMode: sortMode.value,
     }
     safeSetLocalStorage(storageKey, JSON.stringify(payload))
   }
@@ -168,6 +243,11 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     perspectiveWeights.value = parsed.perspectiveWeights
     labelsVisible.value = parsed.labelsVisible
     contrastPreference.value = parsed.contrastPreference
+    includeKeywords.value = parsed.includeKeywords
+    excludeKeywords.value = parsed.excludeKeywords
+    disabledSourceIds.value = parsed.disabledSourceIds
+    selectedCategories.value = parsed.selectedCategories
+    sortMode.value = parsed.sortMode
     isHydrated.value = true
   }
 
@@ -228,6 +308,62 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     persist()
   }
 
+  function addIncludeKeyword(word: string): void {
+    includeKeywords.value = sanitizeKeywordList([
+      ...includeKeywords.value,
+      word,
+    ])
+    persist()
+  }
+
+  function removeIncludeKeyword(word: string): void {
+    includeKeywords.value = includeKeywords.value.filter((w) => w !== word)
+    persist()
+  }
+
+  function addExcludeKeyword(word: string): void {
+    excludeKeywords.value = sanitizeKeywordList([
+      ...excludeKeywords.value,
+      word,
+    ])
+    persist()
+  }
+
+  function removeExcludeKeyword(word: string): void {
+    excludeKeywords.value = excludeKeywords.value.filter((w) => w !== word)
+    persist()
+  }
+
+  function isSourceDisabled(sourceId: string): boolean {
+    return disabledSourceIds.value.includes(sourceId)
+  }
+
+  function toggleSource(sourceId: string): void {
+    disabledSourceIds.value = isSourceDisabled(sourceId)
+      ? disabledSourceIds.value.filter((id) => id !== sourceId)
+      : [...disabledSourceIds.value, sourceId]
+    persist()
+  }
+
+  function toggleCategory(category: string): void {
+    const trimmed = category.trim()
+    if (!trimmed) return
+    const exists = selectedCategories.value.some(
+      (c) => c.toLowerCase() === trimmed.toLowerCase(),
+    )
+    selectedCategories.value = exists
+      ? selectedCategories.value.filter(
+          (c) => c.toLowerCase() !== trimmed.toLowerCase(),
+        )
+      : sanitizeKeywordList([...selectedCategories.value, trimmed])
+    persist()
+  }
+
+  function setSortMode(mode: FeedSortMode): void {
+    sortMode.value = mode
+    persist()
+  }
+
   function resetToDefaults(): void {
     const fallback = defaultPreferences()
     enabledFeedSlugs.value = fallback.enabledFeedSlugs
@@ -235,6 +371,11 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     perspectiveWeights.value = fallback.perspectiveWeights
     labelsVisible.value = fallback.labelsVisible
     contrastPreference.value = fallback.contrastPreference
+    includeKeywords.value = fallback.includeKeywords
+    excludeKeywords.value = fallback.excludeKeywords
+    disabledSourceIds.value = fallback.disabledSourceIds
+    selectedCategories.value = fallback.selectedCategories
+    sortMode.value = fallback.sortMode
     persist()
   }
 
@@ -244,10 +385,16 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     perspectiveWeights,
     labelsVisible,
     contrastPreference,
+    includeKeywords,
+    excludeKeywords,
+    disabledSourceIds,
+    selectedCategories,
+    sortMode,
     isHydrated,
 
     enabledFeeds,
     availableFeeds,
+    availableSources,
 
     hydrate,
     isFeedEnabled,
@@ -259,6 +406,14 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     setPerspectiveWeights,
     setLabelsVisible,
     setContrastPreference,
+    addIncludeKeyword,
+    removeIncludeKeyword,
+    addExcludeKeyword,
+    removeExcludeKeyword,
+    isSourceDisabled,
+    toggleSource,
+    toggleCategory,
+    setSortMode,
     resetToDefaults,
   }
 })

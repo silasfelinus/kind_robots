@@ -88,6 +88,12 @@ jobs:
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 
+      - name: Newsfeed aggregation contract
+        run: npm run test:newsfeed-aggregation
+
+      - name: Newsfeed programmable filters contract
+        run: npm run test:newsfeed-filters
+
       - name: WonderLab test-fixture cleanup contract
         run: npm run test:wonderlab-fixture-cleanup
 

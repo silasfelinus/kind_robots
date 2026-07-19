@@ -59,7 +59,10 @@ export interface NewsFeedItem {
   id: string
   title: string
   summary: string
+  /** Display name (FeedSourceDefinition.name) -- not stable across renames. */
   source: string
+  /** Stable FeedSourceDefinition.id, for preference-driven source toggles (t-008). */
+  sourceId: string
   url: string
   publishedAt: string
   category: string[]
@@ -302,4 +305,125 @@ export function defaultEnabledFeedSlugs(): string[] {
 
 export function isFeedSlug(value: string): boolean {
   return feedsBySlug.has(value)
+}
+
+export function isFeedSourceId(value: string): boolean {
+  return sourcesById.has(value)
+}
+
+// --- Programmable feed filters (t-008) -----------------------------------
+// A declarative configuration layer applied client-side to already-fetched
+// items -- never arbitrary executable user code (DESIGN-BRIEF.md). Kept here
+// (not in the store or a component) so it stays a pure, dependency-free
+// function the store, feed component, and a tsx verify script can all share.
+
+export interface NewsfeedFilterPreferences {
+  /** Item matches if title/summary/category contains ANY of these (OR). Empty = no restriction. */
+  includeKeywords: string[]
+  /** Item is dropped if title/summary/category contains ANY of these. */
+  excludeKeywords: string[]
+  /** Source ids to hide even when their parent feed is enabled. */
+  disabledSourceIds: string[]
+  /** Item must carry at least one of these categories. Empty = no restriction. */
+  selectedCategories: string[]
+  sortMode: FeedSortMode
+}
+
+export const MAX_KEYWORD_FILTERS = 20
+export const MAX_KEYWORD_LENGTH = 60
+
+function itemHaystack(item: NewsFeedItem): string {
+  return [item.title, item.summary, ...item.category].join(' ').toLowerCase()
+}
+
+function matchesKeywordFilters(
+  item: NewsFeedItem,
+  includeKeywords: string[],
+  excludeKeywords: string[],
+): boolean {
+  const haystack = itemHaystack(item)
+
+  if (excludeKeywords.some((word) => haystack.includes(word.toLowerCase()))) {
+    return false
+  }
+  if (includeKeywords.length) {
+    return includeKeywords.some((word) => haystack.includes(word.toLowerCase()))
+  }
+  return true
+}
+
+function matchesCategoryFilter(
+  item: NewsFeedItem,
+  selectedCategories: string[],
+): boolean {
+  if (!selectedCategories.length) return true
+  const itemCategories = new Set(item.category.map((c) => c.toLowerCase()))
+  return selectedCategories.some((category) =>
+    itemCategories.has(category.toLowerCase()),
+  )
+}
+
+function keywordMatchCount(
+  item: NewsFeedItem,
+  includeKeywords: string[],
+): number {
+  if (!includeKeywords.length) return 0
+  const haystack = itemHaystack(item)
+  return includeKeywords.reduce(
+    (count, word) => count + (haystack.includes(word.toLowerCase()) ? 1 : 0),
+    0,
+  )
+}
+
+/**
+ * Applies a user's declarative filters and sort mode to already-fetched
+ * items. Pure and side-effect-free -- safe to call on every render.
+ * `relevance` ranks by include-keyword match count (ties broken by
+ * recency) and behaves identically to `recent` when no include keywords
+ * are set, since there is nothing to rank by.
+ */
+export function applyNewsfeedFilters(
+  items: NewsFeedItem[],
+  prefs: NewsfeedFilterPreferences,
+): NewsFeedItem[] {
+  const filtered = items.filter(
+    (item) =>
+      !prefs.disabledSourceIds.includes(item.sourceId) &&
+      matchesKeywordFilters(
+        item,
+        prefs.includeKeywords,
+        prefs.excludeKeywords,
+      ) &&
+      matchesCategoryFilter(item, prefs.selectedCategories),
+  )
+
+  if (prefs.sortMode === 'relevance' && prefs.includeKeywords.length) {
+    return filtered.sort((a, b) => {
+      const scoreDiff =
+        keywordMatchCount(b, prefs.includeKeywords) -
+        keywordMatchCount(a, prefs.includeKeywords)
+      if (scoreDiff !== 0) return scoreDiff
+      return a.publishedAt < b.publishedAt ? 1 : -1
+    })
+  }
+
+  return filtered.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
+}
+
+/** Trims, dedupes (case-insensitive), drops empties, and bounds a keyword list. */
+export function sanitizeKeywordList(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  const seen = new Set<string>()
+  const clean: string[] = []
+  for (const value of raw) {
+    if (typeof value !== 'string') continue
+    const trimmed = value.trim().slice(0, MAX_KEYWORD_LENGTH)
+    if (!trimmed) continue
+    const key = trimmed.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    clean.push(trimmed)
+    if (clean.length >= MAX_KEYWORD_FILTERS) break
+  }
+  return clean
 }

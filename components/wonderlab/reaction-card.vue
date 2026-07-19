@@ -304,7 +304,6 @@ async function submitReaction() {
   try {
     await reactionStore.addReaction({
       ...getReactionTargetPayload(props.targetType, props.targetId),
-      userId: userStore.user.id,
       rating: rating.value,
       reactionType: selectedReactionType.value,
       comment: comment.value.trim(),

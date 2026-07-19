@@ -11,7 +11,6 @@ import {
 } from '~/prisma/generated/prisma/client'
 
 type ReactionBody = Record<string, unknown> & {
-  userId?: unknown
   reactionType?: unknown
   reactionCategory?: unknown
   comment?: unknown
@@ -32,7 +31,6 @@ type ReactionBody = Record<string, unknown> & {
 }
 
 const REACTION_CREATE_FIELDS = new Set([
-  'userId',
   'reactionType',
   'reactionCategory',
   'comment',
@@ -86,25 +84,6 @@ function assertReactionCreateFields(body: ReactionBody): void {
     throw createError({
       statusCode: 400,
       message: `Unsupported Reaction create fields: ${unsupportedFields.join(', ')}. IDs, timestamps, and system fields are server-owned.`,
-    })
-  }
-}
-
-function assertReactionOwnershipMatchesAuthentication(
-  value: unknown,
-  authenticatedUserId: number,
-): void {
-  if (value === undefined) return
-
-  const requestedUserId = Number(value)
-
-  if (
-    !Number.isInteger(requestedUserId) ||
-    requestedUserId !== authenticatedUserId
-  ) {
-    throw createError({
-      statusCode: 400,
-      message: 'Unsupported Reaction ownership assignment. Ownership is server-owned.',
     })
   }
 }
@@ -385,7 +364,6 @@ export default defineEventHandler(async (event) => {
     }
 
     assertReactionCreateFields(body)
-    assertReactionOwnershipMatchesAuthentication(body.userId, user.id)
 
     const reactionType = normalizeReactionType(body.reactionType)
     const reactionCategory = normalizeReactionCategory(body.reactionCategory)

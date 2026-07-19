@@ -35,6 +35,7 @@ export type ExtraTutorialKey =
   | 'scoop-cms'
   | 'mermaids'
   | 'packs'
+  | 'wonder'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -532,6 +533,22 @@ export const tutorialChannels = {
       },
     ],
   },
+
+  wonder: {
+    key: 'wonder',
+    title: 'WonderLab',
+    tagline: 'Experimental toys, tests, and delightful nonsense.',
+    overview:
+      'WonderLab is the workshop wing of Kind Robots -- games, generative sims, and the Newsfeed, all still earning their shoes.',
+    sections: [
+      {
+        key: 'newsfeed',
+        title: 'Newsfeed',
+        body: 'A programmable, remixable homepage feed of fresh art, stories, and milestones. Pick which feeds show up, filter by keyword or category, and dial in perspective balance from the Manage feeds panel.',
+        image: tutorialImage('wonder', 'newsfeed'),
+      },
+    ],
+  },
 } as const satisfies Record<TutorialChannelKey, TutorialChannel>
 
 export const tutorialChannelKeys = Object.keys(
@@ -547,6 +564,7 @@ const tutorialRouteMap = {
   'scoop-cms': '/scoop-cms',
   mermaids: '/mermaids',
   packs: '/packs',
+  wonder: '/newsfeed',
 } as const satisfies Record<TutorialChannelKey, string>
 
 export function isTutorialChannelKey(

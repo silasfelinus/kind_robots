@@ -108,7 +108,10 @@
       ]"
     >
       <aside
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        :class="[
+          'min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100',
+          selectedComponent ? 'hidden xl:flex' : 'flex',
+        ]"
       >
         <div class="shrink-0 border-b border-base-300 p-3">
           <div class="grid gap-2">

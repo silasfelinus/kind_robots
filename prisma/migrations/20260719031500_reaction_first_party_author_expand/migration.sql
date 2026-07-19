@@ -1,23 +1,26 @@
-LS0gRXhwYW5kLW9ubHkgbWlncmF0aW9uIGZvciBmaXJzdC1wYXJ0eSBCb3QvQ2hhcmFjdGVyIHJl
-dmlldyBhdXRob3JzaGlwLgotLSBSZWFjdGlvbi51c2VySWQgcmVtYWlucyB0aGUgYXV0aGVudGlj
-YXRlZCBwdWJsaXNoZXIvYWNjb3VudGFiaWxpdHkgaWRlbnRpdHkuCi0tIEV4aXN0aW5nIGh1bWFu
-IGFuZCB0YXJnZXQtcmVsYXRpb24gZmllbGRzIGFyZSB1bmNoYW5nZWQuCgpBTFRFUiBUQUJMRSBg
-UmVhY3Rpb25gCiAgQUREIENPTFVNTiBgYXV0aG9yQm90SWRgIElOVEVHRVIgTlVMTCwKICBBREQg
-Q09MVU1OIGBhdXRob3JDaGFyYWN0ZXJJZGAgSU5URUdFUiBOVUxMOwoKQ1JFQVRFIElOREVYIGBS
-ZWFjdGlvbl9hdXRob3JCb3RJZF9pZHhgIE9OIGBSZWFjdGlvbmAoYGF1dGhvckJvdElkYCk7CkNS
-RUFURSBJTkRFWCBgUmVhY3Rpb25fYXV0aG9yQ2hhcmFjdGVySWRfaWR4YCBPTiBgUmVhY3Rpb25g
-KGBhdXRob3JDaGFyYWN0ZXJJZGApOwoKLS0gTk9URTogbm8gQ0hFQ0sgY29uc3RyYWludCBoZXJl
-LiBNYXJpYURCIHJlamVjdHMgKGVycm9yIDE5MDEsCi0tIEVSX0NIRUNLX0NPTlNUUkFJTlRfRlVO
-Q1RJT05fSVNfTk9UX0FMTE9XRUQpIGEgQ0hFQ0sgY29uc3RyYWludCB0aGF0Ci0tIHJlZmVyZW5j
-ZXMgYSBjb2x1bW4gd2hpY2ggYWxzbyBjYXJyaWVzIGFuIE9OIERFTEVURSBTRVQgTlVMTCBvciBP
-TiBVUERBVEUKLS0gQ0FTQ0FERSBmb3JlaWduLWtleSBhY3Rpb24sIHdoaWNoIGJvdGggYGF1dGhv
-ckJvdElkYCBhbmQKLS0gYGF1dGhvckNoYXJhY3RlcklkYCBoYXZlIGJlbG93LiBNdXR1YWwgZXhj
-bHVzaXZpdHkgKGF0IG1vc3Qgb25lIG9mIHRoZQotLSB0d28gc2V0KSBpcyBlbmZvcmNlZCBpbiBh
-cHBsaWNhdGlvbiBjb2RlIGluc3RlYWQgYnkKLS0gYXNzZXJ0U2luZ2xlRmlyc3RQYXJ0eVJlYWN0
-aW9uQXV0aG9yKCkgaW4KLS0gdXRpbHMvcmVhY3Rpb25zL2ZpcnN0UGFydHlSZWFjdGlvbkF1dGhv
-ci50cy4KQUxURVIgVEFCTEUgYFJlYWN0aW9uYAogIEFERCBDT05TVFJBSU5UIGBSZWFjdGlvbl9h
-dXRob3JCb3RJZF9ma2V5YAogICAgRk9SRUlHTiBLRVkgKGBhdXRob3JCb3RJZGApIFJFRkVSRU5D
-RVMgYEJvdGAoYGlkYCkKICAgIE9OIERFTEVURSBTRVQgTlVMTCBPTiBVUERBVEUgQ0FTQ0FERSwK
-ICBBREQgQ09OU1RSQUlOVCBgUmVhY3Rpb25fYXV0aG9yQ2hhcmFjdGVySWRfZmtleWAKICAgIEZP
-UkVJR04gS0VZIChgYXV0aG9yQ2hhcmFjdGVySWRgKSBSRUZFUkVOQ0VTIGBDaGFyYWN0ZXJgKGBp
-ZGApCiAgICBPTiBERUxFVEUgU0VUIE5VTEwgT04gVVBEQVRFIENBU0NBREU7Cg==
+-- Expand-only migration for first-party Bot/Character review authorship.
+-- Reaction.userId remains the authenticated publisher/accountability identity.
+-- Existing human and target-relation fields are unchanged.
+
+ALTER TABLE `Reaction`
+  ADD COLUMN `authorBotId` INTEGER NULL,
+  ADD COLUMN `authorCharacterId` INTEGER NULL;
+
+CREATE INDEX `Reaction_authorBotId_idx` ON `Reaction`(`authorBotId`);
+CREATE INDEX `Reaction_authorCharacterId_idx` ON `Reaction`(`authorCharacterId`);
+
+-- NOTE: no CHECK constraint here. MariaDB rejects (error 1901,
+-- ER_CHECK_CONSTRAINT_FUNCTION_IS_NOT_ALLOWED) a CHECK constraint that
+-- references a column which also carries an ON DELETE SET NULL or ON UPDATE
+-- CASCADE foreign-key action, which both `authorBotId` and
+-- `authorCharacterId` have below. Mutual exclusivity (at most one of the
+-- two set) is enforced in application code instead by
+-- assertSingleFirstPartyReactionAuthor() in
+-- utils/reactions/firstPartyReactionAuthor.ts.
+ALTER TABLE `Reaction`
+  ADD CONSTRAINT `Reaction_authorBotId_fkey`
+    FOREIGN KEY (`authorBotId`) REFERENCES `Bot`(`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `Reaction_authorCharacterId_fkey`
+    FOREIGN KEY (`authorCharacterId`) REFERENCES `Character`(`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE;

@@ -13,6 +13,11 @@ import {
   type ThemeBatchSkip,
   type ThemeCreateInput,
 } from './index'
+import {
+  assertThemeMutationInput,
+  themeBatchCreateFields,
+  THEME_BATCH_LIMIT,
+} from './mutation'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -34,6 +39,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (body.length > THEME_BATCH_LIMIT) {
+      throw createError({
+        statusCode: 400,
+        message: `Theme batch may contain at most ${THEME_BATCH_LIMIT} entries.`,
+      })
+    }
+
     const created: ParsedTheme[] = []
     const skipped: ThemeBatchSkip[] = []
     const failed: ThemeBatchFailure[] = []
@@ -42,6 +54,11 @@ export default defineEventHandler(async (event) => {
       const fallbackName = fallbackThemeName(entry)
 
       try {
+        assertThemeMutationInput(entry, {
+          allowedFields: themeBatchCreateFields,
+          context: 'Theme batch item',
+        })
+
         const createInput = normalizeThemeInput(entry, user.id)
 
         try {

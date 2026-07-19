@@ -55,7 +55,6 @@ describe('ArtCollection API Tests', () => {
         fileName: `${label}.webp`,
         fileType: 'webp',
         seed: null,
-        userId,
         isPublic: false,
         isMature: false,
         isActive: true,

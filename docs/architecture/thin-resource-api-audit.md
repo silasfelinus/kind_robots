@@ -32,6 +32,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | ArtImage collection links | Generic connection PATCH let image owners transfer ownership and attach arbitrary Bots, Dreams, Rewards, Servers, and other resources | Endpoint now manages collection membership only, requires image ownership, requires collection ownership for connects, validates all IDs, and rejects unrelated fields |
 | Browser server health reports | Optional authentication reused read permission, so anonymous callers could write status history for public servers | Reports require authenticated server mutation permission, validate a bounded report schema, and preserve owner/admin-only status writes |
 | Logs | Any authenticated user could list, read, or delete another user’s logs; POST accepted forged identity/timestamps; errors often returned HTTP 200 | Reads and deletes are owner/admin scoped, lists default to self, POST derives identity/time from auth, and every route returns explicit HTTP status envelopes |
+| ArtImage create and lookup | Create accepted caller ownership plus Server/Checkpoint and many unrelated relationship IDs; the by-IDs helper posted lookup bodies to the create route | Create derives ownership from auth and accepts scalar metadata only; relationship writes stay explicit; bounded visibility-aware `/by-ids` lookup now owns batch retrieval |
 
 ### P1 — Completed response and resource-boundary cleanup
 

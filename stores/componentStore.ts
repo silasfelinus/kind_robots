@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Component } from '~/prisma/generated/prisma/client'
+import type { ComponentCatalogItem } from '@/utils/wonderlab/componentCatalog'
 import {
   fetchComponentById as helperFetch,
   createComponent as helperCreate,
@@ -15,9 +16,9 @@ import {
 } from '@/stores/helpers/snapshotLoader'
 
 export const useComponentStore = defineStore('componentStore', () => {
-  const components = ref<Component[]>([])
+  const components = ref<ComponentCatalogItem[]>([])
   const usingSnapshot = ref(false)
-  const selectedComponent = ref<Component | null>(null)
+  const selectedComponent = ref<ComponentCatalogItem | null>(null)
   const selectedFolder = ref<string | null>(null)
   const isInitialized = ref(false)
 
@@ -32,7 +33,7 @@ export const useComponentStore = defineStore('componentStore', () => {
     try {
       // performFetch (not raw fetch) so a dead DB trips the shared circuit
       // breaker instead of hanging every page that lists components.
-      const data = await performFetch<Component[]>('/api/components')
+      const data = await performFetch<ComponentCatalogItem[]>('/api/components')
       if (data.success && data.data) {
         components.value = data.data
         usingSnapshot.value = false
@@ -49,7 +50,8 @@ export const useComponentStore = defineStore('componentStore', () => {
       // nightly snapshot. isInitialized stays false, so the next
       // initialize() call still retries the live fetch.
       if (components.value.length === 0) {
-        const snapshotRows = await loadSnapshot<Component>('components')
+        const snapshotRows =
+          await loadSnapshot<ComponentCatalogItem>('components')
 
         if (snapshotRows.length && components.value.length === 0) {
           components.value = snapshotRows
@@ -87,8 +89,15 @@ export const useComponentStore = defineStore('componentStore', () => {
   async function updateComponent(component: Component) {
     const updated = await helperUpdate(component)
     const index = components.value.findIndex((entry) => entry.id === component.id)
-    if (index !== -1) components.value[index] = updated
-    return updated
+
+    if (index !== -1) {
+      components.value[index] = {
+        ...components.value[index],
+        ...updated,
+      }
+    }
+
+    return components.value[index] ?? updated
   }
 
   async function deleteComponent(id: number) {
@@ -127,4 +136,4 @@ export const useComponentStore = defineStore('componentStore', () => {
   }
 })
 
-export type { Component as KindComponent }
+export type { ComponentCatalogItem as KindComponent }

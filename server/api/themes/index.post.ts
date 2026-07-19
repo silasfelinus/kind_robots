@@ -9,6 +9,7 @@ import {
   parseTheme,
   type ThemeCreateInput,
 } from './index'
+import { assertThemeMutationInput, themeCreateFields } from './mutation'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -37,6 +38,12 @@ export default defineEventHandler(async (event) => {
         message: 'Request body is required.',
       })
     }
+
+    assertThemeMutationInput(body, {
+      allowedFields: themeCreateFields,
+      context: 'Theme create payload',
+      authenticatedUserId: user.id,
+    })
 
     const createInput = normalizeThemeInput(body, user.id)
 

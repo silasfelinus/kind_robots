@@ -27,6 +27,7 @@ await mkdir(outputDir, { recursive: true })
 const response = await fetch(`${baseUrl}/api/components`, {
   headers: { accept: 'application/json' },
   redirect: 'follow',
+  signal: AbortSignal.timeout(30_000),
 })
 const text = await response.text()
 let payload

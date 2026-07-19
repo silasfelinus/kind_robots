@@ -69,7 +69,6 @@ type ReactionTargetIdKey =
   | 'themeId'
 
 type AddReactionPayload = {
-  userId: number
   reactionType: ReactionTypeEnum
   rating: number
   comment?: string

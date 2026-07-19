@@ -41,7 +41,6 @@ describe('Component Reactions API Tests', () => {
     expect(componentId).to.exist
 
     return {
-      userId: testUser!.id,
       reactionType: 'CLAPPED',
       reactionCategory: 'COMPONENT',
       componentId,

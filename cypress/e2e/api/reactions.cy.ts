@@ -159,16 +159,19 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  it('rejects spoofed Reaction ownership', () => {
+  it('rejects a supplied userId as an unsupported Reaction create field', () => {
     expect(themeId).to.exist
-    expect(otherId).to.exist
+    expect(ownerId).to.exist
 
+    // Ownership is exclusively authentication-derived: the #560 matching-userId
+    // compatibility path is gone, so even the caller's own id is now rejected as
+    // an unsupported field.
     cy.request<ApiResponse>({
       method: 'POST',
       url: reactionBaseUrl,
       headers: ownerHeaders(),
       body: {
-        userId: otherId,
+        userId: ownerId,
         reactionType: 'LOVED',
         reactionCategory: 'THEME',
         themeId,
@@ -178,7 +181,9 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(400)
       expect(response.body.success).to.eq(false)
-      expect(response.body.message).to.include('Ownership is server-owned')
+      expect(response.body.message).to.include(
+        'Unsupported Reaction create fields',
+      )
     })
   })
 
@@ -215,7 +220,6 @@ describe('Reaction Management API Tests', () => {
       url: reactionBaseUrl,
       headers: ownerHeaders(),
       body: {
-        userId: ownerId,
         reactionType: 'LOVED',
         reactionCategory: 'THEME',
         themeId,

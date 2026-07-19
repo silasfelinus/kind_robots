@@ -40,13 +40,20 @@ requireText(
 )
 requireText(
   createRoute,
-  'assertReactionOwnershipMatchesAuthentication(body.userId, user.id)',
-  'Reaction ownership-match boundary',
-)
-requireText(
-  createRoute,
   'userId: user.id',
   'Reaction authenticated ownership write',
+)
+// The #560 matching-userId compatibility path is fully removed: ownership is now
+// exclusively authentication-derived and a supplied userId is an unsupported field.
+forbidText(
+  createRoute,
+  "'userId',",
+  'Reaction userId create allowlist entry',
+)
+forbidText(
+  createRoute,
+  'assertReactionOwnershipMatchesAuthentication',
+  'Reaction ownership-match compatibility boundary',
 )
 forbidText(
   createRoute,
@@ -61,8 +68,8 @@ forbidText(
 
 requireText(
   cypressSpec,
-  'rejects spoofed Reaction ownership',
-  'Reaction ownership deployed regression',
+  'rejects a supplied userId as an unsupported Reaction create field',
+  'Reaction supplied-userId deployed regression',
 )
 requireText(
   cypressSpec,

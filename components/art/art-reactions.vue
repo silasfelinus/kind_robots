@@ -238,7 +238,6 @@ async function submitReaction() {
   try {
     await reactionStore.addReaction({
       artImageId: imageId,
-      userId: activeUserId,
       rating: rating.value,
       reactionType: selectedReactionType.value,
       comment: comment.value,

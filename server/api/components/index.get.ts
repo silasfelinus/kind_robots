@@ -2,10 +2,13 @@
 import { defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import { projectComponentForViewer } from '../../utils/componentProjection'
 import type { ComponentCatalogItem } from '@/utils/wonderlab/componentCatalog'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
+    const auth = await getOptionalApiUser(event)
     const [components, reactionGroups] = await Promise.all([
       prisma.component.findMany({
         orderBy: [{ componentName: 'asc' }, { id: 'asc' }],
@@ -48,15 +51,18 @@ export default defineEventHandler(async () => {
       })
     }
 
-    const data: ComponentCatalogItem[] = components.map((component) => ({
-      ...component,
-      reviewCount: metricsByComponentId.get(component.id)?.reviewCount ?? 0,
-      ratingCount: metricsByComponentId.get(component.id)?.ratingCount ?? 0,
-      averageRating:
-        metricsByComponentId.get(component.id)?.averageRating ?? null,
-      lastReviewedAt:
-        metricsByComponentId.get(component.id)?.lastReviewedAt ?? null,
-    }))
+    const data = components.map((component) => {
+      const metrics = metricsByComponentId.get(component.id)
+      const catalogItem = {
+        ...component,
+        reviewCount: metrics?.reviewCount ?? 0,
+        ratingCount: metrics?.ratingCount ?? 0,
+        averageRating: metrics?.averageRating ?? null,
+        lastReviewedAt: metrics?.lastReviewedAt ?? null,
+      }
+
+      return projectComponentForViewer(catalogItem, auth?.isAdmin === true)
+    })
 
     return {
       success: true,

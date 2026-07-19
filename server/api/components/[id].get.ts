@@ -1,38 +1,40 @@
 // server/api/components/[id].get.ts
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import { projectComponentForViewer } from '../../utils/componentProjection'
 
 export default defineEventHandler(async (event) => {
   let response
   let componentId: number | null = null
 
   try {
-    // Validate and parse the component ID
     componentId = Number(event.context.params?.id)
-    if (isNaN(componentId) || componentId <= 0) {
+    if (Number.isNaN(componentId) || componentId <= 0) {
       throw createError({
-        statusCode: 400, // Bad Request
+        statusCode: 400,
         message: 'Invalid Component ID. It must be a positive integer.',
       })
     }
 
-    // Fetch the component from the database
-    const data = await prisma.component.findUnique({
-      where: { id: componentId },
-    })
+    const [data, auth] = await Promise.all([
+      prisma.component.findUnique({
+        where: { id: componentId },
+      }),
+      getOptionalApiUser(event),
+    ])
 
     if (!data) {
       throw createError({
-        statusCode: 404, // Not Found
+        statusCode: 404,
         message: `Component with ID ${componentId} does not exist.`,
       })
     }
 
-    // Return the component data in the expected response format
     response = {
       success: true,
-      data,
+      data: projectComponentForViewer(data, auth?.isAdmin === true),
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -43,7 +45,6 @@ export default defineEventHandler(async (event) => {
       handledError,
     )
 
-    // Set the appropriate status code and response based on the handled error
     event.node.res.statusCode = handledError.statusCode || 500
     response = {
       success: false,

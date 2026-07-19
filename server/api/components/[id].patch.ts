@@ -5,16 +5,11 @@ import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
-  getLegacyComponentStatus,
-  hasLegacyStatusUpdate,
   isComponentStatus,
-  legacyFieldsForComponentStatus,
-  resolveLegacyStatusUpdate,
   type ComponentStatus,
-  type LegacyComponentStatusFields,
 } from '@/utils/wonderlab/componentStatus'
 
-type ComponentPatchBody = LegacyComponentStatusFields & {
+type ComponentPatchBody = {
   componentName?: unknown
   folderName?: unknown
   status?: unknown
@@ -32,9 +27,6 @@ const allowedPatchFields = new Set([
   'folderName',
   'status',
   'statusReason',
-  'isWorking',
-  'underConstruction',
-  'isBroken',
   'title',
   'description',
   'notes',
@@ -101,19 +93,6 @@ function componentNameValue(value: unknown): string {
   }
 
   return name
-}
-
-function optionalBoolean(value: unknown, field: string): boolean | undefined {
-  if (value === undefined) return undefined
-
-  if (typeof value !== 'boolean') {
-    throw createError({
-      statusCode: 400,
-      message: `"${field}" must be a boolean.`,
-    })
-  }
-
-  return value
 }
 
 function optionalStatus(value: unknown): ComponentStatus | undefined {
@@ -206,13 +185,7 @@ export default defineEventHandler(async (event) => {
 
     const existingComponent = await prisma.component.findUnique({
       where: { id: componentId },
-      select: {
-        id: true,
-        status: true,
-        isWorking: true,
-        underConstruction: true,
-        isBroken: true,
-      },
+      select: { id: true },
     })
 
     if (!existingComponent) {
@@ -223,25 +196,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = parsePatchBody(await readBody<unknown>(event))
-    const statusPatch: LegacyComponentStatusFields = {
-      isWorking: optionalBoolean(body.isWorking, 'isWorking'),
-      underConstruction: optionalBoolean(
-        body.underConstruction,
-        'underConstruction',
-      ),
-      isBroken: optionalBoolean(body.isBroken, 'isBroken'),
-    }
     const canonicalStatus = optionalStatus(body.status)
-    const normalizedStatus: ComponentStatus | null = canonicalStatus
-      ? canonicalStatus
-      : hasLegacyStatusUpdate(statusPatch)
-        ? getLegacyComponentStatus(
-            resolveLegacyStatusUpdate(existingComponent, statusPatch),
-          )
-        : null
-    const legacyStatus = normalizedStatus
-      ? legacyFieldsForComponentStatus(normalizedStatus)
-      : null
     const artImageId = optionalArtImageId(body.artImageId)
 
     await assertArtImageExists(artImageId)
@@ -255,7 +210,7 @@ export default defineEventHandler(async (event) => {
         body.folderName === undefined
           ? undefined
           : requiredText(body.folderName, 'folderName', 255),
-      status: normalizedStatus ?? undefined,
+      status: canonicalStatus,
       statusReason:
         body.statusReason === undefined
           ? undefined
@@ -278,9 +233,6 @@ export default defineEventHandler(async (event) => {
         body.previewMode === undefined
           ? undefined
           : nullableText(body.previewMode, 'previewMode', 64),
-      isWorking: legacyStatus?.isWorking,
-      underConstruction: legacyStatus?.underConstruction,
-      isBroken: legacyStatus?.isBroken,
       ArtImage:
         artImageId === null
           ? { disconnect: true }

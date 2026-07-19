@@ -148,6 +148,9 @@ jobs:
       - name: Component canonical runtime adoption contract
         run: npx tsx utils/scripts/verifyComponentCanonicalRuntime.ts
 
+      - name: Component canonical client and fallback audit
+        run: npx tsx utils/scripts/verifyComponentCanonicalClients.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

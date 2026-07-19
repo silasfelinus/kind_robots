@@ -14,6 +14,11 @@ import {
   getModelStatusEngine,
   type ServerRuntimeReport,
 } from './helpers/serverHelper'
+import {
+  mergeServerRecord,
+  mergeServerRows,
+  type SafeServerRow,
+} from './helpers/serverMerge'
 
 export interface ServerForm extends Partial<Server> {}
 
@@ -618,31 +623,26 @@ export const useServerStore = defineStore('serverStore', () => {
     return await fetch(`${baseUrl}${path}`, options)
   }
 
-  function upsertServer(server: Server): void {
+  function upsertServer(server: SafeServerRow): void {
     const index = servers.value.findIndex(
       (entry: Server): boolean => entry.id === server.id,
     )
+    const merged = mergeServerRecord(
+      index >= 0 ? servers.value[index] : undefined,
+      server,
+    )
 
     if (index >= 0) {
-      servers.value.splice(index, 1, server)
+      servers.value.splice(index, 1, merged)
     } else {
-      servers.value.push(server)
+      servers.value.push(merged)
     }
 
     servers.value.sort(sortServers)
   }
 
-  function mergeServers(incoming: Server[]): void {
-    const incomingIds = new Set<number>(
-      incoming.map((server: Server): number => server.id),
-    )
-
-    servers.value = [
-      ...servers.value.filter(
-        (server: Server): boolean => !incomingIds.has(server.id),
-      ),
-      ...incoming,
-    ].sort(sortServers)
+  function mergeServers(incoming: SafeServerRow[]): void {
+    servers.value = mergeServerRows(servers.value, incoming).sort(sortServers)
   }
 
   function applyPreferredServersFromUser(): void {
@@ -725,8 +725,7 @@ export const useServerStore = defineStore('serverStore', () => {
         applyPreferredServersFromUser()
 
         if (wantsRemote && (!hasLoaded.value || options.force)) {
-          const fetchedServers = await fetchAllServers(Boolean(options.force))
-          mergeServers(fetchedServers)
+          await fetchAllServers(Boolean(options.force))
         }
 
         applyPreferredServersFromUser()
@@ -769,7 +768,7 @@ export const useServerStore = defineStore('serverStore', () => {
         >
 
         if (res.success && isServerArray(res.data)) {
-          servers.value = res.data.slice().sort(sortServers)
+          mergeServers(res.data)
           hasLoaded.value = true
           syncToLocalStorage()
           return servers.value

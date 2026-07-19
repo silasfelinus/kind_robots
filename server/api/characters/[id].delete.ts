@@ -1,26 +1,24 @@
-import { defineEventHandler, createError } from 'h3'
+import { createError, defineEventHandler } from 'h3'
+import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import prisma from '../../utils/prisma'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
-  let response
-  let id
+  let id: number | null = null
 
   try {
-    // Validate and parse the character ID
     id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Invalid Character ID. It must be a positive integer.',
+        message: 'Invalid character ID. It must be a positive integer.',
       })
     }
 
-    console.log(`Attempting to delete Character with ID: ${id}`)
-
-    // Use validateApiKey to authenticate
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -28,12 +26,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id
-
-    // Fetch the character entry and verify ownership
     const character = await prisma.character.findUnique({
       where: { id },
-      select: { userId: true },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
 
     if (!character) {
@@ -43,47 +41,38 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if user is an admin
-    if (user.Role === 'ADMIN') {
-      // Admin bypass: Delete the character entry directly
-      await prisma.character.delete({ where: { id } })
-      return {
-        success: true,
-        message: `Character with ID ${id} deleted successfully by admin.`,
-      }
-    }
-
-    // Verify if the user is the owner of the character
-    if (character.userId !== userId) {
+    if (character.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You are not authorized to delete this character.',
       })
     }
 
-    // Proceed to delete the character
     await prisma.character.delete({ where: { id } })
 
-    console.log(`Character with ID ${id} successfully deleted`)
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       message: `Character with ID ${id} successfully deleted.`,
+      data: null,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.error('Error while deleting Character:', handledError)
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
 
-    // Set the status code and response message based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    if (statusCode >= 500) {
+      console.error('Character delete failed:', handled)
+    }
+
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
-      message:
-        handledError.message || `Failed to delete Character with ID ${id}.`,
-      statusCode: event.node.res.statusCode,
+      message: handled.message || `Failed to delete Character with ID ${id}.`,
+      data: null,
+      statusCode,
     }
   }
-
-  return response
 })

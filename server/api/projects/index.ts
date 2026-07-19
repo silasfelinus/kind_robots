@@ -21,6 +21,58 @@ export const projectPriorities = new Set<ProjectPriority>([
   'HIGH',
 ])
 
+// Explicit mutation allowlist: every Project column the routes may read, plus the
+// relation keys a round-tripped row (from the store's broad Partial<Project>) can
+// carry. Identity/system columns (id, userId, timestamps) are tolerated here but
+// never trusted — the routes set userId from authentication and ignore the rest.
+// Anything outside this set is rejected instead of silently dropped.
+export const projectMutationFields = new Set<string>([
+  'id',
+  'createdAt',
+  'updatedAt',
+  'title',
+  'slug',
+  'description',
+  'pitch',
+  'flavorText',
+  'goal',
+  'status',
+  'priority',
+  'conductorSlug',
+  'repoUrl',
+  'liveUrl',
+  'channelKey',
+  'tabKey',
+  'lastSyncedAt',
+  'allowReviews',
+  'highlightImage',
+  'icon',
+  'imagePath',
+  'cardPath',
+  'heroPath',
+  'designer',
+  'creationSource',
+  'userId',
+  'managerBotId',
+  'artImageId',
+  'artCollectionId',
+  'isPublic',
+  'isMature',
+  'isActive',
+  // relation keys tolerated when a full row is round-tripped by the client
+  'ArtJobs',
+  'Chats',
+  'PitchSheet',
+  'ArtCollection',
+  'ArtImage',
+  'Manager',
+  'User',
+  'ArtCollectionLinks',
+  'ArtImageLinks',
+  'Reactions',
+  'Todos',
+])
+
 export const projectInclude = {
   Manager: {
     select: {

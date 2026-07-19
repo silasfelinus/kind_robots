@@ -33,7 +33,7 @@ follow-up tasks.
 
 Anyone on the internet can call these. Fix order roughly top-to-bottom.
 
-Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art upload derives ownership from authentication; ArtImage connection PATCH is collection-only and checks collection ownership.
+Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art upload and ArtImage collections enforce ownership; browser health reports require server mutation permission.
 
 | File:line                                             | Exposure                                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -43,7 +43,6 @@ Resolved since this audit: achievement writes are authenticated and ownership-aw
 ### A2. SECURITY — authed but missing ownership / optional-auth writes
 
 - `server/api/logs/[id].delete.ts:41` — any authed user deletes any log (no `existing.userId` compare).
-- `server/api/server/health/[id].patch.ts:37` — optional auth lets anon flip `lastStatus`/`lastCheckedAt` on public servers.
 
 ### A3. Mass assignment — raw `readBody` fed straight to `prisma.update`
 

@@ -235,6 +235,31 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
+  it('should return lean rows from batch PATCH', () => {
+    expect(batchScenarioId).to.exist
+
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/batch`,
+      headers: bearerHeaders(userToken),
+      body: {
+        updates: [
+          {
+            id: batchScenarioId,
+            description: 'Updated through the explicit batch mutation route.',
+          },
+        ],
+      },
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array').with.length(1)
+      expect(response.body.data[0].success).to.be.true
+      expect(response.body.data[0].statusCode).to.eq(200)
+      expectLeanMutation(response.body.data[0].data)
+    })
+  })
+
   it('should not allow deleting a scenario without authentication', () => {
     expect(scenarioId).to.exist
 
@@ -274,6 +299,8 @@ describe('Scenario Management API Tests', () => {
       expect(response.body.message).to.include(
         `Scenario with ID ${scenarioId} successfully deleted`,
       )
+      expect(response.body.data).to.eq(null)
+      expect(response.body.statusCode).to.eq(200)
 
       scenarioId = undefined
     })

@@ -152,6 +152,44 @@
       </div>
     </div>
 
+    <div class="flex flex-col gap-1.5">
+      <span class="text-xs font-bold">Perspective balance</span>
+      <p class="text-xs text-base-content/55">
+        Only reshapes feeds that carry political coverage (e.g. Activism) —
+        other feeds are never affected.
+      </p>
+      <div class="flex flex-wrap gap-1.5">
+        <button
+          v-for="mode in perspectiveModes"
+          :key="mode.value"
+          type="button"
+          class="btn btn-xs rounded-xl"
+          :class="
+            feedPreferenceStore.perspectiveMode === mode.value
+              ? 'btn-primary'
+              : 'btn-ghost border border-base-300'
+          "
+          :aria-pressed="feedPreferenceStore.perspectiveMode === mode.value"
+          @click="feedPreferenceStore.setPerspectiveMode(mode.value)"
+        >
+          {{ mode.label }}
+        </button>
+      </div>
+      <label class="flex w-fit items-center gap-2 pt-1 text-xs font-bold">
+        <input
+          type="checkbox"
+          class="toggle toggle-primary toggle-sm"
+          :checked="feedPreferenceStore.labelsVisible"
+          @change="
+            feedPreferenceStore.setLabelsVisible(
+              ($event.target as HTMLInputElement).checked,
+            )
+          "
+        />
+        Show perspective labels
+      </label>
+    </div>
+
     <div class="flex items-center gap-2">
       <label for="newsfeed-sort-mode" class="text-xs font-bold">Sort by</label>
       <select
@@ -175,7 +213,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { NewsFeedItem } from '@/stores/helpers/newsfeed'
+import type { NewsFeedItem, PerspectiveMode } from '@/stores/helpers/newsfeed'
 import { useFeedPreferenceStore } from '@/stores/feedPreferenceStore'
 
 const props = defineProps<{
@@ -187,6 +225,15 @@ const feedPreferenceStore = useFeedPreferenceStore()
 
 const includeDraft = ref('')
 const excludeDraft = ref('')
+
+// Custom (per-bucket weight sliders) is deferred per this task's own note --
+// "Custom per-bucket weights ... may follow once the simple modes work
+// cleanly." The store/type already support it for forward compatibility.
+const perspectiveModes: Array<{ value: Exclude<PerspectiveMode, 'custom'>; label: string }> = [
+  { value: 'focused', label: 'Focused' },
+  { value: 'balanced', label: 'Balanced' },
+  { value: 'broad', label: 'Broad spectrum' },
+]
 
 const categories = computed<string[]>(() => {
   const seen = new Set<string>()

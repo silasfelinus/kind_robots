@@ -94,6 +94,9 @@ jobs:
       - name: Newsfeed programmable filters contract
         run: npm run test:newsfeed-filters
 
+      - name: Newsfeed perspective balance contract
+        run: npm run test:newsfeed-perspective-balance
+
       - name: WonderLab reconciliation contract
         run: npm run test:wonderlab-reconcile
 

@@ -51,11 +51,20 @@
       <div
         class="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1"
       >
-        <span
-          class="truncate text-xs font-bold text-base-content/55"
-          :title="item.source"
-        >
-          {{ item.source }}
+        <span class="flex min-w-0 items-center gap-1.5">
+          <span
+            class="truncate text-xs font-bold text-base-content/55"
+            :title="item.source"
+          >
+            {{ item.source }}
+          </span>
+          <span
+            v-if="perspectiveLabel"
+            class="badge badge-ghost badge-xs shrink-0 gap-1 rounded-xl border-base-300"
+            :title="`Perspective rating from ${item.perspective?.source} — political-lean labels are provenance, not fact.`"
+          >
+            {{ perspectiveLabel }}
+          </span>
         </span>
         <span
           class="flex shrink-0 items-center gap-1 text-xs text-base-content/45"
@@ -81,6 +90,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { NewsFeedItem } from '@/stores/helpers/newsfeed'
+import { useFeedPreferenceStore } from '@/stores/feedPreferenceStore'
 
 const props = withDefaults(
   defineProps<{
@@ -94,10 +104,25 @@ const props = withDefaults(
   },
 )
 
+const feedPreferenceStore = useFeedPreferenceStore()
+
 const imageFailed = ref(false)
 
 const imageSrc = computed(() => props.item.image || '')
 const primaryCategory = computed(() => props.item.category?.[0] || '')
+
+// "show or hide perspective labels" (BIAS-CONTROLS.md) -- never shown when
+// no source-level rating exists ("unrated sources remain usable and
+// visibly unrated": no label here just means no label, not "neutral").
+const perspectiveLabel = computed(() => {
+  if (!feedPreferenceStore.labelsVisible) return ''
+  const label = props.item.perspective?.label
+  if (!label) return ''
+  return label
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('-')
+})
 
 function relativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime()

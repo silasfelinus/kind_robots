@@ -74,6 +74,13 @@ export interface NewsFeedItem {
     source?: string
     confidence?: 'low' | 'medium' | 'high'
   }
+  /**
+   * Stamped client-side from the parent feed's FeedDefinition.topicPolitical
+   * when items are grouped (newsfeed-feed.vue) -- lets applyPerspectiveBalance
+   * gate on a merged, multi-feed item list without needing feed context of
+   * its own. Absent/false items are never reordered by perspective weight.
+   */
+  topicPolitical?: boolean
 }
 
 export type PerspectiveMode = 'focused' | 'balanced' | 'broad' | 'custom'
@@ -92,6 +99,29 @@ export const DEFAULT_PERSPECTIVE_WEIGHTS: PerspectiveWeights = {
   center: 1,
   centerRight: 1,
   right: 1,
+}
+
+/**
+ * Preset weight shapes for the three starter modes (BIAS-CONTROLS.md MVP
+ * path). `custom` has no preset -- it's whatever the user dialed in via
+ * setPerspectiveWeights. Weights are relative shape, not requirements: every
+ * bucket stays above zero so no viewpoint is ever fully excluded, per the
+ * "still surfacing major opposing coverage" / "don't force artificial
+ * symmetry" guardrails.
+ */
+export const PERSPECTIVE_MODE_PRESETS: Record<
+  Exclude<PerspectiveMode, 'custom'>,
+  PerspectiveWeights
+> = {
+  balanced: { left: 1, centerLeft: 1, center: 1, centerRight: 1, right: 1 },
+  focused: {
+    left: 0.6,
+    centerLeft: 1,
+    center: 1.4,
+    centerRight: 1,
+    right: 0.6,
+  },
+  broad: { left: 1.3, centerLeft: 1, center: 0.7, centerRight: 1, right: 1.3 },
 }
 
 // --- Source registry --------------------------------------------------
@@ -408,6 +438,136 @@ export function applyNewsfeedFilters(
   }
 
   return filtered.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
+}
+
+// --- Perspective balance (t-011) -----------------------------------------
+// A second, independent ranking pass layered on top of applyNewsfeedFilters'
+// recency/relevance ordering. Only ever reorders items among themselves
+// where item.topicPolitical is true -- non-political items keep their exact
+// index, so balancing one feed's mix can never distort another (BIAS-
+// CONTROLS.md guardrail). Unrated political items (no source perspective
+// label) are their own bucket, weighted as the average of the five named
+// buckets, so they're never excluded or penalized to zero -- "unrated
+// sources remain usable and visibly unrated."
+
+type PerspectiveBucketKey = PerspectiveLabel | 'unrated'
+
+const LABEL_TO_WEIGHT_KEY: Record<PerspectiveLabel, keyof PerspectiveWeights> = {
+  left: 'left',
+  'center-left': 'centerLeft',
+  center: 'center',
+  'center-right': 'centerRight',
+  right: 'right',
+}
+
+function bucketKeyFor(item: NewsFeedItem): PerspectiveBucketKey {
+  return item.perspective?.label ?? 'unrated'
+}
+
+function averageWeight(weights: PerspectiveWeights): number {
+  const values = Object.values(weights)
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+function weightFor(
+  key: PerspectiveBucketKey,
+  weights: PerspectiveWeights,
+): number {
+  if (key === 'unrated') return Math.max(0, averageWeight(weights))
+  return Math.max(0, weights[LABEL_TO_WEIGHT_KEY[key]])
+}
+
+/**
+ * Smooth weighted round-robin merge (the same algorithm nginx uses for
+ * weighted load balancing): each bucket accumulates its weight every round
+ * and the highest accumulator is picked next, then debited by the total.
+ * This guarantees output proportion tracks input weight while preserving
+ * each bucket's own relative (already recency/relevance-sorted) order.
+ */
+function weightedRoundRobinMerge<T>(
+  buckets: Array<{ key: string; items: T[]; weight: number }>,
+): T[] {
+  const total = buckets.reduce((sum, bucket) => sum + bucket.weight, 0)
+  const cursors = new Map(buckets.map((bucket) => [bucket.key, 0]))
+  const currents = new Map(buckets.map((bucket) => [bucket.key, 0]))
+  const remaining = buckets.reduce((sum, bucket) => sum + bucket.items.length, 0)
+  const result: T[] = []
+
+  while (result.length < remaining) {
+    let winner: (typeof buckets)[number] | null = null
+    let winnerCurrent = -Infinity
+
+    for (const bucket of buckets) {
+      if ((cursors.get(bucket.key) ?? 0) >= bucket.items.length) continue
+      const next = (currents.get(bucket.key) ?? 0) + bucket.weight
+      currents.set(bucket.key, next)
+      if (next > winnerCurrent) {
+        winner = bucket
+        winnerCurrent = next
+      }
+    }
+
+    if (!winner) break // safety net: every non-empty bucket has weight <= 0
+
+    const index = cursors.get(winner.key) ?? 0
+    result.push(winner.items[index] as T)
+    cursors.set(winner.key, index + 1)
+    currents.set(winner.key, winnerCurrent - (total || 1))
+  }
+
+  return result
+}
+
+/**
+ * Reorders the political subset of `items` (those with `topicPolitical:
+ * true`) by perspective weight via weighted round-robin, leaving every
+ * non-political item pinned at its original index. Pure and
+ * side-effect-free -- pass the output of applyNewsfeedFilters straight in.
+ */
+export function applyPerspectiveBalance(
+  items: NewsFeedItem[],
+  weights: PerspectiveWeights,
+): NewsFeedItem[] {
+  const politicalIndices: number[] = []
+  const politicalItems: NewsFeedItem[] = []
+
+  items.forEach((item, index) => {
+    if (item.topicPolitical) {
+      politicalIndices.push(index)
+      politicalItems.push(item)
+    }
+  })
+
+  if (politicalItems.length < 2) return items
+
+  const byBucket = new Map<PerspectiveBucketKey, NewsFeedItem[]>()
+  for (const item of politicalItems) {
+    const key = bucketKeyFor(item)
+    const bucket = byBucket.get(key)
+    if (bucket) {
+      bucket.push(item)
+    } else {
+      byBucket.set(key, [item])
+    }
+  }
+
+  const buckets = [...byBucket.entries()].map(([key, bucketItems]) => ({
+    key,
+    items: bucketItems,
+    weight: weightFor(key, weights),
+  }))
+
+  const hasWeight = buckets.some((bucket) => bucket.weight > 0)
+  const merged = hasWeight
+    ? weightedRoundRobinMerge(buckets)
+    : politicalItems // every bucket weighted to zero -- leave order untouched
+
+  const result = [...items]
+  politicalIndices.forEach((originalIndex, i) => {
+    const replacement = merged[i]
+    if (replacement) result[originalIndex] = replacement
+  })
+  return result
 }
 
 /** Trims, dedupes (case-insensitive), drops empties, and bounds a keyword list. */

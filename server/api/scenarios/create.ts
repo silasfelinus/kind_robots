@@ -79,13 +79,11 @@ export async function buildScenarioCreateInput(
     scenarioData.characterIds,
     'characterIds',
   )
-  const facetIds = normalizeScenarioIdArray(scenarioData.facetIds, 'facetIds')
 
   await assertScenarioRelationsExist({
     artImageId,
     dreamIds,
     characterIds,
-    facetIds,
   })
 
   return {
@@ -148,9 +146,6 @@ export async function buildScenarioCreateInput(
       : undefined,
     Characters: characterIds?.length
       ? { connect: characterIds.map((id) => ({ id })) }
-      : undefined,
-    Facets: facetIds?.length
-      ? { connect: facetIds.map((id) => ({ id })) }
       : undefined,
   }
 }

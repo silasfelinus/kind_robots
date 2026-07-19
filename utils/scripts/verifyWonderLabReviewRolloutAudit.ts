@@ -6,11 +6,19 @@ const auditPath = 'server/utils/wonderLabReviewRolloutAudit.ts'
 const endpointPath = 'server/api/admin/wonderlab/review-rollout.get.ts'
 const pagePath = 'pages/admin/wonderlab-review-rollout.vue'
 const runbookPath = 'docs/wonderlab-personality-review-rollout.md'
+const productionWorkflowPath = '.github/workflows/wonderlab-production-rollout.yml'
+const componentContractPath =
+  'scripts/wonderlab-production-component-contract.mjs'
 
-const audit = await readFile(auditPath, 'utf8')
-const endpoint = await readFile(endpointPath, 'utf8')
-const page = await readFile(pagePath, 'utf8')
-const runbook = await readFile(runbookPath, 'utf8')
+const [audit, endpoint, page, runbook, productionWorkflow, componentContract] =
+  await Promise.all([
+    readFile(auditPath, 'utf8'),
+    readFile(endpointPath, 'utf8'),
+    readFile(pagePath, 'utf8'),
+    readFile(runbookPath, 'utf8'),
+    readFile(productionWorkflowPath, 'utf8'),
+    readFile(componentContractPath, 'utf8'),
+  ])
 
 assert.match(endpoint, /requireAdminApiUser\(event\)/)
 assert.match(endpoint, /auditWonderLabReviewRollout/)
@@ -41,5 +49,46 @@ assert.match(runbook, /Only an `APPROVED` draft can be published/)
 assert.match(runbook, /Do not manually edit `_prisma_migrations`/)
 assert.match(runbook, /Dotti/)
 assert.match(runbook, /Catbot/)
+
+assert.match(
+  productionWorkflow,
+  /Verify canonical Component API contract[\s\S]*wonderlab-production-component-contract\.mjs/,
+)
+assert.match(
+  productionWorkflow,
+  /component-contract-verification\.json/,
+)
+assert.match(productionWorkflow, /for \(const issue_number of \[381, 472, 473\]\)/)
+
+for (const status of [
+  'UNREVIEWED',
+  'WORKING',
+  'NEEDS_CONTEXT',
+  'UNDER_CONSTRUCTION',
+  'BROKEN',
+  'RETIRED',
+  'PREVIEW_UNSUPPORTED',
+]) {
+  assert.match(componentContract, new RegExp(status))
+}
+for (const retiredField of [
+  'isWorking',
+  'underConstruction',
+  'isBroken',
+]) {
+  assert.match(componentContract, new RegExp(retiredField))
+}
+for (const sourceField of ['sourceKey', 'sourcePath', 'sourceHash']) {
+  assert.match(componentContract, new RegExp(sourceField))
+}
+assert.match(componentContract, /\/api\/components/)
+assert.match(componentContract, /component-contract-verification\.json/)
+assert.match(componentContract, /Object\.prototype\.hasOwnProperty\.call/)
+assert.doesNotMatch(componentContract, /method\s*:/)
+assert.doesNotMatch(
+  componentContract,
+  /WONDERLAB_ADMIN_TOKEN|x-api-key|x-admin-token/,
+)
+assert.doesNotMatch(componentContract, /\/reconcile|\/publish|\/generate|\/approve/)
 
 console.log('WonderLab review rollout audit contract passed.')

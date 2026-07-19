@@ -1,38 +1,34 @@
 // /server/api/chats/user/[id].get.ts
-import { defineEventHandler } from 'h3'
+import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { userIsAdmin } from '../../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
-  const requestedUserId = Number(event.context.params?.id)
-
-  if (!Number.isFinite(requestedUserId) || requestedUserId <= 0) {
-    return errorHandler({
-      error: new Error('Invalid User ID. It must be a positive integer.'),
-      context: 'Fetch Chats by User ID',
-      statusCode: 400,
-    })
-  }
+  const requestedUserId = Number(getRouterParam(event, 'id'))
 
   try {
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      return errorHandler({
-        error: new Error('Invalid or expired token.'),
-        context: 'Fetch Chats by User ID',
-        statusCode: 401,
+    if (!Number.isInteger(requestedUserId) || requestedUserId <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid User ID. It must be a positive integer.',
       })
     }
 
-    const authUser = user as { id: number; isAdmin?: boolean }
+    const { isValid, user } = await validateApiKey(event)
 
-    if (authUser.id !== requestedUserId && !authUser.isAdmin) {
-      return errorHandler({
-        error: new Error('You can only fetch your own chats.'),
-        context: 'Fetch Chats by User ID',
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    if (user.id !== requestedUserId && !userIsAdmin(user)) {
+      throw createError({
         statusCode: 403,
+        message: 'You can only fetch your own chats.',
       })
     }
 
@@ -47,19 +43,23 @@ export default defineEventHandler(async (event) => {
       take: 250,
     })
 
+    event.node.res.statusCode = 200
+
     return {
       success: true,
       data,
       message: 'Chats fetched successfully.',
+      statusCode: 200,
     }
   } catch (error) {
-    const { message, statusCode } = errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
 
     return {
       success: false,
-      message,
+      message: handled.message || 'Failed to fetch Chats by User ID.',
       data: null,
-      statusCode,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

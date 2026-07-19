@@ -25,6 +25,7 @@
           class="h-3.5 w-3.5 shrink-0 text-base-content/40"
         />
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="search"
           class="min-w-0 flex-1 bg-transparent"
@@ -124,6 +125,7 @@ const academyStore = useAcademyStore()
 
 const searchQuery = ref('')
 const expandedSlug = ref<string | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
 
 // The grid button stays mounted while its detail panel is open, but the
 // panel's own close button unmounts (v-if) the instant it's clicked — the
@@ -146,7 +148,12 @@ function closeStyle() {
   const slug = expandedSlug.value
   expandedSlug.value = null
   nextTick(() => {
-    if (slug) gridRefs.get(slug)?.focus()
+    // The grid button can be gone even though its slug is known — an active
+    // search filter unmounts (and deletes the ref for) any style that no
+    // longer matches while its detail panel stays open. Fall back to the
+    // search input so focus never drops to <body>.
+    const target = (slug && gridRefs.get(slug)) || searchInputRef.value
+    target?.focus()
   })
 }
 

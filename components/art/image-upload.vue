@@ -82,7 +82,7 @@
 
         <Transition name="fade">
           <div
-            v-if="succeededNames.has(item.file.name)"
+            v-if="succeededFiles.has(item.file)"
             class="absolute inset-0 flex items-center justify-center bg-success/60 backdrop-blur-sm"
           >
             <Icon
@@ -94,7 +94,7 @@
 
         <Transition name="fade">
           <div
-            v-if="failedNames.has(item.file.name)"
+            v-if="failedFiles.has(item.file)"
             class="absolute inset-0 flex items-center justify-center bg-error/60 backdrop-blur-sm"
           >
             <Icon
@@ -571,8 +571,8 @@ const message = ref('')
 const error = ref('')
 const connectedModelType = ref<ConnectableModel | ''>('')
 const queuedFiles = ref<QueuedFile[]>([])
-const succeededNames = ref<Set<string>>(new Set())
-const failedNames = ref<Set<string>>(new Set())
+const succeededFiles = ref<Set<File>>(new Set())
+const failedFiles = ref<Set<File>>(new Set())
 
 const collectionOptions = computed(() => collectionStore.collections ?? [])
 
@@ -677,8 +677,8 @@ function addFiles(incoming: FileList | File[]) {
     (file) => !uploadStore.validateFile(file),
   )
   queuedFiles.value.push(...valid.map(makeQueuedFile))
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
+  succeededFiles.value = new Set()
+  failedFiles.value = new Set()
   message.value = ''
   error.value = ''
 }
@@ -686,8 +686,8 @@ function addFiles(incoming: FileList | File[]) {
 function clearQueue() {
   queuedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview))
   queuedFiles.value = []
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
+  succeededFiles.value = new Set()
+  failedFiles.value = new Set()
   connectedModelType.value = ''
   message.value = ''
   error.value = ''
@@ -739,8 +739,8 @@ async function handleBatchUpload() {
     return
   }
 
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
+  succeededFiles.value = new Set()
+  failedFiles.value = new Set()
   message.value = ''
   error.value = ''
 
@@ -752,11 +752,11 @@ async function handleBatchUpload() {
     metadata: buildMetadata(),
   })
 
-  succeededNames.value = new Set(
-    result.succeeded.map((r) => r.fileName).filter(Boolean) as string[],
+  succeededFiles.value = new Set(
+    result.succeeded.map((r) => r.file).filter(Boolean) as File[],
   )
-  failedNames.value = new Set(
-    result.failed.map((r) => r.fileName).filter(Boolean) as string[],
+  failedFiles.value = new Set(
+    result.failed.map((r) => r.file).filter(Boolean) as File[],
   )
 
   // Mirror store messaging locally so the component owns its own banners.

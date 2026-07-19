@@ -61,6 +61,8 @@ export default defineEventHandler(async (event) => {
       allowedFields: scenarioPatchFields,
       context: 'Scenario patch payload',
       requireNonEmpty: true,
+      authenticatedUserId: user.id,
+      routeId: id,
     })
 
     const data = await buildScenarioUpdateInput(body)

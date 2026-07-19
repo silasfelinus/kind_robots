@@ -58,6 +58,7 @@
           type="button"
           class="group flex w-full flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-all hover:border-primary/50 hover:shadow-sm"
           aria-expanded="false"
+          :aria-controls="`academy-style-detail-${style.slug}`"
           @click="expandedSlug = style.slug"
         >
           <span class="text-xl leading-none">🏛️</span>
@@ -86,12 +87,13 @@
           />
         </button>
 
-        <academy-style-detail
-          v-else
-          :lesson="style"
-          @close="closeLesson(style.slug)"
-          @remix="emit('remix', $event)"
-        />
+        <div v-else :id="`academy-style-detail-${style.slug}`">
+          <academy-style-detail
+            :lesson="style"
+            @close="closeLesson(style.slug)"
+            @remix="emit('remix', $event)"
+          />
+        </div>
       </li>
     </ol>
   </section>

@@ -98,7 +98,7 @@ export async function getArtImagesByIds(
   }
 
   try {
-    const response = await performFetch<ArtImage[]>('/api/art/image', {
+    const response = await performFetch<ArtImage[]>('/api/art/image/by-ids', {
       method: 'POST',
       body: JSON.stringify({ ids: uncached }),
       headers: { 'Content-Type': 'application/json' },
@@ -128,7 +128,6 @@ export async function getOrFetchArtImageById(
   id: number,
 ): Promise<ArtImage | null> {
   const store = getArtStore()
-
   const cached = store.artImages.find((image: ArtImage) => image.id === id)
   if (cached) return cached
 

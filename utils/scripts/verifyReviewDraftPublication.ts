@@ -31,7 +31,7 @@ assert.doesNotMatch(publisher, /DELETE\s+FROM\s+Reaction/i)
 assert.doesNotMatch(publisher, /authorBotId\s+IS\s+NULL\s+AND\s+authorCharacterId\s+IS\s+NULL[\s\S]*UPDATE Reaction/i)
 
 assert.match(componentReviews, /LEFT JOIN Bot b ON b\.id = r\.authorBotId/)
-assert.match(componentReviews, /LEFT JOIN Character ch ON ch\.id = r\.authorCharacterId/)
+assert.match(componentReviews, /LEFT JOIN \\`Character\\` ch ON ch\.id = r\.authorCharacterId/)
 assert.match(componentReviews, /Author: projectFirstPartyAuthor\(row\)/)
 assert.doesNotMatch(componentReviews, /include:\s*\{/)
 

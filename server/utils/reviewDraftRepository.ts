@@ -143,7 +143,7 @@ const selectReviewDraft = `
   FROM ReviewDraft rd
   INNER JOIN Component c ON c.id = rd.componentId
   LEFT JOIN Bot b ON b.id = rd.authorBotId
-  LEFT JOIN Character ch ON ch.id = rd.authorCharacterId
+  LEFT JOIN \`Character\` ch ON ch.id = rd.authorCharacterId
   LEFT JOIN User u ON u.id = rd.publisherUserId
 `
 
@@ -213,7 +213,7 @@ async function assertReviewDraftReferences(input: CreateReviewDraftInput): Promi
   }
 
   const authors = await prisma.$queryRaw<Array<{ id: number }>>`
-    SELECT id FROM Character
+    SELECT id FROM \`Character\`
     WHERE id = ${input.author.id} AND isActive = TRUE AND isPublic = TRUE
     LIMIT 1
   `

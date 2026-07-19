@@ -1,102 +1,39 @@
 // /server/api/art/collection/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import {
+  createError,
+  defineEventHandler,
+  getRouterParam,
+  readBody,
+} from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
-import { validateApiKey } from '../../../utils/validateKey'
+import { requireApiUser } from '../../../utils/authGuard'
 import { normalizeSlugInput } from '~/utils/slugify'
+import {
+  artCollectionMutationSelect,
+  assertOwnedActiveArtImages,
+  assertPlainObjectBody,
+  cleanOptionalBoolean,
+  cleanOptionalText,
+  cleanRequiredText,
+  normalizeIdArray,
+  rejectUnknownFields,
+} from '~/server/utils/artCollectionApi'
 
-const artImageListSelect = {
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  userId: true,
-  fileName: true,
-  fileType: true,
-  imagePath: true,
-  path: true,
-  promptString: true,
-  negativePrompt: true,
-  checkpoint: true,
-  checkpointResourceId: true,
-  sampler: true,
-  seed: true,
-  steps: true,
-  cfg: true,
-  cfgHalf: true,
-  designer: true,
-  genres: true,
-  isPublic: true,
-  isMature: true,
-  isActive: true,
-  serverId: true,
-  serverName: true,
-  serverUrl: true,
-} as const
-
-type PatchCollectionBody = {
-  label?: unknown
-  slug?: unknown
-  parentFolder?: unknown
-  description?: unknown
-  isPublic?: unknown
-  isMature?: unknown
-  artImageIds?: unknown
-  addArtImageIds?: unknown
-  removeArtImageIds?: unknown
-  mode?: unknown
-  artPrompt?: unknown
-}
-
-function normalizeIdArray(value: unknown, fieldName: string): number[] {
-  if (typeof value === 'undefined') return []
-
-  if (!Array.isArray(value)) {
-    throw createError({
-      statusCode: 400,
-      message: `${fieldName} must be an array of integers.`,
-    })
-  }
-
-  const ids = value.map((entry) => Number(entry))
-
-  if (!ids.every((id) => Number.isInteger(id) && id > 0)) {
-    throw createError({
-      statusCode: 400,
-      message: `All ${fieldName} values must be positive integers.`,
-    })
-  }
-
-  return [...new Set(ids)]
-}
-
-async function assertArtImageIdsExist(
-  artImageIds: number[],
-  fieldName: string,
-) {
-  if (!artImageIds.length) return
-
-  const validImages = await prisma.artImage.findMany({
-    where: {
-      id: {
-        in: artImageIds,
-      },
-    },
-    select: {
-      id: true,
-    },
-  })
-
-  const validIds = new Set(validImages.map((image) => image.id))
-  const missing = artImageIds.filter((id) => !validIds.has(id))
-
-  if (missing.length) {
-    throw createError({
-      statusCode: 404,
-      message: `Missing art image IDs in ${fieldName}: ${missing.join(', ')}`,
-    })
-  }
-}
+const ALLOWED_FIELDS = new Set([
+  'label',
+  'slug',
+  'parentFolder',
+  'description',
+  'isPublic',
+  'isMature',
+  'artImageIds',
+  'addArtImageIds',
+  'removeArtImageIds',
+  'mode',
+  'artPrompt',
+])
 
 function mergeArtImageRelationUpdate(
   updateData: Prisma.ArtCollectionUpdateInput,
@@ -117,7 +54,7 @@ export default defineEventHandler(async (event) => {
   let collectionId = 0
 
   try {
-    collectionId = Number(event.context.params?.id)
+    collectionId = Number(getRouterParam(event, 'id'))
 
     if (!Number.isInteger(collectionId) || collectionId <= 0) {
       throw createError({
@@ -126,19 +63,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
+    const auth = await requireApiUser(event)
     const collection = await prisma.artCollection.findUnique({
-      where: {
-        id: collectionId,
-      },
+      where: { id: collectionId },
       select: {
         id: true,
         userId: true,
@@ -152,45 +79,61 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (collection.userId !== user.id && user.Role !== 'ADMIN') {
+    if (!auth.isAdmin && collection.userId !== auth.user.id) {
       throw createError({
         statusCode: 403,
         message: 'Not authorized to update this collection.',
       })
     }
 
-    const body = await readBody<PatchCollectionBody>(event)
+    const body = await readBody(event)
+    assertPlainObjectBody(body)
+    rejectUnknownFields(body, ALLOWED_FIELDS)
+
     const updateData: Prisma.ArtCollectionUpdateInput = {}
 
-    if (typeof body.label === 'string') {
-      updateData.label = body.label.trim()
+    if (Object.hasOwn(body, 'label')) {
+      updateData.label = cleanRequiredText(body.label, 'label', 255)
     }
 
-    const slug = normalizeSlugInput(body.slug)
-    if (typeof slug !== 'undefined') {
-      updateData.slug = slug
+    if (Object.hasOwn(body, 'slug')) {
+      const rawSlug = cleanOptionalText(body.slug, 'slug', 255)
+      updateData.slug = normalizeSlugInput(rawSlug) ?? null
     }
 
-    if (typeof body.parentFolder === 'string') {
-      // Normalize: trim, strip leading/trailing slashes; empty string clears it.
-      const cleaned = body.parentFolder.trim().replace(/^\/+|\/+$/g, '')
-      updateData.parentFolder = cleaned || null
+    if (Object.hasOwn(body, 'parentFolder')) {
+      const rawParentFolder = cleanOptionalText(
+        body.parentFolder,
+        'parentFolder',
+        500,
+      )
+      updateData.parentFolder = rawParentFolder
+        ? rawParentFolder.replace(/^\/+|\/+$/g, '') || null
+        : rawParentFolder
     }
 
-    if (typeof body.description === 'string') {
-      updateData.description = body.description.trim()
+    if (Object.hasOwn(body, 'description')) {
+      updateData.description = cleanOptionalText(
+        body.description,
+        'description',
+        5_000,
+      )
     }
 
-    if (typeof body.isPublic === 'boolean') {
-      updateData.isPublic = body.isPublic
+    if (Object.hasOwn(body, 'isPublic')) {
+      updateData.isPublic = cleanOptionalBoolean(body.isPublic, 'isPublic')
     }
 
-    if (typeof body.isMature === 'boolean') {
-      updateData.isMature = body.isMature
+    if (Object.hasOwn(body, 'isMature')) {
+      updateData.isMature = cleanOptionalBoolean(body.isMature, 'isMature')
     }
 
-    if (typeof body.artPrompt === 'string') {
-      updateData.artPrompt = body.artPrompt.trim()
+    if (Object.hasOwn(body, 'artPrompt')) {
+      updateData.artPrompt = cleanOptionalText(
+        body.artPrompt,
+        'artPrompt',
+        10_000,
+      )
     }
 
     const artImageIds = normalizeIdArray(body.artImageIds, 'artImageIds')
@@ -203,35 +146,74 @@ export default defineEventHandler(async (event) => {
       'removeArtImageIds',
     )
 
-    const mode = typeof body.mode === 'string' ? body.mode : 'replace'
-
-    if (artImageIds.length && mode === 'add') {
-      await assertArtImageIdsExist(artImageIds, 'artImageIds')
-
-      mergeArtImageRelationUpdate(updateData, {
-        connect: artImageIds.map((id) => ({ id })),
-      })
-    } else if (artImageIds.length) {
-      await assertArtImageIdsExist(artImageIds, 'artImageIds')
-
-      mergeArtImageRelationUpdate(updateData, {
-        set: artImageIds.map((id) => ({ id })),
+    if (
+      artImageIds.provided &&
+      (addArtImageIds.provided || removeArtImageIds.provided)
+    ) {
+      throw createError({
+        statusCode: 400,
+        message:
+          'artImageIds cannot be combined with addArtImageIds or removeArtImageIds.',
       })
     }
 
-    if (addArtImageIds.length) {
-      await assertArtImageIdsExist(addArtImageIds, 'addArtImageIds')
+    let mode: 'replace' | 'add' = 'replace'
+
+    if (Object.hasOwn(body, 'mode')) {
+      if (!artImageIds.provided) {
+        throw createError({
+          statusCode: 400,
+          message: 'mode may only be used with artImageIds.',
+        })
+      }
+
+      if (body.mode !== 'replace' && body.mode !== 'add') {
+        throw createError({
+          statusCode: 400,
+          message: 'mode must be replace or add.',
+        })
+      }
+
+      mode = body.mode
+    }
+
+    if (artImageIds.provided) {
+      await assertOwnedActiveArtImages({
+        ids: artImageIds.ids,
+        fieldName: 'artImageIds',
+        userId: auth.user.id,
+        isAdmin: auth.isAdmin,
+      })
+
+      if (mode === 'add') {
+        if (artImageIds.ids.length) {
+          mergeArtImageRelationUpdate(updateData, {
+            connect: artImageIds.ids.map((id) => ({ id })),
+          })
+        }
+      } else {
+        mergeArtImageRelationUpdate(updateData, {
+          set: artImageIds.ids.map((id) => ({ id })),
+        })
+      }
+    }
+
+    if (addArtImageIds.provided && addArtImageIds.ids.length) {
+      await assertOwnedActiveArtImages({
+        ids: addArtImageIds.ids,
+        fieldName: 'addArtImageIds',
+        userId: auth.user.id,
+        isAdmin: auth.isAdmin,
+      })
 
       mergeArtImageRelationUpdate(updateData, {
-        connect: addArtImageIds.map((id) => ({ id })),
+        connect: addArtImageIds.ids.map((id) => ({ id })),
       })
     }
 
-    if (removeArtImageIds.length) {
-      await assertArtImageIdsExist(removeArtImageIds, 'removeArtImageIds')
-
+    if (removeArtImageIds.provided && removeArtImageIds.ids.length) {
       mergeArtImageRelationUpdate(updateData, {
-        disconnect: removeArtImageIds.map((id) => ({ id })),
+        disconnect: removeArtImageIds.ids.map((id) => ({ id })),
       })
     }
 
@@ -243,50 +225,29 @@ export default defineEventHandler(async (event) => {
     }
 
     const updated = await prisma.artCollection.update({
-      where: {
-        id: collectionId,
-      },
+      where: { id: collectionId },
       data: updateData,
-      select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        userId: true,
-        label: true,
-        slug: true,
-        isMature: true,
-        isPublic: true,
-        isActive: true,
-        artPrompt: true,
-        description: true,
-        username: true,
-        ArtImages: {
-          orderBy: {
-            id: 'desc',
-          },
-          select: artImageListSelect,
-        },
-        _count: {
-          select: {
-            ArtImages: true,
-          },
-        },
-      },
+      select: artCollectionMutationSelect,
     })
+
+    event.node.res.statusCode = 200
 
     return {
       success: true,
       message: 'Collection updated.',
       data: updated,
+      statusCode: 200,
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
 
     return {
       success: false,
+      data: null,
       message:
-        handledError.message || `Failed to update collection ${collectionId}.`,
+        handled.message || `Failed to update collection ${collectionId}.`,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

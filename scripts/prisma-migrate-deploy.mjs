@@ -4,6 +4,7 @@ import { writeFile, unlink } from 'node:fs/promises'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 import mariadb from 'mariadb'
+import { repairKnownFailedMigrations } from './repair-known-prisma-migrations.mjs'
 
 const databaseUrl = process.env.DATABASE_URL
 const caFilePath = '/tmp/kindrobots-proxysql-ca.pem'
@@ -26,11 +27,11 @@ function readDatabaseSslCa() {
   return plain || undefined
 }
 
-function runPrismaMigrate(url) {
+function runPrismaCommand(url, args) {
   const prismaBinary = path.resolve('node_modules/.bin/prisma')
 
   return new Promise((resolve, reject) => {
-    const child = spawn(prismaBinary, ['migrate', 'deploy'], {
+    const child = spawn(prismaBinary, args, {
       stdio: 'inherit',
       env: {
         ...process.env,
@@ -48,36 +49,35 @@ function runPrismaMigrate(url) {
       reject(
         new Error(
           signal
-            ? `prisma migrate deploy terminated by ${signal}`
-            : `prisma migrate deploy exited with code ${code ?? 'unknown'}`,
+            ? `prisma ${args.join(' ')} terminated by ${signal}`
+            : `prisma ${args.join(' ')} exited with code ${code ?? 'unknown'}`,
         ),
       )
     })
   })
 }
 
-async function verifyTlsConnection(parsedUrl, sslCa) {
-  let connection
+function runPrismaMigrate(url) {
+  return runPrismaCommand(url, ['migrate', 'deploy'])
+}
 
-  try {
-    connection = await mariadb.createConnection({
-      host: parsedUrl.hostname,
-      port: Number.parseInt(parsedUrl.port || '3306', 10),
-      user: decodeURIComponent(parsedUrl.username),
-      password: decodeURIComponent(parsedUrl.password),
-      database: decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, '')),
-      connectTimeout: 5_000,
-      ssl: {
-        ca: sslCa,
-        rejectUnauthorized: true,
-      },
-    })
+async function createTlsConnection(parsedUrl, sslCa) {
+  const connection = await mariadb.createConnection({
+    host: parsedUrl.hostname,
+    port: Number.parseInt(parsedUrl.port || '3306', 10),
+    user: decodeURIComponent(parsedUrl.username),
+    password: decodeURIComponent(parsedUrl.password),
+    database: decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, '')),
+    connectTimeout: 5_000,
+    ssl: {
+      ca: sslCa,
+      rejectUnauthorized: true,
+    },
+  })
 
-    await connection.query('SELECT 1 AS tls_connection_ok')
-    console.log('[database] Verified TLS connection to ProxySQL before migration.')
-  } finally {
-    await connection?.end()
-  }
+  await connection.query('SELECT 1 AS tls_connection_ok')
+  console.log('[database] Verified TLS connection to ProxySQL before migration.')
+  return connection
 }
 
 async function main() {
@@ -106,15 +106,26 @@ async function main() {
 
   await writeFile(caFilePath, `${sslCa}\n`, { mode: 0o600 })
 
+  let connection
   try {
     const parsedUrl = new URL(databaseUrl)
-    await verifyTlsConnection(parsedUrl, sslCa)
+    connection = await createTlsConnection(parsedUrl, sslCa)
 
     parsedUrl.searchParams.set('sslcert', caFilePath)
     parsedUrl.searchParams.set('sslaccept', 'strict')
+    const prismaUrl = parsedUrl.toString()
 
-    await runPrismaMigrate(parsedUrl.toString())
+    await repairKnownFailedMigrations({
+      connection,
+      prismaUrl,
+      runPrismaCommand,
+    })
+
+    await connection.end()
+    connection = undefined
+    await runPrismaMigrate(prismaUrl)
   } finally {
+    await connection?.end().catch(() => undefined)
     await unlink(caFilePath).catch(() => undefined)
   }
 }

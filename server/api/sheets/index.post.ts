@@ -3,7 +3,10 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
-import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
+import {
+  assertPitchSheetMutationInput,
+  sanitizePitchSheetPayload,
+} from '@/server/utils/pitchSheets/payload'
 import { pitchSheetMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -20,6 +23,8 @@ export default defineEventHandler(async (event) => {
           'Dream-derived PitchSheets must be created through /api/sheets/by-dream/:dreamId.',
       })
     }
+
+    assertPitchSheetMutationInput(body, 'PitchSheet create payload')
 
     const overrides = sanitizePitchSheetPayload(body)
     const title = typeof overrides.title === 'string' ? overrides.title.trim() : ''

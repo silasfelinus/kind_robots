@@ -3,7 +3,10 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
+import {
+  assertPitchSheetMutationInput,
+  sanitizePitchSheetPayload,
+} from '@/server/utils/pitchSheets/payload'
 import { pitchSheetMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -53,6 +56,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<Record<string, unknown>>(event).catch(() => ({}))
+
+    assertPitchSheetMutationInput(body || {}, 'PitchSheet patch payload')
+
     const data = sanitizePitchSheetPayload(body || {})
 
     if (Object.keys(data).length === 0) {

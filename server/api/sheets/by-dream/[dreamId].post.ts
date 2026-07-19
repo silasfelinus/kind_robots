@@ -4,7 +4,10 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { buildPitchSheetFromDream } from '@/server/utils/pitchSheets/defaults'
-import { sanitizePitchSheetPayload } from '@/server/utils/pitchSheets/payload'
+import {
+  assertPitchSheetMutationInput,
+  sanitizePitchSheetPayload,
+} from '@/server/utils/pitchSheets/payload'
 import { pitchSheetMutationSelect } from '../selects'
 
 export default defineEventHandler(async (event) => {
@@ -56,6 +59,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<Record<string, unknown>>(event).catch(
       () => ({} as Record<string, unknown>),
     )
+    assertPitchSheetMutationInput(body, 'PitchSheet by-dream payload')
+
     const overrides = sanitizePitchSheetPayload(body)
     const data = buildPitchSheetFromDream(dream, user.id, overrides)
     const created = await prisma.pitchSheet.create({

@@ -9,6 +9,11 @@ import {
   deleteComponent as helperDelete,
   findComponentByName as helperFind,
 } from '@/stores/helpers/componentHelper'
+import {
+  buildAnimationAttemptPayload,
+  buildSupersededTags,
+  type RecordAnimationAttemptInput,
+} from '@/stores/helpers/animationComponentHelper'
 import { performFetch } from '@/stores/utils'
 import {
   loadSnapshot,
@@ -80,7 +85,7 @@ export const useComponentStore = defineStore('componentStore', () => {
     return component
   }
 
-  async function createComponent(component: Component) {
+  async function createComponent(component: Partial<Component>) {
     const created = await helperCreate(component)
     components.value.push(created)
     return created
@@ -120,6 +125,34 @@ export const useComponentStore = defineStore('componentStore', () => {
     return found
   }
 
+  // conductor animation-manager/t-004: log one Component "museum" row per
+  // animation build attempt (folderName 'screenfx', componentName
+  // '<slug>@v<build>'). Delegates to the store's own createComponent/updateComponent
+  // so the new/updated row lands in the same reactive `components` list as every
+  // other Component mutation — see stores/helpers/animationComponentHelper.ts for
+  // the naming/tag conventions.
+  async function recordAnimationAttempt(
+    input: RecordAnimationAttemptInput,
+    previousAttempt?: Component | null,
+  ) {
+    const payload = buildAnimationAttemptPayload(input)
+    const created = await createComponent(payload)
+
+    if (previousAttempt) {
+      await linkSupersededAnimationAttempt(previousAttempt, created.componentName)
+    }
+
+    return created
+  }
+
+  async function linkSupersededAnimationAttempt(
+    previous: Component,
+    supersededByComponentName: string,
+  ) {
+    const tags = buildSupersededTags(previous, supersededByComponentName)
+    return updateComponent({ ...previous, tags })
+  }
+
   return {
     components,
     usingSnapshot,
@@ -139,6 +172,8 @@ export const useComponentStore = defineStore('componentStore', () => {
     updateComponent,
     deleteComponent,
     findComponentByName,
+    recordAnimationAttempt,
+    linkSupersededAnimationAttempt,
   }
 })
 

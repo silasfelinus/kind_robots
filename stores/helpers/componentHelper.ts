@@ -31,7 +31,7 @@ export async function fetchComponentById(
 }
 
 export async function createComponent(
-  component: Component,
+  component: Partial<Component>,
 ): Promise<Component> {
   const response = await performFetch<Component>('/api/components', {
     method: 'POST',
@@ -61,6 +61,7 @@ export async function updateComponent(
         category: component.category,
         previewMode: component.previewMode,
         artImageId: component.artImageId || null,
+        tags: component.tags ?? null,
       }),
     },
   )

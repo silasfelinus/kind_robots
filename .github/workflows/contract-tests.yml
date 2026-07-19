@@ -136,6 +136,9 @@ jobs:
       - name: WonderLab passive card fixtures contract
         run: npm run test:wonderlab-passive-card-fixtures
 
+      - name: Animation attempt Component conventions contract
+        run: npm run test:animation-component-attempts
+
       - name: WonderLab learning and control fixtures contract
         run: npx tsx utils/scripts/verifyWonderLabLearningControlFixtures.ts
 

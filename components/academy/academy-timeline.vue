@@ -98,7 +98,13 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, type ComponentPublicInstance } from 'vue'
+import {
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type ComponentPublicInstance,
+} from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 
 const emit = defineEmits<{
@@ -132,4 +138,22 @@ function closeLesson(slug: string) {
     toggleRefs.get(slug)?.focus()
   })
 }
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && expandedSlug.value) {
+    closeLesson(expandedSlug.value)
+  }
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', onKeydown)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', onKeydown)
+  }
+})
 </script>

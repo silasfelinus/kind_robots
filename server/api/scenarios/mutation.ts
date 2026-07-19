@@ -35,8 +35,24 @@ const scenarioMutationFields = [
   'secretNotes',
 ] as const
 
-export const scenarioCreateFields = new Set<string>(scenarioMutationFields)
-export const scenarioPatchFields = new Set<string>(scenarioMutationFields)
+// ScenarioForm currently spreads these model fields into singular mutations.
+// They are validated and ignored until the client payload helper is narrowed.
+const scenarioStoreCompatibilityFields = [
+  'id',
+  'userId',
+  'createdAt',
+  'updatedAt',
+] as const
+
+export const scenarioCreateFields = new Set<string>([
+  ...scenarioMutationFields,
+  ...scenarioStoreCompatibilityFields,
+])
+export const scenarioBatchCreateFields = new Set<string>(scenarioMutationFields)
+export const scenarioPatchFields = new Set<string>([
+  ...scenarioMutationFields,
+  ...scenarioStoreCompatibilityFields,
+])
 export const scenarioBatchPatchFields = new Set<string>([
   ...scenarioMutationFields,
   'id',
@@ -44,6 +60,9 @@ export const scenarioBatchPatchFields = new Set<string>([
 
 export type ScenarioMutationInput = Record<string, unknown> & {
   id?: unknown
+  userId?: unknown
+  createdAt?: unknown
+  updatedAt?: unknown
   title?: unknown
   slug?: unknown
   description?: unknown
@@ -72,6 +91,9 @@ type ScenarioBoundaryOptions = {
   allowedFields: ReadonlySet<string>
   context: string
   requireNonEmpty?: boolean
+  authenticatedUserId?: number
+  routeId?: number
+  allowTemporaryId?: boolean
 }
 
 const nullableTextFields = [
@@ -88,6 +110,19 @@ const nullableTextFields = [
 const booleanFields = ['isMature', 'isPublic', 'isActive'] as const
 const relationFields = ['dreamIds', 'characterIds', 'facetIds'] as const
 const outputTypes = Object.values(ScenarioOutputType)
+
+function normalizeCompatibilityId(value: unknown, field: string): number {
+  const id = Number(value)
+
+  if (!Number.isInteger(id)) {
+    throw createError({
+      statusCode: 400,
+      message: `Scenario compatibility field "${field}" must be an integer.`,
+    })
+  }
+
+  return id
+}
 
 export function assertScenarioMutationInput(
   body: unknown,
@@ -121,6 +156,63 @@ export function assertScenarioMutationInput(
   }
 
   const input = body as ScenarioMutationInput
+
+  if (Object.prototype.hasOwnProperty.call(input, 'userId')) {
+    if (!options.authenticatedUserId) {
+      throw createError({
+        statusCode: 400,
+        message: 'Scenario ownership is server-owned.',
+      })
+    }
+
+    const requestedUserId = normalizeCompatibilityId(input.userId, 'userId')
+
+    if (requestedUserId !== options.authenticatedUserId) {
+      throw createError({
+        statusCode: 400,
+        message:
+          'Unsupported Scenario ownership assignment. Ownership is server-owned.',
+      })
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(input, 'id')) {
+    const requestedId = normalizeCompatibilityId(input.id, 'id')
+
+    if (options.routeId) {
+      if (requestedId !== options.routeId) {
+        throw createError({
+          statusCode: 400,
+          message: 'Scenario ID is immutable and must match the route.',
+        })
+      }
+    } else if (options.allowTemporaryId) {
+      if (requestedId > 0) {
+        throw createError({
+          statusCode: 400,
+          message: 'Scenario create payload cannot assign a persisted ID.',
+        })
+      }
+    } else {
+      throw createError({
+        statusCode: 400,
+        message: 'Scenario ID is server-owned.',
+      })
+    }
+  }
+
+  for (const field of ['createdAt', 'updatedAt'] as const) {
+    if (
+      Object.prototype.hasOwnProperty.call(input, field) &&
+      input[field] !== null &&
+      typeof input[field] !== 'string'
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: `Scenario compatibility field "${field}" must be a string or null.`,
+      })
+    }
+  }
 
   if (input.title !== undefined) {
     normalizeScenarioRequiredString(input.title, 'title')
@@ -371,16 +463,18 @@ export function normalizeScenarioIntros(value: unknown): string {
     })
   }
 
-  const normalized = entries.map((entry, index) => {
-    if (typeof entry !== 'string') {
-      throw createError({
-        statusCode: 400,
-        message: `The "intros" field contains a non-string entry at index ${index}.`,
-      })
-    }
+  const normalized = entries
+    .map((entry, index) => {
+      if (typeof entry !== 'string') {
+        throw createError({
+          statusCode: 400,
+          message: `The "intros" field contains a non-string entry at index ${index}.`,
+        })
+      }
 
-    return entry.trim()
-  }).filter(Boolean)
+      return entry.trim()
+    })
+    .filter(Boolean)
 
   const serialized = JSON.stringify(normalized)
 
@@ -434,26 +528,18 @@ export function normalizeScenarioJsonString(
   return serialized
 }
 
-async function assertIdsExist(options: {
-  model: 'artImage' | 'dream' | 'character' | 'facet'
-  ids: number[]
-  label: string
-}): Promise<void> {
-  if (!options.ids.length) return
-
-  const records = await (prisma[options.model] as {
-    findMany(args: unknown): Promise<Array<{ id: number }>>
-  }).findMany({
-    where: { id: { in: options.ids } },
-    select: { id: true },
-  })
+function assertFound(
+  requestedIds: number[],
+  records: Array<{ id: number }>,
+  label: string,
+): void {
   const found = new Set(records.map((record) => record.id))
-  const missing = options.ids.filter((id) => !found.has(id))
+  const missing = requestedIds.filter((id) => !found.has(id))
 
   if (missing.length) {
     throw createError({
       statusCode: 404,
-      message: `${options.label} IDs not found: ${missing.join(', ')}.`,
+      message: `${label} IDs not found: ${missing.join(', ')}.`,
     })
   }
 }
@@ -464,28 +550,42 @@ export async function assertScenarioRelationsExist(input: {
   characterIds?: number[]
   facetIds?: number[]
 }): Promise<void> {
-  await Promise.all([
-    assertIdsExist({
-      model: 'artImage',
-      ids: typeof input.artImageId === 'number' ? [input.artImageId] : [],
-      label: 'ArtImage',
-    }),
-    assertIdsExist({
-      model: 'dream',
-      ids: input.dreamIds ?? [],
-      label: 'Dream',
-    }),
-    assertIdsExist({
-      model: 'character',
-      ids: input.characterIds ?? [],
-      label: 'Character',
-    }),
-    assertIdsExist({
-      model: 'facet',
-      ids: input.facetIds ?? [],
-      label: 'Facet',
-    }),
+  const artImageIds = typeof input.artImageId === 'number' ? [input.artImageId] : []
+  const dreamIds = input.dreamIds ?? []
+  const characterIds = input.characterIds ?? []
+  const facetIds = input.facetIds ?? []
+
+  const [artImages, dreams, characters, facets] = await Promise.all([
+    artImageIds.length
+      ? prisma.artImage.findMany({
+          where: { id: { in: artImageIds } },
+          select: { id: true },
+        })
+      : [],
+    dreamIds.length
+      ? prisma.dream.findMany({
+          where: { id: { in: dreamIds } },
+          select: { id: true },
+        })
+      : [],
+    characterIds.length
+      ? prisma.character.findMany({
+          where: { id: { in: characterIds } },
+          select: { id: true },
+        })
+      : [],
+    facetIds.length
+      ? prisma.facet.findMany({
+          where: { id: { in: facetIds } },
+          select: { id: true },
+        })
+      : [],
   ])
+
+  assertFound(artImageIds, artImages, 'ArtImage')
+  assertFound(dreamIds, dreams, 'Dream')
+  assertFound(characterIds, characters, 'Character')
+  assertFound(facetIds, facets, 'Facet')
 }
 
 export async function buildScenarioUpdateInput(
@@ -505,22 +605,45 @@ export async function buildScenarioUpdateInput(
     data.outputType = normalizeScenarioOutputType(body.outputType)
   }
   if ('cast' in body) data.cast = normalizeScenarioJsonString(body.cast, 'cast')
-
-  for (const field of nullableTextFields) {
-    if (field in body) {
-      data[field] = normalizeScenarioNullableString(
-        body[field],
-        field,
-      ) as never
-    }
+  if ('imagePath' in body) {
+    data.imagePath = normalizeScenarioNullableString(body.imagePath, 'imagePath')
   }
-
-  for (const field of booleanFields) {
-    if (field in body) {
-      data[field] = normalizeScenarioBoolean(body[field], field) as never
-    }
+  if ('locations' in body) {
+    data.locations = normalizeScenarioNullableString(body.locations, 'locations')
   }
-
+  if ('artPrompt' in body) {
+    data.artPrompt = normalizeScenarioNullableString(body.artPrompt, 'artPrompt')
+  }
+  if ('genres' in body) {
+    data.genres = normalizeScenarioNullableString(body.genres, 'genres')
+  }
+  if ('inspirations' in body) {
+    data.inspirations = normalizeScenarioNullableString(
+      body.inspirations,
+      'inspirations',
+    )
+  }
+  if ('tier' in body) {
+    data.tier = normalizeScenarioNullableString(body.tier, 'tier')
+  }
+  if ('group' in body) {
+    data.group = normalizeScenarioNullableString(body.group, 'group')
+  }
+  if ('secretNotes' in body) {
+    data.secretNotes = normalizeScenarioNullableString(
+      body.secretNotes,
+      'secretNotes',
+    )
+  }
+  if ('isMature' in body) {
+    data.isMature = normalizeScenarioBoolean(body.isMature, 'isMature')
+  }
+  if ('isPublic' in body) {
+    data.isPublic = normalizeScenarioBoolean(body.isPublic, 'isPublic')
+  }
+  if ('isActive' in body) {
+    data.isActive = normalizeScenarioBoolean(body.isActive, 'isActive')
+  }
   if ('difficulty' in body) {
     data.difficulty = normalizeScenarioNullableInteger(
       body.difficulty,

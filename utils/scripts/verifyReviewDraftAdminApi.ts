@@ -46,24 +46,23 @@ assert.equal(canTransitionReviewDraft('PROPOSED', 'APPROVED'), true)
 assert.equal(canTransitionReviewDraft('PUBLISHED', 'PROPOSED'), false)
 assert.throws(() => assertReviewDraftTransition('SUPERSEDED', 'APPROVED'), /cannot transition/i)
 
-const paths = [
-  'server/api/admin/wonderlab/review-drafts/index.get.ts',
-  'server/api/admin/wonderlab/review-drafts/index.post.ts',
-  'server/api/admin/wonderlab/review-drafts/[id].get.ts',
-  'server/api/admin/wonderlab/review-drafts/[id].patch.ts',
-]
+const listPath = 'server/api/admin/wonderlab/review-drafts/index.get.ts'
+const createPath = 'server/api/admin/wonderlab/review-drafts/index.post.ts'
+const detailPath = 'server/api/admin/wonderlab/review-drafts/[id].get.ts'
+const patchPath = 'server/api/admin/wonderlab/review-drafts/[id].patch.ts'
+const paths = [listPath, createPath, detailPath, patchPath]
 
 for (const path of paths) {
   const source = await readFile(path, 'utf8')
   assert.match(source, /requireAdminApiUser\(event\)/, `${path} must be admin-only`)
 }
 
-const createSource = await readFile(paths[1], 'utf8')
+const createSource = await readFile(createPath, 'utf8')
 assert.doesNotMatch(createSource, /publisherUserId\??:/)
 assert.doesNotMatch(createSource, /publishedReactionId\??:/)
 assert.doesNotMatch(createSource, /status\??:/)
 
-const patchSource = await readFile(paths[3], 'utf8')
+const patchSource = await readFile(patchPath, 'utf8')
 assert.match(patchSource, /controlled publication service/i)
 
 const repositorySource = await readFile('server/utils/reviewDraftRepository.ts', 'utf8')

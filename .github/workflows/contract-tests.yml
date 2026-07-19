@@ -55,6 +55,9 @@ jobs:
       - name: Database pool defaults contract
         run: npm run test:database-pool-defaults
 
+      - name: Known failed Prisma migration repair contract
+        run: node utils/scripts/verify-known-migration-repair.mjs
+
       - name: Academy style-detail caller-doc contract
         run: npm run test:academy-style-detail-callers
 

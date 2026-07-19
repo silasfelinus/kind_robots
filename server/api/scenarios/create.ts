@@ -15,6 +15,7 @@ import {
   normalizeScenarioOutputType,
   normalizeScenarioRequiredString,
   normalizeScenarioString,
+  scenarioBatchCreateFields,
   scenarioCreateFields,
   type ScenarioMutationInput,
 } from './mutation'
@@ -50,10 +51,17 @@ export function isScenarioInfrastructureError(error: unknown): boolean {
 export async function buildScenarioCreateInput(
   rawInput: unknown,
   authenticatedUserId: number,
+  options: { batch?: boolean } = {},
 ): Promise<Prisma.ScenarioCreateInput> {
   assertScenarioMutationInput(rawInput, {
-    allowedFields: scenarioCreateFields,
-    context: 'Scenario create payload',
+    allowedFields: options.batch
+      ? scenarioBatchCreateFields
+      : scenarioCreateFields,
+    context: options.batch
+      ? 'Scenario batch create item'
+      : 'Scenario create payload',
+    authenticatedUserId: options.batch ? undefined : authenticatedUserId,
+    allowTemporaryId: !options.batch,
   })
 
   const scenarioData = rawInput

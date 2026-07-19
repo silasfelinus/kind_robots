@@ -39,3 +39,19 @@ export function mergeRecordsById<T extends IdentifiedRecord>(
 
   return Array.from(records.values())
 }
+
+/**
+ * Reconciles an authoritative full-list response while preserving richer
+ * defined fields for IDs that still exist. Rows omitted by the server are
+ * removed, unlike mergeRecordsById which is intended for filtered responses.
+ */
+export function reconcileRecordsById<T extends IdentifiedRecord>(
+  existing: T[],
+  incoming: T[],
+): T[] {
+  const existingById = new Map(existing.map((record) => [record.id, record]))
+
+  return incoming.map((record) =>
+    mergeDefinedRecord(existingById.get(record.id), record),
+  )
+}

@@ -106,6 +106,9 @@ jobs:
       - name: WonderLab reconciliation contract
         run: npm run test:wonderlab-reconcile
 
+      - name: WonderLab reconciliation transaction timeout contract
+        run: npx tsx utils/scripts/verifyWonderLabReconcileTransaction.ts
+
       - name: WonderLab test-fixture cleanup contract
         run: npm run test:wonderlab-fixture-cleanup
 

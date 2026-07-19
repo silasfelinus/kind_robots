@@ -10,12 +10,17 @@ import {
 } from '../../utils/wonderlabComponentReconcile'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 
- type ReconcileMode = 'dry-run' | 'apply'
+type ReconcileMode = 'dry-run' | 'apply'
 
 type ReconcileRequestBody = {
   mode?: ReconcileMode
   manifest?: unknown
 }
+
+const RECONCILE_TRANSACTION_OPTIONS = {
+  maxWait: 10_000,
+  timeout: 30_000,
+} as const
 
 function parseMode(value: unknown): ReconcileMode {
   if (value === undefined || value === 'dry-run') return 'dry-run'
@@ -79,6 +84,9 @@ export default defineEventHandler(async (event) => {
     let applied = false
 
     if (mode === 'apply') {
+      // A full production manifest can require hundreds of sequential writes.
+      // Keep them atomic, but explicitly allow more than Prisma's 5-second
+      // interactive-transaction default while retaining a bounded timeout.
       await prisma.$transaction(async (tx) => {
         for (const action of plan.updates) {
           if (!action.existingId) continue
@@ -113,7 +121,7 @@ export default defineEventHandler(async (event) => {
             },
           })
         }
-      })
+      }, RECONCILE_TRANSACTION_OPTIONS)
 
       applied = true
     }

@@ -3,55 +3,26 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
-import type {
-  CreationSource,
-  DreamType,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   assertDreamAccess,
-  dreamTypes,
   getDreamId,
   normalizeCreationSource,
-  normalizeIdArray,
-  normalizeNullableId,
   normalizeOptionalText,
   normalizeSlug,
   relationFromNullableId,
-  scenariosRelationFromPatch,
 } from './index'
+import {
+  assertDreamMutationInput,
+  boundedScenariosRelationFromPatch,
+  dreamPatchFields,
+  normalizeBoundedDreamIdArray,
+  normalizeBoundedDreamNullableId,
+  type DreamMutationBody,
+} from './mutation'
 import { dreamMutationSelect } from './selects'
 
-type DreamPatchBody = {
-  title?: string
-  slug?: string | null
-  dreamType?: DreamType
-  creationSource?: CreationSource
-  description?: string | null
-  pitch?: string | null
-  flavorText?: string | null
-  examples?: string | null
-  artPrompt?: string | null
-  imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
-  highlightImage?: string | null
-  icon?: string | null
-  designer?: string | null
-  artImageId?: number | null
-  artCollectionId?: number | null
-  scenarioId?: number | null
-  scenarioIds?: number[]
-  Scenarios?: number[]
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-  allowReviews?: boolean
-  characterIds?: number[]
-  rewardIds?: number[]
-  artImageIds?: number[]
-  artCollectionIds?: number[]
-}
+type DreamPatchBody = DreamMutationBody
 
 function uniqueIds(values: Array<number | null | undefined>): number[] {
   return Array.from(
@@ -64,9 +35,9 @@ function uniqueIds(values: Array<number | null | undefined>): number[] {
   )
 }
 
-function idsFromNullable(value: unknown): number[] {
-  const id = normalizeNullableId(value)
-  return id ? [id] : []
+function idsFromNullable(value: unknown, field: string): number[] {
+  const id = normalizeBoundedDreamNullableId(value, field)
+  return typeof id === 'number' ? [id] : []
 }
 
 function forbiddenRelationError(label: string) {
@@ -84,8 +55,8 @@ async function assertAttachableRelations(
   if (userRole === 'ADMIN') return
 
   const artImageIds = uniqueIds([
-    ...idsFromNullable(body.artImageId),
-    ...(normalizeIdArray(body.artImageIds) ?? []),
+    ...idsFromNullable(body.artImageId, 'artImageId'),
+    ...(normalizeBoundedDreamIdArray(body.artImageIds, 'artImageIds') ?? []),
   ])
 
   if (artImageIds.length) {
@@ -100,8 +71,11 @@ async function assertAttachableRelations(
   }
 
   const artCollectionIds = uniqueIds([
-    ...idsFromNullable(body.artCollectionId),
-    ...(normalizeIdArray(body.artCollectionIds) ?? []),
+    ...idsFromNullable(body.artCollectionId, 'artCollectionId'),
+    ...(normalizeBoundedDreamIdArray(
+      body.artCollectionIds,
+      'artCollectionIds',
+    ) ?? []),
   ])
 
   if (artCollectionIds.length) {
@@ -118,9 +92,9 @@ async function assertAttachableRelations(
   }
 
   const scenarioIds = uniqueIds([
-    ...idsFromNullable(body.scenarioId),
-    ...(normalizeIdArray(body.scenarioIds) ?? []),
-    ...(normalizeIdArray(body.Scenarios) ?? []),
+    ...idsFromNullable(body.scenarioId, 'scenarioId'),
+    ...(normalizeBoundedDreamIdArray(body.scenarioIds, 'scenarioIds') ?? []),
+    ...(normalizeBoundedDreamIdArray(body.Scenarios, 'Scenarios') ?? []),
   ])
 
   if (scenarioIds.length) {
@@ -134,7 +108,8 @@ async function assertAttachableRelations(
     if (count !== scenarioIds.length) throw forbiddenRelationError('Scenario')
   }
 
-  const characterIds = normalizeIdArray(body.characterIds) ?? []
+  const characterIds =
+    normalizeBoundedDreamIdArray(body.characterIds, 'characterIds') ?? []
 
   if (characterIds.length) {
     const count = await prisma.character.count({
@@ -147,7 +122,8 @@ async function assertAttachableRelations(
     if (count !== characterIds.length) throw forbiddenRelationError('Character')
   }
 
-  const rewardIds = normalizeIdArray(body.rewardIds) ?? []
+  const rewardIds =
+    normalizeBoundedDreamIdArray(body.rewardIds, 'rewardIds') ?? []
 
   if (rewardIds.length) {
     const count = await prisma.reward.count({
@@ -203,15 +179,17 @@ export default defineEventHandler(async (event) => {
       action: 'mutate',
     })
 
-    const body = await readBody<DreamPatchBody>(event)
+    const rawBody = await readBody<unknown>(event)
 
-    if (!body || Object.keys(body).length === 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'No data provided for update.',
-      })
-    }
+    assertDreamMutationInput(rawBody, {
+      allowedFields: dreamPatchFields,
+      context: 'Dream patch payload',
+      authenticatedUserId: user.id,
+      routeId: id,
+      requireNonEmpty: true,
+    })
 
+    const body = rawBody
     await assertAttachableRelations(body, user.id, user.Role)
 
     const dataInput: Prisma.DreamUpdateInput = {}
@@ -233,7 +211,7 @@ export default defineEventHandler(async (event) => {
       dataInput.slug = body.slug ? normalizeSlug(body.slug) : null
     }
 
-    if (body.dreamType !== undefined && dreamTypes.includes(body.dreamType)) {
+    if (body.dreamType !== undefined) {
       dataInput.dreamType = body.dreamType
     }
 
@@ -295,7 +273,7 @@ export default defineEventHandler(async (event) => {
       if (relation) dataInput.ArtCollection = relation
     }
 
-    const scenariosRelation = scenariosRelationFromPatch(body)
+    const scenariosRelation = boundedScenariosRelationFromPatch(body)
 
     if (scenariosRelation) {
       dataInput.Scenarios = scenariosRelation
@@ -317,10 +295,22 @@ export default defineEventHandler(async (event) => {
       dataInput.allowReviews = body.allowReviews
     }
 
-    const characterIds = normalizeIdArray(body.characterIds)
-    const rewardIds = normalizeIdArray(body.rewardIds)
-    const artImageIds = normalizeIdArray(body.artImageIds)
-    const artCollectionIds = normalizeIdArray(body.artCollectionIds)
+    const characterIds = normalizeBoundedDreamIdArray(
+      body.characterIds,
+      'characterIds',
+    )
+    const rewardIds = normalizeBoundedDreamIdArray(
+      body.rewardIds,
+      'rewardIds',
+    )
+    const artImageIds = normalizeBoundedDreamIdArray(
+      body.artImageIds,
+      'artImageIds',
+    )
+    const artCollectionIds = normalizeBoundedDreamIdArray(
+      body.artCollectionIds,
+      'artCollectionIds',
+    )
 
     if (characterIds !== undefined) {
       dataInput.Characters = {
@@ -344,6 +334,13 @@ export default defineEventHandler(async (event) => {
       dataInput.ArtCollections = {
         set: artCollectionIds.map((collectionId) => ({ id: collectionId })),
       }
+    }
+
+    if (Object.keys(dataInput).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No valid Dream update fields provided.',
+      })
     }
 
     const data = await prisma.dream.update({

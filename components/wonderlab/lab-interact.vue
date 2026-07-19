@@ -100,7 +100,12 @@
     </header>
 
     <section
-      class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]"
+      :class="[
+        'grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden',
+        selectedComponent
+          ? 'xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)]'
+          : '',
+      ]"
     >
       <aside
         class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
@@ -148,9 +153,45 @@
               </select>
             </div>
 
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+              <select
+                v-model="catalogSort"
+                class="select select-bordered select-sm bg-base-200"
+                aria-label="Sort WonderLab components"
+              >
+                <option value="NAME">Name</option>
+                <option value="STATUS">Status</option>
+                <option value="RATING">Highest rating</option>
+                <option value="REVIEWS">Most reviewed</option>
+                <option value="RECENTLY_CHANGED">Recently changed</option>
+                <option value="RECENTLY_REVIEWED">Recently reviewed</option>
+              </select>
+
+              <div class="join" aria-label="WonderLab collection view">
+                <button
+                  class="btn btn-sm join-item"
+                  :class="collectionView === 'grid' ? 'btn-primary' : 'btn-outline'"
+                  type="button"
+                  :aria-pressed="collectionView === 'grid'"
+                  @click="collectionView = 'grid'"
+                >
+                  Grid
+                </button>
+                <button
+                  class="btn btn-sm join-item"
+                  :class="collectionView === 'list' ? 'btn-primary' : 'btn-outline'"
+                  type="button"
+                  :aria-pressed="collectionView === 'list'"
+                  @click="collectionView = 'list'"
+                >
+                  List
+                </button>
+              </div>
+            </div>
+
             <div class="flex items-center justify-between gap-2">
               <p class="text-xs text-base-content/55">
-                {{ filteredComponents.length }} of {{ componentCount }} exhibits
+                {{ sortedComponents.length }} of {{ componentCount }} exhibits
               </p>
 
               <button
@@ -175,7 +216,7 @@
           </div>
 
           <div
-            v-else-if="filteredComponents.length === 0"
+            v-else-if="sortedComponents.length === 0"
             class="flex h-full flex-col items-center justify-center kr-panel-muted text-center text-base-content/55"
           >
             <Icon name="kind-icon:sparkles" class="h-12 w-12 text-accent" />
@@ -187,69 +228,28 @@
             </p>
           </div>
 
-          <div v-else class="flex flex-col gap-2">
-            <button
-              v-for="component in filteredComponents"
+          <div v-else :class="collectionLayoutClass">
+            <component-card
+              v-for="component in sortedComponents"
               :key="component.id"
-              class="rounded-2xl border p-3 text-left transition"
-              :class="
-                selectedComponent?.id === component.id
-                  ? 'border-accent bg-accent/10 text-accent shadow-sm'
-                  : 'border-base-300 bg-base-200 hover:border-accent/60'
-              "
-              type="button"
-              @click="selectComponent(component)"
-            >
-              <div class="flex items-start justify-between gap-2">
-                <div class="min-w-0">
-                  <p class="truncate text-sm font-black">
-                    {{ component.title || component.componentName }}
-                  </p>
-
-                  <p class="truncate text-xs text-base-content/55">
-                    {{ component.componentName }} · {{ component.folderName }}
-                  </p>
-                </div>
-
-                <span
-                  class="badge badge-xs shrink-0"
-                  :class="statusBadgeClass(componentStatus(component))"
-                >
-                  {{ statusShortLabel(componentStatus(component)) }}
-                </span>
-              </div>
-
-              <p
-                v-if="component.notes"
-                class="mt-2 line-clamp-2 text-xs text-base-content/60"
-              >
-                {{ component.notes }}
-              </p>
-            </button>
+              :component="component"
+              :selected="selectedComponent?.id === component.id"
+              :compact="Boolean(selectedComponent) || collectionView === 'list'"
+              :show-actions="false"
+              :show-reaction="false"
+              :show-select-button="!selectedComponent"
+              :show-metrics="true"
+              @selected="selectComponent"
+            />
           </div>
         </div>
       </aside>
 
       <main
+        v-if="selectedComponent"
         class="min-h-0 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3"
       >
-        <div
-          v-if="!selectedComponent"
-          class="flex min-h-full flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-accent/50 bg-base-200 p-8 text-center"
-        >
-          <Icon name="kind-icon:sparkles" class="h-16 w-16 text-accent" />
-
-          <div>
-            <p class="text-2xl font-black">Pick a component</p>
-
-            <p class="mt-2 max-w-lg text-sm text-base-content/65">
-              Select a component from the list to inspect its status, preview,
-              notes, and community reviews.
-            </p>
-          </div>
-        </div>
-
-        <article v-else class="flex flex-col gap-4">
+        <article class="flex flex-col gap-4">
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div
               class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
@@ -404,18 +404,23 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { Component as PrismaComponent } from '~/prisma/generated/prisma/client'
-import { useComponentStore } from '@/stores/componentStore'
+import {
+  useComponentStore,
+  type KindComponent,
+} from '@/stores/componentStore'
 import { useUserStore } from '@/stores/userStore'
 import {
   getComponentStatus,
   legacyFieldsForComponentStatus,
   type ComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
+import { sortComponentCatalog } from '@/utils/wonderlab/componentCatalog'
 import {
   normalizeWonderLabMuseumQuery,
   sameWonderLabMuseumQuery,
   wonderLabMuseumQuery,
+  type ComponentCatalogSort,
+  type WonderLabCollectionView,
   type WonderLabMuseumQueryState,
   type WonderLabQuery,
   type WonderLabStatusFilter,
@@ -458,6 +463,16 @@ const statusFilter = computed<WonderLabStatusFilter>({
   set: (status) => setMuseumQuery({ status }, 'push'),
 })
 
+const catalogSort = computed<ComponentCatalogSort>({
+  get: () => museumQueryState.value.sort,
+  set: (sort) => setMuseumQuery({ sort }, 'push'),
+})
+
+const collectionView = computed<WonderLabCollectionView>({
+  get: () => museumQueryState.value.view,
+  set: (view) => setMuseumQuery({ view }, 'push'),
+})
+
 const isLoading = ref(false)
 const isSavingComponent = ref(false)
 const statusMessage = ref('')
@@ -472,7 +487,7 @@ const hasActiveFilters = computed(
     museumQueryState.value.status !== 'all',
 )
 
-const components = computed<PrismaComponent[]>(() => {
+const components = computed<KindComponent[]>(() => {
   const fromAll = componentStore.allComponents || []
   const fromMain = componentStore.components || []
   return fromAll.length ? fromAll : fromMain
@@ -480,7 +495,7 @@ const components = computed<PrismaComponent[]>(() => {
 
 const selectedComponent = computed({
   get: () => componentStore.selectedComponent,
-  set: (value: PrismaComponent | null) => {
+  set: (value: KindComponent | null) => {
     componentStore.selectedComponent = value
   },
 })
@@ -557,12 +572,18 @@ const filteredComponents = computed(() => {
     })
   }
 
-  return [...result].sort((left, right) => {
-    const leftLabel = left.title || left.componentName
-    const rightLabel = right.title || right.componentName
-    return leftLabel.localeCompare(rightLabel)
-  })
+  return result
 })
+
+const sortedComponents = computed(() =>
+  sortComponentCatalog(filteredComponents.value, catalogSort.value),
+)
+
+const collectionLayoutClass = computed(() =>
+  selectedComponent.value || collectionView.value === 'list'
+    ? 'flex flex-col gap-2'
+    : 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4',
+)
 
 function setMuseumQuery(
   partial: Partial<WonderLabMuseumQueryState>,
@@ -593,31 +614,12 @@ function clearMuseumFilters(): void {
   )
 }
 
-function componentStatus(component: PrismaComponent): ComponentStatus {
+function componentStatus(component: KindComponent): ComponentStatus {
   return getComponentStatus(component)
 }
 
 function statusLabel(status: ComponentStatus): string {
   return statusOptions.find((option) => option.value === status)?.label || status
-}
-
-function statusShortLabel(status: ComponentStatus): string {
-  switch (status) {
-    case 'WORKING':
-      return 'ok'
-    case 'NEEDS_CONTEXT':
-      return 'ctx'
-    case 'UNDER_CONSTRUCTION':
-      return 'wip'
-    case 'BROKEN':
-      return 'bug'
-    case 'RETIRED':
-      return 'old'
-    case 'PREVIEW_UNSUPPORTED':
-      return 'n/a'
-    default:
-      return 'new'
-  }
 }
 
 function statusBadgeClass(status: ComponentStatus): string {
@@ -642,7 +644,7 @@ function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusTone.value = tone
 }
 
-function selectComponent(component: PrismaComponent) {
+function selectComponent(component: KindComponent) {
   componentStore.selectedComponent = component
   statusMessage.value = ''
 }

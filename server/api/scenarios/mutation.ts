@@ -19,7 +19,6 @@ const scenarioMutationFields = [
   'cast',
   'dreamIds',
   'characterIds',
-  'facetIds',
   'artImageId',
   'imagePath',
   'locations',
@@ -37,11 +36,14 @@ const scenarioMutationFields = [
 
 // ScenarioForm currently spreads these model fields into singular mutations.
 // They are validated and ignored until the client payload helper is narrowed.
+// facetIds is also compatibility-only because Prisma currently exposes Facets
+// in Scenario reads but no writable ScenarioCreateInput/ScenarioUpdateInput relation.
 const scenarioStoreCompatibilityFields = [
   'id',
   'userId',
   'createdAt',
   'updatedAt',
+  'facetIds',
 ] as const
 
 export const scenarioCreateFields = new Set<string>([
@@ -108,7 +110,7 @@ const nullableTextFields = [
 ] as const
 
 const booleanFields = ['isMature', 'isPublic', 'isActive'] as const
-const relationFields = ['dreamIds', 'characterIds', 'facetIds'] as const
+const relationFields = ['dreamIds', 'characterIds'] as const
 const outputTypes = Object.values(ScenarioOutputType)
 
 function normalizeCompatibilityId(value: unknown, field: string): number {
@@ -262,6 +264,10 @@ export function assertScenarioMutationInput(
     if (input[field] !== undefined) {
       normalizeScenarioIdArray(input[field], field)
     }
+  }
+
+  if (input.facetIds !== undefined) {
+    normalizeScenarioIdArray(input.facetIds, 'facetIds')
   }
 }
 
@@ -548,14 +554,12 @@ export async function assertScenarioRelationsExist(input: {
   artImageId?: number | null
   dreamIds?: number[]
   characterIds?: number[]
-  facetIds?: number[]
 }): Promise<void> {
   const artImageIds = typeof input.artImageId === 'number' ? [input.artImageId] : []
   const dreamIds = input.dreamIds ?? []
   const characterIds = input.characterIds ?? []
-  const facetIds = input.facetIds ?? []
 
-  const [artImages, dreams, characters, facets] = await Promise.all([
+  const [artImages, dreams, characters] = await Promise.all([
     artImageIds.length
       ? prisma.artImage.findMany({
           where: { id: { in: artImageIds } },
@@ -574,18 +578,11 @@ export async function assertScenarioRelationsExist(input: {
           select: { id: true },
         })
       : [],
-    facetIds.length
-      ? prisma.facet.findMany({
-          where: { id: { in: facetIds } },
-          select: { id: true },
-        })
-      : [],
   ])
 
   assertFound(artImageIds, artImages, 'ArtImage')
   assertFound(dreamIds, dreams, 'Dream')
   assertFound(characterIds, characters, 'Character')
-  assertFound(facetIds, facets, 'Facet')
 }
 
 export async function buildScenarioUpdateInput(
@@ -657,13 +654,11 @@ export async function buildScenarioUpdateInput(
     body.characterIds,
     'characterIds',
   )
-  const facetIds = normalizeScenarioIdArray(body.facetIds, 'facetIds')
 
   await assertScenarioRelationsExist({
     artImageId,
     dreamIds,
     characterIds,
-    facetIds,
   })
 
   if ('artImageId' in body) {
@@ -677,9 +672,6 @@ export async function buildScenarioUpdateInput(
   }
   if (characterIds !== undefined) {
     data.Characters = { set: characterIds.map((id) => ({ id })) }
-  }
-  if (facetIds !== undefined) {
-    data.Facets = { set: facetIds.map((id) => ({ id })) }
   }
 
   return data

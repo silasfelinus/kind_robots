@@ -3,7 +3,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import { Prisma } from '~/prisma/generated/prisma/client'
 import {
   isComponentStatus,
   type ComponentStatus,
@@ -20,6 +20,7 @@ type ComponentPatchBody = {
   category?: unknown
   previewMode?: unknown
   artImageId?: unknown
+  tags?: unknown
 }
 
 const allowedPatchFields = new Set([
@@ -33,6 +34,7 @@ const allowedPatchFields = new Set([
   'category',
   'previewMode',
   'artImageId',
+  'tags',
 ])
 
 function requiredText(value: unknown, field: string, maxLength: number): string {
@@ -84,11 +86,14 @@ function nullableText(
 function componentNameValue(value: unknown): string {
   const name = requiredText(value, 'componentName', 255)
 
-  if (!/^[a-zA-Z0-9\s-]+$/.test(name)) {
+  // "@" is allowed alongside alphanumerics/spaces/hyphens for the animation-manager
+  // attempt-record convention (conductor animation-manager/t-004): componentName
+  // "<animation-slug>@v<build-number>", e.g. "bioluminescent-tide@v1".
+  if (!/^[a-zA-Z0-9\s@-]+$/.test(name)) {
     throw createError({
       statusCode: 400,
       message:
-        '"componentName" may contain only alphanumeric characters, spaces, or hyphens.',
+        '"componentName" may contain only alphanumeric characters, spaces, hyphens, or "@".',
     })
   }
 
@@ -122,6 +127,28 @@ function optionalArtImageId(value: unknown): number | null | undefined {
   }
 
   return id
+}
+
+// Native Json column (tags) -- clearing it means "no value at all" (Prisma.DbNull),
+// not the JSON literal null (Prisma.JsonNull). Cast to the InputJsonObject variant,
+// not the wider InputJsonValue one that verifyNoPrismaJsonCast.ts bans: that guard
+// targets the older String/@db.Text-column footgun (kind-robots roadmap t-033),
+// not this genuinely native Json column, and InputJsonObject is the precise type
+// once non-array-object has been validated above.
+function optionalTags(
+  value: unknown,
+): Prisma.InputJsonObject | typeof Prisma.DbNull | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return Prisma.DbNull
+
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: '"tags" must be a JSON object or null.',
+    })
+  }
+
+  return value as Prisma.InputJsonObject
 }
 
 async function assertArtImageExists(artImageId?: number | null) {
@@ -198,6 +225,7 @@ export default defineEventHandler(async (event) => {
     const body = parsePatchBody(await readBody<unknown>(event))
     const canonicalStatus = optionalStatus(body.status)
     const artImageId = optionalArtImageId(body.artImageId)
+    const tags = optionalTags(body.tags)
 
     await assertArtImageExists(artImageId)
 
@@ -233,6 +261,7 @@ export default defineEventHandler(async (event) => {
         body.previewMode === undefined
           ? undefined
           : nullableText(body.previewMode, 'previewMode', 64),
+      tags,
       ArtImage:
         artImageId === null
           ? { disconnect: true }

@@ -3,7 +3,8 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
-import type { Component, Prisma } from '~/prisma/generated/prisma/client'
+import { Prisma } from '~/prisma/generated/prisma/client'
+import type { Component } from '~/prisma/generated/prisma/client'
 import {
   isComponentStatus,
   type ComponentStatus,
@@ -29,6 +30,25 @@ function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
   const parsed = Number(value)
 
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
+// See server/api/components/[id].patch.ts's optionalTags for why this casts to
+// the InputJsonObject variant (a legitimate native-Json-column cast) rather than
+// the wider InputJsonValue cast that utils/scripts/verifyNoPrismaJsonCast.ts bans.
+function optionalTags(
+  value: unknown,
+): Prisma.InputJsonObject | typeof Prisma.DbNull | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return Prisma.DbNull
+
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: '"tags" must be a JSON object or null.',
+    })
+  }
+
+  return value as Prisma.InputJsonObject
 }
 
 function requestedStatus(value: unknown): ComponentStatus | null {
@@ -109,10 +129,13 @@ export default defineEventHandler(async (event) => {
     const canonicalStatus = requestedStatus(componentData.status)
     const createStatus: ComponentStatus = canonicalStatus ?? 'UNREVIEWED'
 
+    const tags = optionalTags(componentData.tags)
+
     const commonData = {
       folderName,
       title: getStringOrDefault(componentData.title, componentName),
       notes: getStringOrNull(componentData.notes),
+      tags,
       updatedAt: new Date(),
       ArtImage: artImageId
         ? {

@@ -48,6 +48,7 @@
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "test:data-surface-manifest": "tsx utils/scripts/verifyDataSurfaceManifest.ts",
     "test:animation-catalog": "tsx utils/scripts/verifyAnimationCatalog.ts",
+    "test:animation-component-attempts": "tsx utils/scripts/verifyAnimationComponentAttempts.ts",
     "test:database-pool-defaults": "tsx utils/scripts/verifyDatabasePoolDefaults.ts",
     "test:academy-style-detail-callers": "tsx utils/scripts/verifyAcademyStyleDetailCallers.ts",
     "test:academy-starter-manifest": "tsx utils/scripts/verifyAcademyStarterManifest.ts",

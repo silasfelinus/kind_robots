@@ -1,0 +1,170 @@
+name: WonderLab Production Rollout
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-production-rollout.yml'
+      - 'scripts/wonderlab-production-rollout.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-production-rollout.yml'
+      - 'scripts/wonderlab-production-rollout.mjs'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Apply a conflict-free Component reconciliation and clean exact stale Cypress Component fixtures'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wonderlab-production-rollout-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate rollout runner
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Check rollout script syntax and safety boundary
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-production-rollout.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const source = fs.readFileSync('scripts/wonderlab-production-rollout.mjs', 'utf8')
+
+          const requiredEndpoints = [
+            ['/wonderlab-components.json'],
+            ['/api', '/components', '/reconcile'],
+            ['/api', '/components'],
+            ['/api', '/admin', '/wonderlab', '/review-rollout'],
+          ].map((parts) => parts.join(''))
+
+          for (const required of [
+            ...requiredEndpoints,
+            "mode: 'dry-run'",
+            "mode: 'apply'",
+            'WONDERLAB_ROLLOUT_APPLY',
+          ]) {
+            assert.ok(source.includes(required), `missing required rollout boundary: ${required}`)
+          }
+
+          for (const forbidden of [
+            '/generate',
+            '/publish',
+            '/approve',
+            'ReviewDraft',
+            'Reaction',
+            'DATABASE_URL',
+            '_prisma_migrations',
+          ]) {
+            assert.ok(!source.includes(forbidden), `rollout runner crossed forbidden boundary: ${forbidden}`)
+          }
+
+          assert.match(source, /if \(Number\(drySummary\.conflicts \|\| 0\) !== 0\)/)
+          assert.match(source, /reviewCount === 0/)
+          assert.match(source, /record\.isDiscovered !== true/)
+          assert.match(source, /!record\.sourceKey/)
+          assert.match(source, /!record\.sourcePath/)
+          console.log('WonderLab production rollout safety contract passed.')
+          NODE
+
+  reconcile:
+    name: Reconcile and audit WonderLab
+    # The tagged merge runs this once automatically. Later workflow edits remain
+    # inert unless explicitly dispatched or deliberately tagged again.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-rollout]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select rollout mode
+        env:
+          REQUESTED_APPLY: ${{ inputs.apply }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ "${REQUESTED_APPLY:-false}" = "true" ]; then
+            echo 'WONDERLAB_ROLLOUT_APPLY=1' >> "$GITHUB_ENV"
+          else
+            echo 'WONDERLAB_ROLLOUT_APPLY=0' >> "$GITHUB_ENV"
+          fi
+
+      - name: Wait for tagged commit to reach production
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          TARGET_SHA: ${{ github.sha }}
+          MAX_WAIT: '1200'
+        run: |
+          set -euo pipefail
+          echo "Waiting for production to contain ${TARGET_SHA}..."
+          deadline=$(( $(date +%s) + MAX_WAIT ))
+          live=""
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
+            live="$(printf '%s' "$body" | jq -r '.data.commit // .data.commitSha // empty' 2>/dev/null || true)"
+            if [ -n "$live" ]; then
+              if [ "$live" = "$TARGET_SHA" ]; then
+                echo "Production is serving ${live}."
+                exit 0
+              fi
+              if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+                git fetch --quiet --depth=300 origin main 2>/dev/null || true
+              fi
+              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live" 2>/dev/null; then
+                echo "Production is serving superseding commit ${live}."
+                exit 0
+              fi
+            fi
+            echo "  serving ${live:-unknown}; retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Production did not contain ${TARGET_SHA} within ${MAX_WAIT}s (last seen: ${live:-unknown})."
+          exit 1
+
+      - name: Reconcile canonical Component registry and run rollout audit
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_CLEANUP_FIXTURES: '1'
+          WONDERLAB_ROLLOUT_OUTPUT: wonderlab-rollout-artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "${WONDERLAB_ADMIN_TOKEN:-}" ]; then
+            echo '::error::CYPRESS_BETA_ADMIN_TOKEN is not configured.'
+            exit 1
+          fi
+          node scripts/wonderlab-production-rollout.mjs
+
+      - name: Upload rollout evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-production-rollout-${{ github.run_id }}
+          path: wonderlab-rollout-artifacts
+          if-no-files-found: warn
+          retention-days: 30

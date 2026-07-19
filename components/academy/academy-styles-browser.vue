@@ -105,7 +105,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, type ComponentPublicInstance } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type ComponentPublicInstance,
+} from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'
 
@@ -142,6 +149,24 @@ function closeStyle() {
     if (slug) gridRefs.get(slug)?.focus()
   })
 }
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && expandedSlug.value) {
+    closeStyle()
+  }
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', onKeydown)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', onKeydown)
+  }
+})
 
 const expandedStyle = computed<AcademyStyle | null>(() => {
   if (!expandedSlug.value) return null

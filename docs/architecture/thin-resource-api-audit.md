@@ -34,6 +34,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Logs | Any authenticated user could list, read, or delete another user’s logs; POST accepted forged identity/timestamps; errors often returned HTTP 200 | Reads and deletes are owner/admin scoped, lists default to self, POST derives identity/time from auth, and every route returns explicit HTTP status envelopes |
 | ArtImage create and lookup | Create accepted caller ownership plus Server/Checkpoint and many unrelated relationship IDs; the by-IDs helper posted lookup bodies to the create route | Create derives ownership from auth and accepts scalar metadata only; relationship writes stay explicit; bounded visibility-aware `/by-ids` lookup now owns batch retrieval |
 | ArtCollection membership | Create/PATCH accepted any existing ArtImage ID, so collection owners could attach another user’s private images; store and fixtures still sent body identity | Collection ownership comes from auth, add/replace requires owned active images, relation commands are bounded and unambiguous, empty replace clears membership, and callers no longer send user IDs |
+| Challenge mutations | Admin create accepted request-body `userId`, used handwritten enum lists, returned an unbounded model row, and had no cleanup-safe delete route | Create derives owner from admin authentication, rejects server-owned and unknown fields, validates generated Prisma enums, returns a scalar projection, maps duplicate slugs to `409`, and admin delete relies on the database to protect Challenges with submissions |
 
 ### P1 — Completed response and resource-boundary cleanup
 
@@ -99,7 +100,7 @@ For Dreams, collection creation remains an explicit `collectionStore` action. Ch
 2. ✅ Dream store/form cleanup and removal of obsolete collection/chat flags.
 3. ✅ Character, Scenario, Reward, and Prompt resource projections, including explicit Scenario single/batch create routes and a whitelisted Prompt PATCH contract.
 4. ✅ Bot, Project, Server, Theme, Resource, SmartIcon, Reaction, and PitchSheet response/create-boundary cleanup; retired the unused SocialPost/SocialTarget prototype instead of preserving dead CRUD.
-5. ✅ Dream delete referential actions and route simplification; continue the same audit for other resources only where manual cleanup remains.
+5. ✅ Dream delete referential actions, ArtCollection ownership, and Challenge admin mutation boundaries; continue the same audit for other resources only where evidence remains.
 6. Re-run deployed API Cypress tests and compare Vercel mutation duration/error volume when production catches up to the merged API tier.
 
 ## Definition of Done

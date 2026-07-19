@@ -116,7 +116,7 @@
       </div>
 
       <!-- Preview -->
-      <div v-if="sourceImageData" class="relative">
+      <div v-if="sourceImageData && !maskEnabled" class="relative">
         <img :src="sourceImageData" alt="Client photo" class="max-h-64 w-full rounded-lg object-contain" />
         <button
           type="button"
@@ -125,6 +125,28 @@
           @click="clearSource"
         >
           <Icon name="mdi:close" class="h-4 w-4" />
+        </button>
+      </div>
+
+      <label v-if="sourceImageData" class="flex items-center gap-2">
+        <input v-model="maskEnabled" type="checkbox" class="checkbox checkbox-xs checkbox-primary" />
+        <span class="text-xs text-base-content/70">
+          Only restyle the hair (paint a mask instead of changing the whole photo)
+        </span>
+      </label>
+
+      <div v-if="sourceImageData && maskEnabled" class="flex flex-col gap-2">
+        <stylist-mask-brush
+          :source-image-data="sourceImageData"
+          @update:mask-data="maskData = $event"
+        />
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs self-start"
+          title="Remove photo"
+          @click="clearSource"
+        >
+          <Icon name="mdi:close" class="h-4 w-4" /> Remove photo
         </button>
       </div>
     </div>
@@ -418,7 +440,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   useStylistStore,
   clientFromDesigner,
@@ -435,6 +457,12 @@ const sourceTab = ref<'upload' | 'camera'>('upload')
 const sourceImageData = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
+
+// Optional hair-only mask (t-018): when enabled, stylist-mask-brush replaces
+// the plain preview and the painted mask restricts the Kontext repaint to
+// just that region instead of the whole photo.
+const maskEnabled = ref(false)
+const maskData = ref<string | null>(null)
 
 const videoEl = ref<HTMLVideoElement | null>(null)
 const cameraActive = ref(false)
@@ -671,7 +699,13 @@ function closeCamera() {
 
 function clearSource() {
   sourceImageData.value = null
+  maskEnabled.value = false
+  maskData.value = null
 }
+
+watch(maskEnabled, (enabled) => {
+  if (!enabled) maskData.value = null
+})
 
 function submit() {
   if (!sourceImageData.value || !hasAnyChange.value) return
@@ -684,6 +718,7 @@ function submit() {
     guidance: guidanceValue.value,
     steps: stepsValue.value,
     ...(protectIdentity.value ? { negativePrompt: IDENTITY_NEGATIVE } : {}),
+    ...(maskEnabled.value && maskData.value ? { maskData: maskData.value } : {}),
   })
 }
 

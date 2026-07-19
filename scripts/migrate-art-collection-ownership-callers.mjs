@@ -11,6 +11,7 @@ function replaceExact(path, target, replacement, label) {
 
   const updated = normalizedSource.replace(target, replacement)
   writeFileSync(path, updated.replace(/\n/g, newline), 'utf8')
+  console.log(`Applied ${label}.`)
 }
 
 replaceExact(
@@ -83,8 +84,8 @@ replaceExact(
 
 replaceExact(
   'components/art/add-collection.vue',
-  `          :disabled="isSaving || disabled || !label.trim() || !resolvedUserId"`,
-  `          :disabled="isSaving || disabled || !label.trim()"`,
+  `:disabled="isSaving || disabled || !label.trim() || !resolvedUserId"`,
+  `:disabled="isSaving || disabled || !label.trim()"`,
   'collection create button identity dependency',
 )
 

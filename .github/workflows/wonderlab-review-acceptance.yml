@@ -171,11 +171,13 @@ jobs:
 
       - name: Include deploy evidence
         if: always()
+        env:
+          OUTPUT_DIR: wonderlab-review-acceptance-artifacts
         run: |
           set -euo pipefail
-          mkdir -p wonderlab-review-acceptance-artifacts
+          mkdir -p "$OUTPUT_DIR"
           if [ -f production-version.json ]; then
-            cp production-version.json wonderlab-review-acceptance-artifacts/workflow-production-version.json
+            cp production-version.json "$OUTPUT_DIR/workflow-production-version.json"
           fi
 
       - name: Upload acceptance evidence
@@ -193,7 +195,6 @@ jobs:
         env:
           JOB_STATUS: ${{ job.status }}
           OUTPUT_DIR: wonderlab-review-acceptance-artifacts
-          ACCEPTANCE_STAGE: ${{ env.WONDERLAB_REVIEW_ACTION }}
         with:
           script: |
             const fs = require('node:fs')
@@ -212,7 +213,7 @@ jobs:
             const summary = readJson('acceptance-summary.json')
             const failure = readJson('failure.json')
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            const stage = process.env.ACCEPTANCE_STAGE || summary?.stage || 'unknown'
+            const stage = process.env.WONDERLAB_REVIEW_ACTION || summary?.stage || 'unknown'
             const lines = [
               `## WonderLab representative review ${stage} report`,
               '',

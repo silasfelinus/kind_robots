@@ -16,25 +16,45 @@ assert.doesNotMatch(
   /prisma\.\$transaction\(async\s*\(/,
   'Production reconciliation must not use an interactive callback transaction with an expiry deadline.',
 )
+assert.doesNotMatch(
+  source,
+  /prisma\.component\.update\(/,
+  'Canonical updates must not issue one Prisma operation per Component.',
+)
 assert.match(
   source,
-  /const updateOperations = plan\.updates\.flatMap/,
-  'Existing Component updates must be prepared as atomic batch transaction operations.',
+  /function buildBulkUpdateQuery/,
+  'Canonical updates must be assembled into one bounded bulk statement.',
+)
+assert.ok(
+  source.includes('UPDATE \\`Component\\`') &&
+    source.includes('CASE \\`id\\`'),
+  'The bulk update must target Component rows by their existing IDs.',
+)
+assert.match(
+  source,
+  /prisma\.\$executeRaw\(updateQuery\)/,
+  'The canonical update plan must execute as one parameterized raw statement.',
 )
 assert.match(
   source,
   /prisma\.component\.createMany\(/,
-  'New manifest Components must be collapsed into a single createMany statement.',
+  'New manifest Components must be collapsed into one createMany statement.',
 )
 assert.match(
   source,
-  /await prisma\.\$transaction\(\[\.\.\.updateOperations, \.\.\.createOperations\]\)/,
-  'Updates and the bulk create must commit together in a non-interactive batch transaction.',
+  /await prisma\.\$transaction\(operations\)/,
+  'The bulk update and bulk create must commit together atomically.',
+)
+assert.match(
+  source,
+  /Prisma\.join\(assignments, ', '\)/,
+  'Bulk assignments must be composed through Prisma SQL helpers.',
 )
 assert.doesNotMatch(
   source,
-  /RECONCILE_TRANSACTION_OPTIONS|timeout:\s*\d/,
-  'The reconciliation must not regress to an interactive transaction timeout workaround.',
+  /\$executeRawUnsafe|Prisma\.raw\(/,
+  'The reconciliation must not interpolate manifest data through unsafe raw SQL.',
 )
 
-console.log('WonderLab reconciliation batch transaction contract passed.')
+console.log('WonderLab reconciliation bulk statement contract passed.')

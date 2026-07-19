@@ -1277,6 +1277,41 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image as a Bauhaus-school geometric abstraction: pure circles, triangles, and squares in bold primary colors on a flat plane, precise linework, no realistic shading',
     },
   },
+  {
+    slug: 'american-regionalism',
+    name: 'American Regionalism',
+    era: 'c. 1928–1935',
+    sortYear: 1928,
+    region: 'American Midwest',
+    keyIdeas:
+      'After a decade of American painters looking to Paris for their cues, a Midwestern countercurrent insisted the most American subject was standing right outside the studio window: county fairs, cornfields, Carpenter Gothic farmhouses, storm cellars. Regionalist painters rendered these everyday rural scenes with a smooth, almost sculptural precision — crisp outlines and simplified rounded forms — rather than the loose, gritty immediacy of the Ashcan School. The tone is famously ambiguous: sincere homage or gentle satire?',
+    recognitionCues: [
+      'Smooth, simplified, almost sculptural forms — rounded contours rather than loose brushwork',
+      'Sharp-focus, evenly lit representational realism with very little visible brushstroke texture',
+      'Rural and small-town Midwestern American subjects: farms, farmhouses, fields, community gatherings',
+      'Dramatic, rolling skies and stylized cloud/crop patterns used as a compositional device',
+      'A muted, earthy palette (ochre, olive, brick red, slate blue) with occasional saturated accent color',
+    ],
+    artists: [
+      {
+        name: 'Grant Wood',
+        years: '1891–1942',
+        note: 'Iowa painter whose meticulous, polished realism and ambiguous tone made American Gothic the most recognized American painting of the 20th century.',
+      },
+      {
+        name: 'John Steuart Curry',
+        years: '1897–1946',
+        note: 'Kansas-born painter of dramatic rural weather and revivalist religious life, whose theatrical compositions brought Regionalism its most kinetic, storm-tossed energy.',
+      },
+    ],
+    failureMode:
+      'Under-cooks toward a lightly-processed photo if the prompt underweights the smoothed, sculptural simplification — lean on "crisp outlines," "simplified sculptural forms," "dramatic rolling sky"',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image in the American Regionalist style: smooth, simplified sculptural forms with crisp outlines, sharp-focus representational realism, a rural Midwestern American setting, a dramatic rolling sky, and a muted earthy palette with a few bold accent colors',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> =

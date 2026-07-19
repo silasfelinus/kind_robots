@@ -27,7 +27,7 @@ for (const status of [
   'RETIRED',
   'PREVIEW_UNSUPPORTED',
 ]) {
-  assert.match(schema, new RegExp(`\\b${status}\\b`))
+  assert.match(schema, new RegExp(`\b${status}\b`))
 }
 
 for (const field of [
@@ -45,7 +45,7 @@ for (const field of [
   'lastSeenAt',
   'isDiscovered',
 ]) {
-  assert.match(schema, new RegExp(`^\\s*${field}\\s+`, 'm'))
+  assert.match(schema, new RegExp(`^\s*${field}\s+`, 'm'))
 }
 
 for (const legacyField of [
@@ -55,7 +55,7 @@ for (const legacyField of [
 ]) {
   assert.match(
     schema,
-    new RegExp(`^\\s*${legacyField}\\s+Boolean`, 'm'),
+    new RegExp(`^\s*${legacyField}\s+Boolean`, 'm'),
     `${legacyField} must remain during the compatibility stage`,
   )
 }
@@ -103,7 +103,13 @@ for (const temporaryPath of [
   '.github/workflows/component-schema-adopt.yml',
   '.github/scripts/apply-component-schema-adoption.py',
 ]) {
-  await assert.rejects(access(temporaryPath), undefined, `${temporaryPath} must be removed`)
+  let exists = true
+  try {
+    await access(temporaryPath)
+  } catch {
+    exists = false
+  }
+  assert.equal(exists, false, `${temporaryPath} must be removed`)
 }
 
 console.log('Canonical Component runtime adoption contract passed.')

@@ -1,9 +1,9 @@
 name: Component Prisma schema adoption
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/component-prisma-runtime-adoption
+      - main
     paths:
       - .github/workflows/component-schema-adopt.yml
       - .github/scripts/apply-component-schema-adoption.py

@@ -62,6 +62,11 @@ requireText(
   'buildCharacterUpdateInput(',
   'Character shared update builder',
 )
+requireText(
+  boundary,
+  'User: { connect: { id: options.userId } }',
+  'Character authenticated create ownership',
+)
 
 requireText(
   compatibility,
@@ -88,11 +93,6 @@ requireText(
   createRoute,
   'stripCharacterCompatibilityFields(rawBody)',
   'Character create compatibility isolation',
-)
-requireText(
-  createRoute,
-  'User: { connect: { id: options.userId } }',
-  'Character authenticated create ownership',
 )
 requireText(
   patchRoute,

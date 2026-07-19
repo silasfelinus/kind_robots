@@ -1,9 +1,19 @@
 // /utils/wonderlab/componentStatus.ts
-export type LegacyComponentStatus =
-  | 'UNREVIEWED'
-  | 'WORKING'
-  | 'UNDER_CONSTRUCTION'
-  | 'BROKEN'
+export const componentStatuses = [
+  'UNREVIEWED',
+  'WORKING',
+  'NEEDS_CONTEXT',
+  'UNDER_CONSTRUCTION',
+  'BROKEN',
+  'RETIRED',
+  'PREVIEW_UNSUPPORTED',
+] as const
+
+export type ComponentStatus = (typeof componentStatuses)[number]
+export type LegacyComponentStatus = Extract<
+  ComponentStatus,
+  'UNREVIEWED' | 'WORKING' | 'UNDER_CONSTRUCTION' | 'BROKEN'
+>
 
 export type LegacyComponentStatusFields = {
   isWorking?: boolean | null
@@ -11,10 +21,21 @@ export type LegacyComponentStatusFields = {
   isBroken?: boolean | null
 }
 
+export type ComponentStatusFields = LegacyComponentStatusFields & {
+  status?: ComponentStatus | string | null
+}
+
 export type CanonicalLegacyStatusFields = {
   isWorking: boolean
   underConstruction: boolean
   isBroken: boolean
+}
+
+export function isComponentStatus(value: unknown): value is ComponentStatus {
+  return (
+    typeof value === 'string' &&
+    componentStatuses.includes(value as ComponentStatus)
+  )
 }
 
 export function getLegacyComponentStatus(
@@ -26,8 +47,15 @@ export function getLegacyComponentStatus(
   return 'UNREVIEWED'
 }
 
+export function getComponentStatus(
+  component: ComponentStatusFields,
+): ComponentStatus {
+  if (isComponentStatus(component.status)) return component.status
+  return getLegacyComponentStatus(component)
+}
+
 export function legacyFieldsForComponentStatus(
-  status: LegacyComponentStatus,
+  status: ComponentStatus,
 ): CanonicalLegacyStatusFields {
   return {
     isWorking: status === 'WORKING',
@@ -50,8 +78,6 @@ export function resolveLegacyStatusUpdate(
   existing: LegacyComponentStatusFields,
   patch: LegacyComponentStatusFields,
 ): CanonicalLegacyStatusFields {
-  // A newly enabled state is an explicit selection and should replace the old
-  // state even when callers send only one boolean field.
   if (patch.isBroken === true) {
     return legacyFieldsForComponentStatus('BROKEN')
   }
@@ -62,8 +88,6 @@ export function resolveLegacyStatusUpdate(
     return legacyFieldsForComponentStatus('WORKING')
   }
 
-  // False-only patches clear the supplied flags and preserve any other
-  // existing state. The result is normalized before it reaches Prisma.
   return legacyFieldsForComponentStatus(
     getLegacyComponentStatus({
       isWorking:

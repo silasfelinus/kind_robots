@@ -599,3 +599,16 @@ export const OrderStatus = {
 } as const
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const ComponentStatus = {
+  UNREVIEWED: 'UNREVIEWED',
+  WORKING: 'WORKING',
+  NEEDS_CONTEXT: 'NEEDS_CONTEXT',
+  UNDER_CONSTRUCTION: 'UNDER_CONSTRUCTION',
+  BROKEN: 'BROKEN',
+  RETIRED: 'RETIRED',
+  PREVIEW_UNSUPPORTED: 'PREVIEW_UNSUPPORTED'
+} as const
+
+export type ComponentStatus = (typeof ComponentStatus)[keyof typeof ComponentStatus]

@@ -45,8 +45,19 @@ export type ComponentMinAggregateOutputType = {
   isWorking: boolean | null
   underConstruction: boolean | null
   isBroken: boolean | null
+  slug: string | null
+  sourcePath: string | null
+  sourceKey: string | null
+  sourceHash: string | null
+  status: $Enums.ComponentStatus | null
+  statusReason: string | null
   title: string | null
+  description: string | null
   notes: string | null
+  category: string | null
+  previewMode: string | null
+  lastSeenAt: Date | null
+  isDiscovered: boolean | null
   artImageId: number | null
 }
 
@@ -59,8 +70,19 @@ export type ComponentMaxAggregateOutputType = {
   isWorking: boolean | null
   underConstruction: boolean | null
   isBroken: boolean | null
+  slug: string | null
+  sourcePath: string | null
+  sourceKey: string | null
+  sourceHash: string | null
+  status: $Enums.ComponentStatus | null
+  statusReason: string | null
   title: string | null
+  description: string | null
   notes: string | null
+  category: string | null
+  previewMode: string | null
+  lastSeenAt: Date | null
+  isDiscovered: boolean | null
   artImageId: number | null
 }
 
@@ -73,8 +95,21 @@ export type ComponentCountAggregateOutputType = {
   isWorking: number
   underConstruction: number
   isBroken: number
+  slug: number
+  sourcePath: number
+  sourceKey: number
+  sourceHash: number
+  status: number
+  statusReason: number
   title: number
+  description: number
   notes: number
+  category: number
+  tags: number
+  previewMode: number
+  previewConfig: number
+  lastSeenAt: number
+  isDiscovered: number
   artImageId: number
   _all: number
 }
@@ -99,8 +134,19 @@ export type ComponentMinAggregateInputType = {
   isWorking?: true
   underConstruction?: true
   isBroken?: true
+  slug?: true
+  sourcePath?: true
+  sourceKey?: true
+  sourceHash?: true
+  status?: true
+  statusReason?: true
   title?: true
+  description?: true
   notes?: true
+  category?: true
+  previewMode?: true
+  lastSeenAt?: true
+  isDiscovered?: true
   artImageId?: true
 }
 
@@ -113,8 +159,19 @@ export type ComponentMaxAggregateInputType = {
   isWorking?: true
   underConstruction?: true
   isBroken?: true
+  slug?: true
+  sourcePath?: true
+  sourceKey?: true
+  sourceHash?: true
+  status?: true
+  statusReason?: true
   title?: true
+  description?: true
   notes?: true
+  category?: true
+  previewMode?: true
+  lastSeenAt?: true
+  isDiscovered?: true
   artImageId?: true
 }
 
@@ -127,8 +184,21 @@ export type ComponentCountAggregateInputType = {
   isWorking?: true
   underConstruction?: true
   isBroken?: true
+  slug?: true
+  sourcePath?: true
+  sourceKey?: true
+  sourceHash?: true
+  status?: true
+  statusReason?: true
   title?: true
+  description?: true
   notes?: true
+  category?: true
+  tags?: true
+  previewMode?: true
+  previewConfig?: true
+  lastSeenAt?: true
+  isDiscovered?: true
   artImageId?: true
   _all?: true
 }
@@ -228,8 +298,21 @@ export type ComponentGroupByOutputType = {
   isWorking: boolean
   underConstruction: boolean
   isBroken: boolean
+  slug: string | null
+  sourcePath: string | null
+  sourceKey: string | null
+  sourceHash: string | null
+  status: $Enums.ComponentStatus
+  statusReason: string | null
   title: string | null
+  description: string | null
   notes: string | null
+  category: string | null
+  tags: runtime.JsonValue | null
+  previewMode: string | null
+  previewConfig: runtime.JsonValue | null
+  lastSeenAt: Date | null
+  isDiscovered: boolean
   artImageId: number | null
   _count: ComponentCountAggregateOutputType | null
   _avg: ComponentAvgAggregateOutputType | null
@@ -265,8 +348,21 @@ export type ComponentWhereInput = {
   isWorking?: Prisma.BoolFilter<"Component"> | boolean
   underConstruction?: Prisma.BoolFilter<"Component"> | boolean
   isBroken?: Prisma.BoolFilter<"Component"> | boolean
+  slug?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourcePath?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourceHash?: Prisma.StringNullableFilter<"Component"> | string | null
+  status?: Prisma.EnumComponentStatusFilter<"Component"> | $Enums.ComponentStatus
+  statusReason?: Prisma.StringNullableFilter<"Component"> | string | null
   title?: Prisma.StringNullableFilter<"Component"> | string | null
+  description?: Prisma.StringNullableFilter<"Component"> | string | null
   notes?: Prisma.StringNullableFilter<"Component"> | string | null
+  category?: Prisma.StringNullableFilter<"Component"> | string | null
+  tags?: Prisma.JsonNullableFilter<"Component">
+  previewMode?: Prisma.StringNullableFilter<"Component"> | string | null
+  previewConfig?: Prisma.JsonNullableFilter<"Component">
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
+  isDiscovered?: Prisma.BoolFilter<"Component"> | boolean
   artImageId?: Prisma.IntNullableFilter<"Component"> | number | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
@@ -281,8 +377,21 @@ export type ComponentOrderByWithRelationInput = {
   isWorking?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   isBroken?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  tags?: Prisma.SortOrderInput | Prisma.SortOrder
+  previewMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  previewConfig?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isDiscovered?: Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
@@ -292,6 +401,8 @@ export type ComponentOrderByWithRelationInput = {
 export type ComponentWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   componentName?: string
+  slug?: string
+  sourceKey?: string
   AND?: Prisma.ComponentWhereInput | Prisma.ComponentWhereInput[]
   OR?: Prisma.ComponentWhereInput[]
   NOT?: Prisma.ComponentWhereInput | Prisma.ComponentWhereInput[]
@@ -301,12 +412,23 @@ export type ComponentWhereUniqueInput = Prisma.AtLeast<{
   isWorking?: Prisma.BoolFilter<"Component"> | boolean
   underConstruction?: Prisma.BoolFilter<"Component"> | boolean
   isBroken?: Prisma.BoolFilter<"Component"> | boolean
+  sourcePath?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourceHash?: Prisma.StringNullableFilter<"Component"> | string | null
+  status?: Prisma.EnumComponentStatusFilter<"Component"> | $Enums.ComponentStatus
+  statusReason?: Prisma.StringNullableFilter<"Component"> | string | null
   title?: Prisma.StringNullableFilter<"Component"> | string | null
+  description?: Prisma.StringNullableFilter<"Component"> | string | null
   notes?: Prisma.StringNullableFilter<"Component"> | string | null
+  category?: Prisma.StringNullableFilter<"Component"> | string | null
+  tags?: Prisma.JsonNullableFilter<"Component">
+  previewMode?: Prisma.StringNullableFilter<"Component"> | string | null
+  previewConfig?: Prisma.JsonNullableFilter<"Component">
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
+  isDiscovered?: Prisma.BoolFilter<"Component"> | boolean
   artImageId?: Prisma.IntNullableFilter<"Component"> | number | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
-}, "id" | "componentName">
+}, "id" | "componentName" | "slug" | "sourceKey">
 
 export type ComponentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -317,8 +439,21 @@ export type ComponentOrderByWithAggregationInput = {
   isWorking?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   isBroken?: Prisma.SortOrder
+  slug?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  statusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  tags?: Prisma.SortOrderInput | Prisma.SortOrder
+  previewMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  previewConfig?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isDiscovered?: Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ComponentCountOrderByAggregateInput
   _avg?: Prisma.ComponentAvgOrderByAggregateInput
@@ -339,8 +474,21 @@ export type ComponentScalarWhereWithAggregatesInput = {
   isWorking?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
   underConstruction?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
   isBroken?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
+  slug?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  sourcePath?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  sourceKey?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  sourceHash?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  status?: Prisma.EnumComponentStatusWithAggregatesFilter<"Component"> | $Enums.ComponentStatus
+  statusReason?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
   title?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  description?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  category?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  tags?: Prisma.JsonNullableWithAggregatesFilter<"Component">
+  previewMode?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
+  previewConfig?: Prisma.JsonNullableWithAggregatesFilter<"Component">
+  lastSeenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Component"> | Date | string | null
+  isDiscovered?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Component"> | number | null
 }
 
@@ -352,8 +500,21 @@ export type ComponentCreateInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutComponentInput
 }
@@ -367,8 +528,21 @@ export type ComponentUncheckedCreateInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   artImageId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutComponentInput
 }
@@ -381,8 +555,21 @@ export type ComponentUpdateInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutComponentNestedInput
 }
@@ -396,8 +583,21 @@ export type ComponentUncheckedUpdateInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutComponentNestedInput
 }
@@ -411,8 +611,21 @@ export type ComponentCreateManyInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   artImageId?: number | null
 }
 
@@ -424,8 +637,21 @@ export type ComponentUpdateManyMutationInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ComponentUncheckedUpdateManyInput = {
@@ -437,8 +663,21 @@ export type ComponentUncheckedUpdateManyInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -467,8 +706,21 @@ export type ComponentCountOrderByAggregateInput = {
   isWorking?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   isBroken?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  sourcePath?: Prisma.SortOrder
+  sourceKey?: Prisma.SortOrder
+  sourceHash?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  statusReason?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  tags?: Prisma.SortOrder
+  previewMode?: Prisma.SortOrder
+  previewConfig?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
+  isDiscovered?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
 }
 
@@ -486,8 +738,19 @@ export type ComponentMaxOrderByAggregateInput = {
   isWorking?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   isBroken?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  sourcePath?: Prisma.SortOrder
+  sourceKey?: Prisma.SortOrder
+  sourceHash?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  statusReason?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  previewMode?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
+  isDiscovered?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
 }
 
@@ -500,8 +763,19 @@ export type ComponentMinOrderByAggregateInput = {
   isWorking?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   isBroken?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  sourcePath?: Prisma.SortOrder
+  sourceKey?: Prisma.SortOrder
+  sourceHash?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  statusReason?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  previewMode?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
+  isDiscovered?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
 }
 
@@ -557,6 +831,10 @@ export type ComponentUncheckedUpdateManyWithoutArtImageNestedInput = {
   deleteMany?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
 }
 
+export type EnumComponentStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ComponentStatus
+}
+
 export type ComponentCreateNestedOneWithoutReactionsInput = {
   create?: Prisma.XOR<Prisma.ComponentCreateWithoutReactionsInput, Prisma.ComponentUncheckedCreateWithoutReactionsInput>
   connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutReactionsInput
@@ -581,8 +859,21 @@ export type ComponentCreateWithoutArtImageInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   Reactions?: Prisma.ReactionCreateNestedManyWithoutComponentInput
 }
 
@@ -595,8 +886,21 @@ export type ComponentUncheckedCreateWithoutArtImageInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutComponentInput
 }
 
@@ -638,8 +942,21 @@ export type ComponentScalarWhereInput = {
   isWorking?: Prisma.BoolFilter<"Component"> | boolean
   underConstruction?: Prisma.BoolFilter<"Component"> | boolean
   isBroken?: Prisma.BoolFilter<"Component"> | boolean
+  slug?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourcePath?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"Component"> | string | null
+  sourceHash?: Prisma.StringNullableFilter<"Component"> | string | null
+  status?: Prisma.EnumComponentStatusFilter<"Component"> | $Enums.ComponentStatus
+  statusReason?: Prisma.StringNullableFilter<"Component"> | string | null
   title?: Prisma.StringNullableFilter<"Component"> | string | null
+  description?: Prisma.StringNullableFilter<"Component"> | string | null
   notes?: Prisma.StringNullableFilter<"Component"> | string | null
+  category?: Prisma.StringNullableFilter<"Component"> | string | null
+  tags?: Prisma.JsonNullableFilter<"Component">
+  previewMode?: Prisma.StringNullableFilter<"Component"> | string | null
+  previewConfig?: Prisma.JsonNullableFilter<"Component">
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
+  isDiscovered?: Prisma.BoolFilter<"Component"> | boolean
   artImageId?: Prisma.IntNullableFilter<"Component"> | number | null
 }
 
@@ -651,8 +968,21 @@ export type ComponentCreateWithoutReactionsInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentsInput
 }
 
@@ -665,8 +995,21 @@ export type ComponentUncheckedCreateWithoutReactionsInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
   artImageId?: number | null
 }
 
@@ -694,8 +1037,21 @@ export type ComponentUpdateWithoutReactionsInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentsNestedInput
 }
 
@@ -708,8 +1064,21 @@ export type ComponentUncheckedUpdateWithoutReactionsInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -722,8 +1091,21 @@ export type ComponentCreateManyArtImageInput = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: string | null
+  sourcePath?: string | null
+  sourceKey?: string | null
+  sourceHash?: string | null
+  status?: $Enums.ComponentStatus
+  statusReason?: string | null
   title?: string | null
+  description?: string | null
   notes?: string | null
+  category?: string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Date | string | null
+  isDiscovered?: boolean
 }
 
 export type ComponentUpdateWithoutArtImageInput = {
@@ -734,8 +1116,21 @@ export type ComponentUpdateWithoutArtImageInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Reactions?: Prisma.ReactionUpdateManyWithoutComponentNestedInput
 }
 
@@ -748,8 +1143,21 @@ export type ComponentUncheckedUpdateWithoutArtImageInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutComponentNestedInput
 }
 
@@ -762,8 +1170,21 @@ export type ComponentUncheckedUpdateManyWithoutArtImageInput = {
   isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumComponentStatusFieldUpdateOperationsInput | $Enums.ComponentStatus
+  statusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  previewMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previewConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isDiscovered?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -806,8 +1227,21 @@ export type ComponentSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: boolean
+  sourcePath?: boolean
+  sourceKey?: boolean
+  sourceHash?: boolean
+  status?: boolean
+  statusReason?: boolean
   title?: boolean
+  description?: boolean
   notes?: boolean
+  category?: boolean
+  tags?: boolean
+  previewMode?: boolean
+  previewConfig?: boolean
+  lastSeenAt?: boolean
+  isDiscovered?: boolean
   artImageId?: boolean
   ArtImage?: boolean | Prisma.Component$ArtImageArgs<ExtArgs>
   Reactions?: boolean | Prisma.Component$ReactionsArgs<ExtArgs>
@@ -825,12 +1259,25 @@ export type ComponentSelectScalar = {
   isWorking?: boolean
   underConstruction?: boolean
   isBroken?: boolean
+  slug?: boolean
+  sourcePath?: boolean
+  sourceKey?: boolean
+  sourceHash?: boolean
+  status?: boolean
+  statusReason?: boolean
   title?: boolean
+  description?: boolean
   notes?: boolean
+  category?: boolean
+  tags?: boolean
+  previewMode?: boolean
+  previewConfig?: boolean
+  lastSeenAt?: boolean
+  isDiscovered?: boolean
   artImageId?: boolean
 }
 
-export type ComponentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "folderName" | "componentName" | "isWorking" | "underConstruction" | "isBroken" | "title" | "notes" | "artImageId", ExtArgs["result"]["component"]>
+export type ComponentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "folderName" | "componentName" | "isWorking" | "underConstruction" | "isBroken" | "slug" | "sourcePath" | "sourceKey" | "sourceHash" | "status" | "statusReason" | "title" | "description" | "notes" | "category" | "tags" | "previewMode" | "previewConfig" | "lastSeenAt" | "isDiscovered" | "artImageId", ExtArgs["result"]["component"]>
 export type ComponentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Component$ArtImageArgs<ExtArgs>
   Reactions?: boolean | Prisma.Component$ReactionsArgs<ExtArgs>
@@ -852,8 +1299,21 @@ export type $ComponentPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     isWorking: boolean
     underConstruction: boolean
     isBroken: boolean
+    slug: string | null
+    sourcePath: string | null
+    sourceKey: string | null
+    sourceHash: string | null
+    status: $Enums.ComponentStatus
+    statusReason: string | null
     title: string | null
+    description: string | null
     notes: string | null
+    category: string | null
+    tags: runtime.JsonValue | null
+    previewMode: string | null
+    previewConfig: runtime.JsonValue | null
+    lastSeenAt: Date | null
+    isDiscovered: boolean
     artImageId: number | null
   }, ExtArgs["result"]["component"]>
   composites: {}
@@ -1234,8 +1694,21 @@ export interface ComponentFieldRefs {
   readonly isWorking: Prisma.FieldRef<"Component", 'Boolean'>
   readonly underConstruction: Prisma.FieldRef<"Component", 'Boolean'>
   readonly isBroken: Prisma.FieldRef<"Component", 'Boolean'>
+  readonly slug: Prisma.FieldRef<"Component", 'String'>
+  readonly sourcePath: Prisma.FieldRef<"Component", 'String'>
+  readonly sourceKey: Prisma.FieldRef<"Component", 'String'>
+  readonly sourceHash: Prisma.FieldRef<"Component", 'String'>
+  readonly status: Prisma.FieldRef<"Component", 'ComponentStatus'>
+  readonly statusReason: Prisma.FieldRef<"Component", 'String'>
   readonly title: Prisma.FieldRef<"Component", 'String'>
+  readonly description: Prisma.FieldRef<"Component", 'String'>
   readonly notes: Prisma.FieldRef<"Component", 'String'>
+  readonly category: Prisma.FieldRef<"Component", 'String'>
+  readonly tags: Prisma.FieldRef<"Component", 'Json'>
+  readonly previewMode: Prisma.FieldRef<"Component", 'String'>
+  readonly previewConfig: Prisma.FieldRef<"Component", 'Json'>
+  readonly lastSeenAt: Prisma.FieldRef<"Component", 'DateTime'>
+  readonly isDiscovered: Prisma.FieldRef<"Component", 'Boolean'>
   readonly artImageId: Prisma.FieldRef<"Component", 'Int'>
 }
     

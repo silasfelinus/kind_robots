@@ -5217,8 +5217,21 @@ export const ComponentScalarFieldEnum = {
   isWorking: 'isWorking',
   underConstruction: 'underConstruction',
   isBroken: 'isBroken',
+  slug: 'slug',
+  sourcePath: 'sourcePath',
+  sourceKey: 'sourceKey',
+  sourceHash: 'sourceHash',
+  status: 'status',
+  statusReason: 'statusReason',
   title: 'title',
+  description: 'description',
   notes: 'notes',
+  category: 'category',
+  tags: 'tags',
+  previewMode: 'previewMode',
+  previewConfig: 'previewConfig',
+  lastSeenAt: 'lastSeenAt',
+  isDiscovered: 'isDiscovered',
   artImageId: 'artImageId'
 } as const
 
@@ -6315,6 +6328,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -6500,11 +6521,36 @@ export const ChatOrderByRelevanceFieldEnum = {
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
 
 
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
 export const ComponentOrderByRelevanceFieldEnum = {
   folderName: 'folderName',
   componentName: 'componentName',
+  slug: 'slug',
+  sourcePath: 'sourcePath',
+  sourceKey: 'sourceKey',
+  sourceHash: 'sourceHash',
+  statusReason: 'statusReason',
   title: 'title',
-  notes: 'notes'
+  description: 'description',
+  notes: 'notes',
+  category: 'category',
+  previewMode: 'previewMode'
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
@@ -7149,6 +7195,27 @@ export type EnumRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
  * Reference to a field of type 'ChatType'
  */
 export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChatType'>
+    
+
+
+/**
+ * Reference to a field of type 'ComponentStatus'
+ */
+export type EnumComponentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComponentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 

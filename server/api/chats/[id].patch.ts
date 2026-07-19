@@ -1,57 +1,54 @@
 // /server/api/chats/[id].patch.ts
-import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Chat, ChatType, Prisma } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
+import {
+  assertChatRelationsAccessible,
+  assertJsonObject,
+  assertOnlyFields,
+  nullableString,
+  optionalBoolean,
+  optionalChatType,
+  optionalPositiveId,
+  optionalString,
+} from '../../utils/chatApi'
+import { chatMutationSelect } from './selects'
 
-type ChatPatchBody = Partial<Chat>
-
-const allowedChatTypes: ChatType[] = [
-  'ToBot',
-  'BotResponse',
-  'ToForum',
-  'ToUser',
-  'ToCharacter',
-  'Weirdlandia',
-  'Dream',
-  'Reward',
-  'Story',
-  'Scenario',
-  'Character',
-  'Bot',
-]
-
-function asOptionalString(value: unknown): string | undefined {
-  return typeof value === 'string' ? value : undefined
-}
-
-function asOptionalNullableString(value: unknown): string | null | undefined {
-  if (value === null) return null
-  if (typeof value !== 'string') return undefined
-
-  const trimmed = value.trim()
-  return trimmed ? trimmed : null
-}
-
-function asOptionalBoolean(value: unknown): boolean | undefined {
-  return typeof value === 'boolean' ? value : undefined
-}
-
-function asOptionalPositiveInt(value: unknown): number | undefined {
-  const parsed = Number(value)
-
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-}
+const CHAT_PATCH_FIELDS = new Set([
+  'type',
+  'sender',
+  'recipient',
+  'content',
+  'title',
+  'isPublic',
+  'isFavorite',
+  'previousEntryId',
+  'originId',
+  'botId',
+  'recipientId',
+  'artImageId',
+  'promptId',
+  'botName',
+  'channel',
+  'botResponse',
+  'characterId',
+  'isRead',
+  'isMature',
+  'serverId',
+  'serverName',
+  'dreamId',
+  'isActive',
+])
 
 function relationUpdate(
-  value: unknown,
+  value: number | null | undefined,
 ): { connect: { id: number } } | { disconnect: true } | undefined {
+  if (typeof value === 'undefined') return undefined
   if (value === null) return { disconnect: true }
-
-  const id = asOptionalPositiveInt(value)
-
-  return id ? { connect: { id } } : undefined
+  return { connect: { id: value } }
 }
 
 function hasUpdateData(data: Record<string, unknown>): boolean {
@@ -93,121 +90,101 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    const isServerKey = kind === 'server'
-    const isOwner = chat.userId === user.id
+    const canManageAny = userIsAdmin(user) || kind === 'server'
 
-    if (!isOwner && !isAdmin && !isServerKey) {
+    if (chat.userId !== user.id && !canManageAny) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this chat.',
       })
     }
 
-    const body = await readBody<ChatPatchBody>(event)
+    const rawBody = await readBody<unknown>(event)
+    assertJsonObject(rawBody, 'A JSON Chat update body is required.')
+    assertOnlyFields(rawBody, CHAT_PATCH_FIELDS)
 
-    if (!body || Object.keys(body).length === 0) {
+    if (!Object.keys(rawBody).length) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    const type =
-      typeof body.type === 'string' && allowedChatTypes.includes(body.type)
-        ? body.type
-        : undefined
+    const botId = optionalPositiveId(rawBody.botId, 'botId', true)
+    const characterId = optionalPositiveId(
+      rawBody.characterId,
+      'characterId',
+      true,
+    )
+    const promptId = optionalPositiveId(rawBody.promptId, 'promptId', true)
+    const artImageId = optionalPositiveId(
+      rawBody.artImageId,
+      'artImageId',
+      true,
+    )
+    const dreamId = optionalPositiveId(rawBody.dreamId, 'dreamId', true)
+    const serverId = optionalPositiveId(rawBody.serverId, 'serverId', true)
+    const recipientId = optionalPositiveId(
+      rawBody.recipientId,
+      'recipientId',
+      true,
+    )
+
+    await assertChatRelationsAccessible({
+      values: {
+        botId,
+        characterId,
+        promptId,
+        artImageId,
+        dreamId,
+        serverId,
+        recipientId,
+      },
+      user,
+      canManageAny,
+    })
 
     const updateData: Prisma.ChatUpdateInput = {
-      type,
-      sender: asOptionalString(body.sender),
-      recipient: asOptionalNullableString(body.recipient),
-      content: asOptionalString(body.content),
-      title: asOptionalNullableString(body.title),
-      channel: asOptionalNullableString(body.channel),
-      botName: asOptionalNullableString(body.botName),
-      botResponse: asOptionalNullableString(body.botResponse),
-      isPublic: asOptionalBoolean(body.isPublic),
-      isFavorite: asOptionalBoolean(body.isFavorite),
-      isRead: asOptionalBoolean(body.isRead),
-      isMature: asOptionalBoolean(body.isMature),
-      isActive: asOptionalBoolean(body.isActive),
-      previousEntryId:
-        body.previousEntryId === null
-          ? null
-          : asOptionalPositiveInt(body.previousEntryId),
-      originId:
-        body.originId === null ? null : asOptionalPositiveInt(body.originId),
-      recipientId:
-        body.recipientId === null
-          ? null
-          : asOptionalPositiveInt(body.recipientId),
-      Bot: relationUpdate(body.botId),
-      Character: relationUpdate(body.characterId),
-      Prompt: relationUpdate(body.promptId),
-      ArtImage: relationUpdate(body.artImageId),
-      Dream: relationUpdate(body.dreamId),
-      Server: relationUpdate(body.serverId),
+      type: optionalChatType(rawBody.type),
+      sender: optionalString(rawBody.sender, 'sender', 255),
+      recipient: nullableString(rawBody.recipient, 'recipient', 255),
+      content: optionalString(rawBody.content, 'content', 60_000),
+      title: nullableString(rawBody.title, 'title', 255),
+      channel: nullableString(rawBody.channel, 'channel', 255),
+      botName: nullableString(rawBody.botName, 'botName', 255),
+      botResponse: nullableString(rawBody.botResponse, 'botResponse', 60_000),
+      serverName: nullableString(rawBody.serverName, 'serverName', 256),
+      isPublic: optionalBoolean(rawBody.isPublic, 'isPublic'),
+      isFavorite: optionalBoolean(rawBody.isFavorite, 'isFavorite'),
+      isRead: optionalBoolean(rawBody.isRead, 'isRead'),
+      isMature: optionalBoolean(rawBody.isMature, 'isMature'),
+      isActive: optionalBoolean(rawBody.isActive, 'isActive'),
+      previousEntryId: optionalPositiveId(
+        rawBody.previousEntryId,
+        'previousEntryId',
+        true,
+      ),
+      originId: optionalPositiveId(rawBody.originId, 'originId', true),
+      recipientId,
+      Bot: relationUpdate(botId),
+      Character: relationUpdate(characterId),
+      Prompt: relationUpdate(promptId),
+      ArtImage: relationUpdate(artImageId),
+      Dream: relationUpdate(dreamId),
+      Server: relationUpdate(serverId),
     }
 
     if (!hasUpdateData(updateData as Record<string, unknown>)) {
       throw createError({
         statusCode: 400,
-        message: 'No valid chat fields provided for update.',
+        message: 'No valid Chat fields provided for update.',
       })
     }
 
     const data = await prisma.chat.update({
       where: { id },
       data: updateData,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            Role: true,
-          },
-        },
-        Bot: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        Character: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        Prompt: {
-          select: {
-            id: true,
-            prompt: true,
-          },
-        },
-        ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
-        },
-        Dream: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        Server: {
-          select: {
-            id: true,
-            title: true,
-            label: true,
-            serverType: true,
-          },
-        },
-      },
+      select: chatMutationSelect,
     })
 
     event.node.res.statusCode = 200
@@ -220,12 +197,11 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
-
     event.node.res.statusCode = statusCode || 500
 
     return {
       success: false,
-      message: message || `Failed to update chat with ID ${id}.`,
+      message: message || `Failed to update Chat with ID ${id}.`,
       data: null,
       statusCode: event.node.res.statusCode,
     }

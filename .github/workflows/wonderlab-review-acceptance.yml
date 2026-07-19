@@ -1,0 +1,255 @@
+name: WonderLab Review Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-review-acceptance.yml'
+      - 'scripts/wonderlab-review-acceptance.mjs'
+      - 'config/wonderlab-review-acceptance.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-review-acceptance.yml'
+      - 'scripts/wonderlab-review-acceptance.mjs'
+      - 'config/wonderlab-review-acceptance.json'
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Acceptance stage. The checked-in config must match.'
+        type: choice
+        required: true
+        default: audit
+        options:
+          - audit
+          - generate
+          - publish
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: wonderlab-review-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate acceptance boundary
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate runner syntax, config, and editorial separation
+        env:
+          WONDERLAB_REVIEW_VALIDATE_ONLY: '1'
+          WONDERLAB_REVIEW_OUTPUT: wonderlab-review-acceptance-validation
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-review-acceptance.mjs
+          node scripts/wonderlab-review-acceptance.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const source = fs.readFileSync('scripts/wonderlab-review-acceptance.mjs', 'utf8')
+          const config = JSON.parse(fs.readFileSync('config/wonderlab-review-acceptance.json', 'utf8'))
+
+          const generationStart = source.indexOf('async function generateDrafts')
+          const publicationStart = source.indexOf('async function publishDrafts')
+          assert.ok(generationStart >= 0 && publicationStart > generationStart)
+          const generationSource = source.slice(generationStart, publicationStart)
+          const publicationSource = source.slice(publicationStart)
+
+          assert.ok(generationSource.includes('/review-drafts/generate'))
+          assert.ok(!generationSource.includes('/publish'))
+          assert.ok(!generationSource.includes("status: 'APPROVED'"))
+          assert.ok(!generationSource.includes("method: 'PATCH'"))
+          assert.ok(publicationSource.includes("status: 'APPROVED'"))
+          assert.ok(publicationSource.includes('/publish'))
+          assert.ok(source.includes('/api/admin/wonderlab/review-rollout'))
+          assert.ok(source.includes('/api/components'))
+          assert.ok(!source.includes('DATABASE_URL'))
+          assert.ok(!source.includes('_prisma_migrations'))
+
+          if (config.stage !== 'publish') {
+            assert.deepEqual(config.publications, [])
+          }
+          assert.equal(config.component.id, 96)
+          assert.equal(config.component.sourceKey, 'components/bots/bot-card.vue')
+          assert.deepEqual(
+            config.reviewers.map((reviewer) => `${reviewer.kind}:${reviewer.id}`),
+            ['BOT:17', 'BOT:133'],
+          )
+          console.log('WonderLab acceptance editorial boundary passed.')
+          NODE
+
+  acceptance:
+    name: Run representative review acceptance
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && (
+        contains(github.event.head_commit.message, '[wonderlab-review-generate]') ||
+        contains(github.event.head_commit.message, '[wonderlab-review-publish]') ||
+        contains(github.event.head_commit.message, '[wonderlab-review-audit]')
+      ))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Select acceptance stage
+        env:
+          DISPATCH_STAGE: ${{ inputs.stage }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            stage="${DISPATCH_STAGE:-audit}"
+          elif printf '%s' "${COMMIT_MESSAGE:-}" | grep -Fq '[wonderlab-review-publish]'; then
+            stage='publish'
+          elif printf '%s' "${COMMIT_MESSAGE:-}" | grep -Fq '[wonderlab-review-generate]'; then
+            stage='generate'
+          else
+            stage='audit'
+          fi
+          echo "WONDERLAB_REVIEW_ACTION=${stage}" >> "$GITHUB_ENV"
+          echo "Selected WonderLab review acceptance stage: ${stage}"
+
+      - name: Wait for this change to reach production
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            payload="$(curl -sS --max-time 20 "${BASE_URL}/api/version" || true)"
+            live_sha="$(printf '%s' "$payload" | jq -r 'if .success == true then .data.commit // empty else empty end' 2>/dev/null || true)"
+            if [ -n "$live_sha" ]; then
+              git fetch --quiet --no-tags origin main || true
+              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live_sha"; then
+                printf '%s\n' "$payload" > production-version.json
+                echo "Production contains ${TARGET_SHA} at live commit ${live_sha}."
+                exit 0
+              fi
+            fi
+            echo "Production has not reached ${TARGET_SHA} yet (${attempt}/60; live=${live_sha:-unknown})."
+            sleep 10
+          done
+          echo "::error::Production did not deploy ${TARGET_SHA} or a descendant."
+          exit 1
+
+      - name: Run gated acceptance stage
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_REVIEW_OUTPUT: wonderlab-review-acceptance-artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "${WONDERLAB_ADMIN_TOKEN:-}" ]; then
+            echo '::error::CYPRESS_BETA_ADMIN_TOKEN is not configured.'
+            exit 1
+          fi
+          node scripts/wonderlab-review-acceptance.mjs
+
+      - name: Include deploy evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p wonderlab-review-acceptance-artifacts
+          if [ -f production-version.json ]; then
+            cp production-version.json wonderlab-review-acceptance-artifacts/workflow-production-version.json
+          fi
+
+      - name: Upload acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-review-acceptance-${{ github.run_id }}
+          path: wonderlab-review-acceptance-artifacts
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Post durable acceptance report
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          OUTPUT_DIR: wonderlab-review-acceptance-artifacts
+          ACCEPTANCE_STAGE: ${{ env.WONDERLAB_REVIEW_ACTION }}
+        with:
+          script: |
+            const fs = require('node:fs')
+            const path = require('node:path')
+
+            const readJson = (name) => {
+              const target = path.join(process.env.OUTPUT_DIR, name)
+              if (!fs.existsSync(target)) return null
+              try {
+                return JSON.parse(fs.readFileSync(target, 'utf8'))
+              } catch (error) {
+                return { parseError: error.message }
+              }
+            }
+
+            const summary = readJson('acceptance-summary.json')
+            const failure = readJson('failure.json')
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const stage = process.env.ACCEPTANCE_STAGE || summary?.stage || 'unknown'
+            const lines = [
+              `## WonderLab representative review ${stage} report`,
+              '',
+              `- **Workflow:** [run ${context.runId}](${runUrl})`,
+              `- **Result:** ${process.env.JOB_STATUS}`,
+              `- **Stage:** ${stage}`,
+              `- **Production commit:** \`${summary?.production?.commit || 'unknown'}\``,
+              `- **Component:** ${summary?.component?.title || 'BotCard'} (#${summary?.component?.id || 96})`,
+            ]
+
+            if (Array.isArray(summary?.generated)) {
+              for (const entry of summary.generated) {
+                lines.push(
+                  `- **${entry.reviewer?.name || 'Reviewer'} draft:** #${entry.draftId || 'unknown'} · ${entry.status || 'unknown'} · confidence ${entry.confidence ?? 'unknown'} · unpublished`,
+                )
+              }
+              lines.push('- **Editorial boundary:** no draft approved or published')
+            }
+            if (Array.isArray(summary?.published)) {
+              for (const entry of summary.published) {
+                lines.push(
+                  `- **${entry.reviewer?.name || 'Reviewer'} publication:** draft #${entry.draftId || 'unknown'} → Reaction #${entry.reactionId || 'unknown'}`,
+                )
+              }
+              lines.push(
+                `- **Final audit:** ${summary?.audit?.ready ? 'Ready' : 'Blocked'} · ${summary?.audit?.metrics?.firstPartyComponentReviews ?? 'unknown'} first-party Component reviews · ${summary?.audit?.metrics?.duplicateFirstPartyReviews ?? 'unknown'} duplicate groups · ${summary?.audit?.metrics?.unsafeFirstPartyReviews ?? 'unknown'} unsafe rows · ${summary?.audit?.metrics?.publishedDraftMismatches ?? 'unknown'} link mismatches`,
+              )
+            }
+            if (failure) lines.push(`- **Failure:** ${failure.message || 'See uploaded evidence.'}`)
+            if (!summary && !failure) lines.push('- **Evidence:** the workflow stopped before producing a summary; inspect the uploaded artifact.')
+
+            const body = lines.join('\n')
+            for (const issue_number of [381, 472, 531]) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body,
+              })
+            }

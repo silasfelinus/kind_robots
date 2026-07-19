@@ -1,46 +1,61 @@
 // /server/api/logs/index.get.ts
-import { defineEventHandler, getQuery } from 'h3'
+import { createError, defineEventHandler, getQuery } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { requireApiUser } from '../../utils/authGuard'
 
 export default defineEventHandler(async (event) => {
   try {
-    const validation = await validateApiKey(event)
-
-    if (!validation.isValid) {
-      return errorHandler({
-        error: new Error('Unauthorized'),
-        message: 'Unauthorized',
-        statusCode: 401,
-      })
-    }
-
+    const auth = await requireApiUser(event)
     const query = getQuery(event)
     const rawTake = Number(query.take || 50)
     const rawSkip = Number(query.skip || 0)
-    const rawUserId = query.userId ? Number(query.userId) : undefined
 
-    const take = Number.isFinite(rawTake)
-      ? Math.min(Math.max(rawTake, 1), 100)
-      : 50
+    if (!Number.isInteger(rawTake) || rawTake < 1 || rawTake > 100) {
+      throw createError({
+        statusCode: 400,
+        message: 'take must be an integer from 1 to 100.',
+      })
+    }
 
-    const skip = Number.isFinite(rawSkip) ? Math.max(rawSkip, 0) : 0
+    if (!Number.isInteger(rawSkip) || rawSkip < 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'skip must be a non-negative integer.',
+      })
+    }
 
-    const userId =
-      typeof rawUserId === 'number' && Number.isInteger(rawUserId)
-        ? rawUserId
-        : undefined
+    const requestedUserId =
+      typeof query.userId === 'undefined' ? null : Number(query.userId)
 
-    const username =
+    if (
+      requestedUserId !== null &&
+      (!Number.isInteger(requestedUserId) || requestedUserId <= 0)
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'userId must be a positive integer.',
+      })
+    }
+
+    const requestedUsername =
       typeof query.username === 'string' && query.username.trim()
         ? query.username.trim()
-        : undefined
+        : null
 
-    const where = {
-      ...(typeof userId === 'number' ? { userId } : {}),
-      ...(username ? { username } : {}),
+    if (!auth.isAdmin && (requestedUserId || requestedUsername)) {
+      throw createError({
+        statusCode: 403,
+        message: 'Only admins may query another user’s logs.',
+      })
     }
+
+    const where = auth.isAdmin
+      ? {
+          ...(requestedUserId ? { userId: requestedUserId } : {}),
+          ...(requestedUsername ? { username: requestedUsername } : {}),
+        }
+      : { userId: auth.user.id }
 
     const [logs, count] = await Promise.all([
       prisma.log.findMany({
@@ -48,11 +63,13 @@ export default defineEventHandler(async (event) => {
         orderBy: {
           timestamp: 'desc',
         },
-        take,
-        skip,
+        take: rawTake,
+        skip: rawSkip,
       }),
       prisma.log.count({ where }),
     ])
+
+    event.node.res.statusCode = 200
 
     return {
       success: true,
@@ -61,12 +78,17 @@ export default defineEventHandler(async (event) => {
         logs,
         count,
       },
+      statusCode: 200,
     }
   } catch (error) {
-    return errorHandler({
-      error,
-      message: 'Failed to retrieve logs.',
-      statusCode: 500,
-    })
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+
+    return {
+      success: false,
+      message: handled.message || 'Failed to retrieve logs.',
+      data: null,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

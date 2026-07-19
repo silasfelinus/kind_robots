@@ -31,6 +31,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Art upload | Public multipart POST trusted caller user IDs, defaulted ownership to user 10, and connected unrelated resources during file creation | Upload requires authentication, derives owner from the token, validates image type/size, rejects identity and relationship fields, and creates only one ArtImage; callers link collections and targets through explicit APIs |
 | ArtImage collection links | Generic connection PATCH let image owners transfer ownership and attach arbitrary Bots, Dreams, Rewards, Servers, and other resources | Endpoint now manages collection membership only, requires image ownership, requires collection ownership for connects, validates all IDs, and rejects unrelated fields |
 | Browser server health reports | Optional authentication reused read permission, so anonymous callers could write status history for public servers | Reports require authenticated server mutation permission, validate a bounded report schema, and preserve owner/admin-only status writes |
+| Logs | Any authenticated user could list, read, or delete another user’s logs; POST accepted forged identity/timestamps; errors often returned HTTP 200 | Reads and deletes are owner/admin scoped, lists default to self, POST derives identity/time from auth, and every route returns explicit HTTP status envelopes |
 
 ### P1 — Completed response and resource-boundary cleanup
 

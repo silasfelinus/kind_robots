@@ -15,6 +15,15 @@ const challengeDeleteRoute = readSource(
   'server/api/challenges/[slug].delete.ts',
 )
 const challengeResource = readSource('server/utils/challengeResource.ts')
+const submissionCreateRoute = readSource(
+  'server/api/challenges/[slug]/submissions.post.ts',
+)
+const submissionDeleteRoute = readSource(
+  'server/api/challenges/submissions/[id].delete.ts',
+)
+const submissionResource = readSource(
+  'server/utils/challengeSubmissionResource.ts',
+)
 
 assert.match(challengeCreateRoute, /const challengeCreateFields = new Set/)
 assert.match(challengeCreateRoute, /Object\.values\(ChallengeType\)/)
@@ -29,6 +38,39 @@ assert.match(challengeDeleteRoute, /select:\s*challengeMutationSelect/)
 assert.match(challengeDeleteRoute, /error\.code === 'P2003'/)
 assert.match(challengeResource, /satisfies Prisma\.ChallengeSelect/)
 assert.doesNotMatch(challengeResource, /\bUser\b|\bSubmissions\b/)
+
+assert.match(submissionCreateRoute, /const submissionCreateFields = new Set/)
+assert.match(submissionCreateRoute, /userIsAdmin\(auth\.user\)/)
+assert.match(submissionCreateRoute, /suppliedOutputFields\.length !== 1/)
+assert.match(submissionCreateRoute, /expectedOutputField\(challenge\.challengeType\)/)
+assert.match(submissionCreateRoute, /challenge\.status !== ChallengeStatus\.OPEN/)
+assert.match(submissionCreateRoute, /resource\.isPublic !== true/)
+assert.match(submissionCreateRoute, /resource\.isActive !== true/)
+assert.match(submissionCreateRoute, /resource\.isMature === true/)
+assert.match(
+  submissionCreateRoute,
+  /status:\s*ChallengeSubmissionStatus\.READY/,
+)
+assert.match(
+  submissionCreateRoute,
+  /select:\s*challengeSubmissionMutationSelect/,
+)
+assert.doesNotMatch(submissionCreateRoute, /\binclude\s*:/)
+assert.match(submissionDeleteRoute, /userIsAdmin\(auth\.user\)/)
+assert.match(submissionDeleteRoute, /prisma\.challengeSubmission\.delete/)
+assert.match(
+  submissionDeleteRoute,
+  /select:\s*challengeSubmissionMutationSelect/,
+)
+assert.match(submissionDeleteRoute, /error\.code === 'P2003'/)
+assert.match(
+  submissionResource,
+  /satisfies Prisma\.ChallengeSubmissionSelect/,
+)
+assert.doesNotMatch(
+  submissionResource,
+  /\bChallenge\b|\bContender\b|\bArtImage\b|\bCharacter\b|\bScenario\b|\bReactions\b/,
+)
 
 // scoreChallengeReactions
 assert.deepEqual(

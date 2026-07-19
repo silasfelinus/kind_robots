@@ -172,6 +172,9 @@ jobs:
       - name: Review draft admin API contract
         run: npx tsx utils/scripts/verifyReviewDraftAdminApi.ts
 
+      - name: Review draft publication contract
+        run: npx tsx utils/scripts/verifyReviewDraftPublication.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

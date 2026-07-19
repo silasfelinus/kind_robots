@@ -66,13 +66,17 @@
             class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/20 bg-primary/10"
           >
             <img
-              v-if="review.User?.avatarImage"
-              :src="normalizeImagePath(review.User.avatarImage)"
+              v-if="authorAvatar(review)"
+              :src="normalizeImagePath(authorAvatar(review) as string)"
               :alt="authorName(review)"
               class="h-full w-full object-cover"
               loading="lazy"
             />
-            <Icon v-else name="kind-icon:user" class="size-5 text-primary" />
+            <Icon
+              v-else
+              :name="review.Author ? 'kind-icon:sparkles' : 'kind-icon:user'"
+              class="size-5 text-primary"
+            />
           </div>
 
           <div class="min-w-0 flex-1">
@@ -81,10 +85,16 @@
                 <p class="truncate font-black">{{ authorName(review) }}</p>
                 <div class="mt-1 flex flex-wrap items-center gap-2">
                   <span
-                    v-if="review.User?.Role"
+                    v-if="review.Author"
+                    class="badge badge-primary badge-outline badge-xs"
+                  >
+                    First-party {{ review.Author.kind.toLowerCase() }}
+                  </span>
+                  <span
+                    v-if="authorRole(review)"
                     class="badge badge-outline badge-xs"
                   >
-                    {{ review.User.Role }}
+                    {{ authorRole(review) }}
                   </span>
                   <span class="text-xs text-base-content/45">
                     {{ formatDate(review.createdAt) }}
@@ -130,7 +140,7 @@ import { computed, ref, watch } from 'vue'
 import type { Reaction } from '~/prisma/generated/prisma/client'
 import { useReactionStore } from '@/stores/reactionStore'
 
-type PublicReviewAuthor = {
+type PublicReviewUser = {
   id: number
   username: string | null
   name: string | null
@@ -139,8 +149,17 @@ type PublicReviewAuthor = {
   isPublic: boolean
 }
 
+type PublicFirstPartyAuthor = {
+  kind: 'BOT' | 'CHARACTER'
+  id: number
+  name: string
+  avatarImage: string | null
+  role: string | null
+}
+
 type PublicComponentReview = Reaction & {
-  User?: PublicReviewAuthor | null
+  User?: PublicReviewUser | null
+  Author?: PublicFirstPartyAuthor | null
 }
 
 const props = withDefaults(
@@ -203,10 +222,19 @@ async function loadReviews(force = false): Promise<void> {
 
 function authorName(review: PublicComponentReview): string {
   return (
+    review.Author?.name?.trim() ||
     review.User?.name?.trim() ||
     review.User?.username?.trim() ||
     (review.userId ? `User #${review.userId}` : 'Anonymous visitor')
   )
+}
+
+function authorAvatar(review: PublicComponentReview): string | null {
+  return review.Author?.avatarImage || review.User?.avatarImage || null
+}
+
+function authorRole(review: PublicComponentReview): string | null {
+  return review.Author?.role || review.User?.Role || null
 }
 
 function normalizeImagePath(value: string): string {

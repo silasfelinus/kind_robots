@@ -70,6 +70,7 @@
     "test:wonderlab-passive-card-fixtures": "tsx utils/scripts/verifyWonderLabPassiveCardFixtures.ts",
     "test:newsfeed-aggregation": "tsx utils/scripts/verifyNewsfeedAggregation.ts",
     "test:newsfeed-filters": "tsx utils/scripts/verifyNewsfeedFilters.ts",
+    "test:newsfeed-perspective-balance": "tsx utils/scripts/verifyNewsfeedPerspectiveBalance.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",

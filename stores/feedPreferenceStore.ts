@@ -13,6 +13,7 @@ import { computed, ref } from 'vue'
 import {
   DEFAULT_PERSPECTIVE_WEIGHTS,
   FEED_DEFINITIONS,
+  PERSPECTIVE_MODE_PRESETS,
   defaultEnabledFeedSlugs,
   getFeedDefinition,
   getFeedSources,
@@ -287,8 +288,14 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     persist()
   }
 
+  // Focused/Balanced/Broad apply their preset weight shape (BIAS-CONTROLS.md
+  // MVP path); Custom keeps whatever weights setPerspectiveWeights last set,
+  // since it's the user's own dial-in rather than a preset.
   function setPerspectiveMode(mode: PerspectiveMode): void {
     perspectiveMode.value = mode
+    if (mode !== 'custom') {
+      perspectiveWeights.value = { ...PERSPECTIVE_MODE_PRESETS[mode] }
+    }
     persist()
   }
 

@@ -144,6 +144,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import {
   applyNewsfeedFilters,
+  applyPerspectiveBalance,
   getFeedDefinition,
   type NewsFeedItem,
 } from '@/stores/helpers/newsfeed'
@@ -213,14 +214,20 @@ function filterPrefs() {
 }
 
 const allItems = computed<NewsFeedItem[]>(() =>
-  applyNewsfeedFilters(rawItems.value, filterPrefs()),
+  applyPerspectiveBalance(
+    applyNewsfeedFilters(rawItems.value, filterPrefs()),
+    feedPreferenceStore.perspectiveWeights,
+  ),
 )
 
 const visibleItems = computed<NewsFeedItem[]>(() => {
   if (activeSlug.value === 'all') return allItems.value
   const groupItems =
     groups.value.find((group) => group.slug === activeSlug.value)?.items ?? []
-  return applyNewsfeedFilters(groupItems, filterPrefs())
+  return applyPerspectiveBalance(
+    applyNewsfeedFilters(groupItems, filterPrefs()),
+    feedPreferenceStore.perspectiveWeights,
+  )
 })
 
 const displayedItems = computed(() =>
@@ -259,7 +266,12 @@ async function loadFeed(): Promise<void> {
         slug: aggregated.slug,
         title: definition?.title || aggregated.slug,
         icon: definition?.icon || 'kind-icon:news',
-        items: aggregated.items,
+        // Stamped here (not by the server) so applyPerspectiveBalance can
+        // gate on a merged, multi-feed list without needing feed context.
+        items: aggregated.items.map((item) => ({
+          ...item,
+          topicPolitical: definition?.topicPolitical ?? false,
+        })),
       }
     })
     sourceErrorCount.value = res.data.reduce(

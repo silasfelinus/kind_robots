@@ -13,12 +13,19 @@ const reconcileUtility = await readFile(
   'server/utils/wonderlabComponentReconcile.ts',
   'utf8',
 )
+const componentHelper = await readFile(
+  'stores/helpers/componentHelper.ts',
+  'utf8',
+)
+const labUi = await readFile('components/wonderlab/lab-interact.vue', 'utf8')
+const cardUi = await readFile('components/wonderlab/component-card.vue', 'utf8')
 const syncUi = await readFile(
   'components/wonderlab/component-sync.vue',
   'utf8',
 )
+const museumQuery = await readFile('utils/wonderlab/museumQuery.ts', 'utf8')
 
-for (const status of [
+const statuses = [
   'UNREVIEWED',
   'WORKING',
   'NEEDS_CONTEXT',
@@ -26,8 +33,12 @@ for (const status of [
   'BROKEN',
   'RETIRED',
   'PREVIEW_UNSUPPORTED',
-]) {
-  assert.match(schema, new RegExp(`\b${status}\b`))
+]
+
+for (const status of statuses) {
+  assert.match(schema, new RegExp(status))
+  assert.match(labUi, new RegExp(status))
+  assert.match(cardUi, new RegExp(status))
 }
 
 for (const field of [
@@ -45,7 +56,7 @@ for (const field of [
   'lastSeenAt',
   'isDiscovered',
 ]) {
-  assert.match(schema, new RegExp(`^\s*${field}\s+`, 'm'))
+  assert.match(schema, new RegExp(`^\\s*${field}\\s+`, 'm'))
 }
 
 for (const legacyField of [
@@ -55,7 +66,7 @@ for (const legacyField of [
 ]) {
   assert.match(
     schema,
-    new RegExp(`^\s*${legacyField}\s+Boolean`, 'm'),
+    new RegExp(`^\\s*${legacyField}\\s+Boolean`, 'm'),
     `${legacyField} must remain during the compatibility stage`,
   )
 }
@@ -88,7 +99,7 @@ for (const canonicalField of [
   'isDiscovered',
 ]) {
   assert.match(reconcileRoute, new RegExp(`${canonicalField}:`))
-  assert.match(reconcileUtility, new RegExp(`${canonicalField}`))
+  assert.match(reconcileUtility, new RegExp(canonicalField))
 }
 
 assert.match(reconcileUtility, /exactSourceKey \?\? exactSourcePath \?\? uniqueHashMatch/)
@@ -96,12 +107,28 @@ assert.match(reconcileUtility, /changes: \{ isDiscovered: false \}/)
 assert.match(reconcileRoute, /status:\s*'UNREVIEWED'/)
 assert.doesNotMatch(reconcileRoute, /\bdelete(?:Many)?\s*\(/i)
 assert.doesNotMatch(reconcileUtility, /\bdelete(?:Many)?\s*\(/i)
+
+const helperPayload =
+  componentHelper.match(/body: JSON\.stringify\(\{[\s\S]*?\}\),/)?.[0] || ''
+assert.match(helperPayload, /status:\s*component\.status/)
+assert.match(helperPayload, /statusReason:\s*component\.statusReason/)
+assert.match(helperPayload, /description:\s*component\.description/)
+assert.doesNotMatch(helperPayload, /isWorking|underConstruction|isBroken/)
+
+assert.match(labUi, /getComponentStatus/)
+assert.match(labUi, /selectedComponent\.value\.status = status/)
+assert.match(labUi, /component\.description/)
+assert.match(labUi, /component\.sourcePath/)
+assert.match(cardUi, /getComponentStatus/)
+assert.match(museumQuery, /componentStatuses/)
 assert.match(syncUi, /Record<string, ReconcileValue>/)
 assert.match(syncUi, /never deletes records or\s+reactions/i)
 
 for (const temporaryPath of [
   '.github/workflows/component-schema-adopt.yml',
   '.github/scripts/apply-component-schema-adoption.py',
+  '.github/workflows/component-status-ui-adopt.yml',
+  '.github/scripts/apply-component-status-ui.py',
 ]) {
   let exists = true
   try {

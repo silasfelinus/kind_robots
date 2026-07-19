@@ -50,7 +50,7 @@ describe('Component Management API Tests', () => {
     })
   })
 
-  it('Create New Component', () => {
+  it('Create New Component with canonical status', () => {
     cy.request({
       method: 'POST',
       url: apiBase,
@@ -58,9 +58,7 @@ describe('Component Management API Tests', () => {
       body: {
         folderName: uniqueFolderName,
         componentName: uniqueComponentName,
-        isWorking: true,
-        underConstruction: false,
-        isBroken: false,
+        status: 'WORKING',
         title: 'Test Component',
       },
     }).then((response) => {
@@ -69,6 +67,10 @@ describe('Component Management API Tests', () => {
 
       componentId = response.body.data.id
       expect(componentId).to.be.a('number')
+      expect(response.body.data.status).to.eq('WORKING')
+      expect(response.body.data.isWorking).to.be.true
+      expect(response.body.data.underConstruction).to.be.false
+      expect(response.body.data.isBroken).to.be.false
 
       cy.task(
         'cypressCleanup:register',
@@ -141,7 +143,9 @@ describe('Component Management API Tests', () => {
       expect(component.id).to.eq(componentId)
       expect(component.componentName).to.eq(uniqueComponentName)
       expect(component.folderName).to.eq(uniqueFolderName)
+      expect(component.status).to.eq('WORKING')
       expect(component.isWorking).to.be.true
+      expect(component.underConstruction).to.be.false
       expect(component.isBroken).to.be.false
     })
   })
@@ -156,6 +160,7 @@ describe('Component Management API Tests', () => {
       body: {
         id: 999999,
         createdAt: new Date(0).toISOString(),
+        sourceKey: 'client-owned-source-is-not-allowed',
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -167,7 +172,7 @@ describe('Component Management API Tests', () => {
     })
   })
 
-  it('Update Component with Authentication', () => {
+  it('Updates canonical status and synchronizes legacy compatibility fields', () => {
     expect(componentId).to.exist
 
     cy.request({
@@ -175,8 +180,8 @@ describe('Component Management API Tests', () => {
       url: `${apiBase}/${componentId}`,
       headers: adminHeaders(adminToken),
       body: {
-        isWorking: false,
-        underConstruction: true,
+        status: 'NEEDS_CONTEXT',
+        statusReason: 'Requires an authenticated Bot store fixture.',
         title: 'Updated Test Component',
       },
     }).then((response) => {
@@ -184,9 +189,34 @@ describe('Component Management API Tests', () => {
       expect(response.body).to.have.property('success', true)
 
       const updatedComponent = response.body.data
+      expect(updatedComponent.status).to.eq('NEEDS_CONTEXT')
+      expect(updatedComponent.statusReason).to.eq(
+        'Requires an authenticated Bot store fixture.',
+      )
       expect(updatedComponent.isWorking).to.be.false
-      expect(updatedComponent.underConstruction).to.be.true
+      expect(updatedComponent.underConstruction).to.be.false
+      expect(updatedComponent.isBroken).to.be.false
       expect(updatedComponent.title).to.eq('Updated Test Component')
+    })
+  })
+
+  it('Keeps one explicit legacy status-write compatibility path', () => {
+    expect(componentId).to.exist
+
+    cy.request({
+      method: 'PATCH',
+      url: `${apiBase}/${componentId}`,
+      headers: adminHeaders(adminToken),
+      body: {
+        isBroken: true,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body).to.have.property('success', true)
+      expect(response.body.data.status).to.eq('BROKEN')
+      expect(response.body.data.isWorking).to.be.false
+      expect(response.body.data.underConstruction).to.be.false
+      expect(response.body.data.isBroken).to.be.true
     })
   })
 

@@ -89,15 +89,21 @@ export const useComponentStore = defineStore('componentStore', () => {
   async function updateComponent(component: Component) {
     const updated = await helperUpdate(component)
     const index = components.value.findIndex((entry) => entry.id === component.id)
+    const existing = index === -1 ? undefined : components.value[index]
 
-    if (index !== -1) {
-      components.value[index] = {
-        ...components.value[index],
-        ...updated,
-      }
+    if (!existing) return updated
+
+    const merged: ComponentCatalogItem = {
+      ...existing,
+      ...updated,
+    }
+    components.value[index] = merged
+
+    if (selectedComponent.value?.id === merged.id) {
+      selectedComponent.value = merged
     }
 
-    return components.value[index] ?? updated
+    return merged
   }
 
   async function deleteComponent(id: number) {

@@ -5,12 +5,18 @@ import {
   buildComponentReconcilePlan,
   parseWonderLabManifest,
   type WonderLabManifest,
+  type WonderLabManifestEntry,
 } from '@/server/utils/wonderlabComponentReconcile'
+
+const GENERATED_AT = '2026-07-18T00:00:00.000Z'
+
+type ComponentOverrides = Partial<Component>
 
 function component(
   id: number,
   componentName: string,
   folderName: string,
+  overrides: ComponentOverrides = {},
 ): Component {
   return {
     id,
@@ -21,9 +27,23 @@ function component(
     isWorking: false,
     underConstruction: false,
     isBroken: false,
+    slug: null,
+    sourcePath: null,
+    sourceKey: null,
+    sourceHash: null,
+    status: 'UNREVIEWED',
+    statusReason: null,
     title: componentName,
+    description: null,
     notes: null,
+    category: null,
+    tags: null,
+    previewMode: null,
+    previewConfig: null,
+    lastSeenAt: null,
+    isDiscovered: false,
     artImageId: null,
+    ...overrides,
   }
 }
 
@@ -32,28 +52,34 @@ function manifest(
 ): WonderLabManifest {
   return {
     version: 1,
-    generatedAt: '2026-07-18T00:00:00.000Z',
+    generatedAt: GENERATED_AT,
     componentRoot: 'components',
     count: entries.length,
     entries,
   }
 }
 
-function entry(componentName: string, folderName: string) {
+function entry(
+  componentName: string,
+  folderName: string,
+  hashCharacter = componentName.slice(0, 1).toLowerCase() || 'a',
+): WonderLabManifestEntry {
   const sourcePath = `components/${folderName}/${componentName}.vue`
 
   return {
     sourceKey: sourcePath.toLowerCase(),
     sourcePath,
-    sourceHash: 'a'.repeat(64),
+    sourceHash: hashCharacter.repeat(64),
     componentName,
     slug: `${folderName}-${componentName}`.toLowerCase(),
     folderName,
   }
 }
 
+const existingEntry = entry('ExistingCard', 'cards', 'a')
+const newEntry = entry('NewPanel', 'panels', 'b')
 const safePlan = buildComponentReconcilePlan(
-  manifest([entry('ExistingCard', 'cards'), entry('NewPanel', 'panels')]),
+  manifest([existingEntry, newEntry]),
   [
     component(1, 'ExistingCard', 'legacy'),
     component(2, 'RetiredWidget', 'legacy'),
@@ -61,9 +87,34 @@ const safePlan = buildComponentReconcilePlan(
 )
 
 assert.equal(safePlan.updates.length, 1)
-assert.deepEqual(safePlan.updates[0]?.changes, { folderName: 'cards' })
+assert.deepEqual(safePlan.updates[0], {
+  kind: 'update',
+  componentName: 'ExistingCard',
+  existingId: 1,
+  changes: {
+    folderName: 'cards',
+    slug: existingEntry.slug,
+    sourcePath: existingEntry.sourcePath,
+    sourceKey: existingEntry.sourceKey,
+    sourceHash: existingEntry.sourceHash,
+    isDiscovered: true,
+    lastSeenAt: GENERATED_AT,
+  },
+})
 assert.equal(safePlan.creates.length, 1)
-assert.equal(safePlan.creates[0]?.componentName, 'NewPanel')
+assert.deepEqual(safePlan.creates[0], {
+  kind: 'create',
+  componentName: 'NewPanel',
+  changes: {
+    folderName: 'panels',
+    slug: newEntry.slug,
+    sourcePath: newEntry.sourcePath,
+    sourceKey: newEntry.sourceKey,
+    sourceHash: newEntry.sourceHash,
+    lastSeenAt: GENERATED_AT,
+    isDiscovered: true,
+  },
+})
 assert.deepEqual(
   safePlan.missingFromManifest.map((item) => item.componentName),
   ['RetiredWidget'],
@@ -71,21 +122,77 @@ assert.deepEqual(
 )
 assert.equal(safePlan.conflicts.length, 0)
 
-const renamePlan = buildComponentReconcilePlan(
-  manifest([entry('NarratorCard', 'navigation')]),
-  [component(3, 'narrator-card', 'legacy')],
-)
+const movedEntry = entry('NarratorCard', 'navigation', 'c')
+const movePlan = buildComponentReconcilePlan(manifest([movedEntry]), [
+  component(3, 'old-narrator-card', 'legacy-navigation', {
+    slug: 'legacy-navigation-old-narrator-card',
+    sourcePath: 'components/legacy-navigation/old-narrator-card.vue',
+    sourceKey: 'components/legacy-navigation/old-narrator-card.vue',
+    sourceHash: movedEntry.sourceHash,
+    isDiscovered: true,
+  }),
+])
 
-assert.equal(renamePlan.updates.length, 1)
-assert.deepEqual(renamePlan.updates[0]?.changes, {
+assert.equal(movePlan.updates.length, 1)
+assert.deepEqual(movePlan.updates[0], {
+  kind: 'update',
   componentName: 'NarratorCard',
-  folderName: 'navigation',
+  existingId: 3,
+  changes: {
+    componentName: 'NarratorCard',
+    folderName: 'navigation',
+    slug: movedEntry.slug,
+    sourcePath: movedEntry.sourcePath,
+    sourceKey: movedEntry.sourceKey,
+    lastSeenAt: GENERATED_AT,
+  },
 })
+assert.equal(movePlan.creates.length, 0)
+
+const stableEntry = entry('StableCard', 'cards', 'd')
+const stablePlan = buildComponentReconcilePlan(manifest([stableEntry]), [
+  component(4, stableEntry.componentName, stableEntry.folderName, {
+    slug: stableEntry.slug,
+    sourcePath: stableEntry.sourcePath,
+    sourceKey: stableEntry.sourceKey,
+    sourceHash: stableEntry.sourceHash,
+    lastSeenAt: new Date(GENERATED_AT),
+    isDiscovered: true,
+  }),
+])
+
+assert.equal(stablePlan.updates.length, 0)
+assert.equal(stablePlan.creates.length, 0)
+assert.deepEqual(stablePlan.unchanged, ['StableCard'])
+
+const missingPlan = buildComponentReconcilePlan(manifest([]), [
+  component(5, 'MissingCard', 'cards', {
+    sourceKey: 'components/cards/missing-card.vue',
+    isDiscovered: true,
+  }),
+])
+
+assert.deepEqual(missingPlan.missingFromManifest, [
+  {
+    id: 5,
+    componentName: 'MissingCard',
+    folderName: 'cards',
+    sourceKey: 'components/cards/missing-card.vue',
+  },
+])
+assert.deepEqual(missingPlan.updates, [
+  {
+    kind: 'update',
+    componentName: 'MissingCard',
+    existingId: 5,
+    changes: { isDiscovered: false },
+  },
+])
 
 const conflictPlan = buildComponentReconcilePlan(
   manifest([
-    entry('StatusBadge', 'one'),
-    entry('status-badge', 'two'),
+    entry('StatusBadge', 'one', 'e'),
+    entry('status-badge', 'two', 'f'),
   ]),
   [],
 )
@@ -96,10 +203,18 @@ assert.equal(conflictPlan.creates.length, 0)
 assert.throws(
   () =>
     parseWonderLabManifest({
-      ...manifest([entry('Counted', 'cards')]),
+      ...manifest([entry('Counted', 'cards', 'g')]),
       count: 2,
     }),
   /count mismatch/i,
 )
+
+const normalizedManifest = parseWonderLabManifest({
+  ...manifest([entry('Normalized', 'cards', 'A')]),
+  generatedAt: '2026-07-18T00:00:00-07:00',
+})
+assert.equal(normalizedManifest.entries[0]?.sourceHash, 'a'.repeat(64))
+assert.equal(normalizedManifest.entries[0]?.sourceKey, normalizedManifest.entries[0]?.sourceKey.toLowerCase())
+assert.equal(normalizedManifest.generatedAt, '2026-07-18T07:00:00.000Z')
 
 console.log('WonderLab component reconciliation verification passed.')

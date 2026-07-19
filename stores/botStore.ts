@@ -14,6 +14,10 @@ import {
 } from './helpers/botHelper'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
+import {
+  mergeDefinedRecord,
+  reconcileRecordsById,
+} from './helpers/recordMerge'
 import { useServerStore } from './serverStore'
 import { useUserStore } from './userStore'
 import { useAchievementStore } from './achievementStore'
@@ -282,17 +286,26 @@ export const useBotStore = defineStore('botStore', () => {
     persist()
   }
 
-  function upsertBot(bot: Bot): void {
+  function upsertBot(bot: Bot): Bot {
     const index = bots.value.findIndex((entry: Bot) => entry.id === bot.id)
+    const existing =
+      currentBot.value?.id === bot.id
+        ? currentBot.value
+        : index >= 0
+          ? bots.value[index]
+          : undefined
+    const merged = mergeDefinedRecord(existing, bot)
 
     if (index >= 0) {
-      bots.value.splice(index, 1, bot)
+      bots.value.splice(index, 1, merged)
     } else {
-      bots.value.push(bot)
+      bots.value.push(merged)
     }
 
+    if (currentBot.value?.id === merged.id) currentBot.value = merged
     bots.value.sort(sortBots)
     persist()
+    return merged
   }
 
   async function generateFields(fieldsToUpgrade: string[]) {
@@ -517,12 +530,9 @@ export const useBotStore = defineStore('botStore', () => {
   }
 
   async function fetchBots(force = false): Promise<Bot[]> {
+    if (fetchBotsPromise.value) return fetchBotsPromise.value
     if (!force && isLoaded.value && bots.value.length > 0) {
       return bots.value
-    }
-
-    if (fetchBotsPromise.value && !force) {
-      return fetchBotsPromise.value
     }
 
     fetchBotsPromise.value = (async () => {
@@ -533,7 +543,7 @@ export const useBotStore = defineStore('botStore', () => {
 
         const fetched = await fetchAllBots()
 
-        bots.value = fetched.slice().sort(sortBots)
+        bots.value = reconcileRecordsById(bots.value, fetched).sort(sortBots)
         isLoaded.value = true
         usingSnapshot.value = false
         markSnapshotActive('bots', false)
@@ -614,14 +624,15 @@ export const useBotStore = defineStore('botStore', () => {
       )
 
       if (updated) {
-        upsertBot(updated)
-        currentBot.value = updated
-        botForm.value = toBotForm(updated)
-        currentImagePath.value = updated.avatarImage || ''
+        const merged = upsertBot(updated)
+        currentBot.value = merged
+        botForm.value = toBotForm(merged)
+        currentImagePath.value = merged.avatarImage || ''
         persist()
+        return merged
       }
 
-      return updated
+      return null
     } catch (error: unknown) {
       handleError(error, 'updateCurrentBot')
       setLastError(error, 'Failed to update bot')
@@ -756,10 +767,10 @@ export const useBotStore = defineStore('botStore', () => {
       const newBot = await addBot(payload)
 
       if (newBot) {
-        upsertBot(newBot)
+        return upsertBot(newBot)
       }
 
-      return newBot
+      return null
     } catch (error: unknown) {
       handleError(error, 'addSingleBot')
       setLastError(error, 'Failed to add bot')
@@ -793,14 +804,15 @@ export const useBotStore = defineStore('botStore', () => {
         const bot = await getBotById(id)
 
         if (bot) {
-          upsertBot(bot)
-          currentBot.value = bot
-          botForm.value = toBotForm(bot)
-          currentImagePath.value = bot.avatarImage ?? ''
+          const merged = upsertBot(bot)
+          currentBot.value = merged
+          botForm.value = toBotForm(merged)
+          currentImagePath.value = merged.avatarImage ?? ''
           persist()
+          return merged
         }
 
-        return bot
+        return null
       } catch (error: unknown) {
         handleError(error, 'loadBotById')
         setLastError(error, 'Failed to load bot')

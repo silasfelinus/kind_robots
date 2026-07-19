@@ -1,0 +1,41 @@
+name: Scenario Mutation Input Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/scenarios/mutation.ts'
+      - 'server/api/scenarios/create.ts'
+      - 'server/api/scenarios/index.post.ts'
+      - 'server/api/scenarios/[id].patch.ts'
+      - 'server/api/scenarios/batch.post.ts'
+      - 'server/api/scenarios/batch.patch.ts'
+      - 'cypress/e2e/api/scenario-input-boundary.cy.ts'
+      - 'utils/scripts/verifyScenarioMutationInputParity.ts'
+      - '.github/workflows/scenario-mutation-input-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify Scenario mutation input parity
+        run: npx tsx utils/scripts/verifyScenarioMutationInputParity.ts

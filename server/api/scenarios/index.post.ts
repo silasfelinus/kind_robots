@@ -31,14 +31,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!body || typeof body !== 'object') {
-      throw createError({
-        statusCode: 400,
-        message: 'Request body is required.',
-      })
-    }
-
-    const createInput = buildScenarioCreateInput(body, user.id)
+    const createInput = await buildScenarioCreateInput(body, user.id)
     const existingScenario = await findExistingScenario(
       createInput.title,
       user.id,

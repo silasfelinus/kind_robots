@@ -7,9 +7,10 @@ import { awardKarma } from '../../utils/karma'
 import type { Prisma, Prompt } from '~/prisma/generated/prisma/client'
 import { promptResourceSelect } from './selects'
 
-type PromptCreateBody = Partial<Prompt> & {
-  CreationSource?: string
-}
+type PromptCreateBody = Partial<Omit<Prompt, 'userId'>> &
+  Record<string, unknown> & {
+    CreationSource?: string
+  }
 
 function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
   const numericValue = Number(value)
@@ -18,24 +19,30 @@ function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
     : undefined
 }
 
+function assertOwnershipMatchesAuthentication(
+  body: Record<string, unknown>,
+  authenticatedUserId: number,
+) {
+  if (!Object.prototype.hasOwnProperty.call(body, 'userId')) return
+
+  const requestedUserId = Number(body.userId)
+
+  if (
+    !Number.isInteger(requestedUserId) ||
+    requestedUserId !== authenticatedUserId
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Prompt ownership assignment. Ownership is server-owned.',
+    })
+  }
+}
+
 async function assertRelatedRecordsExist(options: {
-  userId: number
   botId?: number
   artImageId?: number
 }) {
-  const { userId, botId, artImageId } = options
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  })
-
-  if (!user) {
-    throw createError({
-      statusCode: 404,
-      message: `User ID not found: ${userId}.`,
-    })
-  }
+  const { botId, artImageId } = options
 
   if (botId) {
     const bot = await prisma.bot.findUnique({
@@ -68,7 +75,7 @@ async function assertRelatedRecordsExist(options: {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user, kind } = await validateApiKey(event)
+    const { isValid, user } = await validateApiKey(event)
 
     if (!isValid || !user) {
       throw createError({
@@ -79,6 +86,13 @@ export default defineEventHandler(async (event) => {
 
     const promptData = await readBody<PromptCreateBody>(event)
 
+    if (!promptData || typeof promptData !== 'object' || Array.isArray(promptData)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Prompt payload is required.',
+      })
+    }
+
     if (!promptData.prompt || typeof promptData.prompt !== 'string') {
       throw createError({
         statusCode: 400,
@@ -87,32 +101,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const authenticatedUserId = user.id
-    const requestedUserId = getPositiveIntegerOrUndefined(promptData.userId)
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    const isServerKey = kind === 'server'
-
-    const userId =
-      (isAdmin || isServerKey) && requestedUserId
-        ? requestedUserId
-        : authenticatedUserId
-
-    if (
-      requestedUserId &&
-      requestedUserId !== authenticatedUserId &&
-      !isAdmin &&
-      !isServerKey
-    ) {
-      throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the authenticated user.',
-      })
-    }
+    assertOwnershipMatchesAuthentication(promptData, authenticatedUserId)
 
     const botId = getPositiveIntegerOrUndefined(promptData.botId)
     const artImageId = getPositiveIntegerOrUndefined(promptData.artImageId)
 
     await assertRelatedRecordsExist({
-      userId,
       botId,
       artImageId,
     })
@@ -132,7 +126,7 @@ export default defineEventHandler(async (event) => {
       isPublic: promptData.isPublic ?? false,
       isActive: promptData.isActive ?? true,
       User: {
-        connect: { id: userId },
+        connect: { id: authenticatedUserId },
       },
       Bot: botId
         ? {
@@ -153,7 +147,7 @@ export default defineEventHandler(async (event) => {
 
     if (data.isPublic) {
       void awardKarma({
-        userId,
+        userId: authenticatedUserId,
         reason: 'CONTENT_CREATED_PUBLIC',
         refId: String(data.id),
       }).catch(() => {})

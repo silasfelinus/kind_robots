@@ -48,6 +48,30 @@ replaceExact(
 )
 
 replaceExact(
+  'stores/artStore.ts',
+  `  async function updateArtImageDreams(
+    id: number,
+    dreamIds: number[],
+  ): Promise<ApiResponse<ArtImage>> {
+    return await updateArtImageConnections(id, {
+      dreamIds,
+    })
+  }
+
+`,
+  '',
+  'dead ArtImage Dream connection action',
+)
+
+replaceExact(
+  'stores/artStore.ts',
+  `    updateArtImageDreams,
+`,
+  '',
+  'dead ArtImage Dream connection export',
+)
+
+replaceExact(
   'docs/notes/backend-sweep-2026-07-05.md',
   'Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art uploads now derive ownership from authentication and reject relationship fields.',
   'Resolved since this audit: achievement writes are authenticated and ownership-aware; Stripe billing identity comes from authentication; Component mutations require admins; bot seed is admin-only; dead SD model switching was removed; art upload derives ownership from authentication; ArtImage connection PATCH is collection-only and checks collection ownership.',

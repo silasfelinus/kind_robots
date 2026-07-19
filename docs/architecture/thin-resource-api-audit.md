@@ -29,6 +29,7 @@ Examples of explicit commands include publish, import, reconcile, generate, comm
 | Bot seed command | Public POST could trigger bulk seed-data updates with no authentication or safe inspection mode | Command requires an admin, accepts only an optional dry-run flag, and exposes a no-write validation path for operational tests |
 | SD model switch | Unauthenticated route hard-coded a live GPU server, disagreed with the store request shape, and had no repository caller | Removed the dead route, unused Pinia action, and setter-only helper instead of preserving an unsafe global server mutation |
 | Art upload | Public multipart POST trusted caller user IDs, defaulted ownership to user 10, and connected unrelated resources during file creation | Upload requires authentication, derives owner from the token, validates image type/size, rejects identity and relationship fields, and creates only one ArtImage; callers link collections and targets through explicit APIs |
+| ArtImage collection links | Generic connection PATCH let image owners transfer ownership and attach arbitrary Bots, Dreams, Rewards, Servers, and other resources | Endpoint now manages collection membership only, requires image ownership, requires collection ownership for connects, validates all IDs, and rejects unrelated fields |
 
 ### P1 — Completed response and resource-boundary cleanup
 

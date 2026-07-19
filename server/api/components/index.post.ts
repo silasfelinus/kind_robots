@@ -5,15 +5,17 @@ import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
 import type { Component, Prisma } from '~/prisma/generated/prisma/client'
 import {
-  getLegacyComponentStatus,
-  hasLegacyStatusUpdate,
   isComponentStatus,
-  legacyFieldsForComponentStatus,
-  resolveLegacyStatusUpdate,
   type ComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
 
 type ComponentCreateBody = Partial<Component>
+
+const retiredStatusFields = [
+  'isWorking',
+  'underConstruction',
+  'isBroken',
+] as const
 
 function getStringOrDefault(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback
@@ -42,6 +44,22 @@ function requestedStatus(value: unknown): ComponentStatus | null {
   return value
 }
 
+function rejectRetiredStatusFields(body: unknown): void {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return
+
+  const record = body as Record<string, unknown>
+  const retiredFields = retiredStatusFields.filter((field) =>
+    Object.prototype.hasOwnProperty.call(record, field),
+  )
+
+  if (retiredFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Legacy Component status fields are no longer supported: ${retiredFields.join(', ')}. Use "status" instead.`,
+    })
+  }
+}
+
 async function assertArtImageExists(artImageId?: number) {
   if (!artImageId) return
 
@@ -63,6 +81,7 @@ export default defineEventHandler(async (event) => {
     await requireAdminApiUser(event)
 
     const componentData = await readBody<ComponentCreateBody>(event)
+    rejectRetiredStatusFields(componentData)
 
     const componentName = getStringOrDefault(componentData.componentName, '')
     const folderName = getStringOrDefault(
@@ -87,42 +106,8 @@ export default defineEventHandler(async (event) => {
     const artImageId = getPositiveIntegerOrUndefined(componentData.artImageId)
     await assertArtImageExists(artImageId)
 
-    const existingComponent = await prisma.component.findUnique({
-      where: { componentName },
-      select: {
-        status: true,
-        isWorking: true,
-        underConstruction: true,
-        isBroken: true,
-      },
-    })
-
     const canonicalStatus = requestedStatus(componentData.status)
-    const legacyStatusWasProvided = hasLegacyStatusUpdate(componentData)
-    const createStatus: ComponentStatus = canonicalStatus
-      ? canonicalStatus
-      : legacyStatusWasProvided
-        ? getLegacyComponentStatus(
-            resolveLegacyStatusUpdate(
-              legacyFieldsForComponentStatus('UNREVIEWED'),
-              componentData,
-            ),
-          )
-        : 'UNREVIEWED'
-    const updateStatus: ComponentStatus | null = canonicalStatus
-      ? canonicalStatus
-      : legacyStatusWasProvided && existingComponent
-        ? getLegacyComponentStatus(
-            resolveLegacyStatusUpdate(existingComponent, componentData),
-          )
-        : legacyStatusWasProvided
-          ? createStatus
-          : null
-
-    const createLegacyStatus = legacyFieldsForComponentStatus(createStatus)
-    const updateLegacyStatus = updateStatus
-      ? legacyFieldsForComponentStatus(updateStatus)
-      : null
+    const createStatus: ComponentStatus = canonicalStatus ?? 'UNREVIEWED'
 
     const commonData = {
       folderName,
@@ -138,10 +123,7 @@ export default defineEventHandler(async (event) => {
 
     const updateData: Prisma.ComponentUpdateInput = {
       ...commonData,
-      status: updateStatus ?? undefined,
-      isWorking: updateLegacyStatus?.isWorking,
-      underConstruction: updateLegacyStatus?.underConstruction,
-      isBroken: updateLegacyStatus?.isBroken,
+      status: canonicalStatus ?? undefined,
     }
 
     const createData: Prisma.ComponentCreateInput = {
@@ -149,9 +131,6 @@ export default defineEventHandler(async (event) => {
       componentName,
       createdAt: new Date(),
       status: createStatus,
-      isWorking: createLegacyStatus.isWorking,
-      underConstruction: createLegacyStatus.underConstruction,
-      isBroken: createLegacyStatus.isBroken,
     }
 
     const data = await prisma.component.upsert({

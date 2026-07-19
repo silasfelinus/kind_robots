@@ -37,7 +37,7 @@ for (const field of legacyFields) {
 assert.match(migration, /^ALTER TABLE `Component`/m)
 for (const field of legacyFields) {
   assert.equal(
-    (migration.match(new RegExp(`DROP COLUMN \\`${field}\\``, 'g')) || [])
+    (migration.match(new RegExp('DROP COLUMN `' + field + '`', 'g')) || [])
       .length,
     1,
     `The contract migration must drop ${field} exactly once.`,

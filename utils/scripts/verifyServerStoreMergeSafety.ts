@@ -13,7 +13,7 @@ const cached = {
   serverType: 'OPENAI',
   apiKey: 'local-secret',
   notes: 'local detail',
-} as Server
+} as unknown as Server
 const maskedRemote = {
   id: 1,
   title: 'Fresh server title',
@@ -21,7 +21,7 @@ const maskedRemote = {
   apiKey: '••••••••',
   hasApiKey: true,
   notes: undefined,
-} as SafeServerRow
+} as unknown as SafeServerRow
 
 const merged = mergeServerRecord(cached, maskedRemote)
 assert.equal(merged.title, 'Fresh server title')

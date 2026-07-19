@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "stage": "generate",
+  "component": {
+    "id": 96,
+    "sourceKey": "components/bots/bot-card.vue",
+    "title": "BotCard"
+  },
+  "reviewers": [
+    {
+      "kind": "BOT",
+      "id": 17,
+      "name": "DottiB0t",
+      "slug": "dotti-bot"
+    },
+    {
+      "kind": "BOT",
+      "id": 133,
+      "name": "Catbot",
+      "slug": "cat-bot"
+    }
+  ],
+  "generation": {
+    "model": "gpt-4o-mini",
+    "regenerate": false
+  },
+  "publications": []
+}

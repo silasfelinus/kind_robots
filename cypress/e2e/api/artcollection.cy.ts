@@ -118,7 +118,6 @@ describe('ArtCollection API Tests', () => {
       body: {
         label: `cypress-art-collection-${Date.now()}`,
         description: 'Cypress ArtCollection test fixture',
-        userId,
         artImageIds: [artImageId],
         isPublic: false,
         isMature: false,

@@ -236,7 +236,6 @@ describe('Relationship API Tests', () => {
         postRecord('artCollection', {
           label: `cypress-relationship-collection-${time}`,
           description: 'Cypress relationship ArtCollection fixture',
-          userId,
           artImageIds: [id('artImage')],
           isPublic: false,
           isMature: false,

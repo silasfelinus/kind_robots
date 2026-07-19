@@ -40,8 +40,18 @@ requireText(
 )
 requireText(
   boundary,
-  "const scenarioStoreCompatibilityFields = [",
+  'const scenarioStoreCompatibilityFields = [',
   'Scenario singular store compatibility stage',
+)
+requireText(
+  boundary,
+  "'facetIds',",
+  'Scenario Facet compatibility field',
+)
+requireText(
+  boundary,
+  'no writable ScenarioCreateInput/ScenarioUpdateInput relation',
+  'Scenario Facet write limitation documentation',
 )
 requireText(
   boundary,
@@ -63,10 +73,15 @@ requireText(
   'contains an invalid ID at index ${index}',
   'Scenario invalid relation rejection',
 )
-requireText(
+forbidText(
   boundary,
-  'data.Facets = { set: facetIds.map((id) => ({ id })) }',
-  'Scenario Facet update persistence',
+  'data.Facets =',
+  'Unsupported Scenario Facet update write',
+)
+forbidText(
+  createHelper,
+  'Facets:',
+  'Unsupported Scenario Facet create write',
 )
 
 requireText(
@@ -78,11 +93,6 @@ requireText(
   createHelper,
   'Characters: characterIds?.length',
   'Scenario Character create persistence',
-)
-requireText(
-  createHelper,
-  'Facets: facetIds?.length',
-  'Scenario Facet create persistence',
 )
 requireText(
   createRoute,

@@ -11,6 +11,9 @@ on:
 permissions:
   contents: write
 
+env:
+  DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
+
 jobs:
   adopt-schema:
     name: Patch and generate Prisma schema

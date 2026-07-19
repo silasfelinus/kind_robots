@@ -27,9 +27,3 @@ export function getComponentStatus(
 ): ComponentStatus {
   return isComponentStatus(component.status) ? component.status : 'UNREVIEWED'
 }
-
-export function legacyFieldsForComponentStatus(
-  status: ComponentStatus,
-): { status: ComponentStatus } {
-  return { status }
-}

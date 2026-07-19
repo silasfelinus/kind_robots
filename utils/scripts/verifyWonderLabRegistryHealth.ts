@@ -97,13 +97,11 @@ assert.deepEqual(
 )
 assert.deepEqual(health.duplicateNames, ['duplicate-card'])
 
-// A canonical source key must win even when the display name/folder are stale.
 assert.equal(
   health.staleRecords.some((record) => record.id === 1),
   false,
 )
 
-// A rejected manifest request must not poison the shared cache permanently.
 clearWonderLabManifestCache()
 let attempts = 0
 await assert.rejects(
@@ -137,6 +135,10 @@ assert.match(panelSource, /candidate\.sourceKey/)
 assert.match(panelSource, /candidate\.sourcePath/)
 assert.match(panelSource, /candidate\.sourceHash/)
 assert.match(panelSource, /candidate\.isDiscovered === true/)
+assert.match(panelSource, /const expanded = ref\(false\)/)
+assert.match(panelSource, /:aria-expanded="expanded"/)
+assert.match(panelSource, /Show diagnostics/)
+assert.match(panelSource, /v-if="expanded"/)
 assert.match(healthSource, /entriesBySourceKey/)
 assert.match(healthSource, /entriesBySourcePath/)
 assert.match(healthSource, /canonicalEntry \|\|/)

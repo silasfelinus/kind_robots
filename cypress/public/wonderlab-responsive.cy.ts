@@ -11,6 +11,16 @@ const viewports: Viewport[] = [
   { name: 'mobile', width: 390, height: 844 },
 ]
 
+Cypress.on('uncaught:exception', (error) => {
+  if (
+    /ResizeObserver loop completed with undelivered notifications/i.test(
+      error.message,
+    )
+  ) {
+    return false
+  }
+})
+
 function expectNoHorizontalOverflow(): void {
   cy.document().then((document) => {
     const root = document.documentElement
@@ -27,9 +37,9 @@ function visitWonderLab(path = '/wonderlab'): void {
   cy.wait('@components', { timeout: 30_000 })
     .its('response.statusCode')
     .should('eq', 200)
-  cy.contains('h1', 'Component WonderLab', { timeout: 30_000 }).should(
-    'be.visible',
-  )
+  cy.contains('h1', 'Component WonderLab', { timeout: 30_000 })
+    .scrollIntoView()
+    .should('be.visible')
 }
 
 describe('Public WonderLab responsive acceptance', () => {
@@ -38,9 +48,9 @@ describe('Public WonderLab responsive acceptance', () => {
       cy.viewport(viewport.width, viewport.height)
       visitWonderLab()
 
-      cy.get('input[aria-label="Search WonderLab components"]').should(
-        'be.visible',
-      )
+      cy.get('input[aria-label="Search WonderLab components"]')
+        .scrollIntoView()
+        .should('be.visible')
       cy.get('select[aria-label="Filter WonderLab components by status"]').should(
         'be.visible',
       )
@@ -49,12 +59,15 @@ describe('Public WonderLab responsive acceptance', () => {
       )
       cy.contains('button', 'Open exhibit', { timeout: 30_000 })
         .first()
+        .scrollIntoView()
         .should('be.visible')
         .click()
 
-      cy.contains('About this exhibit').should('be.visible')
-      cy.contains('button', 'Clear').should('be.visible')
-      cy.contains('Reviews').should('exist')
+      cy.contains('About this exhibit')
+        .scrollIntoView()
+        .should('be.visible')
+      cy.contains('button', 'Clear').scrollIntoView().should('be.visible')
+      cy.contains('Reviews').scrollIntoView().should('be.visible')
       expectNoHorizontalOverflow()
     })
   }
@@ -87,11 +100,15 @@ describe('Public WonderLab responsive acceptance', () => {
       cy.viewport(viewport.width, viewport.height)
 
       cy.visit('/memory')
-      cy.contains('Memory Dungeon', { timeout: 30_000 }).should('be.visible')
+      cy.contains(/enter the dungeon/i, { timeout: 30_000 })
+        .scrollIntoView()
+        .should('be.visible')
       expectNoHorizontalOverflow()
 
       cy.visit('/screenfx')
-      cy.contains('Screen FX', { timeout: 30_000 }).should('be.visible')
+      cy.contains('Screen FX', { timeout: 30_000 })
+        .scrollIntoView()
+        .should('be.visible')
       expectNoHorizontalOverflow()
     })
   }

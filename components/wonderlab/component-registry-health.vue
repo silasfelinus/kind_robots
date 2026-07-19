@@ -1,51 +1,90 @@
 <!-- /components/wonderlab/component-registry-health.vue -->
 <template>
   <section
-    class="rounded-3xl border border-base-300 bg-base-100/85 p-4 shadow-sm"
+    class="rounded-3xl border border-base-300 bg-base-100/85 p-3 shadow-sm sm:p-4"
   >
     <header class="flex flex-wrap items-start justify-between gap-3">
-      <div>
+      <div class="min-w-0 flex-1">
         <p class="text-xs font-black uppercase tracking-widest text-primary">
           Registry Health
         </p>
-        <h2 class="mt-1 text-xl font-black">Manifest ↔ database coverage</h2>
-        <p class="mt-1 max-w-3xl text-sm leading-relaxed text-base-content/60">
+        <h2 class="mt-1 text-lg font-black sm:text-xl">
+          Manifest ↔ database coverage
+        </h2>
+        <p
+          class="mt-1 hidden max-w-3xl text-sm leading-relaxed text-base-content/60 sm:block"
+        >
           Read-only comparison of canonical Vue source identity and existing
           Component records. Reconciliation remains an explicit admin action.
         </p>
       </div>
 
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm rounded-xl"
-        :disabled="loading"
-        @click="loadHealth(true)"
-      >
-        <span v-if="loading" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
-        Refresh
-      </button>
+      <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+        <button
+          type="button"
+          class="btn btn-outline btn-sm rounded-xl"
+          :aria-expanded="expanded"
+          :disabled="!health"
+          @click="expanded = !expanded"
+        >
+          {{ expanded ? 'Hide diagnostics' : 'Show diagnostics' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm rounded-xl"
+          :disabled="loading"
+          @click="loadHealth(true)"
+        >
+          <span v-if="loading" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:refresh" class="size-4" />
+          Refresh
+        </button>
+      </div>
     </header>
 
     <div
       v-if="errorMessage"
-      class="mt-4 rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error"
+      class="mt-3 rounded-2xl border border-error/30 bg-error/10 p-3 text-sm text-error"
     >
       {{ errorMessage }}
     </div>
 
-    <div v-else-if="loading && !health" class="mt-4 grid gap-3 sm:grid-cols-3">
-      <div v-for="index in 9" :key="index" class="skeleton h-20 rounded-2xl" />
-    </div>
+    <div v-else-if="loading && !health" class="mt-3 skeleton h-10 rounded-2xl" />
 
     <template v-else-if="health">
-      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="mt-3 flex flex-wrap gap-1.5 text-xs">
+        <span class="badge badge-outline">
+          {{ health.manifestCount }} sources
+        </span>
+        <span class="badge badge-outline">
+          {{ health.recordCount }} records
+        </span>
+        <span class="badge badge-success badge-outline">
+          {{ health.matchedRecordCount }} matched
+        </span>
+        <span
+          class="badge badge-outline"
+          :class="health.staleRecordCount ? 'badge-warning' : 'badge-success'"
+        >
+          {{ health.staleRecordCount }} historical
+        </span>
+      </div>
+
+      <div
+        v-if="expanded"
+        class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200/60 p-3">
-          <p class="text-xs font-black uppercase text-base-content/45">Source files</p>
+          <p class="text-xs font-black uppercase text-base-content/45">
+            Source files
+          </p>
           <p class="mt-1 text-2xl font-black">{{ health.manifestCount }}</p>
         </div>
         <div class="rounded-2xl border border-base-300 bg-base-200/60 p-3">
-          <p class="text-xs font-black uppercase text-base-content/45">DB records</p>
+          <p class="text-xs font-black uppercase text-base-content/45">
+            DB records
+          </p>
           <p class="mt-1 text-2xl font-black">{{ health.recordCount }}</p>
         </div>
         <div class="rounded-2xl border border-success/30 bg-success/10 p-3">
@@ -65,7 +104,9 @@
           <p class="text-xs font-black uppercase text-base-content/55">
             Canonical identity
           </p>
-          <p class="mt-1 text-2xl font-black">{{ health.canonicalMatchCount }}</p>
+          <p class="mt-1 text-2xl font-black">
+            {{ health.canonicalMatchCount }}
+          </p>
         </div>
         <div
           class="rounded-2xl border p-3"
@@ -78,7 +119,9 @@
           <p class="text-xs font-black uppercase text-base-content/55">
             Legacy fallback
           </p>
-          <p class="mt-1 text-2xl font-black">{{ health.legacyFallbackCount }}</p>
+          <p class="mt-1 text-2xl font-black">
+            {{ health.legacyFallbackCount }}
+          </p>
         </div>
         <div
           class="rounded-2xl border p-3"
@@ -91,7 +134,9 @@
           <p class="text-xs font-black uppercase text-base-content/55">
             Not discovered
           </p>
-          <p class="mt-1 text-2xl font-black">{{ health.undiscoveredRecordCount }}</p>
+          <p class="mt-1 text-2xl font-black">
+            {{ health.undiscoveredRecordCount }}
+          </p>
         </div>
         <div
           class="rounded-2xl border p-3"
@@ -104,7 +149,9 @@
           <p class="text-xs font-black uppercase text-base-content/55">
             Records without source
           </p>
-          <p class="mt-1 text-2xl font-black">{{ health.staleRecordCount }}</p>
+          <p class="mt-1 text-2xl font-black">
+            {{ health.staleRecordCount }}
+          </p>
         </div>
         <div
           class="rounded-2xl border p-3"
@@ -117,7 +164,9 @@
           <p class="text-xs font-black uppercase text-base-content/55">
             Sources without record
           </p>
-          <p class="mt-1 text-2xl font-black">{{ health.missingRecordCount }}</p>
+          <p class="mt-1 text-2xl font-black">
+            {{ health.missingRecordCount }}
+          </p>
         </div>
         <div
           class="rounded-2xl border p-3"
@@ -130,16 +179,19 @@
           <p class="text-xs font-black uppercase text-base-content/55">
             Duplicate names
           </p>
-          <p class="mt-1 text-2xl font-black">{{ health.duplicateNameCount }}</p>
+          <p class="mt-1 text-2xl font-black">
+            {{ health.duplicateNameCount }}
+          </p>
         </div>
       </div>
 
       <details
         v-if="
-          health.staleRecordCount ||
-          health.missingRecordCount ||
-          health.legacyFallbackCount ||
-          health.duplicateNameCount
+          expanded &&
+          (health.staleRecordCount ||
+            health.missingRecordCount ||
+            health.legacyFallbackCount ||
+            health.duplicateNameCount)
         "
         class="mt-4 rounded-2xl border border-base-300 bg-base-200/40 p-3"
       >
@@ -161,16 +213,23 @@
                 :key="record.id"
                 class="break-all rounded-lg bg-base-100 px-2 py-1.5 font-mono"
               >
-                #{{ record.id }} · {{ record.folderName }}/{{ record.componentName }}
+                #{{ record.id }} · {{ record.folderName }}/{{
+                  record.componentName
+                }}
               </li>
-              <li v-if="health.staleRecordCount > detailLimit" class="text-base-content/50">
+              <li
+                v-if="health.staleRecordCount > detailLimit"
+                class="text-base-content/50"
+              >
                 +{{ health.staleRecordCount - detailLimit }} more
               </li>
             </ul>
           </section>
 
           <section>
-            <h3 class="text-sm font-black text-info">Manifest-only sources</h3>
+            <h3 class="text-sm font-black text-info">
+              Manifest-only sources
+            </h3>
             <p class="mt-1 text-xs text-base-content/55">
               Source files that do not yet have a matching Component record.
             </p>
@@ -182,16 +241,22 @@
               >
                 {{ entry.sourcePath }}
               </li>
-              <li v-if="health.missingRecordCount > detailLimit" class="text-base-content/50">
+              <li
+                v-if="health.missingRecordCount > detailLimit"
+                class="text-base-content/50"
+              >
                 +{{ health.missingRecordCount - detailLimit }} more
               </li>
             </ul>
           </section>
 
           <section>
-            <h3 class="text-sm font-black text-warning">Legacy fallback matches</h3>
+            <h3 class="text-sm font-black text-warning">
+              Legacy fallback matches
+            </h3>
             <p class="mt-1 text-xs text-base-content/55">
-              Matched by folder/name because canonical source identity is not populated yet.
+              Matched by folder/name because canonical source identity is not
+              populated yet.
             </p>
             <ul class="mt-2 space-y-1 text-xs">
               <li
@@ -199,18 +264,26 @@
                 :key="record.id"
                 class="break-all rounded-lg bg-base-100 px-2 py-1.5 font-mono"
               >
-                #{{ record.id }} · {{ record.folderName }}/{{ record.componentName }}
+                #{{ record.id }} · {{ record.folderName }}/{{
+                  record.componentName
+                }}
               </li>
-              <li v-if="health.legacyFallbackCount > detailLimit" class="text-base-content/50">
+              <li
+                v-if="health.legacyFallbackCount > detailLimit"
+                class="text-base-content/50"
+              >
                 +{{ health.legacyFallbackCount - detailLimit }} more
               </li>
             </ul>
           </section>
 
           <section>
-            <h3 class="text-sm font-black text-secondary">Duplicate names</h3>
+            <h3 class="text-sm font-black text-secondary">
+              Duplicate names
+            </h3>
             <p class="mt-1 text-xs text-base-content/55">
-              Valid by source identity, but still blocked by legacy global name uniqueness.
+              Valid by source identity, but still blocked by legacy global name
+              uniqueness.
             </p>
             <div class="mt-2 flex flex-wrap gap-1.5">
               <span
@@ -248,6 +321,7 @@ import {
 } from '@/utils/wonderlab/componentRegistryHealth'
 
 const detailLimit = 8
+const expanded = ref(false)
 const loading = ref(false)
 const errorMessage = ref('')
 const health = ref<WonderLabRegistryHealth | null>(null)
@@ -305,12 +379,12 @@ async function loadHealth(force = false): Promise<void> {
   try {
     if (force) clearWonderLabManifestCache()
 
-    const [manifest, componentPayload] = await Promise.all([
+    const [manifest, componentPayload] = (await Promise.all([
       loadWonderLabComponentManifest(() =>
         fetchJson('/wonderlab-components.json'),
       ),
       fetchJson('/api/components'),
-    ]) as [WonderLabComponentManifest, unknown]
+    ])) as [WonderLabComponentManifest, unknown]
 
     health.value = summarizeWonderLabRegistry(
       manifest.entries,
@@ -318,7 +392,9 @@ async function loadHealth(force = false): Promise<void> {
     )
   } catch (error) {
     errorMessage.value =
-      error instanceof Error ? error.message : 'Failed to inspect registry health.'
+      error instanceof Error
+        ? error.message
+        : 'Failed to inspect registry health.'
   } finally {
     loading.value = false
   }

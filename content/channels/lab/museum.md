@@ -11,6 +11,7 @@ description: Explore the modular components, retired curiosities, and behind-the
 icon: kind-icon:gearhammer
 route: /wonderlab
 sort: 15
+requiredRole: GUEST
 ---
 
 A living museum for components, experiments, and old machinery that remain interesting enough to keep around.

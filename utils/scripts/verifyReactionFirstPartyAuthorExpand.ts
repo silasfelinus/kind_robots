@@ -19,10 +19,19 @@ assert.match(
   sql,
   /FOREIGN KEY \(`authorCharacterId`\) REFERENCES `Character`\(`id`\)[\s\S]*?ON DELETE SET NULL ON UPDATE CASCADE/,
 )
-assert.match(
+
+// No CHECK constraint: MariaDB rejects (error 1901,
+// ER_CHECK_CONSTRAINT_FUNCTION_IS_NOT_ALLOWED) a CHECK that references a
+// column which also carries an ON DELETE SET NULL / ON UPDATE CASCADE
+// foreign-key action, which both author columns have above. A prior version
+// of this migration paired a CHECK with those FKs in the same ALTER TABLE
+// and failed `prisma migrate deploy` in production with P3018 on every
+// subsequent deploy. Mutual exclusivity is enforced in application code
+// instead — see the runtime contract below.
+assert.doesNotMatch(
   sql,
-  /CHECK \(`authorBotId` IS NULL OR `authorCharacterId` IS NULL\)/,
-  'a Reaction must never claim both a Bot and Character display author',
+  /CHECK\s*\(/i,
+  'a CHECK constraint on authorBotId/authorCharacterId is invalid under MariaDB alongside their ON DELETE SET NULL foreign keys (error 1901)',
 )
 
 for (const destructiveStatement of [

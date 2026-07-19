@@ -178,9 +178,36 @@ describe('Chat API Tests', () => {
       (response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)
+        expect(response.body.statusCode).to.eq(200)
         expect(response.body.data)
           .to.be.an('array')
           .and.have.length.greaterThan(0)
+      },
+    )
+  })
+
+  it('returns real status codes for invalid and cross-user Chat lists', () => {
+    makeRequest('GET', `${baseUrl}/user/0`, userJwt).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.statusCode).to.eq(400)
+    })
+
+    makeRequest('GET', `${baseUrl}/user/${userId + 1}`, userJwt).then(
+      (response) => {
+        expect(response.status).to.eq(403)
+        expect(response.body.success).to.eq(false)
+        expect(response.body.statusCode).to.eq(403)
+      },
+    )
+  })
+
+  it('allows an admin to read another user’s Chat list', () => {
+    makeRequest('GET', `${baseUrl}/user/${userId}`, setupAuth).then(
+      (response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.success).to.eq(true)
+        expect(response.body.statusCode).to.eq(200)
       },
     )
   })

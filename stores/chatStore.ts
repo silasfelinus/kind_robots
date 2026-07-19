@@ -203,6 +203,19 @@ function chatHasUserId(chat: Chat, userId: number): boolean {
   return chat.userId === userId || chat.recipientId === userId
 }
 
+function replaceUserChatScope(
+  existing: Chat[],
+  incoming: Chat[],
+  userId: number,
+): Chat[] {
+  const preserved = existing.filter((chat) => !chatHasUserId(chat, userId))
+  const incomingById = new Map(incoming.map((chat) => [chat.id, chat]))
+
+  return [...preserved, ...incomingById.values()].sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+}
+
 function chatHasUsername(chat: Chat, username?: string | null): boolean {
   const cleanUsername = normalizeChatIdentity(username)
 
@@ -1542,7 +1555,7 @@ export const useChatStore = defineStore('chatStore', () => {
     fetchChatsPromise.value = (async () => {
       try {
         const data = await fetchChatsForUser(userId)
-        chats.value = data
+        chats.value = replaceUserChatScope(chats.value, data, userId)
         lastFetchedUserId.value = userId
         refreshUnreadMessages()
         saveToLocalStorage()

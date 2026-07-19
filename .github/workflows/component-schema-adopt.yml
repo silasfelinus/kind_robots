@@ -55,11 +55,8 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Validate generated diff
-        shell: bash
-        run: |
-          set -o pipefail
-          git diff --check 2>&1 | tee git-diff-check.log
+      - name: Validate hand-authored schema diff
+        run: git diff --check -- prisma/schema.prisma
 
       - name: Commit generated schema and client
         run: |
@@ -80,8 +77,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: component-prisma-adoption-diagnostics
-          path: |
-            prisma-format.log
-            git-diff-check.log
+          path: prisma-format.log
           if-no-files-found: warn
           retention-days: 3

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import { mergeRecordsById } from './helpers/recordMerge'
 import { useAchievementStore } from './achievementStore'
 import { generateUsername } from '@/utils/generateUsername'
 import { useArtStore } from './artStore'
@@ -510,15 +511,17 @@ export const useUserStore = defineStore('userStore', () => {
         const response = await performFetch<User[]>('/api/users')
 
         if (response.success && response.data) {
-          users.value = response.data
+          users.value = mergeRecordsById(users.value, response.data)
+          lastError.value = null
           return users.value
         }
 
         throw new Error(response.message || 'Failed to fetch users')
       } catch (error) {
         handleError(error, 'fetching users')
-        users.value = []
-        return []
+        lastError.value =
+          error instanceof Error ? error.message : 'Failed to fetch users'
+        return users.value
       } finally {
         fetchUsersPromise.value = null
       }

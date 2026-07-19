@@ -1,0 +1,39 @@
+name: Server Mutation Ownership
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/utils/serverApi.ts'
+      - 'server/api/server/index.post.ts'
+      - 'server/api/server/batch.post.ts'
+      - 'server/api/server/[id].patch.ts'
+      - 'cypress/e2e/api/server-ownership.cy.ts'
+      - 'utils/scripts/verifyServerMutationOwnership.ts'
+      - '.github/workflows/server-mutation-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify Server ownership boundary
+        run: npx tsx utils/scripts/verifyServerMutationOwnership.ts

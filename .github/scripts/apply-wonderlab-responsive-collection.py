@@ -72,7 +72,11 @@ def main() -> None:
               </select>
             </div>'''
 
-    filter_and_sort_block = filter_block + '''
+    source = replace_once(
+        source,
+        filter_block,
+        filter_block
+        + '''
 
             <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
               <select
@@ -108,16 +112,21 @@ def main() -> None:
                   List
                 </button>
               </div>
-            </div>'''
-    source = replace_once(source, filter_block, filter_and_sort_block, "filter controls")
+            </div>''',
+        "filter and catalog controls",
+    )
 
-    source = source.replace(
+    source = replace_once(
+        source,
         '{{ filteredComponents.length }} of {{ componentCount }} exhibits',
         '{{ sortedComponents.length }} of {{ componentCount }} exhibits',
+        "filtered exhibit count",
     )
-    source = source.replace(
+    source = replace_once(
+        source,
         'v-else-if="filteredComponents.length === 0"',
         'v-else-if="sortedComponents.length === 0"',
+        "empty collection condition",
     )
 
     source = regex_once(
@@ -153,7 +162,6 @@ def main() -> None:
       >''',
         "selected exhibit main",
     )
-
     source = regex_once(
         source,
         r'''        <div
@@ -164,31 +172,16 @@ def main() -> None:
 
     source = replace_once(
         source,
-        '''import type { Component as PrismaComponent } from '~/prisma/generated/prisma/client'
-import { useComponentStore } from '@/stores/componentStore' ''',
-        '''import {
-  useComponentStore,
-  type KindComponent,
-} from '@/stores/componentStore' ''',
+        "import type { Component as PrismaComponent } from '~/prisma/generated/prisma/client'\nimport { useComponentStore } from '@/stores/componentStore'",
+        "import {\n  useComponentStore,\n  type KindComponent,\n} from '@/stores/componentStore'",
         "Component store import",
     )
-
     source = replace_once(
         source,
-        '''import {
-  getComponentStatus,
-  legacyFieldsForComponentStatus,
-  type ComponentStatus,
-} from '@/utils/wonderlab/componentStatus' ''',
-        '''import {
-  getComponentStatus,
-  legacyFieldsForComponentStatus,
-  type ComponentStatus,
-} from '@/utils/wonderlab/componentStatus'
-import { sortComponentCatalog } from '@/utils/wonderlab/componentCatalog' ''',
+        "} from '@/utils/wonderlab/componentStatus'",
+        "} from '@/utils/wonderlab/componentStatus'\nimport { sortComponentCatalog } from '@/utils/wonderlab/componentCatalog'",
         "catalog sort import",
     )
-
     source = replace_once(
         source,
         '''  type WonderLabMuseumQueryState,
@@ -226,17 +219,16 @@ const collectionView = computed<WonderLabCollectionView>({
 })''',
         "sort and view state",
     )
-
     source = replace_once(
         source,
-        '''const components = computed<PrismaComponent[]>(() => {''',
-        '''const components = computed<KindComponent[]>(() => {''',
+        'const components = computed<PrismaComponent[]>(() => {',
+        'const components = computed<KindComponent[]>(() => {',
         "catalog component type",
     )
     source = replace_once(
         source,
-        '''  set: (value: PrismaComponent | null) => {''',
-        '''  set: (value: KindComponent | null) => {''',
+        '  set: (value: PrismaComponent | null) => {',
+        '  set: (value: KindComponent | null) => {',
         "selected component type",
     )
 
@@ -257,25 +249,22 @@ const collectionLayoutClass = computed(() =>
 )''',
         "filtered catalog sort",
     )
-
     source = replace_once(
         source,
-        '''function componentStatus(component: PrismaComponent): ComponentStatus {''',
-        '''function componentStatus(component: KindComponent): ComponentStatus {''',
+        'function componentStatus(component: PrismaComponent): ComponentStatus {',
+        'function componentStatus(component: KindComponent): ComponentStatus {',
         "component status type",
     )
-
     source = regex_once(
         source,
         r'''function statusShortLabel\(status: ComponentStatus\): string \{.*?\n\}\n\n''',
         '',
         "obsolete short status helper",
     )
-
     source = replace_once(
         source,
-        '''function selectComponent(component: PrismaComponent) {''',
-        '''function selectComponent(component: KindComponent) {''',
+        'function selectComponent(component: PrismaComponent) {',
+        'function selectComponent(component: KindComponent) {',
         "selection type",
     )
 

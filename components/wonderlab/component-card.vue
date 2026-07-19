@@ -66,13 +66,13 @@
     </div>
 
     <p
-      v-if="showNotes && component.notes"
+      v-if="showNotes && summaryText"
       :class="[
         'text-sm leading-relaxed text-base-content/65',
         compact ? 'line-clamp-2' : 'line-clamp-3',
       ]"
     >
-      {{ component.notes }}
+      {{ summaryText }}
     </p>
 
     <div v-if="showStatus" class="flex flex-wrap gap-2">
@@ -80,8 +80,41 @@
         {{ statusLabel }}
       </span>
 
+      <span
+        v-if="component.isDiscovered === false"
+        class="badge badge-warning badge-outline badge-sm"
+      >
+        Not discovered
+      </span>
+
+      <span
+        v-if="component.previewMode"
+        class="badge badge-info badge-outline badge-sm"
+      >
+        {{ component.previewMode }}
+      </span>
+
       <span v-if="component.artImageId" class="badge badge-primary badge-sm">
         Art #{{ component.artImageId }}
+      </span>
+    </div>
+
+    <div
+      v-if="showMetrics"
+      class="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-base-300/70 pt-2 text-xs text-base-content/60"
+    >
+      <span v-if="ratingCount" class="font-bold text-warning-content">
+        ★ {{ averageRatingLabel }}
+        <span class="font-normal text-base-content/45">({{ ratingCount }})</span>
+      </span>
+      <span v-else class="text-base-content/45">No ratings</span>
+
+      <span>
+        {{ reviewCount }} {{ reviewCount === 1 ? 'review' : 'reviews' }}
+      </span>
+
+      <span v-if="!compact && reviewedLabel" class="text-base-content/45">
+        Reviewed {{ reviewedLabel }}
       </span>
     </div>
 
@@ -124,7 +157,7 @@
       @click.stop="selectComponent"
     >
       <Icon name="kind-icon:check" class="h-4 w-4" />
-      {{ activeSelected ? 'Selected' : 'Select' }}
+      {{ activeSelected ? 'Selected' : 'Open exhibit' }}
     </button>
 
     <details
@@ -148,8 +181,8 @@ import { computed } from 'vue'
 import type { KindComponent as Component } from '@/stores/componentStore'
 import { useComponentStore } from '@/stores/componentStore'
 import {
-  getLegacyComponentStatus,
-  type LegacyComponentStatus,
+  getComponentStatus,
+  type ComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
 
 const props = withDefaults(
@@ -161,6 +194,7 @@ const props = withDefaults(
     showReaction?: boolean
     showStatus?: boolean
     showNotes?: boolean
+    showMetrics?: boolean
     showMeta?: boolean
     showSelectButton?: boolean
     showDebug?: boolean
@@ -174,6 +208,7 @@ const props = withDefaults(
     showReaction: true,
     showStatus: true,
     showNotes: true,
+    showMetrics: true,
     showMeta: false,
     showSelectButton: false,
     showDebug: false,
@@ -185,6 +220,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   edit: [id: number]
   copied: [name: string]
+  selected: [component: Component]
 }>()
 
 const componentStore = useComponentStore()
@@ -204,15 +240,35 @@ const componentTitle = computed(() => {
   )
 })
 
-const componentStatus = computed(() =>
-  getLegacyComponentStatus(props.component),
+const summaryText = computed(
+  () =>
+    props.component.description ||
+    props.component.statusReason ||
+    props.component.notes ||
+    '',
 )
 
-const statusLabels: Record<LegacyComponentStatus, string> = {
+const reviewCount = computed(() =>
+  Math.max(0, Number(props.component.reviewCount) || 0),
+)
+const ratingCount = computed(() =>
+  Math.max(0, Number(props.component.ratingCount) || 0),
+)
+const averageRatingLabel = computed(() => {
+  const value = Number(props.component.averageRating)
+  return Number.isFinite(value) ? value.toFixed(1) : '—'
+})
+
+const componentStatus = computed(() => getComponentStatus(props.component))
+
+const statusLabels: Record<ComponentStatus, string> = {
   UNREVIEWED: 'Unreviewed',
   WORKING: 'Working',
+  NEEDS_CONTEXT: 'Needs context',
   UNDER_CONSTRUCTION: 'Building',
   BROKEN: 'Broken',
+  RETIRED: 'Retired',
+  PREVIEW_UNSUPPORTED: 'Preview unsupported',
 }
 
 const statusLabel = computed(() => statusLabels[componentStatus.value])
@@ -225,6 +281,12 @@ const statusIcon = computed(() => {
       return 'kind-icon:hammer'
     case 'WORKING':
       return 'kind-icon:check'
+    case 'NEEDS_CONTEXT':
+      return 'kind-icon:gearhammer'
+    case 'RETIRED':
+      return 'kind-icon:x'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'kind-icon:warning'
     default:
       return 'kind-icon:sparkles'
   }
@@ -238,6 +300,12 @@ const statusIconClass = computed(() => {
       return 'border-warning bg-warning/10 text-warning'
     case 'WORKING':
       return 'border-success bg-success/10 text-success'
+    case 'NEEDS_CONTEXT':
+      return 'border-info bg-info/10 text-info'
+    case 'RETIRED':
+      return 'border-base-300 bg-base-200 text-base-content/55'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'border-secondary bg-secondary/10 text-secondary'
     default:
       return 'border-accent bg-accent/10 text-accent'
   }
@@ -251,6 +319,10 @@ const statusBadgeClass = computed(() => {
       return 'badge-warning'
     case 'WORKING':
       return 'badge-success'
+    case 'NEEDS_CONTEXT':
+      return 'badge-info'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'badge-secondary'
     default:
       return 'badge-ghost'
   }
@@ -264,25 +336,34 @@ const statusCardClass = computed(() => {
       return 'border-warning/50'
     case 'WORKING':
       return 'border-success/40'
+    case 'NEEDS_CONTEXT':
+      return 'border-info/45'
+    case 'PREVIEW_UNSUPPORTED':
+      return 'border-secondary/40'
+    case 'RETIRED':
+      return 'opacity-70'
     default:
       return ''
   }
 })
 
-const updatedLabel = computed(() => {
-  const value = props.component.updatedAt || props.component.createdAt
+const updatedLabel = computed(() =>
+  formatDate(props.component.updatedAt || props.component.createdAt),
+)
+const reviewedLabel = computed(() =>
+  formatDate(props.component.lastReviewedAt),
+)
 
-  if (!value) return 'n/a'
-
+function formatDate(value: Date | string | null | undefined): string {
+  if (!value) return ''
   const date = value instanceof Date ? value : new Date(value)
-
-  if (Number.isNaN(date.getTime())) return 'n/a'
-
+  if (Number.isNaN(date.getTime())) return ''
   return date.toLocaleDateString()
-})
+}
 
 function selectComponent() {
   componentStore.selectedComponent = props.component
+  emit('selected', props.component)
 }
 
 async function copyComponentName() {

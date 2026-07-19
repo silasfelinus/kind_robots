@@ -1,7 +1,6 @@
 // /stores/helpers/componentHelper.ts
 
 import { performFetch, handleError } from '@/stores/utils'
-import { useErrorStore } from '@/stores/errorStore'
 import type { Component } from '~/prisma/generated/prisma/client'
 
 export interface Folder {
@@ -54,11 +53,13 @@ export async function updateComponent(
       body: JSON.stringify({
         componentName: component.componentName,
         folderName: component.folderName,
-        isWorking: component.isWorking,
-        underConstruction: component.underConstruction,
-        isBroken: component.isBroken,
+        status: component.status,
+        statusReason: component.statusReason,
         title: component.title,
+        description: component.description,
         notes: component.notes || null,
+        category: component.category,
+        previewMode: component.previewMode,
         artImageId: component.artImageId || null,
       }),
     },

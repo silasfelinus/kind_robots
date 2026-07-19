@@ -16,7 +16,7 @@
       </div>
       <button
         type="button"
-        class="btn btn-ghost btn-xs rounded-xl"
+        class="btn btn-ghost btn-xs rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         @click="feedPreferenceStore.resetToDefaults()"
       >
         Reset to defaults
@@ -42,27 +42,27 @@
         <div class="flex shrink-0 items-center gap-1">
           <button
             type="button"
-            class="btn btn-ghost btn-xs px-1.5"
+            class="btn btn-ghost btn-xs px-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             :disabled="index === 0"
-            aria-label="Move feed up"
+            :aria-label="`Move ${feed.title} up`"
             @click="moveFeed(feed.slug, -1)"
           >
             <Icon name="kind-icon:chevron-up" class="size-4" />
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-xs px-1.5"
+            class="btn btn-ghost btn-xs px-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             :disabled="index === enabledFeeds.length - 1"
-            aria-label="Move feed down"
+            :aria-label="`Move ${feed.title} down`"
             @click="moveFeed(feed.slug, 1)"
           >
             <Icon name="kind-icon:chevron-down" class="size-4" />
           </button>
           <input
             type="checkbox"
-            class="toggle toggle-primary toggle-sm ml-1"
+            class="toggle toggle-primary toggle-sm ml-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             checked
-            aria-label="Disable feed"
+            :aria-label="`Disable ${feed.title}`"
             @change="feedPreferenceStore.disableFeed(feed.slug)"
           />
         </div>
@@ -85,8 +85,8 @@
 
         <input
           type="checkbox"
-          class="toggle toggle-sm"
-          aria-label="Enable feed"
+          class="toggle toggle-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :aria-label="`Enable ${feed.title}`"
           @change="feedPreferenceStore.enableFeed(feed.slug)"
         />
       </li>

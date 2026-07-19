@@ -422,8 +422,21 @@ export const ComponentScalarFieldEnum = {
   isWorking: 'isWorking',
   underConstruction: 'underConstruction',
   isBroken: 'isBroken',
+  slug: 'slug',
+  sourcePath: 'sourcePath',
+  sourceKey: 'sourceKey',
+  sourceHash: 'sourceHash',
+  status: 'status',
+  statusReason: 'statusReason',
   title: 'title',
+  description: 'description',
   notes: 'notes',
+  category: 'category',
+  tags: 'tags',
+  previewMode: 'previewMode',
+  previewConfig: 'previewConfig',
+  lastSeenAt: 'lastSeenAt',
+  isDiscovered: 'isDiscovered',
   artImageId: 'artImageId'
 } as const
 
@@ -1520,6 +1533,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -1705,11 +1726,36 @@ export const ChatOrderByRelevanceFieldEnum = {
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
 
 
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
 export const ComponentOrderByRelevanceFieldEnum = {
   folderName: 'folderName',
   componentName: 'componentName',
+  slug: 'slug',
+  sourcePath: 'sourcePath',
+  sourceKey: 'sourceKey',
+  sourceHash: 'sourceHash',
+  statusReason: 'statusReason',
   title: 'title',
-  notes: 'notes'
+  description: 'description',
+  notes: 'notes',
+  category: 'category',
+  previewMode: 'previewMode'
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]

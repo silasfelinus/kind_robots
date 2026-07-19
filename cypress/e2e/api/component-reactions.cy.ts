@@ -68,14 +68,16 @@ describe('Component Reactions API Tests', () => {
         body: {
           folderName: 'test-folder',
           componentName: `TestComponent_${Date.now()}`,
-          isWorking: true,
-          underConstruction: false,
-          isBroken: false,
+          status: 'WORKING',
           title: 'Test Component',
         },
       }).then((response) => {
         expect(response.status).to.eq(201)
         expect(response.body).to.have.property('success', true)
+        expect(response.body.data.status).to.eq('WORKING')
+        expect(response.body.data.isWorking).to.be.true
+        expect(response.body.data.underConstruction).to.be.false
+        expect(response.body.data.isBroken).to.be.false
 
         componentId = response.body.data.id
         expect(componentId).to.be.a('number')

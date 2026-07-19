@@ -42,9 +42,9 @@
     <div
       class="mt-4 rounded-2xl border border-info/30 bg-info/10 px-4 py-3 text-sm text-info-content"
     >
-      Apply creates missing records and updates component names or folders. It
-      does not delete records, remove reactions, or mark missing components as
-      broken.
+      Apply creates missing records and synchronizes canonical source identity,
+      hashes, names, folders, and discovery state. It never deletes records or
+      reactions, and it does not change curator-selected status.
     </div>
 
     <div
@@ -84,7 +84,7 @@
         v-if="result.plan.conflicts.length"
         class="mt-4 rounded-2xl border border-error/40 bg-error/5 p-4"
       >
-        <h3 class="font-black text-error">Naming conflicts block apply</h3>
+        <h3 class="font-black text-error">Identity conflicts block apply</h3>
         <div class="mt-3 grid gap-3">
           <article
             v-for="conflict in result.plan.conflicts"
@@ -149,8 +149,9 @@
           Missing from manifest ({{ result.plan.missingFromManifest.length }})
         </summary>
         <p class="mt-2 text-xs leading-relaxed text-base-content/60">
-          These records remain untouched so notes, status, artwork, and reactions
-          are preserved for review.
+          These records, notes, statuses, artwork, and reactions remain intact.
+          Apply only changes their discovery flag so they can be reviewed and
+          explicitly retired later.
         </p>
         <ul class="mt-3 grid gap-1 text-sm">
           <li
@@ -182,11 +183,13 @@ type WonderLabManifest = {
   entries: unknown[]
 }
 
+type ReconcileValue = string | boolean
+
 type ReconcileAction = {
   kind: 'create' | 'update'
   componentName: string
   existingId?: number
-  changes: Record<string, string>
+  changes: Record<string, ReconcileValue>
 }
 
 type ReconcileConflict = {
@@ -199,6 +202,7 @@ type MissingComponent = {
   id: number
   componentName: string
   folderName: string
+  sourceKey: string | null
 }
 
 type ReconcileResult = {
@@ -331,9 +335,9 @@ function formatDate(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
 }
 
-function formatChanges(changes: Record<string, string>): string {
+function formatChanges(changes: Record<string, ReconcileValue>): string {
   return Object.entries(changes)
-    .map(([key, value]) => `${key}: ${value}`)
+    .map(([key, value]) => `${key}: ${String(value)}`)
     .join(' · ')
 }
 </script>

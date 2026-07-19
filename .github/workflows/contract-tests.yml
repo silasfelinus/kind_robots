@@ -94,6 +94,9 @@ jobs:
       - name: Newsfeed programmable filters contract
         run: npm run test:newsfeed-filters
 
+      - name: WonderLab reconciliation contract
+        run: npm run test:wonderlab-reconcile
+
       - name: WonderLab test-fixture cleanup contract
         run: npm run test:wonderlab-fixture-cleanup
 
@@ -147,6 +150,15 @@ jobs:
 
       - name: Component canonical expand migration contract
         run: npx tsx utils/scripts/verifyComponentCanonicalExpand.ts
+
+      - name: Component canonical runtime adoption contract
+        run: npx tsx utils/scripts/verifyComponentCanonicalRuntime.ts
+
+      - name: Component canonical client and fallback audit
+        run: npx tsx utils/scripts/verifyComponentCanonicalClients.ts
+
+      - name: WonderLab Component catalog metrics contract
+        run: npx tsx utils/scripts/verifyWonderLabComponentCatalog.ts
 
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt

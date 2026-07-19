@@ -18,11 +18,22 @@ export type WonderLabManifest = {
   entries: WonderLabManifestEntry[]
 }
 
+export type ComponentReconcileChanges = {
+  componentName?: string
+  folderName?: string
+  slug?: string
+  sourcePath?: string
+  sourceKey?: string
+  sourceHash?: string
+  lastSeenAt?: string
+  isDiscovered?: boolean
+}
+
 export type ComponentReconcileAction = {
   kind: 'create' | 'update'
   componentName: string
   existingId?: number
-  changes: Record<string, string>
+  changes: ComponentReconcileChanges
 }
 
 export type ComponentReconcileConflict = {
@@ -36,7 +47,7 @@ export type ComponentReconcilePlan = {
   updates: ComponentReconcileAction[]
   unchanged: string[]
   missingFromManifest: Array<
-    Pick<Component, 'id' | 'componentName' | 'folderName'>
+    Pick<Component, 'id' | 'componentName' | 'folderName' | 'sourceKey'>
   >
   conflicts: ComponentReconcileConflict[]
   matchedComponentIds: number[]
@@ -59,6 +70,14 @@ function requireString(value: unknown, field: string): string {
   }
 
   return value.trim()
+}
+
+function normalizeGeneratedAt(value: unknown): string {
+  if (typeof value !== 'string' || Number.isNaN(Date.parse(value))) {
+    return new Date(0).toISOString()
+  }
+
+  return new Date(value).toISOString()
 }
 
 export function parseWonderLabManifest(value: unknown): WonderLabManifest {
@@ -93,7 +112,7 @@ export function parseWonderLabManifest(value: unknown): WonderLabManifest {
       sourceKey: requireString(
         record.sourceKey,
         `entries[${index}].sourceKey`,
-      ),
+      ).toLowerCase(),
       sourcePath: requireString(
         record.sourcePath,
         `entries[${index}].sourcePath`,
@@ -101,12 +120,12 @@ export function parseWonderLabManifest(value: unknown): WonderLabManifest {
       sourceHash: requireString(
         record.sourceHash,
         `entries[${index}].sourceHash`,
-      ),
+      ).toLowerCase(),
       componentName: requireString(
         record.componentName,
         `entries[${index}].componentName`,
       ),
-      slug: requireString(record.slug, `entries[${index}].slug`),
+      slug: requireString(record.slug, `entries[${index}].slug`).toLowerCase(),
       folderName: requireString(
         record.folderName,
         `entries[${index}].folderName`,
@@ -122,10 +141,7 @@ export function parseWonderLabManifest(value: unknown): WonderLabManifest {
 
   return {
     version: 1,
-    generatedAt:
-      typeof input.generatedAt === 'string'
-        ? input.generatedAt
-        : new Date(0).toISOString(),
+    generatedAt: normalizeGeneratedAt(input.generatedAt),
     componentRoot:
       typeof input.componentRoot === 'string' && input.componentRoot.trim()
         ? input.componentRoot.trim()
@@ -133,6 +149,55 @@ export function parseWonderLabManifest(value: unknown): WonderLabManifest {
     count: entries.length,
     entries,
   }
+}
+
+function groupedBy<T>(items: T[], keyFor: (item: T) => string | null) {
+  const groups = new Map<string, T[]>()
+
+  for (const item of items) {
+    const key = keyFor(item)
+    if (!key) continue
+    const group = groups.get(key) ?? []
+    group.push(item)
+    groups.set(key, group)
+  }
+
+  return groups
+}
+
+function entryChanges(
+  manifest: WonderLabManifest,
+  entry: WonderLabManifestEntry,
+  existing: Component,
+): ComponentReconcileChanges {
+  const changes: ComponentReconcileChanges = {}
+
+  if (existing.componentName !== entry.componentName) {
+    changes.componentName = entry.componentName
+  }
+  if (existing.folderName !== entry.folderName) {
+    changes.folderName = entry.folderName
+  }
+  if (existing.slug !== entry.slug) changes.slug = entry.slug
+  if (existing.sourcePath !== entry.sourcePath) {
+    changes.sourcePath = entry.sourcePath
+  }
+  if (existing.sourceKey !== entry.sourceKey) changes.sourceKey = entry.sourceKey
+  if (existing.sourceHash !== entry.sourceHash) {
+    changes.sourceHash = entry.sourceHash
+  }
+  if (!existing.isDiscovered) changes.isDiscovered = true
+
+  const sourceChanged =
+    changes.slug !== undefined ||
+    changes.sourcePath !== undefined ||
+    changes.sourceKey !== undefined ||
+    changes.sourceHash !== undefined ||
+    changes.isDiscovered === true
+
+  if (sourceChanged) changes.lastSeenAt = manifest.generatedAt
+
+  return changes
 }
 
 export function buildComponentReconcilePlan(
@@ -145,12 +210,21 @@ export function buildComponentReconcilePlan(
   const unchanged: string[] = []
   const matchedComponentIds = new Set<number>()
 
-  const manifestByNormalizedName = new Map<string, WonderLabManifestEntry[]>()
-  for (const entry of manifest.entries) {
-    const key = normalizeComponentName(entry.componentName)
-    const group = manifestByNormalizedName.get(key) ?? []
-    group.push(entry)
-    manifestByNormalizedName.set(key, group)
+  const manifestByNormalizedName = groupedBy(manifest.entries, (entry) =>
+    normalizeComponentName(entry.componentName),
+  )
+  const manifestBySourceKey = groupedBy(manifest.entries, (entry) =>
+    entry.sourceKey.toLowerCase(),
+  )
+
+  for (const [key, entries] of manifestBySourceKey) {
+    if (entries.length > 1) {
+      conflicts.push({
+        key,
+        componentNames: entries.map((entry) => entry.componentName),
+        reason: 'Multiple manifest entries use the same canonical source key.',
+      })
+    }
   }
 
   for (const [key, entries] of manifestByNormalizedName) {
@@ -159,18 +233,23 @@ export function buildComponentReconcilePlan(
         key,
         componentNames: entries.map((entry) => entry.componentName),
         reason:
-          'Multiple source components normalize to the same database component name. A source-path schema migration is required before these can be reconciled safely.',
+          'Multiple source components normalize to the same globally unique component name. Remove the legacy componentName uniqueness before reconciling these entries.',
       })
     }
   }
 
-  const databaseByNormalizedName = new Map<string, Component[]>()
-  for (const component of existingComponents) {
-    const key = normalizeComponentName(component.componentName)
-    const group = databaseByNormalizedName.get(key) ?? []
-    group.push(component)
-    databaseByNormalizedName.set(key, group)
-  }
+  const databaseByNormalizedName = groupedBy(existingComponents, (component) =>
+    normalizeComponentName(component.componentName),
+  )
+  const databaseBySourceKey = groupedBy(existingComponents, (component) =>
+    component.sourceKey?.toLowerCase() || null,
+  )
+  const databaseBySourcePath = groupedBy(existingComponents, (component) =>
+    component.sourcePath || null,
+  )
+  const databaseBySourceHash = groupedBy(existingComponents, (component) =>
+    component.sourceHash?.toLowerCase() || null,
+  )
 
   for (const [key, components] of databaseByNormalizedName) {
     if (components.length > 1) {
@@ -183,17 +262,47 @@ export function buildComponentReconcilePlan(
     }
   }
 
+  for (const [key, components] of databaseBySourceKey) {
+    if (components.length > 1) {
+      conflicts.push({
+        key,
+        componentNames: components.map((component) => component.componentName),
+        reason:
+          'Multiple database rows claim the same canonical source key. Resolve the source identity conflict before applying reconciliation.',
+      })
+    }
+  }
+
   const blockedKeys = new Set(conflicts.map((conflict) => conflict.key))
 
   for (const entry of manifest.entries) {
     const normalizedName = normalizeComponentName(entry.componentName)
-    if (blockedKeys.has(normalizedName)) continue
+    if (blockedKeys.has(normalizedName) || blockedKeys.has(entry.sourceKey)) {
+      continue
+    }
 
-    const exact = existingComponents.find(
+    const exactSourceKey = databaseBySourceKey.get(entry.sourceKey)?.[0]
+    const exactSourcePath = databaseBySourcePath.get(entry.sourcePath)?.[0]
+    const hashMatches = databaseBySourceHash.get(entry.sourceHash) ?? []
+    const uniqueHashMatch = hashMatches.length === 1 ? hashMatches[0] : undefined
+    const exactName = existingComponents.find(
       (component) => component.componentName === entry.componentName,
     )
     const normalizedMatches = databaseByNormalizedName.get(normalizedName) ?? []
-    const existing = exact ?? normalizedMatches[0]
+
+    const identityMatch = exactSourceKey ?? exactSourcePath ?? uniqueHashMatch
+
+    if (identityMatch && exactName && identityMatch.id !== exactName.id) {
+      conflicts.push({
+        key: entry.sourceKey,
+        componentNames: [identityMatch.componentName, exactName.componentName],
+        reason:
+          'Canonical source identity and the target component name resolve to different database rows.',
+      })
+      continue
+    }
+
+    const existing = identityMatch ?? exactName ?? normalizedMatches[0]
 
     if (!existing) {
       creates.push({
@@ -201,20 +310,30 @@ export function buildComponentReconcilePlan(
         componentName: entry.componentName,
         changes: {
           folderName: entry.folderName,
+          slug: entry.slug,
+          sourcePath: entry.sourcePath,
+          sourceKey: entry.sourceKey,
+          sourceHash: entry.sourceHash,
+          lastSeenAt: manifest.generatedAt,
+          isDiscovered: true,
         },
+      })
+      continue
+    }
+
+    if (matchedComponentIds.has(existing.id)) {
+      conflicts.push({
+        key: entry.sourceKey,
+        componentNames: [existing.componentName, entry.componentName],
+        reason:
+          'Multiple manifest entries resolve to the same database Component record.',
       })
       continue
     }
 
     matchedComponentIds.add(existing.id)
 
-    const changes: Record<string, string> = {}
-    if (existing.componentName !== entry.componentName) {
-      changes.componentName = entry.componentName
-    }
-    if (existing.folderName !== entry.folderName) {
-      changes.folderName = entry.folderName
-    }
+    const changes = entryChanges(manifest, entry, existing)
 
     if (Object.keys(changes).length) {
       updates.push({
@@ -230,11 +349,23 @@ export function buildComponentReconcilePlan(
 
   const missingFromManifest = existingComponents
     .filter((component) => !matchedComponentIds.has(component.id))
-    .map(({ id, componentName, folderName }) => ({
+    .map(({ id, componentName, folderName, sourceKey }) => ({
       id,
       componentName,
       folderName,
+      sourceKey,
     }))
+
+  for (const component of existingComponents) {
+    if (matchedComponentIds.has(component.id) || !component.isDiscovered) continue
+
+    updates.push({
+      kind: 'update',
+      componentName: component.componentName,
+      existingId: component.id,
+      changes: { isDiscovered: false },
+    })
+  }
 
   return {
     creates,

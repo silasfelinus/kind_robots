@@ -192,6 +192,28 @@
               </div>
             </div>
 
+            <div class="grid grid-cols-2 gap-2">
+              <select
+                v-model="reviewFilter"
+                class="select select-bordered select-sm bg-base-200"
+                aria-label="Filter WonderLab components by review coverage"
+              >
+                <option value="all">All review coverage</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="unreviewed">No reviews yet</option>
+              </select>
+
+              <select
+                v-model="discoveryFilter"
+                class="select select-bordered select-sm bg-base-200"
+                aria-label="Filter WonderLab components by discovery state"
+              >
+                <option value="all">All discovery states</option>
+                <option value="discovered">In current source</option>
+                <option value="missing">Missing from source</option>
+              </select>
+            </div>
+
             <div class="flex items-center justify-between gap-2">
               <p class="text-xs text-base-content/55">
                 {{ sortedComponents.length }} of {{ componentCount }} exhibits
@@ -424,8 +446,10 @@ import {
   wonderLabMuseumQuery,
   type ComponentCatalogSort,
   type WonderLabCollectionView,
+  type WonderLabDiscoveryFilter,
   type WonderLabMuseumQueryState,
   type WonderLabQuery,
+  type WonderLabReviewFilter,
   type WonderLabStatusFilter,
 } from '@/utils/wonderlab/museumQuery'
 
@@ -466,6 +490,16 @@ const statusFilter = computed<WonderLabStatusFilter>({
   set: (status) => setMuseumQuery({ status }, 'push'),
 })
 
+const reviewFilter = computed<WonderLabReviewFilter>({
+  get: () => museumQueryState.value.reviews,
+  set: (reviews) => setMuseumQuery({ reviews }, 'push'),
+})
+
+const discoveryFilter = computed<WonderLabDiscoveryFilter>({
+  get: () => museumQueryState.value.discovery,
+  set: (discovery) => setMuseumQuery({ discovery }, 'push'),
+})
+
 const catalogSort = computed<ComponentCatalogSort>({
   get: () => museumQueryState.value.sort,
   set: (sort) => setMuseumQuery({ sort }, 'push'),
@@ -487,7 +521,9 @@ const hasActiveFilters = computed(
   () =>
     Boolean(museumQueryState.value.search) ||
     Boolean(museumQueryState.value.folder) ||
-    museumQueryState.value.status !== 'all',
+    museumQueryState.value.status !== 'all' ||
+    museumQueryState.value.reviews !== 'all' ||
+    museumQueryState.value.discovery !== 'all',
 )
 
 const components = computed<KindComponent[]>(() => {
@@ -555,6 +591,21 @@ const filteredComponents = computed(() => {
     )
   }
 
+  if (reviewFilter.value !== 'all') {
+    result = result.filter((component) => {
+      const hasReviews = (component.reviewCount ?? 0) > 0
+      return reviewFilter.value === 'reviewed' ? hasReviews : !hasReviews
+    })
+  }
+
+  if (discoveryFilter.value !== 'all') {
+    result = result.filter((component) =>
+      discoveryFilter.value === 'discovered'
+        ? component.isDiscovered === true
+        : component.isDiscovered !== true,
+    )
+  }
+
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim().toLowerCase()
     result = result.filter((component) => {
@@ -612,6 +663,8 @@ function clearMuseumFilters(): void {
       search: '',
       folder: '',
       status: 'all',
+      reviews: 'all',
+      discovery: 'all',
     },
     'push',
   )

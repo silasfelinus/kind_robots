@@ -9,16 +9,22 @@ export interface BotPayload extends Partial<Bot> {
   serverName?: string | null
 }
 
+function withoutBotOwnership(payload: BotPayload): BotPayload {
+  const sanitized = { ...payload }
+  Reflect.deleteProperty(sanitized, 'userId')
+  return sanitized
+}
+
 export async function updateBot(
   id: number,
   botForm: BotPayload,
   avatarImage?: string,
 ): Promise<Bot | null> {
   try {
-    const payload: BotPayload = {
+    const payload = withoutBotOwnership({
       ...botForm,
       ...(avatarImage ? { avatarImage } : {}),
-    }
+    })
 
     const response = await performFetch<Bot>(`/api/bots/${id}`, {
       method: 'PATCH',
@@ -40,7 +46,7 @@ export async function addBot(botData: BotPayload): Promise<Bot | null> {
   try {
     const response = await performFetch<Bot>('/api/bots', {
       method: 'POST',
-      body: JSON.stringify(botData),
+      body: JSON.stringify(withoutBotOwnership(botData)),
     })
 
     if (response.success && response.data) {

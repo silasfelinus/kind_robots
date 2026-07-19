@@ -102,6 +102,23 @@ describe('Bot Management API Tests', () => {
     })
   })
 
+  it('rejects client-supplied ownership during Bot creation', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        name: `${botName}-spoofed-owner`,
+        userId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Ownership is server-owned')
+    })
+  })
+
   it('creates a Bot with a lean mutation response', () => {
     expect(userId, 'shared Cypress user id').to.be.a('number').and.be.greaterThan(0)
 
@@ -125,7 +142,6 @@ describe('Bot Management API Tests', () => {
         tagline: 'Your friendly AI companion',
         sampleResponse: 'I am here to help you!',
         modules: 'core, analytics',
-        userId,
       },
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(201)
@@ -171,6 +187,34 @@ describe('Bot Management API Tests', () => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('rejects ownership reassignment during singular and batch updates', () => {
+    expect(createdBotId, 'createdBotId').to.be.a('number')
+
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${createdBotId}`,
+      headers: bearerHeaders(userToken),
+      body: { userId },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Ownership is server-owned')
+    })
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
+      headers: bearerHeaders(userToken),
+      body: [{ id: createdBotId, userId }],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Ownership is server-owned')
     })
   })
 

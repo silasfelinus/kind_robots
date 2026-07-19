@@ -24,9 +24,6 @@ function component(
     folderName,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
     updatedAt: new Date('2026-01-01T00:00:00.000Z'),
-    isWorking: false,
-    underConstruction: false,
-    isBroken: false,
     slug: null,
     sourcePath: null,
     sourceKey: null,
@@ -214,7 +211,10 @@ const normalizedManifest = parseWonderLabManifest({
   generatedAt: '2026-07-18T00:00:00-07:00',
 })
 assert.equal(normalizedManifest.entries[0]?.sourceHash, 'a'.repeat(64))
-assert.equal(normalizedManifest.entries[0]?.sourceKey, normalizedManifest.entries[0]?.sourceKey.toLowerCase())
+assert.equal(
+  normalizedManifest.entries[0]?.sourceKey,
+  normalizedManifest.entries[0]?.sourceKey.toLowerCase(),
+)
 assert.equal(normalizedManifest.generatedAt, '2026-07-18T07:00:00.000Z')
 
 console.log('WonderLab component reconciliation verification passed.')

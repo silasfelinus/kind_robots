@@ -21,7 +21,6 @@ for (const fragment of [
   '`generatedComment` TEXT NOT NULL',
   '`editedComment` TEXT NULL',
   'UNIQUE INDEX `ReviewDraft_draftKey_key`',
-  'CONSTRAINT `ReviewDraft_single_author_chk`',
   'CONSTRAINT `ReviewDraft_rating_range_chk`',
   'FOREIGN KEY (`componentId`) REFERENCES `Component`(`id`)',
   'FOREIGN KEY (`authorBotId`) REFERENCES `Bot`(`id`)',
@@ -32,10 +31,19 @@ for (const fragment of [
   assert.match(sql, new RegExp(fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
 }
 
-assert.match(
+// No author-exclusivity CHECK: MariaDB rejects (error 1901,
+// ER_CHECK_CONSTRAINT_FUNCTION_IS_NOT_ALLOWED) a CHECK constraint that
+// references a column which also carries an ON DELETE SET NULL / ON UPDATE
+// CASCADE foreign-key action, which both authorBotId and authorCharacterId
+// get below. A prior version of this migration paired
+// `ReviewDraft_single_author_chk` with those FKs and would have failed
+// `prisma migrate deploy` with the same P3018 error as the Reaction
+// migration in this same PR. Enforce "exactly one of Bot/Character author"
+// in application code at the ReviewDraft write path instead.
+assert.doesNotMatch(
   sql,
-  /CHECK \(\(`authorBotId` IS NULL\) <> \(`authorCharacterId` IS NULL\)\)/,
-  'each draft must have exactly one Bot or Character author',
+  /ReviewDraft_single_author_chk/,
+  'author-exclusivity CHECK on authorBotId/authorCharacterId is invalid under MariaDB alongside their ON DELETE SET NULL foreign keys (error 1901)',
 )
 assert.match(sql, /CHECK \(`rating` >= 0 AND `rating` <= 5\)/)
 

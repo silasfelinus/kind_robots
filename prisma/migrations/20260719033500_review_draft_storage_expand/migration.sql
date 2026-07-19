@@ -33,8 +33,14 @@ CREATE TABLE `ReviewDraft` (
   INDEX `ReviewDraft_authorCharacterId_idx`(`authorCharacterId`),
   INDEX `ReviewDraft_publisherUserId_idx`(`publisherUserId`),
   INDEX `ReviewDraft_publishedReactionId_idx`(`publishedReactionId`),
-  CONSTRAINT `ReviewDraft_single_author_chk`
-    CHECK ((`authorBotId` IS NULL) <> (`authorCharacterId` IS NULL)),
+  -- NOTE: no author-exclusivity CHECK here. MariaDB rejects (error 1901,
+  -- ER_CHECK_CONSTRAINT_FUNCTION_IS_NOT_ALLOWED) a CHECK constraint that
+  -- references a column which also carries an ON DELETE SET NULL / ON
+  -- UPDATE CASCADE foreign-key action -- both `authorBotId` and
+  -- `authorCharacterId` get that treatment below. Enforce "exactly one of
+  -- Bot/Character author" in application code at the ReviewDraft write path
+  -- instead (mirroring assertSingleFirstPartyReactionAuthor() in
+  -- utils/reactions/firstPartyReactionAuthor.ts) once that path is built.
   CONSTRAINT `ReviewDraft_rating_range_chk`
     CHECK (`rating` >= 0 AND `rating` <= 5),
   PRIMARY KEY (`id`)

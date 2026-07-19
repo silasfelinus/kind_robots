@@ -50,6 +50,75 @@ export interface ResolveLifeRunResult {
   lifeAchievementAwarded: boolean
 }
 
+// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
+// $transaction callback's tx param has extended InternalArgs that don't
+// structurally match the plain Prisma.TransactionClient type. Derive the
+// type from the actual instance instead of the generated default.
+type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0]
+
+// Read-only counterpart to resolveLifeRunEnding's write path, used when a run
+// is already COMPLETE: re-derives the ResolveLifeRunResult shape from the
+// stored outcomeKey/statsSnapshot/ending instead of recomputing stats and
+// re-running the award transaction. Never awards — awarding only happens once,
+// on the run's first resolve.
+async function resolveCompletedLifeRun(
+  tx: TransactionClient,
+  run: { id: number; statsSnapshot: string | null },
+  outcomeKey: string,
+  endingId: number,
+  userId: number,
+): Promise<ResolveLifeRunResult> {
+  const ending = await tx.lifeEnding.findUnique({ where: { id: endingId } })
+  if (!ending) {
+    const error = new Error(
+      `LifeEnding ${endingId} referenced by LifeRun ${run.id} no longer exists.`,
+    )
+    ;(error as Error & { statusCode?: number }).statusCode = 500
+    throw error
+  }
+
+  const stats: Record<string, number> = run.statsSnapshot
+    ? JSON.parse(run.statsSnapshot)
+    : {}
+
+  const achievementRecord = ending.achievementId
+    ? await tx.achievementRecord.findFirst({
+        where: { achievementId: ending.achievementId, userId },
+        select: { id: true },
+      })
+    : null
+
+  const lifeAchievement = await tx.lifeAchievement.findFirst({
+    where: { endingId: ending.id, isActive: true },
+    select: { id: true },
+  })
+  const unlock = lifeAchievement
+    ? await tx.lifeAchievementUnlock.findFirst({
+        where: { userId, achievementId: lifeAchievement.id },
+        select: { id: true },
+      })
+    : null
+
+  return {
+    outcomeKey,
+    stats,
+    ending: {
+      id: ending.id,
+      title: ending.title,
+      slug: ending.slug,
+      victoryType: ending.victoryType,
+    },
+    achievementId: ending.achievementId,
+    achievementRecordId: achievementRecord?.id ?? null,
+    achievementAwarded: false,
+    lifeAchievementId: lifeAchievement?.id ?? null,
+    unlockId: unlock?.id ?? null,
+    lifeAchievementAwarded: false,
+  }
+}
+
 // Resolves a LifeRun's stats into its deterministic ending and awards the
 // linked Achievement + LifeAchievement. Idempotent: re-resolving an already
 // completed run re-derives the same ending and awards nothing twice.
@@ -80,6 +149,30 @@ export async function resolveLifeRunEnding(
       )
       ;(error as Error & { statusCode?: number }).statusCode = 403
       throw error
+    }
+
+    // Guard: a COMPLETE run already has its outcomeKey/ending/awards settled.
+    // Read the stored result back instead of recomputing stats and re-running
+    // the award transaction — recompute is redundant once resolved (Stats
+    // never change post-completion) and skipping it avoids a wasted write on
+    // every repeat resolve call (e.g. a client retrying after a dropped
+    // response). achievementAwarded/lifeAchievementAwarded are always false
+    // here since a genuinely new award only happens on first resolve.
+    if (run.status === 'COMPLETE') {
+      if (!run.outcomeKey || run.endingId == null) {
+        const error = new Error(
+          `LifeRun ${lifeRunId} is COMPLETE but missing its outcomeKey/endingId.`,
+        )
+        ;(error as Error & { statusCode?: number }).statusCode = 500
+        throw error
+      }
+      return resolveCompletedLifeRun(
+        tx,
+        run,
+        run.outcomeKey,
+        run.endingId,
+        userId,
+      )
     }
 
     const stats: Record<string, number> = {}

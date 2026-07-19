@@ -5,6 +5,11 @@ name: Da Vinci Seed Verify
 # repo's Prisma schema to a scratch MariaDB service, and run the 15-check
 # importer verification suite. Catches payload-shape drift between the
 # conductor generator and the kind_robots importer/schema automatically.
+#
+# Also runs the play-loop regression (davinci/t-011) against the same
+# database once the endings are seeded: create-run -> record-choice ->
+# resolve -> re-resolve -> reject-a-late-choice, headless (no dev server /
+# auth needed) via server/utils/davinci.ts directly.
 
 on:
   schedule:
@@ -70,3 +75,6 @@ jobs:
 
       - name: Run seed regression suite
         run: npm run seed:davinci:verify -- /tmp/davinci-endings.jsonl
+
+      - name: Run play-loop regression suite
+        run: npm run seed:davinci:playloop-verify

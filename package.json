@@ -40,6 +40,7 @@
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
+    "seed:davinci:playloop-verify": "tsx utils/scripts/verifyDaVinciPlayLoop.ts",
     "seed:achievements": "tsx scripts/seed_achievements.ts",
     "generate:achievement-art": "tsx scripts/generate_achievement_art.ts",
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",

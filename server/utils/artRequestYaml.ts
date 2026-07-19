@@ -12,6 +12,8 @@
 // exactly 2 spaces. conductor's PyYAML parser rejects mixed indentation, which is
 // the silent-stall bug this module's test guards against (kind_robots PR #84).
 
+export type ArtVariant = 'icon' | 'card' | 'hero' | 'image'
+
 export type ArtQueueEntry = {
   id: string
   source: string
@@ -20,7 +22,7 @@ export type ArtQueueEntry = {
   image_path: string
   source_url: string
   page_url: string
-  variant: string
+  variant: ArtVariant
   size: string
   label: string
   prompt: string

@@ -11,9 +11,13 @@ import {
 import {
   assertCharacterMutationInput,
   buildCharacterCreateInput,
-  characterCreateFields,
   normalizeCharacterName,
 } from './mutation'
+import {
+  assertCharacterCreateCompatibility,
+  characterSingularCreateFields,
+  stripCharacterCompatibilityFields,
+} from './compatibility'
 import { characterMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -27,13 +31,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<unknown>(event)
+    const rawBody = await readBody<unknown>(event)
 
-    assertCharacterMutationInput(body, {
-      allowedFields: characterCreateFields,
+    assertCharacterMutationInput(rawBody, {
+      allowedFields: characterSingularCreateFields,
       context: 'Character create payload',
     })
+    assertCharacterCreateCompatibility(rawBody)
 
+    const body = stripCharacterCompatibilityFields(rawBody)
     const name = normalizeCharacterName(body.name)
     const nameKey = getCharacterNameKey(name)
 
@@ -44,20 +50,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const existingCharacter = await prisma.character.findFirst({
-      where: { userId: user.id },
-      select: { id: true, name: true },
+    const duplicate = await prisma.character.findFirst({
+      where: {
+        userId: user.id,
+        name,
+      },
+      select: { id: true },
     })
-
-    const duplicate = existingCharacter
-      ? await prisma.character.findFirst({
-          where: {
-            userId: user.id,
-            name,
-          },
-          select: { id: true },
-        })
-      : null
 
     if (duplicate) {
       throw createError({

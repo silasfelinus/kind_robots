@@ -7,6 +7,11 @@ on:
     paths:
       - '.github/workflows/prisma-component-contract-once.yml'
       - 'prisma/schema.prisma'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/prisma-component-contract-once.yml'
+      - 'prisma/schema.prisma'
 
 permissions:
   contents: write

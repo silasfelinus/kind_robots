@@ -10,7 +10,7 @@
         </p>
         <h2 class="mt-1 text-xl font-black">Manifest ↔ database coverage</h2>
         <p class="mt-1 max-w-3xl text-sm leading-relaxed text-base-content/60">
-          Read-only comparison of discovered Vue source files and existing
+          Read-only comparison of canonical Vue source identity and existing
           Component records. Reconciliation remains an explicit admin action.
         </p>
       </div>
@@ -35,11 +35,11 @@
     </div>
 
     <div v-else-if="loading && !health" class="mt-4 grid gap-3 sm:grid-cols-3">
-      <div v-for="index in 6" :key="index" class="skeleton h-20 rounded-2xl" />
+      <div v-for="index in 9" :key="index" class="skeleton h-20 rounded-2xl" />
     </div>
 
     <template v-else-if="health">
-      <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div class="rounded-2xl border border-base-300 bg-base-200/60 p-3">
           <p class="text-xs font-black uppercase text-base-content/45">Source files</p>
           <p class="mt-1 text-2xl font-black">{{ health.manifestCount }}</p>
@@ -53,6 +53,45 @@
           <p class="mt-1 text-2xl font-black text-success">
             {{ health.matchedRecordCount }}
           </p>
+        </div>
+        <div
+          class="rounded-2xl border p-3"
+          :class="
+            health.canonicalMatchCount === health.matchedRecordCount
+              ? 'border-success/30 bg-success/10'
+              : 'border-info/35 bg-info/10'
+          "
+        >
+          <p class="text-xs font-black uppercase text-base-content/55">
+            Canonical identity
+          </p>
+          <p class="mt-1 text-2xl font-black">{{ health.canonicalMatchCount }}</p>
+        </div>
+        <div
+          class="rounded-2xl border p-3"
+          :class="
+            health.legacyFallbackCount
+              ? 'border-warning/35 bg-warning/10'
+              : 'border-success/30 bg-success/10'
+          "
+        >
+          <p class="text-xs font-black uppercase text-base-content/55">
+            Legacy fallback
+          </p>
+          <p class="mt-1 text-2xl font-black">{{ health.legacyFallbackCount }}</p>
+        </div>
+        <div
+          class="rounded-2xl border p-3"
+          :class="
+            health.undiscoveredRecordCount
+              ? 'border-warning/35 bg-warning/10'
+              : 'border-success/30 bg-success/10'
+          "
+        >
+          <p class="text-xs font-black uppercase text-base-content/55">
+            Not discovered
+          </p>
+          <p class="mt-1 text-2xl font-black">{{ health.undiscoveredRecordCount }}</p>
         </div>
         <div
           class="rounded-2xl border p-3"
@@ -96,14 +135,19 @@
       </div>
 
       <details
-        v-if="health.staleRecordCount || health.missingRecordCount || health.duplicateNameCount"
+        v-if="
+          health.staleRecordCount ||
+          health.missingRecordCount ||
+          health.legacyFallbackCount ||
+          health.duplicateNameCount
+        "
         class="mt-4 rounded-2xl border border-base-300 bg-base-200/40 p-3"
       >
         <summary class="cursor-pointer font-black text-base-content/80">
           Review registry differences
         </summary>
 
-        <div class="mt-3 grid gap-4 lg:grid-cols-3">
+        <div class="mt-3 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
           <section>
             <h3 class="text-sm font-black text-warning">
               Database-only records
@@ -145,9 +189,28 @@
           </section>
 
           <section>
+            <h3 class="text-sm font-black text-warning">Legacy fallback matches</h3>
+            <p class="mt-1 text-xs text-base-content/55">
+              Matched by folder/name because canonical source identity is not populated yet.
+            </p>
+            <ul class="mt-2 space-y-1 text-xs">
+              <li
+                v-for="record in health.legacyFallbackRecords.slice(0, detailLimit)"
+                :key="record.id"
+                class="break-all rounded-lg bg-base-100 px-2 py-1.5 font-mono"
+              >
+                #{{ record.id }} · {{ record.folderName }}/{{ record.componentName }}
+              </li>
+              <li v-if="health.legacyFallbackCount > detailLimit" class="text-base-content/50">
+                +{{ health.legacyFallbackCount - detailLimit }} more
+              </li>
+            </ul>
+          </section>
+
+          <section>
             <h3 class="text-sm font-black text-secondary">Duplicate names</h3>
             <p class="mt-1 text-xs text-base-content/55">
-              Valid when folder context is available; ambiguous for name-only links.
+              Valid by source identity, but still blocked by legacy global name uniqueness.
             </p>
             <div class="mt-2 flex flex-wrap gap-1.5">
               <span
@@ -223,6 +286,13 @@ function readComponentRecords(payload: unknown): WonderLabRegistryRecord[] {
         id: candidate.id as number,
         componentName: candidate.componentName,
         folderName: candidate.folderName,
+        sourceKey:
+          typeof candidate.sourceKey === 'string' ? candidate.sourceKey : null,
+        sourcePath:
+          typeof candidate.sourcePath === 'string' ? candidate.sourcePath : null,
+        sourceHash:
+          typeof candidate.sourceHash === 'string' ? candidate.sourceHash : null,
+        isDiscovered: candidate.isDiscovered === true,
       },
     ]
   })

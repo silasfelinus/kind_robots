@@ -1,6 +1,6 @@
 // /utils/scripts/verifyWonderLabMuseumQuery.ts
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { access, readFile } from 'node:fs/promises'
 import {
   normalizeWonderLabMuseumQuery,
   sameWonderLabMuseumQuery,
@@ -11,6 +11,8 @@ const normalized = normalizeWonderLabMuseumQuery({
   q: '  butterfly swarm  ',
   folder: ['screenfx', 'ignored'],
   status: 'working',
+  reviews: 'REVIEWED',
+  discovery: 'MISSING',
   sort: 'recently_reviewed',
   view: 'LIST',
 })
@@ -19,6 +21,8 @@ assert.deepEqual(normalized, {
   search: 'butterfly swarm',
   folder: 'screenfx',
   status: 'WORKING',
+  reviews: 'reviewed',
+  discovery: 'missing',
   sort: 'RECENTLY_REVIEWED',
   view: 'list',
 })
@@ -52,11 +56,23 @@ for (const sort of [
   )
 }
 
+for (const reviews of ['all', 'reviewed', 'unreviewed'] as const) {
+  assert.equal(normalizeWonderLabMuseumQuery({ reviews }).reviews, reviews)
+}
+for (const discovery of ['all', 'discovered', 'missing'] as const) {
+  assert.equal(
+    normalizeWonderLabMuseumQuery({ discovery }).discovery,
+    discovery,
+  )
+}
+
 assert.deepEqual(
   normalizeWonderLabMuseumQuery({
     q: [null, 'second value'],
     folder: null,
     status: 'not-a-real-status',
+    reviews: 'popular',
+    discovery: 'unknown',
     sort: 'random',
     view: 'carousel',
   }),
@@ -64,6 +80,8 @@ assert.deepEqual(
     search: 'second value',
     folder: '',
     status: 'all',
+    reviews: 'all',
+    discovery: 'all',
     sort: 'NAME',
     view: 'grid',
   },
@@ -77,6 +95,8 @@ const preserved = wonderLabMuseumQuery(
     q: 'old search',
     folder: 'old-folder',
     status: 'BROKEN',
+    reviews: 'unreviewed',
+    discovery: 'discovered',
     sort: 'STATUS',
     view: 'list',
   },
@@ -84,6 +104,8 @@ const preserved = wonderLabMuseumQuery(
     search: 'preview host',
     folder: 'wonderlab',
     status: 'NEEDS_CONTEXT',
+    reviews: 'reviewed',
+    discovery: 'missing',
     sort: 'RATING',
     view: 'list',
   },
@@ -95,6 +117,8 @@ assert.deepEqual(preserved, {
   q: 'preview host',
   folder: 'wonderlab',
   status: 'NEEDS_CONTEXT',
+  reviews: 'reviewed',
+  discovery: 'missing',
   sort: 'RATING',
   view: 'list',
 })
@@ -104,6 +128,8 @@ assert.deepEqual(
     search: '',
     folder: '',
     status: 'all',
+    reviews: 'all',
+    discovery: 'all',
     sort: 'NAME',
     view: 'grid',
   }),
@@ -121,14 +147,14 @@ assert.equal(
 assert.equal(
   sameWonderLabMuseumQuery(normalized, {
     ...normalized,
-    sort: 'REVIEWS',
+    reviews: 'unreviewed',
   }),
   false,
 )
 assert.equal(
   sameWonderLabMuseumQuery(normalized, {
     ...normalized,
-    view: 'grid',
+    discovery: 'discovered',
   }),
   false,
 )
@@ -139,7 +165,15 @@ const [querySource, labSource, selectionRouterSource] = await Promise.all([
   readFile('components/wonderlab/wonderlab-selection-router.vue', 'utf8'),
 ])
 
-for (const queryKey of ['q', 'folder', 'status', 'sort', 'view']) {
+for (const queryKey of [
+  'q',
+  'folder',
+  'status',
+  'reviews',
+  'discovery',
+  'sort',
+  'view',
+]) {
   assert.match(
     querySource,
     new RegExp(`\\b${queryKey}\\b`),
@@ -150,26 +184,38 @@ for (const queryKey of ['q', 'folder', 'status', 'sort', 'view']) {
 assert.match(querySource, /componentStatuses/)
 assert.match(querySource, /componentCatalogSorts/)
 assert.match(querySource, /wonderLabCollectionViews/)
-assert.match(labSource, /useRoute\(\)/)
-assert.match(labSource, /useRouter\(\)/)
-assert.match(labSource, /setMuseumQuery\(\{ search \}, 'replace'\)/)
-assert.match(labSource, /setMuseumQuery\(\{ folder \}, 'push'\)/)
-assert.match(labSource, /setMuseumQuery\(\{ status \}, 'push'\)/)
-assert.match(labSource, /setMuseumQuery\(\{ sort \}, 'push'\)/)
-assert.match(labSource, /setMuseumQuery\(\{ view \}, 'push'\)/)
-assert.match(labSource, /clearMuseumFilters/)
+assert.match(querySource, /wonderLabReviewFilters/)
+assert.match(querySource, /wonderLabDiscoveryFilters/)
+assert.match(labSource, /setMuseumQuery\(\{ reviews \}, 'push'\)/)
+assert.match(labSource, /setMuseumQuery\(\{ discovery \}, 'push'\)/)
+assert.match(labSource, /reviewFilter\.value !== 'all'/)
+assert.match(labSource, /component\.reviewCount \?\? 0/)
+assert.match(labSource, /discoveryFilter\.value !== 'all'/)
+assert.match(labSource, /component\.isDiscovered === true/)
+assert.match(labSource, /component\.isDiscovered !== true/)
+assert.match(labSource, /aria-label="Filter WonderLab components by review coverage"/)
+assert.match(labSource, /aria-label="Filter WonderLab components by discovery state"/)
+assert.match(labSource, /reviews: 'all'/)
+assert.match(labSource, /discovery: 'all'/)
 assert.match(labSource, /sortedComponents\.length \}\} of \{\{ componentCount/)
-assert.match(labSource, /value="NEEDS_CONTEXT"/)
-assert.match(labSource, /value="RETIRED"/)
-assert.match(labSource, /value="PREVIEW_UNSUPPORTED"/)
-assert.match(labSource, /value="RECENTLY_REVIEWED"/)
-assert.match(labSource, /collectionView === 'grid'/)
-assert.match(labSource, /collectionView === 'list'/)
 
 assert.match(
   selectionRouterSource,
   /const query = \{ \.\.\.route\.query \}/,
-  'component selection routing must preserve museum filter, sort, and view parameters',
+  'component selection routing must preserve all museum query parameters',
 )
 
-console.log('WonderLab museum URL query contract passed.')
+for (const temporaryPath of [
+  '.github/workflows/wonderlab-coverage-filters.yml',
+  '.github/scripts/apply-wonderlab-coverage-filters.py',
+]) {
+  let exists = true
+  try {
+    await access(temporaryPath)
+  } catch {
+    exists = false
+  }
+  assert.equal(exists, false, `${temporaryPath} must be removed`)
+}
+
+console.log('WonderLab museum URL and coverage filter contract passed.')

@@ -239,7 +239,7 @@ export default defineEventHandler(async (event) => {
       cfgHalf: cleanBoolean(body.cfgHalf, 'cfgHalf', false),
       designer:
         cleanText(body.designer, 'designer', 255) ||
-        user.designer ||
+        user.designerName ||
         user.username ||
         `User ${user.id}`,
       genres: cleanText(body.genres, 'genres', 2_000),

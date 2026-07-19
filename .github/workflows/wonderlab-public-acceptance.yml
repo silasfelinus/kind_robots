@@ -1,0 +1,98 @@
+name: WonderLab Public Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-public-acceptance.yml'
+      - 'cypress.public.config.ts'
+      - 'cypress/e2e/public/wonderlab-responsive.cy.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wonderlab-public-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  responsive-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify read-only browser boundary
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const config = fs.readFileSync('cypress.public.config.ts', 'utf8')
+          const spec = fs.readFileSync(
+            'cypress/e2e/public/wonderlab-responsive.cy.ts',
+            'utf8',
+          )
+
+          assert.match(config, /process\.env\.CYPRESS_BASE_URL/)
+          assert.doesNotMatch(config, /kind-robots\.vercel\.app/)
+          assert.match(config, /supportFile:\s*false/)
+
+          for (const required of [
+            '/wonderlab',
+            '/memory',
+            '/screenfx',
+            '1440',
+            '390',
+            'expectNoHorizontalOverflow',
+            'Open exhibit',
+            'About this exhibit',
+          ]) {
+            assert.ok(spec.includes(required), `missing acceptance coverage: ${required}`)
+          }
+
+          for (const forbidden of [
+            'cy.request',
+            'cypressSeed',
+            'cypressCleanup',
+            'CYPRESS_API_KEY',
+            'CYPRESS_BETA_ADMIN_TOKEN',
+            "method: 'POST'",
+            "method: 'PATCH'",
+            "method: 'DELETE'",
+          ]) {
+            assert.ok(!spec.includes(forbidden), `public acceptance crossed write boundary: ${forbidden}`)
+          }
+
+          console.log('WonderLab public acceptance safety boundary passed.')
+          NODE
+
+      - name: Run responsive public acceptance
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          config-file: cypress.public.config.ts
+          spec: cypress/e2e/public/wonderlab-responsive.cy.ts
+        env:
+          CYPRESS_BASE_URL: https://kind-robots.vercel.app
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-public-acceptance-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

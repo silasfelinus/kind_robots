@@ -85,6 +85,7 @@ export interface ImageUploadResult {
   success: boolean
   message: string
   fileName?: string
+  file?: File
   artImage?: ArtImage
 }
 
@@ -551,6 +552,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
           success: true,
           message: `${file.name} uploaded.`,
           fileName: file.name,
+          file,
           artImage,
         })
       } catch (caught) {
@@ -561,6 +563,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
           success: false,
           message: fallback,
           fileName: file.name,
+          file,
         })
       } finally {
         uploadProgress.value++

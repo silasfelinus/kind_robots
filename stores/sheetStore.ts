@@ -53,6 +53,13 @@ export type SheetUpdatePayload = Partial<
   Omit<PitchSheet, 'id' | 'createdAt' | 'updatedAt'>
 >
 
+type EnsureSheetResult = {
+  success: boolean
+  data?: SheetWithDream
+  created?: boolean
+  message?: string
+}
+
 function mergeSheetDetail(
   existing: SheetWithDream,
   incoming: PitchSheet,
@@ -80,6 +87,16 @@ export const useSheetStore = defineStore('sheetStore', () => {
   const isSaving = ref(false)
   const error = ref<string | null>(null)
   const override = ref<WorkspaceSheetOverride | null>(null)
+  const fetchSheetsPromise = ref<Promise<SheetWithDream[]> | null>(null)
+  const fetchSheetPromises = ref<
+    Record<number, Promise<SheetWithDream | null>>
+  >({})
+  const fetchSheetByDreamPromises = ref<
+    Record<number, Promise<SheetWithDream | null>>
+  >({})
+  const ensureSheetPromises = ref<
+    Record<number, Promise<EnsureSheetResult>>
+  >({})
 
   const sheetsById = computed(() => {
     const map = new Map<number, SheetWithDream>()
@@ -124,115 +141,153 @@ export const useSheetStore = defineStore('sheetStore', () => {
   }
 
   async function fetchSheets() {
-    loading.value = true
-    error.value = null
+    if (fetchSheetsPromise.value) return fetchSheetsPromise.value
 
-    try {
-      const res = await performFetch<SheetWithDream[]>('/api/sheets')
+    fetchSheetsPromise.value = (async () => {
+      loading.value = true
+      error.value = null
 
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to fetch sheets')
+      try {
+        const res = await performFetch<SheetWithDream[]>('/api/sheets')
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to fetch sheets')
+        }
+
+        const existingById = new Map(
+          sheets.value.map((sheet) => [sheet.id, sheet]),
+        )
+        sheets.value = res.data.map((sheet) => {
+          const existing = existingById.get(sheet.id)
+          return existing ? mergeSheetDetail(existing, sheet) : sheet
+        })
+
+        return sheets.value
+      } catch (err) {
+        error.value = (err as Error).message
+        handleError(err, 'fetching sheets')
+
+        return sheets.value
+      } finally {
+        loading.value = false
+        fetchSheetsPromise.value = null
       }
+    })()
 
-      sheets.value = res.data
-
-      return res.data
-    } catch (err) {
-      error.value = (err as Error).message
-      handleError(err, 'fetching sheets')
-
-      return []
-    } finally {
-      loading.value = false
-    }
+    return fetchSheetsPromise.value
   }
 
   async function fetchSheet(id: number) {
-    loading.value = true
-    error.value = null
+    if (fetchSheetPromises.value[id]) return fetchSheetPromises.value[id]
 
-    try {
-      const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`)
+    fetchSheetPromises.value[id] = (async () => {
+      loading.value = true
+      error.value = null
 
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to fetch sheet')
+      try {
+        const res = await performFetch<SheetWithDream>(`/api/sheets/${id}`)
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to fetch sheet')
+        }
+
+        return upsertLocal(res.data)
+      } catch (err) {
+        error.value = (err as Error).message
+        handleError(err, 'fetching sheet')
+
+        return null
+      } finally {
+        loading.value = false
+        delete fetchSheetPromises.value[id]
       }
+    })()
 
-      return upsertLocal(res.data)
-    } catch (err) {
-      error.value = (err as Error).message
-      handleError(err, 'fetching sheet')
-
-      return null
-    } finally {
-      loading.value = false
-    }
+    return fetchSheetPromises.value[id]
   }
 
   async function fetchSheetByDreamId(dreamId: number, force = false) {
     const cached = sheetsByDreamId.value.get(dreamId)
 
     if (cached && !force) return cached
-
-    loading.value = true
-    error.value = null
-
-    try {
-      const res = await performFetch<SheetWithDream>(
-        `/api/sheets/by-dream/${dreamId}`,
-      )
-
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to fetch sheet by Dream')
-      }
-
-      return upsertLocal(res.data)
-    } catch (err) {
-      error.value = (err as Error).message
-      handleError(err, 'fetching sheet by Dream')
-
-      return null
-    } finally {
-      loading.value = false
+    if (fetchSheetByDreamPromises.value[dreamId]) {
+      return fetchSheetByDreamPromises.value[dreamId]
     }
+
+    fetchSheetByDreamPromises.value[dreamId] = (async () => {
+      loading.value = true
+      error.value = null
+
+      try {
+        const res = await performFetch<SheetWithDream>(
+          `/api/sheets/by-dream/${dreamId}`,
+        )
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to fetch sheet by Dream')
+        }
+
+        return upsertLocal(res.data)
+      } catch (err) {
+        error.value = (err as Error).message
+        handleError(err, 'fetching sheet by Dream')
+
+        return null
+      } finally {
+        loading.value = false
+        delete fetchSheetByDreamPromises.value[dreamId]
+      }
+    })()
+
+    return fetchSheetByDreamPromises.value[dreamId]
   }
 
-  async function ensureSheetForDream(dreamId: number) {
+  async function ensureSheetForDream(
+    dreamId: number,
+  ): Promise<EnsureSheetResult> {
     const cached = sheetsByDreamId.value.get(dreamId)
 
     if (cached) return { success: true, data: cached, created: false }
-
-    isSaving.value = true
-    error.value = null
-
-    try {
-      const res = await performFetch<PitchSheet>(
-        `/api/sheets/by-dream/${dreamId}`,
-        {
-          method: 'POST',
-        },
-      )
-
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to create sheet')
-      }
-
-      const summary = upsertLocal(res.data)
-      const sheet = (await fetchSheetByDreamId(dreamId, true)) ?? summary
-
-      return {
-        success: true,
-        data: sheet,
-        created: res.status === 201,
-      }
-    } catch (err) {
-      error.value = (err as Error).message
-      handleError(err, 'creating sheet for Dream')
-
-      return { success: false, message: (err as Error).message }
-    } finally {
-      isSaving.value = false
+    if (ensureSheetPromises.value[dreamId]) {
+      return ensureSheetPromises.value[dreamId]
     }
+
+    ensureSheetPromises.value[dreamId] = (async () => {
+      isSaving.value = true
+      error.value = null
+
+      try {
+        const res = await performFetch<PitchSheet>(
+          `/api/sheets/by-dream/${dreamId}`,
+          {
+            method: 'POST',
+          },
+        )
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to create sheet')
+        }
+
+        const summary = upsertLocal(res.data)
+        const sheet = (await fetchSheetByDreamId(dreamId, true)) ?? summary
+
+        return {
+          success: true,
+          data: sheet,
+          created: res.status === 201,
+        }
+      } catch (err) {
+        error.value = (err as Error).message
+        handleError(err, 'creating sheet for Dream')
+
+        return { success: false, message: (err as Error).message }
+      } finally {
+        isSaving.value = false
+        delete ensureSheetPromises.value[dreamId]
+      }
+    })()
+
+    return ensureSheetPromises.value[dreamId]
   }
 
   async function ensureSheetsForDreams(dreams: Array<{ id?: number | null }>) {

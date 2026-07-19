@@ -57,6 +57,8 @@ export const useTodoStore = defineStore('todoStore', () => {
   const loading = ref(false)
   const hasLoaded = ref(false)
   const lastError = ref<string | null>(null)
+  const activeFetches = ref(0)
+  const fetchPromises = new Map<string, Promise<void>>()
 
   const openTodos = computed(() =>
     todos.value.filter((todo) => todo.status === 'OPEN'),
@@ -97,6 +99,23 @@ export const useTodoStore = defineStore('todoStore', () => {
     openTodos.value.filter((todo) => todo.category === 'HONEYDO'),
   )
 
+  function runFetch(key: string, task: () => Promise<void>): Promise<void> {
+    const existing = fetchPromises.get(key)
+    if (existing) return existing
+
+    activeFetches.value += 1
+    loading.value = true
+
+    const request = task().finally(() => {
+      fetchPromises.delete(key)
+      activeFetches.value = Math.max(0, activeFetches.value - 1)
+      loading.value = activeFetches.value > 0
+    })
+
+    fetchPromises.set(key, request)
+    return request
+  }
+
   function dreamKaizens(dreamId: number) {
     return computed(() =>
       openTodos.value.filter(
@@ -136,66 +155,68 @@ export const useTodoStore = defineStore('todoStore', () => {
   }
 
   async function fetchDreamTodos(dreamId: number): Promise<void> {
-    loading.value = true
-    lastError.value = null
-    try {
-      const response = await performFetch<Todo[]>(`/api/todos/dream/${dreamId}`)
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to fetch Dream todos')
+    return runFetch(`dream:${dreamId}`, async () => {
+      lastError.value = null
+      try {
+        const response = await performFetch<Todo[]>(
+          `/api/todos/dream/${dreamId}`,
+        )
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Failed to fetch Dream todos')
+        }
+        const others = todos.value.filter((todo) => todo.dreamId !== dreamId)
+        todos.value = [...others, ...response.data]
+      } catch (error) {
+        handleError(error, 'fetchDreamTodos')
+        lastError.value =
+          error instanceof Error ? error.message : 'Failed to fetch Dream todos'
       }
-      const others = todos.value.filter((todo) => todo.dreamId !== dreamId)
-      todos.value = [...others, ...response.data]
-    } catch (error) {
-      handleError(error, 'fetchDreamTodos')
-      lastError.value =
-        error instanceof Error ? error.message : 'Failed to fetch Dream todos'
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
   async function fetchProjectTodos(projectId: number): Promise<void> {
-    loading.value = true
-    lastError.value = null
-    try {
-      const response = await performFetch<Todo[]>(`/api/todos/project/${projectId}`)
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to fetch Project todos')
+    return runFetch(`project:${projectId}`, async () => {
+      lastError.value = null
+      try {
+        const response = await performFetch<Todo[]>(
+          `/api/todos/project/${projectId}`,
+        )
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Failed to fetch Project todos')
+        }
+        const others = todos.value.filter((todo) => todo.projectId !== projectId)
+        todos.value = [...others, ...response.data]
+      } catch (error) {
+        handleError(error, 'fetchProjectTodos')
+        lastError.value =
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch Project todos'
       }
-      const others = todos.value.filter((todo) => todo.projectId !== projectId)
-      todos.value = [...others, ...response.data]
-    } catch (error) {
-      handleError(error, 'fetchProjectTodos')
-      lastError.value =
-        error instanceof Error ? error.message : 'Failed to fetch Project todos'
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
   async function fetchTodos(includeArchived = false): Promise<void> {
-    loading.value = true
-    lastError.value = null
+    return runFetch(`all:${includeArchived ? 1 : 0}`, async () => {
+      lastError.value = null
 
-    try {
-      const response = await performFetch<Todo[]>(
-        `/api/todos${includeArchived ? '?includeArchived=1' : ''}`,
-      )
+      try {
+        const response = await performFetch<Todo[]>(
+          `/api/todos${includeArchived ? '?includeArchived=1' : ''}`,
+        )
 
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to fetch todos')
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Failed to fetch todos')
+        }
+
+        todos.value = response.data
+        hasLoaded.value = true
+      } catch (error) {
+        handleError(error, 'fetchTodos')
+        lastError.value =
+          error instanceof Error ? error.message : 'Failed to fetch todos'
       }
-
-      todos.value = response.data
-      hasLoaded.value = true
-    } catch (error) {
-      handleError(error, 'fetchTodos')
-      lastError.value =
-        error instanceof Error ? error.message : 'Failed to fetch todos'
-      console.error('fetchTodos failed:', error)
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
   async function createTodo(data: TodoCreate): Promise<Todo | null> {

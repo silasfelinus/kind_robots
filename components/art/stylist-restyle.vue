@@ -196,6 +196,7 @@
         min="0"
         max="0.8"
         step="0.05"
+        aria-label="How much should it still look like them?"
         class="range range-primary range-xs"
       />
       <div class="flex justify-between text-[10px] text-base-content/50">

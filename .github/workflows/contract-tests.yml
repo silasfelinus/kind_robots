@@ -160,6 +160,9 @@ jobs:
       - name: WonderLab Component catalog metrics contract
         run: npx tsx utils/scripts/verifyWonderLabComponentCatalog.ts
 
+      - name: Reaction first-party author expand migration contract
+        run: npx tsx utils/scripts/verifyReactionFirstPartyAuthorExpand.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

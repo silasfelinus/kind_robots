@@ -9,7 +9,7 @@ if (!baseUrl) {
 export default defineConfig({
   e2e: {
     baseUrl,
-    specPattern: 'cypress/e2e/public/**/*.cy.ts',
+    specPattern: 'cypress/public/**/*.cy.ts',
     supportFile: false,
   },
   retries: {

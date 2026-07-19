@@ -163,6 +163,9 @@ jobs:
       - name: Reaction first-party author expand migration contract
         run: npx tsx utils/scripts/verifyReactionFirstPartyAuthorExpand.ts
 
+      - name: Reaction first-party author runtime contract
+        run: npx tsx utils/scripts/verifyFirstPartyReactionAuthor.ts
+
       - name: WonderLab preview coverage no-regression gate
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 

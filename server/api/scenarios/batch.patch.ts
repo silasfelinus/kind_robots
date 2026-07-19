@@ -7,7 +7,9 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 import type { Prisma } from '~/prisma/generated/prisma/client'
+import { scenarioMutationSelect } from './selects'
 
 type ScenarioPatchInput = {
   title?: unknown
@@ -304,7 +306,7 @@ async function buildScenarioUpdateInput(
 
 async function processEntry(
   entry: ScenarioBatchEntry,
-  user: { id: number; Role: string },
+  user: { id: number; Role?: string | null },
 ): Promise<BatchResult> {
   let id: number | null = null
 
@@ -333,7 +335,7 @@ async function processEntry(
       })
     }
 
-    if (existingScenario.userId !== user.id && user.Role !== 'ADMIN') {
+    if (existingScenario.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this scenario.',
@@ -363,16 +365,7 @@ async function processEntry(
     const updatedScenario = await prisma.scenario.update({
       where: { id },
       data,
-      include: {
-        ArtImage: true,
-        User: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        Characters: true,
-      },
+      select: scenarioMutationSelect,
     })
 
     return {

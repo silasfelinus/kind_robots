@@ -237,10 +237,6 @@ async function mergeCharacter(tx, plan) {
       where: { characterId: plan.duplicateId },
       data: { characterId: plan.canonicalId },
     }),
-    tx.composition.updateMany({
-      where: { characterId: plan.duplicateId },
-      data: { characterId: plan.canonicalId },
-    }),
     tx.lifeRun.updateMany({
       where: { characterId: plan.duplicateId },
       data: { characterId: plan.canonicalId },

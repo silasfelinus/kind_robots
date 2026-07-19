@@ -42,6 +42,17 @@ export default defineEventHandler(async (event) => {
 
   // BLOCK: immediate, no request, no inverse.
   if (type === 'BLOCK') {
+    // Confirm the target exists first; otherwise the upsert trips the
+    // relatedUserId foreign key and surfaces as an unhandled 500 (P2003).
+    const target = await prisma.user.findUnique({
+      where: { id: relatedUserId },
+      select: { id: true },
+    })
+    if (!target) {
+      setResponseStatus(event, 404)
+      return { success: false, message: 'User not found.' }
+    }
+
     const data = await prisma.userRelation.upsert({
       where: {
         userId_relatedUserId_type: { userId, relatedUserId, type },

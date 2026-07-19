@@ -249,6 +249,29 @@ describe('Friendship / UserRelation API Tests', () => {
       },
       [400, 422],
     )
+
+    // A non-existent target must 404, not trip the relatedUserId foreign key
+    // as an unhandled 500. BLOCK is the regression case: it upserts before any
+    // existence check, so it previously surfaced Prisma P2003 as a 500.
+    const missingUserId = 2_000_000_000
+    expectedFailureRequest(
+      {
+        method: 'POST',
+        url: urlFor(),
+        headers: userHeaders(),
+        body: { relatedUserId: missingUserId, type: 'FRIEND' },
+      },
+      [404],
+    )
+    expectedFailureRequest(
+      {
+        method: 'POST',
+        url: urlFor(),
+        headers: userHeaders(),
+        body: { relatedUserId: missingUserId, type: 'BLOCK' },
+      },
+      [404],
+    )
   })
 
   it('runs the complete friend request, accept, and removal lifecycle', () => {

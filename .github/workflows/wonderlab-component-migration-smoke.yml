@@ -6,13 +6,17 @@ on:
     paths:
       - '.github/workflows/wonderlab-component-migration-smoke.yml'
       - 'prisma/schema.prisma'
+      - 'prisma/generated/prisma/models/Component.ts'
       - 'prisma/migrations/20260719125500_component_canonical_contract/migration.sql'
+      - 'utils/scripts/verify-component-canonical-contract.mjs'
   push:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-component-migration-smoke.yml'
       - 'prisma/schema.prisma'
+      - 'prisma/generated/prisma/models/Component.ts'
       - 'prisma/migrations/20260719125500_component_canonical_contract/migration.sql'
+      - 'utils/scripts/verify-component-canonical-contract.mjs'
 
 permissions:
   contents: read
@@ -40,6 +44,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Verify schema, generated client, and migration boundary
+        run: node utils/scripts/verify-component-canonical-contract.mjs
 
       - name: Install MariaDB client
         run: |

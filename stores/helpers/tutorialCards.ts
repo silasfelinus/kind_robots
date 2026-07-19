@@ -547,6 +547,42 @@ export const tutorialChannels = {
         body: 'A programmable, remixable homepage feed of fresh art, stories, and milestones. Pick which feeds show up, filter by keyword or category, and dial in perspective balance from the Manage feeds panel.',
         image: tutorialImage('wonder', 'newsfeed'),
       },
+      {
+        key: 'wonderlab',
+        title: 'WonderLab',
+        body: 'The open sandbox: the card-matching Memory Dungeon crawl plus a shelf of experimental components and half-finished toys that exist purely because they were fun to make.',
+        image: tutorialImage('wonder', 'wonderlab'),
+      },
+      {
+        key: 'screenfx',
+        title: 'Screen FX',
+        body: 'Control the screen-effect layer -- matrix rain, firefly drift, butterflies, and ambient theater -- and layer overlays until the screen looks exactly as unreasonable as you want.',
+        image: tutorialImage('wonder', 'screenfx'),
+      },
+      {
+        key: 'davinci',
+        title: 'Da Vinci Life Sim',
+        body: 'A generative life-and-legacy simulation: hundreds of achievements, branching choices, and a legacy that remembers what you built.',
+        image: tutorialImage('wonder', 'davinci'),
+      },
+      {
+        key: 'watchlist',
+        title: 'Media Watchlist',
+        body: 'Track films and shows across a clean, structured watchlist -- queue, in-progress, and finished -- so the "what should we watch" argument finally has a source of truth.',
+        image: tutorialImage('wonder', 'watchlist'),
+      },
+      {
+        key: 'ruler-hooked',
+        title: 'Ruler Hooked',
+        body: 'Cast lines, manage a seaside kingdom, and ride the slideshow of tides and decisions where every catch reshapes the realm you rule.',
+        image: tutorialImage('wonder', 'ruler-hooked'),
+      },
+      {
+        key: 'voice-lab',
+        title: 'Voice Lab',
+        body: 'The voice frontier: an Alexa skill and local relay that let Serendipity and friends speak and listen. Watch the relay status and learn how to plug in.',
+        image: tutorialImage('wonder', 'voice-lab'),
+      },
     ],
   },
 } as const satisfies Record<TutorialChannelKey, TutorialChannel>
@@ -564,8 +600,16 @@ const tutorialRouteMap = {
   'scoop-cms': '/scoop-cms',
   mermaids: '/mermaids',
   packs: '/packs',
-  wonder: '/newsfeed',
-} as const satisfies Record<TutorialChannelKey, string>
+  wonder: [
+    '/newsfeed',
+    '/wonderlab',
+    '/screenfx',
+    '/davinci',
+    '/watchlist',
+    '/ruler-hooked',
+    '/voice-lab',
+  ],
+} as const satisfies Record<TutorialChannelKey, string | readonly string[]>
 
 export function isTutorialChannelKey(
   value: string,
@@ -606,16 +650,20 @@ export function resolveTutorialChannelFromRoute(
   let bestLen = -1
 
   for (const key of tutorialChannelKeys) {
-    const route = tutorialRouteMap[key]
-    if (!route) continue
+    const routes = tutorialRouteMap[key]
+    if (!routes) continue
+    const routeList = Array.isArray(routes) ? routes : [routes]
 
-    if (cleanPath === route) return key
+    for (const route of routeList) {
+      if (!route) continue
+      if (cleanPath === route) return key
 
-    const isPrefix = route !== '/' && cleanPath.startsWith(`${route}/`)
+      const isPrefix = route !== '/' && cleanPath.startsWith(`${route}/`)
 
-    if (isPrefix && route.length > bestLen) {
-      bestKey = key
-      bestLen = route.length
+      if (isPrefix && route.length > bestLen) {
+        bestKey = key
+        bestLen = route.length
+      }
     }
   }
 

@@ -6,9 +6,11 @@ import { requireAdminApiUser } from '../../utils/authGuard'
 import {
   buildComponentReconcilePlan,
   parseWonderLabManifest,
+  type ComponentReconcileChanges,
 } from '../../utils/wonderlabComponentReconcile'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 
-type ReconcileMode = 'dry-run' | 'apply'
+ type ReconcileMode = 'dry-run' | 'apply'
 
 type ReconcileRequestBody = {
   mode?: ReconcileMode
@@ -23,6 +25,22 @@ function parseMode(value: unknown): ReconcileMode {
     statusCode: 400,
     message: 'Reconciliation mode must be "dry-run" or "apply".',
   })
+}
+
+function updateDataForChanges(
+  changes: ComponentReconcileChanges,
+): Prisma.ComponentUpdateInput {
+  return {
+    componentName: changes.componentName,
+    folderName: changes.folderName,
+    slug: changes.slug,
+    sourcePath: changes.sourcePath,
+    sourceKey: changes.sourceKey,
+    sourceHash: changes.sourceHash,
+    isDiscovered: changes.isDiscovered,
+    lastSeenAt: changes.lastSeenAt ? new Date(changes.lastSeenAt) : undefined,
+    updatedAt: new Date(),
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -51,7 +69,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 409,
         message:
-          'Component reconciliation has naming conflicts. Review the dry-run result before applying.',
+          'Component reconciliation has identity conflicts. Review the dry-run result before applying.',
         data: {
           conflicts: plan.conflicts,
         },
@@ -67,11 +85,7 @@ export default defineEventHandler(async (event) => {
 
           await tx.component.update({
             where: { id: action.existingId },
-            data: {
-              componentName: action.changes.componentName,
-              folderName: action.changes.folderName,
-              updatedAt: new Date(),
-            },
+            data: updateDataForChanges(action.changes),
           })
         }
 
@@ -80,6 +94,15 @@ export default defineEventHandler(async (event) => {
             data: {
               componentName: action.componentName,
               folderName: action.changes.folderName || 'root',
+              slug: action.changes.slug,
+              sourcePath: action.changes.sourcePath,
+              sourceKey: action.changes.sourceKey,
+              sourceHash: action.changes.sourceHash,
+              lastSeenAt: action.changes.lastSeenAt
+                ? new Date(action.changes.lastSeenAt)
+                : new Date(manifest.generatedAt),
+              isDiscovered: action.changes.isDiscovered ?? true,
+              status: 'UNREVIEWED',
               title: action.componentName,
               notes: null,
               isWorking: false,
@@ -107,7 +130,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message:
         mode === 'apply'
-          ? 'Component reconciliation applied without deleting unmatched records.'
+          ? 'Component reconciliation applied without deleting unmatched records or reviews.'
           : 'Component reconciliation dry run complete. No database records were changed.',
       data: {
         mode,

@@ -270,12 +270,12 @@ function chooseReviewers(
   count: number,
 ): WonderLabReviewerAffinity[] {
   const voiceReady = ranked.filter((entry) => entry.voiceReady)
-  if (!voiceReady.length || count <= 0) return []
+  const first = voiceReady[0]
+  if (!first || count <= 0) return []
 
-  const selected = [voiceReady[0] as WonderLabReviewerAffinity]
+  const selected: WonderLabReviewerAffinity[] = [first]
   if (count === 1) return selected
 
-  const first = selected[0]
   const diverse = voiceReady.find(
     (entry, index) =>
       index > 0 &&

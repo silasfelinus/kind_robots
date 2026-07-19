@@ -127,13 +127,14 @@ jobs:
       - name: Verify live production prerequisites
         env:
           BASE_URL: https://kind-robots.vercel.app
+          OUTPUT_DIR: wonderlab-rollout-artifacts
         run: |
           set -euo pipefail
-          mkdir -p wonderlab-rollout-artifacts
+          mkdir -p "$OUTPUT_DIR"
 
           version="$(curl -sf --max-time 20 "${BASE_URL}/api/version")"
           printf '%s' "$version" | jq -e '.success == true and (.data.commit | type == "string")' >/dev/null
-          printf '%s\n' "$version" > wonderlab-rollout-artifacts/production-version.json
+          printf '%s\n' "$version" > "${OUTPUT_DIR}/production-version.json"
 
           manifest="$(curl -sf --max-time 30 "${BASE_URL}/wonderlab-components.json")"
           printf '%s' "$manifest" | jq -e '.count > 0 and (.entries | length) == .count' >/dev/null

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   assignWonderLabReviewerPortfolio,
+  isWonderLabActiveEditorialDraft,
   isWonderLabEditoriallyExcludedReviewer,
   type WonderLabPortfolioCandidate,
 } from '@/utils/wonderlab/reviewerPortfolio'
@@ -82,6 +83,12 @@ const deterministic = assignWonderLabReviewerPortfolio(inputs, {
   diversityPenalty: 4,
 })
 assert.deepEqual(result, deterministic)
+
+assert.equal(isWonderLabActiveEditorialDraft('PROPOSED'), true)
+assert.equal(isWonderLabActiveEditorialDraft('APPROVED'), true)
+assert.equal(isWonderLabActiveEditorialDraft('REJECTED'), false)
+assert.equal(isWonderLabActiveEditorialDraft('FAILED'), false)
+assert.equal(isWonderLabActiveEditorialDraft('SUPERSEDED'), false)
 
 assert.equal(
   isWonderLabEditoriallyExcludedReviewer({ name: 'Princess Donut', slug: null }),

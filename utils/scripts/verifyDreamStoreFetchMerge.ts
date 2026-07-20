@@ -50,8 +50,12 @@ assert.equal(rows.find((row) => row.id === 3)?.title, 'New filtered row')
 
 const dreamStoreSource = readFileSync('stores/dreamStore.ts', 'utf8')
 assert.ok(
-  dreamStoreSource.includes('mergeRecordsById(dreams.value, normalizedIncoming)'),
-  'dreamStore must merge filtered fetch rows into the existing cache.',
+  dreamStoreSource.includes('combine(dreams.value, normalizedIncoming)'),
+  'dreamStore must merge/reconcile fetch rows into the existing cache.',
+)
+assert.ok(
+  dreamStoreSource.includes('query ? mergeRecordsById : reconcileRecordsById'),
+  'dreamStore must upsert filtered/partial fetches and reconcile (prune deleted rows on) only unfiltered fetches.',
 )
 assert.ok(
   dreamStoreSource.includes('fetchPromises.value[url]'),

@@ -3,6 +3,7 @@ import { createError, defineEventHandler, H3Error, readBody } from 'h3'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { generateWonderLabReviewDraft } from '@/server/utils/wonderLabReviewDraftGenerator'
+import { enforceWonderLabReviewGrounding } from '@/server/utils/wonderLabReviewGroundingGate'
 import {
   positiveReviewDraftId,
   reviewDraftAuthor,
@@ -47,13 +48,17 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'regenerate must be boolean.' })
     }
 
-    const result = await generateWonderLabReviewDraft({
+    const generated = await generateWonderLabReviewDraft({
       componentId,
       author,
       actorUserId: auth.user.id,
       model: typeof body.model === 'string' ? body.model : null,
       regenerate: body.regenerate === true,
     })
+    const result = await enforceWonderLabReviewGrounding(
+      generated,
+      auth.user.id,
+    )
 
     event.node.res.statusCode = result.generated ? 201 : 200
     return {
@@ -61,7 +66,7 @@ export default defineEventHandler(async (event) => {
       data: result,
       message: result.generated
         ? result.draft.status === 'FAILED'
-          ? 'Review draft generated but held for low confidence.'
+          ? 'Review draft generated but held for editorial safety review.'
           : 'Review draft generated for editorial review.'
         : 'An existing draft was reused. Set regenerate=true to create another attempt.',
     }
@@ -72,7 +77,7 @@ export default defineEventHandler(async (event) => {
     if (/not found/i.test(message)) {
       throw createError({ statusCode: 404, message })
     }
-    if (/voice data|confidence|generated review|provider returned|invalid json/i.test(message)) {
+    if (/voice data|confidence|generated review|provider returned|invalid json|source-code evidence|grounding/i.test(message)) {
       throw createError({ statusCode: 422, message })
     }
     if (/api key|openai review generation failed|openai review generation timed out|empty review draft/i.test(message)) {

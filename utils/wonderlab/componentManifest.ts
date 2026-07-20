@@ -1,4 +1,18 @@
 // /utils/wonderlab/componentManifest.ts
+export type WonderLabComponentSourceEvidence = {
+  version: 1
+  lineCount: number
+  blocks: string[]
+  props: string[]
+  emits: string[]
+  customComponents: string[]
+  nativeElements: string[]
+  staticText: string[]
+  functionNames: string[]
+  localImports: string[]
+  facts: string[]
+}
+
 export type WonderLabManifestEntry = {
   sourceKey: string
   sourcePath: string

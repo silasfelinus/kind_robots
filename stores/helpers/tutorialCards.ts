@@ -97,6 +97,12 @@ export const tutorialChannels = {
         image: tutorialImage('games', 'screen-fx'),
       },
       {
+        key: 'animation-manager',
+        title: 'Animation Manager',
+        body: 'The museum of Screen FX build attempts: browse status and ratings for every effect, then preview, compare, promote, polish, or retire a build.',
+        image: tutorialImage('games', 'animation-manager'),
+      },
+      {
         key: 'wonder-lab',
         title: 'WonderLab',
         body: 'A behind-the-scenes look at the components that make up the site and the experiments that are still earning their shoes.',

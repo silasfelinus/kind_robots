@@ -23,6 +23,10 @@
           <span class="fx-total-label">
             {{ animationStore.effects.length }} effects
           </span>
+          <NuxtLink to="/animation-manager" class="fx-manage-link">
+            <Icon name="kind-icon:trophy" class="h-3.5 w-3.5" />
+            Manage builds
+          </NuxtLink>
         </div>
       </div>
 
@@ -350,6 +354,28 @@ const placementOptions: {
   border: 1px solid color-mix(in srgb, hsl(var(--bc)) 12%, transparent);
   background: color-mix(in srgb, hsl(var(--b3)) 65%, transparent);
   color: color-mix(in srgb, hsl(var(--bc)) 72%, transparent);
+}
+
+.fx-manage-link {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid color-mix(in srgb, hsl(var(--p)) 42%, transparent);
+  background: color-mix(in srgb, hsl(var(--p)) 14%, transparent);
+  color: hsl(var(--p));
+  transition: background 0.15s ease;
+}
+
+.fx-manage-link:hover {
+  background: color-mix(in srgb, hsl(var(--p)) 26%, transparent);
 }
 
 .fx-zone-section {

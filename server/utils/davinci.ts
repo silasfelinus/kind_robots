@@ -292,23 +292,50 @@ function withStatusCode(message: string, statusCode: number): Error {
 // artCollectionId/chatId FKs let a user pin — and then read back through the run
 // — another user's PRIVATE record (audit P6 MEDIUM/LOW). A non-existent id
 // passes here and is caught by the FK constraint on write.
+type AttachableResource = 'Character' | 'Dream' | 'Bot' | 'ArtCollection' | 'Chat'
+
 async function assertAttachable(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model: { count: (args: any) => Promise<number> },
+  resource: AttachableResource,
   id: number | null | undefined,
   userId: number,
-  label: string,
 ): Promise<void> {
   if (id === null || id === undefined) return
   if (!Number.isInteger(id) || id <= 0) {
-    throw withStatusCode(`${label} must be a positive integer.`, 400)
+    throw withStatusCode(`${resource} id must be a positive integer.`, 400)
   }
-  const forbidden = await model.count({
-    where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
-  })
+
+  let forbidden = 0
+  switch (resource) {
+    case 'Character':
+      forbidden = await prisma.character.count({
+        where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
+      })
+      break
+    case 'Dream':
+      forbidden = await prisma.dream.count({
+        where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
+      })
+      break
+    case 'Bot':
+      forbidden = await prisma.bot.count({
+        where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
+      })
+      break
+    case 'ArtCollection':
+      forbidden = await prisma.artCollection.count({
+        where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
+      })
+      break
+    case 'Chat':
+      forbidden = await prisma.chat.count({
+        where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
+      })
+      break
+  }
+
   if (forbidden > 0) {
     throw withStatusCode(
-      `You do not have permission to attach that ${label}.`,
+      `You do not have permission to attach that ${resource}.`,
       403,
     )
   }
@@ -339,15 +366,10 @@ export async function createLifeRun(userId: number, input: CreateLifeRunInput) {
       : 1
 
   await Promise.all([
-    assertAttachable(prisma.character, input.characterId, userId, 'Character'),
-    assertAttachable(prisma.dream, input.dreamId, userId, 'Dream'),
-    assertAttachable(prisma.bot, input.botId, userId, 'Bot'),
-    assertAttachable(
-      prisma.artCollection,
-      input.artCollectionId,
-      userId,
-      'ArtCollection',
-    ),
+    assertAttachable('Character', input.characterId, userId),
+    assertAttachable('Dream', input.dreamId, userId),
+    assertAttachable('Bot', input.botId, userId),
+    assertAttachable('ArtCollection', input.artCollectionId, userId),
   ])
 
   return prisma.lifeRun.create({
@@ -403,7 +425,7 @@ export async function recordLifeChoice(
     }
   }
 
-  await assertAttachable(prisma.chat, input.chatId, userId, 'Chat')
+  await assertAttachable('Chat', input.chatId, userId)
 
   return prisma.$transaction(async (tx) => {
     const run = await tx.lifeRun.findUnique({ where: { id: lifeRunId } })

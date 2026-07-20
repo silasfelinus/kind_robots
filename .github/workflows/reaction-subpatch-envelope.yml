@@ -1,0 +1,36 @@
+name: Reaction Sub-Patch Envelope
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/reactions/art/[id].patch.ts'
+      - 'server/api/reactions/dream/[id].patch.ts'
+      - 'utils/scripts/verifyReactionSubPatchEnvelope.ts'
+      - '.github/workflows/reaction-subpatch-envelope.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify reaction sub-patch envelopes
+        run: npx tsx utils/scripts/verifyReactionSubPatchEnvelope.ts

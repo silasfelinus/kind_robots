@@ -50,10 +50,16 @@ export default defineEventHandler(async (event) => {
           },
         })
 
+    event.node.res.statusCode = existingReaction ? 200 : 201
+
     return {
       success: true,
+      message: existingReaction
+        ? 'Reaction updated successfully.'
+        : 'Reaction created successfully.',
       data: reaction,
       reaction,
+      statusCode: event.node.res.statusCode,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -61,11 +67,11 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      data: {
-        message:
-          handledError.message ||
-          `Failed to update/create reaction for art with ID ${artImageId}.`,
-      },
+      message:
+        handledError.message ||
+        `Failed to update/create reaction for art with ID ${artImageId}.`,
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

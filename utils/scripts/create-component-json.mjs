@@ -88,6 +88,11 @@ function evidenceModule(entries) {
   ].join('\n')
 }
 
+function publicManifestEntry(entry) {
+  const { sourceEvidence: _sourceEvidence, ...publicEntry } = entry
+  return publicEntry
+}
+
 async function generateComponentManifest() {
   const files = await collectVueFiles(COMPONENT_ROOT)
   const entries = await Promise.all(files.map(buildManifestEntry))
@@ -100,7 +105,7 @@ async function generateComponentManifest() {
     generatedAt: new Date().toISOString(),
     componentRoot: 'components',
     count: entries.length,
-    entries,
+    entries: entries.map(publicManifestEntry),
   }
 
   await Promise.all([

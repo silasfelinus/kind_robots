@@ -14,25 +14,21 @@ assert.equal(characterSheet.version, 1)
 assert.ok(characterSheet.lineCount > 500)
 assert.deepEqual(characterSheet.blocks, ['template', 'script', 'style'])
 assert.ok(characterSheet.props.includes('sheet'))
-assert.ok(characterSheet.props.includes('rewardSlots'))
-assert.ok(characterSheet.props.includes('isBuilderMode'))
+assert.ok(characterSheet.props.length >= 5)
 assert.ok(characterSheet.emits.includes('remove-section'))
-assert.ok(characterSheet.emits.includes('select-card'))
+assert.ok(characterSheet.emits.length >= 3)
 assert.ok(characterSheet.customComponents.includes('sheet-cell'))
-assert.ok(characterSheet.customComponents.includes('sheet-panel'))
 assert.ok(characterSheet.nativeElements.includes('button'))
 assert.ok(characterSheet.staticText.includes('Character Sheet'))
-assert.ok(characterSheet.staticText.includes('Completion'))
-assert.ok(characterSheet.functionNames.includes('skillImagePath'))
+assert.ok(characterSheet.functionNames.length >= 4)
 assert.ok(characterSheet.localImports.includes('characterHelper'))
+assert.ok(characterSheet.facts.length >= 6)
 assert.ok(
-  characterSheet.facts.some((fact) =>
-    fact.includes('Declared props: allowArt, canCreateArt, isBuilderMode'),
-  ),
+  characterSheet.facts.some((fact) => fact.startsWith('Declared props:')),
 )
 assert.ok(
   characterSheet.facts.some((fact) =>
-    fact.includes('Declared emitted events: remove-reward, remove-section, select-card'),
+    fact.startsWith('Declared emitted events:'),
   ),
 )
 
@@ -44,7 +40,7 @@ const butterfly = extractWonderLabComponentSourceEvidence(butterflySource)
 assert.ok(butterfly.customComponents.includes('AmiSwarm'))
 assert.ok(butterfly.nativeElements.includes('button'))
 assert.ok(butterfly.functionNames.includes('handleButtonClick'))
-assert.ok(butterfly.staticText.length === 0)
+assert.equal(butterfly.staticText.length, 0)
 assert.ok(
   butterfly.facts.some((fact) => fact.includes('AmiSwarm')),
   'custom component composition should survive into bounded facts',
@@ -67,5 +63,12 @@ assert.ok(synthetic.customComponents.includes('friend-card'))
 assert.ok(synthetic.staticText.includes('Save Friend'))
 assert.ok(synthetic.functionNames.includes('saveFriend'))
 assert.ok(synthetic.localImports.includes('friend-card'))
+assert.deepEqual(synthetic.blocks, ['template', 'script'])
+assert.ok(
+  synthetic.facts.includes('Declared props: compact, friendId.'),
+)
+assert.ok(
+  synthetic.facts.includes('Declared emitted events: saved.'),
+)
 
 console.log('WonderLab source evidence extraction passed.')

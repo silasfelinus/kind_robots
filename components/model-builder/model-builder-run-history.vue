@@ -52,7 +52,9 @@
           v-for="run in store.runs"
           :key="run.id"
           class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 transition hover:border-primary/50"
-          :class="run.id === store.run?.id ? 'border-primary/60 bg-primary/5' : ''"
+          :class="
+            run.id === store.run?.id ? 'border-primary/60 bg-primary/5' : ''
+          "
         >
           <Icon :name="sourceIcon(run)" class="h-5 w-5 shrink-0 text-primary" />
 
@@ -61,7 +63,9 @@
               <span class="truncate text-sm font-bold text-base-content">
                 {{ run.sourceLabel || `#${run.sourceId}` }}
               </span>
-              <span class="badge badge-xs badge-ghost">{{ run.sourceType }}</span>
+              <span class="badge badge-xs badge-ghost">{{
+                run.sourceType
+              }}</span>
             </div>
             <div class="flex items-center gap-2 text-xs text-base-content/55">
               <span>{{ recipeLabel(run) }}</span>
@@ -71,12 +75,23 @@
           </div>
 
           <button
+            v-if="armedRunId !== run.id"
             type="button"
             class="btn btn-xs btn-ghost shrink-0 rounded-lg text-error/70 hover:text-error"
             title="Cancel run"
-            @click="store.cancelRun(run.id)"
+            @click="armedRunId = run.id"
           >
             <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
+          </button>
+          <button
+            v-else
+            type="button"
+            class="btn btn-xs btn-error shrink-0 rounded-lg"
+            @click="confirmCancel(run.id)"
+            @blur="armedRunId = null"
+          >
+            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
+            Confirm?
           </button>
           <button
             type="button"
@@ -92,13 +107,22 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 import type { BuildRun } from '@/stores/modelBuilderStore'
 import { getRecipe, getSourceType } from '@/stores/helpers/modelBuilderRecipes'
 
 const emit = defineEmits<{ close: [] }>()
 const store = useModelBuilderStore()
+
+// Cancel button arms on first click, fires on second — mirrors art-interact.vue's
+// delete-confirm pattern so an irreversible PATCH-to-CANCELLED can't fire on a misclick.
+const armedRunId = ref<string | null>(null)
+
+function confirmCancel(runId: string): void {
+  armedRunId.value = null
+  store.cancelRun(runId)
+}
 
 function recipeLabel(run: BuildRun): string {
   return getRecipe(run.recipeKey)?.label ?? run.recipeKey

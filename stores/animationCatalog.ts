@@ -146,6 +146,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'paper-lantern-weather',
+    label: 'Paper Lantern Weather',
+    reveal: 'Steady in the wind',
+    icon: 'kind-icon:wind',
+    tooltip: 'Folded lanterns dim before a gust and relight in sheltered eddies; click to release a paper bird 🏮',
+    color: '#fdba74',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'gravity-garden',
     label: 'Gravity Garden',
     reveal: 'The garden noticed you',

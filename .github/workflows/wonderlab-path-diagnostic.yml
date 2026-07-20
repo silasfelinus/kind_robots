@@ -1,0 +1,31 @@
+name: WonderLab Path Diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-path-diagnostic.yml'
+      - '.github/workflows/wonderlab-editorial-audit.yml'
+      - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Print workflow path diagnostics
+        run: npm run test:workflow-paths

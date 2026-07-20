@@ -15,6 +15,11 @@ const config: ProjectFrontConfig = {
   tagline: 'Everything you meant to watch, in one honest list.',
   description:
     'A structured log for films and shows. Queue what you want to watch, mark what you are in the middle of, and archive what you finished — so "what should we watch tonight" finally has a single source of truth.',
+  stats: [
+    { label: 'entries logged', value: '2,440', icon: 'kind-icon:list' },
+    { label: 'years tracked', value: '12', icon: 'kind-icon:calendar' },
+    { label: 'starred favorites', value: '60', icon: 'kind-icon:star' },
+  ],
   sections: [
     {
       key: 'queue',
@@ -31,10 +36,10 @@ const config: ProjectFrontConfig = {
   ],
   deliverables: {
     done: [
-      'Watchlist data model and API',
-      'Status flow (queued / watching / done)',
+      'Real viewing log parsed and validated (2,440 entries, 12 years)',
+      'Import + normalization rules for 12 media types',
     ],
-    next: ['List + detail UI', 'Shared household lists'],
+    next: ['MediaEntry data model and API', 'List + detail UI'],
   },
 }
 </script>

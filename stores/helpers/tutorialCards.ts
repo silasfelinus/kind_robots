@@ -137,6 +137,12 @@ export const tutorialChannels = {
         body: 'Step into a second-person story woven by the Serendipity bot: pick a tone, open the door, and answer honestly — the questions it asks quietly advance your real honey-dos and human-gated tasks along the way.',
         image: tutorialImage('scenario', 'serendipity'),
       },
+      {
+        key: 'storymaker',
+        title: 'Storymaker',
+        body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth — the long-form loom that gathers everything else into one unfolding story.',
+        image: tutorialImage('scenario', 'storymaker'),
+      },
     ],
   },
 

@@ -17,6 +17,20 @@
           Storymaker builds on the Stories engine — bring your characters,
           settings, and rewards and let the narrator help them collide.
         </p>
+        <p v-if="totalScenarios > 0" class="text-xs text-base-content/60">
+          {{ totalScenarios }} scenario{{ totalScenarios === 1 ? '' : 's' }}
+          ready to weave into a story right now.
+        </p>
+        <ul v-if="recentScenarios.length" class="flex flex-col gap-1">
+          <li v-for="scenario in recentScenarios" :key="scenario.id">
+            <NuxtLink
+              to="/stories"
+              class="text-sm text-primary hover:underline"
+            >
+              {{ scenario.title || 'Untitled scenario' }}
+            </NuxtLink>
+          </li>
+        </ul>
         <NuxtLink
           to="/stories"
           class="btn btn-primary btn-sm gap-1.5 rounded-2xl"
@@ -30,7 +44,18 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
+import { useScenarioStore } from '@/stores/scenarioStore'
+
+const scenarioStore = useScenarioStore()
+
+onMounted(() => {
+  scenarioStore.initialize()
+})
+
+const totalScenarios = computed(() => scenarioStore.totalScenarios)
+const recentScenarios = computed(() => scenarioStore.scenarios.slice(0, 3))
 
 const config: ProjectFrontConfig = {
   slug: 'storymaker',

@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: message || 'Failed to create reward.',
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

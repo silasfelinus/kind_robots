@@ -47,6 +47,6 @@ export default defineEventHandler(async (event) => {
     const handled = errorHandler(error)
     const statusCode = handled.statusCode ?? 500
     event.node.res.statusCode = statusCode
-    return { ...handled, statusCode }
+    return { success: false, message: handled.message, data: null, statusCode }
   }
 })

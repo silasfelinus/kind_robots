@@ -288,6 +288,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: handled.message || 'Failed to create dreams batch.',
+      data: null,
       statusCode,
     }
   }

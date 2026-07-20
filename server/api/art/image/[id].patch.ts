@@ -152,6 +152,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: `ArtImage #${id} updated successfully.`,
       data,
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
@@ -161,6 +162,7 @@ export default defineEventHandler(async (event) => {
       success: false,
       message: handled.message || `Failed to update ArtImage #${id}.`,
       data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

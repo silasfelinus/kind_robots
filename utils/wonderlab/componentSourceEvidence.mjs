@@ -154,6 +154,60 @@ function imports(script) {
   return unique(values)
 }
 
+function browserEvents(script) {
+  const values = []
+  for (const match of script.matchAll(
+    /([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\.(addEventListener|removeEventListener)\(\s*['"]([^'"]+)['"]\s*,\s*([A-Za-z_$][\w$]*)/g,
+  )) {
+    const target = match[1] || ''
+    const operation = match[2] === 'addEventListener' ? 'adds' : 'removes'
+    const event = match[3] || ''
+    const handler = match[4] || ''
+    values.push(`${target} ${operation} ${event} listener with ${handler}`)
+  }
+  return unique(values)
+}
+
+function animationCalls(script) {
+  const values = []
+  for (const match of script.matchAll(
+    /\b(requestAnimationFrame|cancelAnimationFrame)\(\s*([A-Za-z_$][\w$]*)/g,
+  )) {
+    values.push(`${match[1]}(${match[2]})`)
+  }
+  return unique(values)
+}
+
+function styleBindings(template) {
+  const values = []
+  for (const match of template.matchAll(/:style\s*=\s*"\{([\s\S]*?)\}"/g)) {
+    const body = match[1] || ''
+    for (const property of body.matchAll(/(?:^|,)\s*([A-Za-z-]+)\s*:/g)) {
+      values.push(property[1] || '')
+    }
+  }
+  return unique(values)
+}
+
+function cssAnimations(style) {
+  return unique([
+    ...[...style.matchAll(/@keyframes\s+([A-Za-z0-9_-]+)/g)].map(
+      (match) => `keyframes ${match[1]}`,
+    ),
+    ...[...style.matchAll(/animation\s*:\s*([A-Za-z0-9_-]+)/g)].map(
+      (match) => `animation ${match[1]}`,
+    ),
+  ])
+}
+
+function storeCalls(script) {
+  return unique(
+    [...script.matchAll(/\b([A-Za-z_$][\w$]*Store)\.([A-Za-z_$][\w$]*)\s*\(/g)].map(
+      (match) => `${match[1]}.${match[2]}()`,
+    ),
+  )
+}
+
 function fact(label, values) {
   return values.length ? `${label}: ${values.join(', ')}.` : null
 }
@@ -162,6 +216,7 @@ export function extractWonderLabComponentSourceEvidence(input) {
   const source = String(input || '')
   const template = block(source, 'template')
   const script = block(source, 'script')
+  const style = block(source, 'style')
   const foundTags = tags(template)
   const evidence = {
     version: 1,
@@ -176,6 +231,11 @@ export function extractWonderLabComponentSourceEvidence(input) {
     staticText: labels(template),
     functionNames: functions(script),
     localImports: imports(script),
+    browserEvents: browserEvents(script),
+    animationCalls: animationCalls(script),
+    styleBindings: styleBindings(template),
+    cssAnimations: cssAnimations(style),
+    storeCalls: storeCalls(script),
     facts: [],
   }
   evidence.facts = [
@@ -186,6 +246,11 @@ export function extractWonderLabComponentSourceEvidence(input) {
     fact('Static interface text includes', evidence.staticText),
     fact('Source-defined functions include', evidence.functionNames),
     fact('Local source imports include', evidence.localImports),
+    fact('Browser event wiring includes', evidence.browserEvents),
+    fact('Animation API calls include', evidence.animationCalls),
+    fact('Dynamic style bindings include', evidence.styleBindings),
+    fact('Scoped CSS animations include', evidence.cssAnimations),
+    fact('Store method calls include', evidence.storeCalls),
   ].filter(Boolean)
   return evidence
 }

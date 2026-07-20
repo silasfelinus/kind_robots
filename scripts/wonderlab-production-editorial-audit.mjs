@@ -85,16 +85,16 @@ function responseDataObject(payload, label) {
   return data
 }
 
-function reviewerKey(reviewer) {
-  return `${reviewer.author.kind}:${reviewer.author.id}`
+function reviewerKey(kind, id) {
+  return `${kind}:${id}`
 }
 
-function summarizeReviewerUsage(exhibits) {
+function summarizeSelectedReviewerUsage(exhibits) {
   const usage = new Map()
 
   for (const exhibit of exhibits) {
     for (const reviewer of exhibit.reviewers || []) {
-      const key = reviewerKey(reviewer)
+      const key = reviewerKey(reviewer.author.kind, reviewer.author.id)
       const current = usage.get(key) || {
         key,
         kind: reviewer.author.kind,
@@ -116,18 +116,43 @@ function summarizeReviewerUsage(exhibits) {
     }
   }
 
-  return [...usage.values()]
-    .map((entry) => ({
-      ...entry,
-      averageScore: entry.assigned
-        ? Math.round((entry.scoreTotal / entry.assigned) * 10) / 10
-        : 0,
-    }))
-    .sort((left, right) =>
-      right.assigned - left.assigned ||
-      right.published - left.published ||
-      left.name.localeCompare(right.name),
-    )
+  return [...usage.values()].map((entry) => ({
+    ...entry,
+    averageScore: entry.assigned
+      ? Math.round((entry.scoreTotal / entry.assigned) * 10) / 10
+      : 0,
+  }))
+}
+
+function mergeReviewerUsage(selectedUsage, portfolioUsage) {
+  const selected = new Map(selectedUsage.map((entry) => [entry.key, entry]))
+  const source = Array.isArray(portfolioUsage) ? portfolioUsage : []
+  const rows = source.map((entry) => {
+    const key = reviewerKey(entry.kind, entry.id)
+    const details = selected.get(key)
+    return {
+      key,
+      kind: entry.kind,
+      id: Number(entry.id),
+      name: entry.name,
+      slug: details?.slug || null,
+      assigned: Number(entry.count) || 0,
+      missing: details?.missing || 0,
+      drafted: details?.drafted || 0,
+      published: details?.published || 0,
+      averageScore: details?.averageScore || 0,
+    }
+  })
+
+  for (const entry of selectedUsage) {
+    if (!rows.some((row) => row.key === entry.key)) rows.push(entry)
+  }
+
+  return rows.sort((left, right) =>
+    right.assigned - left.assigned ||
+    right.published - left.published ||
+    left.name.localeCompare(right.name),
+  )
 }
 
 await mkdir(outputDir, { recursive: true })
@@ -163,6 +188,8 @@ const portfolioQuery = new URLSearchParams({
   reviewersPerComponent: '2',
   minimumScore: '0',
   diversityPenalty: '4',
+  minimumAssignmentsPerReviewer: '2',
+  representationMinimumScore: '1',
 })
 const portfolioPayload = await adminRequest(
   `/api/admin/wonderlab/review-portfolio?${portfolioQuery.toString()}`,
@@ -175,6 +202,10 @@ assertCondition(
 assertCondition(
   Array.isArray(portfolioPlan.exhibits),
   'WonderLab review portfolio did not return exhibits.',
+)
+assertCondition(
+  portfolioPlan.representation && typeof portfolioPlan.representation === 'object',
+  'WonderLab review portfolio did not return cast representation evidence.',
 )
 const planExhibits = portfolioPlan.exhibits
 
@@ -209,7 +240,8 @@ const exhibitCoverage = planExhibits.map((exhibit) => {
   }
 })
 
-const reviewerUsage = summarizeReviewerUsage(exhibitCoverage)
+const selectedReviewerUsage = summarizeSelectedReviewerUsage(exhibitCoverage)
+const reviewerUsage = mergeReviewerUsage(selectedReviewerUsage, portfolioPlan.reviewerUsage)
 const reviewerSlots = exhibitCoverage.reduce((total, exhibit) => total + exhibit.reviewerSlots, 0)
 const publishedSlots = exhibitCoverage.reduce((total, exhibit) => total + exhibit.publishedSlots, 0)
 const draftedSlots = exhibitCoverage.reduce((total, exhibit) => total + exhibit.draftedSlots, 0)
@@ -223,12 +255,18 @@ const fullyPublished = exhibitCoverage.filter(
 )
 const withDraft = exhibitCoverage.filter((exhibit) => exhibit.draftedSlots > 0)
 const withoutPublished = exhibitCoverage.filter((exhibit) => exhibit.publishedSlots === 0)
-const assignedBots = reviewerUsage.filter((reviewer) => reviewer.kind === 'BOT')
-const assignedCharacters = reviewerUsage.filter((reviewer) => reviewer.kind === 'CHARACTER')
-const publishedBots = assignedBots.filter((reviewer) => reviewer.published > 0)
-const publishedCharacters = assignedCharacters.filter((reviewer) => reviewer.published > 0)
+const eligibleBots = reviewerUsage.filter((reviewer) => reviewer.kind === 'BOT')
+const eligibleCharacters = reviewerUsage.filter((reviewer) => reviewer.kind === 'CHARACTER')
+const assignedBots = eligibleBots.filter((reviewer) => reviewer.assigned > 0)
+const assignedCharacters = eligibleCharacters.filter((reviewer) => reviewer.assigned > 0)
+const publishedBots = eligibleBots.filter((reviewer) => reviewer.published > 0)
+const publishedCharacters = eligibleCharacters.filter((reviewer) => reviewer.published > 0)
 const largestAssignmentCount = reviewerUsage[0]?.assigned || 0
 const largestAssignmentShare = percentage(largestAssignmentCount, reviewerSlots)
+const representation = portfolioPlan.representation
+const underrepresentedReviewers = Array.isArray(representation.underrepresentedReviewers)
+  ? representation.underrepresentedReviewers
+  : []
 
 const report = {
   generatedAt: new Date().toISOString(),
@@ -245,7 +283,9 @@ const report = {
     reviewersPerComponent: 2,
     minimumAffinity: 0,
     diversityPenalty: Number(portfolioPlan.diversityPenalty) || 4,
-    note: 'Coverage is measured against the deterministic portfolio-selected reviewer slots. Existing published or drafted assignments are pinned when the reviewer remains eligible; new slots apply a repeat-use penalty and prefer Bot/Character contrast.',
+    representationTarget: Number(representation.targetPerReviewer) || 0,
+    representationMinimumScore: Number(representation.minimumScore) || 0,
+    note: 'Coverage is measured against deterministic portfolio-selected reviewer slots. Existing published or drafted assignments remain pinned; responsible cast representation floors reserve each eligible voice\'s best grounded placements before repeat-use balancing fills the remaining slots.',
   },
   componentStatuses: Object.fromEntries([...statusCounts.entries()].sort()),
   coverage: {
@@ -265,6 +305,8 @@ const report = {
     exhibitsWithIncompleteAssignment: incompleteAssignments.length,
   },
   diversity: {
+    eligibleBots: eligibleBots.length,
+    eligibleCharacters: eligibleCharacters.length,
     assignedBots: assignedBots.length,
     assignedCharacters: assignedCharacters.length,
     publishedBots: publishedBots.length,
@@ -272,7 +314,16 @@ const report = {
     largestAssignmentCount,
     largestAssignmentShare,
   },
+  representation: {
+    targetPerReviewer: Number(representation.targetPerReviewer) || 0,
+    minimumScore: Number(representation.minimumScore) || 0,
+    eligibleReviewers: Number(representation.eligibleReviewers) || 0,
+    representedReviewers: Number(representation.representedReviewers) || 0,
+    meetingTargetReviewers: Number(representation.meetingTargetReviewers) || 0,
+    underrepresentedReviewerCount: underrepresentedReviewers.length,
+  },
   reviewerUsage,
+  underrepresentedReviewers,
   priorityMissingAssignments: exhibitCoverage
     .flatMap((exhibit) =>
       exhibit.reviewers
@@ -324,8 +375,8 @@ console.log(
   `WonderLab editorial audit: ${publishedSlots}/${reviewerSlots} planned slots published (${report.coverage.publishedSlotRate}%).`,
 )
 console.log(
-  `Published reviewer diversity: ${publishedBots.length} Bot(s), ${publishedCharacters.length} Character(s).`,
+  `Cast representation: ${report.representation.meetingTargetReviewers}/${report.representation.eligibleReviewers} eligible reviewers meet the target of ${report.representation.targetPerReviewer}.`,
 )
 console.log(
-  `Remaining: ${missingSlots} missing slot(s), ${draftedSlots} drafted slot(s), ${incompleteAssignments.length} exhibit(s) with incomplete assignments.`,
+  `Remaining: ${missingSlots} missing slot(s), ${draftedSlots} drafted slot(s), ${incompleteAssignments.length} exhibit(s) with incomplete assignments, ${underrepresentedReviewers.length} underrepresented reviewer(s).`,
 )

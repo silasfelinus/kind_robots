@@ -51,7 +51,11 @@ describe('Bot Management API Tests', () => {
       .then((auth) => {
         userToken = auth.token
         userId = auth.id
-        return createLoggedInTestUser({ fresh: true })
+        // Must be a genuinely distinct account -- `fresh` is deprecated and
+        // now a no-op (the suite reuses the shared seed identity), so this
+        // was silently returning the SAME user as `userToken` above and
+        // making "another user's private Dream" actually self-owned.
+        return createLoggedInTestUser({ role: 'second' })
       })
       .then((other) => {
         otherToken = other.token
@@ -191,7 +195,9 @@ describe('Bot Management API Tests', () => {
   })
 
   it('creates a Bot with a lean mutation response', () => {
-    expect(userId, 'shared Cypress user id').to.be.a('number').and.be.greaterThan(0)
+    expect(userId, 'shared Cypress user id')
+      .to.be.a('number')
+      .and.be.greaterThan(0)
 
     cy.request({
       method: 'POST',

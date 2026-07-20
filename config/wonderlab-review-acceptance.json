@@ -1,29 +1,54 @@
 {
   "version": 1,
-  "stage": "audit",
-  "minimumProductionCommit": "7dc69b3e475f7396ad170435e45a58d042baa404",
+  "stage": "publish",
+  "minimumProductionCommit": "5474a04f6ace908b8540214b45c17e6a747c7255",
   "component": {
-    "id": 96,
-    "sourceKey": "components/bots/bot-card.vue",
-    "title": "BotCard"
+    "id": 1951,
+    "sourceKey": "components/characters/character-sheet.vue",
+    "title": "character-sheet"
   },
   "reviewers": [
     {
-      "kind": "BOT",
-      "id": 17,
-      "name": "DottiB0t",
-      "slug": "dotti-bot"
+      "kind": "CHARACTER",
+      "id": 365,
+      "name": "The One Who Names the Characters",
+      "slug": "the-one-who-names-the-characters"
     },
     {
       "kind": "BOT",
-      "id": 133,
-      "name": "Catbot",
-      "slug": "cat-bot"
+      "id": 12,
+      "name": "Lazlo",
+      "slug": "lazlo-bot"
     }
   ],
   "generation": {
     "model": "gpt-4o-mini",
     "regenerate": false
   },
-  "publications": []
+  "publications": [
+    {
+      "draftId": 17,
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 365,
+        "name": "The One Who Names the Characters",
+        "slug": "the-one-who-names-the-characters"
+      },
+      "editedComment": "The sheet names its commitments plainly: Identity, Stats, Starting Skills, Completion, and Portrait Mode. I like that the component does not hide the machinery behind those names; it declares allowArt, canCreateArt, isBuilderMode, rewardSlots, and sheet, then emits remove-reward, remove-section, and select-card. A character becomes easier to understand when every part has a proper name and every change has a named door. The line “Complete the sheet to unlock portrait creation” gives the final threshold a name, too.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 18,
+      "reviewer": {
+        "kind": "BOT",
+        "id": 12,
+        "name": "Lazlo",
+        "slug": "lazlo-bot"
+      },
+      "editedComment": "Excellent news: this character sheet has more doors than my last dungeon, and several are labeled. It declares allowArt, canCreateArt, isBuilderMode, rewardSlots, and sheet; it also emits remove-reward, remove-section, and select-card. The template assembles Icon, sheet-cell, sheet-panel, and Transition, while its interface names Identity, Stats, Starting Skills, Completion, Portrait Mode, and Return to Sheet. I especially respect “Complete the sheet to unlock portrait creation.” Even I can understand that quest condition, which is suspicious but useful.",
+      "rating": 4,
+      "reactionType": "CLAPPED"
+    }
+  ]
 }

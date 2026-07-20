@@ -8,6 +8,53 @@ import { runInclude } from './index'
 
 const actions = new Set<ModelBuildAction>(['CREATE', 'UPDATE', 'ASSET_ONLY'])
 
+// Source models a build run may target — exactly the ones the commit path can
+// write (promoteAsset / updateText / linkSourceToTarget). Each has a `userId`.
+const SOURCE_OWNER_MODELS: Record<
+  string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  { findUnique: (args: any) => Promise<unknown> }
+> = {
+  Project: prisma.project,
+  Character: prisma.character,
+  Bot: prisma.bot,
+  Facet: prisma.facet,
+  Dream: prisma.dream,
+  Reward: prisma.reward,
+  Scenario: prisma.scenario,
+}
+
+async function assertSourceOwnership(
+  sourceType: string,
+  sourceId: number,
+  userId: number,
+  isAdmin: boolean,
+): Promise<void> {
+  const model = SOURCE_OWNER_MODELS[sourceType]
+  if (!model) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported sourceType: ${sourceType}.`,
+    })
+  }
+  const row = (await model.findUnique({
+    where: { id: sourceId },
+    select: { userId: true },
+  })) as { userId: number | null } | null
+  if (!row) {
+    throw createError({
+      statusCode: 404,
+      message: `${sourceType} not found: ${sourceId}.`,
+    })
+  }
+  if (!isAdmin && row.userId !== userId) {
+    throw createError({
+      statusCode: 403,
+      message: `You do not have permission to build on this ${sourceType}.`,
+    })
+  }
+}
+
 type RunItemInput = {
   outputKey?: unknown
   label?: unknown
@@ -59,6 +106,13 @@ export default defineEventHandler(async (event) => {
         message: 'A valid sourceId is required.',
       })
     }
+
+    // The whole run — every commit item — writes to this source record. Verify
+    // the caller owns it (or is admin) HERE, once, so a build can't be pointed
+    // at another user's Bot/Character/Dream/etc. and overwrite it on commit
+    // (audit P6 CRITICAL). This also constrains sourceType to the models the
+    // commit path can actually target.
+    await assertSourceOwnership(sourceType, sourceId, auth.user.id, auth.isAdmin)
 
     if (!Array.isArray(body.items) || body.items.length === 0) {
       throw createError({

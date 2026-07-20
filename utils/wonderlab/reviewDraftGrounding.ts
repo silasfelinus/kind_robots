@@ -1,3 +1,4 @@
+import { wonderLabSourceEvidenceByPath } from '@/utils/generated/wonderLabSourceEvidence'
 import type { WonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentManifest'
 
 export type WonderLabReviewGroundingMatch = {
@@ -97,6 +98,18 @@ function groundingMatch(
     nativeElementMatches,
     grounded: highSignalMatches.length >= 1 || nativeElementMatches.length >= 2,
   }
+}
+
+export function resolveWonderLabReviewSourceEvidence(
+  sourcePath: string,
+  supplied?: WonderLabComponentSourceEvidence | null,
+): WonderLabComponentSourceEvidence {
+  const evidence =
+    supplied || wonderLabSourceEvidenceByPath[sourcePath.trim().toLowerCase()] || null
+  if (!evidence?.facts.length) {
+    throw new Error(`No source-code evidence is available for ${sourcePath}.`)
+  }
+  return evidence
 }
 
 export function validateWonderLabReviewGrounding(

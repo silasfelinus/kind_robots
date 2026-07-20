@@ -22,7 +22,7 @@ assert.ok(characterSheet.customComponents.includes('sheet-cell'))
 assert.ok(characterSheet.customComponents.includes('sheet-panel'))
 assert.ok(characterSheet.nativeElements.includes('button'))
 assert.ok(characterSheet.staticText.includes('Character Sheet'))
-assert.ok(characterSheet.staticText.includes('Portrait Pending'))
+assert.ok(characterSheet.staticText.includes('Completion'))
 assert.ok(characterSheet.functionNames.includes('skillImagePath'))
 assert.ok(characterSheet.localImports.includes('characterHelper'))
 assert.ok(

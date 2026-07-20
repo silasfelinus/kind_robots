@@ -595,13 +595,16 @@ function historyImageSrc(image: ArtImage): string {
     imagePath?: string | null
     path?: string | null
   }
+  // Path-first: stored path, then inline base64.
+  const path = img.imagePath || img.path || ''
+  if (path) return path
   if (img.thumbnailData) {
     return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
   }
   if (img.imageData) {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
   }
-  return img.imagePath || img.path || ''
+  return ''
 }
 
 function handleFileSelect(event: Event) {

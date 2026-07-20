@@ -350,12 +350,13 @@ const previewArtImage = computed<ArtImage | null>(() => {
 
 const previewImage = computed(() => {
   if (isHiddenMature.value) return ''
+  // Path-first: prefer the stored path, fall back to inline base64.
   return (
-    createImageDataUrl(previewArtImage.value) ||
     safeText(previewArtImage.value?.imagePath).trim() ||
     safeText(
       (previewArtImage.value as ArtImage & { path?: string })?.path,
     ).trim() ||
+    createImageDataUrl(previewArtImage.value) ||
     safeText(props.fallbackImage).trim()
   )
 })

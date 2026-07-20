@@ -769,6 +769,7 @@ export type UserWhereInput = {
   restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
   Achievements?: Prisma.AchievementRecordListRelationFilter
+  AppRepos?: Prisma.AppRepoListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   ArtJobs?: Prisma.ArtJobListRelationFilter
@@ -782,6 +783,7 @@ export type UserWhereInput = {
   Dreams?: Prisma.DreamListRelationFilter
   Entitlements?: Prisma.EntitlementListRelationFilter
   Facets?: Prisma.FacetListRelationFilter
+  GithubInstallations?: Prisma.GithubInstallationListRelationFilter
   KarmaTransactions?: Prisma.KarmaTransactionListRelationFilter
   Orders?: Prisma.OrderListRelationFilter
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
@@ -881,6 +883,7 @@ export type UserOrderByWithRelationInput = {
   restrictedById?: Prisma.SortOrderInput | Prisma.SortOrder
   restrictedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   Achievements?: Prisma.AchievementRecordOrderByRelationAggregateInput
+  AppRepos?: Prisma.AppRepoOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   ArtJobs?: Prisma.ArtJobOrderByRelationAggregateInput
@@ -894,6 +897,7 @@ export type UserOrderByWithRelationInput = {
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
   Entitlements?: Prisma.EntitlementOrderByRelationAggregateInput
   Facets?: Prisma.FacetOrderByRelationAggregateInput
+  GithubInstallations?: Prisma.GithubInstallationOrderByRelationAggregateInput
   KarmaTransactions?: Prisma.KarmaTransactionOrderByRelationAggregateInput
   Orders?: Prisma.OrderOrderByRelationAggregateInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockOrderByRelationAggregateInput
@@ -997,6 +1001,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
   Achievements?: Prisma.AchievementRecordListRelationFilter
+  AppRepos?: Prisma.AppRepoListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   ArtJobs?: Prisma.ArtJobListRelationFilter
@@ -1010,6 +1015,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Dreams?: Prisma.DreamListRelationFilter
   Entitlements?: Prisma.EntitlementListRelationFilter
   Facets?: Prisma.FacetListRelationFilter
+  GithubInstallations?: Prisma.GithubInstallationListRelationFilter
   KarmaTransactions?: Prisma.KarmaTransactionListRelationFilter
   Orders?: Prisma.OrderListRelationFilter
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockListRelationFilter
@@ -1259,6 +1265,7 @@ export type UserCreateInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -1272,6 +1279,7 @@ export type UserCreateInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -1371,6 +1379,7 @@ export type UserUncheckedCreateInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -1384,6 +1393,7 @@ export type UserUncheckedCreateInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -1480,6 +1490,7 @@ export type UserUpdateInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -1493,6 +1504,7 @@ export type UserUpdateInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -1592,6 +1604,7 @@ export type UserUncheckedUpdateInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -1605,6 +1618,7 @@ export type UserUncheckedUpdateInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -2756,6 +2770,34 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
+export type UserCreateNestedOneWithoutGithubInstallationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGithubInstallationsInput, Prisma.UserUncheckedCreateWithoutGithubInstallationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGithubInstallationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutGithubInstallationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGithubInstallationsInput, Prisma.UserUncheckedCreateWithoutGithubInstallationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGithubInstallationsInput
+  upsert?: Prisma.UserUpsertWithoutGithubInstallationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGithubInstallationsInput, Prisma.UserUpdateWithoutGithubInstallationsInput>, Prisma.UserUncheckedUpdateWithoutGithubInstallationsInput>
+}
+
+export type UserCreateNestedOneWithoutAppReposInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAppReposInput, Prisma.UserUncheckedCreateWithoutAppReposInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAppReposInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAppReposNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAppReposInput, Prisma.UserUncheckedCreateWithoutAppReposInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAppReposInput
+  upsert?: Prisma.UserUpsertWithoutAppReposInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAppReposInput, Prisma.UserUpdateWithoutAppReposInput>, Prisma.UserUncheckedUpdateWithoutAppReposInput>
+}
+
 export type UserCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2825,6 +2867,7 @@ export type UserCreateWithoutArtImagesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
@@ -2837,6 +2880,7 @@ export type UserCreateWithoutArtImagesInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -2936,6 +2980,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -2948,6 +2993,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -3049,6 +3095,7 @@ export type UserCreateWithoutArtImageInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -3062,6 +3109,7 @@ export type UserCreateWithoutArtImageInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -3159,6 +3207,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -3172,6 +3221,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -3289,6 +3339,7 @@ export type UserUpdateWithoutArtImagesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
@@ -3301,6 +3352,7 @@ export type UserUpdateWithoutArtImagesInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -3400,6 +3452,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3412,6 +3465,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -3599,6 +3653,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
@@ -3611,6 +3666,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -3710,6 +3766,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -3722,6 +3779,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -3834,6 +3892,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
@@ -3846,6 +3905,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -3945,6 +4005,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3957,6 +4018,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -4053,6 +4115,7 @@ export type UserCreateWithoutBotsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -4065,6 +4128,7 @@ export type UserCreateWithoutBotsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -4164,6 +4228,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -4176,6 +4241,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -4288,6 +4354,7 @@ export type UserUpdateWithoutBotsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -4300,6 +4367,7 @@ export type UserUpdateWithoutBotsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -4399,6 +4467,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -4411,6 +4480,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -4507,6 +4577,7 @@ export type UserCreateWithoutCharactersInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -4519,6 +4590,7 @@ export type UserCreateWithoutCharactersInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -4618,6 +4690,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -4630,6 +4703,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -4742,6 +4816,7 @@ export type UserUpdateWithoutCharactersInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -4754,6 +4829,7 @@ export type UserUpdateWithoutCharactersInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -4853,6 +4929,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -4865,6 +4942,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -4961,6 +5039,7 @@ export type UserCreateWithoutChatsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -4973,6 +5052,7 @@ export type UserCreateWithoutChatsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -5072,6 +5152,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -5084,6 +5165,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -5196,6 +5278,7 @@ export type UserUpdateWithoutChatsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -5208,6 +5291,7 @@ export type UserUpdateWithoutChatsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -5307,6 +5391,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -5319,6 +5404,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -5415,6 +5501,7 @@ export type UserCreateWithoutDreamsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -5427,6 +5514,7 @@ export type UserCreateWithoutDreamsInput = {
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -5526,6 +5614,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -5538,6 +5627,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -5650,6 +5740,7 @@ export type UserUpdateWithoutDreamsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -5662,6 +5753,7 @@ export type UserUpdateWithoutDreamsInput = {
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -5761,6 +5853,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -5773,6 +5866,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -5869,6 +5963,7 @@ export type UserCreateWithoutProjectsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -5882,6 +5977,7 @@ export type UserCreateWithoutProjectsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -5980,6 +6076,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -5993,6 +6090,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -6104,6 +6202,7 @@ export type UserUpdateWithoutProjectsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -6117,6 +6216,7 @@ export type UserUpdateWithoutProjectsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -6215,6 +6315,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -6228,6 +6329,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -6323,6 +6425,7 @@ export type UserCreateWithoutFacetsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -6335,6 +6438,7 @@ export type UserCreateWithoutFacetsInput = {
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -6434,6 +6538,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -6446,6 +6551,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -6558,6 +6664,7 @@ export type UserUpdateWithoutFacetsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -6570,6 +6677,7 @@ export type UserUpdateWithoutFacetsInput = {
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -6669,6 +6777,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -6681,6 +6790,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -6777,6 +6887,7 @@ export type UserCreateWithoutLogsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -6790,6 +6901,7 @@ export type UserCreateWithoutLogsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -6888,6 +7000,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -6901,6 +7014,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -7012,6 +7126,7 @@ export type UserUpdateWithoutLogsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -7025,6 +7140,7 @@ export type UserUpdateWithoutLogsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -7123,6 +7239,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -7136,6 +7253,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -7231,6 +7349,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -7244,6 +7363,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -7342,6 +7462,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -7355,6 +7476,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -7466,6 +7588,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -7479,6 +7602,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -7577,6 +7701,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -7590,6 +7715,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -7685,6 +7811,7 @@ export type UserCreateWithoutOrdersInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -7698,6 +7825,7 @@ export type UserCreateWithoutOrdersInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
@@ -7796,6 +7924,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -7809,6 +7938,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
@@ -7920,6 +8050,7 @@ export type UserUpdateWithoutOrdersInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -7933,6 +8064,7 @@ export type UserUpdateWithoutOrdersInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
@@ -8031,6 +8163,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -8044,6 +8177,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
@@ -8139,6 +8273,7 @@ export type UserCreateWithoutEntitlementsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -8151,6 +8286,7 @@ export type UserCreateWithoutEntitlementsInput = {
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -8250,6 +8386,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -8262,6 +8399,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -8374,6 +8512,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -8386,6 +8525,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -8485,6 +8625,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -8497,6 +8638,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -8592,6 +8734,7 @@ export type UserCreateWithoutAchievementsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -8605,6 +8748,7 @@ export type UserCreateWithoutAchievementsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -8703,6 +8847,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -8716,6 +8861,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -8827,6 +8973,7 @@ export type UserUpdateWithoutAchievementsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -8840,6 +8987,7 @@ export type UserUpdateWithoutAchievementsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -8938,6 +9086,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -8951,6 +9100,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -9047,6 +9197,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -9060,6 +9211,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -9158,6 +9310,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -9171,6 +9324,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -9282,6 +9436,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -9295,6 +9450,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -9393,6 +9549,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -9406,6 +9563,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -9501,6 +9659,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -9514,6 +9673,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -9612,6 +9772,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -9625,6 +9786,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -9725,6 +9887,7 @@ export type UserCreateWithoutPromptsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -9738,6 +9901,7 @@ export type UserCreateWithoutPromptsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -9836,6 +10000,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -9849,6 +10014,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -9960,6 +10126,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -9973,6 +10140,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -10071,6 +10239,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -10084,6 +10253,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -10190,6 +10360,7 @@ export type UserUpdateWithoutPromptsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -10203,6 +10374,7 @@ export type UserUpdateWithoutPromptsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -10301,6 +10473,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -10314,6 +10487,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -10409,6 +10583,7 @@ export type UserCreateWithoutReactionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -10422,6 +10597,7 @@ export type UserCreateWithoutReactionsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -10520,6 +10696,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -10533,6 +10710,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -10644,6 +10822,7 @@ export type UserUpdateWithoutReactionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -10657,6 +10836,7 @@ export type UserUpdateWithoutReactionsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -10755,6 +10935,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -10768,6 +10949,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -10863,6 +11045,7 @@ export type UserCreateWithoutResourcesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -10876,6 +11059,7 @@ export type UserCreateWithoutResourcesInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -10974,6 +11158,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -10987,6 +11172,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -11098,6 +11284,7 @@ export type UserUpdateWithoutResourcesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -11111,6 +11298,7 @@ export type UserUpdateWithoutResourcesInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -11209,6 +11397,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -11222,6 +11411,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -11317,6 +11507,7 @@ export type UserCreateWithoutRewardsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -11330,6 +11521,7 @@ export type UserCreateWithoutRewardsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -11428,6 +11620,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -11441,6 +11634,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -11552,6 +11746,7 @@ export type UserUpdateWithoutRewardsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -11565,6 +11760,7 @@ export type UserUpdateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -11663,6 +11859,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -11676,6 +11873,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -11771,6 +11969,7 @@ export type UserCreateWithoutScenariosInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -11784,6 +11983,7 @@ export type UserCreateWithoutScenariosInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -11882,6 +12082,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -11895,6 +12096,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -12006,6 +12208,7 @@ export type UserUpdateWithoutScenariosInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -12019,6 +12222,7 @@ export type UserUpdateWithoutScenariosInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -12117,6 +12321,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -12130,6 +12335,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -12225,6 +12431,7 @@ export type UserCreateWithoutServersInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -12238,6 +12445,7 @@ export type UserCreateWithoutServersInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -12336,6 +12544,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -12349,6 +12558,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -12460,6 +12670,7 @@ export type UserUpdateWithoutServersInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -12473,6 +12684,7 @@ export type UserUpdateWithoutServersInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -12571,6 +12783,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -12584,6 +12797,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -12679,6 +12893,7 @@ export type UserCreateWithoutSmartIconsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -12692,6 +12907,7 @@ export type UserCreateWithoutSmartIconsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -12790,6 +13006,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -12803,6 +13020,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -12914,6 +13132,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -12927,6 +13146,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -13025,6 +13245,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -13038,6 +13259,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -13133,6 +13355,7 @@ export type UserCreateWithoutThemesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -13146,6 +13369,7 @@ export type UserCreateWithoutThemesInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -13244,6 +13468,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -13257,6 +13482,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -13368,6 +13594,7 @@ export type UserUpdateWithoutThemesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -13381,6 +13608,7 @@ export type UserUpdateWithoutThemesInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -13479,6 +13707,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -13492,6 +13721,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -13587,6 +13817,7 @@ export type UserCreateWithoutStylistClientsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -13600,6 +13831,7 @@ export type UserCreateWithoutStylistClientsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -13698,6 +13930,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -13711,6 +13944,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -13822,6 +14056,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -13835,6 +14070,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -13933,6 +14169,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -13946,6 +14183,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -14041,6 +14279,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -14054,6 +14293,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -14152,6 +14392,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -14165,6 +14406,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -14276,6 +14518,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -14289,6 +14532,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -14387,6 +14631,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -14400,6 +14645,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -14495,6 +14741,7 @@ export type UserCreateWithoutArtJobsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
@@ -14507,6 +14754,7 @@ export type UserCreateWithoutArtJobsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -14606,6 +14854,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -14618,6 +14867,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -14730,6 +14980,7 @@ export type UserUpdateWithoutArtJobsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
@@ -14742,6 +14993,7 @@ export type UserUpdateWithoutArtJobsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -14841,6 +15093,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -14853,6 +15106,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -14949,6 +15203,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -14962,6 +15217,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
@@ -15060,6 +15316,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -15073,6 +15330,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
@@ -15184,6 +15442,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -15197,6 +15456,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
@@ -15295,6 +15555,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -15308,6 +15569,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
@@ -15403,6 +15665,7 @@ export type UserCreateWithoutReferredByInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -15416,6 +15679,7 @@ export type UserCreateWithoutReferredByInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -15514,6 +15778,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -15527,6 +15792,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -15627,6 +15893,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -15640,6 +15907,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -15738,6 +16006,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -15751,6 +16020,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -15862,6 +16132,7 @@ export type UserUpdateWithoutReferredByInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -15875,6 +16146,7 @@ export type UserUpdateWithoutReferredByInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -15973,6 +16245,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -15986,6 +16259,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -16092,6 +16366,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -16105,6 +16380,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -16203,6 +16479,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -16216,6 +16493,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -16311,6 +16589,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -16324,6 +16603,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -16422,6 +16702,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -16435,6 +16716,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -16535,6 +16817,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -16548,6 +16831,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -16646,6 +16930,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -16659,6 +16944,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -16770,6 +17056,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -16783,6 +17070,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -16881,6 +17169,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -16894,6 +17183,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -17000,6 +17290,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -17013,6 +17304,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -17111,6 +17403,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -17124,6 +17417,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -17219,6 +17513,7 @@ export type UserCreateWithoutChallengesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -17231,6 +17526,7 @@ export type UserCreateWithoutChallengesInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -17330,6 +17626,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -17342,6 +17639,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -17454,6 +17752,7 @@ export type UserUpdateWithoutChallengesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -17466,6 +17765,7 @@ export type UserUpdateWithoutChallengesInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -17565,6 +17865,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -17577,6 +17878,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -17673,6 +17975,7 @@ export type UserCreateWithoutLifeRunsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -17686,6 +17989,7 @@ export type UserCreateWithoutLifeRunsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -17784,6 +18088,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -17797,6 +18102,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -17908,6 +18214,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -17921,6 +18228,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -18019,6 +18327,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -18032,6 +18341,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -18127,6 +18437,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -18140,6 +18451,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
@@ -18238,6 +18550,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -18251,6 +18564,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
@@ -18362,6 +18676,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -18375,6 +18690,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
@@ -18473,6 +18789,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -18486,6 +18803,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
@@ -18581,6 +18899,7 @@ export type UserCreateWithoutAuthTokensInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -18593,6 +18912,7 @@ export type UserCreateWithoutAuthTokensInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -18692,6 +19012,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -18704,6 +19025,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -18816,6 +19138,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -18828,6 +19151,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -18927,6 +19251,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -18939,6 +19264,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -19035,6 +19361,7 @@ export type UserCreateWithoutConversationsInInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -19047,6 +19374,7 @@ export type UserCreateWithoutConversationsInInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -19146,6 +19474,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -19158,6 +19487,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -19270,6 +19600,7 @@ export type UserUpdateWithoutConversationsInInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -19282,6 +19613,7 @@ export type UserUpdateWithoutConversationsInInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -19381,6 +19713,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -19393,6 +19726,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -19489,6 +19823,7 @@ export type UserCreateWithoutSentMessagesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -19501,6 +19836,7 @@ export type UserCreateWithoutSentMessagesInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -19600,6 +19936,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -19612,6 +19949,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -19724,6 +20062,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -19736,6 +20075,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -19835,6 +20175,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -19847,6 +20188,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -19943,6 +20285,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -19956,6 +20299,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -20054,6 +20398,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -20067,6 +20412,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -20167,6 +20513,7 @@ export type UserCreateWithoutNotificationsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -20180,6 +20527,7 @@ export type UserCreateWithoutNotificationsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
@@ -20278,6 +20626,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   restrictedById?: number | null
   restrictedReason?: string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -20291,6 +20640,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
   Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
@@ -20402,6 +20752,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -20415,6 +20766,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -20513,6 +20865,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -20526,6 +20879,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -20632,6 +20986,7 @@ export type UserUpdateWithoutNotificationsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -20645,6 +21000,7 @@ export type UserUpdateWithoutNotificationsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -20743,6 +21099,469 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutGithubInstallationsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutGithubInstallationsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutGithubInstallationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutGithubInstallationsInput, Prisma.UserUncheckedCreateWithoutGithubInstallationsInput>
+}
+
+export type UserUpsertWithoutGithubInstallationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutGithubInstallationsInput, Prisma.UserUncheckedUpdateWithoutGithubInstallationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutGithubInstallationsInput, Prisma.UserUncheckedCreateWithoutGithubInstallationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutGithubInstallationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutGithubInstallationsInput, Prisma.UserUncheckedUpdateWithoutGithubInstallationsInput>
+}
+
+export type UserUpdateWithoutGithubInstallationsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -20763,6 +21582,469 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAppReposInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAppReposInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAppReposInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAppReposInput, Prisma.UserUncheckedCreateWithoutAppReposInput>
+}
+
+export type UserUpsertWithoutAppReposInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAppReposInput, Prisma.UserUncheckedUpdateWithoutAppReposInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAppReposInput, Prisma.UserUncheckedCreateWithoutAppReposInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAppReposInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAppReposInput, Prisma.UserUncheckedUpdateWithoutAppReposInput>
+}
+
+export type UserUpdateWithoutAppReposInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAppReposInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
@@ -20922,6 +22204,7 @@ export type UserUpdateWithoutArtImageInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -20935,6 +22218,7 @@ export type UserUpdateWithoutArtImageInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
@@ -21032,6 +22316,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -21045,6 +22330,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
@@ -21150,6 +22436,7 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
 
 export type UserCountOutputType = {
   Achievements: number
+  AppRepos: number
   ArtCollections: number
   ArtImages: number
   ArtJobs: number
@@ -21163,6 +22450,7 @@ export type UserCountOutputType = {
   Dreams: number
   Entitlements: number
   Facets: number
+  GithubInstallations: number
   KarmaTransactions: number
   Orders: number
   LifeAchievementUnlocks: number
@@ -21191,6 +22479,7 @@ export type UserCountOutputType = {
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | UserCountOutputTypeCountAchievementsArgs
+  AppRepos?: boolean | UserCountOutputTypeCountAppReposArgs
   ArtCollections?: boolean | UserCountOutputTypeCountArtCollectionsArgs
   ArtImages?: boolean | UserCountOutputTypeCountArtImagesArgs
   ArtJobs?: boolean | UserCountOutputTypeCountArtJobsArgs
@@ -21204,6 +22493,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Dreams?: boolean | UserCountOutputTypeCountDreamsArgs
   Entitlements?: boolean | UserCountOutputTypeCountEntitlementsArgs
   Facets?: boolean | UserCountOutputTypeCountFacetsArgs
+  GithubInstallations?: boolean | UserCountOutputTypeCountGithubInstallationsArgs
   KarmaTransactions?: boolean | UserCountOutputTypeCountKarmaTransactionsArgs
   Orders?: boolean | UserCountOutputTypeCountOrdersArgs
   LifeAchievementUnlocks?: boolean | UserCountOutputTypeCountLifeAchievementUnlocksArgs
@@ -21245,6 +22535,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountAchievementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AchievementRecordWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAppReposArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppRepoWhereInput
 }
 
 /**
@@ -21336,6 +22633,13 @@ export type UserCountOutputTypeCountEntitlementsArgs<ExtArgs extends runtime.Typ
  */
 export type UserCountOutputTypeCountFacetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FacetWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountGithubInstallationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GithubInstallationWhereInput
 }
 
 /**
@@ -21578,6 +22882,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   restrictedById?: boolean
   restrictedReason?: boolean
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
+  AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
@@ -21591,6 +22896,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Dreams?: boolean | Prisma.User$DreamsArgs<ExtArgs>
   Entitlements?: boolean | Prisma.User$EntitlementsArgs<ExtArgs>
   Facets?: boolean | Prisma.User$FacetsArgs<ExtArgs>
+  GithubInstallations?: boolean | Prisma.User$GithubInstallationsArgs<ExtArgs>
   KarmaTransactions?: boolean | Prisma.User$KarmaTransactionsArgs<ExtArgs>
   Orders?: boolean | Prisma.User$OrdersArgs<ExtArgs>
   LifeAchievementUnlocks?: boolean | Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>
@@ -21697,6 +23003,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "stripeSubscriptionId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
+  AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
@@ -21710,6 +23017,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Dreams?: boolean | Prisma.User$DreamsArgs<ExtArgs>
   Entitlements?: boolean | Prisma.User$EntitlementsArgs<ExtArgs>
   Facets?: boolean | Prisma.User$FacetsArgs<ExtArgs>
+  GithubInstallations?: boolean | Prisma.User$GithubInstallationsArgs<ExtArgs>
   KarmaTransactions?: boolean | Prisma.User$KarmaTransactionsArgs<ExtArgs>
   Orders?: boolean | Prisma.User$OrdersArgs<ExtArgs>
   LifeAchievementUnlocks?: boolean | Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>
@@ -21743,6 +23051,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     Achievements: Prisma.$AchievementRecordPayload<ExtArgs>[]
+    AppRepos: Prisma.$AppRepoPayload<ExtArgs>[]
     ArtCollections: Prisma.$ArtCollectionPayload<ExtArgs>[]
     ArtImages: Prisma.$ArtImagePayload<ExtArgs>[]
     ArtJobs: Prisma.$ArtJobPayload<ExtArgs>[]
@@ -21756,6 +23065,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
     Entitlements: Prisma.$EntitlementPayload<ExtArgs>[]
     Facets: Prisma.$FacetPayload<ExtArgs>[]
+    GithubInstallations: Prisma.$GithubInstallationPayload<ExtArgs>[]
     KarmaTransactions: Prisma.$KarmaTransactionPayload<ExtArgs>[]
     Orders: Prisma.$OrderPayload<ExtArgs>[]
     LifeAchievementUnlocks: Prisma.$LifeAchievementUnlockPayload<ExtArgs>[]
@@ -22194,6 +23504,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Achievements<T extends Prisma.User$AchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AchievementRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  AppRepos<T extends Prisma.User$AppReposArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AppReposArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppRepoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollections<T extends Prisma.User$ArtCollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImages<T extends Prisma.User$ArtImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtJobs<T extends Prisma.User$ArtJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -22207,6 +23518,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Dreams<T extends Prisma.User$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Entitlements<T extends Prisma.User$EntitlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$EntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Facets<T extends Prisma.User$FacetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$FacetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  GithubInstallations<T extends Prisma.User$GithubInstallationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$GithubInstallationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GithubInstallationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   KarmaTransactions<T extends Prisma.User$KarmaTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$KarmaTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KarmaTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Orders<T extends Prisma.User$OrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$OrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LifeAchievementUnlocks<T extends Prisma.User$LifeAchievementUnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LifeAchievementUnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeAchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -22703,6 +24015,30 @@ export type User$AchievementsArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * User.AppRepos
+ */
+export type User$AppReposArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppRepo
+   */
+  select?: Prisma.AppRepoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AppRepo
+   */
+  omit?: Prisma.AppRepoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppRepoInclude<ExtArgs> | null
+  where?: Prisma.AppRepoWhereInput
+  orderBy?: Prisma.AppRepoOrderByWithRelationInput | Prisma.AppRepoOrderByWithRelationInput[]
+  cursor?: Prisma.AppRepoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppRepoScalarFieldEnum | Prisma.AppRepoScalarFieldEnum[]
+}
+
+/**
  * User.ArtCollections
  */
 export type User$ArtCollectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -23012,6 +24348,30 @@ export type User$FacetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.FacetScalarFieldEnum | Prisma.FacetScalarFieldEnum[]
+}
+
+/**
+ * User.GithubInstallations
+ */
+export type User$GithubInstallationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GithubInstallation
+   */
+  select?: Prisma.GithubInstallationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GithubInstallation
+   */
+  omit?: Prisma.GithubInstallationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GithubInstallationInclude<ExtArgs> | null
+  where?: Prisma.GithubInstallationWhereInput
+  orderBy?: Prisma.GithubInstallationOrderByWithRelationInput | Prisma.GithubInstallationOrderByWithRelationInput[]
+  cursor?: Prisma.GithubInstallationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GithubInstallationScalarFieldEnum | Prisma.GithubInstallationScalarFieldEnum[]
 }
 
 /**

@@ -110,6 +110,10 @@ export default defineNuxtConfig({
     githubId: process.env.GITHUB_ID || '',
     githubSecret: process.env.GITHUB_SECRET || '',
     githubToken: process.env.GITHUB_TOKEN || '',
+    // AppMaker GitHub App (appmaker/t-007/t-008, GITHUB-APP-DESIGN.md).
+    appmakerGhAppId: process.env.APPMAKER_GH_APP_ID || '',
+    appmakerGhAppKey: process.env.APPMAKER_GH_APP_KEY || '',
+    appmakerGhWebhookSecret: process.env.APPMAKER_GH_WEBHOOK_SECRET || '',
     googleId: process.env.GOOGLE_ID || '',
     googleSecret: process.env.GOOGLE_SECRET || '',
     authSecret: process.env.AUTH_SECRET || '',

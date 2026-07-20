@@ -100,6 +100,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: message || `Failed to update reward with ID ${rewardId}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

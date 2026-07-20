@@ -133,6 +133,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: message || 'Failed to create rewards batch.',
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

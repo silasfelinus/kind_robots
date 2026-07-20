@@ -22,21 +22,18 @@ only when it matches.
 | themes | validateApiKey | auth | reject | n/a | lean | clean |
 | reactions (main) | validateApiKey | auth | reject | **E+P** (per-category) | full | clean |
 | sheets | requireApiUser | auth | reject | E (artImageId format) | lean | clean |
-| projects | requireApiUser | auth | reject | **E only (format)** | lean* | see F-5 |
+| projects | requireApiUser | auth | reject | E+P | lean | clean |
 | todos | requireApiUser | auth (SQL-scoped) | reject (compat-tolerant) | E+P | full | clean |
 | logs | requireApiUser | auth | reject | n/a | full | clean |
 | chats | validateApiKey | auth | reject | E+P | lean | clean |
 | achievements | requireAdminApiUser / owner | admin / auth | reject | E | lean | clean |
 | art/collection | requireApiUser | auth | reject | E+P | lean | clean |
-| art/image | requireMachineUser | owner/admin | **ignore** | **E only** | full (blob) | see F-1/F-2 |
-| bots | requireApiUser / validateApiKey | auth | **ignore** | **Dreams: none; Server/ArtImage E** | lean | see F-2/F-6 |
-| prompts (create) | validateApiKey | auth | **ignore** | E only | lean | see F-2 |
-| resources | validateApiKey | auth | **ignore** | E only | lean | see F-2 |
-| server | requireAuthUser | auth (reassign blocked) | ignore (privilege fields gated) | enum | safeServer | clean |
-| users | requireApiUser / dedicated admin routes | self / admin | **blocklist** | n/a | scoped | see F-3 |
-
-\* `projects/[id].delete.ts` returns the heavy `projectInclude` graph instead of the
-lean `projectMutationSelect` (cosmetic; see F-4).
+| art/image | requireMachineUser | owner/admin (transfer blocked) | **ignore** | E+P (Dream/Collection); **serverId/checkpointResourceId E only** | full (blob) | see F-2/F-4/F-5 |
+| bots | requireApiUser / validateApiKey | auth | **ignore** | E+P | lean | see F-4/F-6 |
+| prompts (create) | validateApiKey | auth | **ignore** | E only | lean | see F-4 |
+| resources | validateApiKey | auth | **ignore** | E only | lean | see F-4 |
+| server | requireAuthUser | auth (reassign blocked) | ignore (privilege fields gated) | enum | safeServer | see F-4 |
+| users | requireApiUser / dedicated admin routes | self / admin | allowlist | n/a | scoped | clean |
 
 ## Findings
 
@@ -47,42 +44,46 @@ lean `projectMutationSelect` (cosmetic; see F-4).
 - **[FIXED] Deprecated prompt driver ownership** — `prompts/generate.post.ts`
   mutated any prompt with no ownership check. Now restricted to owner / admin /
   render relay (PR #600).
+- **[FIXED] F-1 — ArtImage owner transfer via general patch** —
+  `art/image/[id].patch.ts` no longer keeps `userId` in `ART_IMAGE_PATCH_FIELDS`,
+  so neither owner nor admin can reassign ownership through the ordinary PATCH
+  (PR #610). Owner transfer, if ever needed, belongs behind a dedicated endpoint.
+- **[FIXED] F-2 (bots, projects)** — relation connect/set IDs on `bots`
+  (Server / ArtImage / Dreams) and `projects` (managerBotId / artImageId /
+  artCollectionId) are now existence + permission gated via
+  `assertBotRelationsAttachable` (PR #607) and `assertProjectRelationsAttachable`
+  (PR #605), matching the Dream/Scenario/Character/Reward/Chat families.
+- **[FIXED] F-3 — self-service user PATCH blocklist → allowlist** —
+  `users/[id].patch.ts` now writes only an explicit self-editable allowlist;
+  privilege / economy / membership / moderation / secret columns can no longer
+  be set by the account owner (PR #608).
+- **[FIXED] F-5 (projects)** — `projects/[id].delete` returns the lean
+  `projectMutationSelect` instead of the heavy `projectInclude` graph, matching
+  create/PATCH (PR #611).
 
 ### Remaining — ranked
 
-- **F-1 (medium): admin owner-reassignment via a general patch route.**
-  `art/image/[id].patch.ts` keeps `userId` in `ART_IMAGE_PATCH_FIELDS`; an admin
-  token can reassign ArtImage ownership through the ordinary patch. The DoD wants
-  owner transfer confined to a dedicated administrative endpoint — recommend
-  dropping `userId` from the patch allowlist. No non-admin path exists, so this is
-  a policy tightening, not an active exploit.
-
-- **F-2 (medium): relation-connect IDs not permission-checked.** These accept
-  user-supplied connect IDs with existence-only or no validation, unlike the
-  Dream/Scenario/Character/Reward/Chat families which enforce E+P:
-  - `bots` — `Dreams.connect` is neither existence- nor permission-checked;
-    `serverId`/`artImageId` are existence-only. A user can attach their Bot to
-    another user's private Dream.
-  - `projects` — `managerBotId`/`artImageId`/`artCollectionId` format-validated
-    then connected, no existence/ownership check.
-  - `art/image/[id].patch` — `serverId`/`checkpointResourceId` unchecked.
+- **F-2 (residual, medium): relation-connect IDs not permission-checked** on
+  the paths that were not part of the bots/projects fix:
+  - `art/image/[id].patch` — `serverId`/`checkpointResourceId` are set as raw
+    scalars with no existence/permission check (machine-auth route; typically set
+    by the render pipeline, so lower exposure).
   - `reactions/art` & `reactions/dream` sub-patches — target not visibility-checked
     (these have no first-party callers; the main `/api/reactions` route is gated).
   Recommend the same `assert*RelationsAttachable` gate used elsewhere.
 
-- **F-3 (medium): `users/[id].patch` uses a blocklist body.** It denies a fixed set
-  (Role, karma, mana, apiKey, password, …) and writes every other User scalar
-  straight through, so any not-yet-denied column (email, designerName, counters) is
-  writable by the account owner. Convert to an explicit allowlist.
-
 - **F-4 (low, cosmetic): input contract is silent-ignore, not reject** on the
   `bots`/`prompts`/`resources`/`server` **create** paths (broad `Partial<Model>`
   bodies). Ownership is already safe; unknown/system fields are dropped rather than
-  400'd. Bringing these to the allowlist-reject contract finishes Phase 1 for them.
+  400'd. Bringing these to the allowlist-reject contract finishes Phase 1 for them —
+  but each round-trips a full model from its store, so the reject boundary must ship
+  with a validated-and-ignore compatibility set (verified against the running app)
+  to avoid breaking those payloads.
 
-- **F-5 (low): heavy response graphs.** `projects/[id].delete` returns
-  `projectInclude`; `art/image` create/patch/save return the full row including the
-  base64 `imageData`/`thumbnailData` blobs. Prefer a lean projection.
+- **F-5 (residual, low): heavy response graphs.** `art/image` create/patch/save
+  return the full row including the base64 `imageData`/`thumbnailData` blobs.
+  A lean projection is preferable, but clients may read the returned blob, so this
+  needs validation against the running app before changing the response shape.
 
 - **F-6 (low, by design): server-key ownership bypass.** A server key bypasses
   owner checks on `characters`/`bots` mutation/delete. No owner **reassignment** is
@@ -100,9 +101,13 @@ lean `projectMutationSelect` (cosmetic; see F-4).
 - No public mutation persists ownership from request identity. ✅
 - Every hardened family rejects unknown/system fields; create paths on
   bots/prompts/resources/server still silently ignore them (F-4). ◑
-- Relation IDs are bounded + existence + permission checked on the core families;
-  bots/projects/art-image still have gaps (F-2). ◑
+- Relation IDs are bounded + existence + permission checked across the core
+  families and now bots + projects; only `art/image` sub-patches and the
+  caller-less reaction sub-patches remain (F-2 residual). ◑
+- The self-service user PATCH is an explicit allowlist; no owner-reassignment
+  path remains (F-1 closed, F-3 closed). ✅
 - Mutation envelopes and status codes are consistent. ✅
 - CI has no self-mutating PR workflows. ✅
-- The one remaining owner-reassignment path (art/image admin patch, F-1) should be
-  moved behind a dedicated transfer endpoint.
+- Residual items (F-4 create-path reject boundaries, F-5 art/image blob
+  projection) are store/client-coupled and should be validated against the
+  running app before landing.

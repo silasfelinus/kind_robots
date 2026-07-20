@@ -251,3 +251,66 @@ jobs:
               issue_number: 582,
               body: lines.join('\n'),
             })
+
+            if (summary?.stage === 'EXECUTED' && Array.isArray(summary?.drafts) && summary.drafts.length) {
+              const compact = (value, maximum) => {
+                const text = String(value || '').replace(/\s+/g, ' ').trim()
+                return text.length <= maximum ? text : `${text.slice(0, maximum - 1).trimEnd()}…`
+              }
+              const quote = (value) => compact(value, 1400).split('\n').map((line) => `> ${line}`).join('\n')
+              const handoff = [
+                '## WonderLab curation handoff',
+                '',
+                `- **Source workflow:** [run ${context.runId}](${runUrl})`,
+                `- **Batch:** ${summary.batchId}`,
+                `- **Production:** \`${summary?.production?.commit || 'unknown'}\``,
+                `- **Drafts:** ${summary.drafts.length}`,
+                '- **Boundary:** generated evidence only; no approval or publication occurred',
+              ]
+
+              for (const entry of summary.drafts) {
+                const draft = entry?.draft
+                if (!draft) continue
+                const provenance = draft.promptPayload?.provenance || {}
+                const facts = Array.isArray(provenance.sourceEvidenceFacts)
+                  ? provenance.sourceEvidenceFacts.slice(0, 4).map((fact) => compact(fact, 240))
+                  : []
+                handoff.push(
+                  '',
+                  `### Draft #${draft.id} · Component #${draft.componentId} · ${draft.author?.name || entry.reviewerName || 'Reviewer'}`,
+                  '',
+                  `- **Status:** ${draft.status}`,
+                  `- **Author:** ${draft.author?.kind || entry.target?.kind} #${draft.author?.id || entry.target?.id} · slug \`${draft.author?.slug || 'unknown'}\``,
+                  `- **Source:** \`${provenance.exhibitSourcePath || 'unknown'}\``,
+                  `- **Rating / reaction:** ${draft.rating ?? 'unset'} / ${draft.reactionType || 'unset'}`,
+                )
+                if (draft.failureReason) handoff.push(`- **Failure reason:** ${compact(draft.failureReason, 600)}`)
+                if (facts.length) handoff.push('- **Bounded source facts:**', ...facts.map((fact) => `  - ${fact}`))
+                handoff.push('', '**Generated copy**', '', quote(draft.generatedComment || 'No generated comment recorded.'))
+              }
+
+              const title = `WonderLab curation handoff: ${summary.batchId}`
+              const existing = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'all',
+                per_page: 100,
+              })
+              const match = existing.find((issue) => !issue.pull_request && issue.title === title)
+              if (match) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: match.number,
+                  body: handoff.join('\n'),
+                  state: 'open',
+                })
+              } else {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title,
+                  body: handoff.join('\n'),
+                })
+              }
+            }

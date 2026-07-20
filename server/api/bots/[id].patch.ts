@@ -7,6 +7,7 @@ import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
+import { assertBotRelationsAttachable } from './relations'
 
 type BotPatchBody = Partial<Omit<Bot, 'userId'>> &
   Record<string, unknown> & {
@@ -51,6 +52,23 @@ function getDreamRelationUpdate(
   if (disconnect.length) relation.disconnect = disconnect
 
   return Object.keys(relation).length ? relation : undefined
+}
+
+// Dream IDs that would be newly attached (set + connect). Disconnected IDs are
+// omitted because removing a relation needs no attach permission.
+function getDreamAttachIds(body: BotPatchBody): number[] {
+  const toIds = (value: unknown): number[] =>
+    Array.isArray(value)
+      ? value
+          .map((entry) =>
+            entry && typeof entry === 'object'
+              ? Number((entry as { id?: unknown }).id)
+              : Number(entry),
+          )
+          .filter((id) => Number.isInteger(id) && id > 0)
+      : []
+
+  return [...toIds(body.dreamIds), ...toIds(body.addDreamIds)]
 }
 
 function getBooleanOrUndefined(value: unknown): boolean | undefined {
@@ -172,8 +190,18 @@ export default defineEventHandler(async (event) => {
 
     const serverId = getPositiveIntegerOrUndefined(body.serverId)
     const artImageId = getPositiveIntegerOrUndefined(body.artImageId)
+    const dreamIds = getDreamAttachIds(body)
 
     await assertRelatedRecordsExist({ serverId, artImageId })
+    await assertBotRelationsAttachable(
+      {
+        serverIds: serverId ? [serverId] : [],
+        artImageIds: artImageId ? [artImageId] : [],
+        dreamIds,
+      },
+      user?.id ?? 0,
+      isAdmin || isServerKey,
+    )
 
     let slugUpdate: string | null | undefined
     const requestedSlug = normalizeSlugInput(body.slug)

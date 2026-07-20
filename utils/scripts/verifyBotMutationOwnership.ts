@@ -23,6 +23,7 @@ function forbidText(source: string, text: string, label: string): void {
 const createRoute = read('server/api/bots/index.post.ts')
 const patchRoute = read('server/api/bots/[id].patch.ts')
 const batchRoute = read('server/api/bots/batch.post.ts')
+const relations = read('server/api/bots/relations.ts')
 const clientHelper = read('stores/helpers/botHelper.ts')
 const cypressSpec = read('cypress/e2e/api/bots.cy.ts')
 
@@ -81,6 +82,39 @@ requireText(
   cypressSpec,
   'rejects ownership reassignment during singular and batch updates',
   'Bot update deployed regression',
+)
+
+// Relation attach permission: every connect/set target (Server, ArtImage, Dream)
+// must exist and be public-or-owned-or-admin before it can be attached.
+requireText(
+  relations,
+  'export async function assertBotRelationsAttachable',
+  'Bot relation attach gate',
+)
+requireText(
+  relations,
+  'row.userId !== userId && row.isPublic !== true',
+  'Bot relation permission predicate',
+)
+requireText(
+  createRoute,
+  'assertBotRelationsAttachable(',
+  'Bot create relation gate wiring',
+)
+requireText(
+  patchRoute,
+  'assertBotRelationsAttachable(',
+  'Bot patch relation gate wiring',
+)
+requireText(
+  batchRoute,
+  'assertBotRelationsAttachable(',
+  'Bot batch relation gate wiring',
+)
+requireText(
+  cypressSpec,
+  'forbids attaching another user private Dream on Bot creation',
+  'Bot relation permission deployed regression',
 )
 
 console.log('Bot mutation ownership contract passed.')

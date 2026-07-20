@@ -28,7 +28,15 @@ jobs:
   cypress:
     name: API Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The trigger-change fix (#648) already noted deploy wait + DB readiness +
+    # the suite itself "commonly exceeds 20-30 minutes" but left this at 30 --
+    # with push-triggered concurrency cancellation gone, this job timeout
+    # became the new binding cancellation cause (run 29761819284 and others,
+    # all "cancelled" with the Cypress step SIGTERM'd right at the 30-minute
+    # mark, cleanup steps completing fine afterward). Raised to give the full
+    # suite real margin to reach an actual pass/fail instead of an artificial
+    # cutoff.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout

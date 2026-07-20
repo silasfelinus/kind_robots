@@ -71,7 +71,7 @@ describe('Dream mutation boundaries', () => {
     deleteTestUser(apiBase, adminToken, user?.id)
   })
 
-  it('creates only a Dream even when legacy side-effect flags are sent', () => {
+  it('creates only a Dream when given supported fields', () => {
     cy.request<ApiResponse<DreamResponse>>({
       method: 'POST',
       url: dreamsUrl(),
@@ -83,8 +83,6 @@ describe('Dream mutation boundaries', () => {
         dreamType: 'LOCATION',
         creationSource: 'HUMAN',
         isPublic: false,
-        createCollection: true,
-        seedStarterImages: true,
       },
     }).then((res) => {
       expect(res.status, JSON.stringify(res.body)).to.eq(201)
@@ -104,6 +102,29 @@ describe('Dream mutation boundaries', () => {
     })
   })
 
+  it('rejects legacy side-effect flags on create instead of silently dropping them', () => {
+    cy.request<ApiResponse<DreamResponse>>({
+      method: 'POST',
+      url: dreamsUrl(),
+      headers: authHeaders(),
+      failOnStatusCode: false,
+      body: {
+        title: `Cypress Rejected Dream ${time}`,
+        slug: `cypress-rejected-dream-${time}`,
+        dreamType: 'LOCATION',
+        creationSource: 'HUMAN',
+        isPublic: false,
+        createCollection: true,
+        seedStarterImages: true,
+      },
+    }).then((res) => {
+      expect(res.status, JSON.stringify(res.body)).to.eq(400)
+      expect(res.body.success).to.eq(false)
+      expect(res.body.message).to.include('createCollection')
+      expect(res.body.message).to.include('seedStarterImages')
+    })
+  })
+
   it('does not create a Dream chat during creation', () => {
     cy.request<ApiResponse<ChatResponse[]>>({
       method: 'GET',
@@ -116,15 +137,13 @@ describe('Dream mutation boundaries', () => {
     })
   })
 
-  it('updates only the Dream even when legacy side-effect fields are sent', () => {
+  it('updates only the Dream when given supported fields', () => {
     cy.request<ApiResponse<DreamResponse>>({
       method: 'PATCH',
       url: `${dreamsUrl()}/${dreamId}`,
       headers: authHeaders(),
       body: {
         description: 'Updated without creating a timeline chat or collection.',
-        addArtImageToCollection: true,
-        updateNote: 'This must not become a Chat row.',
       },
     }).then((res) => {
       expect(res.status, JSON.stringify(res.body)).to.eq(200)
@@ -134,6 +153,24 @@ describe('Dream mutation boundaries', () => {
       expect(res.body.data?.artCollectionId).to.eq(null)
       expect(res.body.data).to.not.have.property('Chats')
       expect(res.body.data).to.not.have.property('ArtCollection')
+    })
+  })
+
+  it('rejects legacy side-effect flags on update instead of silently dropping them', () => {
+    cy.request<ApiResponse<DreamResponse>>({
+      method: 'PATCH',
+      url: `${dreamsUrl()}/${dreamId}`,
+      headers: authHeaders(),
+      failOnStatusCode: false,
+      body: {
+        addArtImageToCollection: true,
+        updateNote: 'This must not become a Chat row.',
+      },
+    }).then((res) => {
+      expect(res.status, JSON.stringify(res.body)).to.eq(400)
+      expect(res.body.success).to.eq(false)
+      expect(res.body.message).to.include('addArtImageToCollection')
+      expect(res.body.message).to.include('updateNote')
     })
   })
 
@@ -162,8 +199,6 @@ describe('Dream mutation boundaries', () => {
           dreamType: 'LOCATION',
           creationSource: 'HUMAN',
           isPublic: false,
-          createCollection: true,
-          seedStarterImages: true,
         },
       ],
     }).then((res) => {
@@ -181,6 +216,31 @@ describe('Dream mutation boundaries', () => {
       expect(dream).to.not.have.property('Chats')
       expect(dream).to.not.have.property('ArtCollection')
       expect(dream).to.not.have.property('ArtImages')
+    })
+  })
+
+  it('rejects legacy side-effect flags on batch create instead of silently dropping them', () => {
+    cy.request<ApiResponse<DreamResponse[]>>({
+      method: 'POST',
+      url: `${dreamsUrl()}/batch`,
+      headers: authHeaders(),
+      failOnStatusCode: false,
+      body: [
+        {
+          title: `Cypress Rejected Batch Dream ${time}`,
+          slug: `cypress-rejected-batch-dream-${time}`,
+          dreamType: 'LOCATION',
+          creationSource: 'HUMAN',
+          isPublic: false,
+          createCollection: true,
+          seedStarterImages: true,
+        },
+      ],
+    }).then((res) => {
+      expect(res.status, JSON.stringify(res.body)).to.eq(400)
+      expect(res.body.success).to.eq(false)
+      expect(res.body.message).to.include('createCollection')
+      expect(res.body.message).to.include('seedStarterImages')
     })
   })
 

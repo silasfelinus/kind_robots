@@ -452,7 +452,8 @@ export const ModelName = {
   DirectMessage: 'DirectMessage',
   Notification: 'Notification',
   GithubInstallation: 'GithubInstallation',
-  AppRepo: 'AppRepo'
+  AppRepo: 'AppRepo',
+  MediaEntry: 'MediaEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -468,7 +469,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo"
+    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5026,6 +5027,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MediaEntry: {
+      payload: Prisma.$MediaEntryPayload<ExtArgs>
+      fields: Prisma.MediaEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MediaEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MediaEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.MediaEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MediaEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>
+        }
+        findMany: {
+          args: Prisma.MediaEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>[]
+        }
+        create: {
+          args: Prisma.MediaEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>
+        }
+        createMany: {
+          args: Prisma.MediaEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MediaEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>
+        }
+        update: {
+          args: Prisma.MediaEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.MediaEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MediaEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MediaEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MediaEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.MediaEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMediaEntry>
+        }
+        groupBy: {
+          args: Prisma.MediaEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MediaEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MediaEntryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6480,6 +6547,38 @@ export const AppRepoScalarFieldEnum = {
 export type AppRepoScalarFieldEnum = (typeof AppRepoScalarFieldEnum)[keyof typeof AppRepoScalarFieldEnum]
 
 
+export const MediaEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  year: 'year',
+  mediaType: 'mediaType',
+  title: 'title',
+  starred: 'starred',
+  rewatch: 'rewatch',
+  releaseYear: 'releaseYear',
+  watchedMonth: 'watchedMonth',
+  watchedDay: 'watchedDay',
+  dateRaw: 'dateRaw',
+  season: 'season',
+  author: 'author',
+  pageCount: 'pageCount',
+  durationHours: 'durationHours',
+  issueCount: 'issueCount',
+  issueRange: 'issueRange',
+  review: 'review',
+  reviewPublic: 'reviewPublic',
+  rating: 'rating',
+  externalId: 'externalId',
+  externalUrl: 'externalUrl',
+  notes: 'notes',
+  sourceFile: 'sourceFile'
+} as const
+
+export type MediaEntryScalarFieldEnum = (typeof MediaEntryScalarFieldEnum)[keyof typeof MediaEntryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -7306,6 +7405,21 @@ export const AppRepoOrderByRelevanceFieldEnum = {
 export type AppRepoOrderByRelevanceFieldEnum = (typeof AppRepoOrderByRelevanceFieldEnum)[keyof typeof AppRepoOrderByRelevanceFieldEnum]
 
 
+export const MediaEntryOrderByRelevanceFieldEnum = {
+  title: 'title',
+  dateRaw: 'dateRaw',
+  author: 'author',
+  issueRange: 'issueRange',
+  review: 'review',
+  externalId: 'externalId',
+  externalUrl: 'externalUrl',
+  notes: 'notes',
+  sourceFile: 'sourceFile'
+} as const
+
+export type MediaEntryOrderByRelevanceFieldEnum = (typeof MediaEntryOrderByRelevanceFieldEnum)[keyof typeof MediaEntryOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -7717,6 +7831,13 @@ export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
     
 
+
+/**
+ * Reference to a field of type 'MediaType'
+ */
+export type EnumMediaTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MediaType'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -7896,6 +8017,7 @@ export type GlobalOmitConfig = {
   notification?: Prisma.NotificationOmit
   githubInstallation?: Prisma.GithubInstallationOmit
   appRepo?: Prisma.AppRepoOmit
+  mediaEntry?: Prisma.MediaEntryOmit
 }
 
 /* Types for Logging */

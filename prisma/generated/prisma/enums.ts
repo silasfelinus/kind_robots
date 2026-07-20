@@ -612,3 +612,21 @@ export const ComponentStatus = {
 } as const
 
 export type ComponentStatus = (typeof ComponentStatus)[keyof typeof ComponentStatus]
+
+
+export const MediaType = {
+  MOVIE: 'MOVIE',
+  TV: 'TV',
+  BOOK: 'BOOK',
+  NOVELLA: 'NOVELLA',
+  AUDIOBOOK: 'AUDIOBOOK',
+  COMIC: 'COMIC',
+  VIDEO_GAME: 'VIDEO_GAME',
+  ANIME: 'ANIME',
+  PODCAST: 'PODCAST',
+  THEATRE: 'THEATRE',
+  SHORT: 'SHORT',
+  VIDEO_GAME_SHORT: 'VIDEO_GAME_SHORT'
+} as const
+
+export type MediaType = (typeof MediaType)[keyof typeof MediaType]

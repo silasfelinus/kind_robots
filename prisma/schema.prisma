@@ -2283,3 +2283,61 @@ model AppRepo {
   @@index([userId])
   @@index([installationId])
 }
+
+enum MediaType {
+  MOVIE
+  TV
+  BOOK
+  NOVELLA
+  AUDIOBOOK
+  COMIC
+  VIDEO_GAME
+  ANIME
+  PODCAST
+  THEATRE
+  SHORT
+  VIDEO_GAME_SHORT
+}
+
+/// Silas's personal media log (media-watchlist project). Standalone table --
+/// not Bot-generated or Dream-linked content. See conductor
+/// projects/media-watchlist/docs/t-008-final-schema-and-browse-api.md for the
+/// full field-by-field reconciliation against the real 2014-2026 import.
+model MediaEntry {
+  id            Int        @id @default(autoincrement())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @default(now()) @updatedAt
+
+  userId        Int?       @default(1)
+
+  year          Int
+  mediaType     MediaType
+  title         String     @db.VarChar(512)
+  starred       Boolean    @default(false)
+  rewatch       Int?       // total watch count when the source marked a rewatch (e.g. "x2" -> 2); null = single/first watch, per source
+
+  releaseYear   Int?
+  watchedMonth  Int?
+  watchedDay    Int?
+  dateRaw       String?    @db.VarChar(32)
+
+  season        Int?       // TV only
+  author        String?    @db.VarChar(256)
+  pageCount     Int?       // BOOK / NOVELLA
+  durationHours Float?     // AUDIOBOOK
+  issueCount    Int?       // COMIC
+  issueRange    String?    @db.VarChar(64) // COMIC, e.g. "134-150"
+
+  review        String?    @db.Text
+  reviewPublic  Boolean    @default(false)
+  rating        Int?       // 1-10, nullable
+  externalId    String?    @db.VarChar(128) // e.g. Letterboxd film slug
+  externalUrl   String?    @db.VarChar(512)
+
+  notes         String?    @db.Text
+  sourceFile    String?    @db.VarChar(128) // import provenance, e.g. "media_list.md"
+
+  @@index([userId, year, mediaType])
+  @@index([starred])
+  @@index([title])
+}

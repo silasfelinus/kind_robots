@@ -431,3 +431,11 @@ export type GithubInstallation = Prisma.GithubInstallationModel
  * graduated/external repo reached via the linked GithubInstallation's token.
  */
 export type AppRepo = Prisma.AppRepoModel
+/**
+ * Model MediaEntry
+ * Silas's personal media log (media-watchlist project). Standalone table --
+ * not Bot-generated or Dream-linked content. See conductor
+ * projects/media-watchlist/docs/t-008-final-schema-and-browse-api.md for the
+ * full field-by-field reconciliation against the real 2014-2026 import.
+ */
+export type MediaEntry = Prisma.MediaEntryModel

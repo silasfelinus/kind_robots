@@ -10,10 +10,13 @@ type PatchUser = {
   isAdmin: boolean
 }
 
+// Owner transfer is intentionally NOT part of the general patch contract: a
+// dedicated administrative endpoint should own reassignment. `userId` is
+// therefore absent from this allowlist, so neither an owner nor an admin can
+// change an ArtImage's owner through the ordinary PATCH route (audit F-1).
 const ART_IMAGE_PATCH_FIELDS = new Set<
   keyof Prisma.ArtImageUncheckedUpdateInput
 >([
-  'userId',
   'imageData',
   'thumbnailData',
   'thumbnailPath',
@@ -60,7 +63,6 @@ async function requirePatchUser(event: H3Event): Promise<PatchUser> {
 
 function sanitizeArtImagePatch(
   body: Record<string, unknown>,
-  user: PatchUser,
 ): Prisma.ArtImageUncheckedUpdateInput {
   const updateData: Prisma.ArtImageUncheckedUpdateInput = {}
 
@@ -74,10 +76,6 @@ function sanitizeArtImagePatch(
     }
 
     if (value === undefined) {
-      continue
-    }
-
-    if (key === 'userId' && !user.isAdmin) {
       continue
     }
 
@@ -132,7 +130,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const updateData = sanitizeArtImagePatch(body, user)
+    const updateData = sanitizeArtImagePatch(body)
 
     if (Object.keys(updateData).length === 0) {
       throw createError({

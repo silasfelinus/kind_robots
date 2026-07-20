@@ -193,6 +193,26 @@ describe('ArtImage create and by-ids contracts', () => {
     })
   })
 
+  it('ignores userId owner-transfer on ArtImage PATCH', () => {
+    // The general patch route must not reassign ownership (audit F-1). The owner
+    // patches a real field alongside a userId reassignment; the field updates,
+    // the owner is unchanged.
+    cy.request<ApiResponse<ArtImage>>({
+      method: 'PATCH',
+      url: `${apiBase}/art/image/${privateImage.id}`,
+      headers: bearerHeaders(owner.token),
+      body: {
+        artPrompt: 'owner-transfer attempt',
+        userId: secondUser.id,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.userId).to.eq(owner.id)
+    })
+  })
+
   it('requires authentication and bounded positive IDs for batch lookup', () => {
     cy.request<ApiResponse>({
       method: 'POST',

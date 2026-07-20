@@ -1,4 +1,5 @@
 // /utils/wonderlab/reviewDraftPrompt.ts
+import { wonderLabSourceEvidenceByPath } from '@/utils/generated/wonderLabSourceEvidence'
 import type { WonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentManifest'
 import {
   isWonderLabReviewerVoiceReady,
@@ -198,9 +199,16 @@ export function buildWonderLabReviewDraftPrompt(
   )
   const threads = sortedThreads(options.narratorThreads || [])
   const reasons = affinityReasons(options.affinityReasons || [])
-  const evidenceFacts = sourceEvidenceFacts(options.sourceEvidence)
   const reviewerKey = wonderLabReviewerKey(reviewer)
   const sourcePath = exhibitSourcePath(exhibit)
+  const evidence =
+    options.sourceEvidence ||
+    wonderLabSourceEvidenceByPath[sourcePath.toLowerCase()] ||
+    null
+  const evidenceFacts = sourceEvidenceFacts(evidence)
+  if (!evidenceFacts.length) {
+    throw new Error(`No source-code evidence is available for ${sourcePath}.`)
+  }
   const sources = voiceSources(reviewer, threads)
   const draftKey = `${reviewerKey}|component:${exhibit.id}|${sourcePath.toLowerCase()}`
 
@@ -305,7 +313,7 @@ export function buildWonderLabReviewDraftPrompt(
       affinityReasons: reasons,
       narratorThreadTopics: threads.map((thread) => compact(thread.topicKey)),
       voiceSources: sources,
-      sourceEvidenceVersion: options.sourceEvidence?.version ?? null,
+      sourceEvidenceVersion: evidence.version,
       sourceEvidenceFacts: evidenceFacts,
     },
   }

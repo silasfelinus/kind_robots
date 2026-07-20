@@ -38,6 +38,7 @@ const grounded = assertWonderLabReviewGrounding(
 )
 assert.equal(grounded.comment.grounded, true)
 assert.ok(grounded.comment.highSignalMatches.includes('character card'))
+assert.deepEqual(grounded.comment.unsupportedClaims, [])
 assert.ok(grounded.observations.every((observation) => observation.grounded))
 
 const structural = validateWonderLabReviewGrounding(
@@ -51,14 +52,28 @@ assert.deepEqual(structural.observations[0]?.nativeElementMatches, [
   'section',
 ])
 
+const hallucinated = validateWonderLabReviewGrounding(
+  'The character-card delivers silky animation and responds quickly on every click.',
+  ['The character-card is responsive on mobile screens.'],
+  evidence,
+)
+assert.equal(hallucinated.comment.grounded, false)
+assert.deepEqual(hallucinated.comment.unsupportedClaims, [
+  'unverified smooth runtime behavior',
+  'unverified runtime performance',
+])
+assert.deepEqual(hallucinated.observations[0]?.unsupportedClaims, [
+  'unverified device responsiveness',
+])
+
 assert.throws(
   () =>
     assertWonderLabReviewGrounding(
-      'The glowing gradients and silky animation make this feel wonderfully responsive.',
-      ['The animation runs smoothly on mobile devices.'],
+      'The character-card delivers silky animation and responds quickly on every click.',
+      ['The character-card is responsive on mobile screens.'],
       evidence,
     ),
-  /does not overlap the supplied Component source evidence/,
+  /makes unsupported claim\(s\): unverified smooth runtime behavior, unverified runtime performance/,
 )
 
 assert.throws(

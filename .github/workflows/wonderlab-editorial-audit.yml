@@ -6,12 +6,24 @@ on:
     paths:
       - '.github/workflows/wonderlab-editorial-audit.yml'
       - 'scripts/wonderlab-production-editorial-audit.mjs'
+      - 'server/api/admin/wonderlab/review-portfolio.get.ts'
+      - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabReviewerPortfolio.ts'
+      - 'utils/wonderlab/reviewerPortfolio.ts'
   push:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-editorial-audit.yml'
       - 'scripts/wonderlab-production-editorial-audit.mjs'
+      - 'server/api/admin/wonderlab/review-portfolio.get.ts'
+      - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/wonderlab/reviewerPortfolio.ts'
   workflow_dispatch:
+    inputs:
+      max_wait_seconds:
+        description: 'Max seconds to wait for the portfolio endpoint to reach production'
+        required: false
+        default: '1200'
 
 permissions:
   contents: read
@@ -23,62 +35,8 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate editorial audit boundary
+    name: Validate editorial portfolio and audit boundary
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - name: Check read-only audit contract
-        run: |
-          set -euo pipefail
-          node --check scripts/wonderlab-production-editorial-audit.mjs
-          node <<'NODE'
-          const fs = require('node:fs')
-          const assert = require('node:assert').strict
-          const source = fs.readFileSync(
-            'scripts/wonderlab-production-editorial-audit.mjs',
-            'utf8',
-          )
-
-          for (const required of [
-            '/api/version',
-            '/api/components',
-            '/api/admin/wonderlab/review-rollout',
-            '/api/admin/wonderlab/review-plan',
-            'reviewersPerComponent',
-            'priorityMissingAssignments',
-            'editorial-coverage-audit.json',
-          ]) {
-            assert.ok(source.includes(required), `missing editorial audit boundary: ${required}`)
-          }
-
-          for (const forbidden of [
-            '/review-drafts/generate',
-            '/publish',
-            '/approve',
-            '/reject',
-            "method: 'POST'",
-            'DATABASE_URL',
-            'prisma.',
-          ]) {
-            assert.ok(!source.includes(forbidden), `editorial audit crossed write boundary: ${forbidden}`)
-          }
-
-          console.log('WonderLab editorial coverage audit boundary passed.')
-          NODE
-
-  audit:
-    name: Audit production editorial coverage
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -90,6 +48,118 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify deterministic reviewer portfolio
+        run: npx tsx utils/scripts/verifyWonderLabReviewerPortfolio.ts
+
+      - name: Check read-only audit contract
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-production-editorial-audit.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const audit = fs.readFileSync(
+            'scripts/wonderlab-production-editorial-audit.mjs',
+            'utf8',
+          )
+          const endpoint = fs.readFileSync(
+            'server/api/admin/wonderlab/review-portfolio.get.ts',
+            'utf8',
+          )
+          const portfolio = fs.readFileSync(
+            'server/utils/wonderLabReviewPortfolio.ts',
+            'utf8',
+          )
+
+          for (const required of [
+            '/api/version',
+            '/api/components',
+            '/api/admin/wonderlab/review-rollout',
+            '/api/admin/wonderlab/review-portfolio',
+            'PORTFOLIO_DIVERSE',
+            'diversityPenalty',
+            'priorityMissingAssignments',
+            'editorial-coverage-audit.json',
+          ]) {
+            assert.ok(audit.includes(required), `missing editorial audit boundary: ${required}`)
+          }
+
+          for (const forbidden of [
+            '/review-drafts/generate',
+            '/publish',
+            '/approve',
+            '/reject',
+            "method: 'POST'",
+            'DATABASE_URL',
+            'prisma.',
+          ]) {
+            assert.ok(!audit.includes(forbidden), `editorial audit crossed write boundary: ${forbidden}`)
+          }
+
+          assert.match(endpoint, /requireAdminApiUser\(event\)/)
+          assert.match(endpoint, /buildWonderLabReviewPortfolio/)
+          assert.doesNotMatch(endpoint, /readBody|defineEventHandler[\s\S]*\.create\(|\.update\(|\.delete\(/)
+          assert.match(portfolio, /assignWonderLabReviewerPortfolio/)
+          assert.match(portfolio, /isWonderLabEditoriallyExcludedReviewer/)
+          assert.match(portfolio, /loadCoverage/)
+          assert.doesNotMatch(portfolio, /INSERT\s+INTO|UPDATE\s+|DELETE\s+FROM/i)
+
+          console.log('WonderLab editorial portfolio audit boundary passed.')
+          NODE
+
+  audit:
+    name: Audit production editorial coverage
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Wait for portfolio endpoint to reach production
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          TARGET_SHA: ${{ github.sha }}
+          MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '1200' }}
+        run: |
+          set -euo pipefail
+          echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA} (or a superseding commit)..."
+          deadline=$(( $(date +%s) + MAX_WAIT ))
+          live=""
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
+            live="$(printf '%s' "$body" | jq -r '.data.commit // empty' 2>/dev/null || true)"
+            if [ -n "$live" ]; then
+              if [ "$live" = "$TARGET_SHA" ]; then
+                echo "Production is serving ${live} — portfolio endpoint is live."
+                exit 0
+              fi
+              if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+                git fetch --quiet --depth=200 origin main 2>/dev/null || true
+              fi
+              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live" 2>/dev/null; then
+                echo "Production is serving ${live}, a newer commit that includes ${TARGET_SHA} — portfolio endpoint is live."
+                exit 0
+              fi
+            fi
+            echo "  not live yet (serving: ${live:-unknown}); retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Production did not serve ${TARGET_SHA} (or a superseding commit) within ${MAX_WAIT}s (last seen: ${live:-unknown})."
+          exit 1
 
       - name: Run read-only production audit
         env:
@@ -127,7 +197,7 @@ jobs:
               : null
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const lines = [
-              '## WonderLab editorial coverage audit',
+              '## WonderLab editorial portfolio audit',
               '',
               `- **Workflow:** [run ${context.runId}](${runUrl})`,
               `- **Result:** ${process.env.JOB_STATUS}`,
@@ -138,15 +208,17 @@ jobs:
               const diversity = report.diversity || {}
               lines.push(
                 `- **Production:** commit \`${report.production?.commit || 'unknown'}\`; deployment \`${report.production?.deploymentId || 'unknown'}\``,
+                `- **Assignment mode:** ${report.scope?.assignmentMode || 'unknown'}; repeat-use penalty ${report.scope?.diversityPenalty ?? 'unknown'}`,
                 `- **Discovered exhibits:** ${report.scope?.discoveredComponents || 0}`,
-                `- **Planned reviewer slots:** ${coverage.reviewerSlots || 0}`,
+                `- **Planned reviewer slots:** ${coverage.reviewerSlots || 0}/${coverage.targetReviewerSlots || 0} (${coverage.assignmentShortfall || 0} short)`,
                 `- **Published planned slots:** ${coverage.publishedSlots || 0} (${coverage.publishedSlotRate || 0}%)`,
                 `- **Drafted planned slots:** ${coverage.draftedSlots || 0}`,
                 `- **Missing planned slots:** ${coverage.missingSlots || 0}`,
                 `- **Exhibits with any published planned review:** ${coverage.exhibitsWithPublishedReview || 0} (${coverage.exhibitsWithPublishedReviewRate || 0}%)`,
                 `- **Published reviewer diversity:** ${diversity.publishedBots || 0} Bot(s), ${diversity.publishedCharacters || 0} Character(s)`,
                 `- **Assigned reviewer diversity:** ${diversity.assignedBots || 0} Bot(s), ${diversity.assignedCharacters || 0} Character(s)`,
-                `- **No eligible reviewer:** ${coverage.exhibitsWithoutEligibleReviewer || 0} exhibit(s)`,
+                `- **Largest reviewer allocation:** ${diversity.largestAssignmentCount || 0} slots (${diversity.largestAssignmentShare || 0}%)`,
+                `- **Incomplete assignments:** ${coverage.exhibitsWithIncompleteAssignment || 0} exhibit(s)`,
               )
 
               const top = Array.isArray(report.reviewerUsage)
@@ -163,9 +235,9 @@ jobs:
 
               lines.push(
                 '',
-                `> ${report.scope?.note || 'Coverage reflects planner-selected reviewer slots.'}`,
+                `> ${report.scope?.note || 'Coverage reflects portfolio-selected reviewer slots.'}`,
                 '',
-                'The uploaded JSON artifact contains the top 50 missing high-affinity assignments and every exhibit without an eligible reviewer. This workflow is read-only and performs no generation, approval, editing, or publication.',
+                'The uploaded JSON artifact contains the top 50 missing high-affinity assignments and every exhibit without a complete reviewer assignment. This workflow is read-only and performs no generation, approval, editing, or publication.',
               )
             } else {
               lines.push(

@@ -28,14 +28,6 @@ function assertCondition(condition, message) {
   if (!condition) throw new Error(message)
 }
 
-function chunk(values, size) {
-  const groups = []
-  for (let index = 0; index < values.length; index += size) {
-    groups.push(values.slice(index, index + size))
-  }
-  return groups
-}
-
 function percentage(numerator, denominator) {
   if (!denominator) return 0
   return Math.round((numerator / denominator) * 1000) / 10
@@ -166,19 +158,25 @@ assertCondition(
   'The public Component registry returned an invalid discovered Component ID.',
 )
 
-const planExhibits = []
-for (const ids of chunk(discoveredIds, 100)) {
-  const query = new URLSearchParams({
-    componentIds: ids.join(','),
-    limit: String(ids.length),
-    reviewersPerComponent: '2',
-    minimumScore: '0',
-  })
-  const payload = await adminRequest(`/api/admin/wonderlab/review-plan?${query.toString()}`)
-  const plan = responseDataObject(payload, 'WonderLab review plan')
-  assertCondition(Array.isArray(plan.exhibits), 'WonderLab review plan did not return exhibits.')
-  planExhibits.push(...plan.exhibits)
-}
+const portfolioQuery = new URLSearchParams({
+  limit: '500',
+  reviewersPerComponent: '2',
+  minimumScore: '0',
+  diversityPenalty: '4',
+})
+const portfolioPayload = await adminRequest(
+  `/api/admin/wonderlab/review-portfolio?${portfolioQuery.toString()}`,
+)
+const portfolioPlan = responseDataObject(portfolioPayload, 'WonderLab review portfolio')
+assertCondition(
+  portfolioPlan.assignmentMode === 'PORTFOLIO_DIVERSE',
+  'WonderLab review portfolio did not use the portfolio-diverse assignment mode.',
+)
+assertCondition(
+  Array.isArray(portfolioPlan.exhibits),
+  'WonderLab review portfolio did not return exhibits.',
+)
+const planExhibits = portfolioPlan.exhibits
 
 const returnedIds = planExhibits.map((exhibit) => Number(exhibit.componentId))
 const returnedSet = new Set(returnedIds)
@@ -186,6 +184,7 @@ const duplicatePlanIds = returnedIds.filter((id, index) => returnedIds.indexOf(i
 const missingPlanIds = discoveredIds.filter((id) => !returnedSet.has(id))
 assertCondition(duplicatePlanIds.length === 0, `Planner returned duplicate Components: ${duplicatePlanIds.join(', ')}`)
 assertCondition(missingPlanIds.length === 0, `Planner omitted Components: ${missingPlanIds.join(', ')}`)
+assertCondition(returnedIds.length === discoveredIds.length, 'Planner returned an unexpected Component count.')
 
 const statusCounts = new Map()
 for (const component of discovered) increment(statusCounts, component.status || 'UNKNOWN')
@@ -216,6 +215,8 @@ const publishedSlots = exhibitCoverage.reduce((total, exhibit) => total + exhibi
 const draftedSlots = exhibitCoverage.reduce((total, exhibit) => total + exhibit.draftedSlots, 0)
 const missingSlots = exhibitCoverage.reduce((total, exhibit) => total + exhibit.missingSlots, 0)
 const noEligibleReviewer = exhibitCoverage.filter((exhibit) => exhibit.reviewerSlots === 0)
+const incompleteAssignments = exhibitCoverage.filter((exhibit) => exhibit.reviewerSlots < 2)
+const targetReviewerSlots = exhibitCoverage.length * 2
 const withPublished = exhibitCoverage.filter((exhibit) => exhibit.publishedSlots > 0)
 const fullyPublished = exhibitCoverage.filter(
   (exhibit) => exhibit.reviewerSlots > 0 && exhibit.publishedSlots === exhibit.reviewerSlots,
@@ -226,6 +227,8 @@ const assignedBots = reviewerUsage.filter((reviewer) => reviewer.kind === 'BOT')
 const assignedCharacters = reviewerUsage.filter((reviewer) => reviewer.kind === 'CHARACTER')
 const publishedBots = assignedBots.filter((reviewer) => reviewer.published > 0)
 const publishedCharacters = assignedCharacters.filter((reviewer) => reviewer.published > 0)
+const largestAssignmentCount = reviewerUsage[0]?.assigned || 0
+const largestAssignmentShare = percentage(largestAssignmentCount, reviewerSlots)
 
 const report = {
   generatedAt: new Date().toISOString(),
@@ -238,13 +241,17 @@ const report = {
   scope: {
     discoveredComponents: discovered.length,
     plannedComponents: exhibitCoverage.length,
+    assignmentMode: portfolioPlan.assignmentMode,
     reviewersPerComponent: 2,
     minimumAffinity: 0,
-    note: 'Coverage is measured against the planner-selected reviewer slots. Existing first-party reviews by reviewers outside the current top-two assignment are not represented by this endpoint.',
+    diversityPenalty: Number(portfolioPlan.diversityPenalty) || 4,
+    note: 'Coverage is measured against the deterministic portfolio-selected reviewer slots. Existing published or drafted assignments are pinned when the reviewer remains eligible; new slots apply a repeat-use penalty and prefer Bot/Character contrast.',
   },
   componentStatuses: Object.fromEntries([...statusCounts.entries()].sort()),
   coverage: {
+    targetReviewerSlots,
     reviewerSlots,
+    assignmentShortfall: targetReviewerSlots - reviewerSlots,
     publishedSlots,
     draftedSlots,
     missingSlots,
@@ -255,12 +262,15 @@ const report = {
     exhibitsWithDraft: withDraft.length,
     exhibitsWithoutPublishedReview: withoutPublished.length,
     exhibitsWithoutEligibleReviewer: noEligibleReviewer.length,
+    exhibitsWithIncompleteAssignment: incompleteAssignments.length,
   },
   diversity: {
     assignedBots: assignedBots.length,
     assignedCharacters: assignedCharacters.length,
     publishedBots: publishedBots.length,
     publishedCharacters: publishedCharacters.length,
+    largestAssignmentCount,
+    largestAssignmentShare,
   },
   reviewerUsage,
   priorityMissingAssignments: exhibitCoverage
@@ -288,6 +298,14 @@ const report = {
       left.componentName.localeCompare(right.componentName),
     )
     .slice(0, 50),
+  incompleteAssignments: incompleteAssignments.map((exhibit) => ({
+    componentId: exhibit.componentId,
+    componentName: exhibit.componentName,
+    title: exhibit.title,
+    folderName: exhibit.folderName,
+    sourcePath: exhibit.sourcePath,
+    reviewerSlots: exhibit.reviewerSlots,
+  })),
   noEligibleReviewer: noEligibleReviewer.map((exhibit) => ({
     componentId: exhibit.componentId,
     componentName: exhibit.componentName,
@@ -309,5 +327,5 @@ console.log(
   `Published reviewer diversity: ${publishedBots.length} Bot(s), ${publishedCharacters.length} Character(s).`,
 )
 console.log(
-  `Remaining: ${missingSlots} missing slot(s), ${draftedSlots} drafted slot(s), ${noEligibleReviewer.length} exhibit(s) without an eligible reviewer.`,
+  `Remaining: ${missingSlots} missing slot(s), ${draftedSlots} drafted slot(s), ${incompleteAssignments.length} exhibit(s) with incomplete assignments.`,
 )

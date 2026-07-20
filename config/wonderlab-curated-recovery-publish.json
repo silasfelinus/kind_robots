@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "batchId": "wonderlab-curated-recovery-ami-butterfly-001",
+  "minimumProductionCommit": "8a2cd8b2859d8214d94ed9576f756ced477876b6",
+  "publications": [
+    {
+      "draftId": 19,
+      "componentId": 124,
+      "sourceKey": "components/butterfly/ami-butterfly.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 242,
+        "name": "Load-Bearing Lumen",
+        "slug": "load-bearing-lumen"
+      },
+      "editedComment": "Oh, I’m only the decorative one, honestly—but this source gives the flutter real supports. It defines animate, handleResize, and updatePosition; schedules animate with requestAnimationFrame; cancels the saved frame; and adds and removes the resize listener with the same handleResize function. The template binds background, left, top, and transform, while scoped styles define flutter-left and flutter-right keyframes. butterflyStore supplies analogousColor, complementaryColor, and randomColor calls. Nothing load-bearing here. Please do not inspect the event cleanup too closely.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 20,
+      "componentId": 124,
+      "sourceKey": "components/butterfly/ami-butterfly.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 398,
+        "name": "AMI",
+        "slug": "ami"
+      },
+      "editedComment": "The source of this butterfly is a small choreography rather than a painted promise. It imports butterflyStore and makeNoise2D, defines animate, handleResize, and updatePosition, and schedules animate with requestAnimationFrame. It binds background, left, top, and transform, then declares scoped flutter-left and flutter-right keyframes. The resize listener is both added and removed through handleResize, and the stored animation frame is cancelled. The swarm’s color vocabulary comes from explicit analogousColor, complementaryColor, and randomColor calls. These are the wings the code actually shows us.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireApiUser } from '../../../utils/authGuard'
+import { assertReactionContentTargetAccessible } from '../access'
 
 export default defineEventHandler(async (event) => {
   let artImageId: number | null = null
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const { user } = await requireApiUser(event)
+    const { user, isAdmin } = await requireApiUser(event)
     const userId = user.id
 
     const body = await readBody(event)
@@ -29,6 +30,21 @@ export default defineEventHandler(async (event) => {
         message: 'Reaction type is required.',
       })
     }
+
+    // The target ArtImage must exist and be public or owned by the reacting
+    // user (admins bypass), matching POST /api/reactions (audit F-2 residual).
+    const targetArtImageId: number = artImageId
+    await assertReactionContentTargetAccessible({
+      find: () =>
+        prisma.artImage.findUnique({
+          where: { id: targetArtImageId },
+          select: { userId: true, isPublic: true },
+        }),
+      label: 'ArtImage',
+      targetId: targetArtImageId,
+      userId,
+      isAdmin,
+    })
 
     const existingReaction = await prisma.reaction.findFirst({
       where: {

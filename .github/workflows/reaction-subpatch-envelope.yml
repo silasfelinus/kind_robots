@@ -6,6 +6,8 @@ on:
     paths:
       - 'server/api/reactions/art/\[id\].patch.ts'
       - 'server/api/reactions/dream/\[id\].patch.ts'
+      - 'server/api/reactions/access.ts'
+      - 'cypress/e2e/api/reactions.cy.ts'
       - 'utils/scripts/verifyReactionSubPatchEnvelope.ts'
       - '.github/workflows/reaction-subpatch-envelope.yml'
   workflow_dispatch:

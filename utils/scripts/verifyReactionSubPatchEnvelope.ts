@@ -42,6 +42,35 @@ for (const path of routes) {
   requireText(source, 'data: null,', `${path} error envelope data`)
   // The old error wrapper put the message inside data.
   forbidText(source, 'data: {\n        message', `${path} legacy error wrapper`)
+
+  // Target visibility gate (audit F-2 residual): the reaction target must be
+  // existence + permission checked before the reaction is written.
+  requireText(
+    source,
+    'assertReactionContentTargetAccessible({',
+    `${path} target visibility gate`,
+  )
 }
+
+// The shared visibility helper enforces public-or-owned-or-admin.
+const access = read('server/api/reactions/access.ts')
+requireText(
+  access,
+  'export async function assertReactionContentTargetAccessible',
+  'Reaction content target access helper',
+)
+requireText(
+  access,
+  'row.userId !== userId && row.isPublic !== true',
+  'Reaction content target permission predicate',
+)
+
+// Deployed regression pins the visibility gate on the art sub-route.
+const cypressSpec = read('cypress/e2e/api/reactions.cy.ts')
+requireText(
+  cypressSpec,
+  'forbids reacting to another user private ArtImage via the art sub-route',
+  'Reaction sub-route visibility deployed regression',
+)
 
 console.log('Reaction sub-patch response envelope contract passed.')

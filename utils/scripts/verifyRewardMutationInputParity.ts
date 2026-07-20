@@ -46,8 +46,13 @@ requireText(
 )
 requireText(
   boundary,
-  'export async function assertRewardRelationsExist',
-  'Reward relation existence check',
+  'export async function assertRewardRelationsAttachable',
+  'Reward relation existence + permission check',
+)
+requireText(
+  boundary,
+  'row.userId !== userId && row.isPublic !== true',
+  'Reward relation permission rule',
 )
 requireText(boundary, 'Unsupported Reward fields in', 'Reward unknown-field error')
 requireText(
@@ -74,12 +79,12 @@ requireText(
   'Reward strict batch allowlist',
 )
 
-// The builders run the existence check before every write, so singular and batch
-// both reject nonexistent relation targets.
+// The builders run the existence + permission check before every write, so
+// singular and batch both reject nonexistent and non-attachable relation targets.
 requireText(
   index,
-  'await assertRewardRelationsExist(input)',
-  'Reward existence check wiring',
+  'await assertRewardRelationsAttachable(input, authenticatedUserId, isAdmin)',
+  'Reward relation check wiring',
 )
 
 // Routes wire the boundary with the correct allowlist.
@@ -116,6 +121,11 @@ requireText(
   cypressSpec,
   'rejects nonexistent relation targets on Reward creation',
   'Reward existence deployed regression',
+)
+requireText(
+  cypressSpec,
+  'forbids attaching another user private Character on Reward creation',
+  'Reward relation permission deployed regression',
 )
 requireText(
   cypressSpec,

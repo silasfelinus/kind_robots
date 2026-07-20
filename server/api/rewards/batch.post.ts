@@ -91,9 +91,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
     const { count, rewards, errors } = await createRewardsBatch(
       rewardsData,
       user.id,
+      isAdmin,
     )
 
     if (errors.length > 0) {

@@ -30,11 +30,16 @@ describe('Reward mutation input boundary', () => {
   let apiBase = ''
   let adminToken = ''
   let rewardsUrl = ''
+  let charactersUrl = ''
   let ownerToken = ''
+  let otherToken = ''
   let ownerId: number | undefined
+  let otherId: number | undefined
   let rewardId: number | undefined
+  let privateCharacterId: number | undefined
 
   const ownerHeaders = () => bearerHeaders(ownerToken)
+  const otherHeaders = () => bearerHeaders(otherToken)
 
   before(() => {
     return getApiEnv()
@@ -42,11 +47,31 @@ describe('Reward mutation input boundary', () => {
         apiBase = env.apiBase
         adminToken = env.adminToken
         rewardsUrl = `${apiBase}/rewards`
+        charactersUrl = `${apiBase}/characters`
         return createLoggedInTestUser({ fresh: true })
       })
       .then((owner) => {
         ownerToken = owner.token
         ownerId = owner.id
+        return createLoggedInTestUser({ role: 'second' })
+      })
+      .then((other) => {
+        otherToken = other.token
+        otherId = other.id
+
+        // The other user owns one private Character.
+        return cy
+          .request<ApiResponse<{ id: number }>>({
+            method: 'POST',
+            url: charactersUrl,
+            headers: otherHeaders(),
+            body: { name: `RewardPrivateChar-${stamp}`, isPublic: false },
+          })
+          .then((res) => {
+            expect(res.status, JSON.stringify(res.body)).to.eq(201)
+            privateCharacterId = res.body.data?.id
+            expect(privateCharacterId).to.be.a('number')
+          })
       })
   })
 
@@ -62,7 +87,17 @@ describe('Reward mutation input boundary', () => {
       })
     }
 
+    if (privateCharacterId && otherToken) {
+      cy.request({
+        method: 'DELETE',
+        url: `${charactersUrl}/${privateCharacterId}`,
+        headers: otherHeaders(),
+        failOnStatusCode: false,
+      })
+    }
+
     deleteTestUser(apiBase, adminToken, ownerId)
+    deleteTestUser(apiBase, adminToken, otherId)
   })
 
   it('creates a Reward under the authenticated owner', () => {
@@ -151,6 +186,25 @@ describe('Reward mutation input boundary', () => {
       expect(response.status).to.eq(404)
       expect(response.body.success).to.eq(false)
       expect(response.body.message).to.include('Character relation not found')
+    })
+  })
+
+  it('forbids attaching another user private Character on Reward creation', () => {
+    expect(privateCharacterId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: rewardsUrl,
+      headers: ownerHeaders(),
+      body: {
+        name: `ForbiddenRelationReward-${stamp}`,
+        characterIds: [privateCharacterId],
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('permission to attach')
     })
   })
 

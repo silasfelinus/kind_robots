@@ -46,7 +46,8 @@ export default defineEventHandler(async (event) => {
       context: 'Reward create payload',
     })
 
-    const data = await createReward(rewardData, user.id)
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const data = await createReward(rewardData, user.id, isAdmin)
 
     event.node.res.statusCode = 201
 

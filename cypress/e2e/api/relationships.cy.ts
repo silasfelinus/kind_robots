@@ -206,7 +206,6 @@ describe('Relationship API Tests', () => {
           isDefault: false,
           isActive: true,
           isEditable: true,
-          supportsTxt2Img: true,
         }),
       )
       .then(() =>

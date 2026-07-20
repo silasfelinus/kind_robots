@@ -36,21 +36,38 @@ async function processEntry(
   let id: number | null = null
 
   try {
-    assertScenarioMutationInput(rawEntry, {
-      allowedFields: scenarioBatchPatchFields,
-      context: `Scenario batch update item ${index}`,
-      requireNonEmpty: true,
-    })
+    if (!rawEntry || typeof rawEntry !== 'object' || Array.isArray(rawEntry)) {
+      throw createError({
+        statusCode: 400,
+        message: `Scenario batch update item ${index} must be a JSON object.`,
+      })
+    }
 
-    const entry = rawEntry as ScenarioBatchEntry
-    id = Number(entry.id)
+    const candidateId = Number((rawEntry as Record<string, unknown>).id)
 
-    if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(candidateId) || candidateId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid scenario ID. It must be a positive integer.',
       })
     }
+
+    id = candidateId
+
+    // Unlike the singular PATCH route, batch entries carry their own routing
+    // id in the body (there's no per-item URL). assertScenarioMutationInput's
+    // id handling rejects a bare `id` field unless told what it's allowed to
+    // match against, so pass the id we just validated as `routeId` -- this
+    // is the same "id must match the route" contract as [id].patch.ts, just
+    // with the entry itself acting as its own route.
+    assertScenarioMutationInput(rawEntry, {
+      allowedFields: scenarioBatchPatchFields,
+      context: `Scenario batch update item ${index}`,
+      requireNonEmpty: true,
+      routeId: id,
+    })
+
+    const entry = rawEntry as ScenarioBatchEntry
 
     const existingScenario = await prisma.scenario.findUnique({
       where: { id },

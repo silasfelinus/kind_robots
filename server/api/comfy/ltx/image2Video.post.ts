@@ -8,7 +8,6 @@ import { authAndGate } from '../../../utils/comfyGate'
 type LtxTextToVideoRequest = {
   serverId?: number | null
   serverName?: string | null
-  apiUrl?: string | null
   prompt?: string | null
   negativePrompt?: string | null
   width?: number | null
@@ -98,9 +97,12 @@ export default defineEventHandler(async (event) => {
 
     assertComfyServer(server)
 
-    const baseUrl = body.apiUrl?.trim()
-      ? cleanComfyBaseUrl(body.apiUrl)
-      : getComfyBaseUrl(server)
+    // SSRF hardening (audit P6 HIGH): never honor a client-supplied apiUrl.
+    // The outbound request carries ART_SERVER_PROXY_TOKEN in the
+    // X-Kindrobots-Server-Token header, so an attacker-controlled baseUrl would
+    // both reach arbitrary hosts and exfiltrate that token. Always use the
+    // access-checked server resolved from serverId/serverName.
+    const baseUrl = getComfyBaseUrl(server)
 
     const workflow = buildLtxTextToVideoWorkflow({
       prompt: body.prompt?.trim() || defaultPrompt,

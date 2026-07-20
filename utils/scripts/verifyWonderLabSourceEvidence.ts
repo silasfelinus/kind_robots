@@ -12,7 +12,7 @@ const characterSheet = extractWonderLabComponentSourceEvidence(
 
 assert.equal(characterSheet.version, 1)
 assert.ok(characterSheet.lineCount > 500)
-assert.deepEqual(characterSheet.blocks, ['template', 'script'])
+assert.deepEqual(characterSheet.blocks, ['template', 'script', 'style'])
 assert.ok(characterSheet.props.includes('sheet'))
 assert.ok(characterSheet.props.includes('rewardSlots'))
 assert.ok(characterSheet.props.includes('isBuilderMode'))

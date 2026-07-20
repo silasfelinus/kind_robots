@@ -55,6 +55,7 @@
     "test:academy-examples-manifest": "tsx utils/scripts/verifyAcademyExamplesManifest.ts",
     "test:workflow-paths": "tsx utils/scripts/verifyWorkflowPaths.ts",
     "test:deploy-wait-ancestry": "tsx utils/scripts/verifyDeployWaitAncestry.ts",
+    "test:deploy-wait-noop": "tsx utils/scripts/verifyDeployWaitNoOp.ts",
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",
     "test:no-unquoted-reserved-word-tables": "tsx utils/scripts/verifyNoUnquotedReservedWordTables.ts",
     "test:existing-owner-id-nullability": "tsx utils/scripts/verifyExistingOwnerIdNullability.ts",

@@ -75,6 +75,18 @@ jobs:
                 echo "Production is serving ${live}, a newer commit that already includes ${TARGET_SHA} — deploy is live (superseded)."
                 exit 0
               fi
+              # The opposite direction: ${live} predates ${TARGET_SHA}, but
+              # scripts/vercel-ignore-build.mjs may have skipped building
+              # TARGET_SHA on its own because every file it changed since
+              # ${live} is deploy-inert (cypress/docs/tests — see
+              # scripts/lib/deployIgnorePaths.mjs). In that case production
+              # will never serve TARGET_SHA and this loop would otherwise
+              # time out waiting for a deployment Vercel already decided not
+              # to build.
+              if node scripts/check-deploy-noop.mjs "$live" "$TARGET_SHA" 2>/dev/null; then
+                echo "Production is serving ${live}; ${TARGET_SHA}'s changes since then are deploy-inert (test- and docs-only) — deploy is live (no-op)."
+                exit 0
+              fi
             fi
             echo "  not live yet (serving: ${live:-unknown}); retrying in 10s..."
             sleep 10

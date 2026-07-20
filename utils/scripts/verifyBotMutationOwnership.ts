@@ -117,4 +117,17 @@ requireText(
   'Bot relation permission deployed regression',
 )
 
+// Create-path input boundary: unknown fields are rejected, not silently dropped.
+requireText(createRoute, 'const botCreateFields = new Set<string>([', 'Bot create allowlist')
+requireText(
+  createRoute,
+  "assertOnlyFields(botData, botCreateFields, 'Bot')",
+  'Bot create field boundary wiring',
+)
+requireText(
+  cypressSpec,
+  'rejects unknown fields on Bot creation',
+  'Bot create input boundary deployed regression',
+)
+
 console.log('Bot mutation ownership contract passed.')

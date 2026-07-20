@@ -3,11 +3,71 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { assertOnlyFields } from '../../utils/chatApi'
 import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
 import { assertBotRelationsAttachable } from './relations'
+
+// Every persisted Bot column plus the relation keys a round-tripped Bot object
+// (the store sends a full Partial<Bot>) can echo, plus the `dreamIds` input
+// alias. Persisted fields are read below; identity/system/relation keys are
+// tolerated but never trusted. Anything outside this set is rejected (400)
+// instead of silently dropped (audit F-4).
+const botCreateFields = new Set<string>([
+  // persisted scalars
+  'BotType',
+  'name',
+  'slug',
+  'subtitle',
+  'description',
+  'avatarImage',
+  'imagePath',
+  'botIntro',
+  'userIntro',
+  'prompt',
+  'trainingPath',
+  'theme',
+  'personality',
+  'modules',
+  'sampleResponse',
+  'tagline',
+  'narrativeVoice',
+  'forgeIntro',
+  'chatBorderImage',
+  'designer',
+  'serverName',
+  'artPrompt',
+  'isPublic',
+  'underConstruction',
+  'canDelete',
+  'isMature',
+  'isActive',
+  // relation inputs
+  'serverId',
+  'artImageId',
+  'Dreams',
+  'dreamIds',
+  // identity/system + relation keys tolerated on a round-tripped row
+  'id',
+  'createdAt',
+  'updatedAt',
+  'userId',
+  'ArtImage',
+  'Server',
+  'User',
+  'ChallengeSubmissions',
+  'Chats',
+  'NarratedDreams',
+  'ExpressionMedia',
+  'ExpressionTransition',
+  'LifeRuns',
+  'NarratorThreads',
+  'ManagedProjects',
+  'Prompts',
+  'Reactions',
+])
 
 type BotCreateBody = Partial<Omit<Bot, 'userId'>> &
   Record<string, unknown> & {
@@ -106,6 +166,7 @@ export default defineEventHandler(async (event) => {
     }
 
     assertOwnershipIsServerManaged(botData)
+    assertOnlyFields(botData, botCreateFields, 'Bot')
 
     const name = getStringOrDefault(botData.name, '')
 

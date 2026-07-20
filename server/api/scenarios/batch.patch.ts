@@ -40,6 +40,7 @@ async function processEntry(
       allowedFields: scenarioBatchPatchFields,
       context: `Scenario batch update item ${index}`,
       requireNonEmpty: true,
+      allowBatchId: true,
     })
 
     const entry = rawEntry as ScenarioBatchEntry

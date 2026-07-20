@@ -76,7 +76,6 @@ describe('Dream and Scenario Facet assignments', () => {
         dreamType: 'PITCH',
         description: 'Dream Facet assignment coverage.',
         isPublic: false,
-        createCollection: false,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)

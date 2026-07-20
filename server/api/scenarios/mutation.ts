@@ -96,6 +96,11 @@ type ScenarioBoundaryOptions = {
   authenticatedUserId?: number
   routeId?: number
   allowTemporaryId?: boolean
+  // Batch PATCH entries carry their own `id` in the body (there is no per-item
+  // route) to say which record to update; it is a lookup key, not a write
+  // target, so it should not trip the "ID is server-owned" immutability check
+  // routeId enforces for single-record PATCH.
+  allowBatchId?: boolean
 }
 
 const nullableTextFields = [
@@ -193,6 +198,13 @@ export function assertScenarioMutationInput(
         throw createError({
           statusCode: 400,
           message: 'Scenario create payload cannot assign a persisted ID.',
+        })
+      }
+    } else if (options.allowBatchId) {
+      if (requestedId <= 0) {
+        throw createError({
+          statusCode: 400,
+          message: 'Invalid scenario ID. It must be a positive integer.',
         })
       }
     } else {

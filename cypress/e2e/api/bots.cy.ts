@@ -51,7 +51,12 @@ describe('Bot Management API Tests', () => {
       .then((auth) => {
         userToken = auth.token
         userId = auth.id
-        return createLoggedInTestUser({ fresh: true })
+        // `fresh: true` is a deprecated no-op (the suite reuses a shared
+        // run-scoped identity for it) -- role: 'second' is what actually
+        // creates an isolated disposable account, needed here since this
+        // "other" user's private Dream must be owned by someone other than
+        // the primary test user for the permission check below to be real.
+        return createLoggedInTestUser({ role: 'second' })
       })
       .then((other) => {
         otherToken = other.token

@@ -55,14 +55,21 @@ describe('Browser server health report ownership', () => {
     cy.then(() => {
       const stamp = Date.now()
 
+      // Ownership is always server-derived from the authenticated caller (no
+      // admin override -- see server/utils/serverApi.ts's
+      // assertServerCreateOwnership), so the server must be created with
+      // owner's own token rather than admin + an explicit userId. That also
+      // means isPublic is forced to false for a non-admin creator
+      // (buildServerCreateData), which is fine: these tests only exercise
+      // health-report ownership (401/403/200), not public visibility.
       return cy.request<ApiResponse<ServerRecord>>({
         method: 'POST',
         url: `${apiBase}/server`,
-        headers: adminHeaders(adminToken),
+        headers: bearerHeaders(owner.token),
         body: {
           title: `Browser health report ${stamp}`,
           label: 'Health report test',
-          description: 'Disposable public server for browser health ownership tests',
+          description: 'Disposable server for browser health ownership tests',
           category: 'test',
           serverType: 'CUSTOM',
           accessMode: 'BROWSER',
@@ -70,10 +77,6 @@ describe('Browser server health report ownership', () => {
           baseUrl: 'https://example.com',
           endpointPath: '/api',
           healthPath: '/health',
-          userId: owner.id,
-          isPublic: true,
-          isOfficial: false,
-          isDefault: false,
           isActive: true,
           isEditable: true,
           isMature: false,
@@ -85,7 +88,7 @@ describe('Browser server health report ownership', () => {
       expect(response.status, JSON.stringify(response.body)).to.eq(201)
       expect(response.body.success).to.eq(true)
       expect(response.body.data?.userId).to.eq(owner.id)
-      expect(response.body.data?.isPublic).to.eq(true)
+      expect(response.body.data?.isPublic).to.eq(false)
 
       server = response.body.data as ServerRecord
 
@@ -103,7 +106,7 @@ describe('Browser server health report ownership', () => {
     })
   })
 
-  it('rejects an anonymous report for a public server', () => {
+  it('rejects an anonymous report for a browser-mode server', () => {
     cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${apiBase}/server/health/${server.id}`,

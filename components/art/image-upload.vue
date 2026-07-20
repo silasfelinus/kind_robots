@@ -761,6 +761,19 @@ async function handleBatchUpload() {
     result.failed.map((r) => r.file).filter(Boolean) as File[],
   )
 
+  // Drop already-uploaded files from the queue so a retry click only
+  // resubmits the ones that actually failed — otherwise a second click
+  // re-uploads the whole batch, including files that already succeeded,
+  // creating duplicate ArtImage rows.
+  if (succeededFiles.value.size) {
+    queuedFiles.value
+      .filter((item) => succeededFiles.value.has(item.file))
+      .forEach((item) => URL.revokeObjectURL(item.preview))
+    queuedFiles.value = queuedFiles.value.filter(
+      (item) => !succeededFiles.value.has(item.file),
+    )
+  }
+
   // Mirror store messaging locally so the component owns its own banners.
   message.value = uploadStore.message ?? ''
   error.value = result.failed.length

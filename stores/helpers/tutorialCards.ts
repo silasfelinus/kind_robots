@@ -526,6 +526,12 @@ export const tutorialChannels = {
         body: 'Add a PortOS server to use a host of services. For more information, visit https://github.com/atomantic/PortOS',
         image: `images/tutorials/conductor/conductor.webp`,
       },
+      {
+        key: 'appmaker',
+        title: 'AppMaker',
+        body: 'The app factory — browse the fleet of apps already built, or spin up a new one from a name and a one-line description. Every app is a workspace folder, a project roadmap, and a Dream sharing one slug, so it plugs straight into the rest of Kind Robots.',
+        image: tutorialImage('conductor', 'appmaker'),
+      },
     ],
   },
   packs: {

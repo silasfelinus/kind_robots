@@ -206,7 +206,7 @@ export function buildWonderLabReviewDraftPrompt(
     wonderLabSourceEvidenceByPath[sourcePath.toLowerCase()] ||
     null
   const evidenceFacts = sourceEvidenceFacts(evidence)
-  if (!evidenceFacts.length) {
+  if (!evidence || !evidenceFacts.length) {
     throw new Error(`No source-code evidence is available for ${sourcePath}.`)
   }
   const sources = voiceSources(reviewer, threads)

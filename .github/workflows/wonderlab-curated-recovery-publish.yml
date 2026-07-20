@@ -55,8 +55,13 @@ jobs:
 
           for (const required of [
             'expectedStatus',
+            'component.sourceKey === instruction.sourceKey',
+            'component.isDiscovered === true',
             "status: 'PROPOSED'",
             "status: 'APPROVED'",
+            'failureReason: null',
+            'retained its obsolete failure reason',
+            '/api/components',
             '/api/admin/wonderlab/review-drafts?componentId=',
             '/api/admin/wonderlab/review-drafts/${instruction.draftId}',
             '/publish',
@@ -84,6 +89,7 @@ jobs:
           assert.ok(config.publications.length <= 20)
           assert.equal(new Set(config.publications.map((entry) => entry.draftId)).size, config.publications.length)
           assert.ok(config.publications.every((entry) => ['PROPOSED', 'FAILED', 'REJECTED', 'APPROVED'].includes(entry.expectedStatus)))
+          assert.ok(config.publications.every((entry) => entry.sourceKey.startsWith('components/') && entry.sourceKey.endsWith('.vue')))
           console.log('WonderLab curated recovery editorial boundary passed.')
           NODE
 
@@ -152,12 +158,10 @@ jobs:
 
       - name: Include deploy evidence
         if: always()
-        env:
-          OUTPUT_DIR: wonderlab-curated-recovery-artifacts
         run: |
-          mkdir -p "$OUTPUT_DIR"
+          mkdir -p wonderlab-curated-recovery-artifacts
           if [ -f production-version.json ]; then
-            cp production-version.json "${OUTPUT_DIR}/workflow-production-version.json"
+            cp production-version.json wonderlab-curated-recovery-artifacts/workflow-production-version.json
           fi
 
       - name: Upload curated recovery evidence
@@ -182,11 +186,8 @@ jobs:
             const readJson = (name) => {
               const target = path.join(process.env.OUTPUT_DIR, name)
               if (!fs.existsSync(target)) return null
-              try {
-                return JSON.parse(fs.readFileSync(target, 'utf8'))
-              } catch (error) {
-                return { parseError: error.message }
-              }
+              try { return JSON.parse(fs.readFileSync(target, 'utf8')) }
+              catch (error) { return { parseError: error.message } }
             }
 
             const summary = readJson('curated-recovery-summary.json')
@@ -203,13 +204,9 @@ jobs:
 
             if (Array.isArray(summary?.published)) {
               for (const entry of summary.published) {
-                lines.push(
-                  `- Component #${entry.componentId} / **${entry.reviewer?.name || 'Reviewer'}**: draft #${entry.draftId} (${entry.previousStatus}${entry.recovered ? ' → recovered' : ''}) → Reaction #${entry.reactionId}`,
-                )
+                lines.push(`- Component #${entry.componentId} / **${entry.reviewer?.name || 'Reviewer'}**: draft #${entry.draftId} (${entry.previousStatus}${entry.recovered ? ' → recovered' : ''}) → Reaction #${entry.reactionId}`)
               }
-              lines.push(
-                `- **Final audit:** ${summary?.audit?.ready ? 'Ready' : 'Blocked'} · ${summary?.audit?.metrics?.firstPartyComponentReviews ?? 'unknown'} first-party reviews · ${summary?.audit?.metrics?.duplicateFirstPartyReviews ?? 'unknown'} duplicate groups · ${summary?.audit?.metrics?.unsafeFirstPartyReviews ?? 'unknown'} unsafe rows · ${summary?.audit?.metrics?.publishedDraftMismatches ?? 'unknown'} link mismatches`,
-              )
+              lines.push(`- **Final audit:** ${summary?.audit?.ready ? 'Ready' : 'Blocked'} · ${summary?.audit?.metrics?.firstPartyComponentReviews ?? 'unknown'} first-party reviews · ${summary?.audit?.metrics?.duplicateFirstPartyReviews ?? 'unknown'} duplicate groups · ${summary?.audit?.metrics?.unsafeFirstPartyReviews ?? 'unknown'} unsafe rows · ${summary?.audit?.metrics?.publishedDraftMismatches ?? 'unknown'} link mismatches`)
             }
             if (failure) lines.push(`- **Failure:** ${failure.message || 'See uploaded evidence.'}`)
 

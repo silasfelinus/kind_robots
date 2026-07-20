@@ -1000,9 +1000,14 @@ function handleDrop(event: DragEvent) {
 
   const file = event.dataTransfer?.files?.[0]
 
-  if (file && file.type.startsWith('image/')) {
-    processUploadedFile(file)
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
+    return
   }
+
+  processUploadedFile(file)
 }
 
 function buildSyntheticSourceImage(
@@ -1441,7 +1446,7 @@ watch(
 )
 
 // Preselect a gallery image passed by id (e.g. the "Make coloring page" deep
-// link). We only need the thumbnail for the preview here — runStyleTransfer
+// link). We only need the thumbnail for the preview here -- runStyleTransfer
 // lazily fetches the full imageData when the user generates.
 async function applySourceImageId(
   id: number | null | undefined,

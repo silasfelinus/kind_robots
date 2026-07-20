@@ -7,21 +7,31 @@ on:
       - '.github/workflows/wonderlab-editorial-audit.yml'
       - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
       - 'scripts/wonderlab-production-editorial-audit.mjs'
+      - 'server/api/admin/wonderlab/review-drafts/generate-batch.post.ts'
+      - 'server/api/admin/wonderlab/review-plan.get.ts'
       - 'server/api/admin/wonderlab/review-portfolio.get.ts'
+      - 'server/utils/wonderLabReviewBatchPlan.ts'
       - 'server/utils/wonderLabReviewPortfolio.ts'
       - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
+      - 'utils/scripts/verifyWonderLabReviewBatchPlan.ts'
       - 'utils/scripts/verifyWonderLabReviewerPortfolio.ts'
       - 'utils/wonderlab/reviewerPortfolio.ts'
+      - 'utils/wonderlab/reviewPortfolioBatch.ts'
   push:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-editorial-audit.yml'
       - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
       - 'scripts/wonderlab-production-editorial-audit.mjs'
+      - 'server/api/admin/wonderlab/review-drafts/generate-batch.post.ts'
+      - 'server/api/admin/wonderlab/review-plan.get.ts'
       - 'server/api/admin/wonderlab/review-portfolio.get.ts'
+      - 'server/utils/wonderLabReviewBatchPlan.ts'
       - 'server/utils/wonderLabReviewPortfolio.ts'
       - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
+      - 'utils/scripts/verifyWonderLabReviewBatchPlan.ts'
       - 'utils/wonderlab/reviewerPortfolio.ts'
+      - 'utils/wonderlab/reviewPortfolioBatch.ts'
   workflow_dispatch:
     inputs:
       max_wait_seconds:
@@ -61,6 +71,9 @@ jobs:
 
       - name: Verify deterministic reviewer portfolio
         run: npx tsx utils/scripts/verifyWonderLabReviewerPortfolio.ts
+
+      - name: Verify global portfolio batch planning
+        run: npx tsx utils/scripts/verifyWonderLabReviewBatchPlan.ts
 
       - name: Check read-only audit contract
         run: |

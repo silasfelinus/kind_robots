@@ -1,0 +1,36 @@
+name: ArtImage Patch Owner Transfer
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/art/image/\[id\].patch.ts'
+      - 'cypress/e2e/api/art-image-create-contract.cy.ts'
+      - 'utils/scripts/verifyArtImagePatchOwnerTransfer.ts'
+      - '.github/workflows/art-image-patch-owner-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify ArtImage patch owner transfer
+        run: npx tsx utils/scripts/verifyArtImagePatchOwnerTransfer.ts

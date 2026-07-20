@@ -17,14 +17,19 @@ const config = JSON.parse(configSource) as {
   publications: Array<{
     draftId: number
     componentId: number
+    sourceKey: string
     expectedStatus: string
     editedComment: string
   }>
 }
 
 assert.match(runner, /expectedStatus/)
+assert.match(runner, /component\.sourceKey === instruction\.sourceKey/)
+assert.match(runner, /component\.isDiscovered === true/)
 assert.match(runner, /status: 'PROPOSED'/)
 assert.match(runner, /status: 'APPROVED'/)
+assert.match(runner, /failureReason: null/)
+assert.match(runner, /retained its obsolete failure reason/)
 assert.match(runner, /review-drafts\/\$\{instruction\.draftId\}\/publish/)
 assert.match(runner, /duplicateFirstPartyReviews/)
 assert.match(runner, /unsafeFirstPartyReviews/)
@@ -51,6 +56,13 @@ assert.ok(
     ['PROPOSED', 'FAILED', 'REJECTED', 'APPROVED'].includes(
       entry.expectedStatus,
     ),
+  ),
+)
+assert.ok(
+  config.publications.every(
+    (entry) =>
+      entry.sourceKey.startsWith('components/') &&
+      entry.sourceKey.endsWith('.vue'),
   ),
 )
 assert.ok(

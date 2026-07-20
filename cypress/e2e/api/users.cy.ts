@@ -230,6 +230,41 @@ describe('User Management API Tests', () => {
           })
         })
     })
+
+    it('ignores privileged fields on self-service update', () => {
+      expect(createdUserId).to.exist
+      expect(createdUserToken).to.be.a('string').and.not.be.empty
+
+      const newBio = `allowlisted-bio-${Date.now()}`
+
+      cy.request({
+        method: 'PATCH',
+        url: `${baseUrl}/${createdUserId}`,
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${createdUserToken}`,
+        },
+        // A self-service caller tries to escalate alongside a legit edit. The
+        // allowlist writes only `bio`; privilege/economy/membership fields are
+        // silently ignored, never persisted.
+        body: {
+          bio: newBio,
+          Role: 'ADMIN',
+          karma: 999999,
+          mana: 999999,
+          isMember: true,
+          isRestricted: false,
+        },
+      }).then((response) => {
+        expect(response.status, JSON.stringify(response.body)).to.eq(200)
+        expect(response.body.success).to.eq(true)
+        expect(response.body.data.bio).to.eq(newBio)
+        expect(response.body.data.Role).to.not.eq('ADMIN')
+        expect(response.body.data.karma).to.not.eq(999999)
+        expect(response.body.data.mana).to.not.eq(999999)
+        expect(response.body.data.isMember).to.eq(false)
+      })
+    })
   })
 
   context('Authentication and Error Handling Tests', () => {

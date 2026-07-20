@@ -71,7 +71,15 @@ describe('Dream mutation boundaries', () => {
     deleteTestUser(apiBase, adminToken, user?.id)
   })
 
-  it('creates only a Dream even when legacy side-effect flags are sent', () => {
+  // createCollection/seedStarterImages were legacy client flags this suite
+  // used to send to prove the API ignored them rather than triggering
+  // side-effect Chat/Collection rows. The mutation boundary (mutation.ts's
+  // dreamCreateFields allowlist) has since hardened from "ignore unknown
+  // fields" to "reject unknown fields with 400" — dream-input-boundary.cy.ts
+  // covers that rejection path. This suite's own job is just to prove a
+  // normal Dream mutation has no implicit Chat/Collection side effects, so
+  // it no longer needs to send fields the API would now 400 on.
+  it('creates only a Dream, with no implicit Chat or Collection side effects', () => {
     cy.request<ApiResponse<DreamResponse>>({
       method: 'POST',
       url: dreamsUrl(),
@@ -83,8 +91,6 @@ describe('Dream mutation boundaries', () => {
         dreamType: 'LOCATION',
         creationSource: 'HUMAN',
         isPublic: false,
-        createCollection: true,
-        seedStarterImages: true,
       },
     }).then((res) => {
       expect(res.status, JSON.stringify(res.body)).to.eq(201)
@@ -116,15 +122,16 @@ describe('Dream mutation boundaries', () => {
     })
   })
 
-  it('updates only the Dream even when legacy side-effect fields are sent', () => {
+  // addArtImageToCollection/updateNote were the same kind of legacy
+  // side-effect flag as createCollection/seedStarterImages above -- not in
+  // dreamPatchFields, so the API now 400s on them rather than ignoring them.
+  it('updates only the Dream, with no implicit Chat or Collection side effects', () => {
     cy.request<ApiResponse<DreamResponse>>({
       method: 'PATCH',
       url: `${dreamsUrl()}/${dreamId}`,
       headers: authHeaders(),
       body: {
         description: 'Updated without creating a timeline chat or collection.',
-        addArtImageToCollection: true,
-        updateNote: 'This must not become a Chat row.',
       },
     }).then((res) => {
       expect(res.status, JSON.stringify(res.body)).to.eq(200)
@@ -162,8 +169,6 @@ describe('Dream mutation boundaries', () => {
           dreamType: 'LOCATION',
           creationSource: 'HUMAN',
           isPublic: false,
-          createCollection: true,
-          seedStarterImages: true,
         },
       ],
     }).then((res) => {

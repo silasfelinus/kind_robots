@@ -1,0 +1,231 @@
+name: WonderLab Editorial Batch
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-editorial-batch.yml'
+      - 'config/wonderlab-editorial-batch.json'
+      - 'scripts/wonderlab-editorial-batch.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-editorial-batch.yml'
+      - 'config/wonderlab-editorial-batch.json'
+      - 'scripts/wonderlab-editorial-batch.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: wonderlab-editorial-batch
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate editorial batch boundary
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate manifest and runner safety
+        env:
+          WONDERLAB_EDITORIAL_BATCH_VALIDATE_ONLY: '1'
+          WONDERLAB_EDITORIAL_BATCH_ALLOW_EXECUTE: '1'
+          WONDERLAB_EDITORIAL_BATCH_OUTPUT: /tmp/wonderlab-editorial-batch-validation
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-editorial-batch.mjs
+          node scripts/wonderlab-editorial-batch.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const source = fs.readFileSync('scripts/wonderlab-editorial-batch.mjs', 'utf8')
+          const config = JSON.parse(fs.readFileSync('config/wonderlab-editorial-batch.json', 'utf8'))
+
+          for (const required of [
+            '/api/version',
+            '/api/admin/wonderlab/review-rollout',
+            '/api/admin/wonderlab/review-drafts/generate-batch',
+            'dryRun: true',
+            'expectedTargets',
+            'WONDERLAB_EDITORIAL_BATCH_ALLOW_EXECUTE',
+            'The global portfolio targets changed after review',
+          ]) {
+            assert.ok(source.includes(required), `missing editorial batch boundary: ${required}`)
+          }
+
+          for (const forbidden of [
+            '/publish',
+            '/approve',
+            '/reject',
+            "status: 'APPROVED'",
+            'DATABASE_URL',
+            'prisma.',
+          ]) {
+            assert.ok(!source.includes(forbidden), `editorial batch crossed forbidden boundary: ${forbidden}`)
+          }
+
+          assert.match(source, /if \(config\.execute\)[\s\S]*expectedTargets/)
+          assert.match(source, /dryRunPayload[\s\S]*if \(config\.execute\)[\s\S]*dryRun: false/)
+          assert.ok(config.execute === false || config.expectedTargets.length > 0)
+          assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
+          console.log('WonderLab editorial batch safety contract passed.')
+          NODE
+
+  batch:
+    name: Run reviewed editorial batch
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-editorial-batch]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify compatible production runtime
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+        run: |
+          set -euo pipefail
+          baseline_sha="$(jq -r '.minimumProductionCommit // empty' config/wonderlab-editorial-batch.json)"
+          if ! printf '%s' "$baseline_sha" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo '::error::minimumProductionCommit must be a full 40-character commit SHA.'
+            exit 1
+          fi
+
+          git fetch --quiet --no-tags origin main
+          if ! git cat-file -e "${baseline_sha}^{commit}" 2>/dev/null; then
+            echo "::error::Configured production baseline ${baseline_sha} is unavailable."
+            exit 1
+          fi
+
+          for attempt in $(seq 1 90); do
+            payload="$(curl -sS --max-time 20 "${BASE_URL}/api/version" || true)"
+            live_sha="$(printf '%s' "$payload" | jq -r 'if .success == true then .data.commit // empty else empty end' 2>/dev/null || true)"
+            if [ -n "$live_sha" ] && bash scripts/check-deploy-ancestry.sh "$baseline_sha" "$live_sha"; then
+              printf '%s\n' "$payload" > production-version.json
+              echo "Production ${live_sha} contains required editorial runtime ${baseline_sha}."
+              exit 0
+            fi
+            echo "Production is not compatible yet (${attempt}/90; live=${live_sha:-unknown})."
+            sleep 10
+          done
+          echo "::error::Production did not reach editorial runtime ${baseline_sha} or a descendant."
+          exit 1
+
+      - name: Run guarded editorial batch
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_EDITORIAL_BATCH_ALLOW_EXECUTE: '1'
+          WONDERLAB_EDITORIAL_BATCH_OUTPUT: wonderlab-editorial-batch-artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "${WONDERLAB_ADMIN_TOKEN:-}" ]; then
+            echo '::error::CYPRESS_BETA_ADMIN_TOKEN is not configured.'
+            exit 1
+          fi
+          node scripts/wonderlab-editorial-batch.mjs
+
+      - name: Include deploy evidence
+        if: always()
+        run: |
+          mkdir -p wonderlab-editorial-batch-artifacts
+          if [ -f production-version.json ]; then
+            cp production-version.json wonderlab-editorial-batch-artifacts/workflow-production-version.json
+          fi
+
+      - name: Upload editorial batch evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-editorial-batch-${{ github.run_id }}
+          path: wonderlab-editorial-batch-artifacts
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Post durable batch report
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          OUTPUT_DIR: wonderlab-editorial-batch-artifacts
+        with:
+          script: |
+            const fs = require('node:fs')
+            const path = require('node:path')
+            const readJson = (name) => {
+              const target = path.join(process.env.OUTPUT_DIR, name)
+              if (!fs.existsSync(target)) return null
+              try {
+                return JSON.parse(fs.readFileSync(target, 'utf8'))
+              } catch (error) {
+                return { parseError: error.message }
+              }
+            }
+
+            const summary = readJson('batch-summary.json')
+            const failure = readJson('failure.json')
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const lines = [
+              '## WonderLab editorial batch report',
+              '',
+              `- **Workflow:** [run ${context.runId}](${runUrl})`,
+              `- **Result:** ${process.env.JOB_STATUS}`,
+              `- **Batch:** ${summary?.batchId || 'unknown'}`,
+              `- **Stage:** ${summary?.stage || 'unknown'}`,
+              `- **Production:** \`${summary?.production?.commit || 'unknown'}\``,
+              `- **Targets:** ${summary?.targetCount ?? 0}`,
+            ]
+
+            if (Array.isArray(summary?.targets)) {
+              lines.push('', '### Reviewed targets', '')
+              for (const target of summary.targets) {
+                const representation = Array.isArray(target.reasons)
+                  && target.reasons.some((reason) => String(reason).startsWith('cast representation floor:'))
+                lines.push(
+                  `- Component #${target.componentId} **${target.componentName || 'Untitled'}** → **${target.reviewerName || `${target.kind} #${target.id}`}** (${target.kind} #${target.id}, affinity ${target.score}${representation ? ', cast floor' : ''})`,
+                )
+              }
+            }
+
+            if (Array.isArray(summary?.generated) && summary.generated.length) {
+              lines.push('', '### Draft results', '')
+              for (const entry of summary.generated) {
+                lines.push(
+                  `- Component #${entry.componentId} / **${entry.reviewer?.name || 'Reviewer'}**: ${entry.success ? `draft #${entry.draftId} · ${entry.status}` : `failed · ${entry.message}`}`,
+                )
+              }
+              lines.push('', '- **Editorial boundary:** zero approvals and zero publications')
+            }
+
+            if (failure) lines.push('', `- **Failure:** ${failure.message || 'See uploaded evidence.'}`)
+            if (!summary && !failure) lines.push('', '- **Evidence:** no summary was produced; inspect the uploaded artifact and logs.')
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 582,
+              body: lines.join('\n'),
+            })

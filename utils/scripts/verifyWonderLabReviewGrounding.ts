@@ -16,6 +16,11 @@ const evidence: WonderLabComponentSourceEvidence = {
   staticText: ['Add Character', 'Choose a character'],
   functionNames: ['closeCharacterForm'],
   localImports: ['characterStore'],
+  browserEvents: ['window adds resize listener with closeCharacterForm'],
+  animationCalls: ['requestAnimationFrame(closeCharacterForm)'],
+  styleBindings: ['opacity'],
+  cssAnimations: ['keyframes fade-card'],
+  storeCalls: ['characterStore.loadCharacters()'],
   facts: [
     'Declared props: showImages, variant.',
     'Declared emitted events: saved.',
@@ -24,11 +29,12 @@ const evidence: WonderLabComponentSourceEvidence = {
     'Static interface text includes: Add Character, Choose a character.',
     'Source-defined functions include: closeCharacterForm.',
     'Local source imports include: characterStore.',
+    'Browser event wiring includes: window adds resize listener with closeCharacterForm.',
   ],
 }
 
 const grounded = assertWonderLabReviewGrounding(
-  'The character-card composition gives this gallery a concrete cast-facing center, while the showImages prop makes the display choice explicit.',
+  'I appreciate that the character-card composition sits beside an explicit showImages prop; that is a concrete display choice worth discussing.',
   [
     'The source declares a showImages prop.',
     'The template composes character-card.',
@@ -40,6 +46,11 @@ assert.equal(grounded.comment.grounded, true)
 assert.ok(grounded.comment.highSignalMatches.includes('character card'))
 assert.deepEqual(grounded.comment.unsupportedClaims, [])
 assert.ok(grounded.observations.every((observation) => observation.grounded))
+assert.ok(
+  grounded.observations.every(
+    (observation) => observation.declarativeSourceClaim,
+  ),
+)
 
 const structural = validateWonderLabReviewGrounding(
   'A section, button, and select establish a straightforward structural shell.',
@@ -51,6 +62,21 @@ assert.deepEqual(structural.observations[0]?.nativeElementMatches, [
   'button',
   'section',
 ])
+
+const richerAnimation = assertWonderLabReviewGrounding(
+  'The requestAnimationFrame call and fade-card keyframes give me specific machinery to react to without guessing how polished the result looks.',
+  [
+    'The script calls requestAnimationFrame with closeCharacterForm.',
+    'The scoped style defines fade-card keyframes.',
+  ],
+  evidence,
+)
+assert.equal(richerAnimation.comment.grounded, true)
+assert.ok(
+  richerAnimation.comment.highSignalMatches.includes(
+    'request animation frame close character form',
+  ),
+)
 
 const hallucinated = validateWonderLabReviewGrounding(
   'The character-card delivers silky animation and responds quickly on every click.',
@@ -79,6 +105,28 @@ assert.throws(
 assert.throws(
   () =>
     assertWonderLabReviewGrounding(
+      'The saved event ensures that even chaotic players can interact, while the fallback text hints at a lack of visual flair and this remains a solid base.',
+      ['Declared emitted events: saved.'],
+      evidence,
+    ),
+  /unsupported causal experience claim, unsupported inference from identifiers, unsupported foundation quality judgment, unsupported visual deficiency judgment/,
+  'the exact softer inference patterns found in Lazlo’s probe must fail',
+)
+
+assert.throws(
+  () =>
+    assertWonderLabReviewGrounding(
+      'The closeCharacterForm and requestAnimationFrame identifiers suggest a delightful interactivity and vibrant experience.',
+      ['The script calls requestAnimationFrame with closeCharacterForm.'],
+      evidence,
+    ),
+  /unsupported inference from identifiers, unsupported experiential quality claim/,
+  'identifiers cannot be converted into experience claims',
+)
+
+assert.throws(
+  () =>
+    assertWonderLabReviewGrounding(
       'The character-card composition creates a clear focal point.',
       [
         'The template composes character-card.',
@@ -87,6 +135,17 @@ assert.throws(
       evidence,
     ),
   /unsupported source observations at position\(s\): 2/,
+)
+
+assert.throws(
+  () =>
+    assertWonderLabReviewGrounding(
+      'The character-card composition creates a concrete focal point.',
+      ['character-card is present.'],
+      evidence,
+    ),
+  /unsupported source observations at position\(s\): 1/,
+  'observations must use declarative source language rather than bare identifier overlap',
 )
 
 assert.throws(

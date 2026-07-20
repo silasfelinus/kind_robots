@@ -6,6 +6,7 @@ export type WonderLabReviewGroundingMatch = {
   highSignalMatches: string[]
   nativeElementMatches: string[]
   unsupportedClaims: string[]
+  declarativeSourceClaim: boolean
   grounded: boolean
 }
 
@@ -94,7 +95,44 @@ const UNSUPPORTED_CLAIM_PATTERNS: Array<{
     pattern:
       /\b(?:tested|used|tried)\s+(?:it|this|the\s+component|the\s+interface)\b/i,
   },
+  {
+    label: 'unsupported causal experience claim',
+    pattern: /\b(?:ensures?|guarantees?|encourages?|invites?)\b/i,
+  },
+  {
+    label: 'unsupported inference from identifiers',
+    pattern: /\b(?:suggests?|hints?|implies?)\b/i,
+  },
+  {
+    label: 'unsupported foundation quality judgment',
+    pattern:
+      /\b(?:solid|strong|good|excellent|weak|poor)\s+(?:base|foundation|starting point)\b/i,
+  },
+  {
+    label: 'unsupported visual deficiency judgment',
+    pattern:
+      /\b(?:lack(?:s|ing)?|needs?|could use)\s+(?:(?:a|some|more)\s+)?(?:visual flair|polish|color|animation|feedback)\b/i,
+  },
+  {
+    label: 'unsupported experiential quality claim',
+    pattern:
+      /\b(?:delightful|charming|vibrant|engaging|dynamic)\s+(?:experience|presence|interactivity|interface|sight)\b/i,
+  },
+  {
+    label: 'generic promotional conclusion',
+    pattern: /\b(?:truly\s+)?embodies\s+the\s+spirit\b/i,
+  },
+  {
+    label: 'unsupported usability judgment',
+    pattern:
+      /\b(?:structured yet flexible|clear and intuitive|user-friendly|easy to use)\b/i,
+  },
 ]
+
+const SOURCE_DECLARATION_PATTERN =
+  /\b(?:declares?|defines?|renders?|imports?|calls?|registers?|binds?|schedules?|uses?|includes?|composes?|listens?|removes?|cancels?|sets?|updates?)\b/i
+const SOURCE_FACT_LABEL_PATTERN =
+  /^(?:declared props|declared emitted events|template|static interface text|source-defined functions|local source imports|browser event wiring|animation api calls|dynamic style bindings|scoped css animations|store method calls)\b/i
 
 function normalizedWords(value: string): string[] {
   return value
@@ -130,21 +168,29 @@ function unsupportedClaims(text: string): string[] {
     .map(({ label }) => label)
 }
 
+function isDeclarativeSourceClaim(text: string): boolean {
+  return SOURCE_DECLARATION_PATTERN.test(text) || SOURCE_FACT_LABEL_PATTERN.test(text.trim())
+}
+
 function groundingMatch(
   text: string,
   highSignalTerms: string[],
   nativeElementTerms: string[],
+  requireDeclarativeSourceClaim = false,
 ): WonderLabReviewGroundingMatch {
   const highSignalMatches = matchedTerms(text, highSignalTerms)
   const nativeElementMatches = matchedTerms(text, nativeElementTerms)
   const claims = unsupportedClaims(text)
+  const declarativeSourceClaim = isDeclarativeSourceClaim(text)
   return {
     text,
     highSignalMatches,
     nativeElementMatches,
     unsupportedClaims: claims,
+    declarativeSourceClaim,
     grounded:
       claims.length === 0 &&
+      (!requireDeclarativeSourceClaim || declarativeSourceClaim) &&
       (highSignalMatches.length >= 1 || nativeElementMatches.length >= 2),
   }
 }
@@ -173,13 +219,18 @@ export function validateWonderLabReviewGrounding(
     ...evidence.staticText,
     ...evidence.functionNames,
     ...evidence.localImports,
+    ...(evidence.browserEvents || []),
+    ...(evidence.animationCalls || []),
+    ...(evidence.styleBindings || []),
+    ...(evidence.cssAnimations || []),
+    ...(evidence.storeCalls || []),
   ])
   const nativeElementTerms = evidenceTerms(evidence.nativeElements)
 
   return {
     comment: groundingMatch(comment, highSignalTerms, nativeElementTerms),
     observations: observations.map((observation) =>
-      groundingMatch(observation, highSignalTerms, nativeElementTerms),
+      groundingMatch(observation, highSignalTerms, nativeElementTerms, true),
     ),
   }
 }

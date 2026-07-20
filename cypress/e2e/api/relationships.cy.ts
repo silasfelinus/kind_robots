@@ -242,7 +242,7 @@ describe('Relationship API Tests', () => {
       )
       .then(() =>
         postRecord('bot', {
-          botType: 'PROMPTBOT',
+          BotType: 'PROMPTBOT',
           name: `cypress-bot-${time}`,
           subtitle: 'Relationship bot',
           description: 'Cypress relationship bot fixture',

@@ -1,22 +1,8 @@
 // /utils/scripts/verifyReviewDraftGeneration.ts
+import './verifyWonderLabReviewGrounding'
+import './verifyWonderLabSourceEvidence'
 import assert from 'node:assert/strict'
-import { readFile, writeFile } from 'node:fs/promises'
-
-async function runGroundingRegression(modulePath: string): Promise<void> {
-  try {
-    await import(modulePath)
-  } catch (error) {
-    const detail = error instanceof Error ? error.stack || error.message : String(error)
-    await writeFile(
-      'wonderlab-preview-audit.txt',
-      `WonderLab review grounding regression failed in ${modulePath}:\n${detail}\n`,
-    )
-    throw error
-  }
-}
-
-await runGroundingRegression('./verifyWonderLabReviewGrounding.ts')
-await runGroundingRegression('./verifyWonderLabSourceEvidence.ts')
+import { readFile } from 'node:fs/promises'
 
 const generatorPath = 'server/utils/wonderLabReviewDraftGenerator.ts'
 const endpointPath = 'server/api/admin/wonderlab/review-drafts/generate.post.ts'
@@ -49,6 +35,8 @@ assert.doesNotMatch(groundingGate, /publishReviewDraft/)
 
 assert.match(grounding, /highSignalMatches\.length >= 1/)
 assert.match(grounding, /nativeElementMatches\.length >= 2/)
+assert.match(grounding, /unsupportedClaims/)
+assert.match(grounding, /unverified device responsiveness/)
 assert.match(grounding, /unsupported source observations/)
 assert.match(grounding, /wonderLabSourceEvidenceByPath/)
 

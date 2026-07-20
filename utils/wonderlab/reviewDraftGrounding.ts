@@ -5,6 +5,7 @@ export type WonderLabReviewGroundingMatch = {
   text: string
   highSignalMatches: string[]
   nativeElementMatches: string[]
+  unsupportedClaims: string[]
   grounded: boolean
 }
 
@@ -51,6 +52,50 @@ const STOP_WORDS = new Set([
   'with',
 ])
 
+const UNSUPPORTED_CLAIM_PATTERNS: Array<{
+  label: string
+  pattern: RegExp
+}> = [
+  {
+    label: 'unverified smooth runtime behavior',
+    pattern:
+      /\b(?:smooth|smoothly|silky|fluid|snappy|lag-free)\s+(?:animation|transition|motion|interaction|response|performance)\b/i,
+  },
+  {
+    label: 'unverified runtime performance',
+    pattern:
+      /\b(?:loads?|renders?|runs?|responds?)\s+(?:quickly|smoothly|fast|perfectly|well)\b/i,
+  },
+  {
+    label: 'unverified device responsiveness',
+    pattern:
+      /\b(?:responsive|optimized)\s+(?:on|for)\s+(?:mobile|tablet|desktop|devices?|screens?|browsers?)\b/i,
+  },
+  {
+    label: 'unverified accessibility result',
+    pattern:
+      /\b(?:accessible|accessibility-compliant|wcag|screen-reader friendly|keyboard accessible)\b/i,
+  },
+  {
+    label: 'unverified security result',
+    pattern: /\b(?:secure|security-hardened|safe from|vulnerabilit(?:y|ies))\b/i,
+  },
+  {
+    label: 'unverified contrast judgment',
+    pattern: /\b(?:excellent|strong|good|poor|weak)\s+(?:color\s+)?contrast\b/i,
+  },
+  {
+    label: 'invented visual styling',
+    pattern:
+      /\b(?:glowing|vibrant|subtle|beautiful|polished)\s+(?:gradient|palette|colors?|shadows?|glow)\b/i,
+  },
+  {
+    label: 'unsupported personal runtime test',
+    pattern:
+      /\b(?:tested|used|tried)\s+(?:it|this|the\s+component|the\s+interface)\b/i,
+  },
+]
+
 function normalizedWords(value: string): string[] {
   return value
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -79,6 +124,12 @@ function matchedTerms(text: string, candidates: string[]): string[] {
   )
 }
 
+function unsupportedClaims(text: string): string[] {
+  return UNSUPPORTED_CLAIM_PATTERNS
+    .filter(({ pattern }) => pattern.test(text))
+    .map(({ label }) => label)
+}
+
 function groundingMatch(
   text: string,
   highSignalTerms: string[],
@@ -86,11 +137,15 @@ function groundingMatch(
 ): WonderLabReviewGroundingMatch {
   const highSignalMatches = matchedTerms(text, highSignalTerms)
   const nativeElementMatches = matchedTerms(text, nativeElementTerms)
+  const claims = unsupportedClaims(text)
   return {
     text,
     highSignalMatches,
     nativeElementMatches,
-    grounded: highSignalMatches.length >= 1 || nativeElementMatches.length >= 2,
+    unsupportedClaims: claims,
+    grounded:
+      claims.length === 0 &&
+      (highSignalMatches.length >= 1 || nativeElementMatches.length >= 2),
   }
 }
 
@@ -135,6 +190,11 @@ export function assertWonderLabReviewGrounding(
   evidence: WonderLabComponentSourceEvidence,
 ): WonderLabReviewGroundingResult {
   const result = validateWonderLabReviewGrounding(comment, observations, evidence)
+  if (result.comment.unsupportedClaims.length) {
+    throw new Error(
+      `Generated review comment makes unsupported claim(s): ${result.comment.unsupportedClaims.join(', ')}.`,
+    )
+  }
   if (!result.comment.grounded) {
     throw new Error(
       'Generated review comment does not overlap the supplied Component source evidence.',

@@ -2,6 +2,7 @@ import type {
   WonderLabReviewerAffinity,
   WonderLabReviewerCandidate,
 } from './reviewerAffinity'
+import type { ReviewDraftStatus } from './reviewDraft'
 
 export type WonderLabPortfolioCoverage = 'MISSING' | 'DRAFTED' | 'PUBLISHED'
 
@@ -30,6 +31,17 @@ export type WonderLabPortfolioReviewerUsage = {
 export type AssignWonderLabReviewerPortfolioOptions = {
   reviewersPerExhibit?: number
   diversityPenalty?: number
+}
+
+const ACTIVE_EDITORIAL_DRAFT_STATUSES = new Set<ReviewDraftStatus>([
+  'PROPOSED',
+  'APPROVED',
+])
+
+export function isWonderLabActiveEditorialDraft(
+  status: ReviewDraftStatus,
+): boolean {
+  return ACTIVE_EDITORIAL_DRAFT_STATUSES.has(status)
 }
 
 const COVERAGE_PRIORITY: Record<WonderLabPortfolioCoverage, number> = {
@@ -131,7 +143,9 @@ export function assignWonderLabReviewerPortfolio(
       )
       return {
         exhibit,
-        bestScore: available[0]?.score ?? Number.NEGATIVE_INFINITY,
+        bestScore: available.length
+          ? Math.max(...available.map((candidate) => candidate.score))
+          : Number.NEGATIVE_INFINITY,
         availableCount: available.length,
       }
     })

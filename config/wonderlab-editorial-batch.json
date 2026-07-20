@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "batchId": "wonderlab-source-grounded-rollout-006-reviewable-dry-run",
+  "batchId": "wonderlab-source-grounded-rollout-006-final-dry-run",
   "execute": false,
-  "minimumProductionCommit": "1c187bfd9acfa7a5485845cd94fb41db5a7cd51b",
+  "minimumProductionCommit": "e58bb532fc39241ee05dfdf4b528d6d248fe47ae",
   "componentIds": [],
   "limit": 10,
   "reviewersPerComponent": 2,

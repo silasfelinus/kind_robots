@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "batchId": "wonderlab-source-grounded-quality-probe-001-retry",
+  "batchId": "wonderlab-source-grounded-quality-probe-002",
   "execute": true,
-  "minimumProductionCommit": "201c46d846e2945e279732eb74b795d53e1f5610",
+  "minimumProductionCommit": "c4cf3d8d071d708b1b81be0b354a2fa9e533c187",
   "componentIds": [1951, 124],
   "limit": 2,
   "reviewersPerComponent": 2,

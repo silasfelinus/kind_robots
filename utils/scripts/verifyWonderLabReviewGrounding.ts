@@ -64,10 +64,10 @@ assert.deepEqual(structural.observations[0]?.nativeElementMatches, [
 ])
 
 const richerAnimation = assertWonderLabReviewGrounding(
-  'The requestAnimationFrame call and fade-card keyframes give me specific machinery to react to without guessing how polished the result looks.',
+  'The requestAnimationFrame(closeCharacterForm) call and keyframes fade-card give me specific machinery to react to without guessing how polished the result looks.',
   [
-    'The script calls requestAnimationFrame with closeCharacterForm.',
-    'The scoped style defines fade-card keyframes.',
+    'The script calls requestAnimationFrame(closeCharacterForm).',
+    'The scoped style defines keyframes fade-card.',
   ],
   evidence,
 )
@@ -117,7 +117,7 @@ assert.throws(
   () =>
     assertWonderLabReviewGrounding(
       'The closeCharacterForm and requestAnimationFrame identifiers suggest a delightful interactivity and vibrant experience.',
-      ['The script calls requestAnimationFrame with closeCharacterForm.'],
+      ['The script calls requestAnimationFrame(closeCharacterForm).'],
       evidence,
     ),
   /unsupported inference from identifiers, unsupported experiential quality claim/,

@@ -5,10 +5,12 @@
 // network). Restricted to admin/server credentials: the relay executes other
 // users' jobs, so a plain user key must not be able to drain the queue.
 //
-// Claimable jobs, in order: PENDING by priority desc then id asc, else a
-// RUNNING job whose claim went stale (crashed relay). The claim itself is an
-// updateMany guarded on the expected status, so two relays can never win the
-// same job — the loser just retries the next candidate.
+// Smart queueing is enabled by default. Within the highest-priority tier, the
+// relay prefers a bounded lookahead job whose model-loader affinity matches the
+// last job that relay completed. The bypass cap prevents a busy model family
+// from starving older work indefinitely. Set smartQueue=false for strict FIFO.
+// The claim itself is an updateMany guarded on the expected status, so two
+// relays can never win the same job — the loser retries another candidate.
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -17,23 +19,24 @@ import {
   decodeArtJobPayload,
   parseArtJobPayload,
 } from '../../../utils/artJobPayload'
+import {
+  artJobQueueAffinityKey,
+  selectSmartQueueCandidate,
+} from '../../../utils/artJobQueueAffinity'
 import { recordRelayClaimAttempt } from '../../../utils/relayAgentRegistry'
 
 const STALE_CLAIM_MINUTES = 15
 const MAX_ATTEMPTS = 3
 const CLAIM_CANDIDATE_TRIES = 5
+const CLAIM_LOOKAHEAD = 50
+const SMART_QUEUE_MAX_BYPASS = 24
 
 type ClaimRequestBody = {
   agentId?: string | null
   engines?: string[] | null
-  // Capability handshake: jobs whose payload carries input images (e.g. Hair
-  // Studio kontext jobs) are only handed to agents that declare support, so
-  // a stale relay never claims-and-fails them — they wait instead.
   supportsInputImages?: boolean | null
-  // Optional relay build identifier. Not required — older relay builds that
-  // don't send it just show as "unknown" in the admin diagnostics readout
-  // (see relayAgentRegistry.ts) instead of failing the request.
   agentVersion?: string | null
+  smartQueue?: boolean | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -55,17 +58,13 @@ export default defineEventHandler(async (event) => {
     const engines = (body?.engines || ['A1111', 'COMFY'])
       .map((engine) => String(engine).toUpperCase())
       .filter((engine) => engine === 'A1111' || engine === 'COMFY') as (
-      'A1111' | 'COMFY'
+      | 'A1111'
+      | 'COMFY'
     )[]
 
     const supportsInputImages = body?.supportsInputImages === true
+    const smartQueue = body?.smartQueue !== false
 
-    // Record this poll up front — before engine validation and before we know
-    // whether a job gets handed out — so a relay that's alive but never wins
-    // a candidate (wrong engines, every job skipped by the image-capability
-    // gate below) still shows up in the admin diagnostics readout instead of
-    // looking indistinguishable from a relay that's stopped polling
-    // entirely.
     recordRelayClaimAttempt({
       agentId: claimedBy,
       supportsInputImages,
@@ -80,11 +79,6 @@ export default defineEventHandler(async (event) => {
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
     const skippedIds: number[] = []
 
-    // Reap zombies: a RUNNING job whose claim went stale AND has already used up
-    // all its attempts is never re-offered (the candidate query requires
-    // attempts < MAX_ATTEMPTS) and never completed — it would sit RUNNING
-    // forever. Mark those FAILED so they surface in the dashboard instead of
-    // silently stalling the queue. Runs opportunistically on each claim poll.
     await prisma.artJob.updateMany({
       where: {
         status: 'RUNNING',
@@ -99,8 +93,30 @@ export default defineEventHandler(async (event) => {
       },
     })
 
+    const previousJob = smartQueue
+      ? await prisma.artJob.findFirst({
+          where: {
+            claimedBy,
+            status: 'DONE',
+            engine: { in: engines },
+          },
+          orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+          select: {
+            engine: true,
+            payload: true,
+          },
+        })
+      : null
+
+    const preferredAffinity = previousJob
+      ? artJobQueueAffinityKey(
+          previousJob.engine,
+          parseArtJobPayload(previousJob.payload),
+        )
+      : null
+
     for (let attempt = 0; attempt < CLAIM_CANDIDATE_TRIES; attempt++) {
-      const candidate = await prisma.artJob.findFirst({
+      const candidates = await prisma.artJob.findMany({
         where: {
           engine: { in: engines },
           attempts: { lt: MAX_ATTEMPTS },
@@ -111,26 +127,49 @@ export default defineEventHandler(async (event) => {
           ],
         },
         orderBy: [{ priority: 'desc' }, { id: 'asc' }],
+        take: CLAIM_LOOKAHEAD,
       })
 
-      if (!candidate) {
+      if (!candidates.length) {
         return {
           success: true,
           message: 'No runnable jobs.',
-          data: { job: null },
+          data: {
+            job: null,
+            scheduling: {
+              mode: smartQueue ? 'SMART' : 'FIFO',
+              preferredAffinity,
+            },
+          },
           statusCode: 200,
         }
       }
 
-      const payload = parseArtJobPayload(candidate.payload)
-      const needsInputImages =
-        Array.isArray(payload.images) && payload.images.length > 0
+      const eligible = candidates
+        .map((candidate) => ({
+          ...candidate,
+          payload: parseArtJobPayload(candidate.payload),
+        }))
+        .filter((candidate) => {
+          const needsInputImages =
+            Array.isArray(candidate.payload.images) &&
+            candidate.payload.images.length > 0
+          return !needsInputImages || supportsInputImages
+        })
 
-      if (needsInputImages && !supportsInputImages) {
-        // Leave the job for an image-capable agent instead of failing it.
-        skippedIds.push(candidate.id)
+      if (!eligible.length) {
+        skippedIds.push(...candidates.map((candidate) => candidate.id))
         continue
       }
+
+      const selection = selectSmartQueueCandidate(
+        eligible,
+        smartQueue ? preferredAffinity : null,
+        smartQueue ? SMART_QUEUE_MAX_BYPASS : 0,
+      )
+      const candidate = selection.candidate
+
+      if (!candidate) continue
 
       const won = await prisma.artJob.updateMany({
         where: {
@@ -153,18 +192,36 @@ export default defineEventHandler(async (event) => {
 
         return {
           success: true,
-          message: 'Job claimed.',
-          data: { job: job ? decodeArtJobPayload(job) : null },
+          message: selection.affinityMatched
+            ? `Job claimed with model affinity (${selection.bypassedCount} older same-priority job(s) bypassed).`
+            : 'Job claimed.',
+          data: {
+            job: job ? decodeArtJobPayload(job) : null,
+            scheduling: {
+              mode: smartQueue ? 'SMART' : 'FIFO',
+              affinityMatched: selection.affinityMatched,
+              bypassedCount: selection.bypassedCount,
+              preferredAffinity: selection.preferredAffinity,
+              selectedAffinity: selection.selectedAffinity,
+            },
+          },
           statusCode: 200,
         }
       }
-      // Lost the race to another relay — try the next candidate.
+
+      skippedIds.push(candidate.id)
     }
 
     return {
       success: true,
       message: 'Queue contended; retry shortly.',
-      data: { job: null },
+      data: {
+        job: null,
+        scheduling: {
+          mode: smartQueue ? 'SMART' : 'FIFO',
+          preferredAffinity,
+        },
+      },
       statusCode: 200,
     }
   } catch (error: unknown) {

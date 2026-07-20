@@ -92,6 +92,7 @@ const representationInputs = [
 const representation = assignWonderLabReviewerPortfolio(representationInputs, {
   reviewersPerExhibit: 2,
   diversityPenalty: 4,
+  assignmentMinimumScore: 0,
   minimumAssignmentsPerReviewer: 2,
   representationMinimumScore: 1,
 })
@@ -114,6 +115,7 @@ const qualityBoundary = assignWonderLabReviewerPortfolio([
   { key: 30, candidates: [weakOnly, candidate(31, 'CHARACTER', 'Grounded Character', 5)] },
 ], {
   reviewersPerExhibit: 1,
+  assignmentMinimumScore: 1,
   minimumAssignmentsPerReviewer: 1,
   representationMinimumScore: 1,
 })
@@ -126,6 +128,18 @@ assert.equal(
   'NO_RESPONSIBLE_AFFINITY',
   'representation must report weak matches instead of forcing filler',
 )
+
+const weakVisibleButUnassigned = assignWonderLabReviewerPortfolio([
+  { key: 32, candidates: [candidate(32, 'BOT', 'Below Assignment Threshold', 0)] },
+], {
+  reviewersPerExhibit: 1,
+  assignmentMinimumScore: 1,
+  minimumAssignmentsPerReviewer: 0,
+  representationMinimumScore: 1,
+})
+assert.equal(weakVisibleButUnassigned.assignments[0]?.reviewers.length, 0)
+assert.equal(weakVisibleButUnassigned.reviewerUsage[0]?.count, 0)
+assert.equal(weakVisibleButUnassigned.representation.eligibleReviewers, 1)
 
 const deterministic = assignWonderLabReviewerPortfolio(inputs, {
   reviewersPerExhibit: 2,

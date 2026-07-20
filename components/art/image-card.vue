@@ -548,6 +548,14 @@ function shouldFetchFullImage(image: ArtImage) {
 }
 
 function shouldPreferImagePath(image: ArtImage) {
+  // Path-first: a real stored path (imagePath/path) wins over inline base64.
+  // A bare fileName is NOT a real path here, so it can't preempt usable base64.
+  const realPath =
+    image.imagePath?.trim() ||
+    (image as { path?: string | null }).path?.trim() ||
+    ''
+  if (realPath) return true
+
   const pathUrl = createImagePathUrl(image)
   if (!pathUrl) return false
   if (!image.imageData) return true

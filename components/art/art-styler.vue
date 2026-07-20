@@ -903,6 +903,10 @@ const sourceImageSrc = computed<string>(() => {
     path?: string | null
   }
 
+  // Path-first: stored path, then inline base64, then the base64 thumb cache.
+  const path = img.imagePath || img.path || ''
+  if (path) return path
+
   if (img.thumbnailData) {
     return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
   }
@@ -911,7 +915,7 @@ const sourceImageSrc = computed<string>(() => {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
   }
 
-  return img.imagePath || img.path || galleryThumbs.value[img.id] || ''
+  return galleryThumbs.value[img.id] || ''
 })
 
 const resultImageSrc = computed<string>(() => {
@@ -923,11 +927,15 @@ const resultImageSrc = computed<string>(() => {
     path?: string | null
   }
 
+  // Path-first: stored path, then inline base64.
+  const path = img.imagePath || img.path || ''
+  if (path) return path
+
   if (img.imageData) {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
   }
 
-  return img.imagePath || img.path || ''
+  return ''
 })
 
 const kontextServer = computed<Server | null>(() => {

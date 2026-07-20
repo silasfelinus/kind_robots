@@ -3,7 +3,8 @@ import { defineEventHandler } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { assertProjectAccess, getProjectId, projectInclude } from './index'
+import { assertProjectAccess, getProjectId } from './index'
+import { projectMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -20,7 +21,7 @@ export default defineEventHandler(async (event) => {
     const project = await prisma.project.update({
       where: { id },
       data: { isActive: false, status: 'ARCHIVED' },
-      include: projectInclude,
+      select: projectMutationSelect,
     })
 
     event.node.res.statusCode = 200

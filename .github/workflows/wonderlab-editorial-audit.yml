@@ -5,18 +5,22 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-editorial-audit.yml'
+      - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
       - 'scripts/wonderlab-production-editorial-audit.mjs'
       - 'server/api/admin/wonderlab/review-portfolio.get.ts'
       - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
       - 'utils/scripts/verifyWonderLabReviewerPortfolio.ts'
       - 'utils/wonderlab/reviewerPortfolio.ts'
   push:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-editorial-audit.yml'
+      - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
       - 'scripts/wonderlab-production-editorial-audit.mjs'
       - 'server/api/admin/wonderlab/review-portfolio.get.ts'
       - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
       - 'utils/wonderlab/reviewerPortfolio.ts'
   workflow_dispatch:
     inputs:
@@ -62,11 +66,17 @@ jobs:
         run: |
           set -euo pipefail
           node --check scripts/wonderlab-production-editorial-audit.mjs
+          node --check scripts/post-wonderlab-editorial-audit-comment.mjs
+          node --check utils/scripts/verifyWonderLabEditorialAuditComment.mjs
           node <<'NODE'
           const fs = require('node:fs')
           const assert = require('node:assert').strict
           const audit = fs.readFileSync(
             'scripts/wonderlab-production-editorial-audit.mjs',
+            'utf8',
+          )
+          const publisher = fs.readFileSync(
+            'scripts/post-wonderlab-editorial-audit-comment.mjs',
             'utf8',
           )
           const endpoint = fs.readFileSync(
@@ -110,9 +120,14 @@ jobs:
           assert.match(portfolio, /isWonderLabEditoriallyExcludedReviewer/)
           assert.match(portfolio, /loadCoverage/)
           assert.doesNotMatch(portfolio, /INSERT\s+INTO|UPDATE\s+|DELETE\s+FROM/i)
+          assert.match(publisher, /api\.github\.com\/repos\/\$\{repository\}\/issues\/\$\{issueNumber\}\/comments/)
+          assert.doesNotMatch(publisher, /kind-robots\.vercel\.app|review-drafts\/generate|\/publish|\/approve|\/reject/)
 
           console.log('WonderLab editorial portfolio audit boundary passed.')
           NODE
+
+      - name: Verify audit comment rendering
+        run: node utils/scripts/verifyWonderLabEditorialAuditComment.mjs
 
   audit:
     name: Audit production editorial coverage
@@ -174,6 +189,17 @@ jobs:
           fi
           node scripts/wonderlab-production-editorial-audit.mjs
 
+      - name: Render and post editorial audit evidence
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          WONDERLAB_EDITORIAL_AUDIT_POST: 'true'
+          WONDERLAB_EDITORIAL_AUDIT_STATUS: ${{ job.status }}
+          WONDERLAB_EDITORIAL_AUDIT_ISSUE: '582'
+          WONDERLAB_EDITORIAL_AUDIT_REPORT: wonderlab-editorial-audit-artifacts/editorial-coverage-audit.json
+          WONDERLAB_EDITORIAL_AUDIT_COMMENT: wonderlab-editorial-audit-artifacts/editorial-coverage-comment.md
+        run: node scripts/post-wonderlab-editorial-audit-comment.mjs
+
       - name: Upload editorial audit evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -182,72 +208,3 @@ jobs:
           path: wonderlab-editorial-audit-artifacts
           if-no-files-found: warn
           retention-days: 30
-
-      - name: Post editorial audit to issue 582
-        if: always()
-        uses: actions/github-script@v7
-        env:
-          JOB_STATUS: ${{ job.status }}
-          REPORT_PATH: wonderlab-editorial-audit-artifacts/editorial-coverage-audit.json
-        with:
-          script: |
-            const fs = require('node:fs')
-            const report = fs.existsSync(process.env.REPORT_PATH)
-              ? JSON.parse(fs.readFileSync(process.env.REPORT_PATH, 'utf8'))
-              : null
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            const lines = [
-              '## WonderLab editorial portfolio audit',
-              '',
-              `- **Workflow:** [run ${context.runId}](${runUrl})`,
-              `- **Result:** ${process.env.JOB_STATUS}`,
-            ]
-
-            if (report) {
-              const coverage = report.coverage || {}
-              const diversity = report.diversity || {}
-              lines.push(
-                `- **Production:** commit \`${report.production?.commit || 'unknown'}\`; deployment \`${report.production?.deploymentId || 'unknown'}\``,
-                `- **Assignment mode:** ${report.scope?.assignmentMode || 'unknown'}; repeat-use penalty ${report.scope?.diversityPenalty ?? 'unknown'}`,
-                `- **Discovered exhibits:** ${report.scope?.discoveredComponents || 0}`,
-                `- **Planned reviewer slots:** ${coverage.reviewerSlots || 0}/${coverage.targetReviewerSlots || 0} (${coverage.assignmentShortfall || 0} short)`,
-                `- **Published planned slots:** ${coverage.publishedSlots || 0} (${coverage.publishedSlotRate || 0}%)`,
-                `- **Drafted planned slots:** ${coverage.draftedSlots || 0}`,
-                `- **Missing planned slots:** ${coverage.missingSlots || 0}`,
-                `- **Exhibits with any published planned review:** ${coverage.exhibitsWithPublishedReview || 0} (${coverage.exhibitsWithPublishedReviewRate || 0}%)`,
-                `- **Published reviewer diversity:** ${diversity.publishedBots || 0} Bot(s), ${diversity.publishedCharacters || 0} Character(s)`,
-                `- **Assigned reviewer diversity:** ${diversity.assignedBots || 0} Bot(s), ${diversity.assignedCharacters || 0} Character(s)`,
-                `- **Largest reviewer allocation:** ${diversity.largestAssignmentCount || 0} slots (${diversity.largestAssignmentShare || 0}%)`,
-                `- **Incomplete assignments:** ${coverage.exhibitsWithIncompleteAssignment || 0} exhibit(s)`,
-              )
-
-              const top = Array.isArray(report.reviewerUsage)
-                ? report.reviewerUsage.slice(0, 10)
-                : []
-              if (top.length) {
-                lines.push('', '### Most-used planned reviewers', '')
-                for (const reviewer of top) {
-                  lines.push(
-                    `- **${reviewer.name}** (${reviewer.kind} #${reviewer.id}): ${reviewer.assigned} assignments; ${reviewer.published} published, ${reviewer.drafted} drafted, ${reviewer.missing} missing`,
-                  )
-                }
-              }
-
-              lines.push(
-                '',
-                `> ${report.scope?.note || 'Coverage reflects portfolio-selected reviewer slots.'}`,
-                '',
-                'The uploaded JSON artifact contains the top 50 missing high-affinity assignments and every exhibit without a complete reviewer assignment. This workflow is read-only and performs no generation, approval, editing, or publication.',
-              )
-            } else {
-              lines.push(
-                '- **Evidence:** no report was produced; inspect the workflow logs and partial artifact.',
-              )
-            }
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: 582,
-              body: lines.join('\n'),
-            })

@@ -7,6 +7,7 @@ import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
+import { assertBotRelationsAttachable } from './relations'
 
 type BotCreateBody = Partial<Omit<Bot, 'userId'>> &
   Record<string, unknown> & {
@@ -94,7 +95,7 @@ async function assertRelatedRecordsExist(options: {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { user } = await requireApiUser(event)
+    const { user, isAdmin, isServerKey } = await requireApiUser(event)
     const botData = await readBody<BotCreateBody>(event)
 
     if (!botData || typeof botData !== 'object' || Array.isArray(botData)) {
@@ -117,8 +118,19 @@ export default defineEventHandler(async (event) => {
 
     const serverId = getPositiveIntegerOrUndefined(botData.serverId)
     const artImageId = getPositiveIntegerOrUndefined(botData.artImageId)
+    const dreamConnect = getDreamConnect(botData.Dreams ?? botData.dreamIds)
+    const dreamIds = dreamConnect?.connect.map((entry) => entry.id) ?? []
 
     await assertRelatedRecordsExist({ serverId, artImageId })
+    await assertBotRelationsAttachable(
+      {
+        serverIds: serverId ? [serverId] : [],
+        artImageIds: artImageId ? [artImageId] : [],
+        dreamIds,
+      },
+      user.id,
+      isAdmin || isServerKey,
+    )
 
     const requestedSlug = normalizeSlugInput(botData.slug)
     const slug = await getUniqueBotSlug(prisma, requestedSlug ?? name)
@@ -167,7 +179,7 @@ export default defineEventHandler(async (event) => {
             connect: { id: artImageId },
           }
         : undefined,
-      Dreams: getDreamConnect(botData.Dreams ?? botData.dreamIds),
+      Dreams: dreamConnect,
     }
 
     const bot = await prisma.bot.create({

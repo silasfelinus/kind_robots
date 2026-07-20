@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
+import { assertBotRelationsAttachable } from './relations'
 
 type BotBatchPatch = Partial<Omit<Bot, 'userId'>> &
   Record<string, unknown> & {
@@ -72,6 +73,23 @@ function getDreamRelationUpdate(
   if (disconnect.length) op.disconnect = disconnect
 
   return Object.keys(op).length ? op : undefined
+}
+
+// Dream IDs a batch entry would newly attach (set + connect). Disconnected IDs
+// are omitted because removing a relation needs no attach permission.
+function getDreamAttachIds(body: BotBatchPatch): number[] {
+  const toIds = (value: unknown): number[] =>
+    Array.isArray(value)
+      ? value
+          .map((item) =>
+            item && typeof item === 'object'
+              ? Number((item as { id?: unknown }).id)
+              : Number(item),
+          )
+          .filter((id) => Number.isInteger(id) && id > 0)
+      : []
+
+  return [...toIds(body.dreamIds), ...toIds(body.addDreamIds)]
 }
 
 function hasUpdateData(data: Record<string, unknown>): boolean {
@@ -285,6 +303,16 @@ export default defineEventHandler(async (event) => {
     ]
 
     await assertRelatedRecordsExist({ serverIds, artImageIds })
+
+    const dreamAttachIds = [
+      ...new Set(bots.flatMap((bot) => getDreamAttachIds(bot))),
+    ]
+
+    await assertBotRelationsAttachable(
+      { serverIds, artImageIds, dreamIds: dreamAttachIds },
+      user?.id ?? 0,
+      isAdmin || isServerKey,
+    )
 
     const updates = bots.map((bot) => {
       const id = getPositiveIntegerOrUndefined(bot.id) as number

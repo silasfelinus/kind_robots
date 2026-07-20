@@ -33,6 +33,11 @@ describe('Bot Management API Tests', () => {
   let userId = 0
   let createdBotId: number | undefined
 
+  // Second user + their private Dream, used to prove relation attach permission.
+  let otherToken = ''
+  let otherId: number | undefined
+  let privateDreamId: number | undefined
+
   const botName = `testbot-${Date.now()}`
 
   before(() => {
@@ -46,6 +51,26 @@ describe('Bot Management API Tests', () => {
       .then((auth) => {
         userToken = auth.token
         userId = auth.id
+        return createLoggedInTestUser({ fresh: true })
+      })
+      .then((other) => {
+        otherToken = other.token
+        otherId = other.id
+
+        return cy
+          .request({
+            method: 'POST',
+            url: `${apiRoot}/dreams`,
+            headers: bearerHeaders(otherToken),
+            body: {
+              title: `PrivateDream-${Date.now()}`,
+              isPublic: false,
+            },
+            failOnStatusCode: false,
+          })
+          .then((response) => {
+            privateDreamId = response.body?.data?.id
+          })
       })
   })
 
@@ -59,7 +84,17 @@ describe('Bot Management API Tests', () => {
       })
     }
 
+    if (privateDreamId && otherToken) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiRoot}/dreams/${privateDreamId}`,
+        headers: bearerHeaders(otherToken),
+        failOnStatusCode: false,
+      })
+    }
+
     deleteTestUser(apiRoot, adminToken, userId)
+    deleteTestUser(apiRoot, adminToken, otherId)
   })
 
   it('should not allow creating a bot without an authorization token', () => {
@@ -116,6 +151,25 @@ describe('Bot Management API Tests', () => {
       expect(response.status).to.eq(400)
       expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Ownership is server-owned')
+    })
+  })
+
+  it('forbids attaching another user private Dream on Bot creation', () => {
+    expect(privateDreamId, 'privateDreamId').to.be.a('number')
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        name: `${botName}-forbidden-dream`,
+        dreamIds: [privateDreamId],
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(403)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('permission to attach')
     })
   })
 

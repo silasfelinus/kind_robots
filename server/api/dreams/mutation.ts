@@ -4,6 +4,7 @@ import type {
   DreamType,
   Prisma,
 } from '~/prisma/generated/prisma/client'
+import prisma from '../../utils/prisma'
 import { creationSources, dreamTypes } from './index'
 
 export const DREAM_RELATION_ID_LIMIT = 100
@@ -364,5 +365,124 @@ export function assertDreamMutationInput(
     if (input[field] !== undefined) {
       normalizeBoundedDreamIdArray(input[field], field)
     }
+  }
+}
+
+function uniqueIds(values: Array<number | null | undefined>): number[] {
+  return Array.from(
+    new Set(
+      values.filter(
+        (id): id is number =>
+          typeof id === 'number' && Number.isInteger(id) && id > 0,
+      ),
+    ),
+  )
+}
+
+function idsFromNullable(value: unknown, field: string): number[] {
+  const id = normalizeBoundedDreamNullableId(value, field)
+  return typeof id === 'number' ? [id] : []
+}
+
+function forbiddenRelationError(label: string) {
+  return createError({
+    statusCode: 403,
+    message: `You do not have permission to attach one or more ${label} records to this Dream.`,
+  })
+}
+
+// Verifies the caller may connect every relation target referenced by a Dream
+// mutation: each must be public or owned by the caller (admins bypass). Shared by
+// Dream create and PATCH so both paths gate connects identically — a non-admin can
+// no longer attach another user's private ArtImage/ArtCollection/Scenario/
+// Character/Reward to a Dream. A missing ID also fails the count (403), replacing
+// the create path's previous reliance on a raw Prisma foreign-key error.
+export async function assertDreamRelationsAttachable(
+  body: DreamMutationBody,
+  userId: number,
+  userRole: string,
+): Promise<void> {
+  if (userRole === 'ADMIN') return
+
+  const artImageIds = uniqueIds([
+    ...idsFromNullable(body.artImageId, 'artImageId'),
+    ...(normalizeBoundedDreamIdArray(body.artImageIds, 'artImageIds') ?? []),
+  ])
+
+  if (artImageIds.length) {
+    const count = await prisma.artImage.count({
+      where: {
+        id: { in: artImageIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== artImageIds.length) throw forbiddenRelationError('ArtImage')
+  }
+
+  const artCollectionIds = uniqueIds([
+    ...idsFromNullable(body.artCollectionId, 'artCollectionId'),
+    ...(normalizeBoundedDreamIdArray(
+      body.artCollectionIds,
+      'artCollectionIds',
+    ) ?? []),
+  ])
+
+  if (artCollectionIds.length) {
+    const count = await prisma.artCollection.count({
+      where: {
+        id: { in: artCollectionIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== artCollectionIds.length) {
+      throw forbiddenRelationError('ArtCollection')
+    }
+  }
+
+  const scenarioIds = uniqueIds([
+    ...idsFromNullable(body.scenarioId, 'scenarioId'),
+    ...(normalizeBoundedDreamIdArray(body.scenarioIds, 'scenarioIds') ?? []),
+    ...(normalizeBoundedDreamIdArray(body.Scenarios, 'Scenarios') ?? []),
+  ])
+
+  if (scenarioIds.length) {
+    const count = await prisma.scenario.count({
+      where: {
+        id: { in: scenarioIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== scenarioIds.length) throw forbiddenRelationError('Scenario')
+  }
+
+  const characterIds =
+    normalizeBoundedDreamIdArray(body.characterIds, 'characterIds') ?? []
+
+  if (characterIds.length) {
+    const count = await prisma.character.count({
+      where: {
+        id: { in: characterIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== characterIds.length) throw forbiddenRelationError('Character')
+  }
+
+  const rewardIds =
+    normalizeBoundedDreamIdArray(body.rewardIds, 'rewardIds') ?? []
+
+  if (rewardIds.length) {
+    const count = await prisma.reward.count({
+      where: {
+        id: { in: rewardIds },
+        OR: [{ userId }, { isPublic: true }],
+      },
+    })
+
+    if (count !== rewardIds.length) throw forbiddenRelationError('Reward')
   }
 }

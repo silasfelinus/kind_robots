@@ -9,6 +9,7 @@ on:
       - 'server/api/dreams/[id].patch.ts'
       - 'server/api/dreams/batch.post.ts'
       - 'cypress/e2e/api/dream-input-boundary.cy.ts'
+      - 'cypress/e2e/api/dream-relation-permission.cy.ts'
       - 'utils/scripts/verifyDreamMutationInputParity.ts'
       - '.github/workflows/dream-mutation-input-parity.yml'
   workflow_dispatch:

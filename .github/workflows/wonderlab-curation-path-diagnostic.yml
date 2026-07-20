@@ -1,0 +1,43 @@
+name: WonderLab Curation Path Diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-curation-inventory.yml'
+      - '.github/workflows/wonderlab-curation-path-diagnostic.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture workflow path verifier
+        id: verify
+        continue-on-error: true
+        run: |
+          set +e
+          node --experimental-strip-types utils/scripts/verifyWorkflowPaths.ts > /tmp/workflow-path-report.txt 2>&1
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Post exact diagnostic
+        uses: actions/github-script@v7
+        env:
+          REPORT_PATH: /tmp/workflow-path-report.txt
+          VERIFY_STATUS: ${{ steps.verify.outputs.status }}
+        with:
+          script: |
+            const fs = require('node:fs')
+            const report = fs.readFileSync(process.env.REPORT_PATH, 'utf8').trim()
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## Temporary workflow-path diagnostic\n\n- Status: ${process.env.VERIFY_STATUS}\n\n\`\`\`text\n${report}\n\`\`\``,
+            })

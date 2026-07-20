@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'server/api/art/image/\[id\].patch.ts'
+      - 'server/api/art/image/relations.ts'
       - 'cypress/e2e/api/art-image-create-contract.cy.ts'
       - 'utils/scripts/verifyArtImagePatchOwnerTransfer.ts'
       - '.github/workflows/art-image-patch-owner-transfer.yml'

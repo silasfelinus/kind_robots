@@ -20,8 +20,18 @@ const outputDir =
 const validateOnly = process.env.WONDERLAB_CURATED_RECOVERY_VALIDATE_ONLY === '1'
 
 const MAX_PUBLICATIONS = 20
-const allowedExpectedStatuses = new Set(['PROPOSED', 'FAILED', 'REJECTED', 'APPROVED'])
-const allowedReactionTypes = new Set(['LOVED', 'CLAPPED', 'NEUTRAL', 'BOOED'])
+const allowedExpectedStatuses = new Set([
+  'PROPOSED',
+  'FAILED',
+  'REJECTED',
+  'APPROVED',
+])
+const allowedReactionTypes = new Set([
+  'LOVED',
+  'CLAPPED',
+  'NEUTRAL',
+  'BOOED',
+])
 const terminalStatuses = new Set(['PUBLISHED', 'SUPERSEDED'])
 
 await mkdir(outputDir, { recursive: true })
@@ -123,7 +133,10 @@ function validateConfig(value) {
     value && typeof value === 'object' && !Array.isArray(value),
     'Curated recovery config must be an object.',
   )
-  assertCondition(value.version === 1, 'Curated recovery config version must be 1.')
+  assertCondition(
+    value.version === 1,
+    'Curated recovery config version must be 1.',
+  )
   const minimumProductionCommit = boundedString(
     value.minimumProductionCommit,
     'minimumProductionCommit',
@@ -141,9 +154,11 @@ function validateConfig(value) {
     value.publications.length <= MAX_PUBLICATIONS,
     `publications may contain at most ${MAX_PUBLICATIONS} entries.`,
   )
+
   const publications = value.publications.map(validatePublication)
   assertCondition(
-    new Set(publications.map((entry) => entry.draftId)).size === publications.length,
+    new Set(publications.map((entry) => entry.draftId)).size ===
+      publications.length,
     'Publication draft IDs must be unique.',
   )
   assertCondition(
@@ -154,6 +169,7 @@ function validateConfig(value) {
     ).size === publications.length,
     'Each Component/reviewer pair may appear only once.',
   )
+
   return {
     version: 1,
     batchId: boundedString(value.batchId, 'batchId', 120),
@@ -181,6 +197,7 @@ async function requestJson(path, options = {}) {
   } catch {
     body = { raw: text }
   }
+
   if (!response.ok) {
     const message =
       body && typeof body === 'object' && typeof body.message === 'string'
@@ -192,6 +209,12 @@ async function requestJson(path, options = {}) {
     throw error
   }
   return body
+}
+
+async function publicRequest(path) {
+  return requestJson(path, {
+    headers: { accept: 'application/json' },
+  })
 }
 
 async function adminRequest(path, options = {}) {
@@ -247,8 +270,13 @@ async function loadDraft(instruction) {
   const payload = await adminRequest(
     `/api/admin/wonderlab/review-drafts?componentId=${instruction.componentId}&limit=200`,
   )
-  const drafts = responseDataArray(payload, `Component ${instruction.componentId} drafts`)
-  const draft = drafts.find((entry) => Number(entry?.id) === instruction.draftId)
+  const drafts = responseDataArray(
+    payload,
+    `Component ${instruction.componentId} drafts`,
+  )
+  const draft = drafts.find(
+    (entry) => Number(entry?.id) === instruction.draftId,
+  )
   assertDraftIdentity(draft, instruction, `Draft ${instruction.draftId}`)
   return { payload, draft }
 }
@@ -266,57 +294,108 @@ async function patchDraft(instruction, body, label) {
   return { payload, draft }
 }
 
+async function preflight(config) {
+  const componentsPayload = await publicRequest('/api/components')
+  const components = responseDataArray(
+    componentsPayload,
+    'Production Component registry',
+  )
+  const reviewedDrafts = []
+
+  for (const instruction of config.publications) {
+    const component = components.find(
+      (entry) => Number(entry?.id) === instruction.componentId,
+    )
+    assertCondition(
+      component,
+      `Component ${instruction.componentId} is missing from production.`,
+    )
+    assertCondition(
+      component.sourceKey === instruction.sourceKey,
+      `Component ${instruction.componentId} source identity changed.`,
+    )
+    assertCondition(
+      component.isDiscovered === true,
+      `Component ${instruction.componentId} is no longer discovered.`,
+    )
+
+    const loaded = await loadDraft(instruction)
+    assertCondition(
+      !terminalStatuses.has(loaded.draft.status),
+      `Draft ${instruction.draftId} is already terminal (${loaded.draft.status}).`,
+    )
+    assertCondition(
+      loaded.draft.status === instruction.expectedStatus,
+      `Draft ${instruction.draftId} status changed from reviewed ${instruction.expectedStatus} to ${loaded.draft.status}.`,
+    )
+    reviewedDrafts.push({
+      draftId: instruction.draftId,
+      componentId: instruction.componentId,
+      sourceKey: instruction.sourceKey,
+      reviewer: instruction.reviewer,
+      status: loaded.draft.status,
+    })
+  }
+
+  await writeJson('preflight.json', {
+    components: [...new Set(config.publications.map((entry) => entry.componentId))],
+    reviewedDrafts,
+  })
+}
+
 async function curateAndPublish(instruction) {
   const loaded = await loadDraft(instruction)
   let draft = loaded.draft
   assertCondition(
-    !terminalStatuses.has(draft.status),
-    `Draft ${instruction.draftId} is already terminal (${draft.status}).`,
-  )
-  assertCondition(
     draft.status === instruction.expectedStatus,
-    `Draft ${instruction.draftId} status changed from reviewed ${instruction.expectedStatus} to ${draft.status}.`,
+    `Draft ${instruction.draftId} changed after preflight: expected ${instruction.expectedStatus}, found ${draft.status}.`,
   )
 
   const edit = {
     editedComment: instruction.editedComment,
     rating: instruction.rating,
     reactionType: instruction.reactionType,
+    failureReason: null,
   }
 
-  let recoveryPayload = null
+  let recovered = false
   if (draft.status === 'FAILED' || draft.status === 'REJECTED') {
-    const recovered = await patchDraft(
+    const recovery = await patchDraft(
       instruction,
       { ...edit, status: 'PROPOSED' },
       `${instruction.reviewer.name} recovery`,
     )
     assertCondition(
-      recovered.draft.status === 'PROPOSED',
+      recovery.draft.status === 'PROPOSED',
       `Draft ${instruction.draftId} did not recover to PROPOSED.`,
     )
-    recoveryPayload = recovered.payload
-    draft = recovered.draft
+    assertCondition(
+      recovery.draft.failureReason === null,
+      `Draft ${instruction.draftId} retained its obsolete failure reason.`,
+    )
+    await writeJson(`recovered-${instruction.draftId}.json`, recovery.payload)
+    draft = recovery.draft
+    recovered = true
   }
 
-  if (draft.status === 'PROPOSED') {
-    const approved = await patchDraft(
-      instruction,
-      { ...edit, status: 'APPROVED' },
-      `${instruction.reviewer.name} approval`,
-    )
-    assertCondition(
-      approved.draft.status === 'APPROVED',
-      `Draft ${instruction.draftId} did not enter APPROVED state.`,
-    )
-    draft = approved.draft
-    await writeJson(`approved-${instruction.draftId}.json`, approved.payload)
-  } else {
-    assertCondition(
-      draft.status === 'APPROVED',
-      `Draft ${instruction.draftId} cannot be published from ${draft.status}.`,
-    )
-  }
+  assertCondition(
+    draft.status === 'PROPOSED' || draft.status === 'APPROVED',
+    `Draft ${instruction.draftId} cannot be curated from ${draft.status}.`,
+  )
+  const approval = await patchDraft(
+    instruction,
+    { ...edit, status: 'APPROVED' },
+    `${instruction.reviewer.name} approval`,
+  )
+  assertCondition(
+    approval.draft.status === 'APPROVED',
+    `Draft ${instruction.draftId} did not enter APPROVED state.`,
+  )
+  assertCondition(
+    approval.draft.finalComment === instruction.editedComment,
+    `Draft ${instruction.draftId} did not retain the reviewed comment.`,
+  )
+  await writeJson(`approved-${instruction.draftId}.json`, approval.payload)
 
   const publishedPayload = await adminRequest(
     `/api/admin/wonderlab/review-drafts/${instruction.draftId}/publish`,
@@ -341,7 +420,7 @@ async function curateAndPublish(instruction) {
   return {
     instruction,
     previousStatus: loaded.draft.status,
-    recovered: Boolean(recoveryPayload),
+    recovered,
     reactionId: result.reactionId,
     created: result.created === true,
     draft: result.draft,
@@ -349,7 +428,9 @@ async function curateAndPublish(instruction) {
 }
 
 async function run() {
-  const config = validateConfig(JSON.parse(await readFile(configPath, 'utf8')))
+  const config = validateConfig(
+    JSON.parse(await readFile(configPath, 'utf8')),
+  )
   await writeJson('validated-config.json', config)
 
   if (validateOnly) {
@@ -364,6 +445,7 @@ async function run() {
     return summary
   }
 
+  await preflight(config)
   const published = []
   for (const instruction of config.publications) {
     published.push(await curateAndPublish(instruction))
@@ -379,8 +461,13 @@ async function run() {
     'Curated publications must resolve to distinct Reactions.',
   )
 
-  const auditPayload = await adminRequest('/api/admin/wonderlab/review-rollout')
-  const audit = responseDataObject(auditPayload, 'Post-publication rollout audit')
+  const auditPayload = await adminRequest(
+    '/api/admin/wonderlab/review-rollout',
+  )
+  const audit = responseDataObject(
+    auditPayload,
+    'Post-publication rollout audit',
+  )
   assertCondition(audit.ready === true, 'Post-publication rollout audit is blocked.')
   assertCondition(
     Number(audit.metrics?.duplicateFirstPartyReviews || 0) === 0,
@@ -432,7 +519,9 @@ try {
         ? error.status
         : null,
     body:
-      error && typeof error === 'object' && 'body' in error ? error.body : null,
+      error && typeof error === 'object' && 'body' in error
+        ? error.body
+        : null,
   }
   await writeJson('failure.json', failure)
   console.error(failure.message)

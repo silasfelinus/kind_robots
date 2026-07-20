@@ -2,7 +2,7 @@
 import { createError, defineEventHandler, getQuery, H3Error } from 'h3'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
-import { buildWonderLabReviewPlan } from '@/server/utils/wonderLabReviewPlan'
+import { buildWonderLabReviewBatchPlan } from '@/server/utils/wonderLabReviewBatchPlan'
 
 function integerQuery(
   value: unknown,
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     await requireAdminApiUser(event)
     const query = getQuery(event)
 
-    const plan = await buildWonderLabReviewPlan({
+    const plan = await buildWonderLabReviewBatchPlan({
       componentIds: componentIds(query.componentIds ?? query.componentId),
       limit: integerQuery(query.limit, { minimum: 1, maximum: 100, fallback: 25 }),
       reviewersPerComponent: integerQuery(query.reviewersPerComponent, {
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data: plan,
-      message: `Planned ${plan.reviewerSlots} reviewer slot(s) across ${plan.componentCount} exhibit(s).`,
+      message: `Selected ${plan.reviewerSlots} globally portfolio-planned reviewer slot(s) across ${plan.componentCount} exhibit(s).`,
     }
   } catch (error) {
     if (error instanceof H3Error) throw error

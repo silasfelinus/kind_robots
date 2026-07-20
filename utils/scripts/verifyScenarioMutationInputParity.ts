@@ -27,6 +27,9 @@ const patchRoute = read('server/api/scenarios/[id].patch.ts')
 const batchCreateRoute = read('server/api/scenarios/batch.post.ts')
 const batchPatchRoute = read('server/api/scenarios/batch.patch.ts')
 const cypressSpec = read('cypress/e2e/api/scenario-input-boundary.cy.ts')
+const permissionSpec = read(
+  'cypress/e2e/api/scenario-relation-permission.cy.ts',
+)
 
 requireText(
   boundary,
@@ -159,6 +162,44 @@ requireText(
   cypressSpec,
   'keeps Scenario batch create and patch imports strict and bounded',
   'Scenario batch deployed regression',
+)
+
+// Phase 2: relation-connect targets must be public or owned by the caller (admins
+// bypass). The gate is wired into create, PATCH, and both batch routes.
+requireText(
+  boundary,
+  'export async function assertScenarioRelationsAttachable',
+  'Scenario relation permission gate',
+)
+requireText(
+  boundary,
+  'NOT: { OR: [{ userId }, { isPublic: true }] }',
+  'Scenario relation permission clause',
+)
+requireText(
+  createRoute,
+  'assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))',
+  'Scenario create relation permission wiring',
+)
+requireText(
+  patchRoute,
+  'assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))',
+  'Scenario patch relation permission wiring',
+)
+requireText(
+  batchCreateRoute,
+  'assertScenarioRelationsAttachable(',
+  'Scenario batch create relation permission wiring',
+)
+requireText(
+  batchPatchRoute,
+  'assertScenarioRelationsAttachable(fields, user.id, userIsAdmin(user))',
+  'Scenario batch patch relation permission wiring',
+)
+requireText(
+  permissionSpec,
+  'forbids attaching another user private Character on Scenario creation',
+  'Scenario relation permission deployed regression',
 )
 
 console.log('Scenario mutation input parity contract passed.')

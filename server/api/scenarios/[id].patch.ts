@@ -6,6 +6,7 @@ import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
 import {
   assertScenarioMutationInput,
+  assertScenarioRelationsAttachable,
   buildScenarioUpdateInput,
   scenarioPatchFields,
 } from './mutation'
@@ -64,6 +65,8 @@ export default defineEventHandler(async (event) => {
       authenticatedUserId: user.id,
       routeId: id,
     })
+
+    await assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))
 
     const data = await buildScenarioUpdateInput(body)
 

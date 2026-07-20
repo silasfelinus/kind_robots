@@ -10,6 +10,7 @@ import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
 import {
   assertScenarioMutationInput,
+  assertScenarioRelationsAttachable,
   buildScenarioUpdateInput,
   SCENARIO_BATCH_LIMIT,
   scenarioBatchPatchFields,
@@ -82,6 +83,8 @@ async function processEntry(
         message: 'No data provided for update.',
       })
     }
+
+    await assertScenarioRelationsAttachable(fields, user.id, userIsAdmin(user))
 
     const data = await buildScenarioUpdateInput(fields)
 

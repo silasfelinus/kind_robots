@@ -11,6 +11,7 @@ on:
       - 'server/api/scenarios/batch.post.ts'
       - 'server/api/scenarios/batch.patch.ts'
       - 'cypress/e2e/api/scenario-input-boundary.cy.ts'
+      - 'cypress/e2e/api/scenario-relation-permission.cy.ts'
       - 'utils/scripts/verifyScenarioMutationInputParity.ts'
       - '.github/workflows/scenario-mutation-input-parity.yml'
   workflow_dispatch:

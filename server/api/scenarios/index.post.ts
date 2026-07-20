@@ -3,11 +3,13 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { userIsAdmin } from '@/server/utils/authUser'
 import {
   buildScenarioCreateInput,
   findExistingScenario,
   type ScenarioPostInput,
 } from './create'
+import { assertScenarioRelationsAttachable } from './mutation'
 import { scenarioMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -30,6 +32,8 @@ export default defineEventHandler(async (event) => {
           'POST /api/scenarios creates one Scenario. Use /api/scenarios/batch for arrays.',
       })
     }
+
+    await assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))
 
     const createInput = await buildScenarioCreateInput(body, user.id)
     const existingScenario = await findExistingScenario(

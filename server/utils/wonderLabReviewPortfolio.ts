@@ -6,6 +6,7 @@ import {
 } from '@/utils/wonderlab/reviewerAffinity'
 import {
   assignWonderLabReviewerPortfolio,
+  isWonderLabActiveEditorialDraft,
   isWonderLabEditoriallyExcludedReviewer,
   type WonderLabPortfolioCandidate,
   type WonderLabPortfolioReviewerUsage,
@@ -270,10 +271,13 @@ function coverageDetails(
   const draft = coverage.drafts.get(key)
   const reaction = coverage.reactions.get(key)
   const reactionId = reaction?.id || draft?.publishedReactionId || null
+  const activeDraft =
+    draft && isWonderLabActiveEditorialDraft(draft.status) ? draft : null
+  const displayedDraft = reactionId ? draft : activeDraft
   return {
-    coverage: reactionId ? 'PUBLISHED' : draft ? 'DRAFTED' : 'MISSING',
-    draftId: draft?.id ?? null,
-    draftStatus: draft?.status ?? null,
+    coverage: reactionId ? 'PUBLISHED' : activeDraft ? 'DRAFTED' : 'MISSING',
+    draftId: displayedDraft?.id ?? null,
+    draftStatus: displayedDraft?.status ?? null,
     reactionId,
   }
 }

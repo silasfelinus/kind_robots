@@ -86,60 +86,120 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'No data provided.' })
     }
 
-    const DENY = new Set([
-      'id',
-      'Role',
-      'role',
-      'karma',
-      'mana',
-      'token',
-      'apiKey',
-      'password',
-      'emailVerified',
-      'stripeCustomerId',
-      'googleId',
+    // Explicit allowlist of self-editable profile + preference columns. Every
+    // other User column is NOT writable through this self-service route and is
+    // silently ignored, so a round-tripped full User object stays compatible
+    // while no privileged column can be set. Deliberately excluded:
+    //   - privilege: Role
+    //   - economy: karma, mana, manaCap, questPoints, clickRecord, matchRecord,
+    //     lastReward, signupBonusGiven, lastManaRefill
+    //   - membership/billing: isMember, memberUntil, stripeCustomerId,
+    //     stripeSubscriptionId, brevoContactId, referralCode
+    //   - moderation: isRestricted, restrictedAt, restrictedById,
+    //     restrictedReason, isActive, isGuest
+    //   - identity/secrets: apiKey, token, password, emailVerified, googleId,
+    //     googleEmail
+    //   - system: id, createdAt, updatedAt, newsletterConfirmedAt
+    // Ownership was verified above (user.id === userId); this route is
+    // owner-only, never admin, so none of the above may be self-granted.
+    const TEXT_FIELDS = new Set([
+      'username',
+      'email',
+      'name',
+      'address1',
+      'address2',
+      'avatarImage',
+      'bio',
+      'city',
+      'country',
+      'state',
+      'phone',
+      'timezone',
+      'languages',
+      'discordUrl',
+      'facebookUrl',
+      'instagramUrl',
+      'kindrobotsUrl',
+      'twitterUrl',
+      'designerName',
+      'artPrompt',
     ])
-
-    const JSONISH = new Set(['vibes', 'artModels', 'textModels', 'blockList'])
-    const BOOLS = new Set(['isPublic', 'showMature', 'customIcons', 'isMember'])
-    const DATES = new Set(['memberUntil'])
-    const IDS = new Set(['artImageId'])
+    const BOOL_FIELDS = new Set([
+      'isPublic',
+      'showMature',
+      'customIcons',
+      'allowFriendRequests',
+      'listInDirectory',
+    ])
+    const JSON_FIELDS = new Set([
+      'vibes',
+      'artModels',
+      'textModels',
+      'blockList',
+      'hiddenServerIds',
+    ])
+    const DATE_FIELDS = new Set(['birthday'])
+    const ID_FIELDS = new Set([
+      'artImageId',
+      'preferredArtServerId',
+      'preferredTextServerId',
+    ])
+    const ENUM_FIELDS: Record<string, Set<string>> = {
+      messagePolicy: new Set(['EVERYONE', 'FRIENDS', 'NONE']),
+      newsletterFrequency: new Set([
+        'NEVER',
+        'SPECIAL',
+        'MONTHLY',
+        'WEEKLY',
+        'DAILY',
+      ]),
+    }
 
     const updateData: Record<string, unknown> = {}
 
     for (const [k, v] of Object.entries(body)) {
-      if (DENY.has(k)) continue
-
       if (k === 'smartBar') {
         updateData[k] = normalizeSmartBar(v)
         continue
       }
 
-      if (IDS.has(k)) {
+      if (ID_FIELDS.has(k)) {
         const id = normalizeOptionalId(v)
         if (id !== undefined) updateData[k] = id
         continue
       }
 
-      if (DATES.has(k)) {
+      if (DATE_FIELDS.has(k)) {
         const d = toDateLike(v)
         if (d) updateData[k] = d
         else if (v == null) updateData[k] = null
         continue
       }
 
-      if (BOOLS.has(k)) {
+      if (BOOL_FIELDS.has(k)) {
         const b = toBooleanLike(v)
         if (b !== undefined) updateData[k] = b
         continue
       }
 
-      if (JSONISH.has(k)) {
+      if (JSON_FIELDS.has(k)) {
         updateData[k] = toStringOrJson(v)
         continue
       }
 
-      updateData[k] = v
+      const enumValues = ENUM_FIELDS[k]
+      if (enumValues) {
+        if (typeof v === 'string' && enumValues.has(v)) updateData[k] = v
+        continue
+      }
+
+      if (TEXT_FIELDS.has(k)) {
+        updateData[k] = v
+        continue
+      }
+
+      // Any other key (system, privilege, economy, moderation, secrets) is not
+      // self-editable and is intentionally ignored.
     }
 
     if (isOversizedAvatarPayload(updateData.avatarImage)) {

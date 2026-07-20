@@ -1,0 +1,36 @@
+name: User Patch Allowlist
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/users/\[id\].patch.ts'
+      - 'cypress/e2e/api/users.cy.ts'
+      - 'utils/scripts/verifyUserPatchAllowlist.ts'
+      - '.github/workflows/user-patch-allowlist.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify User patch allowlist
+        run: npx tsx utils/scripts/verifyUserPatchAllowlist.ts

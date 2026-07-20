@@ -10,6 +10,11 @@ export type WonderLabComponentSourceEvidence = {
   staticText: string[]
   functionNames: string[]
   localImports: string[]
+  browserEvents?: string[]
+  animationCalls?: string[]
+  styleBindings?: string[]
+  cssAnimations?: string[]
+  storeCalls?: string[]
   facts: string[]
 }
 

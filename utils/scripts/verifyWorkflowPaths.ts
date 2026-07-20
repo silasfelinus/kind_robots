@@ -190,6 +190,16 @@ function resolvableTarget(path: string): string | null {
   return prefix.length > 0 ? prefix : null
 }
 
+// GitHub's trigger-paths filter treats `[`/`]` as a glob character class, so
+// a real bracketed filename (e.g. Nuxt's `[id].patch.ts` dynamic routes)
+// must be written `\[id\].patch.ts` to match itself literally there
+// (kind-robots/t-041). That backslash isn't part of the on-disk filename --
+// unescape it before the existence check below, or every such entry reads
+// as a missing file.
+function unescapeGlobLiteral(path: string): string {
+  return path.replace(/\\([[\]])/g, '$1')
+}
+
 async function main(): Promise<void> {
   const files = listWorkflowFiles()
   const errors: string[] = []
@@ -208,7 +218,9 @@ async function main(): Promise<void> {
       const target = resolvableTarget(hit.path)
       if (target === null) continue // bare glob like `*.ts` -- nothing concrete to check
       checked += 1
-      if (!existsSync(resolve(repositoryRoot, target))) {
+      const resolvedTarget =
+        hit.source === 'trigger paths' ? unescapeGlobLiteral(target) : target
+      if (!existsSync(resolve(repositoryRoot, resolvedTarget))) {
         errors.push(
           `${hit.file}: ${hit.source} references missing path "${hit.path}"`,
         )

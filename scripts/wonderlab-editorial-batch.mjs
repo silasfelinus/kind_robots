@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import process from 'node:process'
 
+// A documentation-only change to this runner may safely retrigger the checked-in
+// dry-run manifest; execution remains controlled exclusively by validated config.
 const configPath =
   process.env.WONDERLAB_EDITORIAL_BATCH_CONFIG ||
   'config/wonderlab-editorial-batch.json'

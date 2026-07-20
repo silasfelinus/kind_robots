@@ -4,16 +4,21 @@ import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import { assertArtImageRelationsAttachable } from './relations'
 
 type PatchUser = {
   id: number
   isAdmin: boolean
+  isServerKey: boolean
 }
 
+// Owner transfer is intentionally NOT part of the general patch contract: a
+// dedicated administrative endpoint should own reassignment. `userId` is
+// therefore absent from this allowlist, so neither an owner nor an admin can
+// change an ArtImage's owner through the ordinary PATCH route (audit F-1).
 const ART_IMAGE_PATCH_FIELDS = new Set<
   keyof Prisma.ArtImageUncheckedUpdateInput
 >([
-  'userId',
   'imageData',
   'thumbnailData',
   'thumbnailPath',
@@ -55,12 +60,12 @@ async function requirePatchUser(event: H3Event): Promise<PatchUser> {
   return {
     id: auth.user.id,
     isAdmin: auth.isAdmin,
+    isServerKey: auth.isServerKey,
   }
 }
 
 function sanitizeArtImagePatch(
   body: Record<string, unknown>,
-  user: PatchUser,
 ): Prisma.ArtImageUncheckedUpdateInput {
   const updateData: Prisma.ArtImageUncheckedUpdateInput = {}
 
@@ -74,10 +79,6 @@ function sanitizeArtImagePatch(
     }
 
     if (value === undefined) {
-      continue
-    }
-
-    if (key === 'userId' && !user.isAdmin) {
       continue
     }
 
@@ -132,7 +133,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const updateData = sanitizeArtImagePatch(body, user)
+    const updateData = sanitizeArtImagePatch(body)
 
     if (Object.keys(updateData).length === 0) {
       throw createError({
@@ -140,6 +141,22 @@ export default defineEventHandler(async (event) => {
         message: 'No valid ArtImage fields provided for update.',
       })
     }
+
+    // A connected Server / checkpoint Resource must exist and be public or owned
+    // by the caller (admins bypass the permission check). Raw scalar FK writes
+    // were previously unchecked (audit F-2 residual).
+    await assertArtImageRelationsAttachable(
+      {
+        serverId:
+          typeof updateData.serverId === 'number' ? updateData.serverId : null,
+        checkpointResourceId:
+          typeof updateData.checkpointResourceId === 'number'
+            ? updateData.checkpointResourceId
+            : null,
+      },
+      user.id,
+      user.isAdmin || user.isServerKey,
+    )
 
     const data: ArtImage = await prisma.artImage.update({
       where: { id },
@@ -152,6 +169,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: `ArtImage #${id} updated successfully.`,
       data,
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
@@ -161,6 +179,7 @@ export default defineEventHandler(async (event) => {
       success: false,
       message: handled.message || `Failed to update ArtImage #${id}.`,
       data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

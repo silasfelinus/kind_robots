@@ -239,6 +239,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'ArtImage generated successfully.',
       data: updatedImage,
+      statusCode: 201,
       mana: {
         balance,
         charged: gate.cost,
@@ -251,6 +252,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: handledError.message || 'Failed to generate art image.',
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

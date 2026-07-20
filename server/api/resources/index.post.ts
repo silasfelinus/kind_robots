@@ -3,18 +3,20 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { assertOnlyFields } from '../../utils/chatApi'
 import {
   buildResourceCreateInput,
   isResourceDuplicateError,
+  resourceCreateFields,
   type ResourceCreateBody,
 } from './create'
 import { resourceMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user, kind } = await validateApiKey(event)
+    const { isValid, user } = await validateApiKey(event)
 
-    if (!isValid) {
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -38,12 +40,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
+    assertOnlyFields(
+      body as Record<string, unknown>,
+      resourceCreateFields,
+      'Resource',
+    )
+
     const data = await buildResourceCreateInput({
       entry: body,
-      fallbackUserId: user?.id || 1,
-      canAssignUserId: isAdmin || isServerKey,
+      authenticatedUserId: user.id,
     })
 
     try {

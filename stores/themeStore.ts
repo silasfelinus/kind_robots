@@ -6,7 +6,6 @@ import {
   loadSnapshot,
   markSnapshotActive,
 } from '@/stores/helpers/snapshotLoader'
-import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type { Theme } from '~/prisma/generated/prisma/client'
 
@@ -50,10 +49,7 @@ const themeStorageKey = 'theme'
 const themeFormStorageKey = 'themeForm'
 const showCustomStorageKey = 'showCustom'
 
-function toApiPayload(
-  src: ThemeForm | Partial<Theme>,
-  userId?: number,
-): ThemeApiPayload {
+function toApiPayload(src: ThemeForm | Partial<Theme>): ThemeApiPayload {
   const raw = (src as ThemeForm).values
   const values: string | undefined =
     typeof raw === 'string'
@@ -62,9 +58,9 @@ function toApiPayload(
         ? JSON.stringify(sanitizeThemeValues(raw))
         : undefined
 
+  // Ownership is authentication-derived server-side; identity/system fields
+  // (id, userId) are never sent.
   return {
-    id: (src as Partial<Theme>).id,
-    userId: userId ?? (src as Partial<Theme>).userId ?? undefined,
     name: (src as Partial<Theme>).name,
     values,
     isPublic: (src as Partial<Theme>).isPublic,
@@ -484,9 +480,7 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   async function addTheme(theme: ThemeForm | Partial<Theme>) {
-    const userStore = useUserStore()
-    const userId = userStore.user?.id || 10
-    const payload = toApiPayload(theme, userId)
+    const payload = toApiPayload(theme)
 
     try {
       const result = await performFetch('/api/themes', {
@@ -519,9 +513,7 @@ export const useThemeStore = defineStore('themeStore', () => {
     id: number,
     updates: ThemeForm | Partial<Theme>,
   ): Promise<void> {
-    const userStore = useUserStore()
-    const userId = userStore.user?.id || 10
-    const payload = toApiPayload(updates, userId)
+    const payload = toApiPayload(updates)
 
     try {
       const { success, message } = await performFetch(`/api/themes/${id}`, {

@@ -583,4 +583,12 @@ export default defineConfig({
 
   projectId: 'm98sgq',
   allowCypressEnv: false,
+  // These specs are cy.request()-only API tests with no page visits, so the
+  // recorded video has no diagnostic value but ffmpeg's post-spec compression
+  // pass is a well-documented cause of Cypress hanging on GitHub Actions
+  // runners (see cypress.public.config.ts, which already sets video: false
+  // for the same reason). Keep raw video capture (for the "Upload Cypress
+  // videos" artifact step and Cypress Cloud recording) but skip compression,
+  // which is the step that actually stalls.
+  videoCompression: false,
 })

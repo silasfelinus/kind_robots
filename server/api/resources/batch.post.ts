@@ -19,9 +19,9 @@ import {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user, kind } = await validateApiKey(event)
+    const { isValid, user } = await validateApiKey(event)
 
-    if (!isValid) {
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -37,10 +37,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
-    const fallbackUserId = user?.id || 1
-    const canAssignUserId = isAdmin || isServerKey
     const created: ResourceMutationResult[] = []
     const skipped: ResourceBatchSkip[] = []
     const failed: ResourceBatchFailure[] = []
@@ -51,8 +47,7 @@ export default defineEventHandler(async (event) => {
       try {
         const data = await buildResourceCreateInput({
           entry,
-          fallbackUserId,
-          canAssignUserId,
+          authenticatedUserId: user.id,
         })
 
         try {

@@ -4,6 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { stringifyValues, parseTheme } from '@/server/api/themes/index'
+import { assertThemeMutationInput, themePatchFields } from './mutation'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -54,6 +55,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    assertThemeMutationInput(raw, {
+      allowedFields: themePatchFields,
+      context: 'Theme patch payload',
+      authenticatedUserId: user.id,
+      routeId: id,
+      requireNonEmpty: true,
+    })
+
     const allowed = [
       'name',
       'values',
@@ -62,6 +71,7 @@ export default defineEventHandler(async (event) => {
       'prefersDark',
       'colorScheme',
       'isPublic',
+      'artPrompt',
     ] as const
     const data: Prisma.ThemeUpdateInput = {}
 
@@ -124,6 +134,7 @@ export default defineEventHandler(async (event) => {
 
       if (key === 'tagline') data.tagline = normalized
       if (key === 'room') data.room = normalized
+      if (key === 'artPrompt') data.artPrompt = normalized
     }
 
     const updated = await prisma.theme.update({ where: { id }, data })

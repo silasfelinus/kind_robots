@@ -10,12 +10,13 @@
       class="relative flex min-h-36 w-full shrink-0 items-center justify-center overflow-hidden bg-base-300 sm:min-h-44 md:min-h-52 xl:min-h-full xl:w-2/5 xl:max-w-[10rem]"
     >
       <img
-        v-if="card.deckImage"
-        :src="card.deckImage"
+        v-if="deckImage"
+        :src="deckImage"
         :alt="card.label"
         class="h-full max-h-full w-full max-w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
         loading="lazy"
         decoding="async"
+        @error="handleDeckImageError"
       />
 
       <div
@@ -91,9 +92,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useBuilderStore } from '@/stores/builderStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import { resolveCollectionCardImage } from '@/utils/collectionCardImage'
 
 const props = withDefaults(
   defineProps<{
@@ -106,6 +108,35 @@ const props = withDefaults(
 )
 
 const store = useBuilderStore()
+
+// Start from the card's own placeholder image (same as before), then upgrade it
+// on the client to real art from the card's collection folder when available.
+// Purely additive: if nothing resolves, or the resolved image fails to load, we
+// fall back to the original image (which keeps the global default fallback).
+const deckImage = ref(props.card.deckImage)
+
+async function upgradeDeckImage() {
+  const resolved = await resolveCollectionCardImage(props.card.key, 'card')
+  if (resolved) deckImage.value = resolved
+}
+
+onMounted(upgradeDeckImage)
+
+watch(
+  () => props.card.key,
+  () => {
+    deckImage.value = props.card.deckImage
+    upgradeDeckImage()
+  },
+)
+
+function handleDeckImageError() {
+  // A collection image that fails to load reverts to the card's original image
+  // rather than a broken tile.
+  if (deckImage.value !== props.card.deckImage) {
+    deckImage.value = props.card.deckImage
+  }
+}
 
 const isCompleted = computed(() => Boolean(store.completedCards[props.card.key]))
 const isActive = computed(() => store.activeCardKey === props.card.key)

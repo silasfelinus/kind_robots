@@ -17,7 +17,11 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { performFetch, handleError } from '@/stores/utils'
-import { useArtStore } from '@/stores/artStore'
+import {
+  useArtStore,
+  type GenerateArtData,
+  type QueuedArtJob,
+} from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import {
   BUILD_STAGES,
@@ -74,6 +78,12 @@ export interface BuildItem {
   promptDraft: string
   artImageId: number | null
   imagePath: string | null
+  // Async generation (t-025): set while a GENERATE_ASSETS ArtJob is in
+  // flight for this item. Ephemeral — not persisted server-side, so a page
+  // refresh drops an in-progress poll (the job itself keeps rendering; the
+  // item just needs a manual re-generate to pick up the finished image).
+  artJobId: number | null
+  queueState: 'queued' | 'rendering' | null
   targetType: string | null
   targetId: number | null
   error: string | null
@@ -268,6 +278,8 @@ function adaptItem(server: ServerItem): BuildItem {
     promptDraft: server.promptDraft ?? '',
     artImageId: server.artImageId ?? null,
     imagePath: artifact?.promotedPath ?? artifact?.draftPath ?? null,
+    artJobId: null,
+    queueState: null,
     targetType: server.targetType ?? null,
     targetId: server.targetId ?? null,
     error: server.error ?? null,
@@ -862,6 +874,142 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
+  // --- GENERATE_ASSETS (async): queue via ArtJob, poll per item -------------
+  //
+  // generateItemAsset above blocks the whole call on the render (up to
+  // ART_QUEUE_TIMEOUT_MS). This is the "normal" async path from the roadmap
+  // note: enqueue, store the jobId on the item, poll independently so
+  // multiple items can be in flight at once with their own queued/rendering
+  // state, and promote the image once the job finishes. Keeps
+  // generateItemAsset as the synchronous "art first, interactively" option.
+
+  const ASYNC_ART_POLL_MS = 5_000
+
+  async function pollAsyncArtJob(
+    item: BuildItem,
+    jobId: number,
+    generateData: GenerateArtData,
+    output: BuildOutputConfig | undefined,
+    prompt: string,
+    dims: { width: number; height: number },
+  ): Promise<void> {
+    const artStore = useArtStore()
+
+    // If another call re-queues this item (or the item is dropped from the
+    // run), item.artJobId will no longer match — stop, the newer poll (or
+    // nothing) owns the item now.
+    while (item.artJobId === jobId) {
+      const job: QueuedArtJob | null = await artStore.getArtJobStatus(jobId)
+
+      if (item.artJobId !== jobId) return
+
+      if (!job || job.status === 'PENDING' || job.status === 'RUNNING') {
+        item.queueState = job?.status === 'RUNNING' ? 'rendering' : 'queued'
+        item.stages.GENERATE_ASSETS = {
+          status: 'in-progress',
+          note: item.queueState,
+        }
+        await new Promise((resolve) => setTimeout(resolve, ASYNC_ART_POLL_MS))
+        continue
+      }
+
+      // Terminal status (DONE/FAILED/CANCELLED).
+      item.artJobId = null
+      item.queueState = null
+
+      const result = await artStore.finalizeQueuedArtImage(job, generateData)
+
+      if (!result.success || !result.data) {
+        item.error = result.message || `Art job ${jobId} did not complete.`
+        item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
+        setStatus('error', item.error)
+        return
+      }
+
+      const image = result.data as { id: number; imagePath?: string | null }
+      item.artImageId = image.id
+      item.imagePath = image.imagePath ?? null
+      item.stages.GENERATE_ASSETS = { status: 'ready' }
+
+      await recordArtifact(item, image, output, prompt, dims)
+      pushItem(item, {
+        stageStatuses: item.stages,
+        artImageId: item.artImageId,
+      })
+
+      setStatus('success', `Generated a candidate for ${item.label}.`)
+      return
+    }
+  }
+
+  // Enqueues generation and returns as soon as the job is queued — it does
+  // NOT wait for the render. Progress shows via item.queueState
+  // ('queued' | 'rendering') until pollAsyncArtJob resolves the item.
+  async function generateItemAssetAsync(itemId: string): Promise<boolean> {
+    const item = findItem(itemId)
+    if (!item || !state.run) return false
+
+    if (item.generation !== 'image') {
+      item.error = `${item.generation} generation is not wired into the front-end slice yet.`
+      item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
+      setStatus('error', item.error)
+      return false
+    }
+
+    const prompt = item.promptDraft.trim() || item.pitch.trim()
+    if (!prompt) {
+      item.error = 'Add a prompt in Fields & Prompts before generating.'
+      setStatus('error', item.error)
+      return false
+    }
+
+    const output = getOutput(item.outputKey)
+    const dims = sizeToDimensions(output?.size)
+    const artStore = useArtStore()
+
+    item.error = null
+    item.queueState = 'queued'
+    item.stages.GENERATE_ASSETS = { status: 'in-progress', note: 'queued' }
+    clearStatus()
+
+    try {
+      await artStore.prepareArtGenerator()
+
+      const enqueued = await artStore.enqueueCurrentArt({
+        promptString: prompt,
+        title: `${state.run.sourceLabel} — ${item.label}`,
+        width: dims.width,
+        height: dims.height,
+        engine: output?.engine,
+        isPublic: false,
+      })
+
+      if (!enqueued.success || !enqueued.jobId || !enqueued.data) {
+        throw new Error(enqueued.message || 'Failed to queue generation.')
+      }
+
+      item.artJobId = enqueued.jobId
+      void pollAsyncArtJob(
+        item,
+        enqueued.jobId,
+        enqueued.data,
+        output,
+        prompt,
+        dims,
+      )
+      return true
+    } catch (error) {
+      handleError(error, 'queueing model builder asset')
+      item.error =
+        error instanceof Error ? error.message : 'Failed to queue generation.'
+      item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
+      item.queueState = null
+      item.artJobId = null
+      setStatus('error', item.error)
+      return false
+    }
+  }
+
   // --- COMMIT: preview only (durable write is a gated backend milestone) ----
 
   interface CommitPreview {
@@ -1338,6 +1486,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     updatePrompt,
     draftText,
     generateItemAsset,
+    generateItemAssetAsync,
     previewCommit,
     commitItem,
     toggleIncludeArt,

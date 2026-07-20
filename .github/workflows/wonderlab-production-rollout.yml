@@ -6,11 +6,13 @@ on:
     paths:
       - '.github/workflows/wonderlab-production-rollout.yml'
       - 'scripts/wonderlab-production-rollout.mjs'
+      - 'scripts/wonderlab-production-component-contract.mjs'
   push:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-production-rollout.yml'
       - 'scripts/wonderlab-production-rollout.mjs'
+      - 'scripts/wonderlab-production-component-contract.mjs'
   workflow_dispatch:
     inputs:
       apply:
@@ -43,14 +45,19 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Check rollout script syntax and safety boundary
+      - name: Check rollout scripts and safety boundaries
         run: |
           set -euo pipefail
           node --check scripts/wonderlab-production-rollout.mjs
+          node --check scripts/wonderlab-production-component-contract.mjs
           node <<'NODE'
           const fs = require('node:fs')
           const assert = require('node:assert').strict
           const source = fs.readFileSync('scripts/wonderlab-production-rollout.mjs', 'utf8')
+          const componentContract = fs.readFileSync(
+            'scripts/wonderlab-production-component-contract.mjs',
+            'utf8',
+          )
 
           const requiredEndpoints = [
             ['/wonderlab-components.json'],
@@ -85,6 +92,27 @@ jobs:
           assert.match(source, /record\.isDiscovered !== true/)
           assert.match(source, /!record\.sourceKey/)
           assert.match(source, /!record\.sourcePath/)
+
+          for (const required of [
+            '/api/components',
+            'UNREVIEWED',
+            'PREVIEW_UNSUPPORTED',
+            'isWorking',
+            'underConstruction',
+            'isBroken',
+            'sourceKey',
+            'sourcePath',
+            'sourceHash',
+            'component-contract-verification.json',
+          ]) {
+            assert.ok(
+              componentContract.includes(required),
+              `missing Component contract check: ${required}`,
+            )
+          }
+          assert.doesNotMatch(componentContract, /method\s*:/)
+          assert.doesNotMatch(componentContract, /WONDERLAB_ADMIN_TOKEN|x-api-key|x-admin-token/)
+          assert.doesNotMatch(componentContract, /\/reconcile|\/publish|\/generate|\/approve/)
           console.log('WonderLab production rollout safety contract passed.')
           NODE
 
@@ -145,6 +173,12 @@ jobs:
           echo "Production prerequisites are ready at commit $(printf '%s' "$version" | jq -r '.data.commit')."
           echo "Live manifest contains $(printf '%s' "$manifest" | jq -r '.count') Components."
 
+      - name: Verify canonical Component API contract
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ROLLOUT_OUTPUT: wonderlab-rollout-artifacts
+        run: node scripts/wonderlab-production-component-contract.mjs
+
       - name: Reconcile canonical Component registry and run rollout audit
         env:
           WONDERLAB_BASE_URL: https://kind-robots.vercel.app
@@ -190,6 +224,7 @@ jobs:
             }
 
             const productionVersion = readJson('production-version.json')
+            const componentContract = readJson('component-contract-verification.json')
             const summary = readJson('rollout-summary.json')
             const dryRun = readJson('reconcile-dry-run.json')
             const apply = readJson('reconcile-apply.json')
@@ -212,6 +247,11 @@ jobs:
               `- **Production base:** ${summary?.baseUrl || 'https://kind-robots.vercel.app'}`,
             ]
 
+            if (componentContract) {
+              lines.push(
+                `- **Component API contract:** ${componentContract.recordCount || 0} records; ${componentContract.invalidStatusCount || 0} invalid statuses; ${componentContract.retiredFieldExposureCount || 0} retired-field exposures; ${componentContract.incompleteDiscoveredCount || 0} incomplete discovered identities`,
+              )
+            }
             if (drySummary) {
               lines.push(
                 `- **Reconciliation dry run:** ${drySummary.creates || 0} creates, ${drySummary.updates || 0} updates, ${drySummary.unchanged || 0} unchanged, ${drySummary.missingFromManifest || 0} database-only, ${drySummary.conflicts || 0} conflicts`,
@@ -244,7 +284,7 @@ jobs:
             lines.push('', '_Automated evidence report; no review generation, approval, or publication occurs in this workflow._')
 
             const body = lines.join('\n')
-            for (const issue_number of [381, 472]) {
+            for (const issue_number of [381, 472, 473]) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -268,13 +308,16 @@ jobs:
               `1. Verify \`/api/version\` still reports \`${liveCommit}\` or a newer descendant.`,
               '2. Read #381, #472, and #473 before changing rollout behavior.',
               process.env.WONDERLAB_ROLLOUT_APPLY === '1'
-                ? '3. If this apply succeeded, proceed to representative Dotti/Catbot draft generation, curator approval, publication, and desktop/mobile acceptance.'
-                : '3. Do not run an apply until production contains PR #527 (`5fa25cdb67f0d3dacad3b6eceb2e4bdd1de2088d`) or a descendant.',
+                ? '3. If this apply succeeded, continue with any remaining desktop/mobile acceptance and post-rollout cleanup.'
+                : '3. This run is read-only. Use `[wonderlab-rollout]` only when an explicitly reviewed reconciliation apply is required.',
               '4. Use `[wonderlab-audit]` for a read-only refresh; use `[wonderlab-rollout]` only for the conflict-gated write rollout.',
               '5. Neither trigger generates, approves, or publishes personality reviews.',
               '',
               '## Current machine checks',
               '',
+              `- Component API contract available: ${componentContract ? 'yes' : 'no'}`,
+              `- Component retired-field exposures: ${componentContract?.retiredFieldExposureCount ?? 'unknown'}`,
+              `- Component invalid statuses: ${componentContract?.invalidStatusCount ?? 'unknown'}`,
               `- Audit ready: ${auditData?.ready === true ? 'yes' : 'no'}`,
               `- Blocked audit checks: ${blockedChecks.join(', ') || 'none reported'}`,
               `- Reconciliation conflicts: ${drySummary?.conflicts ?? 'unknown'}`,

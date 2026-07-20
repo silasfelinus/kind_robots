@@ -9,13 +9,16 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { enforceProjectCap } from '~/server/utils/projectCap'
+import { assertJsonObject, assertOnlyFields } from '~/server/utils/chatApi'
 import {
   assertProjectAccess,
+  assertProjectRelationsAttachable,
   getProjectId,
   normalizeNullableDateTime,
   normalizeNullableId,
   normalizeOptionalText,
   normalizeSlug,
+  projectMutationFields,
   projectPriorities,
   projectStatuses,
 } from './index'
@@ -45,6 +48,12 @@ export default defineEventHandler(async (event) => {
 
     assertProjectAccess(existing, auth.user)
     const body = await readBody<ProjectPatchBody>(event)
+
+    assertJsonObject(body, 'Project patch payload must be a JSON object.')
+    assertOnlyFields(body, projectMutationFields, 'Project')
+
+    await assertProjectRelationsAttachable(body, auth.user.id, auth.isAdmin)
+
     const data: Prisma.ProjectUncheckedUpdateInput = {}
     const nextStatus = projectStatuses.has(body.status as ProjectStatus)
       ? (body.status as ProjectStatus)

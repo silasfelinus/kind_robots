@@ -11,6 +11,7 @@ description: Explore active experiments and projects outside the standard workfl
 icon: kind-icon:dungeon
 route: /memory
 sort: 10
+requiredRole: GUEST
 ---
 
 A home for experiments that are still becoming themselves.

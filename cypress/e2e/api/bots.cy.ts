@@ -33,6 +33,11 @@ describe('Bot Management API Tests', () => {
   let userId = 0
   let createdBotId: number | undefined
 
+  // Second user + their private Dream, used to prove relation attach permission.
+  let otherToken = ''
+  let otherId: number | undefined
+  let privateDreamId: number | undefined
+
   const botName = `testbot-${Date.now()}`
 
   before(() => {
@@ -46,6 +51,33 @@ describe('Bot Management API Tests', () => {
       .then((auth) => {
         userToken = auth.token
         userId = auth.id
+        // `fresh: true` is a deprecated no-op (createLoggedInTestUser now
+        // always reuses the run-scoped seed identity for it) -- the private
+        // Dream owner below must use `role: 'second'` to actually get a
+        // distinct account, otherwise this ends up being the same user as
+        // `userToken` and the "forbids attaching another user private Dream"
+        // test below is attaching a self-owned Dream, which is legitimately
+        // allowed and can never observe the 403 it asserts.
+        return createLoggedInTestUser({ role: 'second' })
+      })
+      .then((other) => {
+        otherToken = other.token
+        otherId = other.id
+
+        return cy
+          .request({
+            method: 'POST',
+            url: `${apiRoot}/dreams`,
+            headers: bearerHeaders(otherToken),
+            body: {
+              title: `PrivateDream-${Date.now()}`,
+              isPublic: false,
+            },
+            failOnStatusCode: false,
+          })
+          .then((response) => {
+            privateDreamId = response.body?.data?.id
+          })
       })
   })
 
@@ -59,7 +91,17 @@ describe('Bot Management API Tests', () => {
       })
     }
 
+    if (privateDreamId && otherToken) {
+      cy.request({
+        method: 'DELETE',
+        url: `${apiRoot}/dreams/${privateDreamId}`,
+        headers: bearerHeaders(otherToken),
+        failOnStatusCode: false,
+      })
+    }
+
     deleteTestUser(apiRoot, adminToken, userId)
+    deleteTestUser(apiRoot, adminToken, otherId)
   })
 
   it('should not allow creating a bot without an authorization token', () => {
@@ -102,6 +144,59 @@ describe('Bot Management API Tests', () => {
     })
   })
 
+  it('rejects client-supplied ownership during Bot creation', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        name: `${botName}-spoofed-owner`,
+        userId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Ownership is server-owned')
+    })
+  })
+
+  it('rejects unknown fields on Bot creation', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        name: `${botName}-unknown-field`,
+        bogusField: 'nope',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Unsupported Bot fields')
+    })
+  })
+
+  it('forbids attaching another user private Dream on Bot creation', () => {
+    expect(privateDreamId, 'privateDreamId').to.be.a('number')
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        name: `${botName}-forbidden-dream`,
+        dreamIds: [privateDreamId],
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(403)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('permission to attach')
+    })
+  })
+
   it('creates a Bot with a lean mutation response', () => {
     expect(userId, 'shared Cypress user id').to.be.a('number').and.be.greaterThan(0)
 
@@ -125,7 +220,6 @@ describe('Bot Management API Tests', () => {
         tagline: 'Your friendly AI companion',
         sampleResponse: 'I am here to help you!',
         modules: 'core, analytics',
-        userId,
       },
     }).then((response) => {
       expect(response.status, JSON.stringify(response.body)).to.eq(201)
@@ -171,6 +265,34 @@ describe('Bot Management API Tests', () => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
       expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('rejects ownership reassignment during singular and batch updates', () => {
+    expect(createdBotId, 'createdBotId').to.be.a('number')
+
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${createdBotId}`,
+      headers: bearerHeaders(userToken),
+      body: { userId },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Ownership is server-owned')
+    })
+
+    cy.request({
+      method: 'POST',
+      url: `${baseUrl}/batch`,
+      headers: bearerHeaders(userToken),
+      body: [{ id: createdBotId, userId }],
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Ownership is server-owned')
     })
   })
 

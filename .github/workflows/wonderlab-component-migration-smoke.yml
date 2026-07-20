@@ -1,0 +1,135 @@
+name: WonderLab Component Migration Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-component-migration-smoke.yml'
+      - 'prisma/schema.prisma'
+      - 'prisma/generated/prisma/models/Component.ts'
+      - 'prisma/migrations/20260719125500_component_canonical_contract/migration.sql'
+      - 'utils/scripts/verify-component-canonical-contract.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-component-migration-smoke.yml'
+      - 'prisma/schema.prisma'
+      - 'prisma/generated/prisma/models/Component.ts'
+      - 'prisma/migrations/20260719125500_component_canonical_contract/migration.sql'
+      - 'utils/scripts/verify-component-canonical-contract.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  mariadb-contract:
+    name: Preserve Components and Reactions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: kindrobots
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify schema, generated client, and migration boundary
+        run: node utils/scripts/verify-component-canonical-contract.mjs
+
+      - name: Install MariaDB client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mariadb-client
+
+      - name: Seed post-expand Component and Reaction fixtures
+        env:
+          MYSQL_PWD: root
+        run: |
+          mariadb --protocol=TCP -h 127.0.0.1 -P 3306 -uroot kindrobots <<'SQL'
+          CREATE TABLE `Component` (
+            `id` INT NOT NULL AUTO_INCREMENT,
+            `componentName` VARCHAR(255) NOT NULL,
+            `status` ENUM(
+              'UNREVIEWED',
+              'WORKING',
+              'NEEDS_CONTEXT',
+              'UNDER_CONSTRUCTION',
+              'BROKEN',
+              'RETIRED',
+              'PREVIEW_UNSUPPORTED'
+            ) NOT NULL DEFAULT 'UNREVIEWED',
+            `isWorking` BOOLEAN NOT NULL DEFAULT TRUE,
+            `underConstruction` BOOLEAN NOT NULL DEFAULT FALSE,
+            `isBroken` BOOLEAN NOT NULL DEFAULT FALSE,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `Component_componentName_key` (`componentName`)
+          );
+
+          CREATE TABLE `Reaction` (
+            `id` INT NOT NULL AUTO_INCREMENT,
+            `componentId` INT NULL,
+            `comment` TEXT NULL,
+            PRIMARY KEY (`id`),
+            KEY `Reaction_componentId_idx` (`componentId`),
+            CONSTRAINT `Reaction_componentId_fkey`
+              FOREIGN KEY (`componentId`) REFERENCES `Component` (`id`)
+          );
+
+          INSERT INTO `Component`
+            (`id`, `componentName`, `status`, `isWorking`, `underConstruction`, `isBroken`)
+          VALUES
+            (1, 'WorkingCard', 'WORKING', TRUE, FALSE, FALSE),
+            (2, 'BrokenPanel', 'BROKEN', FALSE, FALSE, TRUE);
+
+          INSERT INTO `Reaction` (`id`, `componentId`, `comment`)
+          VALUES (41, 1, 'Preserve this review.');
+          SQL
+
+      - name: Apply canonical Component contract migration
+        env:
+          MYSQL_PWD: root
+        run: |
+          mariadb --protocol=TCP -h 127.0.0.1 -P 3306 -uroot kindrobots \
+            < prisma/migrations/20260719125500_component_canonical_contract/migration.sql
+
+      - name: Verify rows, relations, and canonical statuses survive
+        env:
+          MYSQL_PWD: root
+        run: |
+          set -euo pipefail
+          query() {
+            mariadb --batch --skip-column-names --protocol=TCP \
+              -h 127.0.0.1 -P 3306 -uroot kindrobots -e "$1"
+          }
+
+          legacy_columns="$(query "
+            SELECT COUNT(*)
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = 'kindrobots'
+              AND TABLE_NAME = 'Component'
+              AND COLUMN_NAME IN ('isWorking', 'underConstruction', 'isBroken');
+          ")"
+          component_count="$(query 'SELECT COUNT(*) FROM `Component`;')"
+          reaction_count="$(query 'SELECT COUNT(*) FROM `Reaction`;')"
+          reaction_component="$(query 'SELECT `componentId` FROM `Reaction` WHERE `id` = 41;')"
+          status_rows="$(query 'SELECT GROUP_CONCAT(CONCAT(`id`, ":", `status`) ORDER BY `id`) FROM `Component`;')"
+
+          test "$legacy_columns" = '0'
+          test "$component_count" = '2'
+          test "$reaction_count" = '1'
+          test "$reaction_component" = '1'
+          test "$status_rows" = '1:WORKING,2:BROKEN'
+
+          echo 'MariaDB Component contract migration preserved canonical rows and Reactions.'

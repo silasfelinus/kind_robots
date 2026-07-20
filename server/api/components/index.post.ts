@@ -3,17 +3,20 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
-import type { Component, Prisma } from '~/prisma/generated/prisma/client'
+import { Prisma } from '~/prisma/generated/prisma/client'
+import type { Component } from '~/prisma/generated/prisma/client'
 import {
-  getLegacyComponentStatus,
-  hasLegacyStatusUpdate,
   isComponentStatus,
-  legacyFieldsForComponentStatus,
-  resolveLegacyStatusUpdate,
   type ComponentStatus,
 } from '@/utils/wonderlab/componentStatus'
 
 type ComponentCreateBody = Partial<Component>
+
+const retiredStatusFields = [
+  'isWorking',
+  'underConstruction',
+  'isBroken',
+] as const
 
 function getStringOrDefault(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback
@@ -29,6 +32,25 @@ function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
+// See server/api/components/[id].patch.ts's optionalTags for why this casts to
+// the InputJsonObject variant (a legitimate native-Json-column cast) rather than
+// the wider InputJsonValue cast that utils/scripts/verifyNoPrismaJsonCast.ts bans.
+function optionalTags(
+  value: unknown,
+): Prisma.InputJsonObject | typeof Prisma.DbNull | undefined {
+  if (value === undefined) return undefined
+  if (value === null) return Prisma.DbNull
+
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: '"tags" must be a JSON object or null.',
+    })
+  }
+
+  return value as Prisma.InputJsonObject
+}
+
 function requestedStatus(value: unknown): ComponentStatus | null {
   if (value === undefined || value === null) return null
 
@@ -40,6 +62,22 @@ function requestedStatus(value: unknown): ComponentStatus | null {
   }
 
   return value
+}
+
+function rejectRetiredStatusFields(body: unknown): void {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return
+
+  const record = body as Record<string, unknown>
+  const retiredFields = retiredStatusFields.filter((field) =>
+    Object.prototype.hasOwnProperty.call(record, field),
+  )
+
+  if (retiredFields.length) {
+    throw createError({
+      statusCode: 400,
+      message: `Legacy Component status fields are no longer supported: ${retiredFields.join(', ')}. Use "status" instead.`,
+    })
+  }
 }
 
 async function assertArtImageExists(artImageId?: number) {
@@ -63,6 +101,7 @@ export default defineEventHandler(async (event) => {
     await requireAdminApiUser(event)
 
     const componentData = await readBody<ComponentCreateBody>(event)
+    rejectRetiredStatusFields(componentData)
 
     const componentName = getStringOrDefault(componentData.componentName, '')
     const folderName = getStringOrDefault(
@@ -87,47 +126,16 @@ export default defineEventHandler(async (event) => {
     const artImageId = getPositiveIntegerOrUndefined(componentData.artImageId)
     await assertArtImageExists(artImageId)
 
-    const existingComponent = await prisma.component.findUnique({
-      where: { componentName },
-      select: {
-        status: true,
-        isWorking: true,
-        underConstruction: true,
-        isBroken: true,
-      },
-    })
-
     const canonicalStatus = requestedStatus(componentData.status)
-    const legacyStatusWasProvided = hasLegacyStatusUpdate(componentData)
-    const createStatus: ComponentStatus = canonicalStatus
-      ? canonicalStatus
-      : legacyStatusWasProvided
-        ? getLegacyComponentStatus(
-            resolveLegacyStatusUpdate(
-              legacyFieldsForComponentStatus('UNREVIEWED'),
-              componentData,
-            ),
-          )
-        : 'UNREVIEWED'
-    const updateStatus: ComponentStatus | null = canonicalStatus
-      ? canonicalStatus
-      : legacyStatusWasProvided && existingComponent
-        ? getLegacyComponentStatus(
-            resolveLegacyStatusUpdate(existingComponent, componentData),
-          )
-        : legacyStatusWasProvided
-          ? createStatus
-          : null
+    const createStatus: ComponentStatus = canonicalStatus ?? 'UNREVIEWED'
 
-    const createLegacyStatus = legacyFieldsForComponentStatus(createStatus)
-    const updateLegacyStatus = updateStatus
-      ? legacyFieldsForComponentStatus(updateStatus)
-      : null
+    const tags = optionalTags(componentData.tags)
 
     const commonData = {
       folderName,
       title: getStringOrDefault(componentData.title, componentName),
       notes: getStringOrNull(componentData.notes),
+      tags,
       updatedAt: new Date(),
       ArtImage: artImageId
         ? {
@@ -138,10 +146,7 @@ export default defineEventHandler(async (event) => {
 
     const updateData: Prisma.ComponentUpdateInput = {
       ...commonData,
-      status: updateStatus ?? undefined,
-      isWorking: updateLegacyStatus?.isWorking,
-      underConstruction: updateLegacyStatus?.underConstruction,
-      isBroken: updateLegacyStatus?.isBroken,
+      status: canonicalStatus ?? undefined,
     }
 
     const createData: Prisma.ComponentCreateInput = {
@@ -149,9 +154,6 @@ export default defineEventHandler(async (event) => {
       componentName,
       createdAt: new Date(),
       status: createStatus,
-      isWorking: createLegacyStatus.isWorking,
-      underConstruction: createLegacyStatus.underConstruction,
-      isBroken: createLegacyStatus.isBroken,
     }
 
     const data = await prisma.component.upsert({

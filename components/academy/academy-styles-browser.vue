@@ -40,6 +40,7 @@
       :id="`academy-style-detail-${expandedStyle.slug}`"
     >
       <academy-style-detail
+        :key="expandedStyle.slug"
         :lesson="expandedStyle"
         @close="closeStyle"
         @remix="emit('remix', $event)"

@@ -32,3 +32,5 @@ kindblank_*.sql
 .env*
 /public/images/**
 !/public/images/.gitkeep
+/public/wonderlab-components.json
+/utils/generated/wonderLabSourceEvidence.ts

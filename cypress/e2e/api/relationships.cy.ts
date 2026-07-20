@@ -206,7 +206,6 @@ describe('Relationship API Tests', () => {
           isDefault: false,
           isActive: true,
           isEditable: true,
-          supportsTxt2Img: true,
         }),
       )
       .then(() =>
@@ -251,7 +250,6 @@ describe('Relationship API Tests', () => {
           userIntro: 'Test user says hello.',
           prompt: 'Respond as a relationship test bot.',
           designer: 'cypress',
-          userId,
           serverId: id('server'),
           artImageId: id('artImage'),
           isPublic: false,
@@ -265,7 +263,6 @@ describe('Relationship API Tests', () => {
           species: 'Test Goblin',
           class: 'Relationship Wrangler',
           backstory: 'Born in a Cypress fixture and immediately suspicious.',
-          userId,
           artImageId: id('artImage'),
           isPublic: false,
           isActive: true,

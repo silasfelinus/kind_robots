@@ -159,17 +159,67 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
+  it('rejects a supplied userId as an unsupported Reaction create field', () => {
+    expect(themeId).to.exist
+    expect(ownerId).to.exist
+
+    // Ownership is exclusively authentication-derived: the #560 matching-userId
+    // compatibility path is gone, so even the caller's own id is now rejected as
+    // an unsupported field.
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: reactionBaseUrl,
+      headers: ownerHeaders(),
+      body: {
+        userId: ownerId,
+        reactionType: 'LOVED',
+        reactionCategory: 'THEME',
+        themeId,
+        rating: 5,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include(
+        'Unsupported Reaction create fields',
+      )
+    })
+  })
+
+  it('rejects unsupported Reaction create fields', () => {
+    expect(themeId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: reactionBaseUrl,
+      headers: ownerHeaders(),
+      body: {
+        reactionType: 'LOVED',
+        reactionCategory: 'THEME',
+        themeId,
+        rating: 5,
+        createdAt: new Date().toISOString(),
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include(
+        'Unsupported Reaction create fields',
+      )
+    })
+  })
+
   it('creates a Reaction under the authenticated owner', () => {
     expect(themeId).to.exist
     expect(ownerId).to.exist
-    expect(otherId).to.exist
 
     cy.request<ApiResponse<ReactionRow>>({
       method: 'POST',
       url: reactionBaseUrl,
       headers: ownerHeaders(),
       body: {
-        userId: otherId,
         reactionType: 'LOVED',
         reactionCategory: 'THEME',
         themeId,
@@ -185,6 +235,78 @@ describe('Reaction Management API Tests', () => {
 
       reactionId = response.body.data?.id
       expect(reactionId).to.be.a('number')
+    })
+  })
+
+  it('forbids reacting to another user private Theme', () => {
+    expect(themeId).to.exist
+    expect(otherToken).to.exist
+
+    // The theme fixture is private (isPublic: false) and owned by ownerId, so a
+    // different authenticated user may not react to it.
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: reactionBaseUrl,
+      headers: otherHeaders(),
+      body: {
+        reactionType: 'LOVED',
+        reactionCategory: 'THEME',
+        themeId,
+        rating: 4,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('permission to react to this Theme')
+    })
+  })
+
+  it('forbids reacting to another user private ArtImage via the art sub-route', () => {
+    expect(otherToken).to.exist
+
+    // Create a private ArtImage owned by the owner, then confirm a different
+    // authenticated user cannot react to it through /api/reactions/art/:id
+    // (the sub-route now enforces the same visibility rule as POST /reactions).
+    cy.request<ApiResponse<{ id: number }>>({
+      method: 'POST',
+      url: `${apiBase}/art/image`,
+      headers: ownerHeaders(),
+      body: {
+        imagePath: `/images/test/private-reaction-${Date.now()}.webp`,
+        path: `/images/test/private-reaction-${Date.now()}.webp`,
+        fileName: 'private-reaction.webp',
+        fileType: 'webp',
+        isPublic: false,
+      },
+      failOnStatusCode: false,
+    }).then((createResponse) => {
+      expect(createResponse.status, JSON.stringify(createResponse.body)).to.eq(
+        201,
+      )
+      const privateArtImageId = createResponse.body.data?.id
+      expect(privateArtImageId).to.be.a('number')
+
+      cy.request<ApiResponse>({
+        method: 'PATCH',
+        url: `${apiBase}/reactions/art/${privateArtImageId}`,
+        headers: otherHeaders(),
+        body: { reactionType: 'LOVED' },
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(403)
+        expect(response.body.success).to.eq(false)
+        expect(response.body.message).to.include(
+          'permission to react to this ArtImage',
+        )
+      })
+
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/art/image/${privateArtImageId}`,
+        headers: ownerHeaders(),
+        failOnStatusCode: false,
+      })
     })
   })
 

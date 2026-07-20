@@ -2,11 +2,18 @@
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import { botData } from '@/stores/seeds/seedBots'
 
 export interface BotPayload extends Partial<Bot> {
   serverId?: number | null
   serverName?: string | null
+}
+
+function withoutBotOwnership(payload: BotPayload): BotPayload {
+  const sanitized = { ...payload }
+  Reflect.deleteProperty(sanitized, 'userId')
+  return sanitized
 }
 
 export async function updateBot(
@@ -15,10 +22,10 @@ export async function updateBot(
   avatarImage?: string,
 ): Promise<Bot | null> {
   try {
-    const payload: BotPayload = {
+    const payload = withoutBotOwnership({
       ...botForm,
       ...(avatarImage ? { avatarImage } : {}),
-    }
+    })
 
     const response = await performFetch<Bot>(`/api/bots/${id}`, {
       method: 'PATCH',
@@ -40,7 +47,7 @@ export async function addBot(botData: BotPayload): Promise<Bot | null> {
   try {
     const response = await performFetch<Bot>('/api/bots', {
       method: 'POST',
-      body: JSON.stringify(botData),
+      body: JSON.stringify(withoutBotOwnership(botData)),
     })
 
     if (response.success && response.data) {
@@ -93,15 +100,10 @@ export async function botImage(bot: Bot): Promise<string> {
   try {
     const artImage = await artStore.getArtImageById(bot.artImageId)
 
-    if (!artImage?.imageData) return fallbackImage
-
-    if (artImage.imageData.startsWith('data:image/')) {
-      return artImage.imageData
-    }
-
-    const fileType = artImage.fileType || 'webp'
-
-    return `data:image/${fileType};base64,${artImage.imageData}`
+    // Path-first: prefer the stored path, fall back to inline base64 only for
+    // pathless art, then the bot's avatar. (Previously a pathed image with no
+    // base64 wrongly rendered the fallback.)
+    return resolveArtImageSrc(artImage, fallbackImage)
   } catch (error: unknown) {
     console.error('Error fetching art image:', error)
     return fallbackImage

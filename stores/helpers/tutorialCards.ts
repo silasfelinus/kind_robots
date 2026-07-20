@@ -35,6 +35,7 @@ export type ExtraTutorialKey =
   | 'scoop-cms'
   | 'mermaids'
   | 'packs'
+  | 'wonder'
 export type TutorialChannelKey = FooterKey | ExtraTutorialKey
 
 export type TutorialSection = {
@@ -96,6 +97,12 @@ export const tutorialChannels = {
         image: tutorialImage('games', 'screen-fx'),
       },
       {
+        key: 'animation-manager',
+        title: 'Animation Manager',
+        body: 'The museum of Screen FX build attempts: browse status and ratings for every effect, then preview, compare, promote, polish, or retire a build.',
+        image: tutorialImage('games', 'animation-manager'),
+      },
+      {
         key: 'wonder-lab',
         title: 'WonderLab',
         body: 'A behind-the-scenes look at the components that make up the site and the experiments that are still earning their shoes.',
@@ -123,6 +130,18 @@ export const tutorialChannels = {
         title: 'Add Scenario',
         body: 'Create a new scenario with an intro, choices, stakes, and room for players to surprise the narrator.',
         image: tutorialImage('scenario', 'add'),
+      },
+      {
+        key: 'serendipity',
+        title: 'Serendipity',
+        body: 'Step into a second-person story woven by the Serendipity bot: pick a tone, open the door, and answer honestly — the questions it asks quietly advance your real honey-dos and human-gated tasks along the way.',
+        image: tutorialImage('scenario', 'serendipity'),
+      },
+      {
+        key: 'storymaker',
+        title: 'Storymaker',
+        body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth — the long-form loom that gathers everything else into one unfolding story.',
+        image: tutorialImage('scenario', 'storymaker'),
       },
     ],
   },
@@ -273,6 +292,13 @@ export const tutorialChannels = {
         title: 'Coloring Book',
         body: 'Pick a page from a set, tap a region to fill it, and group-fill matching sections with one color. Switch to a custom shade any time, undo mistakes, and save your progress or export a finished page as an image — it all saves itself as you go.',
         image: tutorialImage('art', 'coloring'),
+      },
+      {
+        key: 'coat-dance',
+        title: 'Coat Dance',
+        body: 'An experimental AI-remixed music video built from a real 2006 physical-theater performance with a trench coat as duet partner. Still in early production planning.',
+        image: tutorialImage('art', 'coat-dance'),
+        underConstruction: true,
       },
     ],
   },
@@ -513,6 +539,18 @@ export const tutorialChannels = {
         body: 'Add a PortOS server to use a host of services. For more information, visit https://github.com/atomantic/PortOS',
         image: `images/tutorials/conductor/conductor.webp`,
       },
+      {
+        key: 'appmaker',
+        title: 'AppMaker',
+        body: 'The app factory — browse the fleet of apps already built, or spin up a new one from a name and a one-line description. Every app is a workspace folder, a project roadmap, and a Dream sharing one slug, so it plugs straight into the rest of Kind Robots.',
+        image: tutorialImage('conductor', 'appmaker'),
+      },
+      {
+        key: 'conductor-app',
+        title: 'Conductor App',
+        body: 'The companion Flutter client for Conductor — review projects, approve gates, and nudge the build loop from a phone. Built in the open, one roadmap task at a time; not on the App Store or Play Store yet.',
+        image: tutorialImage('conductor', 'conductor-app'),
+      },
     ],
   },
   packs: {
@@ -532,6 +570,58 @@ export const tutorialChannels = {
       },
     ],
   },
+
+  wonder: {
+    key: 'wonder',
+    title: 'WonderLab',
+    tagline: 'Experimental toys, tests, and delightful nonsense.',
+    overview:
+      'WonderLab is the workshop wing of Kind Robots -- games, generative sims, and the Newsfeed, all still earning their shoes.',
+    sections: [
+      {
+        key: 'newsfeed',
+        title: 'Newsfeed',
+        body: 'A programmable, remixable homepage feed of fresh art, stories, and milestones. Pick which feeds show up, filter by keyword or category, and dial in perspective balance from the Manage feeds panel.',
+        image: tutorialImage('wonder', 'newsfeed'),
+      },
+      {
+        key: 'wonderlab',
+        title: 'WonderLab',
+        body: 'The open sandbox: the card-matching Memory Dungeon crawl plus a shelf of experimental components and half-finished toys that exist purely because they were fun to make.',
+        image: tutorialImage('wonder', 'wonderlab'),
+      },
+      {
+        key: 'screenfx',
+        title: 'Screen FX',
+        body: 'Control the screen-effect layer -- matrix rain, firefly drift, butterflies, and ambient theater -- and layer overlays until the screen looks exactly as unreasonable as you want.',
+        image: tutorialImage('wonder', 'screenfx'),
+      },
+      {
+        key: 'davinci',
+        title: 'Da Vinci Life Sim',
+        body: 'A generative life-and-legacy simulation: hundreds of achievements, branching choices, and a legacy that remembers what you built.',
+        image: tutorialImage('wonder', 'davinci'),
+      },
+      {
+        key: 'watchlist',
+        title: 'Media Watchlist',
+        body: 'Track films and shows across a clean, structured watchlist -- queue, in-progress, and finished -- so the "what should we watch" argument finally has a source of truth.',
+        image: tutorialImage('wonder', 'watchlist'),
+      },
+      {
+        key: 'ruler-hooked',
+        title: 'Ruler Hooked',
+        body: 'Cast lines, manage a seaside kingdom, and ride the slideshow of tides and decisions where every catch reshapes the realm you rule.',
+        image: tutorialImage('wonder', 'ruler-hooked'),
+      },
+      {
+        key: 'voice-lab',
+        title: 'Voice Lab',
+        body: 'The voice frontier: an Alexa skill and local relay that let Serendipity and friends speak and listen. Watch the relay status and learn how to plug in.',
+        image: tutorialImage('wonder', 'voice-lab'),
+      },
+    ],
+  },
 } as const satisfies Record<TutorialChannelKey, TutorialChannel>
 
 export const tutorialChannelKeys = Object.keys(
@@ -547,7 +637,16 @@ const tutorialRouteMap = {
   'scoop-cms': '/scoop-cms',
   mermaids: '/mermaids',
   packs: '/packs',
-} as const satisfies Record<TutorialChannelKey, string>
+  wonder: [
+    '/newsfeed',
+    '/wonderlab',
+    '/screenfx',
+    '/davinci',
+    '/watchlist',
+    '/ruler-hooked',
+    '/voice-lab',
+  ],
+} as const satisfies Record<TutorialChannelKey, string | readonly string[]>
 
 export function isTutorialChannelKey(
   value: string,
@@ -577,6 +676,12 @@ export function getTutorialEarningsMessage(
 
 export function resolveTutorialChannelFromRoute(
   path: string,
+  // Overridable for tests exercising the exact-vs-prefix precedence rules
+  // with controlled route data; real callers always use the defaults.
+  routeMap: Partial<
+    Record<TutorialChannelKey, string | readonly string[]>
+  > = tutorialRouteMap,
+  keys: readonly TutorialChannelKey[] = tutorialChannelKeys,
 ): TutorialChannelKey | null {
   let cleanPath = path || ''
   const queryIndex = cleanPath.indexOf('?')
@@ -587,17 +692,21 @@ export function resolveTutorialChannelFromRoute(
   let bestKey: TutorialChannelKey | null = null
   let bestLen = -1
 
-  for (const key of tutorialChannelKeys) {
-    const route = tutorialRouteMap[key]
-    if (!route) continue
+  for (const key of keys) {
+    const routes = routeMap[key]
+    if (!routes) continue
+    const routeList = Array.isArray(routes) ? routes : [routes]
 
-    if (cleanPath === route) return key
+    for (const route of routeList) {
+      if (!route) continue
+      if (cleanPath === route) return key
 
-    const isPrefix = route !== '/' && cleanPath.startsWith(`${route}/`)
+      const isPrefix = route !== '/' && cleanPath.startsWith(`${route}/`)
 
-    if (isPrefix && route.length > bestLen) {
-      bestKey = key
-      bestLen = route.length
+      if (isPrefix && route.length > bestLen) {
+        bestKey = key
+        bestLen = route.length
+      }
     }
   }
 

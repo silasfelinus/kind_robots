@@ -335,6 +335,40 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'persian-miniature',
+    name: 'Persian Miniature Painting',
+    era: 'c. 1400–1600',
+    sortYear: 1400,
+    region: 'Timurid Herat & Safavid Persia',
+    keyIdeas:
+      'Manuscript pages built to be held close and read slowly: court poetry and epic — the Bustan, the Shahnameh — illustrated with a logic opposite to Western perspective. Distant figures sit higher on the page rather than shrinking, light falls flat with no cast shadow, and buildings open in "cutaway" view so inside and outside read at once. Mineral pigment and gold leaf fill flat jewel-bright fields, and the picture surface doubles as ornament — tilework, foliage, and cloth patterns rendered with the same dense precision as the figures.',
+    recognitionCues: [
+      'No Western linear perspective — distant figures placed higher on the page rather than smaller',
+      'Flat, even lighting with no cast shadows',
+      'Brilliant, unmixed jewel colors — ultramarine, vermilion, gold leaf — in flat fields rather than blended',
+      'Dense surface ornament: patterned textiles, tiled architecture, stylized foliage rendered as precisely as the figures',
+      '"Cutaway" architecture showing a building\'s interior and exterior at once',
+      'A framing border of fine floral or geometric pattern around the scene',
+    ],
+    artists: [
+      {
+        name: 'Kamal ud-Din Bihzad',
+        years: 'c. 1450–1535',
+        note: 'Leading painter of the Herat workshop under Timurid and later Safavid patronage; widely regarded as the tradition\'s most technically refined master, sometimes called "the Persian Leonardo."',
+      },
+      {
+        name: 'Sultan Muhammad',
+        years: 'active early–mid 16th century, d. before 1555',
+        note: "Director of Shah Ismail's Tabriz workshop and first project director of the Shahnameh of Shah Tahmasp, known for dense, imaginative compositions.",
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Persian miniature: flat, high-vantage compositions with distant figures placed higher rather than smaller, brilliant unshaded jewel colors, intricate architectural or garden detail, patterned textiles, and a dense floral or geometric border, no Western perspective or cast shadow',
+    },
+  },
+  {
     slug: 'northern-renaissance',
     name: 'Northern Renaissance',
     era: 'c. 1420–1570',

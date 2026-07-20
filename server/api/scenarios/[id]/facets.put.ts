@@ -55,14 +55,21 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    event.node.res.statusCode = 200
     return {
       success: true,
       message: 'Scenario Facets updated.',
       data: facets,
+      statusCode: 200,
     }
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500
-    return { ...handled, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: handled.message,
+      data: null,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

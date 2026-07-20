@@ -1131,6 +1131,19 @@ export const dashboardConfigs = {
         route: '/screenfx',
       },
       {
+        key: 'animation-manager',
+        label: 'Anim. Manager',
+        icon: 'kind-icon:trophy',
+        title: 'Animation Manager',
+        summary: 'Gallery and promotion workspace for Screen FX build attempts.',
+        image: tabImage('wonder', 'animation-manager'),
+        flourish: '✦',
+        tagline: 'Preview, compare, promote, polish, or retire a build.',
+        narrative:
+          'Every Screen FX catalog effect in one gallery: build history, working/broken state, version lineage, and Reaction ratings, with actions to preview it live, compare builds side by side, and promote, polish, or retire an attempt.',
+        route: '/animation-manager',
+      },
+      {
         key: 'mural',
         label: 'Mural',
         icon: 'kind-icon:paintbrush',

@@ -5,14 +5,16 @@ import { errorHandler } from '../../utils/error'
 import { normalizeSlugInput } from '~/utils/slugify'
 import { validateApiKey } from '../../utils/validateKey'
 import { resourceMutationSelect } from './selects'
+import { assertOwnershipIsUnchanged } from './compatibility'
 import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
 
-type ResourcePatchBody = Partial<Resource> & {
-  connectServerIds?: number[]
-  disconnectServerIds?: number[]
-  connectLoraImageIds?: number[]
-  disconnectLoraImageIds?: number[]
-}
+type ResourcePatchBody = Partial<Omit<Resource, 'userId'>> &
+  Record<string, unknown> & {
+    connectServerIds?: number[]
+    disconnectServerIds?: number[]
+    connectLoraImageIds?: number[]
+    disconnectLoraImageIds?: number[]
+  }
 
 function normalizeIdArray(value: unknown): number[] {
   if (!Array.isArray(value)) return []
@@ -71,19 +73,21 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<ResourcePatchBody>(event)
 
-    if (!body || Object.keys(body).length === 0) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Request body is required.',
+      })
+    }
+
+    if (Object.keys(body).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    if (typeof body.userId === 'number' && !isAdmin) {
-      throw createError({
-        statusCode: 403,
-        message: 'Only admins can reassign Resource ownership.',
-      })
-    }
+    assertOwnershipIsUnchanged(body, existingResource.userId)
 
     const connectServerIds = normalizeIdArray(body.connectServerIds)
     const disconnectServerIds = normalizeIdArray(body.disconnectServerIds)
@@ -137,6 +141,7 @@ export default defineEventHandler(async (event) => {
       connectLoraImageIds: _connectLoraImageIds,
       disconnectLoraImageIds: _disconnectLoraImageIds,
       id: _id,
+      userId: _userId,
       createdAt: _createdAt,
       updatedAt: _updatedAt,
       ...resourceFields
@@ -163,10 +168,6 @@ export default defineEventHandler(async (event) => {
       isPublic: resourceFields.isPublic,
       isActive: resourceFields.isActive,
       artPrompt: resourceFields.artPrompt,
-      User:
-        typeof resourceFields.userId === 'number'
-          ? { connect: { id: resourceFields.userId } }
-          : undefined,
       ArtImage:
         typeof resourceFields.artImageId === 'number'
           ? { connect: { id: resourceFields.artImageId } }
@@ -218,7 +219,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || `Failed to update resource with ID ${resourceId}.`,
+      message:
+        handled.message || `Failed to update resource with ID ${resourceId}.`,
       data: null,
       statusCode,
     }

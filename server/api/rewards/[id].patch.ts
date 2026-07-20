@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { updateRewardById, type RewardMutationInput } from './index'
+import { assertRewardMutationInput, rewardPatchFields } from './mutation'
 
 export default defineEventHandler(async (event) => {
   const rewardId = Number(event.context.params?.id)
@@ -72,7 +73,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await updateRewardById(rewardId, rewardData)
+    assertRewardMutationInput(rewardData, {
+      allowedFields: rewardPatchFields,
+      context: 'Reward patch payload',
+      routeId: rewardId,
+      requireNonEmpty: true,
+    })
+
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const data = await updateRewardById(rewardId, rewardData, user.id, isAdmin)
 
     event.node.res.statusCode = 200
 
@@ -91,6 +100,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: message || `Failed to update reward with ID ${rewardId}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

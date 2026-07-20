@@ -168,7 +168,12 @@ export async function validateUserCredentials(
 
     const token = await createToken(user)
 
-    return { user, token }
+    // Never return the bcrypt password hash to any caller (login response,
+    // client logs/caches). Callers that need to verify a password re-fetch and
+    // compare server-side; nothing legitimately consumes this field.
+    const { password: _password, ...safeUser } = user
+
+    return { user: safeUser, token }
   } catch (error: unknown) {
     console.error(
       `Failed to validate user credentials: ${errorHandler(error).message}`,

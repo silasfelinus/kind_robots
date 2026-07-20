@@ -10,11 +10,14 @@ import { upsertProjectDirect } from '~/server/utils/projectDirectWrite'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { enforceProjectCap } from '~/server/utils/projectCap'
+import { assertJsonObject, assertOnlyFields } from '~/server/utils/chatApi'
 import {
+  assertProjectRelationsAttachable,
   normalizeNullableDateTime,
   normalizeNullableId,
   normalizeOptionalText,
   normalizeSlug,
+  projectMutationFields,
   projectPriorities,
   projectStatuses,
 } from './index'
@@ -74,6 +77,12 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requireApiUser(event)
     const body = await readBody<ProjectCreateBody>(event)
+
+    assertJsonObject(body, 'Project create payload must be a JSON object.')
+    assertOnlyFields(body, projectMutationFields, 'Project')
+
+    await assertProjectRelationsAttachable(body, auth.user.id, auth.isAdmin)
+
     const title = normalizeOptionalText(body?.title)
 
     if (!title) {

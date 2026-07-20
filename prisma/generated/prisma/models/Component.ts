@@ -42,9 +42,6 @@ export type ComponentMinAggregateOutputType = {
   updatedAt: Date | null
   folderName: string | null
   componentName: string | null
-  isWorking: boolean | null
-  underConstruction: boolean | null
-  isBroken: boolean | null
   slug: string | null
   sourcePath: string | null
   sourceKey: string | null
@@ -67,9 +64,6 @@ export type ComponentMaxAggregateOutputType = {
   updatedAt: Date | null
   folderName: string | null
   componentName: string | null
-  isWorking: boolean | null
-  underConstruction: boolean | null
-  isBroken: boolean | null
   slug: string | null
   sourcePath: string | null
   sourceKey: string | null
@@ -92,9 +86,6 @@ export type ComponentCountAggregateOutputType = {
   updatedAt: number
   folderName: number
   componentName: number
-  isWorking: number
-  underConstruction: number
-  isBroken: number
   slug: number
   sourcePath: number
   sourceKey: number
@@ -131,9 +122,6 @@ export type ComponentMinAggregateInputType = {
   updatedAt?: true
   folderName?: true
   componentName?: true
-  isWorking?: true
-  underConstruction?: true
-  isBroken?: true
   slug?: true
   sourcePath?: true
   sourceKey?: true
@@ -156,9 +144,6 @@ export type ComponentMaxAggregateInputType = {
   updatedAt?: true
   folderName?: true
   componentName?: true
-  isWorking?: true
-  underConstruction?: true
-  isBroken?: true
   slug?: true
   sourcePath?: true
   sourceKey?: true
@@ -181,9 +166,6 @@ export type ComponentCountAggregateInputType = {
   updatedAt?: true
   folderName?: true
   componentName?: true
-  isWorking?: true
-  underConstruction?: true
-  isBroken?: true
   slug?: true
   sourcePath?: true
   sourceKey?: true
@@ -295,9 +277,6 @@ export type ComponentGroupByOutputType = {
   updatedAt: Date | null
   folderName: string
   componentName: string
-  isWorking: boolean
-  underConstruction: boolean
-  isBroken: boolean
   slug: string | null
   sourcePath: string | null
   sourceKey: string | null
@@ -345,9 +324,6 @@ export type ComponentWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
   folderName?: Prisma.StringFilter<"Component"> | string
   componentName?: Prisma.StringFilter<"Component"> | string
-  isWorking?: Prisma.BoolFilter<"Component"> | boolean
-  underConstruction?: Prisma.BoolFilter<"Component"> | boolean
-  isBroken?: Prisma.BoolFilter<"Component"> | boolean
   slug?: Prisma.StringNullableFilter<"Component"> | string | null
   sourcePath?: Prisma.StringNullableFilter<"Component"> | string | null
   sourceKey?: Prisma.StringNullableFilter<"Component"> | string | null
@@ -374,9 +350,6 @@ export type ComponentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   folderName?: Prisma.SortOrder
   componentName?: Prisma.SortOrder
-  isWorking?: Prisma.SortOrder
-  underConstruction?: Prisma.SortOrder
-  isBroken?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   sourcePath?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -409,9 +382,6 @@ export type ComponentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Component"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
   folderName?: Prisma.StringFilter<"Component"> | string
-  isWorking?: Prisma.BoolFilter<"Component"> | boolean
-  underConstruction?: Prisma.BoolFilter<"Component"> | boolean
-  isBroken?: Prisma.BoolFilter<"Component"> | boolean
   sourcePath?: Prisma.StringNullableFilter<"Component"> | string | null
   sourceHash?: Prisma.StringNullableFilter<"Component"> | string | null
   status?: Prisma.EnumComponentStatusFilter<"Component"> | $Enums.ComponentStatus
@@ -436,9 +406,6 @@ export type ComponentOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   folderName?: Prisma.SortOrder
   componentName?: Prisma.SortOrder
-  isWorking?: Prisma.SortOrder
-  underConstruction?: Prisma.SortOrder
-  isBroken?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   sourcePath?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -471,9 +438,6 @@ export type ComponentScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Component"> | Date | string | null
   folderName?: Prisma.StringWithAggregatesFilter<"Component"> | string
   componentName?: Prisma.StringWithAggregatesFilter<"Component"> | string
-  isWorking?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
-  underConstruction?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
-  isBroken?: Prisma.BoolWithAggregatesFilter<"Component"> | boolean
   slug?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
   sourcePath?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
   sourceKey?: Prisma.StringNullableWithAggregatesFilter<"Component"> | string | null
@@ -497,9 +461,6 @@ export type ComponentCreateInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -525,9 +486,6 @@ export type ComponentUncheckedCreateInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -552,9 +510,6 @@ export type ComponentUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -580,9 +535,6 @@ export type ComponentUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -608,9 +560,6 @@ export type ComponentCreateManyInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -634,9 +583,6 @@ export type ComponentUpdateManyMutationInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -660,9 +606,6 @@ export type ComponentUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -703,9 +646,6 @@ export type ComponentCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   folderName?: Prisma.SortOrder
   componentName?: Prisma.SortOrder
-  isWorking?: Prisma.SortOrder
-  underConstruction?: Prisma.SortOrder
-  isBroken?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -735,9 +675,6 @@ export type ComponentMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   folderName?: Prisma.SortOrder
   componentName?: Prisma.SortOrder
-  isWorking?: Prisma.SortOrder
-  underConstruction?: Prisma.SortOrder
-  isBroken?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -760,9 +697,6 @@ export type ComponentMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   folderName?: Prisma.SortOrder
   componentName?: Prisma.SortOrder
-  isWorking?: Prisma.SortOrder
-  underConstruction?: Prisma.SortOrder
-  isBroken?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
@@ -856,9 +790,6 @@ export type ComponentCreateWithoutArtImageInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -883,9 +814,6 @@ export type ComponentUncheckedCreateWithoutArtImageInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -939,9 +867,6 @@ export type ComponentScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
   folderName?: Prisma.StringFilter<"Component"> | string
   componentName?: Prisma.StringFilter<"Component"> | string
-  isWorking?: Prisma.BoolFilter<"Component"> | boolean
-  underConstruction?: Prisma.BoolFilter<"Component"> | boolean
-  isBroken?: Prisma.BoolFilter<"Component"> | boolean
   slug?: Prisma.StringNullableFilter<"Component"> | string | null
   sourcePath?: Prisma.StringNullableFilter<"Component"> | string | null
   sourceKey?: Prisma.StringNullableFilter<"Component"> | string | null
@@ -965,9 +890,6 @@ export type ComponentCreateWithoutReactionsInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -992,9 +914,6 @@ export type ComponentUncheckedCreateWithoutReactionsInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -1034,9 +953,6 @@ export type ComponentUpdateWithoutReactionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1061,9 +977,6 @@ export type ComponentUncheckedUpdateWithoutReactionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1088,9 +1001,6 @@ export type ComponentCreateManyArtImageInput = {
   updatedAt?: Date | string | null
   folderName: string
   componentName: string
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: string | null
   sourcePath?: string | null
   sourceKey?: string | null
@@ -1113,9 +1023,6 @@ export type ComponentUpdateWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1140,9 +1047,6 @@ export type ComponentUncheckedUpdateWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1167,9 +1071,6 @@ export type ComponentUncheckedUpdateManyWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   folderName?: Prisma.StringFieldUpdateOperationsInput | string
   componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1224,9 +1125,6 @@ export type ComponentSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedAt?: boolean
   folderName?: boolean
   componentName?: boolean
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: boolean
   sourcePath?: boolean
   sourceKey?: boolean
@@ -1256,9 +1154,6 @@ export type ComponentSelectScalar = {
   updatedAt?: boolean
   folderName?: boolean
   componentName?: boolean
-  isWorking?: boolean
-  underConstruction?: boolean
-  isBroken?: boolean
   slug?: boolean
   sourcePath?: boolean
   sourceKey?: boolean
@@ -1277,7 +1172,7 @@ export type ComponentSelectScalar = {
   artImageId?: boolean
 }
 
-export type ComponentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "folderName" | "componentName" | "isWorking" | "underConstruction" | "isBroken" | "slug" | "sourcePath" | "sourceKey" | "sourceHash" | "status" | "statusReason" | "title" | "description" | "notes" | "category" | "tags" | "previewMode" | "previewConfig" | "lastSeenAt" | "isDiscovered" | "artImageId", ExtArgs["result"]["component"]>
+export type ComponentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "folderName" | "componentName" | "slug" | "sourcePath" | "sourceKey" | "sourceHash" | "status" | "statusReason" | "title" | "description" | "notes" | "category" | "tags" | "previewMode" | "previewConfig" | "lastSeenAt" | "isDiscovered" | "artImageId", ExtArgs["result"]["component"]>
 export type ComponentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Component$ArtImageArgs<ExtArgs>
   Reactions?: boolean | Prisma.Component$ReactionsArgs<ExtArgs>
@@ -1296,9 +1191,6 @@ export type $ComponentPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     updatedAt: Date | null
     folderName: string
     componentName: string
-    isWorking: boolean
-    underConstruction: boolean
-    isBroken: boolean
     slug: string | null
     sourcePath: string | null
     sourceKey: string | null
@@ -1691,9 +1583,6 @@ export interface ComponentFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Component", 'DateTime'>
   readonly folderName: Prisma.FieldRef<"Component", 'String'>
   readonly componentName: Prisma.FieldRef<"Component", 'String'>
-  readonly isWorking: Prisma.FieldRef<"Component", 'Boolean'>
-  readonly underConstruction: Prisma.FieldRef<"Component", 'Boolean'>
-  readonly isBroken: Prisma.FieldRef<"Component", 'Boolean'>
   readonly slug: Prisma.FieldRef<"Component", 'String'>
   readonly sourcePath: Prisma.FieldRef<"Component", 'String'>
   readonly sourceKey: Prisma.FieldRef<"Component", 'String'>

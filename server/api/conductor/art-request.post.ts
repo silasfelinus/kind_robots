@@ -6,22 +6,30 @@ import { errorHandler } from '@/server/utils/error'
 import { userIsAdmin } from '@/server/utils/authUser'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
-import { type ArtQueueEntry, appendRequest } from '@/server/utils/artRequestYaml'
+import { type ArtQueueEntry, type ArtVariant, appendRequest } from '@/server/utils/artRequestYaml'
 
 const GITHUB_API = 'https://api.github.com'
 const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
 const CONDUCTOR_REPO = 'silasfelinus/conductor'
 const ART_PROMPTS_PATH = 'projects/art-prompts.yaml'
 const DEFAULT_BRANCH = 'main'
+// Kind Robots images live on the self-hosted media host, not in the repo
+// (public/images/** is git-ignored). The GitHub existence check below can
+// therefore NEVER see a kind_robots card/hero/icon that already exists on the
+// mount, so on its own it re-requests art we already have. Probe the media
+// host too. Same origin convention as utils/scripts/mediaContractSource.ts and
+// Conductor's media_direct_consumer.py.
+const MEDIA_ORIGIN = (
+  process.env.MEDIA_ORIGIN?.trim() || 'https://media.acrocatranch.com'
+).replace(/\/+$/, '')
+const MEDIA_EXISTS_TIMEOUT_MS = 8000
 const IMAGE_EXTENSIONS = new Set(['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg'])
-const VARIANT_SIZES = {
+const VARIANT_SIZES: Record<ArtVariant, string> = {
   icon: '256x256',
   card: '512x768',
   hero: '1280x720',
   image: '',
-} as const
-
-type ArtVariant = keyof typeof VARIANT_SIZES
+}
 
 type MissingArtRequestBody = {
   src?: string
@@ -239,6 +247,42 @@ async function githubFileExists(target: ImageTarget, token: string): Promise<boo
   return Boolean(file)
 }
 
+// public/images/foo.webp -> https://media.acrocatranch.com/images/foo.webp
+// (strip the leading `public/`, same as the Conductor consumer's _media_url).
+function mediaUrlForTarget(target: ImageTarget): string | null {
+  if (target.targetRepo !== KIND_ROBOTS_REPO) return null
+  const relative = target.imagePath.replace(/^public\//, '')
+  if (!relative || relative === target.imagePath) return null
+  const encoded = relative.split('/').map(encodeURIComponent).join('/')
+  return `${MEDIA_ORIGIN}/${encoded}`
+}
+
+// HEAD the media host to see if the asset is already served. Best-effort: any
+// network/timeout error resolves false so we fall through to the GitHub check
+// and (worst case) queue a request rather than wrongly suppress one.
+async function mediaFileExists(target: ImageTarget): Promise<boolean> {
+  const url = mediaUrlForTarget(target)
+  if (!url) return false
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), MEDIA_EXISTS_TIMEOUT_MS)
+  try {
+    const res = await fetch(url, { method: 'HEAD', signal: controller.signal })
+    return res.ok
+  } catch {
+    return false
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+// A target is "already satisfied" if it exists in the repo OR on the media host.
+// GitHub covers conductor-committed art; media covers the git-ignored
+// kind_robots mount. Check media first (cheap HEAD, no token) and short-circuit.
+async function imageAlreadyExists(target: ImageTarget, token: string): Promise<boolean> {
+  if (await mediaFileExists(target)) return true
+  return githubFileExists(target, token)
+}
+
 function decodeGithubContent(file: GitHubFile): string {
   return Buffer.from(file.content.replace(/\n/g, ''), 'base64').toString('utf-8')
 }
@@ -356,10 +400,10 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<MissingArtRequestBody>(event)
     const target = targetFromSource(body)
 
-    if (await githubFileExists(target, token)) {
+    if (await imageAlreadyExists(target, token)) {
       return {
         success: true,
-        message: 'Image already exists in the target repo; no request created.',
+        message: 'Image already exists in the target repo or on media; no request created.',
         data: { created: false, target },
         statusCode: 200,
       }

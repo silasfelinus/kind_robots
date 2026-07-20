@@ -154,7 +154,41 @@ export function safeServers(servers: Server[], user?: AuthUser | null) {
   return servers.map((server) => safeServer(server, user))
 }
 
+export function assertServerCreateOwnership(
+  input: ServerInput,
+  authenticatedUserId: number,
+): void {
+  if (!Object.prototype.hasOwnProperty.call(input, 'userId')) return
+
+  const requestedUserId = cleanInt(input.userId)
+
+  if (requestedUserId !== authenticatedUserId) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Server ownership assignment. Ownership is server-owned.',
+    })
+  }
+}
+
+export function assertServerOwnershipUnchanged(
+  input: ServerInput,
+  existingUserId: number | null,
+): void {
+  if (!Object.prototype.hasOwnProperty.call(input, 'userId')) return
+
+  const requestedUserId = cleanInt(input.userId)
+
+  if (!existingUserId || requestedUserId !== existingUserId) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Server ownership reassignment. Ownership is server-owned.',
+    })
+  }
+}
+
 export function buildServerCreateData(input: ServerInput, user: AuthUser) {
+  assertServerCreateOwnership(input, user.id)
+
   const title = cleanText(input.title)
   const baseUrl = cleanText(input.baseUrl)
 
@@ -201,8 +235,7 @@ export function buildServerCreateData(input: ServerInput, user: AuthUser) {
     version: cleanText(input.version),
     sortOrder: cleanInt(input.sortOrder) ?? 0,
 
-    userId:
-      user.isAdmin && cleanInt(input.userId) ? cleanInt(input.userId) : user.id,
+    userId: user.id,
 
     isPublic: user.isAdmin ? Boolean(input.isPublic) : false,
     isOfficial: user.isAdmin ? Boolean(input.isOfficial) : false,
@@ -277,10 +310,6 @@ export function buildServerUpdateData(input: ServerInput, user: AuthUser) {
       if (field in input) {
         data[field] = Boolean(input[field])
       }
-    }
-
-    if ('userId' in input) {
-      data.userId = cleanInt(input.userId) ?? null
     }
   }
 

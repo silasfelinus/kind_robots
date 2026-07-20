@@ -6,20 +6,17 @@ import type { Server } from '~/prisma/generated/prisma/client'
 
 type ResolveComfyUrlInput = {
   serverId?: number | null
-  apiUrl?: string | null
 }
 
 export async function resolveComfyUrl(
   input: ResolveComfyUrlInput,
 ): Promise<string> {
-  if (input.apiUrl?.trim()) {
-    return cleanComfyBaseUrl(input.apiUrl)
-  }
-
+  // Client-supplied apiUrl is intentionally NOT honored (audit P6 HIGH SSRF).
+  // Comfy targets are resolved only from an access-checked Server record.
   if (!input.serverId) {
     throw createError({
       statusCode: 400,
-      message: 'serverId or apiUrl is required.',
+      message: 'serverId is required.',
     })
   }
 

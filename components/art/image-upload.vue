@@ -82,7 +82,7 @@
 
         <Transition name="fade">
           <div
-            v-if="succeededNames.has(item.file.name)"
+            v-if="succeededFiles.has(item.file)"
             class="absolute inset-0 flex items-center justify-center bg-success/60 backdrop-blur-sm"
           >
             <Icon
@@ -94,7 +94,7 @@
 
         <Transition name="fade">
           <div
-            v-if="failedNames.has(item.file.name)"
+            v-if="failedFiles.has(item.file)"
             class="absolute inset-0 flex items-center justify-center bg-error/60 backdrop-blur-sm"
           >
             <Icon
@@ -571,8 +571,8 @@ const message = ref('')
 const error = ref('')
 const connectedModelType = ref<ConnectableModel | ''>('')
 const queuedFiles = ref<QueuedFile[]>([])
-const succeededNames = ref<Set<string>>(new Set())
-const failedNames = ref<Set<string>>(new Set())
+const succeededFiles = ref<Set<File>>(new Set())
+const failedFiles = ref<Set<File>>(new Set())
 
 const collectionOptions = computed(() => collectionStore.collections ?? [])
 
@@ -673,21 +673,23 @@ function makeQueuedFile(file: File): QueuedFile {
 }
 
 function addFiles(incoming: FileList | File[]) {
-  const valid = Array.from(incoming).filter(
-    (file) => !uploadStore.validateFile(file),
-  )
+  const files = Array.from(incoming)
+  const valid = files.filter((file) => !uploadStore.validateFile(file))
+  const skipped = files.length - valid.length
   queuedFiles.value.push(...valid.map(makeQueuedFile))
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
+  succeededFiles.value = new Set()
+  failedFiles.value = new Set()
   message.value = ''
-  error.value = ''
+  error.value = skipped
+    ? `${skipped} file${skipped === 1 ? '' : 's'} skipped — PNG, JPEG, or WebP only`
+    : ''
 }
 
 function clearQueue() {
   queuedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview))
   queuedFiles.value = []
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
+  succeededFiles.value = new Set()
+  failedFiles.value = new Set()
   connectedModelType.value = ''
   message.value = ''
   error.value = ''
@@ -739,8 +741,8 @@ async function handleBatchUpload() {
     return
   }
 
-  succeededNames.value = new Set()
-  failedNames.value = new Set()
+  succeededFiles.value = new Set()
+  failedFiles.value = new Set()
   message.value = ''
   error.value = ''
 
@@ -752,23 +754,38 @@ async function handleBatchUpload() {
     metadata: buildMetadata(),
   })
 
-  succeededNames.value = new Set(
-    result.succeeded.map((r) => r.fileName).filter(Boolean) as string[],
+  succeededFiles.value = new Set(
+    result.succeeded.map((r) => r.file).filter(Boolean) as File[],
   )
-  failedNames.value = new Set(
-    result.failed.map((r) => r.fileName).filter(Boolean) as string[],
+  failedFiles.value = new Set(
+    result.failed.map((r) => r.file).filter(Boolean) as File[],
   )
+
+  // Drop already-uploaded files from the queue so a retry click only
+  // resubmits the ones that actually failed — otherwise a second click
+  // re-uploads the whole batch, including files that already succeeded,
+  // creating duplicate ArtImage rows.
+  if (succeededFiles.value.size) {
+    queuedFiles.value
+      .filter((item) => succeededFiles.value.has(item.file))
+      .forEach((item) => URL.revokeObjectURL(item.preview))
+    queuedFiles.value = queuedFiles.value.filter(
+      (item) => !succeededFiles.value.has(item.file),
+    )
+  }
+
+  // Clear the queue only on a clean run. Must happen before the message
+  // assignment below — clearQueue() resets message/error, and doing it
+  // first would wipe the success banner we're about to set.
+  if (result.succeeded.length && !result.failed.length) {
+    clearQueue()
+  }
 
   // Mirror store messaging locally so the component owns its own banners.
   message.value = uploadStore.message ?? ''
   error.value = result.failed.length
     ? `${result.failed.length} image${result.failed.length === 1 ? '' : 's'} failed.`
     : ''
-
-  // Clear the queue only on a clean run.
-  if (result.succeeded.length && !result.failed.length) {
-    clearQueue()
-  }
 }
 
 onUnmounted(() => {

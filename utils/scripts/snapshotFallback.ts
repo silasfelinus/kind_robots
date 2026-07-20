@@ -332,10 +332,6 @@ const SNAPSHOTS: SnapshotSpec[] = [
       'previewConfig',
       'lastSeenAt',
       'isDiscovered',
-      // Temporary compatibility fields; remove after the contract migration.
-      'isWorking',
-      'underConstruction',
-      'isBroken',
     ),
   },
   {

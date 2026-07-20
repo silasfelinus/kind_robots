@@ -11,6 +11,12 @@ describe('Component Management API Tests', () => {
   let adminToken = ''
   let componentId: number | undefined
 
+  const expectCanonicalStatusOnly = (component: Record<string, unknown>) => {
+    expect(component).to.not.have.property('isWorking')
+    expect(component).to.not.have.property('underConstruction')
+    expect(component).to.not.have.property('isBroken')
+  }
+
   before(() => {
     getApiEnv().then((env) => {
       apiBase = `${env.apiBase}/components`
@@ -68,9 +74,7 @@ describe('Component Management API Tests', () => {
       componentId = response.body.data.id
       expect(componentId).to.be.a('number')
       expect(response.body.data.status).to.eq('WORKING')
-      expect(response.body.data.isWorking).to.be.true
-      expect(response.body.data.underConstruction).to.be.false
-      expect(response.body.data.isBroken).to.be.false
+      expectCanonicalStatusOnly(response.body.data)
 
       cy.task(
         'cypressCleanup:register',
@@ -83,6 +87,27 @@ describe('Component Management API Tests', () => {
         },
         { log: false },
       )
+    })
+  })
+
+  it('Rejects legacy Component status fields during creation', () => {
+    cy.request({
+      method: 'POST',
+      url: apiBase,
+      headers: adminHeaders(adminToken),
+      body: {
+        folderName: uniqueFolderName,
+        componentName: `${uniqueComponentName}-legacy`,
+        isBroken: true,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include(
+        'Legacy Component status fields are no longer supported',
+      )
+      expect(response.body.message).to.include('Use "status" instead')
     })
   })
 
@@ -99,6 +124,12 @@ describe('Component Management API Tests', () => {
       expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
+
+      const created = response.body.data.find(
+        (component: { id: number }) => component.id === componentId,
+      )
+      expect(created).to.exist
+      expectCanonicalStatusOnly(created)
     })
   })
 
@@ -144,9 +175,7 @@ describe('Component Management API Tests', () => {
       expect(component.componentName).to.eq(uniqueComponentName)
       expect(component.folderName).to.eq(uniqueFolderName)
       expect(component.status).to.eq('WORKING')
-      expect(component.isWorking).to.be.true
-      expect(component.underConstruction).to.be.false
-      expect(component.isBroken).to.be.false
+      expectCanonicalStatusOnly(component)
     })
   })
 
@@ -172,7 +201,7 @@ describe('Component Management API Tests', () => {
     })
   })
 
-  it('Updates canonical status and synchronizes legacy compatibility fields', () => {
+  it('Updates canonical status without compatibility fields', () => {
     expect(componentId).to.exist
 
     cy.request({
@@ -193,14 +222,12 @@ describe('Component Management API Tests', () => {
       expect(updatedComponent.statusReason).to.eq(
         'Requires an authenticated Bot store fixture.',
       )
-      expect(updatedComponent.isWorking).to.be.false
-      expect(updatedComponent.underConstruction).to.be.false
-      expect(updatedComponent.isBroken).to.be.false
       expect(updatedComponent.title).to.eq('Updated Test Component')
+      expectCanonicalStatusOnly(updatedComponent)
     })
   })
 
-  it('Keeps one explicit legacy status-write compatibility path', () => {
+  it('Rejects legacy Component status updates', () => {
     expect(componentId).to.exist
 
     cy.request({
@@ -210,13 +237,14 @@ describe('Component Management API Tests', () => {
       body: {
         isBroken: true,
       },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body.data.status).to.eq('BROKEN')
-      expect(response.body.data.isWorking).to.be.false
-      expect(response.body.data.underConstruction).to.be.false
-      expect(response.body.data.isBroken).to.be.true
+      expect(response.status).to.eq(400)
+      expect(response.body).to.have.property('success', false)
+      expect(response.body.message).to.include(
+        'Unsupported Component update fields',
+      )
+      expect(response.body.message).to.include('isBroken')
     })
   })
 

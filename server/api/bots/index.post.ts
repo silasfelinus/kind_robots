@@ -3,14 +3,85 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { assertOnlyFields } from '../../utils/chatApi'
 import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
+import { assertBotRelationsAttachable } from './relations'
 
-type BotCreateBody = Partial<Bot> & {
-  Dreams?: { connect?: { id: number }[] } | { id: number }[]
-  dreamIds?: number[]
+// Every persisted Bot column plus the relation keys a round-tripped Bot object
+// (the store sends a full Partial<Bot>) can echo, plus the `dreamIds` input
+// alias. Persisted fields are read below; identity/system/relation keys are
+// tolerated but never trusted. Anything outside this set is rejected (400)
+// instead of silently dropped (audit F-4).
+const botCreateFields = new Set<string>([
+  // persisted scalars
+  'BotType',
+  'name',
+  'slug',
+  'subtitle',
+  'description',
+  'avatarImage',
+  'imagePath',
+  'botIntro',
+  'userIntro',
+  'prompt',
+  'trainingPath',
+  'theme',
+  'personality',
+  'modules',
+  'sampleResponse',
+  'tagline',
+  'narrativeVoice',
+  'forgeIntro',
+  'chatBorderImage',
+  'designer',
+  'serverName',
+  'artPrompt',
+  'isPublic',
+  'underConstruction',
+  'canDelete',
+  'isMature',
+  'isActive',
+  // relation inputs
+  'serverId',
+  'artImageId',
+  'Dreams',
+  'dreamIds',
+  // identity/system + relation keys tolerated on a round-tripped row
+  'id',
+  'createdAt',
+  'updatedAt',
+  'userId',
+  'ArtImage',
+  'Server',
+  'User',
+  'ChallengeSubmissions',
+  'Chats',
+  'NarratedDreams',
+  'ExpressionMedia',
+  'ExpressionTransition',
+  'LifeRuns',
+  'NarratorThreads',
+  'ManagedProjects',
+  'Prompts',
+  'Reactions',
+])
+
+type BotCreateBody = Partial<Omit<Bot, 'userId'>> &
+  Record<string, unknown> & {
+    Dreams?: { connect?: { id: number }[] } | { id: number }[]
+    dreamIds?: number[]
+  }
+
+function assertOwnershipIsServerManaged(body: Record<string, unknown>) {
+  if (Object.prototype.hasOwnProperty.call(body, 'userId')) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Bot field: userId. Ownership is server-owned.',
+    })
+  }
 }
 
 function getStringOrDefault(value: unknown, fallback: string): string {
@@ -48,23 +119,10 @@ function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
 }
 
 async function assertRelatedRecordsExist(options: {
-  userId: number
   serverId?: number
   artImageId?: number
 }) {
-  const { userId, serverId, artImageId } = options
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  })
-
-  if (!user) {
-    throw createError({
-      statusCode: 404,
-      message: `User ID not found: ${userId}.`,
-    })
-  }
+  const { serverId, artImageId } = options
 
   if (serverId) {
     const server = await prisma.server.findUnique({
@@ -97,30 +155,18 @@ async function assertRelatedRecordsExist(options: {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireApiUser(event)
-    const { user } = auth
+    const { user, isAdmin, isServerKey } = await requireApiUser(event)
     const botData = await readBody<BotCreateBody>(event)
 
-    const isServerKey = auth.isServerKey
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    const authenticatedUserId = user.id
-    const requestedUserId = getPositiveIntegerOrUndefined(botData.userId)
-    const userId =
-      (isAdmin || isServerKey) && requestedUserId
-        ? requestedUserId
-        : authenticatedUserId
-
-    if (
-      !isAdmin &&
-      !isServerKey &&
-      requestedUserId &&
-      requestedUserId !== userId
-    ) {
+    if (!botData || typeof botData !== 'object' || Array.isArray(botData)) {
       throw createError({
-        statusCode: 403,
-        message: 'User ID does not match the provided authorization token.',
+        statusCode: 400,
+        message: 'Request body is required.',
       })
     }
+
+    assertOwnershipIsServerManaged(botData)
+    assertOnlyFields(botData, botCreateFields, 'Bot')
 
     const name = getStringOrDefault(botData.name, '')
 
@@ -133,12 +179,19 @@ export default defineEventHandler(async (event) => {
 
     const serverId = getPositiveIntegerOrUndefined(botData.serverId)
     const artImageId = getPositiveIntegerOrUndefined(botData.artImageId)
+    const dreamConnect = getDreamConnect(botData.Dreams ?? botData.dreamIds)
+    const dreamIds = dreamConnect?.connect.map((entry) => entry.id) ?? []
 
-    await assertRelatedRecordsExist({
-      userId,
-      serverId,
-      artImageId,
-    })
+    await assertRelatedRecordsExist({ serverId, artImageId })
+    await assertBotRelationsAttachable(
+      {
+        serverIds: serverId ? [serverId] : [],
+        artImageIds: artImageId ? [artImageId] : [],
+        dreamIds,
+      },
+      user.id,
+      isAdmin || isServerKey,
+    )
 
     const requestedSlug = normalizeSlugInput(botData.slug)
     const slug = await getUniqueBotSlug(prisma, requestedSlug ?? name)
@@ -175,7 +228,7 @@ export default defineEventHandler(async (event) => {
       isMature: getBooleanOrDefault(botData.isMature, false),
       isActive: getBooleanOrDefault(botData.isActive, true),
       User: {
-        connect: { id: userId },
+        connect: { id: user.id },
       },
       Server: serverId
         ? {
@@ -187,7 +240,7 @@ export default defineEventHandler(async (event) => {
             connect: { id: artImageId },
           }
         : undefined,
-      Dreams: getDreamConnect(botData.Dreams ?? botData.dreamIds),
+      Dreams: dreamConnect,
     }
 
     const bot = await prisma.bot.create({

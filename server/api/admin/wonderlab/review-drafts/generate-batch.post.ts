@@ -2,11 +2,9 @@
 import { createError, defineEventHandler, H3Error, readBody } from 'h3'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
+import { buildWonderLabReviewBatchPlan } from '@/server/utils/wonderLabReviewBatchPlan'
 import { generateWonderLabReviewDraft } from '@/server/utils/wonderLabReviewDraftGenerator'
-import {
-  buildWonderLabReviewPlan,
-  type WonderLabReviewPlanReviewer,
-} from '@/server/utils/wonderLabReviewPlan'
+import type { WonderLabReviewPlanReviewer } from '@/server/utils/wonderLabReviewPlan'
 
 const MAX_BATCH_COMPONENTS = 10
 const MAX_BATCH_GENERATIONS = 20
@@ -87,7 +85,7 @@ function componentIds(value: unknown): number[] {
 }
 
 function generationTargets(
-  plan: Awaited<ReturnType<typeof buildWonderLabReviewPlan>>,
+  plan: Awaited<ReturnType<typeof buildWonderLabReviewBatchPlan>>,
   regenerate: boolean,
 ): BatchTarget[] {
   return plan.exhibits
@@ -142,7 +140,9 @@ export default defineEventHandler(async (event) => {
     }
     const model = typeof body.model === 'string' ? body.model.trim() || null : null
 
-    const plan = await buildWonderLabReviewPlan({
+    // Always compute assignments against the full museum portfolio, then select
+    // the bounded requested batch. Small batches must not invent a different cast.
+    const plan = await buildWonderLabReviewBatchPlan({
       componentIds: ids,
       limit,
       reviewersPerComponent,
@@ -160,7 +160,7 @@ export default defineEventHandler(async (event) => {
           targets,
           generated: [],
         },
-        message: `Dry run planned ${targets.length} generation(s); no model calls or writes were made.`,
+        message: `Dry run selected ${targets.length} global portfolio generation(s); no model calls or writes were made.`,
       }
     }
 
@@ -218,7 +218,7 @@ export default defineEventHandler(async (event) => {
         targets,
         generated,
       },
-      message: `Completed ${succeeded} of ${generated.length} planned generation(s). No drafts were approved or published.`,
+      message: `Completed ${succeeded} of ${generated.length} global portfolio generation(s). No drafts were approved or published.`,
     }
   } catch (error) {
     if (error instanceof H3Error) throw error

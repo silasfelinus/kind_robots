@@ -661,17 +661,14 @@ const heroImageCandidates = computed<string[]>(() => {
   const candidates: string[] = []
   const image = reward.ArtImage
 
-  if (image?.imageData) {
-    candidates.push(
-      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
-    )
-  }
+  // Path-first: stored paths before inline base64; the <img> onerror handler
+  // advances through this list, so base64 stays a graceful fallback.
+  const artPath =
+    image?.imagePath?.trim() ||
+    (image as { path?: string | null } | null | undefined)?.path?.trim() ||
+    ''
 
-  if (image?.thumbnailData) {
-    candidates.push(
-      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
-    )
-  }
+  if (artPath) candidates.push(artPath)
 
   const path = reward.imagePath?.trim()
 
@@ -692,6 +689,18 @@ const heroImageCandidates = computed<string[]>(() => {
 
   if (slug && rewardType) {
     candidates.push(`/images/rewards/${rewardType}/${slug}.webp`)
+  }
+
+  if (image?.imageData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
+    )
+  }
+
+  if (image?.thumbnailData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
+    )
   }
 
   return Array.from(new Set(candidates))

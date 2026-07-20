@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 export const STYLIST_DESIGNER_PREFIX = 'stylist:'
@@ -297,9 +298,9 @@ export const useStylistStore = defineStore('stylistStore', () => {
         throw new Error('Styled image could not be loaded.')
       }
 
-      const after = image.imageData
-        ? `data:image/${image.fileType || 'png'};base64,${image.imageData}`
-        : before
+      // Path-first: show the stored result path when present, else the inline
+      // base64 result, else keep the source photo.
+      const after = resolveArtImageSrc(image, before)
 
       patchJob(id, { status: 'done', after, artImageId: image.id })
       // Surface the new result in the durable history immediately.

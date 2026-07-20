@@ -11,20 +11,50 @@ const endpointPath = resolve(
 )
 const source = readFileSync(endpointPath, 'utf8')
 
-assert.match(
+assert.doesNotMatch(
   source,
-  /const RECONCILE_TRANSACTION_OPTIONS = \{\s*maxWait: 10_000,\s*timeout: 30_000,\s*\} as const/s,
-  'The production reconciliation must explicitly exceed Prisma interactive transactions\' 5-second default.',
-)
-assert.match(
-  source,
-  /prisma\.\$transaction\(async \(tx\) => \{[\s\S]*?\}, RECONCILE_TRANSACTION_OPTIONS\)/,
-  'The bounded transaction options must be applied to the atomic reconciliation write transaction.',
+  /prisma\.\$transaction\(async\s*\(/,
+  'Production reconciliation must not use an interactive callback transaction with an expiry deadline.',
 )
 assert.doesNotMatch(
   source,
-  /timeout:\s*5_000/,
-  'The reconciliation must not regress to the timeout that failed the 348-entry production manifest.',
+  /prisma\.component\.update\(/,
+  'Canonical updates must not issue one Prisma operation per Component.',
+)
+assert.match(
+  source,
+  /function buildBulkUpdateQuery/,
+  'Canonical updates must be assembled into one bounded bulk statement.',
+)
+assert.ok(
+  source.includes('UPDATE \\`Component\\`') &&
+    source.includes('CASE \\`id\\`'),
+  'The bulk update must target Component rows by their existing IDs.',
+)
+assert.match(
+  source,
+  /prisma\.\$executeRaw\(updateQuery\)/,
+  'The canonical update plan must execute as one parameterized raw statement.',
+)
+assert.match(
+  source,
+  /prisma\.component\.createMany\(/,
+  'New manifest Components must be collapsed into one createMany statement.',
+)
+assert.match(
+  source,
+  /await prisma\.\$transaction\(operations\)/,
+  'The bulk update and bulk create must commit together atomically.',
+)
+assert.match(
+  source,
+  /Prisma\.join\(assignments, ', '\)/,
+  'Bulk assignments must be composed through Prisma SQL helpers.',
+)
+assert.doesNotMatch(
+  source,
+  /\$executeRawUnsafe|Prisma\.raw\(/,
+  'The reconciliation must not interpolate manifest data through unsafe raw SQL.',
 )
 
-console.log('WonderLab reconciliation transaction timeout contract passed.')
+console.log('WonderLab reconciliation bulk statement contract passed.')

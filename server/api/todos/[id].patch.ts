@@ -1,8 +1,10 @@
 // /server/api/todos/[id].patch.ts
-import { defineEventHandler, readBody, createError, getRouterParam, H3Error } from 'h3'
+import { defineEventHandler, readBody, createError, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { assertOnlyFields } from '@/server/utils/chatApi'
+import { todoMutationFields } from './mutation'
 import type { Todo } from '@/stores/todoStore'
 
 type TodoPatchBody = {
@@ -36,9 +38,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<TodoPatchBody>(event)
-    if (!body || !Object.keys(body).length) {
+    if (!body || typeof body !== 'object' || Array.isArray(body) || !Object.keys(body).length) {
       throw createError({ statusCode: 400, message: 'No fields to update' })
     }
+
+    assertOnlyFields(body as Record<string, unknown>, todoMutationFields, 'Todo')
 
     const title = body.title !== undefined ? (body.title.trim() || current.title) : current.title
     const description = 'description' in body ? (body.description ?? null) : current.description
@@ -75,9 +79,22 @@ export default defineEventHandler(async (event) => {
       SELECT * FROM \`Todo\` WHERE id = ${id} AND userId = ${userId}
     `
 
-    return { success: true, message: 'Todo updated.', data: updated }
+    event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: 'Todo updated.',
+      data: updated,
+      statusCode: 200,
+    }
   } catch (error) {
-    if (error instanceof H3Error) throw error
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+
+    return {
+      success: false,
+      message: handled.message || 'Failed to update Todo.',
+      data: null,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

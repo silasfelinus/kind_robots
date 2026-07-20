@@ -25,7 +25,14 @@ export default defineEventHandler(async (event) => {
     return { success: true, message: 'Relation already removed.', data: { id } }
   }
 
-  if (existing.userId !== userId && existing.relatedUserId !== userId) {
+  // A BLOCK is one-directional: only the blocker (userId) may remove it. The
+  // blocked user (relatedUserId) is a participant but must NOT be able to
+  // self-unblock (audit P6 MEDIUM). Symmetric relations (FRIEND/PARENT/CHILD/
+  // REFEREE) may be removed by either party.
+  const isOwner = existing.userId === userId
+  const isTarget = existing.relatedUserId === userId
+  const canDelete = existing.type === 'BLOCK' ? isOwner : isOwner || isTarget
+  if (!canDelete) {
     setResponseStatus(event, 403)
     return { success: false, message: 'You cannot delete this relation.' }
   }

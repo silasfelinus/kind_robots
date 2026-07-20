@@ -1,4 +1,5 @@
 // /nuxt.config.ts
+import { execFileSync } from 'node:child_process'
 import tailwindcss from '@tailwindcss/vite'
 
 const requireEnv = (key: string) => {
@@ -10,6 +11,22 @@ const requireEnv = (key: string) => {
 
   return value
 }
+
+function generateWonderLabComponentMetadata(): void {
+  try {
+    const output = execFileSync(
+      process.execPath,
+      ['utils/scripts/create-component-json.mjs'],
+      { encoding: 'utf8' },
+    )
+    console.log(output.trim())
+  } catch (error) {
+    console.error('Failed to generate WonderLab component metadata:', error)
+    throw error
+  }
+}
+
+generateWonderLabComponentMetadata()
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-06-01',
@@ -93,6 +110,10 @@ export default defineNuxtConfig({
     githubId: process.env.GITHUB_ID || '',
     githubSecret: process.env.GITHUB_SECRET || '',
     githubToken: process.env.GITHUB_TOKEN || '',
+    // AppMaker GitHub App (appmaker/t-007/t-008, GITHUB-APP-DESIGN.md).
+    appmakerGhAppId: process.env.APPMAKER_GH_APP_ID || '',
+    appmakerGhAppKey: process.env.APPMAKER_GH_APP_KEY || '',
+    appmakerGhWebhookSecret: process.env.APPMAKER_GH_WEBHOOK_SECRET || '',
     googleId: process.env.GOOGLE_ID || '',
     googleSecret: process.env.GOOGLE_SECRET || '',
     authSecret: process.env.AUTH_SECRET || '',
@@ -115,24 +136,6 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: false,
       routes: [],
-    },
-  },
-
-  hooks: {
-    'build:before': async () => {
-      const { execFileSync } = await import('node:child_process')
-
-      try {
-        const output = execFileSync(
-          process.execPath,
-          ['utils/scripts/create-component-json.mjs'],
-          { encoding: 'utf8' },
-        )
-        console.log(output.trim())
-      } catch (error) {
-        console.error('Failed to generate WonderLab component manifest:', error)
-        throw error
-      }
     },
   },
 })

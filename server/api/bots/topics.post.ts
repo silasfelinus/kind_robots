@@ -35,6 +35,19 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // NarratorTopic rows are global, non-user-owned content. Match the sibling
+    // transitions/expressions routes: only admins or server keys may write them.
+    const isServerKey = auth.kind === 'server'
+    const isAdmin = auth.user?.Role === 'ADMIN' || auth.user?.id === 1
+    if (!isAdmin && !isServerKey) {
+      event.node.res.statusCode = 403
+      return {
+        success: false,
+        message: 'Only admins or server keys may write narrator topics.',
+        statusCode: 403,
+      }
+    }
+
     const body = (await readBody(event)) as BatchBody
     const topics = Array.isArray(body?.topics) ? body.topics : []
     const dryRun = body?.dryRun === true

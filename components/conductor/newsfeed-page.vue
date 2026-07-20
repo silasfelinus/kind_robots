@@ -44,8 +44,10 @@ const config: ProjectFrontConfig = {
       'Server-side RSS/Atom aggregation pipeline',
       'Feed builder + item renderers',
       'Homepage placement',
+      'Category filtering beyond feed slugs',
+      'Perspective balancing UI (Focused/Balanced/Broad spectrum presets)',
     ],
-    next: ['Category filtering beyond feed slugs', 'Perspective balancing UI'],
+    next: ['Custom per-bucket perspective weight sliders'],
   },
 }
 </script>

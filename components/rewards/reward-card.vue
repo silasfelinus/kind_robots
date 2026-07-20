@@ -283,17 +283,15 @@ const imageCandidates = computed<string[]>(() => {
   const candidates: string[] = []
   const image = embeddedArtImage.value || artImage.value
 
-  if (image?.imageData) {
-    candidates.push(
-      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
-    )
-  }
+  // Path-first: try the art image's own path, the reward's imagePath, and the
+  // slug-derived path before any inline base64. The <img> onerror handler
+  // advances through this list, so base64 stays a graceful fallback.
+  const artPath =
+    image?.imagePath?.trim() ||
+    (image as { path?: string | null } | null | undefined)?.path?.trim() ||
+    ''
 
-  if (image?.thumbnailData) {
-    candidates.push(
-      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
-    )
-  }
+  if (artPath) candidates.push(artPath)
 
   const path = props.reward.imagePath?.trim()
 
@@ -314,6 +312,18 @@ const imageCandidates = computed<string[]>(() => {
 
   if (slug && rewardType) {
     candidates.push(`/images/rewards/${rewardType}/${slug}.webp`)
+  }
+
+  if (image?.imageData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
+    )
+  }
+
+  if (image?.thumbnailData) {
+    candidates.push(
+      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
+    )
   }
 
   return Array.from(new Set(candidates))

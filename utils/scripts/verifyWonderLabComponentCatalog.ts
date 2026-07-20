@@ -19,9 +19,6 @@ function component(
     updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     folderName: 'wonderlab',
     componentName,
-    isWorking: false,
-    underConstruction: false,
-    isBroken: false,
     slug: null,
     sourcePath: null,
     sourceKey: null,
@@ -50,7 +47,6 @@ const items = [
   component(1, 'zeta-card', {
     title: 'Zeta Card',
     status: 'WORKING',
-    isWorking: true,
     reviewCount: 4,
     ratingCount: 3,
     averageRating: 4.5,
@@ -60,7 +56,6 @@ const items = [
   component(2, 'alpha-panel', {
     title: 'Alpha Panel',
     status: 'BROKEN',
-    isBroken: true,
     reviewCount: 9,
     ratingCount: 5,
     averageRating: 3.5,

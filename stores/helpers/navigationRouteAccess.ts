@@ -38,10 +38,17 @@ export function evaluateNavigationRouteAccess(
         (tab) => tab.tabKey === requested.tab?.tabKey,
       )
     : null
+  const explicitlyPublicTab = Boolean(
+    requested.tab?.requiredRole === 'GUEST' &&
+      !requested.tab.requiredPermission,
+  )
 
   return {
     matched: true,
-    allowed: Boolean(visibleChannel && (!requested.tab || visibleTab)),
+    allowed: Boolean(
+      explicitlyPublicTab ||
+        (visibleChannel && (!requested.tab || visibleTab)),
+    ),
     requested,
     requiredRole:
       requested.tab?.requiredRole || requested.channel.requiredRole,

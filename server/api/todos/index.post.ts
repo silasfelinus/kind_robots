@@ -1,8 +1,10 @@
 // /server/api/todos/index.post.ts
-import { createError, defineEventHandler, H3Error, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { assertOnlyFields } from '@/server/utils/chatApi'
+import { todoMutationFields } from './mutation'
 
 const todoPriorities = ['LOW', 'NORMAL', 'HIGH'] as const
 const todoCategories = [
@@ -63,6 +65,16 @@ export default defineEventHandler(async (event) => {
     const auth = await requireApiUser(event)
     const userId = auth.user.id
     const body = await readBody<TodoCreateBody>(event)
+
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Todo create payload must be a JSON object.',
+      })
+    }
+
+    assertOnlyFields(body as Record<string, unknown>, todoMutationFields, 'Todo')
+
     const title = body?.title?.trim()
 
     if (!title) {
@@ -128,10 +140,13 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 201
-    return { success: true, message: 'Todo created.', data: todo }
+    return {
+      success: true,
+      message: 'Todo created.',
+      data: todo,
+      statusCode: 201,
+    }
   } catch (error) {
-    if (error instanceof H3Error) throw error
-
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
 

@@ -3,6 +3,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from './../../utils/prisma'
 import { errorHandler } from './../../utils/error'
 import {
+  assertServerOwnershipUnchanged,
   buildServerUpdateData,
   canMutateServer,
   parseId,
@@ -39,6 +40,7 @@ export default defineEventHandler(async (event) => {
         : {}
 
     validateServerEnums(safeBody)
+    assertServerOwnershipUnchanged(safeBody, server.userId)
 
     const data = buildServerUpdateData(safeBody, user)
     const updatedServer = await prisma.server.update({

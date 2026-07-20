@@ -117,7 +117,10 @@ export const ModelName = {
   Conversation: 'Conversation',
   ConversationParticipant: 'ConversationParticipant',
   DirectMessage: 'DirectMessage',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  GithubInstallation: 'GithubInstallation',
+  AppRepo: 'AppRepo',
+  MediaEntry: 'MediaEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,9 +422,6 @@ export const ComponentScalarFieldEnum = {
   updatedAt: 'updatedAt',
   folderName: 'folderName',
   componentName: 'componentName',
-  isWorking: 'isWorking',
-  underConstruction: 'underConstruction',
-  isBroken: 'isBroken',
   slug: 'slug',
   sourcePath: 'sourcePath',
   sourceKey: 'sourceKey',
@@ -1525,6 +1525,67 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const GithubInstallationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  installationId: 'installationId',
+  userId: 'userId',
+  accountLogin: 'accountLogin',
+  suspendedAt: 'suspendedAt'
+} as const
+
+export type GithubInstallationScalarFieldEnum = (typeof GithubInstallationScalarFieldEnum)[keyof typeof GithubInstallationScalarFieldEnum]
+
+
+export const AppRepoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  owner: 'owner',
+  repo: 'repo',
+  subPath: 'subPath',
+  installationId: 'installationId',
+  dreamId: 'dreamId',
+  userId: 'userId'
+} as const
+
+export type AppRepoScalarFieldEnum = (typeof AppRepoScalarFieldEnum)[keyof typeof AppRepoScalarFieldEnum]
+
+
+export const MediaEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  year: 'year',
+  mediaType: 'mediaType',
+  title: 'title',
+  starred: 'starred',
+  rewatch: 'rewatch',
+  releaseYear: 'releaseYear',
+  watchedMonth: 'watchedMonth',
+  watchedDay: 'watchedDay',
+  dateRaw: 'dateRaw',
+  season: 'season',
+  author: 'author',
+  pageCount: 'pageCount',
+  durationHours: 'durationHours',
+  issueCount: 'issueCount',
+  issueRange: 'issueRange',
+  review: 'review',
+  reviewPublic: 'reviewPublic',
+  rating: 'rating',
+  externalId: 'externalId',
+  externalUrl: 'externalUrl',
+  notes: 'notes',
+  sourceFile: 'sourceFile'
+} as const
+
+export type MediaEntryScalarFieldEnum = (typeof MediaEntryScalarFieldEnum)[keyof typeof MediaEntryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2332,4 +2393,36 @@ export const NotificationOrderByRelevanceFieldEnum = {
 } as const
 
 export type NotificationOrderByRelevanceFieldEnum = (typeof NotificationOrderByRelevanceFieldEnum)[keyof typeof NotificationOrderByRelevanceFieldEnum]
+
+
+export const GithubInstallationOrderByRelevanceFieldEnum = {
+  accountLogin: 'accountLogin'
+} as const
+
+export type GithubInstallationOrderByRelevanceFieldEnum = (typeof GithubInstallationOrderByRelevanceFieldEnum)[keyof typeof GithubInstallationOrderByRelevanceFieldEnum]
+
+
+export const AppRepoOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  owner: 'owner',
+  repo: 'repo',
+  subPath: 'subPath'
+} as const
+
+export type AppRepoOrderByRelevanceFieldEnum = (typeof AppRepoOrderByRelevanceFieldEnum)[keyof typeof AppRepoOrderByRelevanceFieldEnum]
+
+
+export const MediaEntryOrderByRelevanceFieldEnum = {
+  title: 'title',
+  dateRaw: 'dateRaw',
+  author: 'author',
+  issueRange: 'issueRange',
+  review: 'review',
+  externalId: 'externalId',
+  externalUrl: 'externalUrl',
+  notes: 'notes',
+  sourceFile: 'sourceFile'
+} as const
+
+export type MediaEntryOrderByRelevanceFieldEnum = (typeof MediaEntryOrderByRelevanceFieldEnum)[keyof typeof MediaEntryOrderByRelevanceFieldEnum]
 

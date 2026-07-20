@@ -43,7 +43,11 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<BotCafeProxyBody>(event)
     const model = body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini'
-    const maxTokens = body.max_tokens ?? body.maxTokens ?? 500
+    // Clamp caller-controlled cost drivers so a request can't run up unbilled
+    // usage: max_tokens is bounded, and n (completions) both bounded AND folded
+    // into the mana estimate below (audit P6 MEDIUM billing bypass).
+    const maxTokens = clampInt(body.max_tokens ?? body.maxTokens, 500, 1, 8192)
+    const n = clampInt(body.n, 1, 1, 8)
     const messages = normalizeMessages(body)
 
     if (!messages.length) {
@@ -58,6 +62,7 @@ export default defineEventHandler(async (event) => {
       estCostUsd: estimateTextCostUsd({
         model,
         maxTokens,
+        n,
       }),
       serverId: body.serverId ?? null,
     })
@@ -97,7 +102,7 @@ export default defineEventHandler(async (event) => {
         model,
         messages,
         temperature: body.temperature ?? 0.7,
-        n: body.n ?? 1,
+        n,
         max_tokens: maxTokens,
       }),
     })
@@ -136,6 +141,19 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+// Coerce a caller value to an integer within [min, max], falling back to
+// `fallback` for missing/invalid input. Used to bound billable request params.
+function clampInt(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  const n = Math.floor(Number(value))
+  if (!Number.isFinite(n)) return fallback
+  return Math.min(max, Math.max(min, n))
+}
 
 function normalizeMessages(body: BotCafeProxyBody): ChatMessage[] {
   if (Array.isArray(body.messages) && body.messages.length) {

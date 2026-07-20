@@ -10,6 +10,7 @@ import { useErrorStore } from './errorStore'
 import { achievementData } from './../training/achievementData'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
+import { mergeDefinedRecord, mergeRecordsById } from './helpers/recordMerge'
 import { slugify } from '~/utils/slugify'
 import type { ApiResponse } from '~/types/api'
 
@@ -80,6 +81,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   const loadingAchievements = ref(false)
   const loadingRecords = ref(false)
   const loadingScores = ref(false)
+  const activeScoreFetches = ref(0)
   const lastError = ref<string | null>(null)
 
   const initializePromise = ref<Promise<void> | null>(null)
@@ -170,7 +172,11 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     )
 
     if (index >= 0) {
-      achievementRecords.value.splice(index, 1, record)
+      achievementRecords.value.splice(
+        index,
+        1,
+        mergeDefinedRecord(achievementRecords.value[index], record),
+      )
     } else {
       achievementRecords.value.push(record)
     }
@@ -184,7 +190,11 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     )
 
     if (index >= 0) {
-      achievements.value.splice(index, 1, achievement)
+      achievements.value.splice(
+        index,
+        1,
+        mergeDefinedRecord(achievements.value[index], achievement),
+      )
     } else {
       achievements.value.push(achievement)
     }
@@ -202,10 +212,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   }
 
   async function fetchAchievements(force = false): Promise<Achievement[]> {
+    if (fetchAchievementsPromise.value) return fetchAchievementsPromise.value
     if (!force && achievements.value.length) return achievements.value
-    if (fetchAchievementsPromise.value && !force) {
-      return fetchAchievementsPromise.value
-    }
 
     fetchAchievementsPromise.value = (async () => {
       try {
@@ -215,7 +223,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         const res = await performFetch<Achievement[]>('/api/achievements/')
 
         if (res.success && Array.isArray(res.data)) {
-          achievements.value = res.data
+          achievements.value = mergeRecordsById(achievements.value, res.data)
           usingSnapshot.value = false
           markSnapshotActive('achievements', false)
           persist()
@@ -255,8 +263,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   async function fetchAchievementRecords(
     force = false,
   ): Promise<AchievementRecord[]> {
+    if (fetchRecordsPromise.value) return fetchRecordsPromise.value
     if (!force && achievementRecords.value.length) return achievementRecords.value
-    if (fetchRecordsPromise.value && !force) return fetchRecordsPromise.value
 
     fetchRecordsPromise.value = (async () => {
       try {
@@ -290,9 +298,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   async function initialize(
     options: AchievementInitializeOptions = {},
   ): Promise<void> {
+    if (initializePromise.value) return initializePromise.value
     if (isInitialized.value && !options.force) return
-    if (initializePromise.value && !options.force)
-      return initializePromise.value
 
     initializePromise.value = (async () => {
       try {
@@ -486,14 +493,14 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   }
 
   async function fetchHighClickScores(force = false): Promise<UserScore[]> {
+    if (fetchHighClickScoresPromise.value) return fetchHighClickScoresPromise.value
     if (!force && highClickScores.value.length) return highClickScores.value
-    if (fetchHighClickScoresPromise.value && !force) {
-      return fetchHighClickScoresPromise.value
-    }
 
     fetchHighClickScoresPromise.value = (async () => {
+      activeScoreFetches.value += 1
+      loadingScores.value = true
+
       try {
-        loadingScores.value = true
 
         const response = await performFetch<UserScore[]>(
           '/api/achievements/highClickScores',
@@ -505,7 +512,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         handleError(error, 'fetching high click scores')
         return highClickScores.value
       } finally {
-        loadingScores.value = false
+        activeScoreFetches.value = Math.max(0, activeScoreFetches.value - 1)
+        loadingScores.value = activeScoreFetches.value > 0
         fetchHighClickScoresPromise.value = null
       }
     })()
@@ -514,14 +522,14 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   }
 
   async function fetchHighMatchScores(force = false): Promise<UserScore[]> {
+    if (fetchHighMatchScoresPromise.value) return fetchHighMatchScoresPromise.value
     if (!force && highMatchScores.value.length) return highMatchScores.value
-    if (fetchHighMatchScoresPromise.value && !force) {
-      return fetchHighMatchScoresPromise.value
-    }
 
     fetchHighMatchScoresPromise.value = (async () => {
+      activeScoreFetches.value += 1
+      loadingScores.value = true
+
       try {
-        loadingScores.value = true
 
         const response = await performFetch<UserScore[]>(
           '/api/achievements/highMatchScores',
@@ -533,7 +541,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         handleError(error, 'fetching high match scores')
         return highMatchScores.value
       } finally {
-        loadingScores.value = false
+        activeScoreFetches.value = Math.max(0, activeScoreFetches.value - 1)
+        loadingScores.value = activeScoreFetches.value > 0
         fetchHighMatchScoresPromise.value = null
       }
     })()

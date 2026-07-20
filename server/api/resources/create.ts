@@ -9,12 +9,55 @@ import {
   type Resource,
 } from '~/prisma/generated/prisma/client'
 
-export type ResourceCreateBody = Partial<Resource> & {
-  connectServerIds?: number[]
-  serverIds?: number[]
-  connectLoraImageIds?: number[]
-  usedInImageIds?: number[]
-}
+export type ResourceCreateBody = Partial<Omit<Resource, 'userId'>> &
+  Record<string, unknown> & {
+    connectServerIds?: number[]
+    serverIds?: number[]
+    connectLoraImageIds?: number[]
+    usedInImageIds?: number[]
+  }
+
+// Every persisted Resource column plus the identity/system/relation keys a
+// round-tripped Resource object can echo, plus the relation-alias arrays the
+// builder accepts. Anything outside this set is rejected (400) instead of
+// silently dropped (audit F-4).
+export const resourceCreateFields = new Set<string>([
+  // persisted / read by buildResourceCreateInput
+  'name',
+  'customLabel',
+  'MediaPath',
+  'customUrl',
+  'civitaiUrl',
+  'huggingUrl',
+  'localPath',
+  'description',
+  'isMature',
+  'resourceType',
+  'artImageId',
+  'generation',
+  'supportedServer',
+  'isPublic',
+  'isActive',
+  'artPrompt',
+  'imagePath',
+  'slug',
+  // relation-alias inputs the builder understands
+  'connectServerIds',
+  'serverIds',
+  'connectLoraImageIds',
+  'usedInImageIds',
+  // identity/system + relation keys tolerated on a round-tripped row
+  'id',
+  'createdAt',
+  'updatedAt',
+  'userId',
+  'ArtImages',
+  'Reactions',
+  'ArtImage',
+  'User',
+  'UsedInImages',
+  'Servers',
+])
 
 export type ResourceBatchSkip = {
   name: string
@@ -28,6 +71,25 @@ export type ResourceBatchFailure = {
 
 const resourceTypes = Object.values(ResourceType)
 const supportedServers = Object.values(SupportedServer)
+
+function assertOwnershipMatchesAuthentication(
+  entry: Record<string, unknown>,
+  authenticatedUserId: number,
+) {
+  if (!Object.prototype.hasOwnProperty.call(entry, 'userId')) return
+
+  const requestedUserId = Number(entry.userId)
+
+  if (
+    !Number.isInteger(requestedUserId) ||
+    requestedUserId !== authenticatedUserId
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: 'Unsupported Resource ownership assignment. Ownership is server-owned.',
+    })
+  }
+}
 
 function normalizeIdArray(value: unknown): number[] {
   if (!Array.isArray(value)) return []
@@ -105,16 +167,11 @@ function optionalPositiveId(value: unknown, field: string): number | undefined {
 }
 
 async function assertRelatedRecordsExist(options: {
-  userId: number
   artImageId?: number
   serverIds: number[]
   loraImageIds: number[]
 }): Promise<void> {
-  const [user, artImage, servers, loraImages] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: options.userId },
-      select: { id: true },
-    }),
+  const [artImage, servers, loraImages] = await Promise.all([
     options.artImageId
       ? prisma.artImage.findUnique({
           where: { id: options.artImageId },
@@ -134,13 +191,6 @@ async function assertRelatedRecordsExist(options: {
         })
       : [],
   ])
-
-  if (!user) {
-    throw createError({
-      statusCode: 404,
-      message: `User ID not found: ${options.userId}.`,
-    })
-  }
 
   if (options.artImageId && !artImage) {
     throw createError({
@@ -195,14 +245,12 @@ export function isResourceInfrastructureError(error: unknown): boolean {
 
 export async function buildResourceCreateInput(options: {
   entry: ResourceCreateBody
-  fallbackUserId: number
-  canAssignUserId: boolean
+  authenticatedUserId: number
 }): Promise<Prisma.ResourceCreateInput> {
-  const { entry, fallbackUserId, canAssignUserId } = options
+  const { entry, authenticatedUserId } = options
+  assertOwnershipMatchesAuthentication(entry, authenticatedUserId)
+
   const name = requiredText(entry.name, 'name')
-  const requestedUserId = optionalPositiveId(entry.userId, 'userId')
-  const userId =
-    canAssignUserId && requestedUserId ? requestedUserId : fallbackUserId
   const artImageId = optionalPositiveId(entry.artImageId, 'artImageId')
   const serverIds = normalizeIdArray(entry.connectServerIds ?? entry.serverIds)
   const loraImageIds = normalizeIdArray(
@@ -210,7 +258,6 @@ export async function buildResourceCreateInput(options: {
   )
 
   await assertRelatedRecordsExist({
-    userId,
     artImageId,
     serverIds,
     loraImageIds,
@@ -244,7 +291,7 @@ export async function buildResourceCreateInput(options: {
       fallback: SupportedServer.SDXL,
       field: 'supportedServer',
     }),
-    User: { connect: { id: userId } },
+    User: { connect: { id: authenticatedUserId } },
     ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
     Servers: serverIds.length
       ? { connect: serverIds.map((id) => ({ id })) }

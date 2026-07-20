@@ -380,7 +380,8 @@ const debugInfo = computed(() => {
   }
 })
 
-// Build a usable <img> src from an ArtImage: base64 data first, then path.
+// Build a usable <img> src from an ArtImage: path first, then inline base64
+// (thumbnail, then full) for pathless rows.
 function imageToSrc(image?: Partial<ArtImage> | null): string {
   if (!image) return ''
 
@@ -388,6 +389,16 @@ function imageToSrc(image?: Partial<ArtImage> | null): string {
   const thumb = (image as { thumbnailData?: string | null }).thumbnailData
   const fileType = (image as { fileType?: string | null }).fileType || 'png'
 
+  // Path-first, but only a *real* stored path (imagePath/path) may beat inline
+  // base64. A bare fileName ("foo.webp") must NOT — isProbablyPath() treats any
+  // "*.webp" as a path, so folding fileName in here resolved pathless art to a
+  // broken URL and blanked it.
+  const storedPath =
+    image.imagePath || (image as { path?: string | null }).path || ''
+
+  if (storedPath && isProbablyPath(storedPath)) {
+    return normalizeImagePath(storedPath)
+  }
   if (thumb && !isProbablyPath(thumb)) {
     return `data:image/${fileType};base64,${thumb}`
   }
@@ -395,12 +406,8 @@ function imageToSrc(image?: Partial<ArtImage> | null): string {
     return `data:image/${fileType};base64,${data}`
   }
 
-  const rawPath =
-    image.imagePath ||
-    (image as { path?: string | null }).path ||
-    image.fileName ||
-    ''
-  return normalizeImagePath(rawPath)
+  // Last resort: a bare fileName only when there is no path and no base64.
+  return normalizeImagePath(storedPath || image.fileName || '')
 }
 
 async function loadPrimaryArt() {

@@ -3,11 +3,13 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { userIsAdmin } from '@/server/utils/authUser'
 import {
   buildScenarioCreateInput,
   findExistingScenario,
   type ScenarioPostInput,
 } from './create'
+import { assertScenarioRelationsAttachable } from './mutation'
 import { scenarioMutationSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
@@ -31,14 +33,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!body || typeof body !== 'object') {
-      throw createError({
-        statusCode: 400,
-        message: 'Request body is required.',
-      })
-    }
+    await assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))
 
-    const createInput = buildScenarioCreateInput(body, user.id)
+    const createInput = await buildScenarioCreateInput(body, user.id)
     const existingScenario = await findExistingScenario(
       createInput.title,
       user.id,

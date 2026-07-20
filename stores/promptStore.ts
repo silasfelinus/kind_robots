@@ -4,6 +4,10 @@ import { computed, ref } from 'vue'
 import type { ArtImage, Prompt } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
+import {
+  mergeDefinedRecord,
+  reconcileRecordsById,
+} from './helpers/recordMerge'
 import { useUserStore } from './userStore'
 import { useAchievementStore } from './achievementStore'
 import {
@@ -264,26 +268,33 @@ export const usePromptStore = defineStore('promptStore', () => {
 
   function upsertPrompt(prompt: Prompt): Prompt {
     const index = prompts.value.findIndex((entry) => entry.id === prompt.id)
+    const existing =
+      selectedPrompt.value?.id === prompt.id
+        ? selectedPrompt.value
+        : index >= 0
+          ? prompts.value[index]
+          : undefined
+    const merged = mergeDefinedRecord(existing, prompt)
 
     if (index >= 0) {
-      prompts.value.splice(index, 1, prompt)
+      prompts.value.splice(index, 1, merged)
     } else {
-      prompts.value.push(prompt)
+      prompts.value.push(merged)
     }
 
     prompts.value.sort(sortPrompts)
 
-    if (selectedPrompt.value?.id === prompt.id) {
-      selectedPrompt.value = prompt
+    if (selectedPrompt.value?.id === merged.id) {
+      selectedPrompt.value = merged
     }
 
-    if (promptForm.value.id === prompt.id) {
-      promptForm.value = normalizePromptForm(prompt as PromptForm)
+    if (promptForm.value.id === merged.id) {
+      promptForm.value = normalizePromptForm(merged as PromptForm)
     }
 
     syncToLocalStorage()
 
-    return prompt
+    return merged
   }
 
   function removePromptLocally(promptId: number) {
@@ -421,8 +432,8 @@ export const usePromptStore = defineStore('promptStore', () => {
   }
 
   async function fetchPrompts(force = false): Promise<Prompt[]> {
+    if (fetchPromise.value) return fetchPromise.value
     if (!force && hasLoaded.value && prompts.value.length) return prompts.value
-    if (fetchPromise.value && !force) return fetchPromise.value
 
     fetchPromise.value = (async () => {
       loading.value = true
@@ -436,7 +447,10 @@ export const usePromptStore = defineStore('promptStore', () => {
           throw new Error(response.message || 'Invalid prompt response')
         }
 
-        prompts.value = response.data.slice().sort(sortPrompts)
+        prompts.value = reconcileRecordsById(
+          prompts.value,
+          response.data,
+        ).sort(sortPrompts)
         hasLoaded.value = true
         usingSnapshot.value = false
         markSnapshotActive('prompts', false)
@@ -444,7 +458,6 @@ export const usePromptStore = defineStore('promptStore', () => {
 
         return prompts.value
       } catch (error) {
-        hasLoaded.value = false
         handleError(error, 'fetching prompts')
         setLastError(error, 'Failed to fetch prompts')
         return prompts.value

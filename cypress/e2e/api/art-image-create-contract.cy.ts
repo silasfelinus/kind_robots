@@ -193,6 +193,45 @@ describe('ArtImage create and by-ids contracts', () => {
     })
   })
 
+  it('ignores userId owner-transfer on ArtImage PATCH', () => {
+    // The general patch route must not reassign ownership (audit F-1). The owner
+    // patches a real field alongside a userId reassignment; the field updates,
+    // the owner is unchanged.
+    cy.request<ApiResponse<ArtImage>>({
+      method: 'PATCH',
+      url: `${apiBase}/art/image/${privateImage.id}`,
+      headers: bearerHeaders(owner.token),
+      body: {
+        artPrompt: 'owner-transfer attempt',
+        userId: secondUser.id,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(200)
+      expect(response.body.success).to.eq(true)
+      expect(response.body.data?.userId).to.eq(owner.id)
+    })
+  })
+
+  it('rejects a missing Server relation on ArtImage PATCH', () => {
+    // The connect target is existence + permission gated (audit F-2 residual);
+    // a nonexistent serverId is a 404 before any write.
+    cy.request<ApiResponse<ArtImage>>({
+      method: 'PATCH',
+      url: `${apiBase}/art/image/${privateImage.id}`,
+      headers: bearerHeaders(owner.token),
+      body: {
+        artPrompt: 'relation gate probe',
+        serverId: 999_999_999,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status, JSON.stringify(response.body)).to.eq(404)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message || '').to.include('Server not found')
+    })
+  })
+
   it('requires authentication and bounded positive IDs for batch lookup', () => {
     cy.request<ApiResponse>({
       method: 'POST',

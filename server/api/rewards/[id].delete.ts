@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
       message: isAdmin
         ? `Reward entry with ID ${rewardId} deleted successfully by admin.`
         : `Reward with ID ${rewardId} successfully deleted.`,
+      data: null,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -54,6 +55,7 @@ export default defineEventHandler(async (event) => {
       success: false,
       message:
         handledError.message || `Failed to delete reward with ID ${rewardId}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

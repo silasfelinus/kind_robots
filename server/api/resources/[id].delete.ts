@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       message: `Resource with ID ${resourceId} successfully deleted.`,
+      data: null,
       statusCode: 200,
     }
     event.node.res.statusCode = 200
@@ -55,6 +56,7 @@ export default defineEventHandler(async (event) => {
       message:
         handledError.message ||
         `Failed to delete resource with ID ${resourceId}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

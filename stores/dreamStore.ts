@@ -28,6 +28,7 @@ import {
 import {
   mergeDefinedRecord,
   mergeRecordsById,
+  reconcileRecordsById,
 } from '@/stores/helpers/recordMerge'
 import type {
   ArtCollection,
@@ -936,7 +937,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
           throw new Error(res.message || 'Failed to fetch dreams.')
 
         const normalizedIncoming = res.data.map(normalizeDream)
-        dreams.value = mergeRecordsById(dreams.value, normalizedIncoming)
+        // An unfiltered fetch (`!query`) is the authoritative full list — reconcile
+        // so rows the server no longer returns (deleted dreams) are pruned from
+        // state and localStorage. A filtered/partial fetch only upserts, so a
+        // narrow result set never wipes unrelated cached rows.
+        const combine = query ? mergeRecordsById : reconcileRecordsById
+        dreams.value = combine(dreams.value, normalizedIncoming)
           .map(normalizeDream)
           .sort(sortDreamsByNewest)
 
@@ -1255,8 +1261,13 @@ export const useDreamStore = defineStore('dreamStore', () => {
       if (!res.success)
         throw new Error(res.message || `Failed to delete dream ${dreamId}.`)
 
-      if (hardDelete) removeDreamFromState(dreamId)
-      else if (res.data) upsertDream(res.data)
+      // The dreams DELETE endpoint always HARD-deletes the row (see
+      // server/api/dreams/[id].delete.ts) regardless of the `hard` flag, so the
+      // deleted dream is gone from the DB and every fresh list. Always prune it
+      // from state — the old `else upsertDream(res.data)` branch re-inserted the
+      // just-deleted row (still isActive) and persisted it to localStorage, which
+      // is why deleted dreams reappeared in the gallery even after a cache clear.
+      removeDreamFromState(dreamId)
 
       return {
         success: true,

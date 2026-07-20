@@ -1,0 +1,223 @@
+name: WonderLab Editorial Coverage Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-editorial-audit.yml'
+      - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
+      - 'scripts/wonderlab-production-editorial-audit.mjs'
+      - 'server/api/admin/wonderlab/review-drafts/generate-batch.post.ts'
+      - 'server/api/admin/wonderlab/review-plan.get.ts'
+      - 'server/api/admin/wonderlab/review-portfolio.get.ts'
+      - 'server/utils/wonderLabReviewBatchPlan.ts'
+      - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
+      - 'utils/scripts/verifyWonderLabReviewBatchPlan.ts'
+      - 'utils/scripts/verifyWonderLabReviewerPortfolio.ts'
+      - 'utils/wonderlab/reviewerPortfolio.ts'
+      - 'utils/wonderlab/reviewPortfolioBatch.ts'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-editorial-audit.yml'
+      - 'scripts/post-wonderlab-editorial-audit-comment.mjs'
+      - 'scripts/wonderlab-production-editorial-audit.mjs'
+      - 'server/api/admin/wonderlab/review-drafts/generate-batch.post.ts'
+      - 'server/api/admin/wonderlab/review-plan.get.ts'
+      - 'server/api/admin/wonderlab/review-portfolio.get.ts'
+      - 'server/utils/wonderLabReviewBatchPlan.ts'
+      - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
+      - 'utils/scripts/verifyWonderLabReviewBatchPlan.ts'
+      - 'utils/wonderlab/reviewerPortfolio.ts'
+      - 'utils/wonderlab/reviewPortfolioBatch.ts'
+  workflow_dispatch:
+    inputs:
+      max_wait_seconds:
+        description: 'Max seconds to wait for the portfolio endpoint to reach production'
+        required: false
+        default: '1200'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: wonderlab-editorial-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate editorial portfolio and audit boundary
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify deterministic reviewer portfolio
+        run: npx tsx utils/scripts/verifyWonderLabReviewerPortfolio.ts
+
+      - name: Verify global portfolio batch planning
+        run: npx tsx utils/scripts/verifyWonderLabReviewBatchPlan.ts
+
+      - name: Check read-only audit contract
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-production-editorial-audit.mjs
+          node --check scripts/post-wonderlab-editorial-audit-comment.mjs
+          node --check utils/scripts/verifyWonderLabEditorialAuditComment.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const audit = fs.readFileSync(
+            'scripts/wonderlab-production-editorial-audit.mjs',
+            'utf8',
+          )
+          const publisher = fs.readFileSync(
+            'scripts/post-wonderlab-editorial-audit-comment.mjs',
+            'utf8',
+          )
+          const endpoint = fs.readFileSync(
+            'server/api/admin/wonderlab/review-portfolio.get.ts',
+            'utf8',
+          )
+          const portfolio = fs.readFileSync(
+            'server/utils/wonderLabReviewPortfolio.ts',
+            'utf8',
+          )
+
+          for (const required of [
+            '/api/version',
+            '/api/components',
+            '/api/admin/wonderlab/review-rollout',
+            '/api/admin/wonderlab/review-portfolio',
+            'PORTFOLIO_DIVERSE',
+            'diversityPenalty',
+            'priorityMissingAssignments',
+            'editorial-coverage-audit.json',
+          ]) {
+            assert.ok(audit.includes(required), `missing editorial audit boundary: ${required}`)
+          }
+
+          for (const forbidden of [
+            '/review-drafts/generate',
+            '/publish',
+            '/approve',
+            '/reject',
+            "method: 'POST'",
+            'DATABASE_URL',
+            'prisma.',
+          ]) {
+            assert.ok(!audit.includes(forbidden), `editorial audit crossed write boundary: ${forbidden}`)
+          }
+
+          assert.match(endpoint, /requireAdminApiUser\(event\)/)
+          assert.match(endpoint, /buildWonderLabReviewPortfolio/)
+          assert.doesNotMatch(endpoint, /readBody|defineEventHandler[\s\S]*\.create\(|\.update\(|\.delete\(/)
+          assert.match(portfolio, /assignWonderLabReviewerPortfolio/)
+          assert.match(portfolio, /isWonderLabEditoriallyExcludedReviewer/)
+          assert.match(portfolio, /loadCoverage/)
+          assert.doesNotMatch(portfolio, /INSERT\s+INTO|UPDATE\s+|DELETE\s+FROM/i)
+          assert.match(publisher, /api\.github\.com\/repos\/\$\{repository\}\/issues\/\$\{issueNumber\}\/comments/)
+          assert.doesNotMatch(publisher, /kind-robots\.vercel\.app|review-drafts\/generate|\/publish|\/approve|\/reject/)
+
+          console.log('WonderLab editorial portfolio audit boundary passed.')
+          NODE
+
+      - name: Verify audit comment rendering
+        run: node utils/scripts/verifyWonderLabEditorialAuditComment.mjs
+
+  audit:
+    name: Audit production editorial coverage
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Wait for portfolio endpoint to reach production
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          TARGET_SHA: ${{ github.sha }}
+          MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '1200' }}
+        run: |
+          set -euo pipefail
+          echo "Waiting up to ${MAX_WAIT}s for production to serve ${TARGET_SHA} (or a superseding commit)..."
+          deadline=$(( $(date +%s) + MAX_WAIT ))
+          live=""
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            body="$(curl -sf --max-time 15 "${BASE_URL}/api/version" || true)"
+            live="$(printf '%s' "$body" | jq -r '.data.commit // empty' 2>/dev/null || true)"
+            if [ -n "$live" ]; then
+              if [ "$live" = "$TARGET_SHA" ]; then
+                echo "Production is serving ${live} — portfolio endpoint is live."
+                exit 0
+              fi
+              if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+                git fetch --quiet --depth=200 origin main 2>/dev/null || true
+              fi
+              if bash scripts/check-deploy-ancestry.sh "$TARGET_SHA" "$live" 2>/dev/null; then
+                echo "Production is serving ${live}, a newer commit that includes ${TARGET_SHA} — portfolio endpoint is live."
+                exit 0
+              fi
+            fi
+            echo "  not live yet (serving: ${live:-unknown}); retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Production did not serve ${TARGET_SHA} (or a superseding commit) within ${MAX_WAIT}s (last seen: ${live:-unknown})."
+          exit 1
+
+      - name: Run read-only production audit
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_EDITORIAL_AUDIT_OUTPUT: wonderlab-editorial-audit-artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "${WONDERLAB_ADMIN_TOKEN:-}" ]; then
+            echo '::error::CYPRESS_BETA_ADMIN_TOKEN is not configured.'
+            exit 1
+          fi
+          node scripts/wonderlab-production-editorial-audit.mjs
+
+      - name: Render and post editorial audit evidence
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          WONDERLAB_EDITORIAL_AUDIT_POST: 'true'
+          WONDERLAB_EDITORIAL_AUDIT_STATUS: ${{ job.status }}
+          WONDERLAB_EDITORIAL_AUDIT_ISSUE: '582'
+          WONDERLAB_EDITORIAL_AUDIT_REPORT: wonderlab-editorial-audit-artifacts/editorial-coverage-audit.json
+          WONDERLAB_EDITORIAL_AUDIT_COMMENT: wonderlab-editorial-audit-artifacts/editorial-coverage-comment.md
+        run: node scripts/post-wonderlab-editorial-audit-comment.mjs
+
+      - name: Upload editorial audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-editorial-audit-${{ github.run_id }}
+          path: wonderlab-editorial-audit-artifacts
+          if-no-files-found: warn
+          retention-days: 30

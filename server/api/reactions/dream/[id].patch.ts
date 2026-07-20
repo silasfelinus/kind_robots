@@ -3,6 +3,7 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { assertReactionContentTargetAccessible } from '../access'
 import {
   ReactionType,
   Reaction_reactionCategory,
@@ -75,17 +76,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const dream = await prisma.dream.findUnique({
-      where: { id: dreamId },
-      select: { id: true },
+    // The target Dream must exist and be public or owned by the reacting user
+    // (admins bypass), matching POST /api/reactions (audit F-2 residual).
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const targetDreamId: number = dreamId
+    await assertReactionContentTargetAccessible({
+      find: () =>
+        prisma.dream.findUnique({
+          where: { id: targetDreamId },
+          select: { userId: true, isPublic: true },
+        }),
+      label: 'Dream',
+      targetId: targetDreamId,
+      userId: user.id,
+      isAdmin,
     })
-
-    if (!dream) {
-      throw createError({
-        statusCode: 404,
-        message: `Dream #${dreamId} not found.`,
-      })
-    }
 
     const body = await readBody<DreamReactionPatchBody>(event)
     const reactionType = normalizeReactionType(body?.reactionType)
@@ -120,11 +125,12 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: { reaction },
-      reaction,
       message: existingReaction
         ? `Reaction for dream #${dreamId} updated.`
         : `Reaction for dream #${dreamId} created.`,
+      data: reaction,
+      reaction,
+      statusCode: event.node.res.statusCode,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -132,11 +138,11 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      data: {
-        message:
-          handledError.message ||
-          `Failed to update reaction for dream with ID ${dreamId}.`,
-      },
+      message:
+        handledError.message ||
+        `Failed to update reaction for dream with ID ${dreamId}.`,
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

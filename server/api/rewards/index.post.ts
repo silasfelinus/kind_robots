@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { createReward, type RewardMutationInput } from './'
+import { assertRewardMutationInput, rewardCreateFields } from './mutation'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -40,7 +41,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await createReward(rewardData, user.id)
+    assertRewardMutationInput(rewardData, {
+      allowedFields: rewardCreateFields,
+      context: 'Reward create payload',
+    })
+
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const data = await createReward(rewardData, user.id, isAdmin)
 
     event.node.res.statusCode = 201
 
@@ -59,6 +66,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: message || 'Failed to create reward.',
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

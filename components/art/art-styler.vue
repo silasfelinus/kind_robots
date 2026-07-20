@@ -903,6 +903,10 @@ const sourceImageSrc = computed<string>(() => {
     path?: string | null
   }
 
+  // Path-first: stored path, then inline base64, then the base64 thumb cache.
+  const path = img.imagePath || img.path || ''
+  if (path) return path
+
   if (img.thumbnailData) {
     return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
   }
@@ -911,7 +915,7 @@ const sourceImageSrc = computed<string>(() => {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
   }
 
-  return img.imagePath || img.path || galleryThumbs.value[img.id] || ''
+  return galleryThumbs.value[img.id] || ''
 })
 
 const resultImageSrc = computed<string>(() => {
@@ -923,11 +927,15 @@ const resultImageSrc = computed<string>(() => {
     path?: string | null
   }
 
+  // Path-first: stored path, then inline base64.
+  const path = img.imagePath || img.path || ''
+  if (path) return path
+
   if (img.imageData) {
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
   }
 
-  return img.imagePath || img.path || ''
+  return ''
 })
 
 const kontextServer = computed<Server | null>(() => {
@@ -1000,9 +1008,14 @@ function handleDrop(event: DragEvent) {
 
   const file = event.dataTransfer?.files?.[0]
 
-  if (file && file.type.startsWith('image/')) {
-    processUploadedFile(file)
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
+    return
   }
+
+  processUploadedFile(file)
 }
 
 function buildSyntheticSourceImage(
@@ -1441,7 +1454,7 @@ watch(
 )
 
 // Preselect a gallery image passed by id (e.g. the "Make coloring page" deep
-// link). We only need the thumbnail for the preview here — runStyleTransfer
+// link). We only need the thumbnail for the preview here -- runStyleTransfer
 // lazily fetches the full imageData when the user generates.
 async function applySourceImageId(
   id: number | null | undefined,

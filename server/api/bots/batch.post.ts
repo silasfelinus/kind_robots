@@ -1,16 +1,18 @@
 // /server/api/bots/batch.post.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
+import { assertBotRelationsAttachable } from './relations'
 
-type BotBatchPatch = Partial<Bot> & {
-  id?: number
-  dreamIds?: unknown
-  addDreamIds?: unknown
-  removeDreamIds?: unknown
-}
+type BotBatchPatch = Partial<Omit<Bot, 'userId'>> &
+  Record<string, unknown> & {
+    id?: number
+    dreamIds?: unknown
+    addDreamIds?: unknown
+    removeDreamIds?: unknown
+  }
 
 type BotBatchBody =
   | BotBatchPatch[]
@@ -18,6 +20,19 @@ type BotBatchBody =
       dryRun?: boolean
       bots?: BotBatchPatch[]
     }
+
+function assertOwnershipIsServerManaged(bots: BotBatchPatch[]) {
+  const invalidIndexes = bots.flatMap((bot, index) =>
+    Object.prototype.hasOwnProperty.call(bot, 'userId') ? [index] : [],
+  )
+
+  if (invalidIndexes.length > 0) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsupported Bot field: userId at batch indexes ${invalidIndexes.join(', ')}. Ownership is server-owned.`,
+    })
+  }
+}
 
 function getStringOrUndefined(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
@@ -60,6 +75,23 @@ function getDreamRelationUpdate(
   return Object.keys(op).length ? op : undefined
 }
 
+// Dream IDs a batch entry would newly attach (set + connect). Disconnected IDs
+// are omitted because removing a relation needs no attach permission.
+function getDreamAttachIds(body: BotBatchPatch): number[] {
+  const toIds = (value: unknown): number[] =>
+    Array.isArray(value)
+      ? value
+          .map((item) =>
+            item && typeof item === 'object'
+              ? Number((item as { id?: unknown }).id)
+              : Number(item),
+          )
+          .filter((id) => Number.isInteger(id) && id > 0)
+      : []
+
+  return [...toIds(body.dreamIds), ...toIds(body.addDreamIds)]
+}
+
 function hasUpdateData(data: Record<string, unknown>): boolean {
   return Object.values(data).some((value) => value !== undefined)
 }
@@ -82,7 +114,6 @@ function getBatchPayload(body: BotBatchBody): {
 }
 
 function getBotUpdateData(body: BotBatchPatch): Prisma.BotUpdateInput {
-  const requestedUserId = getPositiveIntegerOrUndefined(body.userId)
   const serverId = getPositiveIntegerOrUndefined(body.serverId)
   const artImageId = getPositiveIntegerOrUndefined(body.artImageId)
 
@@ -111,11 +142,6 @@ function getBotUpdateData(body: BotBatchPatch): Prisma.BotUpdateInput {
     canDelete: getBooleanOrUndefined(body.canDelete),
     isMature: getBooleanOrUndefined(body.isMature),
     isActive: getBooleanOrUndefined(body.isActive),
-    User: requestedUserId
-      ? {
-          connect: { id: requestedUserId },
-        }
-      : undefined,
     Server:
       body.serverId === null
         ? { disconnect: true }
@@ -133,17 +159,10 @@ function getBotUpdateData(body: BotBatchPatch): Prisma.BotUpdateInput {
 }
 
 async function assertRelatedRecordsExist(options: {
-  userIds: number[]
   serverIds: number[]
   artImageIds: number[]
 }) {
-  const [users, servers, artImages] = await Promise.all([
-    options.userIds.length
-      ? prisma.user.findMany({
-          where: { id: { in: options.userIds } },
-          select: { id: true },
-        })
-      : [],
+  const [servers, artImages] = await Promise.all([
     options.serverIds.length
       ? prisma.server.findMany({
           where: { id: { in: options.serverIds } },
@@ -169,11 +188,6 @@ async function assertRelatedRecordsExist(options: {
     }
   }
 
-  assertFound(
-    'User',
-    options.userIds,
-    users.map((user) => user.id),
-  )
   assertFound(
     'Server',
     options.serverIds,
@@ -206,6 +220,19 @@ export default defineEventHandler(async (event) => {
         message: 'No bot updates provided. Send an array or { bots: [...] }.',
       })
     }
+
+    if (
+      bots.some(
+        (bot) => !bot || typeof bot !== 'object' || Array.isArray(bot),
+      )
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Every bot update must be an object.',
+      })
+    }
+
+    assertOwnershipIsServerManaged(bots)
 
     const ids = bots.map((bot) => getPositiveIntegerOrUndefined(bot.id))
 
@@ -260,13 +287,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userIds = [
-      ...new Set(
-        bots
-          .map((bot) => getPositiveIntegerOrUndefined(bot.userId))
-          .filter((id): id is number => id !== undefined),
-      ),
-    ]
     const serverIds = [
       ...new Set(
         bots
@@ -282,18 +302,17 @@ export default defineEventHandler(async (event) => {
       ),
     ]
 
-    if (userIds.length && !isAdmin && !isServerKey) {
-      throw createError({
-        statusCode: 403,
-        message: 'Only admins can reassign bot ownership.',
-      })
-    }
+    await assertRelatedRecordsExist({ serverIds, artImageIds })
 
-    await assertRelatedRecordsExist({
-      userIds,
-      serverIds,
-      artImageIds,
-    })
+    const dreamAttachIds = [
+      ...new Set(bots.flatMap((bot) => getDreamAttachIds(bot))),
+    ]
+
+    await assertBotRelationsAttachable(
+      { serverIds, artImageIds, dreamIds: dreamAttachIds },
+      user?.id ?? 0,
+      isAdmin || isServerKey,
+    )
 
     const updates = bots.map((bot) => {
       const id = getPositiveIntegerOrUndefined(bot.id) as number

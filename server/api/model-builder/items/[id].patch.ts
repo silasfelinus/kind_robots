@@ -10,6 +10,7 @@ import {
   prepareItemUpdate,
   type ItemPatchBody,
 } from '../runs/index'
+import { assertArtImageAttachable } from '../relations'
 
 const itemInclude = {
   Artifacts: { orderBy: { id: 'asc' } },
@@ -36,6 +37,9 @@ export default defineEventHandler(async (event) => {
     assertRunAccess(existing.Run, auth.user)
 
     const body = await readBody<ItemPatchBody>(event)
+    if (body.artImageId !== undefined) {
+      await assertArtImageAttachable(body.artImageId, auth.user.id, auth.isAdmin)
+    }
     const { data, revision } = prepareItemUpdate(
       existing,
       body,

@@ -425,6 +425,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useSheetStore } from '@/stores/sheetStore'
@@ -449,13 +450,13 @@ const selectedScenarioTitle = computed(
   () => selectedScenario.value?.title || 'No scenario selected',
 )
 
-const selectedScenarioImage = computed(() => {
-  if (scenarioArtImage.value?.imageData) {
-    return `data:image/${scenarioArtImage.value.fileType};base64,${scenarioArtImage.value.imageData}`
-  }
-
-  return selectedScenario.value?.imagePath || '/images/scenarios/space.webp'
-})
+const selectedScenarioImage = computed(() =>
+  // Path-first: art image path, then its base64, then the scenario's imagePath.
+  resolveArtImageSrc(
+    scenarioArtImage.value,
+    selectedScenario.value?.imagePath || '/images/scenarios/space.webp',
+  ),
+)
 
 const introChoices = computed(() => {
   return parseScenarioIntros(selectedScenario.value?.intros).map((raw) => ({

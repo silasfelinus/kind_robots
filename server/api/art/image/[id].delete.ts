@@ -71,6 +71,7 @@ export default defineEventHandler(async (event) => {
       message: user.isAdmin
         ? `Art Image with ID ${imageId} deleted successfully by admin.`
         : `Art image ${imageId} deleted successfully.`,
+      data: null,
       statusCode: 200,
     }
   } catch (error: unknown) {
@@ -83,6 +84,7 @@ export default defineEventHandler(async (event) => {
       message:
         handledError.message ||
         `Failed to delete art image with ID ${imageId ?? 'unknown'}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }

@@ -10,6 +10,7 @@ import {
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
+import { assertFacetRelationsAttachable } from './relations'
 
 type FacetPatchBody = Record<string, unknown>
 
@@ -110,10 +111,22 @@ export default defineEventHandler(async (event) => {
     if (body.heroPath !== undefined) data.heroPath = optionalText(body.heroPath)
     if (body.icon !== undefined) data.icon = optionalText(body.icon)
     if (body.designer !== undefined) data.designer = optionalText(body.designer)
-    if (body.artImageId !== undefined)
-      data.artImageId = nullableId(body.artImageId)
-    if (body.artCollectionId !== undefined)
-      data.artCollectionId = nullableId(body.artCollectionId)
+    const nextArtImageId =
+      body.artImageId !== undefined ? nullableId(body.artImageId) : undefined
+    const nextArtCollectionId =
+      body.artCollectionId !== undefined
+        ? nullableId(body.artCollectionId)
+        : undefined
+    if (nextArtImageId !== undefined || nextArtCollectionId !== undefined) {
+      await assertFacetRelationsAttachable(
+        { artImageId: nextArtImageId, artCollectionId: nextArtCollectionId },
+        auth.user.id,
+        auth.isAdmin,
+      )
+    }
+    if (nextArtImageId !== undefined) data.artImageId = nextArtImageId
+    if (nextArtCollectionId !== undefined)
+      data.artCollectionId = nextArtCollectionId
     if (typeof body.isPublic === 'boolean') data.isPublic = body.isPublic
     if (typeof body.isMature === 'boolean') data.isMature = body.isMature
     if (typeof body.isActive === 'boolean') data.isActive = body.isActive

@@ -85,8 +85,23 @@ jobs:
       - name: Prisma JSON-cast contract
         run: npm run test:no-prisma-json-cast
 
+      - name: Unquoted reserved-word table identifier contract
+        run: npm run test:no-unquoted-reserved-word-tables
+
+      - name: Existing-owner-id nullability contract
+        run: npm run test:existing-owner-id-nullability
+
+      - name: Ownership nullability regression contract
+        run: npm run test:ownership-nullability
+
       - name: Capture-group guard checker self-test
         run: npm run test:capture-group-guards-selftest
+
+      - name: Conductor API auth-guard checker self-test
+        run: npm run test:conductor-api-auth-guards-selftest
+
+      - name: Conductor API auth-guard contract
+        run: npm run test:conductor-api-auth-guards
 
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
@@ -105,6 +120,9 @@ jobs:
 
       - name: Newsfeed perspective balance contract
         run: npm run test:newsfeed-perspective-balance
+
+      - name: Tutorial channel resolver contract
+        run: npm run test:tutorial-channel-resolver
 
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
@@ -132,6 +150,9 @@ jobs:
 
       - name: WonderLab passive card fixtures contract
         run: npm run test:wonderlab-passive-card-fixtures
+
+      - name: Animation attempt Component conventions contract
+        run: npm run test:animation-component-attempts
 
       - name: WonderLab learning and control fixtures contract
         run: npx tsx utils/scripts/verifyWonderLabLearningControlFixtures.ts

@@ -1,0 +1,28 @@
+name: Dream Batch Ownership
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/dreams/batch.post.ts'
+      - 'utils/scripts/verifyDreamBatchOwnership.ts'
+      - '.github/workflows/dream-batch-ownership.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyDreamBatchOwnership.ts

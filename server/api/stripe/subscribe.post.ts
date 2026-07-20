@@ -57,12 +57,14 @@ export default defineEventHandler(async (event) => {
       url: session.url,
       message: '✨ Subscription checkout initialized',
     }
-  } catch (error: any) {
-    console.error('🔥 Stripe Subscribe Error:', error)
-    return errorHandler({
-      error,
-      message: '😵 Subscription failed',
-      statusCode: error?.statusCode || 500,
-    })
+  } catch (error: unknown) {
+    // errorHandler takes the error itself, not a wrapper object — passing
+    // { error, message, statusCode } fell through to the generic branch and,
+    // because the HTTP status was never set, returned 200 on failure (audit P6
+    // MEDIUM). Use the standard envelope + status wiring instead.
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode ?? 500
+    event.node.res.statusCode = statusCode
+    return { ...handled, statusCode }
   }
 })

@@ -1,0 +1,220 @@
+name: WonderLab Curated Recovery Publish
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-curated-recovery-publish.yml'
+      - 'scripts/wonderlab-curated-recovery-publish.mjs'
+      - 'config/wonderlab-curated-recovery-publish.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-curated-recovery-publish.yml'
+      - 'scripts/wonderlab-curated-recovery-publish.mjs'
+      - 'config/wonderlab-curated-recovery-publish.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: wonderlab-curated-recovery-publish
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate curated recovery boundary
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate syntax, manifest, and editorial boundary
+        env:
+          WONDERLAB_CURATED_RECOVERY_VALIDATE_ONLY: '1'
+          WONDERLAB_CURATED_RECOVERY_OUTPUT: /tmp/wonderlab-curated-recovery-validation
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-curated-recovery-publish.mjs
+          node scripts/wonderlab-curated-recovery-publish.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const source = fs.readFileSync('scripts/wonderlab-curated-recovery-publish.mjs', 'utf8')
+          const config = JSON.parse(fs.readFileSync('config/wonderlab-curated-recovery-publish.json', 'utf8'))
+
+          for (const required of [
+            'expectedStatus',
+            'component.sourceKey === instruction.sourceKey',
+            'component.isDiscovered === true',
+            "status: 'PROPOSED'",
+            "status: 'APPROVED'",
+            'failureReason: null',
+            'retained its obsolete failure reason',
+            '/api/components',
+            '/api/admin/wonderlab/review-drafts?componentId=',
+            '/api/admin/wonderlab/review-drafts/${instruction.draftId}',
+            '/publish',
+            '/api/admin/wonderlab/review-rollout',
+            'duplicateFirstPartyReviews',
+            'unsafeFirstPartyReviews',
+            'publishedDraftMismatches',
+          ]) {
+            assert.ok(source.includes(required), `missing curated recovery boundary: ${required}`)
+          }
+
+          for (const forbidden of [
+            '/review-drafts/generate',
+            '/generate-batch',
+            'DATABASE_URL',
+            'prisma.',
+            'OPENAI_API_KEY',
+          ]) {
+            assert.ok(!source.includes(forbidden), `curated recovery crossed forbidden boundary: ${forbidden}`)
+          }
+
+          assert.equal(config.version, 1)
+          assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
+          assert.ok(Array.isArray(config.publications) && config.publications.length > 0)
+          assert.ok(config.publications.length <= 20)
+          assert.equal(new Set(config.publications.map((entry) => entry.draftId)).size, config.publications.length)
+          assert.ok(config.publications.every((entry) => ['PROPOSED', 'FAILED', 'REJECTED', 'APPROVED'].includes(entry.expectedStatus)))
+          assert.ok(config.publications.every((entry) => entry.sourceKey.startsWith('components/') && entry.sourceKey.endsWith('.vue')))
+          console.log('WonderLab curated recovery editorial boundary passed.')
+          NODE
+
+  publish:
+    name: Publish explicitly curated recovered drafts
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-curated-publish]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify compatible production runtime
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+        run: |
+          set -euo pipefail
+          baseline_sha="$(jq -r '.minimumProductionCommit // empty' config/wonderlab-curated-recovery-publish.json)"
+          if ! printf '%s' "$baseline_sha" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo '::error::minimumProductionCommit must be a full 40-character commit SHA.'
+            exit 1
+          fi
+
+          git fetch --quiet --no-tags origin main
+          if ! git cat-file -e "${baseline_sha}^{commit}" 2>/dev/null; then
+            echo "::error::Configured production baseline ${baseline_sha} is unavailable."
+            exit 1
+          fi
+
+          for attempt in $(seq 1 90); do
+            payload="$(curl -sS --max-time 20 "${BASE_URL}/api/version" || true)"
+            live_sha="$(printf '%s' "$payload" | jq -r 'if .success == true then .data.commit // empty else empty end' 2>/dev/null || true)"
+            if [ -n "$live_sha" ] && bash scripts/check-deploy-ancestry.sh "$baseline_sha" "$live_sha"; then
+              printf '%s\n' "$payload" > production-version.json
+              echo "Production ${live_sha} contains required curated recovery runtime ${baseline_sha}."
+              exit 0
+            fi
+            echo "Production is not compatible yet (${attempt}/90; live=${live_sha:-unknown})."
+            sleep 10
+          done
+          echo "::error::Production did not reach curated recovery runtime ${baseline_sha} or a descendant."
+          exit 1
+
+      - name: Run curated recovery publication
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_CURATED_RECOVERY_OUTPUT: wonderlab-curated-recovery-artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "${WONDERLAB_ADMIN_TOKEN:-}" ]; then
+            echo '::error::CYPRESS_BETA_ADMIN_TOKEN is not configured.'
+            exit 1
+          fi
+          node scripts/wonderlab-curated-recovery-publish.mjs
+
+      - name: Include deploy evidence
+        if: always()
+        run: |
+          mkdir -p wonderlab-curated-recovery-artifacts
+          if [ -f production-version.json ]; then
+            cp production-version.json wonderlab-curated-recovery-artifacts/workflow-production-version.json
+          fi
+
+      - name: Upload curated recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-curated-recovery-${{ github.run_id }}
+          path: wonderlab-curated-recovery-artifacts
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Post durable curated recovery report
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          JOB_STATUS: ${{ job.status }}
+          OUTPUT_DIR: wonderlab-curated-recovery-artifacts
+        with:
+          script: |
+            const fs = require('node:fs')
+            const path = require('node:path')
+            const readJson = (name) => {
+              const target = path.join(process.env.OUTPUT_DIR, name)
+              if (!fs.existsSync(target)) return null
+              try { return JSON.parse(fs.readFileSync(target, 'utf8')) }
+              catch (error) { return { parseError: error.message } }
+            }
+
+            const summary = readJson('curated-recovery-summary.json')
+            const failure = readJson('failure.json')
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const lines = [
+              '## WonderLab curated recovery publication report',
+              '',
+              `- **Workflow:** [run ${context.runId}](${runUrl})`,
+              `- **Result:** ${process.env.JOB_STATUS}`,
+              `- **Batch:** ${summary?.batchId || 'unknown'}`,
+              `- **Published:** ${summary?.published?.length ?? 0}`,
+            ]
+
+            if (Array.isArray(summary?.published)) {
+              for (const entry of summary.published) {
+                lines.push(`- Component #${entry.componentId} / **${entry.reviewer?.name || 'Reviewer'}**: draft #${entry.draftId} (${entry.previousStatus}${entry.recovered ? ' → recovered' : ''}) → Reaction #${entry.reactionId}`)
+              }
+              lines.push(`- **Final audit:** ${summary?.audit?.ready ? 'Ready' : 'Blocked'} · ${summary?.audit?.metrics?.firstPartyComponentReviews ?? 'unknown'} first-party reviews · ${summary?.audit?.metrics?.duplicateFirstPartyReviews ?? 'unknown'} duplicate groups · ${summary?.audit?.metrics?.unsafeFirstPartyReviews ?? 'unknown'} unsafe rows · ${summary?.audit?.metrics?.publishedDraftMismatches ?? 'unknown'} link mismatches`)
+            }
+            if (failure) lines.push(`- **Failure:** ${failure.message || 'See uploaded evidence.'}`)
+
+            for (const issue_number of [381, 472, 531, 582]) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body: lines.join('\n'),
+              })
+            }

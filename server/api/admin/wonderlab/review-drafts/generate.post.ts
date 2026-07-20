@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
     if (/voice data|confidence|generated review|provider returned|invalid json/i.test(message)) {
       throw createError({ statusCode: 422, message })
     }
-    if (/api key|openai review generation failed|empty review draft/i.test(message)) {
+    if (/api key|openai review generation failed|openai review generation timed out|empty review draft/i.test(message)) {
       throw createError({ statusCode: 502, message })
     }
 

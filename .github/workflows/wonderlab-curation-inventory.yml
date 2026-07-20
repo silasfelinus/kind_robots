@@ -19,7 +19,9 @@ permissions:
 
 env:
   CURATION_OUTPUT_DIR: /tmp/wonderlab-curation-inventory
-  CURATION_OUTPUT_NAME: inventory.json
+  CURATION_OUTPUT_STEM: inventory
+  CURATION_OUTPUT_EXT: json
+  PRODUCTION_OUTPUT_STEM: production-version
 
 jobs:
   validate:
@@ -92,7 +94,8 @@ jobs:
             payload="$(curl -sS --max-time 20 "${BASE_URL}/api/version" || true)"
             live_sha="$(printf '%s' "$payload" | jq -r 'if .success == true then .data.commit // empty else empty end' 2>/dev/null || true)"
             if [ -n "$live_sha" ] && bash scripts/check-deploy-ancestry.sh "$baseline_sha" "$live_sha"; then
-              printf '%s\n' "$payload" > "$CURATION_OUTPUT_DIR/production-version.json"
+              output_path="$CURATION_OUTPUT_DIR/$PRODUCTION_OUTPUT_STEM.$CURATION_OUTPUT_EXT"
+              printf '%s\n' "$payload" > "$output_path"
               exit 0
             fi
             sleep 10
@@ -111,7 +114,8 @@ jobs:
           const config = JSON.parse(fs.readFileSync('config/wonderlab-editorial-batch.json', 'utf8'))
           const baseUrl = process.env.WONDERLAB_BASE_URL.replace(/\/$/, '')
           const token = String(process.env.WONDERLAB_ADMIN_TOKEN || '').trim()
-          const outputPath = path.join(process.env.CURATION_OUTPUT_DIR, process.env.CURATION_OUTPUT_NAME)
+          const outputName = `${process.env.CURATION_OUTPUT_STEM}.${process.env.CURATION_OUTPUT_EXT}`
+          const outputPath = path.join(process.env.CURATION_OUTPUT_DIR, outputName)
           if (!token) throw new Error('CYPRESS_BETA_ADMIN_TOKEN is not configured.')
 
           async function request(requestPath, admin = false) {
@@ -161,12 +165,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wonderlab-curation-inventory-${{ github.run_id }}
-          path: ${{ env.CURATION_OUTPUT_DIR }}/${{ env.CURATION_OUTPUT_NAME }}
+          path: ${{ env.CURATION_OUTPUT_DIR }}/${{ env.CURATION_OUTPUT_STEM }}.${{ env.CURATION_OUTPUT_EXT }}
           retention-days: 30
       - name: Create durable curation handoff
         uses: actions/github-script@v7
         env:
-          INVENTORY_PATH: ${{ env.CURATION_OUTPUT_DIR }}/${{ env.CURATION_OUTPUT_NAME }}
+          INVENTORY_PATH: ${{ env.CURATION_OUTPUT_DIR }}/${{ env.CURATION_OUTPUT_STEM }}.${{ env.CURATION_OUTPUT_EXT }}
         with:
           script: |
             const fs = require('node:fs')

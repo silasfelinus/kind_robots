@@ -61,14 +61,8 @@ function normalizedWords(value: string): string[] {
 }
 
 function evidenceTerms(values: string[]): string[] {
-  const terms = new Set<string>()
-  for (const value of values) {
-    const normalized = normalizedWords(value)
-    const phrase = normalized.join(' ')
-    if (phrase) terms.add(phrase)
-    for (const word of normalized) terms.add(word)
-  }
-  return [...terms].sort((left, right) => left.localeCompare(right, 'en'))
+  return [...new Set(values.map((value) => normalizedWords(value).join(' ')).filter(Boolean))]
+    .sort((left, right) => left.localeCompare(right, 'en'))
 }
 
 function textTerms(value: string): Set<string> {

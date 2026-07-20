@@ -45,7 +45,7 @@ function propertyNames(body) {
   return unique(
     [
       ...body.matchAll(
-        /^\s*(?:readonly\s+)?['"]?([A-Za-z_$][\w$:-]*)['"]?\??\s*:/gm,
+        /(?:^|[;,\n])\s*(?:readonly\s+)?['"]?([A-Za-z_$][\w$:-]*)['"]?\??\s*:/g,
       ),
     ].map((match) => match[1] || ''),
   )

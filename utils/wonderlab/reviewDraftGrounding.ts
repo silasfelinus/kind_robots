@@ -111,7 +111,7 @@ const UNSUPPORTED_CLAIM_PATTERNS: Array<{
   {
     label: 'unsupported visual deficiency judgment',
     pattern:
-      /\b(?:lack(?:s|ing)?|needs?|could use)\s+(?:(?:a|some|more)\s+)?(?:visual flair|polish|color|animation|feedback)\b/i,
+      /\b(?:lack(?:s|ing)?(?:\s+of)?|needs?|could use)\s+(?:(?:a|some|more)\s+)?(?:visual flair|polish|color|animation|feedback)\b/i,
   },
   {
     label: 'unsupported experiential quality claim',

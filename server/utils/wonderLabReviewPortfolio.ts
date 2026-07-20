@@ -9,6 +9,7 @@ import {
   isWonderLabActiveEditorialDraft,
   isWonderLabEditoriallyExcludedReviewer,
   type WonderLabPortfolioCandidate,
+  type WonderLabPortfolioRepresentationSummary,
   type WonderLabPortfolioReviewerUsage,
 } from '@/utils/wonderlab/reviewerPortfolio'
 import type { ReviewDraftAuthorRef, ReviewDraftStatus } from '@/utils/wonderlab/reviewDraft'
@@ -27,7 +28,10 @@ export type WonderLabReviewPortfolioPlan = {
   draftedCount: number
   publishedCount: number
   diversityPenalty: number
+  representationTarget: number
+  representationMinimumScore: number
   reviewerUsage: WonderLabPortfolioReviewerUsage[]
+  representation: WonderLabPortfolioRepresentationSummary
 }
 
 export type BuildWonderLabReviewPortfolioOptions = {
@@ -36,6 +40,8 @@ export type BuildWonderLabReviewPortfolioOptions = {
   reviewersPerComponent?: number
   minimumScore?: number
   diversityPenalty?: number
+  minimumAssignmentsPerReviewer?: number
+  representationMinimumScore?: number
 }
 
 type DraftCoverageRow = {
@@ -291,6 +297,14 @@ export async function buildWonderLabReviewPortfolio(
   )
   const minimumScore = options.minimumScore ?? 0
   const diversityPenalty = Math.max(0, Math.min(20, options.diversityPenalty ?? 4))
+  const representationTarget = Math.max(
+    0,
+    Math.min(2, Math.round(options.minimumAssignmentsPerReviewer ?? 2)),
+  )
+  const representationMinimumScore = Math.max(
+    minimumScore,
+    Math.min(500, options.representationMinimumScore ?? 1),
+  )
   const [exhibits, candidates, coverage] = await Promise.all([
     loadExhibits(options),
     loadReviewers(),
@@ -327,6 +341,8 @@ export async function buildWonderLabReviewPortfolio(
   const portfolio = assignWonderLabReviewerPortfolio(portfolioInputs, {
     reviewersPerExhibit: reviewerCount,
     diversityPenalty,
+    minimumAssignmentsPerReviewer: representationTarget,
+    representationMinimumScore,
   })
   const assignments = new Map(
     portfolio.assignments.map((assignment) => [assignment.key, assignment.reviewers]),
@@ -372,6 +388,9 @@ export async function buildWonderLabReviewPortfolio(
     draftedCount: reviewers.filter((reviewer) => reviewer.coverage === 'DRAFTED').length,
     publishedCount: reviewers.filter((reviewer) => reviewer.coverage === 'PUBLISHED').length,
     diversityPenalty,
+    representationTarget,
+    representationMinimumScore,
     reviewerUsage: portfolio.reviewerUsage,
+    representation: portfolio.representation,
   }
 }

@@ -25,6 +25,7 @@ const createRoute = read('server/api/dreams/index.post.ts')
 const patchRoute = read('server/api/dreams/[id].patch.ts')
 const batchRoute = read('server/api/dreams/batch.post.ts')
 const cypressSpec = read('cypress/e2e/api/dream-input-boundary.cy.ts')
+const permissionSpec = read('cypress/e2e/api/dream-relation-permission.cy.ts')
 
 requireText(
   boundary,
@@ -127,6 +128,45 @@ requireText(
   cypressSpec,
   'keeps the current matching-owner store compatibility fields explicit',
   'Dream compatibility deployed regression',
+)
+
+// Phase 2: relation-connect targets must be public or owned by the caller (admins
+// bypass). The gate is shared by create and PATCH.
+requireText(
+  boundary,
+  'export async function assertDreamRelationsAttachable',
+  'Dream relation permission gate',
+)
+requireText(
+  boundary,
+  'OR: [{ userId }, { isPublic: true }]',
+  'Dream relation permission clause',
+)
+requireText(
+  createRoute,
+  'assertDreamRelationsAttachable(body, user.id, user.Role)',
+  'Dream create relation permission wiring',
+)
+requireText(
+  patchRoute,
+  'assertDreamRelationsAttachable(body, user.id, user.Role)',
+  'Dream patch relation permission wiring',
+)
+// The permission helper is now shared, not duplicated in the patch route.
+forbidText(
+  patchRoute,
+  'async function assertAttachableRelations',
+  'Dream patch duplicate permission helper',
+)
+requireText(
+  permissionSpec,
+  'forbids attaching another user private Character on Dream creation',
+  'Dream create permission deployed regression',
+)
+requireText(
+  permissionSpec,
+  'allows attaching a public Character on Dream creation',
+  'Dream create public-attach deployed regression',
 )
 
 console.log('Dream mutation input parity contract passed.')

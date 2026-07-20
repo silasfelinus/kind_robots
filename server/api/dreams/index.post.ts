@@ -12,6 +12,7 @@ import {
 } from './index'
 import {
   assertDreamMutationInput,
+  assertDreamRelationsAttachable,
   dreamCreateFields,
   normalizeBoundedDreamIdArray,
   normalizeBoundedDreamNullableId,
@@ -39,6 +40,10 @@ export default defineEventHandler(async (event) => {
         message: 'The "title" field is required.',
       })
     }
+
+    // Same permission gate as Dream PATCH: a non-admin may only connect public or
+    // self-owned relation targets. Previously create performed no check at all.
+    await assertDreamRelationsAttachable(body, user.id, user.Role)
 
     const sender = user.username || `User ${user.id}`
     const slug = body.slug?.trim()

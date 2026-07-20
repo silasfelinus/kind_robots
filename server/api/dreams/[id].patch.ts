@@ -14,128 +14,12 @@ import {
 } from './index'
 import {
   assertDreamMutationInput,
+  assertDreamRelationsAttachable,
   boundedScenariosRelationFromPatch,
   dreamPatchFields,
   normalizeBoundedDreamIdArray,
-  normalizeBoundedDreamNullableId,
-  type DreamMutationBody,
 } from './mutation'
 import { dreamMutationSelect } from './selects'
-
-type DreamPatchBody = DreamMutationBody
-
-function uniqueIds(values: Array<number | null | undefined>): number[] {
-  return Array.from(
-    new Set(
-      values.filter(
-        (id): id is number =>
-          typeof id === 'number' && Number.isInteger(id) && id > 0,
-      ),
-    ),
-  )
-}
-
-function idsFromNullable(value: unknown, field: string): number[] {
-  const id = normalizeBoundedDreamNullableId(value, field)
-  return typeof id === 'number' ? [id] : []
-}
-
-function forbiddenRelationError(label: string) {
-  return createError({
-    statusCode: 403,
-    message: `You do not have permission to attach one or more ${label} records to this Dream.`,
-  })
-}
-
-async function assertAttachableRelations(
-  body: DreamPatchBody,
-  userId: number,
-  userRole: string,
-) {
-  if (userRole === 'ADMIN') return
-
-  const artImageIds = uniqueIds([
-    ...idsFromNullable(body.artImageId, 'artImageId'),
-    ...(normalizeBoundedDreamIdArray(body.artImageIds, 'artImageIds') ?? []),
-  ])
-
-  if (artImageIds.length) {
-    const count = await prisma.artImage.count({
-      where: {
-        id: { in: artImageIds },
-        OR: [{ userId }, { isPublic: true }],
-      },
-    })
-
-    if (count !== artImageIds.length) throw forbiddenRelationError('ArtImage')
-  }
-
-  const artCollectionIds = uniqueIds([
-    ...idsFromNullable(body.artCollectionId, 'artCollectionId'),
-    ...(normalizeBoundedDreamIdArray(
-      body.artCollectionIds,
-      'artCollectionIds',
-    ) ?? []),
-  ])
-
-  if (artCollectionIds.length) {
-    const count = await prisma.artCollection.count({
-      where: {
-        id: { in: artCollectionIds },
-        OR: [{ userId }, { isPublic: true }],
-      },
-    })
-
-    if (count !== artCollectionIds.length) {
-      throw forbiddenRelationError('ArtCollection')
-    }
-  }
-
-  const scenarioIds = uniqueIds([
-    ...idsFromNullable(body.scenarioId, 'scenarioId'),
-    ...(normalizeBoundedDreamIdArray(body.scenarioIds, 'scenarioIds') ?? []),
-    ...(normalizeBoundedDreamIdArray(body.Scenarios, 'Scenarios') ?? []),
-  ])
-
-  if (scenarioIds.length) {
-    const count = await prisma.scenario.count({
-      where: {
-        id: { in: scenarioIds },
-        OR: [{ userId }, { isPublic: true }],
-      },
-    })
-
-    if (count !== scenarioIds.length) throw forbiddenRelationError('Scenario')
-  }
-
-  const characterIds =
-    normalizeBoundedDreamIdArray(body.characterIds, 'characterIds') ?? []
-
-  if (characterIds.length) {
-    const count = await prisma.character.count({
-      where: {
-        id: { in: characterIds },
-        OR: [{ userId }, { isPublic: true }],
-      },
-    })
-
-    if (count !== characterIds.length) throw forbiddenRelationError('Character')
-  }
-
-  const rewardIds =
-    normalizeBoundedDreamIdArray(body.rewardIds, 'rewardIds') ?? []
-
-  if (rewardIds.length) {
-    const count = await prisma.reward.count({
-      where: {
-        id: { in: rewardIds },
-        OR: [{ userId }, { isPublic: true }],
-      },
-    })
-
-    if (count !== rewardIds.length) throw forbiddenRelationError('Reward')
-  }
-}
 
 function setTextField<T extends keyof Prisma.DreamUpdateInput>(
   dataInput: Prisma.DreamUpdateInput,
@@ -190,7 +74,7 @@ export default defineEventHandler(async (event) => {
     })
 
     const body = rawBody
-    await assertAttachableRelations(body, user.id, user.Role)
+    await assertDreamRelationsAttachable(body, user.id, user.Role)
 
     const dataInput: Prisma.DreamUpdateInput = {}
 

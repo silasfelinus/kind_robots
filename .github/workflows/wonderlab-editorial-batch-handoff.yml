@@ -1,66 +1,74 @@
 name: WonderLab Editorial Batch Handoff
 
 on:
-  workflow_run:
-    workflows: [WonderLab Editorial Batch]
-    types: [completed]
+  issue_comment:
+    types: [created]
 
 permissions:
-  actions: read
   contents: read
   issues: write
 
 concurrency:
-  group: wonderlab-editorial-batch-handoff-${{ github.event.workflow_run.id }}
+  group: wonderlab-editorial-batch-handoff-${{ github.event.comment.id }}
   cancel-in-progress: false
 
 jobs:
   handoff:
     name: Persist editorial batch handoff
     if: >-
-      github.event.workflow_run.event != 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+      github.event.issue.number == 582 &&
+      github.actor == 'github-actions[bot]' &&
+      startsWith(github.event.comment.body, '## WonderLab editorial batch report')
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
-      - name: Download editorial batch evidence
-        uses: actions/download-artifact@v4
-        with:
-          name: wonderlab-editorial-batch-${{ github.event.workflow_run.id }}
-          path: wonderlab-editorial-batch-artifacts
-          github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
-
       - name: Create or update durable batch handoff
         uses: actions/github-script@v7
-        env:
-          SUMMARY_PATH: wonderlab-editorial-batch-artifacts/batch-summary.json
         with:
           script: |
-            const fs = require('node:fs')
-
-            if (!fs.existsSync(process.env.SUMMARY_PATH)) {
-              core.setFailed(`Missing ${process.env.SUMMARY_PATH}`)
-              return
+            const report = String(context.payload.comment.body || '')
+            const readField = (label) => {
+              const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+              const match = report.match(new RegExp(`^- \\*\\*${escaped}:\\*\\* (?:\\x60([^\\x60]+)\\x60|(.+))$`, 'm'))
+              return String(match?.[1] || match?.[2] || '').trim()
             }
 
-            const summary = JSON.parse(fs.readFileSync(process.env.SUMMARY_PATH, 'utf8'))
-            const batchId = String(summary.batchId || '').trim()
+            const batchId = readField('Batch')
+            const stage = readField('Stage') || 'unknown'
+            const production = readField('Production') || 'unknown'
             if (!batchId) {
-              core.setFailed('Batch summary does not contain a batchId.')
+              core.setFailed('The WonderLab batch report does not contain a batch ID.')
               return
             }
 
-            const targets = Array.isArray(summary.targets) ? summary.targets : []
+            const targets = []
+            const targetPattern = /^- Component #(\d+) \*\*(.+?)\*\* → \*\*(.+?)\*\* \((BOT|CHARACTER) #(\d+), affinity (-?\d+)(, cast floor)?\)$/gm
+            for (const match of report.matchAll(targetPattern)) {
+              targets.push({
+                componentId: Number(match[1]),
+                componentName: match[2],
+                reviewerName: match[3],
+                kind: match[4],
+                id: Number(match[5]),
+                score: Number(match[6]),
+                castFloor: Boolean(match[7]),
+              })
+            }
+
+            if (!targets.length) {
+              core.setFailed(`No reviewed targets were parsed from batch ${batchId}.`)
+              return
+            }
+
             const title = `WonderLab batch handoff: ${batchId}`
             const lines = [
               '# WonderLab editorial batch handoff',
               '',
-              `- **Source workflow:** [run ${context.payload.workflow_run.id}](${context.payload.workflow_run.html_url})`,
+              `- **Source report:** ${context.payload.comment.html_url}`,
               `- **Batch:** \`${batchId}\``,
-              `- **Stage:** ${summary.stage || 'unknown'}`,
-              `- **Production:** \`${summary.production?.commit || 'unknown'}\``,
+              `- **Stage:** ${stage}`,
+              `- **Production:** \`${production}\``,
               `- **Targets:** ${targets.length}`,
               '',
               '## Reviewed targets',
@@ -68,10 +76,8 @@ jobs:
             ]
 
             for (const target of targets) {
-              const representation = Array.isArray(target.reasons)
-                && target.reasons.some((reason) => String(reason).startsWith('cast representation floor:'))
               lines.push(
-                `- Component #${target.componentId} **${target.componentName || 'Untitled'}** → **${target.reviewerName || `${target.kind} #${target.id}`}** (${target.kind} #${target.id}, affinity ${target.score}${representation ? ', cast floor' : ''})`,
+                `- Component #${target.componentId} **${target.componentName}** → **${target.reviewerName}** (${target.kind} #${target.id}, affinity ${target.score}${target.castFloor ? ', cast floor' : ''})`,
               )
             }
 

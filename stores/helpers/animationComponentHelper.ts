@@ -106,6 +106,23 @@ export function getLatestAnimationAttempt<
   return attempts.at(-1) ?? null
 }
 
+// conductor animation-manager/t-012: find the attempt that a newly-promoted
+// build should supersede -- the other WORKING row for the same slug, if any.
+// Used to keep exactly one WORKING attempt per effect instead of letting
+// promoteAttempt() leave the previous WORKING build's status untouched.
+export function findAttemptToSupersede<
+  T extends Pick<Component, 'id' | 'folderName' | 'componentName' | 'status'>,
+>(components: T[], promoted: T): T | null {
+  const parsed = parseAnimationComponentName(promoted.componentName)
+  if (!parsed) return null
+
+  return (
+    listAnimationAttempts(components, parsed.slug).find(
+      (component) => component.id !== promoted.id && component.status === 'WORKING',
+    ) ?? null
+  )
+}
+
 export function nextAnimationBuildNumber<
   T extends Pick<Component, 'folderName' | 'componentName'>,
 >(components: T[], slug: string): number {

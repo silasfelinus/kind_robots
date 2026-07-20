@@ -3,12 +3,14 @@
 // conventions used to log animation build attempts as Component "museum" rows
 // (stores/helpers/animationComponentHelper.ts). Pure logic only -- no database.
 import assert from 'node:assert/strict'
+import type { Component } from '~/prisma/generated/prisma/client'
 import { animationEffects } from '@/stores/animationCatalog'
 import {
   ANIMATION_ATTEMPT_FOLDER,
   buildAnimationAttemptPayload,
   buildAnimationComponentName,
   buildSupersededTags,
+  findAttemptToSupersede,
   getLatestAnimationAttempt,
   isAnimationAttemptComponent,
   listAnimationAttempts,
@@ -168,8 +170,57 @@ assert.throws(
   'linking supersession against a row with no attempt tags must fail loudly, not silently corrupt data',
 )
 
+// conductor animation-manager/t-012: promoteAttempt() must find the other
+// WORKING attempt for the same slug to supersede, excluding itself, and
+// never cross slugs or non-WORKING rows.
+const attemptRowWithStatus = (
+  id: number,
+  componentName: string,
+  status: Component['status'],
+) => ({ id, folderName: ANIMATION_ATTEMPT_FOLDER, componentName, status })
+
+const supersedeCandidates = [
+  attemptRowWithStatus(1, 'bioluminescent-tide@v1', 'RETIRED'),
+  attemptRowWithStatus(2, 'bioluminescent-tide@v2', 'WORKING'),
+  attemptRowWithStatus(3, 'gravity-garden@v1', 'WORKING'),
+]
+
+assert.equal(
+  findAttemptToSupersede(
+    supersedeCandidates,
+    attemptRowWithStatus(4, 'bioluminescent-tide@v3', 'UNDER_CONSTRUCTION'),
+  )?.id,
+  2,
+  'promoting a new build for an already-tracked slug must find the existing WORKING row for that slug',
+)
+assert.equal(
+  findAttemptToSupersede(
+    supersedeCandidates,
+    attemptRowWithStatus(3, 'gravity-garden@v1', 'WORKING'),
+  ),
+  null,
+  'must not find itself as the attempt to supersede',
+)
+assert.equal(
+  findAttemptToSupersede(
+    supersedeCandidates,
+    attemptRowWithStatus(5, 'brand-new-effect@v1', 'WORKING'),
+  ),
+  null,
+  'a slug with no prior WORKING attempt must have nothing to supersede',
+)
+assert.equal(
+  findAttemptToSupersede(
+    supersedeCandidates,
+    attemptRowWithStatus(6, 'not-versioned', 'WORKING'),
+  ),
+  null,
+  'a componentName that fails to parse must not throw or match anything',
+)
+
 console.log(
   'Animation attempt Component conventions verified: naming/parsing round-trips, ' +
     `all ${animationEffects.length} catalog slugs produce a server-acceptable componentName, ` +
-    'listing/latest/next-build-number, payload composition, and supersession linking.',
+    'listing/latest/next-build-number, payload composition, supersession linking, ' +
+    'and supersede-candidate lookup.',
 )

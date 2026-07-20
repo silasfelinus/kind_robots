@@ -154,6 +154,23 @@ describe('Bot Management API Tests', () => {
     })
   })
 
+  it('rejects unknown fields on Bot creation', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: bearerHeaders(userToken),
+      body: {
+        name: `${botName}-unknown-field`,
+        bogusField: 'nope',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Unsupported Bot fields')
+    })
+  })
+
   it('forbids attaching another user private Dream on Bot creation', () => {
     expect(privateDreamId, 'privateDreamId').to.be.a('number')
 

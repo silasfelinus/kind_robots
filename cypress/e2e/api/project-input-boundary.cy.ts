@@ -27,11 +27,16 @@ describe('Project mutation input boundary', () => {
   let apiBase = ''
   let adminToken = ''
   let projectsUrl = ''
+  let botsUrl = ''
   let ownerToken = ''
+  let otherToken = ''
   let ownerId: number | undefined
+  let otherId: number | undefined
   let projectId: number | undefined
+  let privateBotId: number | undefined
 
   const ownerHeaders = () => bearerHeaders(ownerToken)
+  const otherHeaders = () => bearerHeaders(otherToken)
 
   before(() => {
     return getApiEnv()
@@ -39,11 +44,31 @@ describe('Project mutation input boundary', () => {
         apiBase = env.apiBase
         adminToken = env.adminToken
         projectsUrl = `${apiBase}/projects`
+        botsUrl = `${apiBase}/bots`
         return createLoggedInTestUser({ fresh: true })
       })
       .then((owner) => {
         ownerToken = owner.token
         ownerId = owner.id
+        return createLoggedInTestUser({ role: 'second' })
+      })
+      .then((other) => {
+        otherToken = other.token
+        otherId = other.id
+
+        // The other user owns one private Bot.
+        return cy
+          .request<ApiResponse<ProjectRow>>({
+            method: 'POST',
+            url: botsUrl,
+            headers: otherHeaders(),
+            body: { name: `ProjectPrivateBot-${stamp}`, isPublic: false },
+          })
+          .then((res) => {
+            expect(res.status, JSON.stringify(res.body)).to.eq(201)
+            privateBotId = res.body.data?.id
+            expect(privateBotId).to.be.a('number')
+          })
       })
   })
 
@@ -59,7 +84,17 @@ describe('Project mutation input boundary', () => {
       })
     }
 
+    if (privateBotId && otherToken) {
+      cy.request({
+        method: 'DELETE',
+        url: `${botsUrl}/${privateBotId}`,
+        headers: otherHeaders(),
+        failOnStatusCode: false,
+      })
+    }
+
     deleteTestUser(apiBase, adminToken, ownerId)
+    deleteTestUser(apiBase, adminToken, otherId)
   })
 
   it('creates a Project under the authenticated owner', () => {
@@ -81,6 +116,26 @@ describe('Project mutation input boundary', () => {
 
       projectId = response.body.data?.id
       expect(projectId).to.be.a('number')
+    })
+  })
+
+  it('forbids attaching another user private Bot on Project creation', () => {
+    expect(privateBotId).to.exist
+
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: projectsUrl,
+      headers: ownerHeaders(),
+      body: {
+        title: `PrivateBotProject-${stamp}`,
+        slug: `private-bot-project-${stamp}`,
+        managerBotId: privateBotId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('permission to attach')
     })
   })
 

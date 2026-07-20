@@ -54,4 +54,32 @@ requireText(
   'Project compatibility deployed regression',
 )
 
+// Phase 2: manager Bot / ArtImage / ArtCollection connect targets must be public
+// or owned by the caller (admins bypass). Gate is shared by create and PATCH.
+requireText(
+  index,
+  'export async function assertProjectRelationsAttachable',
+  'Project relation permission gate',
+)
+requireText(
+  index,
+  'row.userId !== userId && row.isPublic !== true',
+  'Project relation permission rule',
+)
+requireText(
+  createRoute,
+  'assertProjectRelationsAttachable(body, auth.user.id, auth.isAdmin)',
+  'Project create relation permission wiring',
+)
+requireText(
+  patchRoute,
+  'assertProjectRelationsAttachable(body, auth.user.id, auth.isAdmin)',
+  'Project patch relation permission wiring',
+)
+requireText(
+  cypressSpec,
+  'forbids attaching another user private Bot on Project creation',
+  'Project relation permission deployed regression',
+)
+
 console.log('Project mutation input parity contract passed.')

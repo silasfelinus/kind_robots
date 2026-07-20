@@ -12,6 +12,7 @@ import { enforceProjectCap } from '~/server/utils/projectCap'
 import { assertJsonObject, assertOnlyFields } from '~/server/utils/chatApi'
 import {
   assertProjectAccess,
+  assertProjectRelationsAttachable,
   getProjectId,
   normalizeNullableDateTime,
   normalizeNullableId,
@@ -50,6 +51,8 @@ export default defineEventHandler(async (event) => {
 
     assertJsonObject(body, 'Project patch payload must be a JSON object.')
     assertOnlyFields(body, projectMutationFields, 'Project')
+
+    await assertProjectRelationsAttachable(body, auth.user.id, auth.isAdmin)
 
     const data: Prisma.ProjectUncheckedUpdateInput = {}
     const nextStatus = projectStatuses.has(body.status as ProjectStatus)

@@ -12,6 +12,7 @@ import { requireApiUser } from '~/server/utils/authGuard'
 import { enforceProjectCap } from '~/server/utils/projectCap'
 import { assertJsonObject, assertOnlyFields } from '~/server/utils/chatApi'
 import {
+  assertProjectRelationsAttachable,
   normalizeNullableDateTime,
   normalizeNullableId,
   normalizeOptionalText,
@@ -79,6 +80,8 @@ export default defineEventHandler(async (event) => {
 
     assertJsonObject(body, 'Project create payload must be a JSON object.')
     assertOnlyFields(body, projectMutationFields, 'Project')
+
+    await assertProjectRelationsAttachable(body, auth.user.id, auth.isAdmin)
 
     const title = normalizeOptionalText(body?.title)
 

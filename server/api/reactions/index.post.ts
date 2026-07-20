@@ -263,9 +263,59 @@ async function getContentOwnerId(
   return result?.userId ?? null
 }
 
-async function assertReactionTargetExists(
+// Content targets that carry a userId + isPublic visibility model. A non-admin may
+// react only to a public row or one they own.
+const contentTargetLabels: Record<string, string> = {
+  artImageId: 'ArtImage',
+  artCollectionId: 'ArtCollection',
+  botId: 'Bot',
+  characterId: 'Character',
+  dreamId: 'Dream',
+  promptId: 'Prompt',
+  resourceId: 'Resource',
+  rewardId: 'Reward',
+  scenarioId: 'Scenario',
+  themeId: 'Theme',
+}
+
+function contentTargetModel(field: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const map: Record<string, { findUnique: (args: any) => Promise<unknown> }> = {
+    artImageId: prisma.artImage,
+    artCollectionId: prisma.artCollection,
+    botId: prisma.bot,
+    characterId: prisma.character,
+    dreamId: prisma.dream,
+    promptId: prisma.prompt,
+    resourceId: prisma.resource,
+    rewardId: prisma.reward,
+    scenarioId: prisma.scenario,
+    themeId: prisma.theme,
+  }
+
+  return map[field]
+}
+
+function reactionTargetNotFound(field: string, targetId: number) {
+  return createError({
+    statusCode: 404,
+    message: `${field} target not found: ${targetId}.`,
+  })
+}
+
+// Full per-category access model for reaction targets: existence plus the right
+// access rule for each target's real model.
+//   - COMPONENT: museum items have no owner/visibility — existence only.
+//   - CHAT_EXCHANGE: participant model — allow a chat participant, a public chat,
+//     or an admin.
+//   - content categories (art/collection/bot/character/dream/prompt/resource/
+//     reward/scenario/theme): allow a public row, the owner, or an admin.
+//   - MESSAGE: no target row — nothing to check.
+async function assertReactionTargetAccessible(
   category: Reaction_reactionCategory,
   targets: ReturnType<typeof getTargetFields>,
+  userId: number,
+  isAdmin: boolean,
 ) {
   const expectedField = getExpectedTargetField(category)
   if (!expectedField) return
@@ -273,74 +323,54 @@ async function assertReactionTargetExists(
   const targetId = targets[expectedField]
   if (!targetId) return
 
-  const checks: Record<string, () => Promise<unknown>> = {
-    artImageId: () =>
-      prisma.artImage.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    artCollectionId: () =>
-      prisma.artCollection.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    botId: () =>
-      prisma.bot.findUnique({ where: { id: targetId }, select: { id: true } }),
-    characterId: () =>
-      prisma.character.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    chatId: () =>
-      prisma.chat.findUnique({ where: { id: targetId }, select: { id: true } }),
-    componentId: () =>
-      prisma.component.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    dreamId: () =>
-      prisma.dream.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    promptId: () =>
-      prisma.prompt.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    resourceId: () =>
-      prisma.resource.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    rewardId: () =>
-      prisma.reward.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    scenarioId: () =>
-      prisma.scenario.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
-    themeId: () =>
-      prisma.theme.findUnique({
-        where: { id: targetId },
-        select: { id: true },
-      }),
+  if (expectedField === 'componentId') {
+    const component = await prisma.component.findUnique({
+      where: { id: targetId },
+      select: { id: true },
+    })
+    if (!component) throw reactionTargetNotFound(expectedField, targetId)
+    return
   }
 
-  const check = checks[expectedField]
-  if (!check) return
+  if (expectedField === 'chatId') {
+    const chat = await prisma.chat.findUnique({
+      where: { id: targetId },
+      select: { id: true, userId: true, recipientId: true, isPublic: true },
+    })
+    if (!chat) throw reactionTargetNotFound(expectedField, targetId)
 
-  const found = await check()
+    if (
+      isAdmin ||
+      chat.isPublic === true ||
+      chat.userId === userId ||
+      chat.recipientId === userId
+    ) {
+      return
+    }
 
-  if (!found) {
     throw createError({
-      statusCode: 404,
-      message: `${expectedField} target not found: ${targetId}.`,
+      statusCode: 403,
+      message: 'You do not have permission to react to this Chat.',
     })
   }
+
+  const model = contentTargetModel(expectedField)
+  if (!model) return
+
+  const row = (await model.findUnique({
+    where: { id: targetId },
+    select: { userId: true, isPublic: true },
+  })) as { userId?: number | null; isPublic?: boolean | null } | null
+
+  if (!row) throw reactionTargetNotFound(expectedField, targetId)
+
+  if (isAdmin || row.isPublic === true || row.userId === userId) return
+
+  const label = contentTargetLabels[expectedField] ?? 'record'
+  throw createError({
+    statusCode: 403,
+    message: `You do not have permission to react to this ${label}.`,
+  })
 }
 
 export default defineEventHandler(async (event) => {
@@ -370,7 +400,13 @@ export default defineEventHandler(async (event) => {
     const targets = getTargetFields(body)
     const targetWhere = buildTargetWhere(reactionCategory, targets)
 
-    await assertReactionTargetExists(reactionCategory, targets)
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    await assertReactionTargetAccessible(
+      reactionCategory,
+      targets,
+      user.id,
+      isAdmin,
+    )
 
     const existingReaction = await prisma.reaction.findFirst({
       where: {

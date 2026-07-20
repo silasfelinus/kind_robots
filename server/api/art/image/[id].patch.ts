@@ -9,6 +9,7 @@ import { assertArtImageRelationsAttachable } from './relations'
 type PatchUser = {
   id: number
   isAdmin: boolean
+  isServerKey: boolean
 }
 
 // Owner transfer is intentionally NOT part of the general patch contract: a
@@ -59,6 +60,7 @@ async function requirePatchUser(event: H3Event): Promise<PatchUser> {
   return {
     id: auth.user.id,
     isAdmin: auth.isAdmin,
+    isServerKey: auth.isServerKey,
   }
 }
 
@@ -153,7 +155,7 @@ export default defineEventHandler(async (event) => {
             : null,
       },
       user.id,
-      user.isAdmin,
+      user.isAdmin || user.isServerKey,
     )
 
     const data: ArtImage = await prisma.artImage.update({

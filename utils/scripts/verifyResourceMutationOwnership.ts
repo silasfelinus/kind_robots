@@ -87,4 +87,21 @@ requireText(
   'Resource patch deployed regression',
 )
 
+// Create-path input boundary (audit F-4): unknown fields are rejected.
+requireText(
+  createHelper,
+  'export const resourceCreateFields = new Set<string>([',
+  'Resource create allowlist',
+)
+requireText(
+  createRoute,
+  'resourceCreateFields',
+  'Resource create field boundary wiring',
+)
+requireText(
+  cypressSpec,
+  'rejects unknown fields on Resource creation',
+  'Resource create input boundary deployed regression',
+)
+
 console.log('Resource mutation ownership contract passed.')

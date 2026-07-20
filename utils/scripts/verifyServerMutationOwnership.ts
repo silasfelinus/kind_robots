@@ -25,6 +25,7 @@ const createRoute = read('server/api/server/index.post.ts')
 const batchRoute = read('server/api/server/batch.post.ts')
 const patchRoute = read('server/api/server/[id].patch.ts')
 const cypressSpec = read('cypress/e2e/api/server-ownership.cy.ts')
+const createBoundarySpec = read('cypress/e2e/api/server-create-boundaries.cy.ts')
 
 requireText(
   serverApi,
@@ -87,6 +88,23 @@ requireText(
   cypressSpec,
   'adminHeaders(adminToken)',
   'Server elevated credential coverage',
+)
+
+// Create-path input boundary (audit F-4): unknown fields are rejected.
+requireText(
+  createRoute,
+  'const serverCreateFields = new Set<string>([',
+  'Server create allowlist',
+)
+requireText(
+  createRoute,
+  "assertOnlyFields(safeBody, serverCreateFields, 'Server')",
+  'Server create field boundary wiring',
+)
+requireText(
+  createBoundarySpec,
+  'rejects unknown fields on Server creation',
+  'Server create input boundary deployed regression',
 )
 
 console.log('Server mutation ownership contract passed.')

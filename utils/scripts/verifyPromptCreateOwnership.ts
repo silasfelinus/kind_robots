@@ -54,4 +54,21 @@ requireText(
   'Prompt elevated credential coverage',
 )
 
+// Create-path input boundary (audit F-4): unknown fields are rejected.
+requireText(
+  createRoute,
+  'const promptCreateFields = new Set<string>([',
+  'Prompt create allowlist',
+)
+requireText(
+  createRoute,
+  "assertOnlyFields(promptData, promptCreateFields, 'Prompt')",
+  'Prompt create field boundary wiring',
+)
+requireText(
+  cypressSpec,
+  'rejects unknown fields on Prompt creation',
+  'Prompt create input boundary deployed regression',
+)
+
 console.log('Prompt create ownership contract passed.')

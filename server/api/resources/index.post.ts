@@ -3,9 +3,11 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { assertOnlyFields } from '../../utils/chatApi'
 import {
   buildResourceCreateInput,
   isResourceDuplicateError,
+  resourceCreateFields,
   type ResourceCreateBody,
 } from './create'
 import { resourceMutationSelect } from './selects'
@@ -37,6 +39,12 @@ export default defineEventHandler(async (event) => {
         message: 'Resource data is required.',
       })
     }
+
+    assertOnlyFields(
+      body as Record<string, unknown>,
+      resourceCreateFields,
+      'Resource',
+    )
 
     const data = await buildResourceCreateInput({
       entry: body,

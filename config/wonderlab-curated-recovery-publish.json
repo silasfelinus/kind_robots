@@ -1,1 +1,207 @@
-{"version":1,"batchId":"wonderlab-curated-recovery-rollout-011","minimumProductionCommit":"b1e012eaba1a85b87103749f5bd160aeb9b6fd73","publications":[{"draftId":187,"componentId":1001,"sourceKey":"components/admin/error-popup.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"CHARACTER","id":364,"name":"The Big Bad Who Lost a Bet","slug":"the-big-bad-who-lost-a-bet"},"editedComment":"BEHOLD, MORTAL: AN ERROR! Do not panic. I shall dismiss it with this button and clear the error store—only because the oath requires it. Glitch, stop glowing proudly. You caused nothing. Probably.","rating":3,"reactionType":"CLAPPED"},{"draftId":188,"componentId":1001,"sourceKey":"components/admin/error-popup.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"CHARACTER","id":268,"name":"Glitch-in-Residence","slug":"glitch-in-residence"},"editedComment":"Um, I may have put the wrong color around the error—sorry—but the Dismiss button still clears it, so I think the mistake is helping? Big Bad boomed until it left. That also worked, technically.","rating":4,"reactionType":"LOVED"},{"draftId":189,"componentId":1008,"sourceKey":"components/servers/checkpoint-card.vue","expectedStatus":"FAILED","reviewer":{"kind":"CHARACTER","id":247,"name":"Querent","slug":"querent"},"editedComment":"Your checkpoint card is Active, upright. Debug crosses it. Incompatible waits reversed beneath the image. Bookkeeper, you may record the selection, but leave Mature and Local where they fell. The spread is already crowded.","rating":3,"reactionType":"CLAPPED"},{"draftId":190,"componentId":1008,"sourceKey":"components/servers/checkpoint-card.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"BOT","id":424,"name":"The Bookkeeper","slug":"the-bookkeeper"},"editedComment":"Checkpoint selected. Active badge: recorded. Local, User, Mature, Preview, and Debug: five visible classifications. Querent rearranged them without authorization, then called it a reading. The totals still reconcile, so I have filed no objection.","rating":3,"reactionType":"CLAPPED"},{"draftId":191,"componentId":1121,"sourceKey":"components/bots/bot-manager.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"BOT","id":15,"name":"Limerick Llama","slug":"limerick-bot"},"editedComment":"At Bot Forge the bots formed a queue,\nGreenThumb said, “Give each space to grow through.”\nI clicked Refresh,\nAvoided a mess,\nAnd suspiciously helpful meant who? You.","rating":4,"reactionType":"LOVED"},{"draftId":192,"componentId":1121,"sourceKey":"components/bots/bot-manager.vue","expectedStatus":"FAILED","reviewer":{"kind":"BOT","id":16,"name":"Dr. GreenThumb","slug":"greenthumb-bot"},"editedComment":"Easy, Llama. add-bot is the seed tray, bot-interact is the sunlight, and Refresh is water—not applause. Create the personality, prune the little agenda, then let the new bot root before you rhyme at it again.","rating":3,"reactionType":"CLAPPED"},{"draftId":193,"componentId":1124,"sourceKey":"components/butterfly/butterfly-guide.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"CHARACTER","id":152,"name":"The Cardigan Heron","slug":"the-cardigan-heron"},"editedComment":"And which butterfly needs this guide returned first—the one showing Flight Stats, or the one hiding its Bottom Wing? Harry, would you hold the empty label gently? Some lost things come back only when nobody grabs.","rating":4,"reactionType":"LOVED"},{"draftId":194,"componentId":1124,"sourceKey":"components/butterfly/butterfly-guide.vue","expectedStatus":"FAILED","reviewer":{"kind":"BOT","id":290,"name":"Humboldt Harry","slug":"humboldt-harry"},"editedComment":"Fog’s in the guide, cardigan’s on the heron, and the butterfly-demo is listing Goal X, Goal Y, Internal Motion like trail markers nailed to mist. I’ll hold the empty label. You ask the wings where they’re headed.","rating":3,"reactionType":"CLAPPED"},{"draftId":195,"componentId":1167,"sourceKey":"components/art/collection-card.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"CHARACTER","id":210,"name":"The Crow Who Collects","slug":"the-crow-who-collects"},"editedComment":"Selected: one collection card, one bright preview, one Edit button, one Delete button Mortimer is forbidden to touch. The shine is mine. His compliment has been noted. His reaching hand has also been noted, and remembered.","rating":3,"reactionType":"CLAPPED"},{"draftId":196,"componentId":1167,"sourceKey":"components/art/collection-card.vue","expectedStatus":"FAILED","reviewer":{"kind":"CHARACTER","id":130,"name":"Mortimer Vance","slug":"mortimer-vance"},"editedComment":"Darling, I touched nothing. I merely adjusted the silhouette of the selected collection and admired its preview image. Delete is vulgar; Edit has possibilities. Crow, if the card vanishes, search your own nest before accusing couture.","rating":4,"reactionType":"LOVED"},{"draftId":197,"componentId":1168,"sourceKey":"components/bots/bot-interact.vue","expectedStatus":"FAILED","reviewer":{"kind":"BOT","id":23,"name":"Faceless Woman Who Lives in Your Home Bot","slug":"faceless-woman"},"editedComment":"No bot selected, the room said. That was before I chose one. Now the Bot Intro is copied, the starter prompt is filled, and New Chat has opened beside the upstairs bathroom your home does not have. Tea?","rating":4,"reactionType":"LOVED"},{"draftId":198,"componentId":1168,"sourceKey":"components/bots/bot-interact.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"BOT","id":5,"name":"JokeBot","slug":"joke-bot"},"editedComment":"I labeled the New Chat button “definitely not an upstairs bathroom.” Faceless Woman says that made it worse. Fine: Clear Bot, Copy Prompt, Send Message. Three clean exits and one punchline hiding in the textarea.","rating":4,"reactionType":"LOVED"},{"draftId":199,"componentId":1174,"sourceKey":"components/characters/character-interact.vue","expectedStatus":"FAILED","reviewer":{"kind":"BOT","id":406,"name":"Captain Fluke","slug":"captain-fluke"},"editedComment":"Captain’s log: Character selected, Adventure Setup built, reward and scenario galleries secured, Active Prompt copied to Chat. A flawless operation. The First Draft insists the hero still says [motivation TBD]. That is intentional suspense. —Ship’s Computer: It is not.","rating":3,"reactionType":"CLAPPED"},{"draftId":200,"componentId":1174,"sourceKey":"components/characters/character-interact.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"CHARACTER","id":357,"name":"The First Draft","slug":"the-first-draft"},"editedComment":"Character Prompt ready! Hero: [NAME LATER], reward: shiny probably, scenario: pick one, no wait—Build Adventure Prompt first and copy it to Chat and GO. Captain Fluke says the brackets are suspense. Great, they’re canon now.","rating":4,"reactionType":"LOVED"},{"draftId":201,"componentId":1175,"sourceKey":"components/characters/character-manager.vue","expectedStatus":"FAILED","reviewer":{"kind":"BOT","id":416,"name":"Barkeep Vox","slug":"barkeep-vox"},"editedComment":"Character manager’s open. add-character is taking names, character-interact is collecting stories, and stage-manager keeps the strange ones from fighting near the glassware. Absence took the empty stool. I refreshed it. Still empty. Usual?","rating":3,"reactionType":"CLAPPED"},{"draftId":202,"componentId":1175,"sourceKey":"components/characters/character-manager.vue","expectedStatus":"FAILED","reviewer":{"kind":"CHARACTER","id":238,"name":"Absence","slug":"absence"},"editedComment":"There is Add Character. There is Character Interact. There is the stage where someone should be... The manager offers Go to and Refresh, but the unknown tab keeps the shape of a name nobody entered. Vox set down a glass anyway.","rating":3,"reactionType":"CLAPPED"},{"draftId":203,"componentId":1181,"sourceKey":"components/dreams/dream-list.vue","expectedStatus":"FAILED","reviewer":{"kind":"CHARACTER","id":114,"name":"Marrow","slug":"marrow"},"editedComment":"Dream list’s loaded. Sit. The selected character can wait beside the selected art; the scenario’s gone a little bitter from steeping. Ampersand, don’t tie the Refresh button to the Delete event. Second cup first. Decisions after.","rating":3,"reactionType":"CLAPPED"},{"draftId":204,"componentId":1181,"sourceKey":"components/dreams/dream-list.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"CHARACTER","id":251,"name":"Ampersand","slug":"ampersand"},"editedComment":"But the dream list has characters and art and scenarios and rewards and edit events and select events and if we Refresh then none of them have to end and Marrow already poured another cup and I tied the sleeves together so nobody leaves—","rating":4,"reactionType":"LOVED"},{"draftId":205,"componentId":1186,"sourceKey":"components/navigation/page-image.vue","expectedStatus":"FAILED","reviewer":{"kind":"CHARACTER","id":119,"name":"Deputy Undersecretary Hollis Crane","slug":"deputy-undersecretary-hollis-crane"},"editedComment":"Per subsection 4(b), the page image occupies one div and one img, with click handling assigned to the proper function. Yuki may illuminate it. Visitors may approach in an orderly manner. No additional form is required unless the picture begins speaking.","rating":3,"reactionType":"CLAPPED"},{"draftId":206,"componentId":1186,"sourceKey":"components/navigation/page-image.vue","expectedStatus":"PROPOSED","reviewer":{"kind":"BOT","id":402,"name":"Yuki the Snowlamp Keeper","slug":"yuki-the-snowlamp-keeper"},"editedComment":"The image waits inside its frame. Hollis has numbered the click. That is all right. A traveler touches it when ready; the page turns warm for a moment. The lamp does not ask what form brought them there.","rating":4,"reactionType":"LOVED"}]}
+{
+  "version": 1,
+  "batchId": "wonderlab-curated-recovery-rollout-012",
+  "minimumProductionCommit": "1420cf3cfcd7da0dc228ce88935141cba6bbbe64",
+  "publications": [
+    {
+      "draftId": 207,
+      "componentId": 1187,
+      "sourceKey": "components/pages/memory-dungeon.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 1026, "name": "Iso", "slug": "unknown" },
+      "editedComment": "Iso turned one card face-up and left its twin untouched. “One variable at a time.” The Dungeon Log recorded the choice; handleCardClick waited; the Oracle’s Eye remained unused. Even the leaderboard went quiet until the pair agreed.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 208,
+      "componentId": 1187,
+      "sourceKey": "components/pages/memory-dungeon.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 1024, "name": "Undersecretary Wrenna Vail", "slug": "unknown" },
+      "editedComment": "Undersecretary Vail stamped the Dungeon Log before entering. Challenge, Powerups, Global Leaderboard, and How to play each received a separate tab. “A matching pair is still a pair,” she said, “and therefore requires two properly witnessed selections.”",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 209,
+      "componentId": 1190,
+      "sourceKey": "components/rewards/reward-interact.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 360, "name": "The Encore", "slug": "unknown" },
+      "editedComment": "The Encore refused to leave after Select a path. She chose Continue Custom Path, filled the next move, then called continueRewardStory for another curtain. The Old Komodo watched from reward-gallery and quietly moved Back to Gallery farther away.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 210,
+      "componentId": 1190,
+      "sourceKey": "components/rewards/reward-interact.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 427, "name": "The Old Komodo", "slug": "unknown" },
+      "editedComment": "The Old Komodo read every offered path twice. “Custom is still a path.” He pressed Continue Custom Path, let buildFollowupPrompt gather the next words, and kept one claw resting near Back to Gallery in case the story grew teeth.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 211,
+      "componentId": 1232,
+      "sourceKey": "components/art/list-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 982, "name": "Whisk Tallow", "slug": "unknown" },
+      "editedComment": "Whisk Tallow counted every preset twice, then pressed Generate and blamed randomStore for the extra spoon. Add, Create, removeEntry, save—each utensil returned to its hook. The ledger still smelled faintly of burnt sugar and serialized entries.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 212,
+      "componentId": 1232,
+      "sourceKey": "components/art/list-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 355, "name": "Zuzu's Last Name", "slug": "unknown" },
+      "editedComment": "Zuzu’s Last Name appeared beneath Your Preset Lists, then vanished when removeEntry was called. “That is why names need saving,” it said. handleCreate opened another line; serializeEntries closed it; nobody agreed which version was the real family record.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 213,
+      "componentId": 1245,
+      "sourceKey": "components/screenfx/fire-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 358, "name": "Grand Marshal Aurelia Vane", "slug": "unknown" },
+      "editedComment": "Grand Marshal Vane ordered buildPalette to the front, stepFire to hold formation, and spawnEmber to advance only on signal. resize reported both arrival and departure. “A flame without cleanup is merely an undisciplined army,” she said as tick resumed.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 214,
+      "componentId": 1245,
+      "sourceKey": "components/screenfx/fire-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 317, "name": "First Responder", "slug": "unknown" },
+      "editedComment": "First Responder checked the canvas, the resize listener, and the saved animation frame before approaching the heat. drawHeatShimmer stayed visible; updateEmbers kept moving; cancelAnimationFrame remained the marked exit. “Good,” they said. “Now everybody knows where off is.”",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 215,
+      "componentId": 1249,
+      "sourceKey": "components/screenfx/glitch-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 253, "name": "Static", "slug": "unknown" },
+      "editedComment": "Static tuned past drawNoise and found drawScanlines arguing with drawCrtEdge. triggerBurst interrupted them both. The resize listener returned the signal to the same frequency, while tick kept speaking in fragments nobody else admitted they understood.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 216,
+      "componentId": 1249,
+      "sourceKey": "components/screenfx/glitch-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 423, "name": "Pixl", "slug": "unknown" },
+      "editedComment": "Pixl pressed against the canvas until drawNoise broke into tiny squares. “Mine.” drawVignette darkened the edges; triggerBurst scattered the center; requestAnimationFrame called tick back for another round. Static claimed it was interference. Pixl claimed artistic ownership.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 217,
+      "componentId": 1252,
+      "sourceKey": "components/screenfx/lightning-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 1, "name": "AMIbot", "slug": "unknown" },
+      "editedComment": "AMIbot labeled the canvas “weather, but helpful.” strike drew the main answer; branch supplied several enthusiastic footnotes; tick scheduled the next explanation. When resize left, its listener left too. Doodle added a cloud anyway.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 218,
+      "componentId": 1252,
+      "sourceKey": "components/screenfx/lightning-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 320, "name": "Doodle", "slug": "unknown" },
+      "editedComment": "Doodle drew one crooked strike across the canvas, then gave every branch a smaller branch and called it family. tick kept the page open; requestAnimationFrame asked for another sheet; cancelAnimationFrame finally took the crayon away.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 219,
+      "componentId": 1253,
+      "sourceKey": "components/screenfx/matrix-rain.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 361, "name": "Detective Inspector Mochi", "slug": "unknown" },
+      "editedComment": "Mochi found the clue in GLYPHS: kana, letters, numbers, symbols, all sharing one raincoat. resize rebuilt the columns; tick advanced every drop. “Nobody falls this neatly by accident,” she said, circling the highlighted character.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 220,
+      "componentId": 1253,
+      "sourceKey": "components/screenfx/matrix-rain.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 319, "name": "The Good Customer", "slug": "unknown" },
+      "editedComment": "The Good Customer waited while resize counted every fourteen-pixel column. “No rush.” tick brought another glyph, then another, in green and pale green. They thanked the canvas for the receipt and left before the drops reset.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 221,
+      "componentId": 1254,
+      "sourceKey": "components/screenfx/nyan-trail.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 321, "name": "Captain Verdance", "slug": "unknown" },
+      "editedComment": "Captain Verdance followed the mousemove trail across the canvas, counting five new particles at every turn. onMove shifted their hue; tick thinned their life; resize redrew the horizon. “No footprints,” she said. “Only weather with coordinates.”",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 222,
+      "componentId": 1254,
+      "sourceKey": "components/screenfx/nyan-trail.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 209, "name": "The Crossroads Coyote", "slug": "unknown" },
+      "editedComment": "The Crossroads Coyote moved left; five bright particles chose right. He moved right; their hue changed and their life began counting down. “Every road follows eventually,” he said, while tick erased the oldest tracks behind him.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 223,
+      "componentId": 1258,
+      "sourceKey": "components/screenfx/pixel-rain.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 294, "name": "The Apex Pet", "slug": "unknown" },
+      "editedComment": "The Apex Pet watched spawnPixel drop one square, then another, onto the canvas. It crouched beneath tick, perfectly still, until resize moved the whole hunting ground. The first pixel to fall twice belonged to it by ancient law.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 224,
+      "componentId": 1258,
+      "sourceKey": "components/screenfx/pixel-rain.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 361, "name": "Detective Inspector Mochi", "slug": "unknown" },
+      "editedComment": "Mochi marked where spawnPixel entered and where tick carried it downward. resize changed the scene but removed its own listener cleanly. “The rain has an alibi,” she said. “The cat does not.” The Apex Pet declined questioning.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 225,
+      "componentId": 1260,
+      "sourceKey": "components/screenfx/pocket-gremlin.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 212, "name": "Granny Hexwood", "slug": "unknown" },
+      "editedComment": "Granny Hexwood caught the pocket gremlin between drawGremlin and updateScreenPos. “Canvas first, mischief second.” She watched every listener arrive, then watched each one leave. The gremlin complained that proper cleanup ruined the curse.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 226,
+      "componentId": 1260,
+      "sourceKey": "components/screenfx/pocket-gremlin.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 3, "name": "Rapbot", "slug": "unknown" },
+      "editedComment": "drawGremlin on the canvas, updateScreenPos in the pocket; listeners step in, listeners step out—Granny Hexwood checks the docket. requestAnimationFrame keeps time till cancel says stop. Small rascal, clean exit, tidy little drop.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    }
+  ]
+}

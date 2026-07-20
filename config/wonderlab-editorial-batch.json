@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "batchId": "wonderlab-source-grounded-quality-probe-001",
+  "batchId": "wonderlab-source-grounded-quality-probe-001-retry",
   "execute": true,
   "minimumProductionCommit": "201c46d846e2945e279732eb74b795d53e1f5610",
   "componentIds": [1951, 124],
@@ -12,7 +12,7 @@
   "expectedTargets": [
     { "componentId": 1951, "kind": "CHARACTER", "id": 365 },
     { "componentId": 1951, "kind": "BOT", "id": 12 },
-    { "componentId": 124, "kind": "CHARACTER", "id": 242 },
-    { "componentId": 124, "kind": "BOT", "id": 398 }
+    { "componentId": 124, "kind": "BOT", "id": 398 },
+    { "componentId": 124, "kind": "CHARACTER", "id": 242 }
   ]
 }

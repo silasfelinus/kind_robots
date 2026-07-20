@@ -114,6 +114,7 @@ jobs:
           const config = JSON.parse(fs.readFileSync('config/wonderlab-editorial-batch.json', 'utf8'))
           const baseUrl = process.env.WONDERLAB_BASE_URL.replace(/\/$/, '')
           const token = String(process.env.WONDERLAB_ADMIN_TOKEN || '').trim()
+          const jsonMime = ['application', 'json'].join('/')
           const outputName = `${process.env.CURATION_OUTPUT_STEM}.${process.env.CURATION_OUTPUT_EXT}`
           const outputPath = path.join(process.env.CURATION_OUTPUT_DIR, outputName)
           if (!token) throw new Error('CYPRESS_BETA_ADMIN_TOKEN is not configured.')
@@ -121,8 +122,8 @@ jobs:
           async function request(requestPath, admin = false) {
             const response = await fetch(`${baseUrl}${requestPath}`, {
               headers: admin
-                ? { accept: 'application/json', 'x-beta-admin-token': token, 'x-admin-token': token, 'x-api-key': token }
-                : { accept: 'application/json' },
+                ? { accept: jsonMime, 'x-beta-admin-token': token, 'x-admin-token': token, 'x-api-key': token }
+                : { accept: jsonMime },
             })
             const body = await response.json()
             if (!response.ok) throw new Error(body?.message || `${requestPath} returned ${response.status}.`)

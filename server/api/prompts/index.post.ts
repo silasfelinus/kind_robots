@@ -3,6 +3,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { assertOnlyFields } from '../../utils/chatApi'
 import { awardKarma } from '../../utils/karma'
 import type { Prisma, Prompt } from '~/prisma/generated/prisma/client'
 import { promptResourceSelect } from './selects'
@@ -11,6 +12,48 @@ type PromptCreateBody = Partial<Omit<Prompt, 'userId'>> &
   Record<string, unknown> & {
     CreationSource?: string
   }
+
+// Every persisted Prompt column plus the identity/system/relation keys a
+// round-tripped Prompt object can echo, plus the `CreationSource` alias.
+// Anything outside this set is rejected (400) instead of silently dropped
+// (audit F-4).
+const promptCreateFields = new Set<string>([
+  // persisted / read on create
+  'prompt',
+  'artPrompt',
+  'creationSource',
+  'CreationSource',
+  'isMature',
+  'isPublic',
+  'isActive',
+  'botId',
+  'artImageId',
+  // identity/system + relation keys tolerated on a round-tripped row
+  'id',
+  'createdAt',
+  'updatedAt',
+  'userId',
+  'serverId',
+  'imagePath',
+  'artStatus',
+  'batchId',
+  'batchIndex',
+  'queuePosition',
+  'startedAt',
+  'completedAt',
+  'errorMessage',
+  'notifiedAt',
+  'isBounty',
+  'bountyStatus',
+  'claimerId',
+  'Chats',
+  'ArtImage',
+  'Bot',
+  'Claimer',
+  'Server',
+  'User',
+  'Reactions',
+])
 
 function getPositiveIntegerOrUndefined(value: unknown): number | undefined {
   const numericValue = Number(value)
@@ -99,6 +142,8 @@ export default defineEventHandler(async (event) => {
         message: 'The "prompt" field is required and must be a string.',
       })
     }
+
+    assertOnlyFields(promptData, promptCreateFields, 'Prompt')
 
     const authenticatedUserId = user.id
     assertOwnershipMatchesAuthentication(promptData, authenticatedUserId)

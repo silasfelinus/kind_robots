@@ -51,4 +51,21 @@ describe('Prompt ownership boundary', () => {
       expect(response.body.message).to.include('Ownership is server-owned')
     })
   })
+
+  it('rejects unknown fields on Prompt creation', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: `${apiBase}/prompts`,
+      headers: adminHeaders(adminToken),
+      body: {
+        prompt: `Cypress unknown field ${Date.now()}`,
+        bogusField: 'nope',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Unsupported Prompt fields')
+    })
+  })
 })

@@ -134,6 +134,25 @@ describe('Resource Management API Tests', () => {
     })
   })
 
+  it('rejects unknown fields on Resource creation', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl,
+      headers: headers(),
+      body: {
+        name: `Unknown-${uniqueResourceName}`,
+        resourceType: 'URL',
+        supportedServer: 'GENERIC',
+        bogusField: 'nope',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Unsupported Resource fields')
+    })
+  })
+
   it('creates one Resource with a lean mutation response', () => {
     cy.request<ApiResponse<ResourceRow>>({
       method: 'POST',

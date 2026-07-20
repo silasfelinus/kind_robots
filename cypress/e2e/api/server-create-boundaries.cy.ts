@@ -79,6 +79,25 @@ describe('Server create boundaries', () => {
     })
   })
 
+  it('rejects unknown fields on Server creation', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: baseUrl(),
+      headers: headers(),
+      body: {
+        title: `Unknown Field Server ${stamp}`,
+        serverType: 'OLLAMA',
+        baseUrl: 'http://127.0.0.1:11434',
+        bogusField: 'nope',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Unsupported Server fields')
+    })
+  })
+
   it('creates and updates an OLLAMA server with a masked API key', () => {
     cy.request<ApiResponse<ServerRow>>({
       method: 'POST',

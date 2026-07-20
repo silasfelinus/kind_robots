@@ -17,6 +17,48 @@ export type ResourceCreateBody = Partial<Omit<Resource, 'userId'>> &
     usedInImageIds?: number[]
   }
 
+// Every persisted Resource column plus the identity/system/relation keys a
+// round-tripped Resource object can echo, plus the relation-alias arrays the
+// builder accepts. Anything outside this set is rejected (400) instead of
+// silently dropped (audit F-4).
+export const resourceCreateFields = new Set<string>([
+  // persisted / read by buildResourceCreateInput
+  'name',
+  'customLabel',
+  'MediaPath',
+  'customUrl',
+  'civitaiUrl',
+  'huggingUrl',
+  'localPath',
+  'description',
+  'isMature',
+  'resourceType',
+  'artImageId',
+  'generation',
+  'supportedServer',
+  'isPublic',
+  'isActive',
+  'artPrompt',
+  'imagePath',
+  'slug',
+  // relation-alias inputs the builder understands
+  'connectServerIds',
+  'serverIds',
+  'connectLoraImageIds',
+  'usedInImageIds',
+  // identity/system + relation keys tolerated on a round-tripped row
+  'id',
+  'createdAt',
+  'updatedAt',
+  'userId',
+  'ArtImages',
+  'Reactions',
+  'ArtImage',
+  'User',
+  'UsedInImages',
+  'Servers',
+])
+
 export type ResourceBatchSkip = {
   name: string
   reason: string

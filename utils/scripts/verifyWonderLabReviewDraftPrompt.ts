@@ -1,6 +1,7 @@
 // /utils/scripts/verifyWonderLabReviewDraftPrompt.ts
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import type { WonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentManifest'
 import {
   buildWonderLabReviewDraftPrompt,
   type WonderLabNarratorThreadExcerpt,
@@ -41,6 +42,28 @@ const botManager: WonderLabExhibitProfile = {
   tags: ['bot', 'builder', 'narrator'],
 }
 
+const botManagerEvidence: WonderLabComponentSourceEvidence = {
+  version: 1,
+  lineCount: 420,
+  blocks: ['template', 'script'],
+  props: ['compact', 'showImages'],
+  emits: ['saved'],
+  customComponents: ['bot-card'],
+  nativeElements: ['button', 'section', 'select'],
+  staticText: ['Add Bot', 'Choose a bot'],
+  functionNames: ['openBotEditor'],
+  localImports: ['botStore'],
+  facts: [
+    'Declared props: compact, showImages.',
+    'Declared emitted events: saved.',
+    'Template composes custom components: bot-card.',
+    'Template uses native elements: button, section, select.',
+    'Static interface text includes: Add Bot, Choose a bot.',
+    'Source-defined functions include: openBotEditor.',
+    'Local source imports include: botStore.',
+  ],
+}
+
 const threads: WonderLabNarratorThreadExcerpt[] = [
   {
     topicKey: 'purpose',
@@ -79,6 +102,7 @@ const prompt = buildWonderLabReviewDraftPrompt(dotti, botManager, {
     'shared expertise: bot, builder',
   ],
   narratorThreads: threads,
+  sourceEvidence: botManagerEvidence,
   minimumWords: 50,
   maximumWords: 100,
 })
@@ -86,12 +110,17 @@ const prompt = buildWonderLabReviewDraftPrompt(dotti, botManager, {
 assert.match(prompt.system, /Write as DottiB0t/)
 assert.match(prompt.system, /between 50 and 100 words/)
 assert.match(prompt.system, /Never claim that it has been published, tested live/)
+assert.match(prompt.system, /Ground every claim.*SOURCE-CODE EVIDENCE/)
+assert.match(prompt.system, /Do not invent colors, animation quality/)
 assert.match(prompt.system, /Return JSON/)
 
 assert.match(prompt.user, /Canonical voice: Rapid delighted mad-scientist patter/)
 assert.match(prompt.user, /Sample dialogue: Oho!/)
 assert.match(prompt.user, /Exhibit: Bot Manager/)
 assert.match(prompt.user, /components\/bots\/bot-manager\.vue/)
+assert.match(prompt.user, /SOURCE-CODE EVIDENCE/)
+assert.match(prompt.user, /Declared props: compact, showImages/)
+assert.match(prompt.user, /Template composes custom components: bot-card/)
 assert.match(prompt.user, /Dotti bot-building affinity/)
 assert.match(prompt.user, /NARRATOR THREAD VOICE REFERENCES/)
 assert.match(prompt.user, /Do not quote or continue the threads/)
@@ -121,6 +150,11 @@ assert.deepEqual(prompt.provenance.narratorThreadTopics, [
 assert.equal(prompt.provenance.reviewerKind, 'BOT')
 assert.equal(prompt.provenance.reviewerId, 410)
 assert.equal(prompt.provenance.exhibitId, 1121)
+assert.equal(prompt.provenance.sourceEvidenceVersion, 1)
+assert.deepEqual(
+  prompt.provenance.sourceEvidenceFacts,
+  botManagerEvidence.facts,
+)
 assert.equal(
   prompt.provenance.exhibitSourcePath,
   'components/bots/bot-manager.vue',
@@ -146,6 +180,7 @@ const repeated = buildWonderLabReviewDraftPrompt(dotti, botManager, {
     'shared expertise: bot, builder',
   ],
   narratorThreads: [...threads].reverse(),
+  sourceEvidence: botManagerEvidence,
   minimumWords: 50,
   maximumWords: 100,
 })
@@ -166,6 +201,7 @@ assert.throws(
         name: 'Unvoiced Reviewer',
       },
       botManager,
+      { sourceEvidence: botManagerEvidence },
     ),
   /has no canonical voice or sample dialogue/,
 )
@@ -177,11 +213,25 @@ const incomplete = buildWonderLabReviewDraftPrompt(
     name: 'Unvoiced Reviewer',
   },
   botManager,
-  { allowIncompleteVoice: true },
+  {
+    allowIncompleteVoice: true,
+    sourceEvidence: botManagerEvidence,
+  },
 )
 assert.deepEqual(incomplete.provenance.voiceSources, [])
 assert.match(incomplete.user, /Canonical voice: Not provided/)
 assert.match(incomplete.user, /Sample dialogue: Not provided/)
+
+assert.throws(
+  () =>
+    buildWonderLabReviewDraftPrompt(dotti, botManager, {
+      sourceEvidence: {
+        ...botManagerEvidence,
+        facts: [],
+      },
+    }),
+  /No source-code evidence is available/,
+)
 
 const veryLong = 'z'.repeat(5_000)
 const boundedPrompt = buildWonderLabReviewDraftPrompt(
@@ -207,20 +257,35 @@ const boundedPrompt = buildWonderLabReviewDraftPrompt(
         guidance: veryLong,
       },
     ],
+    sourceEvidence: {
+      ...botManagerEvidence,
+      facts: Array.from({ length: 20 }, (_, index) => `${index}-${veryLong}`),
+    },
     minimumWords: 1,
     maximumWords: 999,
   },
 )
 assert.match(boundedPrompt.system, /between 20 and 300 words/)
 assert.ok(boundedPrompt.provenance.affinityReasons.length <= 8)
-assert.ok(boundedPrompt.provenance.affinityReasons.every((reason) => reason.length <= 240))
-assert.ok(boundedPrompt.user.length < 10_000)
+assert.ok(
+  boundedPrompt.provenance.affinityReasons.every(
+    (reason) => reason.length <= 240,
+  ),
+)
+assert.ok(boundedPrompt.provenance.sourceEvidenceFacts.length <= 8)
+assert.ok(
+  boundedPrompt.provenance.sourceEvidenceFacts.every(
+    (fact) => fact.length <= 500,
+  ),
+)
+assert.ok(boundedPrompt.user.length < 15_000)
 assert.match(boundedPrompt.user, /…/)
 
 const source = await readFile('utils/wonderlab/reviewDraftPrompt.ts', 'utf8')
 assert.doesNotMatch(source, /Math\.random|\$fetch|prisma\.|fetch\(|openai|anthropic/i)
 assert.match(source, /draft is for human approval/i)
-assert.match(source, /Do not invent component behavior/)
+assert.match(source, /SOURCE-CODE EVIDENCE/)
+assert.match(source, /Do not invent colors/)
 assert.match(source, /Do not quote or continue the threads/)
 assert.match(source, /additionalProperties: false/)
 

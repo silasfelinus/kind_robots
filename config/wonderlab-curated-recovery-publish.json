@@ -1,35 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-ami-butterfly-001",
-  "minimumProductionCommit": "8a2cd8b2859d8214d94ed9576f756ced477876b6",
+  "batchId": "wonderlab-curated-recovery-first-batch-remainder-001",
+  "minimumProductionCommit": "444d8b885d7ec97d9a00d2728db2d1bdaa2df3de",
   "publications": [
     {
-      "draftId": 19,
-      "componentId": 124,
-      "sourceKey": "components/butterfly/ami-butterfly.vue",
-      "expectedStatus": "FAILED",
+      "draftId": 3,
+      "componentId": 126,
+      "sourceKey": "components/butterfly/ami-link-butterflies.vue",
+      "expectedStatus": "PROPOSED",
       "reviewer": {
         "kind": "CHARACTER",
-        "id": 242,
-        "name": "Load-Bearing Lumen",
-        "slug": "load-bearing-lumen"
+        "id": 318,
+        "name": "The Whole Swarm",
+        "slug": "the-whole-swarm"
       },
-      "editedComment": "Oh, I’m only the decorative one, honestly—but this source gives the flutter real supports. It defines animate, handleResize, and updatePosition; schedules animate with requestAnimationFrame; cancels the saved frame; and adds and removes the resize listener with the same handleResize function. The template binds background, left, top, and transform, while scoped styles define flutter-left and flutter-right keyframes. butterflyStore supplies analogousColor, complementaryColor, and randomColor calls. Nothing load-bearing here. Please do not inspect the event cleanup too closely.",
+      "editedComment": "We are the button and the swarm it releases. The source begins with buttonText set to “Home of AMIbot” and showAmiSwarm set false. handleButtonClick flips showAmiSwarm, renders AmiSwarm when true, changes the label to “No More butterflies?”, and routes to /kindrobots/amibot; the return branch says “Release The Butterflies” and routes to /. We do not have to imagine the gathering. The component declares the exact moment many wings become one visible swarm—and the exact path home.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 20,
-      "componentId": 124,
-      "sourceKey": "components/butterfly/ami-butterfly.vue",
-      "expectedStatus": "FAILED",
+      "draftId": 4,
+      "componentId": 126,
+      "sourceKey": "components/butterfly/ami-link-butterflies.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 333,
+        "name": "The Keeper of the Net",
+        "slug": "the-keeper-of-the-net"
+      },
+      "editedComment": "Here, take one more net: this component gives the next pair of hands one clear button. buttonText begins as “Home of AMIbot,” showAmiSwarm begins false, and handleButtonClick toggles the swarm. When the value turns true, the template renders AmiSwarm, the label becomes “No More butterflies?”, and the router moves to /kindrobots/amibot. When it turns false, the label becomes “Release The Butterflies” and the router returns to /. Small instructions, named plainly, are enough to launch the next hope.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 9,
+      "componentId": 127,
+      "sourceKey": "components/butterfly/ami-link-iframe.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 260,
+        "name": "Patch",
+        "slug": "patch"
+      },
+      "editedComment": "See this little button? It says “AMI’s Fundraiser!” and that is the whole kindness made visible. showIframe sets isLoading true, waits two seconds, assigns https://www.againstmalaria.com/amibot to iframeSrc, reveals the iframe, and clears the loading flag. The template composes SiteLogo, hides the button while loading, shows a spinner, and renders the iframe only when iframeVisible is true. A thousand spare hopes do not need a vague promise here; the source gives them a destination.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 10,
+      "componentId": 127,
+      "sourceKey": "components/butterfly/ami-link-iframe.vue",
+      "expectedStatus": "PROPOSED",
       "reviewer": {
         "kind": "BOT",
-        "id": 398,
-        "name": "AMI",
-        "slug": "ami"
+        "id": 433,
+        "name": "AMI Butterfly",
+        "slug": "ami-butterfly"
       },
-      "editedComment": "The source of this butterfly is a small choreography rather than a painted promise. It imports butterflyStore and makeNoise2D, defines animate, handleResize, and updatePosition, and schedules animate with requestAnimationFrame. It binds background, left, top, and transform, then declares scoped flutter-left and flutter-right keyframes. The resize listener is both added and removed through handleResize, and the stored animation frame is cancelled. The swarm’s color vocabulary comes from explicit analogousColor, complementaryColor, and randomColor calls. These are the wings the code actually shows us.",
+      "editedComment": "A thousand wings, one declared route. The component renders SiteLogo and a button labeled “AMI’s Fundraiser!” while isLoading is false. showIframe turns loading on, waits two seconds, sets iframeSrc to https://www.againstmalaria.com/amibot, reveals the iframe, and turns loading off. During that interval the template renders its spinner; afterward it renders the iframe at full width and 600 pixels high with no border. This is the useful kind of migration: signal, wait state, destination, and fundraiser written into the source.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 11,
+      "componentId": 885,
+      "sourceKey": "components/characters/character-gallery.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 243,
+        "name": "Recursion",
+        "slug": "recursion"
+      },
+      "editedComment": "Okay, yes, this is a character gallery—but it is also a beginning selector with a lot of declared choices still warm. Its props include variant, showImages, showDescriptions, showStats, allowAdd, allowEdit, allowClone, allowDelete, compact, and autoLoad. Dropdown mode names “Current Character,” “Choose a character,” “Add Character,” Clone, and Edit; the empty state offers “Make the first weirdo.” Then character-card receives selected, compact, image, description, metadata, stats, and action flags. Pick a beginning; the source has already labeled the doors.",
+      "rating": 4,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 12,
+      "componentId": 885,
+      "sourceKey": "components/characters/character-gallery.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 394,
+        "name": "Pip the Lampkeeper",
+        "slug": "pip-the-lampkeeper"
+      },
+      "editedComment": "Pip brought the lamp closer and found the gallery keeping several small states carefully named. It renders a loading spinner while either loading flag is true, an error panel from characterStore.error, a dropdown with “Current Character” and “Choose a character,” and an empty state with “Make the first weirdo.” The component also composes add-character and character-card, with explicit controls for adding, editing, cloning, deleting, images, descriptions, metadata, and stats. Pip’s records call this good tending: the source remembers what to show when the glasshouse is full, empty, busy, or troubled.",
       "rating": 4,
       "reactionType": "LOVED"
     }

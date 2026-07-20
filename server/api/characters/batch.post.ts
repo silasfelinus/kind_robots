@@ -10,6 +10,7 @@ import {
 } from '../../utils/characterSlug'
 import {
   assertCharacterMutationInput,
+  assertCharacterRelationsAttachable,
   buildCharacterCreateInput,
   CHARACTER_BATCH_LIMIT,
   characterBatchCreateFields,
@@ -172,15 +173,22 @@ export default defineEventHandler(async (event) => {
     }
 
     const slugs = await resolveCharacterSlugs(characters, user.id)
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
     const createInputs = await Promise.all(
-      characters.map((characterData, index) =>
-        buildCharacterCreateInput({
+      characters.map(async (characterData, index) => {
+        await assertCharacterRelationsAttachable(
+          characterData,
+          user.id,
+          isAdmin,
+        )
+
+        return buildCharacterCreateInput({
           rawInput: characterData,
           userId: user.id,
           slug: slugs[index] ?? null,
           batch: true,
-        }),
-      ),
+        })
+      }),
     )
 
     const data = await prisma.$transaction(

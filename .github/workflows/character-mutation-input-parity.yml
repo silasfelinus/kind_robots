@@ -10,6 +10,7 @@ on:
       - 'server/api/characters/[id].patch.ts'
       - 'server/api/characters/batch.post.ts'
       - 'cypress/e2e/api/character-input-boundary.cy.ts'
+      - 'cypress/e2e/api/character-relation-permission.cy.ts'
       - 'utils/scripts/verifyCharacterMutationInputParity.ts'
       - '.github/workflows/character-mutation-input-parity.yml'
   workflow_dispatch:

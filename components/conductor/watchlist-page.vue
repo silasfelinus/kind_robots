@@ -1,6 +1,10 @@
 <!-- /components/conductor/watchlist-page.vue -->
 <template>
-  <ProjectFrontPage slug="media-watchlist" :fallback="config" />
+  <ProjectFrontPage slug="media-watchlist" :fallback="config">
+    <template #interactive>
+      <WatchlistBrowse />
+    </template>
+  </ProjectFrontPage>
 </template>
 
 <script setup lang="ts">
@@ -38,8 +42,9 @@ const config: ProjectFrontConfig = {
     done: [
       'Real viewing log parsed and validated (2,440 entries, 12 years)',
       'Import + normalization rules for 12 media types',
+      'MediaEntry data model, browse + stats API, and a minimal browse UI',
     ],
-    next: ['MediaEntry data model and API', 'List + detail UI'],
+    next: ['Entry detail view + private review editor', 'CSV export'],
   },
 }
 </script>

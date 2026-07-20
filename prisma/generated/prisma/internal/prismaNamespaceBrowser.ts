@@ -119,7 +119,8 @@ export const ModelName = {
   DirectMessage: 'DirectMessage',
   Notification: 'Notification',
   GithubInstallation: 'GithubInstallation',
-  AppRepo: 'AppRepo'
+  AppRepo: 'AppRepo',
+  MediaEntry: 'MediaEntry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1553,6 +1554,38 @@ export const AppRepoScalarFieldEnum = {
 export type AppRepoScalarFieldEnum = (typeof AppRepoScalarFieldEnum)[keyof typeof AppRepoScalarFieldEnum]
 
 
+export const MediaEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  year: 'year',
+  mediaType: 'mediaType',
+  title: 'title',
+  starred: 'starred',
+  rewatch: 'rewatch',
+  releaseYear: 'releaseYear',
+  watchedMonth: 'watchedMonth',
+  watchedDay: 'watchedDay',
+  dateRaw: 'dateRaw',
+  season: 'season',
+  author: 'author',
+  pageCount: 'pageCount',
+  durationHours: 'durationHours',
+  issueCount: 'issueCount',
+  issueRange: 'issueRange',
+  review: 'review',
+  reviewPublic: 'reviewPublic',
+  rating: 'rating',
+  externalId: 'externalId',
+  externalUrl: 'externalUrl',
+  notes: 'notes',
+  sourceFile: 'sourceFile'
+} as const
+
+export type MediaEntryScalarFieldEnum = (typeof MediaEntryScalarFieldEnum)[keyof typeof MediaEntryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2377,4 +2410,19 @@ export const AppRepoOrderByRelevanceFieldEnum = {
 } as const
 
 export type AppRepoOrderByRelevanceFieldEnum = (typeof AppRepoOrderByRelevanceFieldEnum)[keyof typeof AppRepoOrderByRelevanceFieldEnum]
+
+
+export const MediaEntryOrderByRelevanceFieldEnum = {
+  title: 'title',
+  dateRaw: 'dateRaw',
+  author: 'author',
+  issueRange: 'issueRange',
+  review: 'review',
+  externalId: 'externalId',
+  externalUrl: 'externalUrl',
+  notes: 'notes',
+  sourceFile: 'sourceFile'
+} as const
+
+export type MediaEntryOrderByRelevanceFieldEnum = (typeof MediaEntryOrderByRelevanceFieldEnum)[keyof typeof MediaEntryOrderByRelevanceFieldEnum]
 

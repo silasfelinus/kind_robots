@@ -550,6 +550,65 @@ function assertFound(
   }
 }
 
+// Permission gate for relation connects: a non-admin may only attach public or
+// self-owned ArtImage/Dream/Character targets. Composes with the existence check
+// (which runs inside the builders) — it only counts rows that exist AND are
+// private AND owned by someone else, so a missing ID falls through to the 404
+// existence check instead of being masked as a 403 here.
+export async function assertScenarioRelationsAttachable(
+  body: {
+    artImageId?: unknown
+    dreamIds?: unknown
+    characterIds?: unknown
+  },
+  userId: number,
+  isAdmin: boolean,
+): Promise<void> {
+  if (isAdmin) return
+
+  const artImageId = normalizeScenarioNullableId(body.artImageId, 'artImageId')
+  const artImageIds = typeof artImageId === 'number' ? [artImageId] : []
+  const dreamIds = normalizeScenarioIdArray(body.dreamIds, 'dreamIds') ?? []
+  const characterIds =
+    normalizeScenarioIdArray(body.characterIds, 'characterIds') ?? []
+
+  const notAttachable = { NOT: { OR: [{ userId }, { isPublic: true }] } }
+
+  const [artForbidden, dreamForbidden, characterForbidden] = await Promise.all([
+    artImageIds.length
+      ? prisma.artImage.count({
+          where: { id: { in: artImageIds }, ...notAttachable },
+        })
+      : 0,
+    dreamIds.length
+      ? prisma.dream.count({
+          where: { id: { in: dreamIds }, ...notAttachable },
+        })
+      : 0,
+    characterIds.length
+      ? prisma.character.count({
+          where: { id: { in: characterIds }, ...notAttachable },
+        })
+      : 0,
+  ])
+
+  const forbiddenLabel =
+    artForbidden > 0
+      ? 'ArtImage'
+      : dreamForbidden > 0
+        ? 'Dream'
+        : characterForbidden > 0
+          ? 'Character'
+          : null
+
+  if (forbiddenLabel) {
+    throw createError({
+      statusCode: 403,
+      message: `You do not have permission to attach one or more ${forbiddenLabel} records to this Scenario.`,
+    })
+  }
+}
+
 export async function assertScenarioRelationsExist(input: {
   artImageId?: number | null
   dreamIds?: number[]

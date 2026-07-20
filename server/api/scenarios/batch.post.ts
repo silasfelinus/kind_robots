@@ -3,6 +3,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { userIsAdmin } from '@/server/utils/authUser'
 import {
   buildScenarioCreateInput,
   fallbackScenarioTitle,
@@ -13,7 +14,10 @@ import {
   type ScenarioPostInput,
   type SkippedScenario,
 } from './create'
-import { SCENARIO_BATCH_LIMIT } from './mutation'
+import {
+  assertScenarioRelationsAttachable,
+  SCENARIO_BATCH_LIMIT,
+} from './mutation'
 import {
   scenarioMutationSelect,
   type ScenarioMutationResult,
@@ -55,6 +59,12 @@ export default defineEventHandler(async (event) => {
       const fallbackTitle = fallbackScenarioTitle(scenarioData)
 
       try {
+        await assertScenarioRelationsAttachable(
+          scenarioData,
+          user.id,
+          userIsAdmin(user),
+        )
+
         const createInput = await buildScenarioCreateInput(
           scenarioData,
           user.id,

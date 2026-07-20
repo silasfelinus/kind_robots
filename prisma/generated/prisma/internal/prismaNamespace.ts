@@ -450,7 +450,9 @@ export const ModelName = {
   Conversation: 'Conversation',
   ConversationParticipant: 'ConversationParticipant',
   DirectMessage: 'DirectMessage',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  GithubInstallation: 'GithubInstallation',
+  AppRepo: 'AppRepo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -466,7 +468,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification"
+    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4892,6 +4894,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GithubInstallation: {
+      payload: Prisma.$GithubInstallationPayload<ExtArgs>
+      fields: Prisma.GithubInstallationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GithubInstallationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GithubInstallationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>
+        }
+        findFirst: {
+          args: Prisma.GithubInstallationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GithubInstallationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>
+        }
+        findMany: {
+          args: Prisma.GithubInstallationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>[]
+        }
+        create: {
+          args: Prisma.GithubInstallationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>
+        }
+        createMany: {
+          args: Prisma.GithubInstallationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.GithubInstallationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>
+        }
+        update: {
+          args: Prisma.GithubInstallationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>
+        }
+        deleteMany: {
+          args: Prisma.GithubInstallationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GithubInstallationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.GithubInstallationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubInstallationPayload>
+        }
+        aggregate: {
+          args: Prisma.GithubInstallationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGithubInstallation>
+        }
+        groupBy: {
+          args: Prisma.GithubInstallationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GithubInstallationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GithubInstallationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GithubInstallationCountAggregateOutputType> | number
+        }
+      }
+    }
+    AppRepo: {
+      payload: Prisma.$AppRepoPayload<ExtArgs>
+      fields: Prisma.AppRepoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AppRepoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AppRepoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>
+        }
+        findFirst: {
+          args: Prisma.AppRepoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AppRepoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>
+        }
+        findMany: {
+          args: Prisma.AppRepoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>[]
+        }
+        create: {
+          args: Prisma.AppRepoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>
+        }
+        createMany: {
+          args: Prisma.AppRepoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AppRepoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>
+        }
+        update: {
+          args: Prisma.AppRepoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>
+        }
+        deleteMany: {
+          args: Prisma.AppRepoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AppRepoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AppRepoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppRepoPayload>
+        }
+        aggregate: {
+          args: Prisma.AppRepoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAppRepo>
+        }
+        groupBy: {
+          args: Prisma.AppRepoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AppRepoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AppRepoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AppRepoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6317,6 +6451,35 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const GithubInstallationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  installationId: 'installationId',
+  userId: 'userId',
+  accountLogin: 'accountLogin',
+  suspendedAt: 'suspendedAt'
+} as const
+
+export type GithubInstallationScalarFieldEnum = (typeof GithubInstallationScalarFieldEnum)[keyof typeof GithubInstallationScalarFieldEnum]
+
+
+export const AppRepoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  owner: 'owner',
+  repo: 'repo',
+  subPath: 'subPath',
+  installationId: 'installationId',
+  dreamId: 'dreamId',
+  userId: 'userId'
+} as const
+
+export type AppRepoScalarFieldEnum = (typeof AppRepoScalarFieldEnum)[keyof typeof AppRepoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -7126,6 +7289,23 @@ export const NotificationOrderByRelevanceFieldEnum = {
 export type NotificationOrderByRelevanceFieldEnum = (typeof NotificationOrderByRelevanceFieldEnum)[keyof typeof NotificationOrderByRelevanceFieldEnum]
 
 
+export const GithubInstallationOrderByRelevanceFieldEnum = {
+  accountLogin: 'accountLogin'
+} as const
+
+export type GithubInstallationOrderByRelevanceFieldEnum = (typeof GithubInstallationOrderByRelevanceFieldEnum)[keyof typeof GithubInstallationOrderByRelevanceFieldEnum]
+
+
+export const AppRepoOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  owner: 'owner',
+  repo: 'repo',
+  subPath: 'subPath'
+} as const
+
+export type AppRepoOrderByRelevanceFieldEnum = (typeof AppRepoOrderByRelevanceFieldEnum)[keyof typeof AppRepoOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -7530,6 +7710,13 @@ export type EnumAuthTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>
     
 
+
+/**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -7707,6 +7894,8 @@ export type GlobalOmitConfig = {
   conversationParticipant?: Prisma.ConversationParticipantOmit
   directMessage?: Prisma.DirectMessageOmit
   notification?: Prisma.NotificationOmit
+  githubInstallation?: Prisma.GithubInstallationOmit
+  appRepo?: Prisma.AppRepoOmit
 }
 
 /* Types for Logging */

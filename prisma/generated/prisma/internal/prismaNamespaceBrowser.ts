@@ -117,7 +117,9 @@ export const ModelName = {
   Conversation: 'Conversation',
   ConversationParticipant: 'ConversationParticipant',
   DirectMessage: 'DirectMessage',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  GithubInstallation: 'GithubInstallation',
+  AppRepo: 'AppRepo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1522,6 +1524,35 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const GithubInstallationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  installationId: 'installationId',
+  userId: 'userId',
+  accountLogin: 'accountLogin',
+  suspendedAt: 'suspendedAt'
+} as const
+
+export type GithubInstallationScalarFieldEnum = (typeof GithubInstallationScalarFieldEnum)[keyof typeof GithubInstallationScalarFieldEnum]
+
+
+export const AppRepoScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  owner: 'owner',
+  repo: 'repo',
+  subPath: 'subPath',
+  installationId: 'installationId',
+  dreamId: 'dreamId',
+  userId: 'userId'
+} as const
+
+export type AppRepoScalarFieldEnum = (typeof AppRepoScalarFieldEnum)[keyof typeof AppRepoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2329,4 +2360,21 @@ export const NotificationOrderByRelevanceFieldEnum = {
 } as const
 
 export type NotificationOrderByRelevanceFieldEnum = (typeof NotificationOrderByRelevanceFieldEnum)[keyof typeof NotificationOrderByRelevanceFieldEnum]
+
+
+export const GithubInstallationOrderByRelevanceFieldEnum = {
+  accountLogin: 'accountLogin'
+} as const
+
+export type GithubInstallationOrderByRelevanceFieldEnum = (typeof GithubInstallationOrderByRelevanceFieldEnum)[keyof typeof GithubInstallationOrderByRelevanceFieldEnum]
+
+
+export const AppRepoOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  owner: 'owner',
+  repo: 'repo',
+  subPath: 'subPath'
+} as const
+
+export type AppRepoOrderByRelevanceFieldEnum = (typeof AppRepoOrderByRelevanceFieldEnum)[keyof typeof AppRepoOrderByRelevanceFieldEnum]
 

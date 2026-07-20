@@ -414,3 +414,20 @@ export type DirectMessage = Prisma.DirectMessageModel
  * 
  */
 export type Notification = Prisma.NotificationModel
+/**
+ * Model GithubInstallation
+ * AppMaker GitHub App integration (appmaker/t-008, GITHUB-APP-DESIGN.md §4).
+ * One row per user who has installed the kind-robots-appmaker GitHub App on
+ * their account/org. Never stores a credential — only the installation id,
+ * which is useless without the app's private key (held server-side only).
+ * suspendedAt tracks the installation.suspend/unsuspend webhook events.
+ */
+export type GithubInstallation = Prisma.GithubInstallationModel
+/**
+ * Model AppRepo
+ * The slug -> repo mapping for an AppMaker app (GITHUB-APP-DESIGN.md §4).
+ * installationId null means the app lives in kind_robots' own monorepo
+ * (conductor's own token, subPath points at apps/<slug>); non-null means a
+ * graduated/external repo reached via the linked GithubInstallation's token.
+ */
+export type AppRepo = Prisma.AppRepoModel

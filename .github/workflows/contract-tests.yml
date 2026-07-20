@@ -97,6 +97,12 @@ jobs:
       - name: Capture-group guard checker self-test
         run: npm run test:capture-group-guards-selftest
 
+      - name: Conductor API auth-guard checker self-test
+        run: npm run test:conductor-api-auth-guards-selftest
+
+      - name: Conductor API auth-guard contract
+        run: npm run test:conductor-api-auth-guards
+
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 

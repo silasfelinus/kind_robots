@@ -61,29 +61,32 @@ only when it matches.
   `projectMutationSelect` instead of the heavy `projectInclude` graph, matching
   create/PATCH (PR #611).
 
+### In review (built; awaiting smoke test against the running app)
+- **F-2 residual** — `art/image/[id].patch` now existence + permission gates
+  `serverId`/`checkpointResourceId` (server keys bypass), and the
+  `reactions/art` / `reactions/dream` sub-patches now visibility-check their
+  target (PR #628).
+- **F-4** — the `bots` (PR #623) and `prompts`/`resources`/`server` (PR #624)
+  create paths now reject unknown fields via an allowlist + `assertOnlyFields`,
+  each carrying a full round-trip compatibility set. These round-trip whole
+  `Partial<Model>` payloads from their stores, so they should ship only after a
+  create is confirmed against the running app (a genuinely-unknown key 400s; a
+  legitimate column would need adding to the compat set).
+
 ### Remaining — ranked
-
-- **F-2 (residual, medium): relation-connect IDs not permission-checked** on
-  the paths that were not part of the bots/projects fix:
-  - `art/image/[id].patch` — `serverId`/`checkpointResourceId` are set as raw
-    scalars with no existence/permission check (machine-auth route; typically set
-    by the render pipeline, so lower exposure).
-  - `reactions/art` & `reactions/dream` sub-patches — target not visibility-checked
-    (these have no first-party callers; the main `/api/reactions` route is gated).
-  Recommend the same `assert*RelationsAttachable` gate used elsewhere.
-
-- **F-4 (low, cosmetic): input contract is silent-ignore, not reject** on the
-  `bots`/`prompts`/`resources`/`server` **create** paths (broad `Partial<Model>`
-  bodies). Ownership is already safe; unknown/system fields are dropped rather than
-  400'd. Bringing these to the allowlist-reject contract finishes Phase 1 for them —
-  but each round-trips a full model from its store, so the reject boundary must ship
-  with a validated-and-ignore compatibility set (verified against the running app)
-  to avoid breaking those payloads.
 
 - **F-5 (residual, low): heavy response graphs.** `art/image` create/patch/save
   return the full row including the base64 `imageData`/`thumbnailData` blobs.
-  A lean projection is preferable, but clients may read the returned blob, so this
-  needs validation against the running app before changing the response shape.
+  A lean projection is preferable, but the stores/components read `imageData`
+  straight off these objects (e.g. `botHelper`, `artStore`, `memoryStore`), so
+  trimming the mutation response would break freshly-created image rendering —
+  this needs a client-side change and product decision, not a blind server edit.
+
+- **Phase 4 (store-safety): the `?? 10` fallback-user sweep.** Several stores
+  default `userId` to `10` when unauthenticated. The server now ignores any
+  client-supplied `userId`, so this is no longer a spoofing vector, but the
+  fallback still fabricates ownership client-side. Removing it touches ~15 stores'
+  type contracts and needs the running app to validate.
 
 - **F-6 (low, by design): server-key ownership bypass.** A server key bypasses
   owner checks on `characters`/`bots` mutation/delete. No owner **reassignment** is
@@ -99,15 +102,16 @@ only when it matches.
 
 ## Definition-of-done status
 - No public mutation persists ownership from request identity. ✅
-- Every hardened family rejects unknown/system fields; create paths on
-  bots/prompts/resources/server still silently ignore them (F-4). ◑
+- Every hardened family rejects unknown/system fields; the last silent-ignore
+  create paths (bots/prompts/resources/server) have reject boundaries in review
+  (F-4, PRs #623/#624). ◑→✅ pending merge
 - Relation IDs are bounded + existence + permission checked across the core
-  families and now bots + projects; only `art/image` sub-patches and the
-  caller-less reaction sub-patches remain (F-2 residual). ◑
+  families, bots, and projects; the `art/image` patch and reaction sub-patches
+  are gated in review (F-2 residual, PR #628). ◑→✅ pending merge
 - The self-service user PATCH is an explicit allowlist; no owner-reassignment
   path remains (F-1 closed, F-3 closed). ✅
 - Mutation envelopes and status codes are consistent. ✅
 - CI has no self-mutating PR workflows. ✅
-- Residual items (F-4 create-path reject boundaries, F-5 art/image blob
-  projection) are store/client-coupled and should be validated against the
-  running app before landing.
+- The only genuinely client-coupled remainders — F-5 (art/image blob projection)
+  and Phase 4 (the `?? 10` store fallback) — need a client change / running-app
+  validation and are intentionally left for a product decision.

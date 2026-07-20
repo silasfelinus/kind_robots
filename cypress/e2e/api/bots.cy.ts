@@ -51,7 +51,14 @@ describe('Bot Management API Tests', () => {
       .then((auth) => {
         userToken = auth.token
         userId = auth.id
-        return createLoggedInTestUser({ fresh: true })
+        // `fresh: true` is a deprecated no-op (createLoggedInTestUser now
+        // always reuses the run-scoped seed identity for it) -- the private
+        // Dream owner below must use `role: 'second'` to actually get a
+        // distinct account, otherwise this ends up being the same user as
+        // `userToken` and the "forbids attaching another user private Dream"
+        // test below is attaching a self-owned Dream, which is legitimately
+        // allowed and can never observe the 403 it asserts.
+        return createLoggedInTestUser({ role: 'second' })
       })
       .then((other) => {
         otherToken = other.token

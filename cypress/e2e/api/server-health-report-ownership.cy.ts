@@ -55,10 +55,17 @@ describe('Browser server health report ownership', () => {
     cy.then(() => {
       const stamp = Date.now()
 
+      // Server ownership is derived exclusively from the authenticated
+      // caller (server/utils/serverApi.ts assertServerCreateOwnership) --
+      // even admin credentials may not assign `userId` on create (see
+      // server-ownership.cy.ts's dedicated "Server ownership boundary"
+      // coverage). So the fixture must be created AS its intended owner;
+      // isPublic is admin-only, so that's applied in a follow-up admin
+      // PATCH rather than at creation time.
       return cy.request<ApiResponse<ServerRecord>>({
         method: 'POST',
         url: `${apiBase}/server`,
-        headers: adminHeaders(adminToken),
+        headers: bearerHeaders(owner.token),
         body: {
           title: `Browser health report ${stamp}`,
           label: 'Health report test',
@@ -70,10 +77,6 @@ describe('Browser server health report ownership', () => {
           baseUrl: 'https://example.com',
           endpointPath: '/api',
           healthPath: '/health',
-          userId: owner.id,
-          isPublic: true,
-          isOfficial: false,
-          isDefault: false,
           isActive: true,
           isEditable: true,
           isMature: false,
@@ -81,26 +84,42 @@ describe('Browser server health report ownership', () => {
         },
         failOnStatusCode: false,
       })
-    }).then((response) => {
-      expect(response.status, JSON.stringify(response.body)).to.eq(201)
-      expect(response.body.success).to.eq(true)
-      expect(response.body.data?.userId).to.eq(owner.id)
-      expect(response.body.data?.isPublic).to.eq(true)
+    })
+      .then((response) => {
+        expect(response.status, JSON.stringify(response.body)).to.eq(201)
+        expect(response.body.success).to.eq(true)
+        expect(response.body.data?.userId).to.eq(owner.id)
 
-      server = response.body.data as ServerRecord
+        server = response.body.data as ServerRecord
 
-      cy.task(
-        'cypressCleanup:register',
-        {
-          label: `Browser health server ${server.id}`,
-          method: 'DELETE',
+        cy.task(
+          'cypressCleanup:register',
+          {
+            label: `Browser health server ${server.id}`,
+            method: 'DELETE',
+            url: `${apiBase}/server/${server.id}`,
+            headers: adminHeaders(adminToken),
+            expectedStatuses: [200, 404],
+          },
+          { log: false },
+        )
+
+        return cy.request<ApiResponse<ServerRecord>>({
+          method: 'PATCH',
           url: `${apiBase}/server/${server.id}`,
           headers: adminHeaders(adminToken),
-          expectedStatuses: [200, 404],
-        },
-        { log: false },
-      )
-    })
+          body: { isPublic: true },
+          failOnStatusCode: false,
+        })
+      })
+      .then((patchResponse) => {
+        expect(patchResponse.status, JSON.stringify(patchResponse.body)).to.eq(
+          200,
+        )
+        expect(patchResponse.body.success).to.eq(true)
+        expect(patchResponse.body.data?.isPublic).to.eq(true)
+        server.isPublic = true
+      })
   })
 
   it('rejects an anonymous report for a public server', () => {

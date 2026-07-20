@@ -112,6 +112,12 @@ export default defineNuxtConfig({
     enabled: false,
   },
   nitro: {
+    serverAssets: [
+      {
+        baseName: 'wonderlab',
+        dir: './server/assets/wonderlab',
+      },
+    ],
     prerender: {
       crawlLinks: false,
       routes: [],

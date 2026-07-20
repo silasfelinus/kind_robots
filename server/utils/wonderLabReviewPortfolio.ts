@@ -329,11 +329,7 @@ export async function buildWonderLabReviewPortfolio(
           coverage: coverageDetails(exhibit.id, author, coverage).coverage,
         }
       })
-      .filter(
-        (entry) =>
-          entry.coverage !== 'MISSING' ||
-          (entry.voiceReady && entry.score >= minimumScore),
-      )
+      .filter((entry) => entry.coverage !== 'MISSING' || entry.voiceReady)
 
     return { key: exhibit.id, candidates: candidateRows }
   })
@@ -341,6 +337,7 @@ export async function buildWonderLabReviewPortfolio(
   const portfolio = assignWonderLabReviewerPortfolio(portfolioInputs, {
     reviewersPerExhibit: reviewerCount,
     diversityPenalty,
+    assignmentMinimumScore: minimumScore,
     minimumAssignmentsPerReviewer: representationTarget,
     representationMinimumScore,
   })

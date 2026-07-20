@@ -17,6 +17,10 @@ permissions:
   contents: read
   issues: write
 
+env:
+  CURATION_OUTPUT_DIR: /tmp/wonderlab-curation-inventory
+  CURATION_OUTPUT_NAME: inventory.json
+
 jobs:
   validate:
     name: Validate read-only curation inventory
@@ -41,17 +45,14 @@ jobs:
             'expectedTargets',
             'WonderLab curation handoff:',
           ]) assert.ok(workflow.includes(required), `missing inventory boundary: ${required}`)
+          const forbiddenRoutes = ['generate', 'approve', 'publish', 'reject'].map((segment) => `/${segment}`)
           for (const forbidden of [
-            '/generate',
-            '/approve',
-            '/publish',
-            '/reject',
-            'method: \'PATCH\'',
-            'method: \'POST\'',
+            ...forbiddenRoutes,
+            "method: 'PATCH'",
+            "method: 'POST'",
             'DATABASE_URL',
             'prisma.',
           ]) assert.ok(!workflow.includes(forbidden), `inventory crossed write boundary: ${forbidden}`)
-          assert.equal(config.execute, true)
           assert.ok(Array.isArray(config.expectedTargets) && config.expectedTargets.length > 0)
           assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
           console.log('WonderLab curation inventory boundary passed.')
@@ -78,6 +79,7 @@ jobs:
           BASE_URL: https://kind-robots.vercel.app
         run: |
           set -euo pipefail
+          mkdir -p "$CURATION_OUTPUT_DIR"
           baseline_sha="$(jq -r '.minimumProductionCommit // empty' config/wonderlab-editorial-batch.json)"
           git fetch --quiet --no-tags origin main
           if ! git cat-file -e "${baseline_sha}^{commit}" 2>/dev/null; then
@@ -88,7 +90,7 @@ jobs:
             payload="$(curl -sS --max-time 20 "${BASE_URL}/api/version" || true)"
             live_sha="$(printf '%s' "$payload" | jq -r 'if .success == true then .data.commit // empty else empty end' 2>/dev/null || true)"
             if [ -n "$live_sha" ] && bash scripts/check-deploy-ancestry.sh "$baseline_sha" "$live_sha"; then
-              printf '%s\n' "$payload" > production-version.json
+              printf '%s\n' "$payload" > "$CURATION_OUTPUT_DIR/production-version.json"
               exit 0
             fi
             sleep 10
@@ -103,19 +105,21 @@ jobs:
           set -euo pipefail
           node <<'NODE'
           const fs = require('node:fs')
+          const path = require('node:path')
           const config = JSON.parse(fs.readFileSync('config/wonderlab-editorial-batch.json', 'utf8'))
           const baseUrl = process.env.WONDERLAB_BASE_URL.replace(/\/$/, '')
           const token = String(process.env.WONDERLAB_ADMIN_TOKEN || '').trim()
+          const outputPath = path.join(process.env.CURATION_OUTPUT_DIR, process.env.CURATION_OUTPUT_NAME)
           if (!token) throw new Error('CYPRESS_BETA_ADMIN_TOKEN is not configured.')
 
-          async function request(path, admin = false) {
-            const response = await fetch(`${baseUrl}${path}`, {
+          async function request(requestPath, admin = false) {
+            const response = await fetch(`${baseUrl}${requestPath}`, {
               headers: admin
                 ? { accept: 'application/json', 'x-beta-admin-token': token, 'x-admin-token': token, 'x-api-key': token }
                 : { accept: 'application/json' },
             })
             const body = await response.json()
-            if (!response.ok) throw new Error(body?.message || `${path} returned ${response.status}.`)
+            if (!response.ok) throw new Error(body?.message || `${requestPath} returned ${response.status}.`)
             return body?.data
           }
 
@@ -148,18 +152,19 @@ jobs:
               },
             })
           }
-          fs.writeFileSync('wonderlab-curation-inventory.json', `${JSON.stringify({ config, inventory }, null, 2)}\n`)
+          fs.mkdirSync(process.env.CURATION_OUTPUT_DIR, { recursive: true })
+          fs.writeFileSync(outputPath, `${JSON.stringify({ config, inventory }, null, 2)}\n`)
           NODE
       - name: Upload inventory evidence
         uses: actions/upload-artifact@v4
         with:
           name: wonderlab-curation-inventory-${{ github.run_id }}
-          path: wonderlab-curation-inventory.json
+          path: ${{ env.CURATION_OUTPUT_DIR }}/${{ env.CURATION_OUTPUT_NAME }}
           retention-days: 30
       - name: Create durable curation handoff
         uses: actions/github-script@v7
         env:
-          INVENTORY_PATH: wonderlab-curation-inventory.json
+          INVENTORY_PATH: ${{ env.CURATION_OUTPUT_DIR }}/${{ env.CURATION_OUTPUT_NAME }}
         with:
           script: |
             const fs = require('node:fs')

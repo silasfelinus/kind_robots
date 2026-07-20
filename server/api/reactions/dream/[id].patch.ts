@@ -120,11 +120,12 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: { reaction },
-      reaction,
       message: existingReaction
         ? `Reaction for dream #${dreamId} updated.`
         : `Reaction for dream #${dreamId} created.`,
+      data: reaction,
+      reaction,
+      statusCode: event.node.res.statusCode,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -132,11 +133,11 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      data: {
-        message:
-          handledError.message ||
-          `Failed to update reaction for dream with ID ${dreamId}.`,
-      },
+      message:
+        handledError.message ||
+        `Failed to update reaction for dream with ID ${dreamId}.`,
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

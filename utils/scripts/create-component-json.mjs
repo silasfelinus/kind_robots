@@ -2,10 +2,15 @@
 import { createHash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { extractWonderLabComponentSourceEvidence } from '../wonderlab/componentSourceEvidence.mjs'
 
 const ROOT = process.cwd()
 const COMPONENT_ROOT = path.resolve(ROOT, 'components')
-const MANIFEST_OUTPUT = path.resolve(ROOT, 'public/wonderlab-components.json')
+const PUBLIC_MANIFEST_OUTPUT = path.resolve(ROOT, 'public/wonderlab-components.json')
+const SERVER_MANIFEST_OUTPUT = path.resolve(
+  ROOT,
+  'server/assets/wonderlab/wonderlab-components.json',
+)
 
 const ignoredSegments = new Set(['abandonware', '__tests__', '__fixtures__'])
 
@@ -54,7 +59,7 @@ async function buildManifestEntry(absolutePath) {
   const sourcePath = `components/${relativePath}`
   const folderName = toPosix(path.dirname(relativePath))
   const componentName = path.basename(relativePath, '.vue')
-  const source = await fs.readFile(absolutePath)
+  const source = await fs.readFile(absolutePath, 'utf8')
   const sourceHash = createHash('sha256').update(source).digest('hex')
 
   return {
@@ -64,7 +69,13 @@ async function buildManifestEntry(absolutePath) {
     componentName,
     slug: toSlug(relativePath),
     folderName: folderName === '.' ? 'root' : folderName,
+    sourceEvidence: extractWonderLabComponentSourceEvidence(source),
   }
+}
+
+async function writeManifest(target, manifest) {
+  await fs.mkdir(path.dirname(target), { recursive: true })
+  await fs.writeFile(target, `${JSON.stringify(manifest, null, 2)}\n`)
 }
 
 async function generateComponentManifest() {
@@ -82,14 +93,13 @@ async function generateComponentManifest() {
     entries,
   }
 
-  await fs.mkdir(path.dirname(MANIFEST_OUTPUT), { recursive: true })
-  await fs.writeFile(
-    MANIFEST_OUTPUT,
-    `${JSON.stringify(manifest, null, 2)}\n`,
-  )
+  await Promise.all([
+    writeManifest(PUBLIC_MANIFEST_OUTPUT, manifest),
+    writeManifest(SERVER_MANIFEST_OUTPUT, manifest),
+  ])
 
   console.log(
-    `Generated ${entries.length} WonderLab component entries at ${path.relative(ROOT, MANIFEST_OUTPUT)}.`,
+    `Generated ${entries.length} WonderLab component entries at ${path.relative(ROOT, PUBLIC_MANIFEST_OUTPUT)} and ${path.relative(ROOT, SERVER_MANIFEST_OUTPUT)}.`,
   )
 }
 

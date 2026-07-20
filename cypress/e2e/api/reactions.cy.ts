@@ -262,6 +262,54 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
+  it('forbids reacting to another user private ArtImage via the art sub-route', () => {
+    expect(otherToken).to.exist
+
+    // Create a private ArtImage owned by the owner, then confirm a different
+    // authenticated user cannot react to it through /api/reactions/art/:id
+    // (the sub-route now enforces the same visibility rule as POST /reactions).
+    cy.request<ApiResponse<{ id: number }>>({
+      method: 'POST',
+      url: `${apiBase}/art/image`,
+      headers: ownerHeaders(),
+      body: {
+        imagePath: `/images/test/private-reaction-${Date.now()}.webp`,
+        path: `/images/test/private-reaction-${Date.now()}.webp`,
+        fileName: 'private-reaction.webp',
+        fileType: 'webp',
+        isPublic: false,
+      },
+      failOnStatusCode: false,
+    }).then((createResponse) => {
+      expect(createResponse.status, JSON.stringify(createResponse.body)).to.eq(
+        201,
+      )
+      const privateArtImageId = createResponse.body.data?.id
+      expect(privateArtImageId).to.be.a('number')
+
+      cy.request<ApiResponse>({
+        method: 'PATCH',
+        url: `${apiBase}/reactions/art/${privateArtImageId}`,
+        headers: otherHeaders(),
+        body: { reactionType: 'LOVED' },
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(403)
+        expect(response.body.success).to.eq(false)
+        expect(response.body.message).to.include(
+          'permission to react to this ArtImage',
+        )
+      })
+
+      cy.request({
+        method: 'DELETE',
+        url: `${apiBase}/art/image/${privateArtImageId}`,
+        headers: ownerHeaders(),
+        failOnStatusCode: false,
+      })
+    })
+  })
+
   it('accepts a genuinely partial Reaction PATCH', () => {
     expect(reactionId).to.exist
 

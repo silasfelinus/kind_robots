@@ -51,4 +51,28 @@ requireText(
   'ArtImage patch owner-transfer deployed regression',
 )
 
+// Relation attach gate (audit F-2 residual): connected Server / checkpoint
+// Resource must exist and be public-or-owned-or-admin.
+const relations = read('server/api/art/image/relations.ts')
+requireText(
+  relations,
+  'export async function assertArtImageRelationsAttachable',
+  'ArtImage relation attach gate',
+)
+requireText(
+  relations,
+  'row.userId !== userId && row.isPublic !== true',
+  'ArtImage relation permission predicate',
+)
+requireText(
+  patchRoute,
+  'assertArtImageRelationsAttachable(',
+  'ArtImage patch relation gate wiring',
+)
+requireText(
+  cypressSpec,
+  'rejects a missing Server relation on ArtImage PATCH',
+  'ArtImage relation gate deployed regression',
+)
+
 console.log('ArtImage patch owner-transfer contract passed.')

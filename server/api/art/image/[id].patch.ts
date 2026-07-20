@@ -4,10 +4,12 @@ import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import { assertArtImageRelationsAttachable } from './relations'
 
 type PatchUser = {
   id: number
   isAdmin: boolean
+  isServerKey: boolean
 }
 
 // Owner transfer is intentionally NOT part of the general patch contract: a
@@ -58,6 +60,7 @@ async function requirePatchUser(event: H3Event): Promise<PatchUser> {
   return {
     id: auth.user.id,
     isAdmin: auth.isAdmin,
+    isServerKey: auth.isServerKey,
   }
 }
 
@@ -138,6 +141,22 @@ export default defineEventHandler(async (event) => {
         message: 'No valid ArtImage fields provided for update.',
       })
     }
+
+    // A connected Server / checkpoint Resource must exist and be public or owned
+    // by the caller (admins bypass the permission check). Raw scalar FK writes
+    // were previously unchecked (audit F-2 residual).
+    await assertArtImageRelationsAttachable(
+      {
+        serverId:
+          typeof updateData.serverId === 'number' ? updateData.serverId : null,
+        checkpointResourceId:
+          typeof updateData.checkpointResourceId === 'number'
+            ? updateData.checkpointResourceId
+            : null,
+      },
+      user.id,
+      user.isAdmin || user.isServerKey,
+    )
 
     const data: ArtImage = await prisma.artImage.update({
       where: { id },

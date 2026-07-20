@@ -84,7 +84,7 @@ jobs:
               # time out waiting for a deployment Vercel already decided not
               # to build.
               if node scripts/check-deploy-noop.mjs "$live" "$TARGET_SHA" 2>/dev/null; then
-                echo "Production is serving ${live}; ${TARGET_SHA}'s changes since then are deploy-inert (test/docs only) — deploy is live (no-op)."
+                echo "Production is serving ${live}; ${TARGET_SHA}'s changes since then are deploy-inert (test- and docs-only) — deploy is live (no-op)."
                 exit 0
               fi
             fi

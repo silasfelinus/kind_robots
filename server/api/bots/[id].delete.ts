@@ -54,10 +54,13 @@ export default defineEventHandler(async (event) => {
       where: { id },
     })
 
+    event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'Bot deleted successfully.',
       data: deleted,
+      statusCode: 200,
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

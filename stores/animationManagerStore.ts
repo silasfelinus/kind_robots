@@ -19,6 +19,7 @@ import {
   ANIMATION_ATTEMPT_FOLDER,
   listAnimationAttempts,
   getLatestAnimationAttempt,
+  findAttemptToSupersede,
 } from '@/stores/helpers/animationComponentHelper'
 import {
   getComponentStatus,
@@ -149,6 +150,14 @@ export const useAnimationManagerStore = defineStore('animationManagerStore', () 
   }
 
   async function promoteAttempt(attempt: Component) {
+    const priorWorking = findAttemptToSupersede(componentStore.allComponents, attempt)
+    if (priorWorking) {
+      await componentStore.linkSupersededAnimationAttempt(
+        priorWorking,
+        attempt.componentName,
+      )
+    }
+
     return setAttemptStatus(
       attempt,
       'WORKING',

@@ -22,6 +22,7 @@ const PROMPT_VERSION = 'wonderlab-personality-review-v1'
 const MINIMUM_CONFIDENCE = 0.45
 const MINIMUM_COMMENT_WORDS = 20
 const MAXIMUM_COMMENT_WORDS = 160
+const REVIEW_GENERATION_TIMEOUT_MS = 30_000
 
 export type GenerateWonderLabReviewDraftInput = {
   componentId: number
@@ -295,7 +296,7 @@ async function requestOpenAiReview(input: {
   if (!apiKey) throw new Error('No OpenAI API key is configured for review generation.')
 
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 60_000)
+  const timeout = setTimeout(() => controller.abort(), REVIEW_GENERATION_TIMEOUT_MS)
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -341,6 +342,11 @@ async function requestOpenAiReview(input: {
       }
       throw error
     }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('OpenAI review generation timed out before the serverless deadline.')
+    }
+    throw error
   } finally {
     clearTimeout(timeout)
   }

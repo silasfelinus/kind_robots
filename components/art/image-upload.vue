@@ -774,16 +774,18 @@ async function handleBatchUpload() {
     )
   }
 
+  // Clear the queue only on a clean run. Must happen before the message
+  // assignment below — clearQueue() resets message/error, and doing it
+  // first would wipe the success banner we're about to set.
+  if (result.succeeded.length && !result.failed.length) {
+    clearQueue()
+  }
+
   // Mirror store messaging locally so the component owns its own banners.
   message.value = uploadStore.message ?? ''
   error.value = result.failed.length
     ? `${result.failed.length} image${result.failed.length === 1 ? '' : 's'} failed.`
     : ''
-
-  // Clear the queue only on a clean run.
-  if (result.succeeded.length && !result.failed.length) {
-    clearQueue()
-  }
 }
 
 onUnmounted(() => {

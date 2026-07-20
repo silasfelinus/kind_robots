@@ -293,6 +293,13 @@ export const tutorialChannels = {
         body: 'Pick a page from a set, tap a region to fill it, and group-fill matching sections with one color. Switch to a custom shade any time, undo mistakes, and save your progress or export a finished page as an image — it all saves itself as you go.',
         image: tutorialImage('art', 'coloring'),
       },
+      {
+        key: 'coat-dance',
+        title: 'Coat Dance',
+        body: 'An experimental AI-remixed music video built from a real 2006 physical-theater performance with a trench coat as duet partner. Still in early production planning.',
+        image: tutorialImage('art', 'coat-dance'),
+        underConstruction: true,
+      },
     ],
   },
 

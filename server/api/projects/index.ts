@@ -6,6 +6,7 @@ import type {
   ProjectPriority,
   ProjectStatus,
 } from '~/prisma/generated/prisma/client'
+import prisma from '~/server/utils/prisma'
 
 export const projectStatuses = new Set<ProjectStatus>([
   'ACTIVE',
@@ -197,4 +198,78 @@ export function assertProjectAccess(
       message: 'You do not have permission to modify this Project.',
     })
   }
+}
+
+async function assertRelationTargetAttachable(
+  id: number | null | undefined,
+  find: (
+    targetId: number,
+  ) => Promise<{ userId: number | null; isPublic: boolean | null } | null>,
+  label: string,
+  userId: number,
+): Promise<void> {
+  if (id === null || id === undefined) return
+
+  const row = await find(id)
+  if (!row) {
+    throw createError({ statusCode: 404, message: `${label} not found: ${id}.` })
+  }
+
+  if (row.userId !== userId && row.isPublic !== true) {
+    throw createError({
+      statusCode: 403,
+      message: `You do not have permission to attach this ${label} to a Project.`,
+    })
+  }
+}
+
+// A non-admin may only connect a manager Bot, ArtImage, or ArtCollection that is
+// public or self-owned. Each is a single nullable scalar FK; admins bypass.
+export async function assertProjectRelationsAttachable(
+  input: {
+    managerBotId?: unknown
+    artImageId?: unknown
+    artCollectionId?: unknown
+  },
+  userId: number,
+  isAdmin: boolean,
+): Promise<void> {
+  if (isAdmin) return
+
+  const managerBotId = normalizeNullableId(input.managerBotId)
+  const artImageId = normalizeNullableId(input.artImageId)
+  const artCollectionId = normalizeNullableId(input.artCollectionId)
+
+  await Promise.all([
+    assertRelationTargetAttachable(
+      managerBotId,
+      (id) =>
+        prisma.bot.findUnique({
+          where: { id },
+          select: { userId: true, isPublic: true },
+        }),
+      'Bot',
+      userId,
+    ),
+    assertRelationTargetAttachable(
+      artImageId,
+      (id) =>
+        prisma.artImage.findUnique({
+          where: { id },
+          select: { userId: true, isPublic: true },
+        }),
+      'ArtImage',
+      userId,
+    ),
+    assertRelationTargetAttachable(
+      artCollectionId,
+      (id) =>
+        prisma.artCollection.findUnique({
+          where: { id },
+          select: { userId: true, isPublic: true },
+        }),
+      'ArtCollection',
+      userId,
+    ),
+  ])
 }

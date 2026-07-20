@@ -14,6 +14,7 @@ import {
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
+import { assertFacetRelationsAttachable } from './relations'
 
 type FacetCreateBody = {
   title?: unknown
@@ -105,6 +106,14 @@ export default defineEventHandler(async (event) => {
       ? (body.creationSource as CreationSource)
       : 'HUMAN'
 
+    const artImageId = positiveId(body.artImageId)
+    const artCollectionId = positiveId(body.artCollectionId)
+    await assertFacetRelationsAttachable(
+      { artImageId, artCollectionId },
+      auth.user.id,
+      auth.isAdmin,
+    )
+
     const explicitAliases = normalizeAliases(body.aliases)
     const aliasesByKey = new Map<string, { alias: string; isCanonical: boolean }>()
     const canonicalKey = normalizeFacetLookupKey(slug)
@@ -132,8 +141,8 @@ export default defineEventHandler(async (event) => {
         designer: optionalText(body.designer),
         creationSource,
         userId: auth.user.id,
-        artImageId: positiveId(body.artImageId),
-        artCollectionId: positiveId(body.artCollectionId),
+        artImageId,
+        artCollectionId,
         isPublic: body.isPublic !== false,
         isMature: body.isMature === true,
         isActive: true,

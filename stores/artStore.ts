@@ -1,6 +1,7 @@
 // /stores/artStore.ts
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import type {
   ArtImage,
   Reaction,
@@ -386,11 +387,9 @@ export const useArtStore = defineStore('artStore', () => {
       | (ArtImage & { imageData?: string | null; path?: string | null })
       | null
 
-    if (image?.imageData) {
-      return `data:image/${image.fileType || 'png'};base64,${image.imageData}`
-    }
-
-    return image?.imagePath || image?.path || ''
+    // Path-first: render from the stored path when present, fall back to inline
+    // base64 only for pathless (e.g. freshly uploaded) art.
+    return resolveArtImageSrc(image)
   })
 
   const generatedArtImageCount = computed(() => state.generatedArtImages.length)

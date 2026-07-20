@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Character, Rarity } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import {
   loadSnapshot,
   markSnapshotActive,
@@ -545,13 +546,11 @@ export const useCharacterStore = defineStore('characterStore', () => {
     try {
       const image = await artStore.getArtImageById(artImageId)
 
-      if (image?.imageData) {
-        artImagePath.value = `data:image/${image.fileType || 'png'};base64,${
-          image.imageData
-        }`
-      } else if (image?.imagePath || image?.path) {
-        artImagePath.value =
-          image.imagePath || image.path || characterPlaceholder
+      // Path-first: prefer the stored path, fall back to inline base64 only for
+      // pathless art, then the placeholder.
+      const resolved = resolveArtImageSrc(image)
+      if (resolved) {
+        artImagePath.value = resolved
       } else {
         artImagePath.value = characterPlaceholder
       }

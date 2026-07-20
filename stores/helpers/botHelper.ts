@@ -2,6 +2,7 @@
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import { botData } from '@/stores/seeds/seedBots'
 
 export interface BotPayload extends Partial<Bot> {
@@ -99,15 +100,10 @@ export async function botImage(bot: Bot): Promise<string> {
   try {
     const artImage = await artStore.getArtImageById(bot.artImageId)
 
-    if (!artImage?.imageData) return fallbackImage
-
-    if (artImage.imageData.startsWith('data:image/')) {
-      return artImage.imageData
-    }
-
-    const fileType = artImage.fileType || 'webp'
-
-    return `data:image/${fileType};base64,${artImage.imageData}`
+    // Path-first: prefer the stored path, fall back to inline base64 only for
+    // pathless art, then the bot's avatar. (Previously a pathed image with no
+    // base64 wrongly rendered the fallback.)
+    return resolveArtImageSrc(artImage, fallbackImage)
   } catch (error: unknown) {
     console.error('Error fetching art image:', error)
     return fallbackImage

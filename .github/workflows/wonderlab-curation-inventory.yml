@@ -45,14 +45,16 @@ jobs:
             'expectedTargets',
             'WonderLab curation handoff:',
           ]) assert.ok(workflow.includes(required), `missing inventory boundary: ${required}`)
-          const forbiddenRoutes = ['generate', 'approve', 'publish', 'reject'].map((segment) => `/${segment}`)
-          for (const forbidden of [
-            ...forbiddenRoutes,
-            "method: 'PATCH'",
-            "method: 'POST'",
-            'DATABASE_URL',
-            'prisma.',
-          ]) assert.ok(!workflow.includes(forbidden), `inventory crossed write boundary: ${forbidden}`)
+          const forbidden = [
+            ...['generate', 'approve', 'publish', 'reject'].map((segment) => `/${segment}`),
+            `method: '${['PAT', 'CH'].join('')}'`,
+            `method: '${['PO', 'ST'].join('')}'`,
+            ['DATABASE', 'URL'].join('_'),
+            ['pris', 'ma.'].join(''),
+          ]
+          for (const token of forbidden) {
+            assert.ok(!workflow.includes(token), `inventory crossed write boundary: ${token}`)
+          }
           assert.ok(Array.isArray(config.expectedTargets) && config.expectedTargets.length > 0)
           assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
           console.log('WonderLab curation inventory boundary passed.')

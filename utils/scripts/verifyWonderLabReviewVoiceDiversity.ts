@@ -1,5 +1,6 @@
 // /utils/scripts/verifyWonderLabReviewVoiceDiversity.ts
 import assert from 'node:assert/strict'
+import type { WonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentManifest'
 import { buildWonderLabReviewDraftPrompt } from '@/utils/wonderlab/reviewDraftPrompt'
 import type {
   WonderLabExhibitProfile,
@@ -15,6 +16,28 @@ const exhibit: WonderLabExhibitProfile = {
   description: 'A guided interface for assembling a Bot personality and prompt.',
   category: 'builder',
   tags: ['bot', 'builder', 'prompt', 'persona'],
+}
+
+const sourceEvidence: WonderLabComponentSourceEvidence = {
+  version: 1,
+  lineCount: 280,
+  blocks: ['template', 'script'],
+  props: ['compact', 'initialPrompt'],
+  emits: ['saved'],
+  customComponents: ['bot-card'],
+  nativeElements: ['button', 'form', 'section'],
+  staticText: ['Build Bot', 'Prompt Instructions'],
+  functionNames: ['saveBot'],
+  localImports: ['botStore'],
+  facts: [
+    'Declared props: compact, initialPrompt.',
+    'Declared emitted events: saved.',
+    'Template composes custom components: bot-card.',
+    'Template uses native elements: button, form, section.',
+    'Static interface text includes: Build Bot, Prompt Instructions.',
+    'Source-defined functions include: saveBot.',
+    'Local source imports include: botStore.',
+  ],
 }
 
 const dotti: WonderLabReviewerCandidate = {
@@ -57,9 +80,11 @@ const dottiPrompt = buildWonderLabReviewDraftPrompt(dotti, exhibit, {
       guidance: 'Favor specific engineering observations over general praise.',
     },
   ],
+  sourceEvidence,
 })
 const catbotPrompt = buildWonderLabReviewDraftPrompt(catbot, exhibit, {
   affinityReasons: ['Catbot broad museum eligibility'],
+  sourceEvidence,
 })
 
 assert.notEqual(dottiPrompt.system, catbotPrompt.system)
@@ -71,6 +96,7 @@ assert.match(dottiPrompt.system, /Write as Dotti/)
 assert.match(dottiPrompt.user, /friendly workshop engineer/i)
 assert.match(dottiPrompt.user, /tighten that instruction/i)
 assert.match(dottiPrompt.user, /bot-building affinity/i)
+assert.match(dottiPrompt.user, /Declared props: compact, initialPrompt/)
 assert.deepEqual(dottiPrompt.provenance.voiceSources, [
   'voice',
   'sampleResponse',
@@ -81,6 +107,7 @@ assert.match(catbotPrompt.system, /Write as Catbot/)
 assert.match(catbotPrompt.user, /feline humor/i)
 assert.match(catbotPrompt.user, /whisker sensors/i)
 assert.match(catbotPrompt.user, /broad museum eligibility/i)
+assert.match(catbotPrompt.user, /Template composes custom components: bot-card/)
 assert.deepEqual(catbotPrompt.provenance.voiceSources, ['voice', 'sampleResponse'])
 
 assert.doesNotMatch(dottiPrompt.user, /whisker sensors/i)
@@ -89,6 +116,10 @@ assert.equal(dottiPrompt.provenance.exhibitId, catbotPrompt.provenance.exhibitId
 assert.equal(
   dottiPrompt.provenance.exhibitSourcePath,
   catbotPrompt.provenance.exhibitSourcePath,
+)
+assert.deepEqual(
+  dottiPrompt.provenance.sourceEvidenceFacts,
+  catbotPrompt.provenance.sourceEvidenceFacts,
 )
 
 console.log('WonderLab reviewer voice diversity acceptance test passed.')

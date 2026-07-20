@@ -237,6 +237,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -355,13 +356,12 @@ const computedCharacterImage = computed(() => {
     return rotatingFallbackImage.value
   }
 
-  if (artImage.value?.imageData) {
-    return `data:${normalizeImageMime(artImage.value.fileType)};base64,${
-      artImage.value.imageData
-    }`
-  }
-
-  return props.character.imagePath || rotatingFallbackImage.value
+  // Path-first: prefer the art image's path, then its inline base64, then the
+  // character's own imagePath, then the rotating fallback.
+  return resolveArtImageSrc(
+    artImage.value,
+    props.character.imagePath || rotatingFallbackImage.value,
+  )
 })
 
 const statRows = computed(() => [
@@ -377,15 +377,6 @@ const statRows = computed(() => [
   { key: 'wits', label: 'Wits', value: props.character.wits || 'COMMON' },
 ])
 
-function normalizeImageMime(fileType?: string | null) {
-  const fallback = 'image/webp'
-  const cleaned = fileType?.trim().replace(/^\./, '')
-
-  if (!cleaned) return fallback
-  if (cleaned.startsWith('image/')) return cleaned
-
-  return `image/${cleaned}`
-}
 
 function handleImageError() {
   hasImageError.value = true

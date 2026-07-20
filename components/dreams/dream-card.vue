@@ -380,7 +380,8 @@ const debugInfo = computed(() => {
   }
 })
 
-// Build a usable <img> src from an ArtImage: base64 data first, then path.
+// Build a usable <img> src from an ArtImage: path first, then inline base64
+// (thumbnail, then full) for pathless rows.
 function imageToSrc(image?: Partial<ArtImage> | null): string {
   if (!image) return ''
 
@@ -388,6 +389,15 @@ function imageToSrc(image?: Partial<ArtImage> | null): string {
   const thumb = (image as { thumbnailData?: string | null }).thumbnailData
   const fileType = (image as { fileType?: string | null }).fileType || 'png'
 
+  const rawPath =
+    image.imagePath ||
+    (image as { path?: string | null }).path ||
+    image.fileName ||
+    ''
+
+  if (rawPath && isProbablyPath(rawPath)) {
+    return normalizeImagePath(rawPath)
+  }
   if (thumb && !isProbablyPath(thumb)) {
     return `data:image/${fileType};base64,${thumb}`
   }
@@ -395,11 +405,6 @@ function imageToSrc(image?: Partial<ArtImage> | null): string {
     return `data:image/${fileType};base64,${data}`
   }
 
-  const rawPath =
-    image.imagePath ||
-    (image as { path?: string | null }).path ||
-    image.fileName ||
-    ''
   return normalizeImagePath(rawPath)
 }
 

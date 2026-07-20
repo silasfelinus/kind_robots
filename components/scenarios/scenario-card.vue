@@ -164,6 +164,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 import { parseScenarioIntros } from '@/stores/helpers/scenarioHelper'
@@ -237,13 +238,13 @@ const canDelete = computed(() => {
   )
 })
 
-const computedScenarioImage = computed(() => {
-  if (artImage.value?.imageData) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
-  }
-
-  return props.scenario.imagePath || props.fallbackImage
-})
+const computedScenarioImage = computed(() =>
+  // Path-first: art image path, then its base64, then the scenario's imagePath.
+  resolveArtImageSrc(
+    artImage.value,
+    props.scenario.imagePath || props.fallbackImage,
+  ),
+)
 
 const introCount = computed(() => {
   return parseScenarioIntros(props.scenario.intros).length

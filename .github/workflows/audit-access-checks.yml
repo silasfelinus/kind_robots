@@ -1,0 +1,37 @@
+name: Audit Access Checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/bots/threads.post.ts'
+      - 'server/api/bots/topics.post.ts'
+      - 'server/api/prompts/generate.post.ts'
+      - 'utils/scripts/verifyAuditAccessChecks.ts'
+      - '.github/workflows/audit-access-checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify audit access checks
+        run: npx tsx utils/scripts/verifyAuditAccessChecks.ts

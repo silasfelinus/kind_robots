@@ -16,7 +16,7 @@ import { awardKarma } from '../../utils/karma'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user } = await validateApiKey(event)
+    const { isValid, user, kind } = await validateApiKey(event)
     if (!isValid || !user) {
       throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
     }
@@ -29,6 +29,18 @@ export default defineEventHandler(async (event) => {
     const prompt = await prisma.prompt.findUnique({ where: { id: body.promptId } })
     if (!prompt) {
       throw createError({ statusCode: 404, statusMessage: 'Prompt not found' })
+    }
+
+    // Only the prompt owner, an admin, or the render relay (server key) may drive
+    // this prompt through the art state machine and rebind its artImageId.
+    const isServerKey = kind === 'server'
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    if (!isAdmin && !isServerKey && prompt.userId !== user.id) {
+      throw createError({
+        statusCode: 403,
+        statusMessage:
+          'You do not have permission to generate art for this prompt.',
+      })
     }
 
     const server = await resolveServer({

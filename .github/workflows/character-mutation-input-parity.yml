@@ -7,7 +7,7 @@ on:
       - 'server/api/characters/mutation.ts'
       - 'server/api/characters/compatibility.ts'
       - 'server/api/characters/index.post.ts'
-      - 'server/api/characters/[id].patch.ts'
+      - 'server/api/characters/\[id\].patch.ts'
       - 'server/api/characters/batch.post.ts'
       - 'cypress/e2e/api/character-input-boundary.cy.ts'
       - 'cypress/e2e/api/character-relation-permission.cy.ts'

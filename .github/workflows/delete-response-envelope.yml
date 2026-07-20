@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'server/api/server/[id].delete.ts'
-      - 'server/api/art/collection/[id].delete.ts'
-      - 'server/api/art/image/[id].delete.ts'
-      - 'server/api/themes/[id].delete.ts'
-      - 'server/api/resources/[id].delete.ts'
-      - 'server/api/rewards/[id].delete.ts'
-      - 'server/api/bots/[id].delete.ts'
+      - 'server/api/server/\[id\].delete.ts'
+      - 'server/api/art/collection/\[id\].delete.ts'
+      - 'server/api/art/image/\[id\].delete.ts'
+      - 'server/api/themes/\[id\].delete.ts'
+      - 'server/api/resources/\[id\].delete.ts'
+      - 'server/api/rewards/\[id\].delete.ts'
+      - 'server/api/bots/\[id\].delete.ts'
       - 'utils/scripts/verifyDeleteResponseEnvelopes.ts'
       - '.github/workflows/delete-response-envelope.yml'
   workflow_dispatch:

@@ -6,8 +6,8 @@ on:
     paths:
       - 'server/utils/pitchSheets/payload.ts'
       - 'server/api/sheets/index.post.ts'
-      - 'server/api/sheets/[id].patch.ts'
-      - 'server/api/sheets/by-dream/[dreamId].post.ts'
+      - 'server/api/sheets/\[id\].patch.ts'
+      - 'server/api/sheets/by-dream/\[dreamId\].post.ts'
       - 'cypress/e2e/api/sheet-input-boundary.cy.ts'
       - 'utils/scripts/verifySheetMutationInputParity.ts'
       - '.github/workflows/sheet-mutation-input-parity.yml'

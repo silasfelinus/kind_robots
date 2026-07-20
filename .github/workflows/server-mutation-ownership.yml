@@ -7,7 +7,7 @@ on:
       - 'server/utils/serverApi.ts'
       - 'server/api/server/index.post.ts'
       - 'server/api/server/batch.post.ts'
-      - 'server/api/server/[id].patch.ts'
+      - 'server/api/server/\[id\].patch.ts'
       - 'cypress/e2e/api/server-ownership.cy.ts'
       - 'utils/scripts/verifyServerMutationOwnership.ts'
       - '.github/workflows/server-mutation-ownership.yml'

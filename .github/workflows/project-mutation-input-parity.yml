@@ -6,7 +6,7 @@ on:
     paths:
       - 'server/api/projects/index.ts'
       - 'server/api/projects/index.post.ts'
-      - 'server/api/projects/[id].patch.ts'
+      - 'server/api/projects/\[id\].patch.ts'
       - 'cypress/e2e/api/project-input-boundary.cy.ts'
       - 'utils/scripts/verifyProjectMutationInputParity.ts'
       - '.github/workflows/project-mutation-input-parity.yml'

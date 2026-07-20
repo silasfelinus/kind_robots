@@ -6,8 +6,8 @@ on:
     paths:
       - 'server/api/todos/mutation.ts'
       - 'server/api/todos/index.post.ts'
-      - 'server/api/todos/[id].patch.ts'
-      - 'server/api/todos/[id].delete.ts'
+      - 'server/api/todos/\[id\].patch.ts'
+      - 'server/api/todos/\[id\].delete.ts'
       - 'cypress/e2e/api/todo-input-boundary.cy.ts'
       - 'utils/scripts/verifyTodoMutationInputParity.ts'
       - '.github/workflows/todo-mutation-input-parity.yml'

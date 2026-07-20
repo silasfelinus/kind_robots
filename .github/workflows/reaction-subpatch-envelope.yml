@@ -4,8 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'server/api/reactions/art/[id].patch.ts'
-      - 'server/api/reactions/dream/[id].patch.ts'
+      - 'server/api/reactions/art/\[id\].patch.ts'
+      - 'server/api/reactions/dream/\[id\].patch.ts'
       - 'utils/scripts/verifyReactionSubPatchEnvelope.ts'
       - '.github/workflows/reaction-subpatch-envelope.yml'
   workflow_dispatch:

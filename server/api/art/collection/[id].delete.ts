@@ -41,13 +41,15 @@ export default defineEventHandler(async (event) => {
 
     await prisma.artCollection.delete({ where: { id: collectionId } })
 
+    event.node.res.statusCode = 200
     response = {
       success: true,
       message: isAdmin
         ? `Art Collection with ID ${collectionId} deleted successfully by admin.`
         : `Collection with ID ${collectionId} deleted successfully.`,
+      data: null,
+      statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
@@ -56,6 +58,8 @@ export default defineEventHandler(async (event) => {
       message:
         handledError.message ||
         `Failed to delete collection with ID ${collectionId}.`,
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 

@@ -1,0 +1,41 @@
+name: Delete Response Envelope
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/server/[id].delete.ts'
+      - 'server/api/art/collection/[id].delete.ts'
+      - 'server/api/art/image/[id].delete.ts'
+      - 'server/api/themes/[id].delete.ts'
+      - 'server/api/resources/[id].delete.ts'
+      - 'server/api/rewards/[id].delete.ts'
+      - 'server/api/bots/[id].delete.ts'
+      - 'utils/scripts/verifyDeleteResponseEnvelopes.ts'
+      - '.github/workflows/delete-response-envelope.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify delete response envelopes
+        run: npx tsx utils/scripts/verifyDeleteResponseEnvelopes.ts

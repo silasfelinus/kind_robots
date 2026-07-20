@@ -41,10 +41,20 @@ export default defineEventHandler(async (event) => {
 
     await prisma.theme.delete({ where: { id } })
     event.node.res.statusCode = 200
-    return { success: true, message: `Theme ${id} deleted.` }
+    return {
+      success: true,
+      message: `Theme ${id} deleted.`,
+      data: null,
+      statusCode: 200,
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-    return { success: false, message }
+    return {
+      success: false,
+      message,
+      data: null,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

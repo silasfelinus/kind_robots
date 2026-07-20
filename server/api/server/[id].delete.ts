@@ -27,9 +27,13 @@ export default defineEventHandler(async (event) => {
       where: { id },
     })
 
+    event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'Server deleted successfully.',
+      data: null,
+      statusCode: 200,
     }
   } catch (error) {
     const handledError = errorHandler(error)
@@ -38,6 +42,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: handledError.message || 'Failed to delete server.',
+      data: null,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

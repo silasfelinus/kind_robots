@@ -131,6 +131,12 @@ export const tutorialChannels = {
         body: 'Create a new scenario with an intro, choices, stakes, and room for players to surprise the narrator.',
         image: tutorialImage('scenario', 'add'),
       },
+      {
+        key: 'serendipity',
+        title: 'Serendipity',
+        body: 'Step into a second-person story woven by the Serendipity bot: pick a tone, open the door, and answer honestly — the questions it asks quietly advance your real honey-dos and human-gated tasks along the way.',
+        image: tutorialImage('scenario', 'serendipity'),
+      },
     ],
   },
 

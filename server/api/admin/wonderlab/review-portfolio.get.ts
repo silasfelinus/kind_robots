@@ -70,12 +70,22 @@ export default defineEventHandler(async (event) => {
         maximum: 20,
         fallback: 4,
       }),
+      minimumAssignmentsPerReviewer: integerQuery(query.minimumAssignmentsPerReviewer, {
+        minimum: 0,
+        maximum: 2,
+        fallback: 2,
+      }),
+      representationMinimumScore: numberQuery(query.representationMinimumScore, {
+        minimum: -100,
+        maximum: 500,
+        fallback: 1,
+      }),
     })
 
     return {
       success: true,
       data: plan,
-      message: `Portfolio-planned ${plan.reviewerSlots} reviewer slot(s) across ${plan.componentCount} exhibit(s).`,
+      message: `Portfolio-planned ${plan.reviewerSlots} reviewer slot(s) across ${plan.componentCount} exhibit(s); ${plan.representation.meetingTargetReviewers}/${plan.representation.eligibleReviewers} eligible reviewers meet the cast target.`,
     }
   } catch (error) {
     if (error instanceof H3Error) throw error

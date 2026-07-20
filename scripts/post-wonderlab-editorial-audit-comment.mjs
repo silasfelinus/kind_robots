@@ -41,6 +41,7 @@ function reportLines(report) {
 
   const coverage = report.coverage || {}
   const diversity = report.diversity || {}
+  const representation = report.representation || {}
   lines.push(
     `- **Production:** commit \`${report.production?.commit || 'unknown'}\`; deployment \`${report.production?.deploymentId || 'unknown'}\``,
     `- **Assignment mode:** ${report.scope?.assignmentMode || 'unknown'}; repeat-use penalty ${report.scope?.diversityPenalty ?? 'unknown'}`,
@@ -50,14 +51,16 @@ function reportLines(report) {
     `- **Drafted planned slots:** ${coverage.draftedSlots || 0}`,
     `- **Missing planned slots:** ${coverage.missingSlots || 0}`,
     `- **Exhibits with any published planned review:** ${coverage.exhibitsWithPublishedReview || 0} (${coverage.exhibitsWithPublishedReviewRate || 0}%)`,
+    `- **Eligible cast representation:** ${representation.representedReviewers || 0}/${representation.eligibleReviewers || 0} represented; ${representation.meetingTargetReviewers || 0}/${representation.eligibleReviewers || 0} meet the target of ${representation.targetPerReviewer || 0}`,
+    `- **Underrepresented eligible reviewers:** ${representation.underrepresentedReviewerCount || 0}`,
     `- **Published reviewer diversity:** ${diversity.publishedBots || 0} Bot(s), ${diversity.publishedCharacters || 0} Character(s)`,
-    `- **Assigned reviewer diversity:** ${diversity.assignedBots || 0} Bot(s), ${diversity.assignedCharacters || 0} Character(s)`,
+    `- **Assigned reviewer diversity:** ${diversity.assignedBots || 0}/${diversity.eligibleBots || 0} Bot(s), ${diversity.assignedCharacters || 0}/${diversity.eligibleCharacters || 0} Character(s)`,
     `- **Largest reviewer allocation:** ${diversity.largestAssignmentCount || 0} slots (${diversity.largestAssignmentShare || 0}%)`,
     `- **Incomplete assignments:** ${coverage.exhibitsWithIncompleteAssignment || 0} exhibit(s)`,
   )
 
   const top = Array.isArray(report.reviewerUsage)
-    ? report.reviewerUsage.slice(0, 10)
+    ? report.reviewerUsage.filter((reviewer) => reviewer.assigned > 0).slice(0, 10)
     : []
   if (top.length) {
     lines.push('', '### Most-used planned reviewers', '')
@@ -68,11 +71,23 @@ function reportLines(report) {
     }
   }
 
+  const underrepresented = Array.isArray(report.underrepresentedReviewers)
+    ? report.underrepresentedReviewers.slice(0, 10)
+    : []
+  if (underrepresented.length) {
+    lines.push('', '### Cast members needing responsible placements', '')
+    for (const reviewer of underrepresented) {
+      lines.push(
+        `- **${reviewer.name}** (${reviewer.kind} #${reviewer.id}): ${reviewer.count}/${reviewer.target}; ${reviewer.reason}; best score ${reviewer.bestScore ?? 'none'} across ${reviewer.responsibleExhibitCount || 0} responsible exhibit(s)`,
+      )
+    }
+  }
+
   lines.push(
     '',
     `> ${report.scope?.note || 'Coverage reflects portfolio-selected reviewer slots.'}`,
     '',
-    'The uploaded JSON artifact contains the top 50 missing high-affinity assignments and every exhibit without a complete reviewer assignment. This workflow is read-only and performs no generation, approval, editing, or publication.',
+    'The uploaded JSON artifact contains the complete eligible-cast usage table, all representation gaps, the top 50 missing high-affinity assignments, and every exhibit without a complete reviewer assignment. This workflow is read-only and performs no generation, approval, editing, or publication.',
   )
   return lines
 }

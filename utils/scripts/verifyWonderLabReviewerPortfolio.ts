@@ -45,6 +45,7 @@ const inputs = [
 const result = assignWonderLabReviewerPortfolio(inputs, {
   reviewersPerExhibit: 2,
   diversityPenalty: 4,
+  minimumAssignmentsPerReviewer: 0,
 })
 
 assert.equal(result.assignments[0]?.reviewers[0]?.reviewer.id, specialist.reviewer.id)
@@ -71,16 +72,79 @@ const pinned = assignWonderLabReviewerPortfolio([
       candidate(12, 'CHARACTER', 'Drafted Character', 1, 'DRAFTED'),
     ],
   },
-], { reviewersPerExhibit: 2 })
+], { reviewersPerExhibit: 2, minimumAssignmentsPerReviewer: 0 })
 assert.deepEqual(
   pinned.assignments[0]?.reviewers.map((entry) => entry.reviewer.id),
   [10, 12],
   'existing published and drafted editorial work should remain pinned',
 )
 
+const representedBot = candidate(20, 'BOT', 'Represented Bot', 8)
+const representedCharacter = candidate(21, 'CHARACTER', 'Represented Character', 7)
+const secondBot = candidate(22, 'BOT', 'Second Bot', 6)
+const secondCharacter = candidate(23, 'CHARACTER', 'Second Character', 5)
+const representationInputs = [
+  { key: 20, candidates: [representedBot, representedCharacter, secondBot, secondCharacter] },
+  { key: 21, candidates: [representedBot, representedCharacter, secondBot, secondCharacter] },
+  { key: 22, candidates: [representedBot, representedCharacter, secondBot, secondCharacter] },
+  { key: 23, candidates: [representedBot, representedCharacter, secondBot, secondCharacter] },
+]
+const representation = assignWonderLabReviewerPortfolio(representationInputs, {
+  reviewersPerExhibit: 2,
+  diversityPenalty: 4,
+  assignmentMinimumScore: 0,
+  minimumAssignmentsPerReviewer: 2,
+  representationMinimumScore: 1,
+})
+assert.equal(representation.representation.eligibleReviewers, 4)
+assert.equal(representation.representation.representedReviewers, 4)
+assert.equal(representation.representation.meetingTargetReviewers, 4)
+assert.equal(representation.representation.underrepresentedReviewers.length, 0)
+assert.ok(
+  representation.reviewerUsage.every((entry) => entry.count >= 2),
+  'every responsible voice-ready reviewer should meet the requested representation floor',
+)
+assert.ok(
+  representation.assignments.flatMap((entry) => entry.reviewers).some(
+    (entry) => entry.reasons.some((reason) => reason.startsWith('cast representation floor:')),
+  ),
+)
+
+const weakOnly = candidate(30, 'BOT', 'Weak Only', 0)
+const qualityBoundary = assignWonderLabReviewerPortfolio([
+  { key: 30, candidates: [weakOnly, candidate(31, 'CHARACTER', 'Grounded Character', 5)] },
+], {
+  reviewersPerExhibit: 1,
+  assignmentMinimumScore: 1,
+  minimumAssignmentsPerReviewer: 1,
+  representationMinimumScore: 1,
+})
+const weakUsage = qualityBoundary.reviewerUsage.find((entry) => entry.id === weakOnly.reviewer.id)
+assert.equal(weakUsage?.count, 0)
+assert.equal(
+  qualityBoundary.representation.underrepresentedReviewers.find(
+    (entry) => entry.id === weakOnly.reviewer.id,
+  )?.reason,
+  'NO_RESPONSIBLE_AFFINITY',
+  'representation must report weak matches instead of forcing filler',
+)
+
+const weakVisibleButUnassigned = assignWonderLabReviewerPortfolio([
+  { key: 32, candidates: [candidate(32, 'BOT', 'Below Assignment Threshold', 0)] },
+], {
+  reviewersPerExhibit: 1,
+  assignmentMinimumScore: 1,
+  minimumAssignmentsPerReviewer: 0,
+  representationMinimumScore: 1,
+})
+assert.equal(weakVisibleButUnassigned.assignments[0]?.reviewers.length, 0)
+assert.equal(weakVisibleButUnassigned.reviewerUsage[0]?.count, 0)
+assert.equal(weakVisibleButUnassigned.representation.eligibleReviewers, 1)
+
 const deterministic = assignWonderLabReviewerPortfolio(inputs, {
   reviewersPerExhibit: 2,
   diversityPenalty: 4,
+  minimumAssignmentsPerReviewer: 0,
 })
 assert.deepEqual(result, deterministic)
 

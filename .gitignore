@@ -33,3 +33,4 @@ kindblank_*.sql
 /public/images/**
 !/public/images/.gitkeep
 /public/wonderlab-components.json
+/server/assets/wonderlab/wonderlab-components.json

@@ -88,6 +88,12 @@ jobs:
       - name: Unquoted reserved-word table identifier contract
         run: npm run test:no-unquoted-reserved-word-tables
 
+      - name: Existing-owner-id nullability contract
+        run: npm run test:existing-owner-id-nullability
+
+      - name: Ownership nullability regression contract
+        run: npm run test:ownership-nullability
+
       - name: Capture-group guard checker self-test
         run: npm run test:capture-group-guards-selftest
 

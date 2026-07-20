@@ -5,6 +5,7 @@ import { errorHandler } from '../../utils/error'
 import { normalizeSlugInput } from '~/utils/slugify'
 import { validateApiKey } from '../../utils/validateKey'
 import { resourceMutationSelect } from './selects'
+import { assertOwnershipIsUnchanged } from './compatibility'
 import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
 
 type ResourcePatchBody = Partial<Omit<Resource, 'userId'>> &
@@ -25,26 +26,6 @@ function normalizeIdArray(value: unknown): number[] {
         .filter((id) => Number.isInteger(id) && id > 0),
     ),
   ]
-}
-
-function assertOwnershipIsUnchanged(
-  body: Record<string, unknown>,
-  existingUserId: number | null,
-) {
-  if (!Object.prototype.hasOwnProperty.call(body, 'userId')) return
-
-  const requestedUserId = Number(body.userId)
-
-  if (
-    !existingUserId ||
-    !Number.isInteger(requestedUserId) ||
-    requestedUserId !== existingUserId
-  ) {
-    throw createError({
-      statusCode: 400,
-      message: 'Unsupported Resource ownership reassignment. Ownership is server-owned.',
-    })
-  }
 }
 
 function hasUpdateData(data: Record<string, unknown>): boolean {

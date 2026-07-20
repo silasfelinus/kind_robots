@@ -9,6 +9,7 @@ on:
       - 'scripts/wonderlab-production-editorial-audit.mjs'
       - 'server/api/admin/wonderlab/review-portfolio.get.ts'
       - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
       - 'utils/scripts/verifyWonderLabReviewerPortfolio.ts'
       - 'utils/wonderlab/reviewerPortfolio.ts'
   push:
@@ -19,6 +20,7 @@ on:
       - 'scripts/wonderlab-production-editorial-audit.mjs'
       - 'server/api/admin/wonderlab/review-portfolio.get.ts'
       - 'server/utils/wonderLabReviewPortfolio.ts'
+      - 'utils/scripts/verifyWonderLabEditorialAuditComment.mjs'
       - 'utils/wonderlab/reviewerPortfolio.ts'
   workflow_dispatch:
     inputs:
@@ -65,6 +67,7 @@ jobs:
           set -euo pipefail
           node --check scripts/wonderlab-production-editorial-audit.mjs
           node --check scripts/post-wonderlab-editorial-audit-comment.mjs
+          node --check utils/scripts/verifyWonderLabEditorialAuditComment.mjs
           node <<'NODE'
           const fs = require('node:fs')
           const assert = require('node:assert').strict
@@ -124,60 +127,7 @@ jobs:
           NODE
 
       - name: Verify audit comment rendering
-        env:
-          WONDERLAB_EDITORIAL_AUDIT_REPORT: /tmp/wonderlab-audit/editorial-coverage-audit.json
-          WONDERLAB_EDITORIAL_AUDIT_COMMENT: /tmp/wonderlab-audit/editorial-coverage-comment.md
-          WONDERLAB_EDITORIAL_AUDIT_STATUS: success
-          GITHUB_RUN_ID: '12345'
-        run: |
-          set -euo pipefail
-          mkdir -p /tmp/wonderlab-audit
-          cat > /tmp/wonderlab-audit/editorial-coverage-audit.json <<'JSON'
-          {
-            "production": { "commit": "abc123", "deploymentId": "dpl_test" },
-            "scope": {
-              "assignmentMode": "PORTFOLIO_DIVERSE",
-              "diversityPenalty": 4,
-              "discoveredComponents": 2,
-              "note": "Fixture portfolio coverage."
-            },
-            "coverage": {
-              "reviewerSlots": 4,
-              "targetReviewerSlots": 4,
-              "assignmentShortfall": 0,
-              "publishedSlots": 1,
-              "publishedSlotRate": 25,
-              "draftedSlots": 1,
-              "missingSlots": 2,
-              "exhibitsWithPublishedReview": 1,
-              "exhibitsWithPublishedReviewRate": 50,
-              "exhibitsWithIncompleteAssignment": 0
-            },
-            "diversity": {
-              "publishedBots": 1,
-              "publishedCharacters": 0,
-              "assignedBots": 2,
-              "assignedCharacters": 2,
-              "largestAssignmentCount": 1,
-              "largestAssignmentShare": 25
-            },
-            "reviewerUsage": [
-              {
-                "name": "Fixture Bot",
-                "kind": "BOT",
-                "id": 1,
-                "assigned": 1,
-                "published": 1,
-                "drafted": 0,
-                "missing": 0
-              }
-            ]
-          }
-          JSON
-          node scripts/post-wonderlab-editorial-audit-comment.mjs
-          grep -F 'PORTFOLIO_DIVERSE' /tmp/wonderlab-audit/editorial-coverage-comment.md
-          grep -F 'Fixture Bot' /tmp/wonderlab-audit/editorial-coverage-comment.md
-          grep -F '4/4 (0 short)' /tmp/wonderlab-audit/editorial-coverage-comment.md
+        run: node utils/scripts/verifyWonderLabEditorialAuditComment.mjs
 
   audit:
     name: Audit production editorial coverage

@@ -40,9 +40,14 @@ export function estimateArtCostUsd(opts: {
 export function estimateTextCostUsd(opts: {
   model: string
   maxTokens?: number | null
+  // Number of completions requested (OpenAI `n`). Each completion generates up
+  // to maxTokens, so total output — and cost — scales with n. Omitting it here
+  // undercharged multi-completion requests (audit P6 MEDIUM billing bypass).
+  n?: number | null
 }): number {
   const m = opts.model.toLowerCase()
   const out = opts.maxTokens ?? 2048
+  const n = Math.max(1, Math.floor(opts.n ?? 1))
 
   // Per-output-token USD rates, conservative.
   let rate = 0.0000006 // gpt-4o-mini-ish
@@ -51,5 +56,5 @@ export function estimateTextCostUsd(opts: {
   if (m.includes('claude') && m.includes('sonnet')) rate = 0.000015
   if (m.includes('claude') && m.includes('haiku')) rate = 0.000004
 
-  return Math.max(0.0005, out * rate)
+  return Math.max(0.0005, out * rate * n)
 }

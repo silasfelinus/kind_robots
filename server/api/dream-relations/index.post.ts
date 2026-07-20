@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
       }),
       prisma.dream.findUnique({
         where: { id: toDreamId },
-        select: { id: true },
+        select: { id: true, userId: true, isPublic: true },
       }),
     ])
     if (!fromDream) {
@@ -80,6 +80,16 @@ export default defineEventHandler(async (event) => {
       userId: auth.user.id,
       userRole: auth.user.Role,
       action: 'mutate',
+    })
+
+    // The target Dream was previously existence-checked only, so a caller could
+    // link to — and probe the existence of — another user's private Dream. Gate
+    // it behind view access: own, admin, or public (audit P6 MEDIUM).
+    assertDreamAccess({
+      dream: toDream,
+      userId: auth.user.id,
+      userRole: auth.user.Role,
+      action: 'view',
     })
 
     const relation = await prisma.dreamRelation.upsert({

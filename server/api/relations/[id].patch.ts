@@ -31,6 +31,15 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const nextStatus = body?.status as RelationStatus | undefined
 
+  const VALID_STATUSES: RelationStatus[] = ['PENDING', 'ACCEPTED', 'DECLINED']
+  if (nextStatus !== undefined && !VALID_STATUSES.includes(nextStatus)) {
+    setResponseStatus(event, 400)
+    return {
+      success: false,
+      message: 'status must be one of PENDING, ACCEPTED, or DECLINED.',
+    }
+  }
+
   if (nextStatus === 'ACCEPTED') {
     // Only the recipient of a pending request may confirm it.
     if (existing.relatedUserId !== userId || existing.status !== 'PENDING') {
@@ -63,8 +72,14 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Any other status edit: either participant may touch the row.
-  if (existing.userId !== userId && existing.relatedUserId !== userId) {
+  // Any other status edit: either participant may touch the row — EXCEPT a
+  // BLOCK, which is one-directional. Only the blocker (userId) may edit it, so
+  // the blocked user (relatedUserId) cannot neutralize the block by flipping
+  // its status/note (audit P6 MEDIUM).
+  const isOwner = existing.userId === userId
+  const isTarget = existing.relatedUserId === userId
+  const canModify = existing.type === 'BLOCK' ? isOwner : isOwner || isTarget
+  if (!canModify) {
     setResponseStatus(event, 403)
     return { success: false, message: 'You cannot modify this relation.' }
   }

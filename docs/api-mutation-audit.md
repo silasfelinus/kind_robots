@@ -1,9 +1,20 @@
 # API Mutation Audit — thin-resource pass
 
-_Definition-of-done audit for the API overhaul (issue #570), Phase 5. Enumerates
-every public mutation route with its authentication, ownership source, input
-contract, relation validation, response projection, and test coverage, then lists
-the remaining findings ranked by risk._
+_Definition-of-done audit for the API overhaul (issue #570). Phase 5 enumerated
+the "core" mutation families (dreams, scenarios, characters, rewards, themes,
+reactions, sheets, projects, todos, logs, chats, achievements, art, bots,
+prompts, resources, server, users) with their authentication, ownership source,
+input contract, relation validation, response projection, and test coverage.
+**Phase 6** (see its own section below) then swept the 16 mutation families the
+core pass never covered — comfy, challenges, model-builder, facets,
+dream-relations, davinci, botcafe, stripe, appmaker, relations, and the chatgpt
+schema-relation service — and closed the findings that sweep surfaced._
+
+> **Scope correction (Phase 6):** an earlier revision of this doc claimed the
+> definition-of-done held across "every public mutation route." That was only
+> ever verified for the core families in the table below. The Phase 6 families
+> were outside that table; they are now audited and their findings fixed, and
+> the definition-of-done statements have been re-scoped accordingly.
 
 Legend — **Input:** _reject_ = unknown fields return 400 via an explicit allowlist;
 _ignore_ = unknown fields silently dropped. **Relations:** _E_ = existence-only,
@@ -92,6 +103,71 @@ only when it matches.
   owner checks on `characters`/`bots` mutation/delete. No owner **reassignment** is
   possible, so this is a trust-level choice, not a takeover.
 
+## Phase 6 — the previously un-audited families
+
+The core pass covered ~18 families but described itself as covering "every
+public mutation route." It did not. Phase 6 audited the 16 remaining mutation
+families and fixed the findings below (all merged to `main`; each bullet notes
+the fix, not a TODO).
+
+### High
+- **[FIXED] auth/login password-hash leak** — `validateUserCredentials` returned
+  the full `User` row (including the bcrypt `password` hash) to the login
+  response. Now strips `password` before returning (PR #653).
+- **[FIXED] model-builder run source-ownership (CRITICAL)** —
+  `model-builder/runs` accepted any `sourceType`/`sourceId`; the commit path
+  writes back to that record, so a user could point a run at another user's
+  Bot/Character/Dream/etc. and overwrite it. Now `assertSourceOwnership` gates
+  the run's source record to owner/admin and constrains `sourceType` to a known
+  allowlist (PR #655).
+- **[FIXED] comfy SSRF + server-token exfiltration** — six comfy routes
+  (`characterSheet`, `hunyuan3d`, `kontext/generate`, `kontext/kombine`,
+  `ltx/image2Video`, `ltx/text2Video`) honored a client-supplied `apiUrl` and
+  then sent `ART_SERVER_PROXY_TOKEN` to it. `apiUrl` is no longer accepted; the
+  base URL always comes from the access-checked Server. `resolveComfyUrl` drops
+  its `apiUrl` branch (PR #658).
+- **[FIXED] challenge-submission relation attach + read oracle** —
+  `challenges/[slug]/submissions` connected `artImageId`/`characterId`/
+  `scenarioId` with no permission check and echoed the full related rows. Now
+  gated to own-or-public (admins bypass) with a lean response select (PR #658).
+
+### Medium
+- **[FIXED] appmaker scaffold command injection** — `scaffold-request` built a
+  shell command string (stored for Worker execution) by interpolating `title`
+  unescaped and `description` with only quote-swapping. Both are now POSIX
+  single-quoted and length-capped.
+- **[FIXED] relations block self-unblock** — `relations/[id]` delete & patch let
+  either participant act, so a blocked user could remove/neutralize the BLOCK.
+  BLOCK edits are now owner-only; status is enum-validated.
+- **[FIXED] facet attach gates** — `facets` create/patch attached
+  `artImageId`/`artCollectionId` raw. Now gated to own-or-public via
+  `assertFacetRelationsAttachable`.
+- **[FIXED] dream-relation target access** — `dream-relations` existence-checked
+  the target Dream only. Now gated behind `assertDreamAccess` view (own/admin/
+  public), closing a private-Dream link + enumeration oracle.
+- **[FIXED] model-builder artImage attach** — item/artifact `artImageId` is later
+  promoted onto the run's source record; `assertArtImageAttachable` now gates it
+  to own-or-public on the single patch, batch patch, and artifacts routes.
+- **[FIXED] davinci life-run/choice attach** — `createLifeRun`/`recordLifeChoice`
+  attached `characterId`/`dreamId`/`botId`/`artCollectionId`/`chatId` raw; now
+  gated to own-or-public.
+- **[FIXED] chatgpt M2M relation injection** — an M2M `relation.add` mutates the
+  target's visible relation set (join row shows on both sides) but required only
+  read on the target. It now requires write access to the target; scalar links
+  and removes keep read-on-target.
+- **[FIXED] botcafe billing bypass** — `n` (completions) was sent to the provider
+  but omitted from the mana estimate and `max_tokens` was unclamped. `n` is now
+  in `estimateTextCostUsd` and both `n`/`max_tokens` are clamped.
+- **[FIXED] stripe subscribe envelope** — the catch passed a wrapper object to
+  `errorHandler` and never set the HTTP status, returning 200 on failure. Now
+  uses the standard `errorHandler` + status envelope.
+
+### Audited — clean
+- Stripe money routes (`checkout`, webhooks) do not trust client-supplied
+  amounts or user identity.
+- The admin / components / conductor / chatgpt-content mutation surfaces were
+  reviewed and found already gated (admin/server-key or owner checks in place).
+
 ## Workflows
 - The only auto-committing pipeline is `fallback-snapshot.yml` (`contents: write`),
   triggered by `schedule`/`workflow_dispatch` only — never `pull_request` — and
@@ -101,15 +177,21 @@ only when it matches.
   server-key gated; the achievements/wonderlab ones are.
 
 ## Definition-of-done status
-- No public mutation persists ownership from request identity. ✅
-- Every public create/patch path rejects unknown/system fields via an explicit
-  allowlist (F-4 closed for bots/prompts/resources/server). ✅
-- Relation IDs are bounded + existence + permission checked across every family
-  with writable relations, including bots, projects, the `art/image` patch, and
-  the reaction sub-patches (F-2 fully closed). ✅
+- No public mutation persists ownership from request identity, across both the
+  core families and the Phase 6 sweep. ✅
+- Every public create/patch path in the audited families rejects unknown/system
+  fields via an explicit allowlist (F-4 closed for bots/prompts/resources/
+  server). ✅
+- Relation IDs are bounded + existence + permission checked across every audited
+  family with writable relations — the core set (bots, projects, `art/image`
+  patch, reaction sub-patches; F-2 closed) plus the Phase 6 attach gates
+  (challenges, facets, dream-relations, model-builder, davinci, chatgpt M2M). ✅
 - The self-service user PATCH is an explicit allowlist; no owner-reassignment
   path remains (F-1 closed, F-3 closed). ✅
-- Mutation envelopes and status codes are consistent. ✅
+- Mutation envelopes and status codes are consistent (stripe/subscribe envelope
+  fixed in Phase 6). ✅
+- No credential or server secret leaks through a mutation response or an
+  outbound proxy request (auth/login hash + comfy SSRF/token closed in Phase 6). ✅
 - CI has no self-mutating PR workflows. ✅
 - The only remainders — F-5 (art/image blob projection) and Phase 4 (the `?? 10`
   store fallback) — are client-coupled and intentionally left for a client-side

@@ -331,10 +331,14 @@ async function assertCanRelate({
   actor,
   from,
   to,
+  definition,
+  action,
 }: {
   actor: ChatGptActor
   from: ContentRef
   to: ContentRef
+  definition: RelationDefinition
+  action: 'add' | 'remove'
 }) {
   const [fromPermission, toPermission] = await Promise.all([
     readPermissionRecord(from),
@@ -347,12 +351,29 @@ async function assertCanRelate({
     config: fromPermission.config,
     record: fromPermission.record,
   })
-  assertReadable({
-    actor,
-    ref: to,
-    config: toPermission.config,
-    record: toPermission.record,
-  })
+
+  // Adding a many-to-many edge creates a join row that is visible from BOTH
+  // sides, so the target's relation set is effectively mutated too. Requiring
+  // only read on `to` let a user inject their content into another user's
+  // PUBLIC Dream/Scenario/ArtCollection (audit P6 MEDIUM). An M2M add therefore
+  // requires WRITE access to `to`. Scalar links only touch `from`, and a remove
+  // only detaches the actor's own `from`, so read on `to` stays sufficient.
+  const isManyToManyAdd = definition.config.mode !== 'scalar' && action === 'add'
+  if (isManyToManyAdd) {
+    assertWritable({
+      actor,
+      ref: to,
+      config: toPermission.config,
+      record: toPermission.record,
+    })
+  } else {
+    assertReadable({
+      actor,
+      ref: to,
+      config: toPermission.config,
+      record: toPermission.record,
+    })
+  }
 }
 
 async function assertCanReadRelations({
@@ -446,7 +467,7 @@ export async function addRelation({
     toResource: to.resource,
   })
 
-  await assertCanRelate({ actor, from, to })
+  await assertCanRelate({ actor, from, to, definition, action: 'add' })
   const data = await mutateRelation({
     from,
     to,
@@ -476,7 +497,7 @@ export async function removeRelation({
     toResource: to.resource,
   })
 
-  await assertCanRelate({ actor, from, to })
+  await assertCanRelate({ actor, from, to, definition, action: 'remove' })
   const data = await mutateRelation({
     from,
     to,

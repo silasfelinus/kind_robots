@@ -5,6 +5,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { assertRunAccess, getItemId, normalizeNullableId } from '../../runs/index'
+import { assertArtImageAttachable } from '../../relations'
 
 const reviewStates = new Set<ModelBuildReviewState>([
   'PENDING',
@@ -65,6 +66,7 @@ export default defineEventHandler(async (event) => {
         message: 'Artifact "kind" is required.',
       })
     }
+    await assertArtImageAttachable(body.artImageId, auth.user.id, auth.isAdmin)
 
     const artifact = await prisma.modelBuildArtifact.create({
       data: {

@@ -16,6 +16,15 @@ type ScaffoldRequestBody = {
   description?: string
 }
 
+// The scaffold command string is stored in a Todo and later run in a shell by
+// the Worker cycle. `slug` is charset-validated, but `title`/`description` are
+// free-form, so they must be shell-quoted — not merely quote-swapped. POSIX
+// single-quoting makes the value fully literal (no $(), backticks, or \ escape
+// inside single quotes), closing a stored command-injection (audit P6 MEDIUM).
+function shellSingleQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -39,6 +48,12 @@ export default defineEventHandler(async (event) => {
     if (!title) {
       throw createError({ statusCode: 400, message: 'title is required.' })
     }
+    if (title.length > 200) {
+      throw createError({
+        statusCode: 400,
+        message: 'title must be 200 characters or fewer.',
+      })
+    }
 
     const slug = body.slug?.trim() ? body.slug.trim().toLowerCase() : slugify(title)
     if (!SLUG_RE.test(slug)) {
@@ -49,6 +64,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const description = body.description?.trim() || null
+    if (description && description.length > 1000) {
+      throw createError({
+        statusCode: 400,
+        message: 'description must be 1000 characters or fewer.',
+      })
+    }
     const [existingProject, existingDream] = await Promise.all([
       prisma.project.findFirst({
         where: { OR: [{ slug }, { conductorSlug: slug }] },
@@ -68,8 +89,8 @@ export default defineEventHandler(async (event) => {
     await enforceProjectCap({ userId: user.id, userRole: user.Role, isAdmin })
 
     const scaffoldCommand =
-      `python scripts/new_app.py ${slug} --title "${title}"` +
-      (description ? ` --description "${description.replace(/"/g, "'")}"` : '')
+      `python scripts/new_app.py ${slug} --title ${shellSingleQuote(title)}` +
+      (description ? ` --description ${shellSingleQuote(description)}` : '')
 
     const { project, todo } = await prisma.$transaction(async (tx) => {
       const project = await tx.project.create({

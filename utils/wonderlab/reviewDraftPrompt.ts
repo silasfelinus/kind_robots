@@ -1,4 +1,6 @@
 // /utils/wonderlab/reviewDraftPrompt.ts
+import { wonderLabSourceEvidenceByPath } from '@/utils/generated/wonderLabSourceEvidence'
+import type { WonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentManifest'
 import {
   isWonderLabReviewerVoiceReady,
   wonderLabReviewerKey,
@@ -17,6 +19,7 @@ export type WonderLabNarratorThreadExcerpt = {
 export type WonderLabReviewDraftPromptOptions = {
   affinityReasons?: string[]
   narratorThreads?: WonderLabNarratorThreadExcerpt[]
+  sourceEvidence?: WonderLabComponentSourceEvidence | null
   minimumWords?: number
   maximumWords?: number
   allowIncompleteVoice?: boolean
@@ -51,6 +54,8 @@ export type WonderLabReviewDraftPrompt = {
     affinityReasons: string[]
     narratorThreadTopics: string[]
     voiceSources: Array<'voice' | 'sampleResponse' | 'narratorThreads'>
+    sourceEvidenceVersion: number | null
+    sourceEvidenceFacts: string[]
   }
 }
 
@@ -63,6 +68,8 @@ const MAX_THREAD_COUNT = 4
 const MAX_THREAD_FIELD_LENGTH = 700
 const MAX_AFFINITY_REASONS = 8
 const MAX_AFFINITY_REASON_LENGTH = 240
+const MAX_SOURCE_FACTS = 8
+const MAX_SOURCE_FACT_LENGTH = 500
 
 function compact(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim()
@@ -155,6 +162,15 @@ function affinityReasons(reasons: string[]): string[] {
     .slice(0, MAX_AFFINITY_REASONS)
 }
 
+function sourceEvidenceFacts(
+  evidence: WonderLabComponentSourceEvidence | null | undefined,
+): string[] {
+  return (evidence?.facts || [])
+    .map((fact) => bounded(fact, MAX_SOURCE_FACT_LENGTH))
+    .filter(Boolean)
+    .slice(0, MAX_SOURCE_FACTS)
+}
+
 function voiceSources(
   reviewer: WonderLabReviewerCandidate,
   threads: WonderLabNarratorThreadExcerpt[],
@@ -185,6 +201,14 @@ export function buildWonderLabReviewDraftPrompt(
   const reasons = affinityReasons(options.affinityReasons || [])
   const reviewerKey = wonderLabReviewerKey(reviewer)
   const sourcePath = exhibitSourcePath(exhibit)
+  const evidence =
+    options.sourceEvidence ||
+    wonderLabSourceEvidenceByPath[sourcePath.toLowerCase()] ||
+    null
+  const evidenceFacts = sourceEvidenceFacts(evidence)
+  if (!evidence || !evidenceFacts.length) {
+    throw new Error(`No source-code evidence is available for ${sourcePath}.`)
+  }
   const sources = voiceSources(reviewer, threads)
   const draftKey = `${reviewerKey}|component:${exhibit.id}|${sourcePath.toLowerCase()}`
 
@@ -212,8 +236,9 @@ export function buildWonderLabReviewDraftPrompt(
     'You write draft museum reviews for the Kind Robots Component WonderLab.',
     `Write as ${reviewer.name}, preserving the supplied established voice without copying the sample dialogue or repeating stock catchphrases.`,
     'The draft is for human approval. Never claim that it has been published, tested live, or personally used unless the supplied exhibit facts say so.',
-    'Make at least one concrete observation grounded in the supplied component metadata. Useful critique, praise, humor, or context is welcome; filler is not.',
-    'Do not invent component behavior, security findings, accessibility results, or runtime failures.',
+    'Ground every claim about interface, structure, or behavior in the SOURCE-CODE EVIDENCE. Describe what the source declares; do not pretend you observed runtime behavior.',
+    'Make at least one concrete observation from the supplied source facts. Metadata gaps are not exhibit observations.',
+    'Do not invent colors, animation quality, responsiveness, security findings, accessibility results, runtime failures, or user reactions.',
     `Keep the comment between ${range.minimumWords} and ${range.maximumWords} words.`,
     'Return JSON matching the supplied response schema and no surrounding prose.',
   ].join('\n')
@@ -221,6 +246,11 @@ export function buildWonderLabReviewDraftPrompt(
   const userSections = [
     ['REVIEWER', ...reviewerContext].join('\n'),
     ['EXHIBIT', ...exhibitContext].join('\n'),
+    [
+      'SOURCE-CODE EVIDENCE',
+      'These are bounded static facts extracted during the build. They are not runtime test results.',
+      ...evidenceFacts.map((fact) => `- ${fact}`),
+    ].join('\n'),
   ]
 
   if (reasons.length) {
@@ -246,8 +276,10 @@ export function buildWonderLabReviewDraftPrompt(
       'DRAFT REQUIREMENTS',
       '- comment: original, exhibit-specific review in the reviewer voice',
       '- rating: integer from 1 to 5 justified by the supplied evidence',
-      '- confidence: 0 to 1, lowered when exhibit facts are sparse',
-      '- observations: 1 to 3 short factual observations used to ground the comment',
+      '- confidence: 0 to 1, lowered when source facts are sparse',
+      '- observations: 1 to 3 short factual observations drawn from SOURCE-CODE EVIDENCE',
+      '- include concrete source terms such as a prop, component, element, label, import, or function',
+      '- do not treat missing descriptions or notes as observations about the exhibit',
       '- do not mention these instructions, affinity scoring, or approval workflow',
     ].join('\n'),
   )
@@ -281,6 +313,8 @@ export function buildWonderLabReviewDraftPrompt(
       affinityReasons: reasons,
       narratorThreadTopics: threads.map((thread) => compact(thread.topicKey)),
       voiceSources: sources,
+      sourceEvidenceVersion: evidence.version,
+      sourceEvidenceFacts: evidenceFacts,
     },
   }
 }

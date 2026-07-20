@@ -1,22 +1,44 @@
 // /utils/scripts/verifyReviewDraftGeneration.ts
+import './verifyWonderLabReviewGrounding'
+import './verifyWonderLabSourceEvidence'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
 const generatorPath = 'server/utils/wonderLabReviewDraftGenerator.ts'
 const endpointPath = 'server/api/admin/wonderlab/review-drafts/generate.post.ts'
+const groundingGatePath = 'server/utils/wonderLabReviewGroundingGate.ts'
+const groundingPath = 'utils/wonderlab/reviewDraftGrounding.ts'
 const pagePath = 'pages/admin/wonderlab-review-generator.vue'
 const repositoryPath = 'server/utils/reviewDraftRepository.ts'
 
 const generator = await readFile(generatorPath, 'utf8')
 const endpoint = await readFile(endpointPath, 'utf8')
+const groundingGate = await readFile(groundingGatePath, 'utf8')
+const grounding = await readFile(groundingPath, 'utf8')
 const page = await readFile(pagePath, 'utf8')
 const repository = await readFile(repositoryPath, 'utf8')
 
 assert.match(endpoint, /requireAdminApiUser\(event\)/)
 assert.match(endpoint, /generateWonderLabReviewDraft/)
+assert.match(endpoint, /enforceWonderLabReviewGrounding/)
+assert.match(endpoint, /held for editorial safety review/)
 assert.match(endpoint, /openai review generation timed out/i)
 assert.doesNotMatch(endpoint, /publishReviewDraft/)
 assert.doesNotMatch(endpoint, /status:\s*'APPROVED'/)
+
+assert.match(groundingGate, /assertWonderLabReviewGrounding/)
+assert.match(groundingGate, /resolveWonderLabReviewSourceEvidence/)
+assert.match(groundingGate, /status: 'FAILED'/)
+assert.match(groundingGate, /Grounding validation failed/)
+assert.doesNotMatch(groundingGate, /status: 'APPROVED'/)
+assert.doesNotMatch(groundingGate, /publishReviewDraft/)
+
+assert.match(grounding, /highSignalMatches\.length >= 1/)
+assert.match(grounding, /nativeElementMatches\.length >= 2/)
+assert.match(grounding, /unsupportedClaims/)
+assert.match(grounding, /unverified device responsiveness/)
+assert.match(grounding, /unsupported source observations/)
+assert.match(grounding, /wonderLabSourceEvidenceByPath/)
 
 assert.match(generator, /buildWonderLabReviewDraftPrompt/)
 assert.match(generator, /rankWonderLabReviewers/)

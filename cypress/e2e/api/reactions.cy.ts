@@ -238,6 +238,30 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
+  it('forbids reacting to another user private Theme', () => {
+    expect(themeId).to.exist
+    expect(otherToken).to.exist
+
+    // The theme fixture is private (isPublic: false) and owned by ownerId, so a
+    // different authenticated user may not react to it.
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: reactionBaseUrl,
+      headers: otherHeaders(),
+      body: {
+        reactionType: 'LOVED',
+        reactionCategory: 'THEME',
+        themeId,
+        rating: 4,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('permission to react to this Theme')
+    })
+  })
+
   it('accepts a genuinely partial Reaction PATCH', () => {
     expect(reactionId).to.exist
 

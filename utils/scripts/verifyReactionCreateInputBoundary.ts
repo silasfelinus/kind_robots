@@ -82,4 +82,32 @@ requireText(
   'Reaction valid create regression',
 )
 
+// Full per-category target access model: content targets gate on public-or-owned,
+// chats on participant-or-public, components are open, and admins bypass.
+requireText(
+  createRoute,
+  'async function assertReactionTargetAccessible',
+  'Reaction target access gate',
+)
+requireText(
+  createRoute,
+  'isAdmin || row.isPublic === true || row.userId === userId',
+  'Reaction content target access rule',
+)
+requireText(
+  createRoute,
+  'chat.userId === userId ||\n      chat.recipientId === userId',
+  'Reaction chat participant access rule',
+)
+forbidText(
+  createRoute,
+  'async function assertReactionTargetExists',
+  'Reaction existence-only target check replaced',
+)
+requireText(
+  cypressSpec,
+  'forbids reacting to another user private Theme',
+  'Reaction target permission deployed regression',
+)
+
 console.log('Reaction create input boundary contract passed.')

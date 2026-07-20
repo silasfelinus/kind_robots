@@ -1,8 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import process from 'node:process'
 
-// A documentation-only change to this runner may safely retrigger the checked-in
-// dry-run manifest; execution remains controlled exclusively by validated config.
 const configPath =
   process.env.WONDERLAB_EDITORIAL_BATCH_CONFIG ||
   'config/wonderlab-editorial-batch.json'
@@ -23,6 +21,8 @@ const executeAllowed = process.env.WONDERLAB_EDITORIAL_BATCH_ALLOW_EXECUTE === '
 
 const MAX_COMPONENTS = 10
 const MAX_TARGETS = 20
+const MAX_GENERATION_ATTEMPTS = 2
+const EDITORIAL_DRAFT_STATUSES = new Set(['PROPOSED', 'FAILED'])
 
 function assertCondition(condition, message) {
   if (!condition) throw new Error(message)
@@ -170,6 +170,12 @@ function responseDataObject(payload, label) {
   return data
 }
 
+function responseDataArray(payload, label) {
+  const data = payload && typeof payload === 'object' ? payload.data : null
+  assertCondition(Array.isArray(data), `${label} did not return a data array.`)
+  return data
+}
+
 function normalizedTargets(data) {
   const targets = Array.isArray(data?.targets) ? data.targets : []
   return targets.map((target, index) => {
@@ -194,6 +200,131 @@ function targetIdentity(target) {
     kind: target.kind,
     id: target.id,
   }
+}
+
+function shouldRetry(error) {
+  const status = Number(error?.status || 0)
+  return !status || status === 502 || status === 503 || status === 504 || status >= 500
+}
+
+function generationPayload(target, config) {
+  return {
+    componentId: target.componentId,
+    ...(target.kind === 'BOT'
+      ? { authorBotId: target.id }
+      : { authorCharacterId: target.id }),
+    model: config.model,
+    regenerate: config.regenerate,
+  }
+}
+
+function validateGeneratedTarget(data, target) {
+  const draft = data?.draft
+  assertCondition(draft && typeof draft === 'object', `${target.reviewerName} generation returned no draft.`)
+  assertCondition(Number(draft.componentId) === target.componentId, `${target.reviewerName} draft belongs to the wrong Component.`)
+  assertCondition(draft.author?.kind === target.kind, `${target.reviewerName} draft has the wrong author kind.`)
+  assertCondition(Number(draft.author?.id) === target.id, `${target.reviewerName} draft has the wrong author ID.`)
+  assertCondition(EDITORIAL_DRAFT_STATUSES.has(draft.status), `${target.reviewerName} draft crossed the editorial boundary with status ${draft.status}.`)
+  return draft
+}
+
+async function generateTarget(target, config) {
+  let lastError = null
+  for (let attempt = 1; attempt <= MAX_GENERATION_ATTEMPTS; attempt += 1) {
+    try {
+      const payload = await adminRequest('/api/admin/wonderlab/review-drafts/generate', {
+        method: 'POST',
+        body: JSON.stringify(generationPayload(target, config)),
+      })
+      const data = responseDataObject(payload, `${target.reviewerName} generation`)
+      const draft = validateGeneratedTarget(data, target)
+      return {
+        componentId: target.componentId,
+        reviewer: { kind: target.kind, id: target.id, name: target.reviewerName },
+        success: true,
+        attempt,
+        draftId: draft.id,
+        status: draft.status,
+        generated: data.generated === true,
+        reused: data.reused === true,
+        confidence: data.confidence ?? null,
+        observations: Array.isArray(data.observations) ? data.observations : [],
+        message: data.reused === true ? 'Existing draft reused.' : 'Editorial draft generated.',
+      }
+    } catch (error) {
+      lastError = error
+      if (attempt < MAX_GENERATION_ATTEMPTS && shouldRetry(error)) {
+        await new Promise((resolve) => setTimeout(resolve, 2_000))
+        continue
+      }
+      break
+    }
+  }
+
+  return {
+    componentId: target.componentId,
+    reviewer: { kind: target.kind, id: target.id, name: target.reviewerName },
+    success: false,
+    attempt: MAX_GENERATION_ATTEMPTS,
+    draftId: null,
+    status: null,
+    generated: false,
+    reused: false,
+    confidence: null,
+    observations: [],
+    message: lastError instanceof Error ? lastError.message : 'Generation failed.',
+    errorStatus: lastError?.status || null,
+  }
+}
+
+async function loadDraftInventory(componentIds) {
+  const inventory = []
+  for (const componentId of componentIds) {
+    const payload = await adminRequest(
+      `/api/admin/wonderlab/review-drafts?componentId=${componentId}&limit=100`,
+    )
+    inventory.push({
+      componentId,
+      drafts: responseDataArray(payload, `Component ${componentId} draft inventory`),
+    })
+  }
+  return inventory
+}
+
+function targetedDrafts(inventory, targets) {
+  return targets.map((target) => {
+    const drafts = inventory.find((entry) => entry.componentId === target.componentId)?.drafts || []
+    const draft = drafts.find(
+      (entry) =>
+        entry?.author?.kind === target.kind &&
+        Number(entry?.author?.id) === target.id,
+    )
+    return {
+      target: targetIdentity(target),
+      reviewerName: target.reviewerName,
+      draft: draft
+        ? {
+            id: draft.id,
+            status: draft.status,
+            componentId: draft.componentId,
+            componentName: draft.componentName,
+            componentTitle: draft.componentTitle,
+            author: draft.author,
+            generatedComment: draft.generatedComment,
+            editedComment: draft.editedComment,
+            finalComment: draft.finalComment,
+            rating: draft.rating,
+            reactionType: draft.reactionType,
+            generationModel: draft.generationModel,
+            generationProvider: draft.generationProvider,
+            generationAttempt: draft.generationAttempt,
+            promptPayload: draft.promptPayload,
+            failureReason: draft.failureReason,
+            publishedReactionId: draft.publishedReactionId,
+          }
+        : null,
+    }
+  })
 }
 
 await mkdir(outputDir, { recursive: true })
@@ -244,18 +375,20 @@ try {
     )
   }
 
-  let executionPayload = null
-  let generated = []
+  const generated = []
   if (config.execute) {
-    executionPayload = await adminRequest('/api/admin/wonderlab/review-drafts/generate-batch', {
-      method: 'POST',
-      body: JSON.stringify({ ...requestBody, dryRun: false }),
-    })
-    const executionData = responseDataObject(executionPayload, 'Editorial batch execution')
-    assertCondition(executionData.dryRun === false, 'Editorial batch execution unexpectedly remained a dry run.')
-    generated = Array.isArray(executionData.generated) ? executionData.generated : []
-    await writeJson('batch-execution.json', executionPayload)
+    for (const target of targets) {
+      generated.push(await generateTarget(target, config))
+      await writeJson('batch-execution.json', { targets, generated })
+    }
   }
+
+  const inventoryIds = config.componentIds.length
+    ? config.componentIds
+    : [...new Set(targets.map((target) => target.componentId))]
+  const inventory = await loadDraftInventory(inventoryIds)
+  await writeJson('drafts-after-batch.json', inventory)
+  const drafts = targetedDrafts(inventory, targets)
 
   const summary = {
     batchId: config.batchId,
@@ -277,29 +410,20 @@ try {
     portfolio: dryRunData.plan?.portfolio || null,
     targetCount: targets.length,
     targets,
-    generated: generated.map((entry) => ({
-      componentId: entry.componentId,
-      reviewer: entry.reviewer
-        ? {
-            kind: entry.reviewer.author?.kind,
-            id: entry.reviewer.author?.id,
-            name: entry.reviewer.name,
-          }
-        : null,
-      success: entry.success === true,
-      draftId: entry.draftId || null,
-      status: entry.status || null,
-      message: entry.message || null,
-    })),
+    generated,
+    drafts,
     editorialBoundary: {
       approved: 0,
       published: 0,
     },
   }
   await writeJson('batch-summary.json', summary)
+
+  const failures = generated.filter((entry) => !entry.success)
   console.log(
-    `WonderLab editorial batch ${config.batchId}: ${summary.stage}; ${targets.length} target(s); ${generated.filter((entry) => entry.success).length} generated successfully.`,
+    `WonderLab editorial batch ${config.batchId}: ${summary.stage}; ${targets.length} target(s); ${generated.filter((entry) => entry.success).length} successful; ${failures.length} failed.`,
   )
+  if (failures.length) process.exitCode = 1
 } catch (error) {
   const failure = {
     message: error instanceof Error ? error.message : String(error),

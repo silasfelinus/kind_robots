@@ -1,41 +1,36 @@
 // /server/api/art/queue/reenqueue-failed.post.ts
-import { createError, defineEventHandler, readBody } from 'h3'
+//
+// Admin action: return every FAILED ArtJob to the queue in place. A failed job
+// is an exhausted work item, not a template for a replacement row. Requeueing
+// resets its attempt cycle, clears the terminal error and claim, and changes the
+// same job back to PENDING so the FAILED list remains an actionable worklist.
+import { createError, defineEventHandler } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
-import { serializeArtJobPayload } from '../../../utils/artJobPayload'
-import { prepareArtJobRetryPayload } from '../../../utils/artJobRetry'
 
-type ReenqueueFailedBody = {
-  refreshSeed?: boolean
-}
+const REQUEUE_CONCURRENCY = 10
 
-type FailedSourceJob = Awaited<
-  ReturnType<typeof prisma.artJob.findMany>
->[number]
-
-const CREATE_CONCURRENCY = 10
-
-function createRetryJob(source: FailedSourceJob, refreshSeed: boolean) {
-  const payload = prepareArtJobRetryPayload(
-    source.payload,
-    source.id,
-    source.artImageId,
-    'NEW_OUTPUT',
-    refreshSeed,
-  )
-
-  return prisma.artJob.create({
-    data: {
-      engine: source.engine,
-      payload: serializeArtJobPayload(payload),
-      priority: source.priority,
-      projectSlug: source.projectSlug,
-      projectId: source.projectId,
-      userId: source.userId,
+async function requeueFailedJob(id: number): Promise<number> {
+  const updated = await prisma.artJob.updateMany({
+    where: {
+      id,
+      status: 'FAILED',
     },
-    select: { id: true },
+    data: {
+      status: 'PENDING',
+      claimedAt: null,
+      claimedBy: null,
+      error: null,
+      attempts: 0,
+    },
   })
+
+  if (updated.count !== 1) {
+    throw new Error(`ArtJob ${id} was no longer FAILED.`)
+  }
+
+  return id
 }
 
 export default defineEventHandler(async (event) => {
@@ -45,28 +40,23 @@ export default defineEventHandler(async (event) => {
     if (!auth.isAdmin && !auth.isServerKey) {
       throw createError({
         statusCode: 403,
-        message: 'Admin access required to re-enqueue failed jobs.',
+        message: 'Admin access required to requeue failed jobs.',
       })
     }
-
-    const body = (await readBody(event).catch(() => null)) as
-      | ReenqueueFailedBody
-      | null
-    const refreshSeed = body?.refreshSeed !== false
 
     const sources = await prisma.artJob.findMany({
       where: { status: 'FAILED' },
       orderBy: { id: 'asc' },
+      select: { id: true },
     })
 
-    const queuedSourceJobIds: number[] = []
+    const requeuedJobIds: number[] = []
     const failedSourceJobIds: number[] = []
-    const createdJobIds: number[] = []
 
-    for (let index = 0; index < sources.length; index += CREATE_CONCURRENCY) {
-      const batch = sources.slice(index, index + CREATE_CONCURRENCY)
+    for (let index = 0; index < sources.length; index += REQUEUE_CONCURRENCY) {
+      const batch = sources.slice(index, index + REQUEUE_CONCURRENCY)
       const results = await Promise.allSettled(
-        batch.map((source) => createRetryJob(source, refreshSeed)),
+        batch.map((source) => requeueFailedJob(source.id)),
       )
 
       results.forEach((result, resultIndex) => {
@@ -74,19 +64,16 @@ export default defineEventHandler(async (event) => {
         if (!source) return
 
         if (result.status === 'fulfilled') {
-          queuedSourceJobIds.push(source.id)
-          createdJobIds.push(result.value.id)
+          requeuedJobIds.push(result.value)
         } else {
           failedSourceJobIds.push(source.id)
         }
       })
     }
 
-    const queuedCount = queuedSourceJobIds.length
+    const queuedCount = requeuedJobIds.length
     const failedCount = failedSourceJobIds.length
     const requestedCount = sources.length
-
-    event.node.res.statusCode = queuedCount > 0 ? 201 : 200
 
     return {
       success: true,
@@ -94,19 +81,20 @@ export default defineEventHandler(async (event) => {
         requestedCount === 0
           ? 'No failed art jobs were found.'
           : failedCount > 0
-            ? `Re-enqueued ${queuedCount} of ${requestedCount} failed art jobs. ${failedCount} could not be queued.`
-            : `Re-enqueued all ${queuedCount} failed art jobs as fresh outputs.`,
+            ? `Requeued ${queuedCount} of ${requestedCount} failed art jobs in place. ${failedCount} could not be requeued.`
+            : `Requeued all ${queuedCount} failed art jobs in place.`,
       data: {
         requestedCount,
         queuedCount,
         failedCount,
         sourceJobIds: sources.map((source) => source.id),
-        queuedSourceJobIds,
+        queuedSourceJobIds: requeuedJobIds,
         failedSourceJobIds,
-        createdJobIds,
-        refreshSeed,
+        createdJobIds: [],
+        refreshSeed: false,
+        requeuedJobIds,
       },
-      statusCode: event.node.res.statusCode,
+      statusCode: 200,
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
@@ -116,7 +104,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || 'Failed to re-enqueue failed art jobs.',
+      message: handled.message || 'Failed to requeue failed art jobs.',
       statusCode,
     }
   }

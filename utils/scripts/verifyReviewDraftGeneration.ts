@@ -15,8 +15,8 @@ async function runGroundingRegression(modulePath: string): Promise<void> {
   }
 }
 
-await runGroundingRegression('./verifyWonderLabReviewGrounding')
-await runGroundingRegression('./verifyWonderLabSourceEvidence')
+await runGroundingRegression('./verifyWonderLabReviewGrounding.ts')
+await runGroundingRegression('./verifyWonderLabSourceEvidence.ts')
 
 const generatorPath = 'server/utils/wonderLabReviewDraftGenerator.ts'
 const endpointPath = 'server/api/admin/wonderlab/review-drafts/generate.post.ts'

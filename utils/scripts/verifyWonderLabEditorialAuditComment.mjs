@@ -33,12 +33,22 @@ try {
           exhibitsWithIncompleteAssignment: 0,
         },
         diversity: {
+          eligibleBots: 2,
+          eligibleCharacters: 2,
           publishedBots: 1,
           publishedCharacters: 0,
           assignedBots: 2,
           assignedCharacters: 2,
           largestAssignmentCount: 1,
           largestAssignmentShare: 25,
+        },
+        representation: {
+          targetPerReviewer: 2,
+          minimumScore: 1,
+          eligibleReviewers: 4,
+          representedReviewers: 4,
+          meetingTargetReviewers: 3,
+          underrepresentedReviewerCount: 1,
         },
         reviewerUsage: [
           {
@@ -49,6 +59,18 @@ try {
             published: 1,
             drafted: 0,
             missing: 0,
+          },
+        ],
+        underrepresentedReviewers: [
+          {
+            name: 'Fixture Character',
+            kind: 'CHARACTER',
+            id: 2,
+            count: 1,
+            target: 2,
+            reason: 'INSUFFICIENT_RESPONSIBLE_MATCHES',
+            bestScore: 5,
+            responsibleExhibitCount: 1,
           },
         ],
       },
@@ -79,7 +101,10 @@ try {
   const comment = await readFile(commentPath, 'utf8')
   assert.match(comment, /PORTFOLIO_DIVERSE/)
   assert.match(comment, /Fixture Bot/)
+  assert.match(comment, /Fixture Character/)
   assert.match(comment, /4\/4 \(0 short\)/)
+  assert.match(comment, /3\/4 meet the target of 2/)
+  assert.match(comment, /INSUFFICIENT_RESPONSIBLE_MATCHES/)
   assert.match(comment, /run 12345/)
   assert.doesNotMatch(comment, /undefined|null/)
 

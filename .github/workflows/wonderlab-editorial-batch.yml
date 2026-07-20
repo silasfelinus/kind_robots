@@ -7,12 +7,18 @@ on:
       - '.github/workflows/wonderlab-editorial-batch.yml'
       - 'config/wonderlab-editorial-batch.json'
       - 'scripts/wonderlab-editorial-batch.mjs'
+      - 'server/api/admin/wonderlab/review-drafts/generate.post.ts'
+      - 'server/utils/wonderLabReviewDraftGenerator.ts'
+      - 'utils/scripts/verifyReviewDraftGeneration.ts'
   push:
     branches: [main]
     paths:
       - '.github/workflows/wonderlab-editorial-batch.yml'
       - 'config/wonderlab-editorial-batch.json'
       - 'scripts/wonderlab-editorial-batch.mjs'
+      - 'server/api/admin/wonderlab/review-drafts/generate.post.ts'
+      - 'server/utils/wonderLabReviewDraftGenerator.ts'
+      - 'utils/scripts/verifyReviewDraftGeneration.ts'
   workflow_dispatch:
 
 permissions:
@@ -53,13 +59,18 @@ jobs:
           const assert = require('node:assert').strict
           const source = fs.readFileSync('scripts/wonderlab-editorial-batch.mjs', 'utf8')
           const config = JSON.parse(fs.readFileSync('config/wonderlab-editorial-batch.json', 'utf8'))
+          const generator = fs.readFileSync('server/utils/wonderLabReviewDraftGenerator.ts', 'utf8')
 
           for (const required of [
             '/api/version',
             '/api/admin/wonderlab/review-rollout',
             '/api/admin/wonderlab/review-drafts/generate-batch',
+            '/api/admin/wonderlab/review-drafts/generate',
+            '/api/admin/wonderlab/review-drafts?componentId=',
             'dryRun: true',
             'expectedTargets',
+            'MAX_GENERATION_ATTEMPTS = 2',
+            'drafts-after-batch.json',
             'WONDERLAB_EDITORIAL_BATCH_ALLOW_EXECUTE',
             'The global portfolio targets changed after review',
           ]) {
@@ -78,7 +89,10 @@ jobs:
           }
 
           assert.match(source, /if \(config\.execute\)[\s\S]*expectedTargets/)
-          assert.match(source, /dryRunPayload[\s\S]*if \(config\.execute\)[\s\S]*dryRun: false/)
+          assert.match(source, /for \(const target of targets\)[\s\S]*generateTarget\(target, config\)/)
+          assert.doesNotMatch(source, /generate-batch[\s\S]{0,500}dryRun:\s*false/)
+          assert.match(generator, /REVIEW_GENERATION_TIMEOUT_MS = 30_000/)
+          assert.match(generator, /timed out before the serverless deadline/)
           assert.ok(config.execute === false || config.expectedTargets.length > 0)
           assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
           console.log('WonderLab editorial batch safety contract passed.')
@@ -217,10 +231,15 @@ jobs:
               lines.push('', '### Draft results', '')
               for (const entry of summary.generated) {
                 lines.push(
-                  `- Component #${entry.componentId} / **${entry.reviewer?.name || 'Reviewer'}**: ${entry.success ? `draft #${entry.draftId} · ${entry.status}` : `failed · ${entry.message}`}`,
+                  `- Component #${entry.componentId} / **${entry.reviewer?.name || 'Reviewer'}**: ${entry.success ? `draft #${entry.draftId} · ${entry.status}${entry.reused ? ' · reused' : ''}` : `failed · ${entry.message}`}`,
                 )
               }
               lines.push('', '- **Editorial boundary:** zero approvals and zero publications')
+            }
+
+            if (Array.isArray(summary?.drafts)) {
+              const inventoried = summary.drafts.filter((entry) => entry?.draft).length
+              lines.push(`- **Targeted drafts inventoried:** ${inventoried}/${summary.drafts.length}`)
             }
 
             if (failure) lines.push('', `- **Failure:** ${failure.message || 'See uploaded evidence.'}`)

@@ -6,7 +6,7 @@ on:
     paths:
       - 'server/api/dreams/mutation.ts'
       - 'server/api/dreams/index.post.ts'
-      - 'server/api/dreams/[id].patch.ts'
+      - 'server/api/dreams/\[id\].patch.ts'
       - 'server/api/dreams/batch.post.ts'
       - 'cypress/e2e/api/dream-input-boundary.cy.ts'
       - 'cypress/e2e/api/dream-relation-permission.cy.ts'

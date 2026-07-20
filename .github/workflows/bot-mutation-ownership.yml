@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'server/api/bots/index.post.ts'
-      - 'server/api/bots/[id].patch.ts'
+      - 'server/api/bots/\[id\].patch.ts'
       - 'server/api/bots/batch.post.ts'
       - 'stores/helpers/botHelper.ts'
       - 'cypress/e2e/api/bots.cy.ts'

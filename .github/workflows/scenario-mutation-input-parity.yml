@@ -7,7 +7,7 @@ on:
       - 'server/api/scenarios/mutation.ts'
       - 'server/api/scenarios/create.ts'
       - 'server/api/scenarios/index.post.ts'
-      - 'server/api/scenarios/[id].patch.ts'
+      - 'server/api/scenarios/\[id\].patch.ts'
       - 'server/api/scenarios/batch.post.ts'
       - 'server/api/scenarios/batch.patch.ts'
       - 'cypress/e2e/api/scenario-input-boundary.cy.ts'

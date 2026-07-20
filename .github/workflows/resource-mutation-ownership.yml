@@ -7,7 +7,7 @@ on:
       - 'server/api/resources/create.ts'
       - 'server/api/resources/index.post.ts'
       - 'server/api/resources/batch.post.ts'
-      - 'server/api/resources/[id].patch.ts'
+      - 'server/api/resources/\[id\].patch.ts'
       - 'cypress/e2e/api/resources.cy.ts'
       - 'utils/scripts/verifyResourceMutationOwnership.ts'
       - '.github/workflows/resource-mutation-ownership.yml'

@@ -7,7 +7,7 @@ on:
       - 'server/api/themes/mutation.ts'
       - 'server/api/themes/index.ts'
       - 'server/api/themes/index.post.ts'
-      - 'server/api/themes/[id].patch.ts'
+      - 'server/api/themes/\[id\].patch.ts'
       - 'server/api/themes/batch.post.ts'
       - 'stores/themeStore.ts'
       - 'cypress/e2e/api/theme-input-boundary.cy.ts'

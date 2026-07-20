@@ -82,6 +82,9 @@ jobs:
       - name: Deploy-wait ancestry check contract
         run: npm run test:deploy-wait-ancestry
 
+      - name: Deploy-wait no-op check contract
+        run: npm run test:deploy-wait-noop
+
       - name: Prisma JSON-cast contract
         run: npm run test:no-prisma-json-cast
 

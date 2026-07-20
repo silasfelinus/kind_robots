@@ -61,17 +61,17 @@ only when it matches.
   `projectMutationSelect` instead of the heavy `projectInclude` graph, matching
   create/PATCH (PR #611).
 
-### In review (built; awaiting smoke test against the running app)
-- **F-2 residual** — `art/image/[id].patch` now existence + permission gates
-  `serverId`/`checkpointResourceId` (server keys bypass), and the
+- **[FIXED] F-2 residual** — `art/image/[id].patch` now existence + permission
+  gates `serverId`/`checkpointResourceId` (server keys bypass), and the
   `reactions/art` / `reactions/dream` sub-patches now visibility-check their
   target (PR #628).
-- **F-4** — the `bots` (PR #623) and `prompts`/`resources`/`server` (PR #624)
-  create paths now reject unknown fields via an allowlist + `assertOnlyFields`,
-  each carrying a full round-trip compatibility set. These round-trip whole
-  `Partial<Model>` payloads from their stores, so they should ship only after a
-  create is confirmed against the running app (a genuinely-unknown key 400s; a
-  legitimate column would need adding to the compat set).
+- **[FIXED] F-4** — the `bots` (PR #623) and `prompts`/`resources`/`server`
+  (PR #624) create paths now reject unknown fields via an allowlist +
+  `assertOnlyFields`, each carrying a full round-trip compatibility set built
+  from every model column. A genuinely-unknown key 400s; if a real create ever
+  400s with "Unsupported <Model> fields: X", add `X` to that route's compat set.
+  The live e2e suite (`cypress.yml`, push-to-main) exercises a happy-path create
+  per family, so a broken allowlist surfaces there post-merge.
 
 ### Remaining — ranked
 
@@ -102,16 +102,15 @@ only when it matches.
 
 ## Definition-of-done status
 - No public mutation persists ownership from request identity. ✅
-- Every hardened family rejects unknown/system fields; the last silent-ignore
-  create paths (bots/prompts/resources/server) have reject boundaries in review
-  (F-4, PRs #623/#624). ◑→✅ pending merge
-- Relation IDs are bounded + existence + permission checked across the core
-  families, bots, and projects; the `art/image` patch and reaction sub-patches
-  are gated in review (F-2 residual, PR #628). ◑→✅ pending merge
+- Every public create/patch path rejects unknown/system fields via an explicit
+  allowlist (F-4 closed for bots/prompts/resources/server). ✅
+- Relation IDs are bounded + existence + permission checked across every family
+  with writable relations, including bots, projects, the `art/image` patch, and
+  the reaction sub-patches (F-2 fully closed). ✅
 - The self-service user PATCH is an explicit allowlist; no owner-reassignment
   path remains (F-1 closed, F-3 closed). ✅
 - Mutation envelopes and status codes are consistent. ✅
 - CI has no self-mutating PR workflows. ✅
-- The only genuinely client-coupled remainders — F-5 (art/image blob projection)
-  and Phase 4 (the `?? 10` store fallback) — need a client change / running-app
-  validation and are intentionally left for a product decision.
+- The only remainders — F-5 (art/image blob projection) and Phase 4 (the `?? 10`
+  store fallback) — are client-coupled and intentionally left for a client-side
+  change / product decision, not a blind server edit.

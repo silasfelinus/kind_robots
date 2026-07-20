@@ -287,6 +287,33 @@ function withStatusCode(message: string, statusCode: number): Error {
   return error
 }
 
+// A life run/choice may only reference records the player is allowed to attach:
+// their own, or a public one. Without this the raw characterId/dreamId/botId/
+// artCollectionId/chatId FKs let a user pin — and then read back through the run
+// — another user's PRIVATE record (audit P6 MEDIUM/LOW). A non-existent id
+// passes here and is caught by the FK constraint on write.
+async function assertAttachable(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model: { count: (args: any) => Promise<number> },
+  id: number | null | undefined,
+  userId: number,
+  label: string,
+): Promise<void> {
+  if (id === null || id === undefined) return
+  if (!Number.isInteger(id) || id <= 0) {
+    throw withStatusCode(`${label} must be a positive integer.`, 400)
+  }
+  const forbidden = await model.count({
+    where: { id, NOT: { OR: [{ userId }, { isPublic: true }] } },
+  })
+  if (forbidden > 0) {
+    throw withStatusCode(
+      `You do not have permission to attach that ${label}.`,
+      403,
+    )
+  }
+}
+
 export interface CreateLifeRunInput {
   title: string
   seed?: string | null
@@ -310,6 +337,18 @@ export async function createLifeRun(userId: number, input: CreateLifeRunInput) {
     typeof input.currentChapter === 'number' && input.currentChapter > 0
       ? input.currentChapter
       : 1
+
+  await Promise.all([
+    assertAttachable(prisma.character, input.characterId, userId, 'Character'),
+    assertAttachable(prisma.dream, input.dreamId, userId, 'Dream'),
+    assertAttachable(prisma.bot, input.botId, userId, 'Bot'),
+    assertAttachable(
+      prisma.artCollection,
+      input.artCollectionId,
+      userId,
+      'ArtCollection',
+    ),
+  ])
 
   return prisma.lifeRun.create({
     data: {
@@ -363,6 +402,8 @@ export async function recordLifeChoice(
       throw withStatusCode(`effect "${key}" must be a finite number.`, 400)
     }
   }
+
+  await assertAttachable(prisma.chat, input.chatId, userId, 'Chat')
 
   return prisma.$transaction(async (tx) => {
     const run = await tx.lifeRun.findUnique({ where: { id: lifeRunId } })

@@ -1,0 +1,33 @@
+name: ArtJob Lineage Cleanup Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prisma/migrations/20260720235000_squash_artjob_lineage_duplicates/migration.sql'
+      - 'utils/scripts/verifyArtJobLineageCleanup.ts'
+      - '.github/workflows/artjob-lineage-cleanup-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify lineage cleanup migration
+        run: npx tsx utils/scripts/verifyArtJobLineageCleanup.ts

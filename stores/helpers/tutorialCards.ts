@@ -538,6 +538,12 @@ export const tutorialChannels = {
         body: 'The app factory — browse the fleet of apps already built, or spin up a new one from a name and a one-line description. Every app is a workspace folder, a project roadmap, and a Dream sharing one slug, so it plugs straight into the rest of Kind Robots.',
         image: tutorialImage('conductor', 'appmaker'),
       },
+      {
+        key: 'conductor-app',
+        title: 'Conductor App',
+        body: 'The companion Flutter client for Conductor — review projects, approve gates, and nudge the build loop from a phone. Built in the open, one roadmap task at a time; not on the App Store or Play Store yet.',
+        image: tutorialImage('conductor', 'conductor-app'),
+      },
     ],
   },
   packs: {

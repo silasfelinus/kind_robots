@@ -1,4 +1,18 @@
 // /utils/wonderlab/componentManifest.ts
+export type WonderLabComponentSourceEvidence = {
+  version: 1
+  lineCount: number
+  blocks: string[]
+  props: string[]
+  emits: string[]
+  customComponents: string[]
+  nativeElements: string[]
+  staticText: string[]
+  functionNames: string[]
+  localImports: string[]
+  facts: string[]
+}
+
 export type WonderLabManifestEntry = {
   sourceKey: string
   sourcePath: string
@@ -6,6 +20,7 @@ export type WonderLabManifestEntry = {
   componentName: string
   slug: string
   folderName: string
+  sourceEvidence?: WonderLabComponentSourceEvidence | null
 }
 
 export type WonderLabComponentManifest = {
@@ -26,6 +41,28 @@ function normalizeComponentName(value: string): string {
   return value.trim().replace(/\.vue$/i, '').toLowerCase()
 }
 
+function stringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((entry) => typeof entry === 'string')
+}
+
+function isSourceEvidence(value: unknown): value is WonderLabComponentSourceEvidence {
+  if (!value || typeof value !== 'object') return false
+  const evidence = value as Partial<WonderLabComponentSourceEvidence>
+  return (
+    evidence.version === 1 &&
+    typeof evidence.lineCount === 'number' &&
+    stringArray(evidence.blocks) &&
+    stringArray(evidence.props) &&
+    stringArray(evidence.emits) &&
+    stringArray(evidence.customComponents) &&
+    stringArray(evidence.nativeElements) &&
+    stringArray(evidence.staticText) &&
+    stringArray(evidence.functionNames) &&
+    stringArray(evidence.localImports) &&
+    stringArray(evidence.facts)
+  )
+}
+
 function isManifest(value: unknown): value is WonderLabComponentManifest {
   if (!value || typeof value !== 'object') return false
 
@@ -39,7 +76,10 @@ function isManifest(value: unknown): value is WonderLabComponentManifest {
         typeof entry.sourcePath === 'string' &&
         typeof entry.sourceHash === 'string' &&
         typeof entry.componentName === 'string' &&
-        typeof entry.folderName === 'string',
+        typeof entry.folderName === 'string' &&
+        (entry.sourceEvidence === undefined ||
+          entry.sourceEvidence === null ||
+          isSourceEvidence(entry.sourceEvidence)),
     )
   )
 }

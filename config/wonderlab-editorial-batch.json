@@ -1,16 +1,18 @@
 {
   "version": 1,
-  "batchId": "wonderlab-editorial-001-remainder",
+  "batchId": "wonderlab-source-grounded-quality-probe-001",
   "execute": true,
-  "minimumProductionCommit": "ad11e4d7907263514d5eef27acf18b8813bd9013",
-  "componentIds": [885],
-  "limit": 1,
+  "minimumProductionCommit": "201c46d846e2945e279732eb74b795d53e1f5610",
+  "componentIds": [1951, 124],
+  "limit": 2,
   "reviewersPerComponent": 2,
   "minimumScore": 0,
   "model": "gpt-4o-mini",
-  "regenerate": false,
+  "regenerate": true,
   "expectedTargets": [
-    { "componentId": 885, "kind": "CHARACTER", "id": 243 },
-    { "componentId": 885, "kind": "BOT", "id": 394 }
+    { "componentId": 1951, "kind": "CHARACTER", "id": 365 },
+    { "componentId": 1951, "kind": "BOT", "id": 12 },
+    { "componentId": 124, "kind": "CHARACTER", "id": 242 },
+    { "componentId": 124, "kind": "BOT", "id": 398 }
   ]
 }

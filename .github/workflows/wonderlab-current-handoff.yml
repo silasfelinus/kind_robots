@@ -1,0 +1,73 @@
+name: WonderLab Current Handoff
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-current-handoff.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  capture:
+    name: Capture current editorial targets
+    if: contains(github.event.head_commit.message, '[wonderlab-current-handoff]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Run current dry-run manifest
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_EDITORIAL_BATCH_OUTPUT: wonderlab-current-handoff-artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "${WONDERLAB_ADMIN_TOKEN:-}" ]; then
+            echo '::error::CYPRESS_BETA_ADMIN_TOKEN is not configured.'
+            exit 1
+          fi
+          node scripts/wonderlab-editorial-batch.mjs
+
+      - name: Create compact handoff issue
+        uses: actions/github-script@v7
+        env:
+          OUTPUT_DIR: wonderlab-current-handoff-artifacts
+        with:
+          script: |
+            const fs = require('node:fs')
+            const path = require('node:path')
+            const summaryPath = path.join(process.env.OUTPUT_DIR, 'batch-summary.json')
+            if (!fs.existsSync(summaryPath)) throw new Error('batch-summary.json was not produced')
+            const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'))
+            const identities = (summary.targets || []).map(({ componentId, kind, id }) => ({ componentId, kind, id }))
+            const lines = [
+              `# ${summary.batchId}`,
+              '',
+              `- Stage: **${summary.stage}**`,
+              `- Production: \`${summary.production?.commit || 'unknown'}\``,
+              `- Targets: **${summary.targetCount || 0}**`,
+              '',
+              '## Reviewed targets',
+              '',
+            ]
+            for (const target of summary.targets || []) {
+              lines.push(`- Component #${target.componentId} **${target.componentName || 'Untitled'}** → **${target.reviewerName || `${target.kind} #${target.id}`}** (${target.kind} #${target.id})`)
+            }
+            lines.push('', '## Machine-readable identities', '', '```json', JSON.stringify(identities, null, 2), '```', '', 'Refs #582.')
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `WonderLab handoff: ${summary.batchId}`,
+              body: lines.join('\n'),
+            })

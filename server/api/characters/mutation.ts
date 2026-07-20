@@ -505,6 +505,93 @@ export async function assertCharacterRelationsExist(input: {
   assertFound(dreamIds, dreams, 'Dream')
 }
 
+// Permission gate for relation connects: a non-admin may only attach public or
+// self-owned ArtImage/Reward/Scenario/Dream targets. Composes with the existence
+// check (which runs inside the builders) — it counts only rows that exist AND are
+// private AND owned by someone else, so a missing ID still yields the 404 existence
+// error rather than a masked 403. Admins bypass. Handles both the direct id-array
+// and batch connect-object relation forms.
+export async function assertCharacterRelationsAttachable(
+  body: {
+    artImageId?: unknown
+    rewardIds?: unknown
+    Rewards?: unknown
+    scenarioIds?: unknown
+    Scenarios?: unknown
+    dreamIds?: unknown
+    Dreams?: unknown
+  },
+  userId: number,
+  isAdmin: boolean,
+): Promise<void> {
+  if (isAdmin) return
+
+  const artImageId = normalizeCharacterNullableId(body.artImageId, 'artImageId')
+  const artImageIds = typeof artImageId === 'number' ? [artImageId] : []
+  const rewardIds = normalizeCharacterRelationIds(
+    body.rewardIds,
+    body.Rewards,
+    'rewardIds',
+    'Rewards',
+  )
+  const scenarioIds = normalizeCharacterRelationIds(
+    body.scenarioIds,
+    body.Scenarios,
+    'scenarioIds',
+    'Scenarios',
+  )
+  const dreamIds = normalizeCharacterRelationIds(
+    body.dreamIds,
+    body.Dreams,
+    'dreamIds',
+    'Dreams',
+  )
+
+  const notAttachable = { NOT: { OR: [{ userId }, { isPublic: true }] } }
+
+  const [artForbidden, rewardForbidden, scenarioForbidden, dreamForbidden] =
+    await Promise.all([
+      artImageIds.length
+        ? prisma.artImage.count({
+            where: { id: { in: artImageIds }, ...notAttachable },
+          })
+        : 0,
+      rewardIds.length
+        ? prisma.reward.count({
+            where: { id: { in: rewardIds }, ...notAttachable },
+          })
+        : 0,
+      scenarioIds.length
+        ? prisma.scenario.count({
+            where: { id: { in: scenarioIds }, ...notAttachable },
+          })
+        : 0,
+      dreamIds.length
+        ? prisma.dream.count({
+            where: { id: { in: dreamIds }, ...notAttachable },
+          })
+        : 0,
+    ])
+
+  const forbiddenLabel =
+    artForbidden > 0
+      ? 'ArtImage'
+      : rewardForbidden > 0
+        ? 'Reward'
+        : scenarioForbidden > 0
+          ? 'Scenario'
+          : dreamForbidden > 0
+            ? 'Dream'
+            : null
+
+  if (forbiddenLabel) {
+    throw createError({
+      statusCode: 403,
+      message: `You do not have permission to attach one or more ${forbiddenLabel} records to this Character.`,
+    })
+  }
+}
+
 export async function buildCharacterCreateInput(options: {
   rawInput: unknown
   userId: number

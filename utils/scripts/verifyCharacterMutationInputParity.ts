@@ -26,6 +26,9 @@ const createRoute = read('server/api/characters/index.post.ts')
 const patchRoute = read('server/api/characters/[id].patch.ts')
 const batchRoute = read('server/api/characters/batch.post.ts')
 const cypressSpec = read('cypress/e2e/api/character-input-boundary.cy.ts')
+const permissionSpec = read(
+  'cypress/e2e/api/character-relation-permission.cy.ts',
+)
 
 requireText(
   boundary,
@@ -144,6 +147,39 @@ requireText(
   cypressSpec,
   'keeps Character batch imports strict, bounded, and lean',
   'Character batch deployed regression',
+)
+
+// Phase 2: relation-connect targets must be public or owned by the caller (admins
+// bypass). The gate is wired into create, PATCH, and batch routes.
+requireText(
+  boundary,
+  'export async function assertCharacterRelationsAttachable',
+  'Character relation permission gate',
+)
+requireText(
+  boundary,
+  'NOT: { OR: [{ userId }, { isPublic: true }] }',
+  'Character relation permission clause',
+)
+requireText(
+  createRoute,
+  'assertCharacterRelationsAttachable(',
+  'Character create relation permission wiring',
+)
+requireText(
+  patchRoute,
+  'assertCharacterRelationsAttachable(body, user.id, isAdmin)',
+  'Character patch relation permission wiring',
+)
+requireText(
+  batchRoute,
+  'assertCharacterRelationsAttachable(',
+  'Character batch relation permission wiring',
+)
+requireText(
+  permissionSpec,
+  'forbids attaching another user private Reward on Character creation',
+  'Character relation permission deployed regression',
 )
 
 console.log('Character mutation input parity contract passed.')

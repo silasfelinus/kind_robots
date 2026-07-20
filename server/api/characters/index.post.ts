@@ -10,6 +10,7 @@ import {
 } from '../../utils/characterSlug'
 import {
   assertCharacterMutationInput,
+  assertCharacterRelationsAttachable,
   buildCharacterCreateInput,
   normalizeCharacterName,
 } from './mutation'
@@ -40,6 +41,13 @@ export default defineEventHandler(async (event) => {
     assertCharacterCreateCompatibility(rawBody)
 
     const body = stripCharacterCompatibilityFields(rawBody)
+
+    await assertCharacterRelationsAttachable(
+      body,
+      user.id,
+      user.Role === 'ADMIN' || user.id === 1,
+    )
+
     const name = normalizeCharacterName(body.name)
     const nameKey = getCharacterNameKey(name)
 

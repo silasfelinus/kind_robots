@@ -7,6 +7,7 @@ import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueCharacterSlug } from '../../utils/characterSlug'
 import {
   assertCharacterMutationInput,
+  assertCharacterRelationsAttachable,
   buildCharacterUpdateInput,
   normalizeCharacterName,
 } from './mutation'
@@ -75,6 +76,9 @@ export default defineEventHandler(async (event) => {
     assertCharacterPatchCompatibility(rawBody, id, existingCharacter.userId)
 
     const body = stripCharacterCompatibilityFields(rawBody)
+
+    await assertCharacterRelationsAttachable(body, user.id, isAdmin)
+
     const data = await buildCharacterUpdateInput(body)
 
     if (body.name !== undefined) {

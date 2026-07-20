@@ -80,7 +80,8 @@ export default defineEventHandler(async (event) => {
       requireNonEmpty: true,
     })
 
-    const data = await updateRewardById(rewardId, rewardData)
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const data = await updateRewardById(rewardId, rewardData, user.id, isAdmin)
 
     event.node.res.statusCode = 200
 

@@ -11,7 +11,7 @@ import {
   rewardMutationSelect,
   type RewardMutationResult,
 } from './selects'
-import { assertRewardRelationsExist } from './mutation'
+import { assertRewardRelationsAttachable } from './mutation'
 
 export type RewardRelationInput = {
   characterIds?: number[]
@@ -395,8 +395,9 @@ export function buildUpdateData(
 export async function createReward(
   input: RewardMutationInput,
   authenticatedUserId: number,
+  isAdmin: boolean,
 ): Promise<RewardMutationResult> {
-  await assertRewardRelationsExist(input)
+  await assertRewardRelationsAttachable(input, authenticatedUserId, isAdmin)
 
   return await prisma.reward.create({
     data: buildCreateData(input, authenticatedUserId),
@@ -407,6 +408,7 @@ export async function createReward(
 export async function createRewardsBatch(
   inputs: RewardMutationInput[],
   authenticatedUserId: number,
+  isAdmin: boolean,
 ): Promise<{
   count: number
   rewards: RewardMutationResult[]
@@ -417,7 +419,7 @@ export async function createRewardsBatch(
 
   for (const [index, input] of inputs.entries()) {
     try {
-      const reward = await createReward(input, authenticatedUserId)
+      const reward = await createReward(input, authenticatedUserId, isAdmin)
 
       rewards.push(reward)
     } catch (error) {
@@ -478,8 +480,10 @@ export async function fetchAllRewards(): Promise<RewardWithRelations[]> {
 export async function updateRewardById(
   id: number,
   input: RewardMutationInput,
+  authenticatedUserId: number,
+  isAdmin: boolean,
 ): Promise<RewardMutationResult> {
-  await assertRewardRelationsExist(input)
+  await assertRewardRelationsAttachable(input, authenticatedUserId, isAdmin)
 
   return await prisma.reward.update({
     where: { id },

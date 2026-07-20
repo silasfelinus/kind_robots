@@ -291,25 +291,6 @@ export function assertRewardMutationInput(
   }
 }
 
-async function assertIdsExist(
-  ids: number[],
-  find: (idsIn: number[]) => Promise<Array<{ id: number }>>,
-  label: string,
-): Promise<void> {
-  if (!ids.length) return
-
-  const found = await find(ids)
-  const foundIds = new Set(found.map((row) => row.id))
-  const missing = ids.filter((id) => !foundIds.has(id))
-
-  if (missing.length) {
-    throw createError({
-      statusCode: 404,
-      message: `${label} not found: ${missing.join(', ')}.`,
-    })
-  }
-}
-
 type RewardRelationExistenceInput = {
   characterIds?: unknown
   dreamIds?: unknown
@@ -318,11 +299,51 @@ type RewardRelationExistenceInput = {
   artImageId?: unknown
 }
 
-// Verifies that every connect/set relation target and artImage referenced by a
-// Reward mutation actually exists before the write. Disconnect (remove*) targets
-// are not existence-checked because disconnecting a missing relation is a no-op.
-export async function assertRewardRelationsExist(
+type OwnableRow = { id: number; userId: number | null; isPublic: boolean | null }
+
+// Verifies existence (404 for missing) and permission (403 for a private target
+// owned by someone else) for every connect/set relation target. A non-admin may
+// only attach public or self-owned rows; admins skip the permission check but
+// still get the existence check. Disconnect (remove*) targets are not checked
+// because disconnecting a missing relation is a no-op.
+async function assertRelationAccessible(
+  ids: number[],
+  find: (idsIn: number[]) => Promise<OwnableRow[]>,
+  label: string,
+  userId: number,
+  isAdmin: boolean,
+): Promise<void> {
+  if (!ids.length) return
+
+  const rows = await find(ids)
+  const foundIds = new Set(rows.map((row) => row.id))
+  const missing = ids.filter((id) => !foundIds.has(id))
+
+  if (missing.length) {
+    throw createError({
+      statusCode: 404,
+      message: `${label} not found: ${missing.join(', ')}.`,
+    })
+  }
+
+  if (isAdmin) return
+
+  const forbidden = rows.filter(
+    (row) => row.userId !== userId && row.isPublic !== true,
+  )
+
+  if (forbidden.length) {
+    throw createError({
+      statusCode: 403,
+      message: `You do not have permission to attach one or more ${label} records to this Reward.`,
+    })
+  }
+}
+
+export async function assertRewardRelationsAttachable(
   input: RewardRelationExistenceInput,
+  userId: number,
+  isAdmin: boolean,
 ): Promise<void> {
   const characterIds = Array.from(
     new Set([
@@ -347,37 +368,39 @@ export async function assertRewardRelationsExist(
     'artImageId',
   )
 
-  await assertIdsExist(
+  await assertRelationAccessible(
     characterIds,
     (idsIn) =>
       prisma.character.findMany({
         where: { id: { in: idsIn } },
-        select: { id: true },
+        select: { id: true, userId: true, isPublic: true },
       }),
     'Reward Character relation',
+    userId,
+    isAdmin,
   )
 
-  await assertIdsExist(
+  await assertRelationAccessible(
     dreamIds,
     (idsIn) =>
       prisma.dream.findMany({
         where: { id: { in: idsIn } },
-        select: { id: true },
+        select: { id: true, userId: true, isPublic: true },
       }),
     'Reward Dream relation',
+    userId,
+    isAdmin,
   )
 
-  if (typeof artImageId === 'number') {
-    const artImage = await prisma.artImage.findUnique({
-      where: { id: artImageId },
-      select: { id: true },
-    })
-
-    if (!artImage) {
-      throw createError({
-        statusCode: 404,
-        message: `Reward ArtImage relation not found: ${artImageId}.`,
-      })
-    }
-  }
+  await assertRelationAccessible(
+    typeof artImageId === 'number' ? [artImageId] : [],
+    (idsIn) =>
+      prisma.artImage.findMany({
+        where: { id: { in: idsIn } },
+        select: { id: true, userId: true, isPublic: true },
+      }),
+    'Reward ArtImage relation',
+    userId,
+    isAdmin,
+  )
 }

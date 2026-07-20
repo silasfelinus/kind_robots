@@ -1,8 +1,6 @@
-import {
-  buildWonderLabReviewPortfolio,
-  type WonderLabPortfolioRepresentationSummary,
-} from '@/server/utils/wonderLabReviewPortfolio'
+import { buildWonderLabReviewPortfolio } from '@/server/utils/wonderLabReviewPortfolio'
 import type { WonderLabReviewPlan } from '@/server/utils/wonderLabReviewPlan'
+import type { WonderLabPortfolioRepresentationSummary } from '@/utils/wonderlab/reviewerPortfolio'
 import { selectWonderLabReviewPortfolioBatch } from '@/utils/wonderlab/reviewPortfolioBatch'
 
 export const WONDERLAB_EDITORIAL_PORTFOLIO_POLICY = {

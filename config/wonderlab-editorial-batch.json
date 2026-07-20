@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "batchId": "wonderlab-editorial-001-dry-run",
+  "execute": false,
+  "minimumProductionCommit": "043ea2cdf12b3e3929b970778303391413c19284",
+  "componentIds": [],
+  "limit": 5,
+  "reviewersPerComponent": 2,
+  "minimumScore": 0,
+  "model": "gpt-4o-mini",
+  "regenerate": false,
+  "expectedTargets": []
+}

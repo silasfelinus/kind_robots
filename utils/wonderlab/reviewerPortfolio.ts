@@ -58,6 +58,7 @@ export type WonderLabPortfolioRepresentationSummary = {
 export type AssignWonderLabReviewerPortfolioOptions = {
   reviewersPerExhibit?: number
   diversityPenalty?: number
+  assignmentMinimumScore?: number
   minimumAssignmentsPerReviewer?: number
   representationMinimumScore?: number
 }
@@ -198,6 +199,7 @@ export function assignWonderLabReviewerPortfolio(
     Math.min(2, Math.round(options.reviewersPerExhibit ?? 2)),
   )
   const diversityPenalty = Math.max(0, options.diversityPenalty ?? 4)
+  const assignmentMinimumScore = options.assignmentMinimumScore ?? 0
   const representationTarget = Math.max(
     0,
     Math.min(2, Math.round(options.minimumAssignmentsPerReviewer ?? 1)),
@@ -292,6 +294,7 @@ export function assignWonderLabReviewerPortfolio(
       const available = exhibit.candidates.filter(
         (candidate) =>
           candidate.voiceReady &&
+          candidate.score >= assignmentMinimumScore &&
           !alreadySelected.some((entry) => entry.reviewerKey === candidate.reviewerKey),
       )
       return {
@@ -315,6 +318,7 @@ export function assignWonderLabReviewerPortfolio(
       let pool = exhibit.candidates.filter(
         (candidate) =>
           candidate.voiceReady &&
+          candidate.score >= assignmentMinimumScore &&
           !reviewers.some((entry) => entry.reviewerKey === candidate.reviewerKey),
       )
       if (!pool.length) break

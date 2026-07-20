@@ -394,75 +394,61 @@ export async function generateWonderLabReviewDraft(
     narratorThreads: threads,
   })
   const model = normalizeModel(input.model)
-  const promptHash = createHash('sha256')
-    .update(JSON.stringify({ prompt, model, attempt }))
-    .digest('hex')
-
-  let generated: GeneratedPayload
-  try {
-    generated = await requestOpenAiReview({
+  const basePromptHash = createHash('sha256')
+    .update(JSON.stringify({
       model,
       system: prompt.system,
       user: prompt.user,
       responseSchema: prompt.responseSchema,
-    })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Review generation failed.'
-    const existingFailed = await latestDraft(input.componentId, input.author)
-    if (existingFailed && existingFailed.status === 'FAILED' && !input.regenerate) {
-      return {
-        draft: existingFailed,
-        generated: false,
-        reused: true,
-        confidence: null,
-        observations: [],
-      }
-    }
-    throw new Error(message)
-  }
+    }))
+    .digest('hex')
+  const promptHash = createHash('sha256')
+    .update(`${basePromptHash}:attempt:${attempt}`)
+    .digest('hex')
 
-  const result = await createReviewDraft({
+  const generated = await requestOpenAiReview({
+    model,
+    system: prompt.system,
+    user: prompt.user,
+    responseSchema: prompt.responseSchema,
+  })
+
+  const created = await createReviewDraft({
     componentId: input.componentId,
     author: input.author,
     promptVersion: PROMPT_VERSION,
     promptHash,
     promptPayload: {
-      prompt,
-      affinityScore: affinity.score,
-      affinityReasons: affinity.reasons,
-      reviewerKey: affinity.reviewerKey,
-      narratorThreadCount: threads.length,
-      observations: generated.observations,
-      confidence: generated.confidence,
+      ...prompt,
+      basePromptHash,
+      generationAttempt: attempt,
+      generationResult: {
+        confidence: generated.confidence,
+        observations: generated.observations,
+      },
     },
     generatedComment: generated.comment,
     rating: generated.rating,
     reactionType: reactionTypeForRating(generated.rating),
     generationModel: model,
-    generationProvider: 'openai',
+    generationProvider: 'OPENAI',
     generationAttempt: attempt,
   })
 
+  let draft = created.draft
   if (generated.confidence < MINIMUM_CONFIDENCE) {
-    const failed = await updateReviewDraft({
-      id: result.draft.id,
+    draft = await updateReviewDraft({
+      id: draft.id,
       actorUserId: input.actorUserId,
       status: 'FAILED',
-      failureReason: `Generation confidence ${generated.confidence.toFixed(2)} was below ${MINIMUM_CONFIDENCE.toFixed(2)}.`,
+      failureReason: `Generation confidence ${generated.confidence.toFixed(2)} is below ${MINIMUM_CONFIDENCE.toFixed(2)}.`,
     })
-    return {
-      draft: failed,
-      generated: result.created,
-      reused: !result.created,
-      confidence: generated.confidence,
-      observations: generated.observations,
-    }
   }
 
   return {
-    draft: result.draft,
-    generated: result.created,
-    reused: !result.created,
+    draft,
+    generated: true,
+    reused: false,
     confidence: generated.confidence,
     observations: generated.observations,
   }

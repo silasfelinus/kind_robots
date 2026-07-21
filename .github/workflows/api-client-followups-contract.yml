@@ -1,0 +1,38 @@
+name: API Client Follow-ups Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/api/art/**"
+      - "stores/**"
+      - "components/**"
+      - "utils/scripts/verifyApiClientFollowups.ts"
+      - ".github/workflows/api-client-followups-contract.yml"
+      - "package.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "server/api/art/**"
+      - "stores/**"
+      - "components/**"
+      - "utils/scripts/verifyApiClientFollowups.ts"
+      - ".github/workflows/api-client-followups-contract.yml"
+      - "package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npx tsx utils/scripts/verifyApiClientFollowups.ts

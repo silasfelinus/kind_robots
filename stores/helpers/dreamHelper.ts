@@ -302,7 +302,6 @@ export function buildDreamPayload(dream: Partial<Dream>): Partial<Dream> {
     creationSource: parseCreationSource(
       dream.creationSource as unknown as string,
     ) as CreationSource,
-    userId: dream.userId ?? 10,
     isPublic: dream.isPublic ?? true,
     isMature: dream.isMature ?? false,
     isActive: dream.isActive ?? true,

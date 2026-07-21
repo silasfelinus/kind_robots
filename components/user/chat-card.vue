@@ -357,7 +357,6 @@ async function sendReply() {
   try {
     const newChat = await chatStore.addChat({
       content,
-      userId: chat.value.userId ?? userStore.userId ?? 10,
       recipientId: chat.value.recipientId ?? 0,
       isPublic: chat.value.isPublic,
       originId: chat.value.originId ?? chat.value.id,

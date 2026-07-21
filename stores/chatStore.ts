@@ -447,7 +447,7 @@ export const useChatStore = defineStore('chatStore', () => {
       botId: null,
       recipientId: null,
       characterId: null,
-      userId: userStore.userId || userStore.user?.id || 10,
+      userId: userStore.authenticatedUserId,
       type: 'ToForum',
       isPublic: false,
       model: '',
@@ -486,7 +486,7 @@ export const useChatStore = defineStore('chatStore', () => {
       }
 
       if (!state.textForm.userId) {
-        setTextForm({ userId: userStore.userId || userStore.user?.id || 10 })
+        setTextForm({ userId: userStore.authenticatedUserId })
       }
 
       return {
@@ -1306,12 +1306,7 @@ export const useChatStore = defineStore('chatStore', () => {
         ...state.textForm,
         ...data,
         prompt,
-        userId:
-          data.userId ??
-          state.textForm.userId ??
-          userStore.userId ??
-          userStore.user?.id ??
-          10,
+        userId: userStore.authenticatedUserId,
         type:
           data.type ??
           state.textForm.type ??
@@ -1335,7 +1330,7 @@ export const useChatStore = defineStore('chatStore', () => {
         botId: runtimeData.botId ?? undefined,
         content: prompt,
         isPublic: runtimeData.isPublic ?? false,
-        userId: runtimeData.userId ?? 10,
+        userId: userStore.authenticatedUserId,
         type: runtimeData.type ?? 'ToForum',
         recipientId: runtimeData.recipientId ?? runtimeData.botId ?? undefined,
         characterId: runtimeData.characterId ?? null,
@@ -1457,8 +1452,21 @@ export const useChatStore = defineStore('chatStore', () => {
 
   async function addChat(input: Omit<AddChatInput, 'username'>): Promise<Chat> {
     try {
+      if (!userStore.authenticatedUserId) {
+        const promotion = await userStore.ensureRealUser()
+        if (!promotion.success || !userStore.authenticatedUserId) {
+          throw new Error(
+            promotion.message || 'Sign in before creating a chat.',
+          )
+        }
+      }
+
       const username = userStore.username ?? 'Unknown User'
-      const chatPayload = buildNewChat({ ...input, username })
+      const chatPayload = buildNewChat({
+        ...input,
+        userId: userStore.authenticatedUserId,
+        username,
+      })
       const newChat = await createChat(chatPayload)
       chats.value.push(newChat)
       refreshUnreadMessages()

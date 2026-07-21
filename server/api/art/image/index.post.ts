@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import { artImageMutationSelect } from './selects'
 
 type CreateArtImagePayload = {
   imageData?: unknown
@@ -55,7 +56,14 @@ const ALLOWED_FIELDS = new Set([
   'serverUrl',
 ])
 
-const ALLOWED_FILE_TYPES = new Set(['png', 'jpeg', 'jpg', 'webp', 'gif', 'avif'])
+const ALLOWED_FILE_TYPES = new Set([
+  'png',
+  'jpeg',
+  'jpg',
+  'webp',
+  'gif',
+  'avif',
+])
 const MAX_IMAGE_DATA_CHARS = 30_000_000
 const MAX_THUMBNAIL_DATA_CHARS = 5_000_000
 
@@ -86,7 +94,8 @@ function cleanText(
 }
 
 function cleanNumber(value: unknown, fieldName: string): number | null {
-  if (typeof value === 'undefined' || value === null || value === '') return null
+  if (typeof value === 'undefined' || value === null || value === '')
+    return null
 
   const number = Number(value)
 
@@ -148,7 +157,10 @@ function getFallbackFileType(body: CreateArtImagePayload): string {
   return extension && ALLOWED_FILE_TYPES.has(extension) ? extension : 'png'
 }
 
-function getFallbackFileName(body: CreateArtImagePayload, fileType: string): string {
+function getFallbackFileName(
+  body: CreateArtImagePayload,
+  fileType: string,
+): string {
   const source =
     cleanText(body.imagePath, 'imagePath', 2_000) ||
     cleanText(body.path, 'path', 2_000)
@@ -199,7 +211,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const requestedFileType = cleanText(body.fileType, 'fileType', 32)?.toLowerCase()
+    const requestedFileType = cleanText(
+      body.fileType,
+      'fileType',
+      32,
+    )?.toLowerCase()
     const fileType = requestedFileType || getFallbackFileType(body)
 
     if (!ALLOWED_FILE_TYPES.has(fileType)) {
@@ -226,11 +242,7 @@ export default defineEventHandler(async (event) => {
       path: sourcePath,
       promptString: cleanText(body.promptString, 'promptString', 10_000),
       artPrompt: cleanText(body.artPrompt, 'artPrompt', 10_000),
-      negativePrompt: cleanText(
-        body.negativePrompt,
-        'negativePrompt',
-        10_000,
-      ),
+      negativePrompt: cleanText(body.negativePrompt, 'negativePrompt', 10_000),
       checkpoint: cleanText(body.checkpoint, 'checkpoint', 255),
       sampler: cleanText(body.sampler, 'sampler', 255),
       seed: cleanNumber(body.seed, 'seed'),
@@ -253,7 +265,10 @@ export default defineEventHandler(async (event) => {
       },
     }
 
-    const artImage = await prisma.artImage.create({ data })
+    const artImage = await prisma.artImage.create({
+      data,
+      select: artImageMutationSelect,
+    })
 
     event.node.res.statusCode = 201
 

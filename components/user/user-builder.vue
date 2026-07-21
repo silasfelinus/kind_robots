@@ -110,7 +110,7 @@ function defaultUserSheet(): BuilderSheet {
     avatarImage: userStore.user?.avatarImage ?? null,
     isPublic: true,
     showMature: userStore.user?.showMature ?? false,
-    userId: userStore.userId ?? userStore.user?.id ?? 10,
+    userId: userStore.authenticatedUserId,
   }
 }
 
@@ -167,7 +167,7 @@ const userBuilderConfig: BuilderProjectConfig = {
     avatarImage: null,
     isPublic: true,
     showMature: false,
-    userId: 10,
+    userId: null,
   },
   persistActiveCard: true,
   allowCompletedCardsInDeck: true,

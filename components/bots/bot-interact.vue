@@ -604,7 +604,6 @@ async function sendMessage() {
       botId: bot.id,
       content,
       isPublic: false,
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
       type: 'ToBot',
       recipientId: bot.id,
       characterId: null,

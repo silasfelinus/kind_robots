@@ -202,7 +202,6 @@ async function sendMessage() {
   try {
     const newChat = await chatStore.addChat({
       content,
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
       recipientId: null,
       characterId: null,
       type: 'Dream',

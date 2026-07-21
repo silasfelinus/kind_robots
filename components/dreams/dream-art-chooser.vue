@@ -256,7 +256,7 @@ const selectedCollectionId = computed(() => {
 })
 
 const visibleCollections = computed(() => {
-  const currentUserId = Number(userStore.userId ?? userStore.user?.id ?? 10)
+  const currentUserId = userStore.authenticatedUserId
   const canSeeMature = Boolean(userStore.showMature || userStore.isAdmin)
 
   return collectionStore.collections
@@ -286,7 +286,7 @@ const collectionChoices = computed<CollectionChoice[]>(() => {
 })
 
 const allArtImages = computed<ArtImageLike[]>(() => {
-  const currentUserId = Number(userStore.userId ?? userStore.user?.id ?? 10)
+  const currentUserId = userStore.authenticatedUserId
   const canSeeMature = Boolean(userStore.showMature || userStore.isAdmin)
   const imageMap = new Map<number, ArtImageLike>()
 

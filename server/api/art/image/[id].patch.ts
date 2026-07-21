@@ -1,10 +1,11 @@
 // /server/api/art/image/[id].patch.ts
 import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
-import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { assertArtImageRelationsAttachable } from './relations'
+import { artImageMutationSelect } from './selects'
 
 type PatchUser = {
   id: number
@@ -158,9 +159,10 @@ export default defineEventHandler(async (event) => {
       user.isAdmin || user.isServerKey,
     )
 
-    const data: ArtImage = await prisma.artImage.update({
+    const data = await prisma.artImage.update({
       where: { id },
       data: updateData,
+      select: artImageMutationSelect,
     })
 
     event.node.res.statusCode = 200

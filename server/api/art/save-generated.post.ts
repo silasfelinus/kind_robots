@@ -13,6 +13,7 @@ import {
   validateAndLoadUserId,
 } from '.'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
+import { artImageMutationSelect } from './image/selects'
 import {
   resolveCheckpointResource,
   type CheckpointResourceRequestData,
@@ -193,6 +194,7 @@ export default defineEventHandler(async (event) => {
             }
           : undefined,
       },
+      select: artImageMutationSelect,
     })
 
     event.node.res.statusCode = 201

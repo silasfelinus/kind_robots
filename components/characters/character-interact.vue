@@ -763,7 +763,6 @@ async function sendCharacterChat() {
   try {
     const chat = await chatStore.addChat({
       content,
-      userId: userStore.userId || userStore.user?.id || 10,
       type: 'Weirdlandia',
       characterId: character.id,
       recipientId: null,

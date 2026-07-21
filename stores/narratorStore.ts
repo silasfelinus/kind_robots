@@ -1148,7 +1148,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     payload: Record<string, unknown> = {},
   ) {
     const dream = activeDream.value
-    const userId = userStore.userId ?? userStore.user?.id ?? 10
 
     try {
       let result: unknown = null
@@ -1156,21 +1155,18 @@ export const useNarratorStore = defineStore('narratorStore', () => {
       switch (type) {
         case 'character': {
           result = await characterStore.createCharacter({
-            userId,
             ...payload,
           })
           break
         }
         case 'reward': {
           result = await rewardStore.createReward({
-            userId,
             ...payload,
           })
           break
         }
         case 'scenario': {
           result = await scenarioStore.createScenario({
-            userId,
             ...(dream ? { dreamIds: [dream.id] } : {}),
             ...payload,
           })
@@ -1178,7 +1174,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         }
         case 'dream': {
           const form = dreamStore.createDefaultDreamForm({
-            userId,
             ...payload,
           })
           result = await dreamStore.createDream(form)
@@ -1355,7 +1350,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
     try {
       const server = runtimeTextServer.value
-      const userId = userStore.userId ?? userStore.user?.id ?? 10
 
       const payload: ChatRuntimeInput = {
         botId: bot.id,
@@ -1363,7 +1357,6 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         dreamId: dream?.id ?? null,
         content,
         isPublic: false,
-        userId,
         type: 'ToBot',
         recipientId: bot.id,
         characterId: null,

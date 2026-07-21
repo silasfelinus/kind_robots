@@ -100,7 +100,7 @@ function buildArtConfig(): BuilderProjectConfig {
       negativePrompt: '',
       imagePath: null,
       artImageId: null,
-      userId: 10,
+      userId: null,
       isPublic: true,
     }),
     coreCardKeys: [],
@@ -206,7 +206,7 @@ function buildUserConfig(): BuilderProjectConfig {
       avatarImage: userStore.user?.avatarImage ?? null,
       isPublic: true,
       showMature: userStore.user?.showMature ?? false,
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
+      userId: userStore.authenticatedUserId,
     }
   }
 
@@ -261,7 +261,7 @@ function buildUserConfig(): BuilderProjectConfig {
       avatarImage: null,
       isPublic: true,
       showMature: false,
-      userId: 10,
+      userId: null,
     },
     persistActiveCard: true,
     allowCompletedCardsInDeck: true,
@@ -311,7 +311,7 @@ function buildBotConfig(): BuilderProjectConfig {
       userId:
         typeof form.userId === 'number'
           ? form.userId
-          : (userStore.userId ?? userStore.user?.id ?? 10),
+          : userStore.authenticatedUserId,
       isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
       underConstruction:
         typeof form.underConstruction === 'boolean'
@@ -322,8 +322,7 @@ function buildBotConfig(): BuilderProjectConfig {
   }
 
   function syncSheetToBotForm() {
-    const resolvedUserId =
-      num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+    const resolvedUserId = num('userId') ?? userStore.authenticatedUserId
     botStore.setBotForm({
       BotType: text('BotType'),
       name: text('name'),
@@ -397,7 +396,7 @@ function buildBotConfig(): BuilderProjectConfig {
     clearFieldDefaults: {
       avatarImage: '',
       artImageId: null,
-      userId: 10,
+      userId: null,
       isPublic: true,
       underConstruction: false,
       canDelete: true,
@@ -441,15 +440,14 @@ function buildDreamConfig(): BuilderProjectConfig {
       userId:
         typeof form.userId === 'number'
           ? form.userId
-          : (userStore.userId ?? userStore.user?.id ?? 10),
+          : userStore.authenticatedUserId,
       isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
       isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
     }
   }
 
   function syncSheetToDreamForm() {
-    const resolvedUserId =
-      num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+    const resolvedUserId = num('userId') ?? userStore.authenticatedUserId
     dreamStore.setDreamForm({
       title: text('title'),
       description: text('description'),
@@ -513,7 +511,7 @@ function buildDreamConfig(): BuilderProjectConfig {
     clearFieldDefaults: {
       vibeTag: '',
       artImageId: null,
-      userId: 10,
+      userId: null,
       isPublic: true,
       isMature: false,
     },
@@ -557,9 +555,7 @@ function buildCharacterConfig(): BuilderProjectConfig {
 
   function defaultCharacterSheet(): BuilderSheet {
     const form = characterStore.characterForm as Record<string, unknown>
-    const sheet = defaultAdventureSheet(
-      userStore.userId ?? userStore.user?.id ?? 10,
-    )
+    const sheet = defaultAdventureSheet(userStore.authenticatedUserId)
     return {
       ...sheet,
       id: typeof form.id === 'number' ? form.id : null,
@@ -598,15 +594,14 @@ function buildCharacterConfig(): BuilderProjectConfig {
       userId:
         typeof form.userId === 'number'
           ? form.userId
-          : (userStore.userId ?? userStore.user?.id ?? 10),
+          : userStore.authenticatedUserId,
       isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
       isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
     }
   }
 
   function syncSheetToCharacterForm() {
-    const resolvedUserId =
-      num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+    const resolvedUserId = num('userId') ?? userStore.authenticatedUserId
     syncAdventureStatTiers(builder.sheet)
     characterStore.setCharacterForm({
       id: num('id') ?? undefined,
@@ -684,7 +679,7 @@ function buildCharacterConfig(): BuilderProjectConfig {
     clearFieldDefaults: {
       imagePath: null,
       artImageId: null,
-      userId: 10,
+      userId: null,
       isPublic: true,
       isMature: false,
       rewards: {},
@@ -764,7 +759,7 @@ function buildRewardConfig(): BuilderProjectConfig {
       userId:
         typeof form.userId === 'number'
           ? form.userId
-          : (userStore.userId ?? userStore.user?.id ?? 10),
+          : userStore.authenticatedUserId,
       isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
       isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
       isActive: typeof form.isActive === 'boolean' ? form.isActive : true,
@@ -772,8 +767,7 @@ function buildRewardConfig(): BuilderProjectConfig {
   }
 
   function syncSheetToRewardForm() {
-    const resolvedUserId =
-      num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+    const resolvedUserId = num('userId') ?? userStore.authenticatedUserId
 
     rewardStore.rewardForm = {
       ...rewardStore.rewardForm,
@@ -846,7 +840,7 @@ function buildRewardConfig(): BuilderProjectConfig {
     clearFieldDefaults: {
       imagePath: null,
       artImageId: null,
-      userId: 10,
+      userId: null,
       isPublic: true,
       isMature: false,
       isActive: true,
@@ -911,7 +905,7 @@ function buildScenarioConfig(): BuilderProjectConfig {
       userId:
         typeof form.userId === 'number'
           ? form.userId
-          : (userStore.userId ?? userStore.user?.id ?? 10),
+          : userStore.authenticatedUserId,
       isPublic: typeof form.isPublic === 'boolean' ? form.isPublic : true,
       isMature: typeof form.isMature === 'boolean' ? form.isMature : false,
       isActive: typeof form.isActive === 'boolean' ? form.isActive : true,
@@ -919,8 +913,7 @@ function buildScenarioConfig(): BuilderProjectConfig {
   }
 
   function syncSheetToScenarioForm() {
-    const resolvedUserId =
-      num('userId') ?? userStore.userId ?? userStore.user?.id ?? 10
+    const resolvedUserId = num('userId') ?? userStore.authenticatedUserId
     scenarioStore.scenarioForm = {
       ...scenarioStore.scenarioForm,
       title: text('title'),
@@ -975,7 +968,7 @@ function buildScenarioConfig(): BuilderProjectConfig {
       artPrompt: '',
       imagePath: null,
       artImageId: null,
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
+      userId: userStore.authenticatedUserId,
       isPublic: true,
       isMature: false,
       isActive: true,
@@ -1013,7 +1006,7 @@ function buildScenarioConfig(): BuilderProjectConfig {
     clearFieldDefaults: {
       imagePath: null,
       artImageId: null,
-      userId: 10,
+      userId: null,
       isPublic: true,
       isMature: false,
       isActive: true,

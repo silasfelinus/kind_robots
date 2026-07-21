@@ -213,7 +213,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
     return {
       ...generateDefaultCharacter(),
-      userId: userStore.userId || userStore.user?.id || 10,
+      userId: userStore.authenticatedUserId,
       isPublic: true,
       imagePath: characterPlaceholder,
       ...overrides,
@@ -224,6 +224,21 @@ export const useCharacterStore = defineStore('characterStore', () => {
     return {
       ...character,
     }
+  }
+
+  function toCharacterMutationPayload(
+    character: Partial<Character>,
+  ): Partial<Character> {
+    const {
+      id: _id,
+      userId: _userId,
+      createdAt: _createdAt,
+      updatedAt: _updatedAt,
+      User: _user,
+      ...payload
+    } = character as Partial<Character> & { User?: unknown }
+
+    return payload
   }
 
   function setCharacterForm(updates: Partial<Character>): void {
@@ -515,7 +530,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       ...overrides,
       id: undefined,
       name: `Copy of ${source.name || 'Unnamed Character'}`,
-      userId: overrides.userId ?? useUserStore().userId ?? 10,
+      userId: useUserStore().authenticatedUserId,
       isPublic: overrides.isPublic ?? false,
     }
 
@@ -630,7 +645,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
       const response = await performFetch<Character>('/api/characters', {
         method: 'POST',
-        body: JSON.stringify(character),
+        body: JSON.stringify(toCharacterMutationPayload(character)),
         headers: { 'Content-Type': 'application/json' },
       })
 
@@ -657,7 +672,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
       const response = await performFetch<Character>(`/api/characters/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify(updates),
+        body: JSON.stringify(toCharacterMutationPayload(updates)),
         headers: { 'Content-Type': 'application/json' },
       })
 

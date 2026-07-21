@@ -319,7 +319,7 @@ function defaultDreamForm(
     icon: 'kind-icon:dream',
     designer: username || 'Kind Designer',
     creationSource: 'HUMAN',
-    userId: userId || 10,
+    userId: userId ?? null,
     isPublic: true,
     isMature: false,
     isActive: true,
@@ -406,9 +406,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
   const dreamTypes = CREATABLE_DREAM_TYPES
 
-  const currentUserId = computed(
-    () => userStore.user?.id ?? userStore.userId ?? 10,
-  )
+  const currentUserId = computed(() => userStore.authenticatedUserId)
   const selectedDreamId = computed(() => selectedDream.value?.id ?? null)
   const selectedDreamChats = computed(() => dreamChats.value)
 
@@ -417,7 +415,9 @@ export const useDreamStore = defineStore('dreamStore', () => {
     creativeDreams.value.filter((dream) => dream.isActive),
   )
   const ownedDreams = computed(() =>
-    creativeDreams.value.filter((dream) => dream.userId === currentUserId.value),
+    creativeDreams.value.filter(
+      (dream) => dream.userId === currentUserId.value,
+    ),
   )
 
   const publicDreams = computed(() =>
@@ -946,7 +946,9 @@ export const useDreamStore = defineStore('dreamStore', () => {
           .map(normalizeDream)
           .sort(sortDreamsByNewest)
 
-        const cachedById = new Map(dreams.value.map((dream) => [dream.id, dream]))
+        const cachedById = new Map(
+          dreams.value.map((dream) => [dream.id, dream]),
+        )
         const fetched = normalizedIncoming.map(
           (dream) => cachedById.get(dream.id) ?? dream,
         )
@@ -1086,6 +1088,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
       rewardIds: normalizeIds(source.rewardIds),
     })
 
+    delete mutation.userId
     return mutation
   }
 
@@ -1180,8 +1183,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
           throw new Error(res.message || `Failed to update dream ${dreamId}.`)
 
         const updatedSummary = upsertDream(res.data)
-        const updated =
-          (await fetchDreamById(dreamId, true)) ?? updatedSummary
+        const updated = (await fetchDreamById(dreamId, true)) ?? updatedSummary
 
         selectedDream.value = updated
         selectedDreams.value = [updated]
@@ -1989,7 +1991,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
       description: prompt.prompt.slice(0, 764),
       dreamType: 'PITCH',
       creationSource: 'HYBRID',
-      userId: prompt.userId || currentUserId.value || 10,
+      userId: prompt.userId || currentUserId.value,
       designer: userStore.username || 'Kind Designer',
       artPrompt: prompt.artPrompt || prompt.prompt,
       artImageId: prompt.artImageId ?? null,

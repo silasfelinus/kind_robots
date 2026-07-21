@@ -1172,7 +1172,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
         promptString: artPrompt,
         negativePrompt:
           'blurry, low quality, scary horror, gore, grimdark, unreadable text, watermark',
-        userId: userStore.userId || 10,
+        userId: userStore.authenticatedUserId,
         checkpoint: artStore.artForm.checkpoint || '',
         sampler: artStore.artForm.sampler || '',
         steps: artStore.artForm.steps ?? 25,

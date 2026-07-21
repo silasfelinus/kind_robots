@@ -519,7 +519,7 @@ function resetForAdd() {
   promptStore.startAddingPrompt()
 
   promptStore.setPromptForm({
-    userId: userStore.userId || 10,
+    userId: userStore.authenticatedUserId,
     creationSource: 'HUMAN',
   })
 
@@ -546,7 +546,6 @@ function seedPrompt() {
     prompt:
       promptStore.promptForm.prompt ||
       'a cheerful robot archivist cataloging impossible butterflies, cozy studio lighting, whimsical sci-fi',
-    userId: promptStore.promptForm.userId ?? userStore.userId ?? 10,
     creationSource: promptStore.promptForm.creationSource || 'HUMAN',
   })
 

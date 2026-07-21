@@ -101,7 +101,6 @@ export const createLoaderButterfly = (
     status: settings.status,
     noiseOffsetX: Math.random() * 1000,
     noiseOffsetY: Math.random() * 1000,
-    userId: 1,
     message: 'Fluttering ominously...',
     designer: 'ami',
     goal: {
@@ -127,11 +126,7 @@ export interface ButterflySettingsWithOptions extends ButterflySettings {
 }
 
 export type ColorScheme =
-  | 'random'
-  | 'complementary'
-  | 'analogous'
-  | 'same'
-  | 'primary'
+  'random' | 'complementary' | 'analogous' | 'same' | 'primary'
 
 export interface Range {
   min: number
@@ -259,7 +254,6 @@ export const createNewButterfly = async (
     status: settings.status,
     noiseOffsetX: Math.random() * 1000,
     noiseOffsetY: Math.random() * 1000,
-    userId: 1,
     message,
     designer: 'ami',
     goal: {

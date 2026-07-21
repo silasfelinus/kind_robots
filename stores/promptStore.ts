@@ -4,10 +4,7 @@ import { computed, ref } from 'vue'
 import type { ArtImage, Prompt } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
-import {
-  mergeDefinedRecord,
-  reconcileRecordsById,
-} from './helpers/recordMerge'
+import { mergeDefinedRecord, reconcileRecordsById } from './helpers/recordMerge'
 import { useUserStore } from './userStore'
 import { useAchievementStore } from './achievementStore'
 import {
@@ -104,7 +101,7 @@ function sortPrompts(a: Prompt, b: Prompt): number {
 function defaultPromptForm(userId?: number | null): PromptForm {
   return {
     prompt: '',
-    userId: userId || 10,
+    userId: userId ?? null,
     galleryId: 21,
     creationSource: 'HUMAN',
     botId: null,
@@ -116,7 +113,12 @@ function normalizePromptForm(input: Partial<PromptForm>): PromptForm {
   return {
     ...input,
     prompt: input.prompt || '',
-    userId: input.userId ?? 10,
+    userId:
+      typeof input.userId === 'number' &&
+      input.userId > 0 &&
+      input.userId !== 10
+        ? input.userId
+        : null,
     creationSource: (input.creationSource || 'HUMAN') as CreationSource,
   } as PromptForm
 }
@@ -245,12 +247,13 @@ export const usePromptStore = defineStore('promptStore', () => {
       safeGetLocalStorage(storageKeys.prompts),
     ).sort(sortPrompts)
 
-    promptForm.value = normalizePromptForm(
-      safeParseObject<PromptForm>(
+    promptForm.value = normalizePromptForm({
+      ...safeParseObject<PromptForm>(
         safeGetLocalStorage(storageKeys.promptForm),
         {},
       ),
-    )
+      userId: userStore.authenticatedUserId,
+    })
 
     selectedPrompt.value = safeParseObject<Prompt | null>(
       safeGetLocalStorage(storageKeys.selectedPrompt),
@@ -361,7 +364,7 @@ export const usePromptStore = defineStore('promptStore', () => {
       id: undefined,
       prompt: `${prompt.prompt}`,
       creationSource: 'HYBRID',
-      userId: userStore.userId || 10,
+      userId: userStore.authenticatedUserId,
     })
 
     currentPrompt.value = prompt.prompt
@@ -447,10 +450,9 @@ export const usePromptStore = defineStore('promptStore', () => {
           throw new Error(response.message || 'Invalid prompt response')
         }
 
-        prompts.value = reconcileRecordsById(
-          prompts.value,
-          response.data,
-        ).sort(sortPrompts)
+        prompts.value = reconcileRecordsById(prompts.value, response.data).sort(
+          sortPrompts,
+        )
         hasLoaded.value = true
         usingSnapshot.value = false
         markSnapshotActive('prompts', false)
@@ -555,13 +557,26 @@ export const usePromptStore = defineStore('promptStore', () => {
           throw new Error('Prompt text is required')
         }
 
+        if (!userStore.authenticatedUserId) {
+          const promotion = await userStore.ensureRealUser()
+          if (!promotion.success || !userStore.authenticatedUserId) {
+            throw new Error(
+              promotion.message || 'Sign in before creating a prompt.',
+            )
+          }
+        }
+
         const response = await performFetch<Prompt>('/api/prompts', {
           method: 'POST',
           body: JSON.stringify({
-            ...payload,
             prompt: cleanPrompt,
-            userId: payload.userId ?? userStore.userId ?? 10,
+            artPrompt: payload.artPrompt,
             creationSource: payload.creationSource ?? 'HUMAN',
+            isMature: payload.isMature,
+            isPublic: payload.isPublic,
+            isActive: payload.isActive,
+            botId: payload.botId,
+            artImageId: payload.artImageId,
           }),
         })
 
@@ -683,7 +698,6 @@ export const usePromptStore = defineStore('promptStore', () => {
           promptForm.value.prompt?.trim() ||
           currentPrompt.value.trim() ||
           promptField.value.trim(),
-        userId: promptForm.value.userId ?? userStore.userId ?? 10,
       })
 
       if (typeof payload.id === 'number') {
@@ -747,12 +761,10 @@ export const usePromptStore = defineStore('promptStore', () => {
 
   async function addPrompt(
     newPrompt: string,
-    userId = userStore.userId || 10,
     botId?: number | null,
   ): Promise<Prompt | null> {
     const result = await createPrompt({
       prompt: newPrompt,
-      userId,
       botId: botId ?? null,
       creationSource: 'HUMAN',
     })
@@ -871,7 +883,6 @@ export const usePromptStore = defineStore('promptStore', () => {
       description: prompt.prompt,
       artPrompt: prompt.artPrompt || prompt.prompt,
       dreamType: 'PITCH',
-      userId: prompt.userId ?? userStore.userId ?? 10,
       artImageId: prompt.artImageId ?? undefined,
       creationSource: prompt.creationSource ?? 'HUMAN',
       isPublic: prompt.isPublic,

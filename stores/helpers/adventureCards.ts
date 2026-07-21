@@ -102,7 +102,7 @@ export type AdventureBuilderSheet = BuilderSheet & {
   charm: Rarity
   empathy: Rarity
   rewards: Record<string, BuilderRewardOption>
-  userId: number
+  userId: number | null
   isPublic: boolean
   isMature: boolean
 }
@@ -118,7 +118,9 @@ export function defaultAdventureStats(): BuilderStatEntry[] {
   ]
 }
 
-export function defaultAdventureSheet(userId = 10): AdventureBuilderSheet {
+export function defaultAdventureSheet(
+  userId: number | null = null,
+): AdventureBuilderSheet {
   return {
     name: '',
     species: '',

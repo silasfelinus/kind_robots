@@ -50,6 +50,46 @@
         </dt>
         <dd>{{ entry.year }}</dd>
       </div>
+      <div class="col-span-2">
+        <dt class="text-xs font-semibold uppercase text-base-content/45">
+          Rating
+        </dt>
+        <dd class="mt-0.5 flex items-center gap-1.5">
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-lg px-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :disabled="isSavingRating || (entry.rating ?? 0) <= 1"
+            aria-label="Lower rating"
+            @click="stepRating(-1)"
+          >
+            <Icon name="kind-icon:minus" class="size-3" />
+          </button>
+          <span
+            class="min-w-[3.5rem] text-center text-sm font-semibold text-base-content"
+          >
+            {{ entry.rating ? `${entry.rating} / 10` : 'Unrated' }}
+          </span>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-lg px-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :disabled="isSavingRating || (entry.rating ?? 0) >= 10"
+            aria-label="Raise rating"
+            @click="stepRating(1)"
+          >
+            <Icon name="kind-icon:plus" class="size-3" />
+          </button>
+          <button
+            v-if="entry.rating"
+            type="button"
+            class="btn btn-ghost btn-xs rounded-lg px-1.5 text-base-content/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :disabled="isSavingRating"
+            aria-label="Clear rating"
+            @click="clearRating"
+          >
+            <Icon name="kind-icon:close" class="size-3" />
+          </button>
+        </dd>
+      </div>
     </dl>
 
     <!-- Review editor -->
@@ -166,6 +206,7 @@ const draft = ref(props.entry.review ?? '')
 const saveState = ref<'idle' | 'saving' | 'saved'>('idle')
 const isPublishing = ref(false)
 const isSavingStar = ref(false)
+const isSavingRating = ref(false)
 const errorMessage = ref('')
 
 // Reset local draft state whenever a different entry is selected.
@@ -241,6 +282,19 @@ async function toggleStarred() {
   isSavingStar.value = true
   await patch({ starred: !props.entry.starred })
   isSavingStar.value = false
+}
+
+async function stepRating(delta: 1 | -1) {
+  const next = Math.min(10, Math.max(1, (props.entry.rating ?? 0) + delta))
+  isSavingRating.value = true
+  await patch({ rating: next })
+  isSavingRating.value = false
+}
+
+async function clearRating() {
+  isSavingRating.value = true
+  await patch({ rating: null })
+  isSavingRating.value = false
 }
 
 onBeforeUnmount(() => {

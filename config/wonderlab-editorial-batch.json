@@ -1,13 +1,28 @@
 {
   "version": 1,
-  "batchId": "wonderlab-source-grounded-rollout-017-dry-run",
-  "execute": false,
-  "minimumProductionCommit": "b0a13e499905414c6cdb27216b745faf00421631",
-  "componentIds": [],
-  "limit": 10,
+  "batchId": "wonderlab-source-grounded-rollout-017",
+  "execute": true,
+  "minimumProductionCommit": "5f66993d0403f510934f28a62e9f32d2174c8c16",
+  "componentIds": [2022, 2023, 2024, 2028, 2029, 2033, 2036],
+  "limit": 7,
   "reviewersPerComponent": 2,
   "minimumScore": 0,
   "model": "gpt-4o-mini",
   "regenerate": false,
-  "expectedTargets": []
+  "expectedTargets": [
+    { "componentId": 2022, "kind": "CHARACTER", "id": 324 },
+    { "componentId": 2022, "kind": "BOT", "id": 430 },
+    { "componentId": 2023, "kind": "CHARACTER", "id": 205 },
+    { "componentId": 2023, "kind": "CHARACTER", "id": 988 },
+    { "componentId": 2024, "kind": "CHARACTER", "id": 203 },
+    { "componentId": 2024, "kind": "CHARACTER", "id": 221 },
+    { "componentId": 2028, "kind": "CHARACTER", "id": 168 },
+    { "componentId": 2028, "kind": "CHARACTER", "id": 165 },
+    { "componentId": 2029, "kind": "CHARACTER", "id": 237 },
+    { "componentId": 2029, "kind": "CHARACTER", "id": 167 },
+    { "componentId": 2033, "kind": "CHARACTER", "id": 274 },
+    { "componentId": 2033, "kind": "CHARACTER", "id": 364 },
+    { "componentId": 2036, "kind": "CHARACTER", "id": 142 },
+    { "componentId": 2036, "kind": "CHARACTER", "id": 144 }
+  ]
 }

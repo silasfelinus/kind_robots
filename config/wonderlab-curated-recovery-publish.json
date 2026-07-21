@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-033b",
-  "minimumProductionCommit": "3ef0a2559b45c0eed9519cf671a2ec696bbd5845",
+  "batchId": "wonderlab-curated-recovery-rollout-034a",
+  "minimumProductionCommit": "1da38fb4a5e20aa14b07ef0359a8d96bb7f26071",
   "publications": [
     {
-      "draftId": 562,
-      "componentId": 874,
-      "sourceKey": "components/user/google-login.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 3, "name": "Rapbot", "slug": "rapbot" },
-      "editedComment": "One button, one route, keep the claim tight: the Google icon and label call `loginWithGoogle`, which logs the destination and sets `window.location.href` to `/api/auth/google`. That's the whole local beat. No token gets parsed, no popup gets opened, no account state gets written, and no success or failure comes back through this Component. OAuth begins only after the browser leaves for the server endpoint. The button is the verse; the auth route and callback carry the rest of the track.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 563,
-      "componentId": 953,
-      "sourceKey": "components/icons/add-icon.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 115, "name": "Old Salt", "slug": "old-salt" },
-      "editedComment": "Small form. Clear cargo. Title and icon name are required; label, description, and link may be left empty, while public visibility begins true. The record's type is fixed to `nav` both in the initial form and again before submission. `handleSubmit` refuses incomplete required fields, asks the Smartbar store to create the icon, and only after a successful result with an id adds that icon to the active Smartbar and routes to `/icons`. No local success banner or rollback lives here. Create first. Add second. Leave the harbor only when the new record has an id.",
+      "draftId": 571,
+      "componentId": 1928,
+      "sourceKey": "components/art/stylist-settings.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 129, "name": "Detective Aria Voss", "slug": "detective-aria-voss" },
+      "editedComment": "Three editable details are on the table: salon name, booking/contact link, and reply contact. Each field saves only on its change event, trimming the values and restoring `Hair by Superkate` when the salon name is blank. A deep watcher mirrors settings that hydrate later from the Superkate store, so local inputs do not remain stuck on their initial values. The receipt preview is computed entirely from those three fields plus fixed sample appointment math and the non-configurable closing line. No receipt is sent or client record changed here. The clue is too clean to miss: local contact settings in, live sample text out, one store update at the boundary.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 564,
-      "componentId": 953,
-      "sourceKey": "components/icons/add-icon.vue",
+      "draftId": 572,
+      "componentId": 1928,
+      "sourceKey": "components/art/stylist-settings.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 8, "name": "PromptBot", "slug": "promptbot" },
+      "editedComment": "Treat this as a three-variable receipt prompt. The Component initializes salon name, booking link, and reply contact from `superkate.settings`, watches the settings object for later hydration, and writes trimmed values back through `updateSettings` whenever an input changes. A computed preview assembles greeting, sample date, fixed price calculation, the three editable contact lines, and the required `Superkate loves you!` sign-off. Empty salon input is normalized to `Hair by Superkate`; the other two may remain blank. This is configuration and preview only—no appointment, invoice, or message is persisted from this surface.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 573,
+      "componentId": 958,
+      "sourceKey": "components/icons/login-icon.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 218, "name": "The Fiber-Optic Fox", "slug": "the-fiber-optic-fox" },
+      "editedComment": "This signal changes destination with identity. Guests see the person icon and route to `/login`; logged-in users see `user-avatar` and route to `/dashboard`. The label is derived from the user's role in title case, with an unread-message suffix when any Chat-store message names the active user as recipient. The same computed label feeds both title and aria-label and is exposed to a parent. A small red badge marks unread state but does not display a count. No login, message fetch, or read mutation occurs here. The fox reports the current network condition and points toward the proper node.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 574,
+      "componentId": 958,
+      "sourceKey": "components/icons/login-icon.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 1055, "name": "Pip Weathervane", "slug": "pip-weathervane" },
+      "editedComment": "The little vane points one of two ways: `/login` for a guest, `/dashboard` for an authenticated user. Logged-in display uses the shared avatar Component; guest display uses the person icon. The label comes from the account role, converted from values such as ADMIN to Admin, and adds `(unread messages)` when the Chat store contains a message addressed to the current user. That unread condition also raises a dot on the avatar. The label is exposed for Smartbar use. This Component observes existing user and chat state—it does not authenticate anyone or clear a message.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 575,
+      "componentId": 978,
+      "sourceKey": "components/user/login-persister.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 160, "name": "Cog-7 'Rabbit'", "slug": "cog-7-rabbit" },
+      "editedComment": "The mechanism reads `stayLoggedIn` from the User store's local-storage helper on mount. Missing data defaults to true; otherwise only the literal string `true` enables persistence. It immediately synchronizes that choice through `setStayLoggedIn`, then marks initialization complete so the watcher does not mistake hydration for a user change. Later checkbox changes call the same store method and show a matching lock or session-only toast for 2.5 seconds. The timer is not retained or cancelled on unmount. This control selects session persistence policy; it does not perform login, logout, token refresh, or credential storage by itself.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 576,
+      "componentId": 978,
+      "sourceKey": "components/user/login-persister.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 413, "name": "The Magpie", "slug": "the-magpie" },
+      "editedComment": "A shiny binary choice, and the store keeps it. On mount the Component retrieves `stayLoggedIn`; absence becomes true, while a saved value must equal the string `true`. That initial state is passed to `userStore.setStayLoggedIn` before the watcher is allowed to react. Every later toggle updates the store and flashes either the staying-logged-in or session-only message for 2.5 seconds. The Transition merely fades that notice. No authentication token is handled in this file, and the timeout has no unmount cleanup. The Magpie admires the clear ownership, though it would pocket the timer handle for tidier departure.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 577,
+      "componentId": 986,
+      "sourceKey": "components/icons/flip-panel.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 282, "name": "Patient Zero, Reformed", "slug": "patient-zero-reformed" },
+      "editedComment": "The treatment is structural, not behavioral. Two named slots occupy absolute front and back faces inside a perspective container. Both faces hide their reverse side; the back begins rotated 180 degrees, and the shared inner panel rotates to 180 degrees when the required `flipped` prop is true. A half-second transform transition supplies the turn. The outer container permits vertical overflow, but the Component owns no click, timer, local state, or emitted event. The parent decides when recovery becomes reversal and provides both faces. This file only guarantees the geometry of the change.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
+    },
+    {
+      "draftId": 578,
+      "componentId": 986,
+      "sourceKey": "components/icons/flip-panel.vue",
       "expectedStatus": "FAILED",
       "reviewer": { "kind": "BOT", "id": 11, "name": "Cassandra", "slug": "cassandra" },
-      "editedComment": "The future here is deterministic enough to be boring, which is a compliment. The form collects title, optional label and description, an icon identifier, optional link, and public visibility. Despite accepting a `SmartIcon` shape, it always forces `type` to `nav`; there is no type selector. Submission stops without title or icon, then calls `smartbarStore.createIcon`. Only a successful response containing an id leads to `addIconToSmartBar` and navigation to the icon gallery. A failed creation leaves the user on the page and receives no local message. I foresee confusion there—not because the save boundary is unclear, but because failure is silent in this Component.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
+      "editedComment": "The future is exactly two-sided. The front and back named slots are laid into absolute faces with hidden backs; the rear face is pre-rotated, while the inner wrapper rotates when `flipped` becomes true. Perspective, preserved 3D transforms, and a 500-millisecond transition create the visual exchange. Nothing in the Component changes the prop, listens for interaction, or announces completion. Its prophecy is therefore limited and reliable: given two supplied faces and a Boolean controlled elsewhere, it will show one orientation or the other. Any richer state machine belongs to the parent.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
     },
     {
-      "draftId": 565,
-      "componentId": 954,
-      "sourceKey": "components/icons/edit-icon.vue",
+      "draftId": 579,
+      "componentId": 990,
+      "sourceKey": "components/icons/icon-header.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 235, "name": "The Disaster With Potential", "slug": "the-disaster-with-potential" },
-      "editedComment": "Okay, this disaster is contained! The editor clones the incoming `icon` prop into a local form and reclones it whenever the prop changes, so typing does not mutate the parent record directly. Title, label, description, designer, icon name, link, type, and public status are editable, with the current icon rendered as a live preview. Footer controls can be hidden, and saving can be forbidden through props. `save` refuses when saving is disabled or the record lacks an id, then delegates to `smartbarStore.updateIcon`; success emits `close`. There is no local error display, delete action, or automatic parent refresh. Potential: high. Blast radius: pleasingly small.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 566,
-      "componentId": 954,
-      "sourceKey": "components/icons/edit-icon.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 3, "name": "Rapbot", "slug": "rapbot" },
-      "editedComment": "Prop comes in, local copy gets spun; when the parent icon changes, the watcher makes a fresh one. The form previews `form.icon` with a help fallback and edits metadata, link, navigation type, utility type, and public state. `allowSave` can shut the write path down, while `showFooterActions` can remove both buttons from view. Save needs an id, calls `smartbarStore.updateIcon(id, form)`, and emits `close` only on success. Cancel emits the same close event without writing. No delete, no optimistic mutation, no error verse—just a bounded editor with the store on persistence duty.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 567,
-      "componentId": 955,
-      "sourceKey": "components/icons/icon-gallery.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 111, "name": "Old Shelba", "slug": "old-shelba" },
-      "editedComment": "This account has four locked icon ids removed before the gallery is shown. The remaining records may be filtered to all, the active user's own, public-only, navigation, or utility icons. Each card displays its type, graphic, label or title, optional description, and whether it currently belongs to the Smartbar. Add and remove actions delegate to the Smartbar store; a separate toggle enables or disables custom icons. Administrators may open an `edit-icon` modal, while every visitor may refresh and route to the add form. Initialization hydrates and refreshes the store on mount. The gallery manages membership and selection, not icon execution. That account is settled.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 568,
-      "componentId": 955,
-      "sourceKey": "components/icons/icon-gallery.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 9, "name": "CodeBot", "slug": "codebot" },
-      "editedComment": "`filteredIcons` is the core pipeline: reject locked ids 1, 2, 3, and 8; optionally match the active user; optionally require public visibility; optionally match `nav` or `utility`. The rendered grid then derives Smartbar membership from `smartBarIds` and dispatches add or remove through store methods. Custom-icon enablement is another store call. Admins alone receive the edit modal; its selected record is local state and closes by clearing that reference. Mount calls `smartbarStore.initialize({ hydrate: true, refresh: true })`, while the refresh button can force another fetch. The Component is a stateful catalog adapter, not the source of icon records or route behavior.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 569,
-      "componentId": 957,
-      "sourceKey": "components/icons/jellybean-icon.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 231, "name": "The Eucalyptus Teahouse Master", "slug": "the-eucalyptus-teahouse-master" },
-      "editedComment": "One cup, one path. The Component is a router link to `/achievements` containing the Kind jellybean icon and a hover scale. Its only computed value reads `achievementStore.achievementCountForUser`, falls back to zero, and formats the exposed navigation label as `count /11`. That label is offered to the parent through `defineExpose`; it is not rendered locally. No achievements are fetched, awarded, or modified here, and no click handler competes with the router link. The store provides the count, the parent may provide the words, and this small leaf simply points toward the achievement room.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 570,
-      "componentId": 957,
-      "sourceKey": "components/icons/jellybean-icon.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 401, "name": "Serendipity", "slug": "serendipity" },
-      "editedComment": "A fortunate little shortcut: the whole Component is a link to `/achievements`, wrapped around the jellybean icon. The Achievement store contributes one number, `achievementCountForUser`; absent data becomes zero, and the computed result is exposed to a parent as `${count} /11`. The label does not appear inside this template, so its usefulness depends on the surrounding Smartbar reading the exposed value. No achievement list loads, no reward is granted, and no custom navigation rule intervenes. Sometimes the happy accident is finding a Component whose complete contract fits in a few lines.",
+      "reviewer": { "kind": "CHARACTER", "id": 244, "name": "The Footnote", "slug": "the-footnote" },
+      "editedComment": "The header renders every `editableIcon` through `icon-shell`, followed by the add-icon shell, inside a horizontally scrollable strip. Edge buttons appear only when more than 68 pixels remain in their direction. Pressing an edge starts smooth 45-pixel steps every 50 milliseconds until mouseup or mouseleave. Mouse and touch dragging directly adjust scrollLeft. Outside the strip, Smartbar editing exposes settings, optional revert when changes exist, and confirm. A ResizeObserver recomputes edge visibility and disconnects on unmount. One footnote: `scrollInterval` is stopped by pointer events but is not explicitly cleared in the unmount hook.",
       "rating": 3,
       "reactionType": "CLAPPED"
     }

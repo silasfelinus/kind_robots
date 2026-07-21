@@ -1,4 +1,3 @@
-// /stores/seeds/academyStyles.ts
 //
 // AI Art Academy style registry — the canonical front-end seed for the
 // Academy curriculum (conductor project: ai-art-academy).
@@ -218,6 +217,45 @@ export const academyStyles: AcademyStyle[] = [
       mode: 'prompt',
       template:
         'Convert this image into a medieval illuminated manuscript illustration: flat gold leaf accents, lapis blue and vermilion mineral pigments, ornate decorated border with knotwork, parchment texture',
+    },
+  },
+  {
+    slug: 'song-dynasty-landscape',
+    name: 'Song Dynasty Landscape Painting',
+    era: 'c. 950–1130',
+    sortYear: 950,
+    region: 'Northern Song China',
+    keyIdeas:
+      'The "monumental landscape" (daguan shan): a single towering mountain fills most of the composition, its scale felt physically rather than measured with linear perspective. Painters worked in ink, sometimes with light color washes, on silk hanging scrolls meant for slow contemplation. Space is organized through the "three distances" — looking up at a peak from its base, through overlapping ranges toward unseen depth, and across a near hill toward a far one — often combined within a single scroll. Human figures and temples appear only as tiny incidental details, dwarfed by nature’s overwhelming moral and cosmological order. Rock and foliage are built from repeated, textured brushstrokes ("cun" strokes) rather than outline-and-fill, giving a felt, sculptural density despite the monochrome palette.',
+    recognitionCues: [
+      'Monochrome or near-monochrome ink on silk, at most light desaturated color washes',
+      'A single dominant, towering central peak organizing the whole composition',
+      'Tiny human figures, temples, or travelers dwarfed by the landscape’s scale',
+      'Layered atmospheric space — mist or void separating near, middle, and distant ground',
+      'Dense, repeated textured brushstrokes ("cun" strokes) building rock and cliff surfaces',
+      'No cast shadows and no single fixed light source; tall vertical hanging-scroll format',
+    ],
+    artists: [
+      {
+        name: 'Fan Kuan',
+        years: 'c. 960 – c. 1030',
+        note: 'Northern Song master whose Travelers Among Mountains and Streams is considered the movement’s definitive monumental-landscape statement.',
+      },
+      {
+        name: 'Guo Xi',
+        years: 'c. 1020–1090',
+        note: 'Court painter and theorist whose treatise The Lofty Message of Forests and Streams codified the "three distances" principle that shaped how the school organized space.',
+      },
+      {
+        name: 'Xu Daoning',
+        years: 'c. 970–1052',
+        note: 'Known for austere winter and river scenes; his handscroll format shows the same monumental idiom unrolling horizontally rather than in a single vertical view.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Northern Song Chinese ink landscape: monochrome ink wash on silk, a towering central mountain peak dominating the composition, tiny travelers dwarfed by scale, layered misty atmospheric distance between foreground and peak, textured brushwork on rock faces, no cast shadows, tall vertical hanging-scroll framing',
     },
   },
   {

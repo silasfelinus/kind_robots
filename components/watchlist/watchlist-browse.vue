@@ -1,12 +1,13 @@
 <!-- /components/watchlist/watchlist-browse.vue -->
 <!--
-  Minimal browse/filter/stats UI for the Media Watchlist personal log
-  (media-watchlist/t-009), wired to GET /api/media-entries and
+  Browse/filter/stats UI for the Media Watchlist personal log
+  (media-watchlist/t-009, t-010), wired to GET /api/media-entries and
   GET /api/media-entries/stats per conductor
   projects/media-watchlist/BROWSE-UX.md. Admin-only (this is Silas's private
   log) -- renders a locked notice for any non-admin viewer instead of erroring.
-  Detail panel, review editor, and CSV export are out of scope for this
-  minimal pass; see the roadmap kaizen note for follow-on work.
+  Selecting an entry opens watchlist-entry-detail.vue (BROWSE-UX.md §3/§5).
+  The Stats view's CSV export (§4) is a separate, smaller follow-on -- still
+  out of scope here.
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -153,30 +154,55 @@
         </div>
       </div>
 
-      <ul v-if="!errorMessage && entries.length" class="flex flex-col gap-1.5">
-        <li
-          v-for="entry in entries"
-          :key="entry.id"
-          class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-2.5"
-        >
-          <div class="flex min-w-0 items-center gap-2">
-            <Icon
-              v-if="entry.starred"
-              name="kind-icon:star"
-              class="size-3.5 shrink-0 text-warning"
-            />
-            <span class="truncate text-sm font-semibold text-base-content">{{
-              entry.title
-            }}</span>
-          </div>
-          <div
-            class="flex shrink-0 items-center gap-2 text-xs text-base-content/50"
+      <watchlist-entry-detail
+        v-if="selectedEntry"
+        :key="`detail-${selectedEntry.id}`"
+        :entry="selectedEntry"
+        @updated="handleEntryUpdated"
+      >
+        <template #close>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            @click="selectedId = null"
           >
-            <span class="badge badge-ghost badge-sm rounded-lg">{{
-              entry.mediaType
-            }}</span>
-            <span>{{ formatDate(entry) }}</span>
-          </div>
+            <Icon name="kind-icon:close" class="size-4" />
+          </button>
+        </template>
+      </watchlist-entry-detail>
+
+      <ul v-if="!errorMessage && entries.length" class="flex flex-col gap-1.5">
+        <li v-for="entry in entries" :key="entry.id">
+          <button
+            type="button"
+            class="flex w-full items-center justify-between gap-3 rounded-2xl border bg-base-100 px-4 py-2.5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :class="
+              selectedId === entry.id
+                ? 'border-primary'
+                : 'border-base-300 hover:border-base-content/20'
+            "
+            :aria-pressed="selectedId === entry.id"
+            @click="selectedId = selectedId === entry.id ? null : entry.id"
+          >
+            <div class="flex min-w-0 items-center gap-2">
+              <Icon
+                v-if="entry.starred"
+                name="kind-icon:star"
+                class="size-3.5 shrink-0 text-warning"
+              />
+              <span class="truncate text-sm font-semibold text-base-content">{{
+                entry.title
+              }}</span>
+            </div>
+            <div
+              class="flex shrink-0 items-center gap-2 text-xs text-base-content/50"
+            >
+              <span class="badge badge-ghost badge-sm rounded-lg">{{
+                entry.mediaType
+              }}</span>
+              <span>{{ formatDate(entry) }}</span>
+            </div>
+          </button>
         </li>
       </ul>
 
@@ -199,16 +225,13 @@
 import { computed, ref, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import type { MediaType } from '~/prisma/generated/prisma/client'
+import type { MediaEntryDetail } from './watchlist-entry-detail.vue'
 
-type MediaEntrySummary = {
-  id: number
-  title: string
-  mediaType: MediaType
-  starred: boolean
-  watchedMonth: number | null
-  watchedDay: number | null
-  dateRaw: string | null
-}
+// The list/browse endpoint returns the full MediaEntry row (no `select`
+// clause), so every field the detail panel needs (review, rating, external
+// links, ...) is already present on each entry -- the detail panel reuses
+// this same type rather than requiring a second per-entry fetch.
+type MediaEntrySummary = MediaEntryDetail
 
 type MediaEntriesResponse = {
   success: boolean
@@ -255,8 +278,18 @@ const total = ref(0)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const stats = ref<MediaEntryStats | null>(null)
+const selectedId = ref<number | null>(null)
 
 const canShowMore = computed(() => entries.value.length < total.value)
+const selectedEntry = computed(
+  () => entries.value.find((entry) => entry.id === selectedId.value) ?? null,
+)
+
+function handleEntryUpdated(updated: MediaEntryDetail) {
+  const index = entries.value.findIndex((entry) => entry.id === updated.id)
+  if (index !== -1)
+    entries.value[index] = { ...entries.value[index], ...updated }
+}
 
 function toggleType(type: MediaType) {
   const next = new Set(activeTypes.value)

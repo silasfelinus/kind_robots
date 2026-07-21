@@ -37,7 +37,12 @@ const selectedCharacterStorageKey = 'selectedCharacter'
 const characterPlaceholder = '/images/character-placeholder.webp'
 
 type CharacterStatKey =
-  'luck' | 'might' | 'wits' | 'grace' | 'charm' | 'empathy'
+  | 'luck'
+  | 'might'
+  | 'wits'
+  | 'grace'
+  | 'charm'
+  | 'empathy'
 
 const characterRandomFields = [
   'name',

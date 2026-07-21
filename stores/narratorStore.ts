@@ -425,8 +425,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   const canSendNarrator = computed(() => {
     return Boolean(
       canUseNarrator.value &&
-      narratorMessage.value.trim() &&
-      !isNarratorResponding.value,
+        narratorMessage.value.trim() &&
+        !isNarratorResponding.value,
     )
   })
 
@@ -1148,6 +1148,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
     payload: Record<string, unknown> = {},
   ) {
     const dream = activeDream.value
+
     try {
       let result: unknown = null
 
@@ -1349,6 +1350,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
     try {
       const server = runtimeTextServer.value
+
       const payload: ChatRuntimeInput = {
         botId: bot.id,
         botName: bot.name,
@@ -1439,7 +1441,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
     const artImage = dream.ArtImage as ArtImageLike | null | undefined
     const collectionImage = dream.ArtCollection?.ArtImages?.[0] as
-      ArtImageLike | undefined
+      | ArtImageLike
+      | undefined
 
     return (
       dream.imagePath ||

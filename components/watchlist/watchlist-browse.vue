@@ -197,6 +197,12 @@
             <div
               class="flex shrink-0 items-center gap-2 text-xs text-base-content/50"
             >
+              <span
+                v-if="entry.rating"
+                class="badge badge-warning badge-sm gap-0.5 rounded-lg"
+              >
+                <Icon name="kind-icon:star" class="size-3" />{{ entry.rating }}
+              </span>
               <span class="badge badge-ghost badge-sm rounded-lg">{{
                 entry.mediaType
               }}</span>

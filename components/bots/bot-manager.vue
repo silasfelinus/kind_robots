@@ -88,7 +88,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from '#app'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 import {
@@ -101,6 +102,7 @@ import {
 
 const dashboardKey: DashboardKey = 'bot'
 
+const route = useRoute()
 const botStore = useBotStore()
 const navStore = useNavStore()
 
@@ -163,8 +165,23 @@ async function loadManagerData(force = false) {
   }
 }
 
+function querySelectionId(value: unknown): number | null {
+  const raw = Array.isArray(value) ? value[0] : value
+  const id = Number(raw)
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
+async function syncBotFromRoute(): Promise<void> {
+  const id = querySelectionId(route.query.botId ?? route.query.bot)
+  if (!id) return
+
+  navStore.setDashboardTab(dashboardKey, 'bots')
+  await botStore.selectBot(id)
+}
+
 async function refreshManagerData() {
   await loadManagerData(true)
+  await syncBotFromRoute()
 }
 
 function goToBots() {
@@ -182,5 +199,13 @@ async function handleBotSaved() {
 
 onMounted(async () => {
   await loadManagerData()
+  await syncBotFromRoute()
+
+  watch(
+    () => [route.query.botId, route.query.bot],
+    () => {
+      void syncBotFromRoute()
+    },
+  )
 })
 </script>

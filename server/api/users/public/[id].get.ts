@@ -13,28 +13,34 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id },
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+        isPublic: true,
+      },
       select: {
         id: true,
         username: true,
+        name: true,
         avatarImage: true,
         artImageId: true,
         designerName: true,
+        Role: true,
+        isPublic: true,
       },
     })
 
     if (!user) {
       return errorHandler({
         statusCode: 404,
-        message: 'User not found.',
+        message: 'Public user profile not found.',
       })
     }
 
     return {
       success: true,
       data: user,
-      message: 'User found.',
+      message: 'Public user found.',
     }
   } catch (error) {
     return errorHandler(error)

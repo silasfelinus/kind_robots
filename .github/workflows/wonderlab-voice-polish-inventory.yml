@@ -1,0 +1,130 @@
+name: WonderLab Voice Polish Inventory
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-inventory.yml'
+      - 'scripts/wonderlab-voice-polish-inventory.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-inventory.yml'
+      - 'scripts/wonderlab-voice-polish-inventory.mjs'
+  workflow_dispatch:
+    inputs:
+      review_limit:
+        description: 'Number of oldest published reviews to inventory'
+        required: false
+        default: '120'
+      max_draft_id:
+        description: 'Highest ReviewDraft ID to inspect'
+        required: false
+        default: '260'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: wonderlab-voice-polish-inventory-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate read-only voice inventory
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate script boundary
+        run: |
+          set -euo pipefail
+          node --check scripts/wonderlab-voice-polish-inventory.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const source = fs.readFileSync('scripts/wonderlab-voice-polish-inventory.mjs', 'utf8')
+          for (const required of [
+            '/api/version',
+            '/api/components',
+            '/api/admin/wonderlab/review-drafts/',
+            'currentCommentHash',
+            'technicalScore',
+            'publicVoiceProfile',
+          ]) assert.ok(source.includes(required), `missing inventory contract: ${required}`)
+          for (const forbidden of [
+            "method: 'POST'",
+            'method: "POST"',
+            "method: 'PATCH'",
+            'method: "PATCH"',
+            '/publish',
+            '/revise',
+            'DATABASE_URL',
+            'prisma.',
+          ]) assert.ok(!source.includes(forbidden), `inventory crossed write boundary: ${forbidden}`)
+          console.log('WonderLab voice-polish inventory boundary passed.')
+          NODE
+
+  inventory:
+    name: Inventory oldest published reviews
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-voice-polish-inventory]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build read-only voice-polish inventory
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_VOICE_POLISH_OUTPUT: wonderlab-voice-polish-artifacts
+          WONDERLAB_VOICE_POLISH_LIMIT: ${{ github.event.inputs.review_limit || '120' }}
+          WONDERLAB_VOICE_POLISH_MAX_DRAFT_ID: ${{ github.event.inputs.max_draft_id || '260' }}
+        run: node scripts/wonderlab-voice-polish-inventory.mjs
+      - name: Upload voice-polish evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-voice-polish-inventory-${{ github.run_id }}
+          path: wonderlab-voice-polish-artifacts
+          retention-days: 30
+      - name: Update rollout ledger
+        uses: actions/github-script@v7
+        env:
+          COMMENT_PATH: wonderlab-voice-polish-artifacts/wonderlab-voice-polish-comment.md
+        with:
+          script: |
+            const fs = require('node:fs')
+            const marker = '<!-- WONDERLAB_VOICE_POLISH_INVENTORY -->'
+            const report = fs.readFileSync(process.env.COMMENT_PATH, 'utf8')
+            const body = `${marker}\n${report}\n- **Workflow:** [run ${context.runId}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 582,
+              per_page: 100,
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: 582,
+                body,
+              })
+            }

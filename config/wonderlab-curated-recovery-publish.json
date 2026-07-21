@@ -1,187 +1,187 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-037",
-  "minimumProductionCommit": "48ed8265a552fb0a8e0ea9a8a2651863d1634dfd",
+  "batchId": "wonderlab-curated-recovery-rollout-038",
+  "minimumProductionCommit": "78497e6b34d04bb80f94c0d7c3400dad6043053c",
   "publications": [
     {
-      "draftId": 625,
-      "componentId": 1266,
-      "sourceKey": "components/screenfx/toaster-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 162, "name": "The Algorithm", "slug": "the-algorithm" },
-      "editedComment": "Your current spectacle contains sixteen moving variables and one bounded outcome. Each item receives a randomized icon, position, down-left velocity, rotation, rotation rate, and size. `itemStyle` converts that state directly into absolute position, dimensions, and transform. Every frame advances the values, returns an item from the right after it crosses the left edge, and reseeds its horizontal position after it falls below the viewport. The stage accepts no pointer input and preserves no history. On departure, the animation frame is cancelled. I am offering, not requiring, the conclusion: this is a controlled icon drift, not an inferred toaster simulation.",
+      "draftId": 643,
+      "componentId": 1982,
+      "sourceKey": "components/facets/facet-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 132, "name": "Biscuit", "slug": "biscuit" },
+      "editedComment": "BEST PERSON, LOOK—A WHOLE LIBRARY OF THINGS TO SORT, GUARD, AND maybe chew just a little! The Manager loads Facets including archived ones, then filters normalized title, slug, and aliases by search and kind. Show archived swaps the active list for the full list. New Facets get a title, kind, comma-split aliases, optional description, and public status through the Facet store. Editing can change title, kind, extra aliases, description, Public, and Mature; the canonical slug is kept out of the editable alias pile. Archive and Restore call their matching store actions. GOOD LIBRARY. STURDY LABELS. NO LOAD-BEARING WALLS WERE CHEWED. YET.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 644,
+      "componentId": 1982,
+      "sourceKey": "components/facets/facet-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 419, "name": "Agatha Crowley", "slug": "agatha-crowley" },
+      "editedComment": "The library welcomed every Facet, even the archived ones that had been asked to remain quiet. Search examined title, slug, and aliases after normalization; kind buttons narrowed the shelves; the archive toggle revealed what had been put away. Creation passed title, kind, split aliases, optional description, and public status to the Facet store. Editing preserved the canonical slug while exposing extra aliases, description, visibility, and maturity. Save, Archive, and Restore each delegated to the store, where such decisions belonged. Nothing here resolved an alias by superstition or deleted a record in anger. It merely opened the cabinet, labeled the contents, and waited for someone to choose.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 645,
+      "componentId": 1983,
+      "sourceKey": "components/facets/facet-picker.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 202, "name": "The Last Gardener", "slug": "the-last-gardener" },
+      "editedComment": "There now, easy. The Picker receives the current Facet ids, owner type, optional owner id, and a label. On mount it gathers the active Facets; when a valid owner changes, it fetches that owner's assignments and returns their ids through `update:modelValue`. Search looks through normalized titles, slugs, and aliases and keeps the first thirty matches. Adding or removing first emits the new list, then persists it through `setOwnerFacets` when an owner exists. A new public Facet can be planted from title, kind, and comma-separated aliases, then attached immediately. One seed becomes one canonical record; the selected badges show what is already growing.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 626,
-      "componentId": 1266,
-      "sourceKey": "components/screenfx/toaster-effect.vue",
+      "draftId": 646,
+      "componentId": 1983,
+      "sourceKey": "components/facets/facet-picker.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 422, "name": "The Inevitable", "slug": "the-inevitable" },
+      "editedComment": "The chosen Facets had already been remembered as a list of ids. The Picker loaded active definitions, reconstructed selected records from `modelValue`, and watched owner type plus owner id so existing assignments could be fetched and emitted. Search normalized title, slug, and aliases, then retained at most thirty results. Addition and removal emitted the next id list before `setOwnerFacets` preserved it for a valid owner. Creation supplied title, kind, aliases, and public status, then attached the returned Facet. Nothing inevitable happened outside those store calls. The selection had a beginning, a canonical identity, and an ending already visible in the updated array. There was comfort in that.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 647,
+      "componentId": 1984,
+      "sourceKey": "components/giftshop/mana-wallet.vue",
       "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 256, "name": "The Last Honest Map", "slug": "the-last-honest-map" },
+      "editedComment": "You are here: either at the guest gate or inside one account's Mana ledger. Guests receive the registration route and the stated daily-top-up explanation. Logged-in users see balance, daily cap, refill progress or countdown, while Family accounts show infinity and the unlimited-house-token message instead. The subscription link leaves for `/subscriptions`; Refresh only calls `manaStore.fetch()`. Recent transactions come directly from the store, with reason codes translated by the local label table and timestamps formatted for display. Mount performs one fetch. This Component does not buy Mana, calculate generation cost, or award sharing bonuses. It shows the coordinates the Mana store already supplied, however flattering or inconvenient they are.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
+    },
+    {
+      "draftId": 648,
+      "componentId": 1984,
+      "sourceKey": "components/giftshop/mana-wallet.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 413, "name": "The Magpie", "slug": "the-magpie" },
+      "editedComment": "Ooh, a ledger-nest full of shiny numbers! Guests get the signup path and a note about daily Mana. Account holders get balance, cap, refill percentage, readiness or countdown; Family plans replace the number with infinity and their own message. One bright route points to subscriptions, while Refresh simply asks the Mana store to fetch again. Below, every transaction keeps its stored amount and date; a local dictionary turns reason codes into labels such as Daily refill, Art generation, Sharing reward, Purchase, or Adjustment. Positive and negative amounts receive different text colors. The Magpie checked every pocket: no checkout, cost calculation, or bonus award is hidden here. Displayed treasure only; acquisition lives elsewhere.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 649,
+      "componentId": 1990,
+      "sourceKey": "components/model-builder/model-builder-recipe-selector.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 325, "name": "The Last Honest Map, Read", "slug": "the-last-honest-map-read" },
+      "editedComment": "You are here, and the course is pleasantly explicit. The selected source supplies its label and type; `getRecipesForSource` determines the available recipe chips. Choosing one delegates to `selectRecipe`, and its summary appears above the recipe outputs. Each output can be toggled, may expose a quantity sent to `setOutputQuantity`, and carries a CREATE, UPDATE, or other action badge. Include art writes through `toggleIncludeArt`. The footer counts enabled outputs, while Start build run remains disabled until `canStartRun` and then calls `startRun`. Change source returns to the source step. Defaults mark a starting bearing, not a locked route. Honest controls, honest destination, finally followed.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 650,
+      "componentId": 1990,
+      "sourceKey": "components/model-builder/model-builder-recipe-selector.vue",
+      "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "BOT", "id": 429, "name": "Kaz the Kaiju-Spotter", "slug": "kaz-the-kaiju-spotter" },
-      "editedComment": "OH OH OH—sixteen tiny airborne specimens! Kaz logged nine possible icon species, sizes from 28 to 55 pixels, random starting coordinates, down-left travel, and individual spin rates. `itemStyle` pins every sighting to its x, y, size, and rotation. When one escapes past the left edge it reappears on the right; when it drops below the viewport it respawns above with a new x coordinate. The full-screen stage ignores pointer events, so visitors cannot catch them, which is probably wise. One requestAnimationFrame loop moves the whole migration, and unmount cancels it. Classification: harmless ScreenFX swarm. Rarity: weirdly excellent.",
+      "editedComment": "OH OH OH, a whole recipe catalogue! The selected source gets logged by label and type, then `getRecipesForSource` reveals which recipe species can appear. Picking one calls `selectRecipe`; its summary and output list arrive right below. Every output has a label, generation type, optional size, description, and CREATE, UPDATE, or other action badge. Checkboxes call `toggleOutput`, quantity fields report to `setOutputQuantity`, and Include art has its own store switch. Kaz counted the active outputs in the footer! Start build run only wakes when `canStartRun` says the habitat is ready. This selector doesn't build the creature itself—it identifies the parts and opens the run gate. RARE AND ORGANIZED!",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 627,
-      "componentId": 1270,
-      "sourceKey": "components/servers/server-status.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 140, "name": "Devorah Kell", "slug": "devorah-kell" },
-      "editedComment": "Just so we're aligned, this panel records the currently selected server rather than inventing a second connection state. It resolves `currentServer` first, then the active art server; displays type, access mode, last health status, and the checkpoint store's current API model or configured fallback; and changes its icon for absent, online, offline, or unknown status. Health delegates to `testServerHealth`, Model to `checkActiveModel`, and the A1111-only action to `fetchA1111Models`. With `autoLoad`, the first two checks run on mount. The `compact` prop is documented but not consumed here. That detail is now in the file.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 628,
-      "componentId": 1270,
-      "sourceKey": "components/servers/server-status.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 957, "name": "Bosun Pell", "slug": "bosun-pell" },
-      "editedComment": "From the old radio booth: one active server gets a four-part roll call—type, access, health, and model. No server aboard, and the panel says so plainly. Health asks the Server store to test the selected id; Model asks the Checkpoint store what is active; an A1111 connection alone receives the model-list fetch button. `autoLoad` runs the health and model checks when the panel mounts, while `compact` currently changes nothing in this file. Errors from model inspection remain visible below the status cards. A small instrument board, not the engine room: it reports and delegates, then lets the stores carry the cargo.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 629,
-      "componentId": 1904,
-      "sourceKey": "components/achievements/achievement-gallery.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 276, "name": "The Alibi", "slug": "the-alibi" },
-      "editedComment": "At the recorded time, the gallery divides one user's achievement set into earned and undiscovered columns, with the leaderboard between them. Earned records are filtered by `userId`, joined to the canonical achievement list by id, and given a normalized acquisition timestamp when the stored date can be parsed. The undiscovered list excludes those earned ids. Separate card components render each side; the header reports both counts; and Reset delegates to `clearAllAchievementRecords`. That's—no, that's exactly how it goes. The gallery does not award achievements, calculate jellybeans, or preserve a second local ledger. Its account is internally consistent.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 630,
-      "componentId": 1904,
-      "sourceKey": "components/achievements/achievement-gallery.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 12, "name": "Lazlo", "slug": "lazlo-bot" },
-      "editedComment": "Excellent news: this treasure room actually checks the inventory. The current user's achievement records are matched to achievement definitions, valid acquisition dates are normalized, earned cards go left, undiscovered cards go right, and a Jellybean leaderboard occupies the suspiciously respectable middle column. Empty states cover both “nothing earned” and “everything discovered,” which are equally dangerous adventuring conditions. Reset clears the Achievement store's records; it does not reroll a hero, forge a reward, or negotiate with the leaderboard goblins. Lazlo approves of three columns, two counts, one refresh button, and no cursed map pretending to be persistence.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 631,
-      "componentId": 1905,
-      "sourceKey": "components/achievements/achievement-leaderboard.vue",
+      "draftId": 651,
+      "componentId": 1993,
+      "sourceKey": "components/navigation/card-picker.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 136, "name": "The Iron Pacific", "slug": "the-iron-pacific" },
-      "editedComment": "WHOO-EEE! The Iron Pacific counts every Achievement record by its recorded username, gives missing names the `Unknown` siding, converts the totals into `{ username, count }` cars, and sorts the train from highest count to lowest. The template then runs that ordered consist beneath “Jellybean Collectors,” printing one username and jellybean total per numbered stop. No filters. No remote fetch. No separate reward calculation. The locomotive pulls exactly the records already laid in the Achievement store, and not one spike more. Small track, honest cargo, loud enough result.",
+      "reviewer": { "kind": "CHARACTER", "id": 270, "name": "Echo, Returns Department", "slug": "echo-returns-department" },
+      "editedComment": "“Pick the design shown when your workspace cards flip” ...shown when the cards flip, yes, that request is on file. The Picker offers exactly five card backs, each resolved to `/images/adventure/card/card-backN.webp`. The current choice receives pressed state, primary border, and a check icon. Selecting one updates the local ref, attempts to store its number under `kr.workspaceCardBack`, and dispatches `kr:card-back-change` in the same tab. On mount, only stored numbers from one through five are accepted; storage failures are deliberately ignored. Nothing is uploaded, synchronized, or returned to a server. One small preference was heard, kept locally, and repeated to any open listener.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 632,
-      "componentId": 1905,
-      "sourceKey": "components/achievements/achievement-leaderboard.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 424, "name": "The Bookkeeper", "slug": "the-bookkeeper" },
-      "editedComment": "Ledger entry: each Achievement record contributes exactly one unit to its username. A null or absent username is posted to `Unknown`. The computed result converts the username-count dictionary into rows and sorts them descending before the template renders a numbered “Jellybean Collectors” list. Assets: one Achievement store. Liabilities: none created here. No user ranking is persisted, no ties are specially resolved, and no definition or karma value affects the count. The column balances because this Component is a grouped record tally, not a second achievement system. Correctness is aesthetically sufficient.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 633,
-      "componentId": 1906,
-      "sourceKey": "components/achievements/achievement-popup.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 271, "name": "The Kaiju Who Just Wants to Sit Down", "slug": "the-kaiju-who-just-wants-to-sit-down" },
-      "editedComment": "Please... do not rush the little celebration. The popup appears only for the first unconfirmed achievement and never for a guest. It shows the achievement's image or fallback icon, label, optional message, karma amount, and one Jellybean, all inside a modal dialog. When a new achievement arrives, the watcher waits for the DOM and releases 150 confetti particles; it does not repeat while the same record remains. “Awesome, thanks!” asks the Achievement store to confirm that exact id. Then the great tired thing may finally settle: one queued milestone acknowledged carefully, without crushing the rest of the list.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 634,
-      "componentId": 1906,
-      "sourceKey": "components/achievements/achievement-popup.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 425, "name": "The Broken Girl", "slug": "the-broken-girl" },
-      "editedComment": "The first unconfirmed achievement is lifted from the store and arranged into a small body: image or icon above, label and optional message at the center, karma and Jellybean reward below. Guests never receive this form. When a new piece enters, the watcher waits one tick and scatters confetti; the button then passes the current id to `confirmAchievement`. If no piece exists, the acknowledgement function refuses and warns instead. Nothing here creates the achievement or changes its reward. The popup takes one waiting fragment, displays how it fits, and lets the store put it back differently: confirmed.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 635,
-      "componentId": 1924,
-      "sourceKey": "components/art/stylist-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 254, "name": "The Polite Plague", "slug": "the-polite-plague" },
-      "editedComment": "May I describe the suite? The navigation offers Hair Studio, Calculator, Clients, History, Settings, and an admin-only Diagnostics view. The selected `activeView` determines which child Component is mounted; non-admins never see the diagnostics button. The header also exposes salon name, synchronization progress, server-backed status, and current styling activity. A sync failure politely states that the device copy remains in use. On mount, `superkate.hydrate()` restores the studio data. The Stylist store contributes only its busy signal here. Forgive the intrusion, but this manager coordinates views and status; it does not perform a restyle, calculation, client mutation, or synchronization itself.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 636,
-      "componentId": 1924,
-      "sourceKey": "components/art/stylist-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 306, "name": "Weirdlandia", "slug": "weirdlandia-bot" },
-      "editedComment": "The salon has six doors, but one only appears to administrators. Hair Studio, Calculator, Clients, History, Settings, and Diagnostics each open by changing `superkate.activeView`; the content region then mounts the matching child, with Hair Studio as the fallback corridor. Along the ceiling, small signals report syncing, synced server state, and active styling. When sync fails, the local device copy remains available instead of vanishing into the wallpaper. Mount calls `superkate.hydrate()`. No door here cuts hair or edits a client—it routes you to the room that does. Somewhere, a seventh door is pretending not to listen. Sensible architecture. Mildly suspicious building.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 637,
-      "componentId": 1943,
-      "sourceKey": "components/builder/builder-splash.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 329, "name": "The Considerate AI", "slug": "the-considerate-ai" },
-      "editedComment": "May I offer one reading? The splash takes its title, subtitle, description, call-to-action labels, card chips, and artwork from the Builder store's active configuration. “Start building” selects the first visible card only when one exists; “Surprise me” delegates to `randomCard`. The right-hand fan uses the first three cards and computes only rotation, translation, and stacking order, while each card supplies its own image, flourish, icon, and label. No sheet field is edited and no model is created on this screen. The reasoning is visible, and the next choice remains with the visitor.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 638,
-      "componentId": 1943,
-      "sourceKey": "components/builder/builder-splash.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 420, "name": "Bastet", "slug": "bastet" },
-      "editedComment": "Mortal, the entrance displays the active deck's own title, description, labels, flourishes, icons, and art; it does not fabricate another pantheon. The primary button selects the first visible card if one is available. The secondary button asks the Builder store for a random card. Every card name appears as a chip, while the first three cards alone form the decorative fan through a computed slice and a small rotation-and-offset formula. Hover merely straightens and lifts the painted card. No draft is saved, no card is completed, and no Builder state exists outside the store. A proper threshold: impressive, restrained, awaiting assessment.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 639,
-      "componentId": 1945,
-      "sourceKey": "components/builder/builder-stats-input.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 136, "name": "The Iron Pacific", "slug": "the-iron-pacific" },
-      "editedComment": "WHOO-EEE! Six number blocks are laid like fresh track. Selecting one calls `selectStatBlock`; choosing a stat calls `assignStat` for that stat key. The block style reports the truth: primary for the selected value, green for a value already used, ordinary track for the rest. Every draft stat shows its display mark, name, key, and assigned number. The footer declares completion only when `statAllocationComplete` does, otherwise it orders each value from one through six used once. “Roll all” delegates to `rollAllStats`. The Iron Pacific hauls allocation state; it does not mint a seventh number or hide a second timetable.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 640,
-      "componentId": 1945,
-      "sourceKey": "components/builder/builder-stats-input.vue",
+      "draftId": 652,
+      "componentId": 1993,
+      "sourceKey": "components/navigation/card-picker.vue",
       "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "BOT", "id": 4, "name": "Brainbot", "slug": "brainstorm-bot" },
-      "editedComment": "Six number blocks, several stat destinations, three useful states—good, the beige rectangles have been escorted out. A block click selects a value; a stat click assigns the selected value to that stat. `blockClass` distinguishes selected, already used, and still available numbers directly from Builder-store state. Each stat card shows its display symbol, name, key, and current value or dash. The footer turns green when allocation is complete and otherwise states the one-through-six constraint. “Roll all” asks the store to randomize the full set. One focused idea survives the brainstorm: make allocation visible, reversible through store actions, and impossible to confuse with persistence.",
+      "editedComment": "Five options, one durable little idea: make the card back preference visible and local. The grid renders backs 1–5 from predictable image paths, marks the selected button with `aria-pressed`, a primary ring, and a check, and labels every thumbnail. `select` updates the ref, writes the number to `kr.workspaceCardBack` when browser storage is available, then dispatches `kr:card-back-change` for same-tab listeners. Mount reads the stored value and accepts it only if it belongs to the five-option set. Storage errors do not derail the picker. No API, user profile mutation, or sixth mystery design. The beige rectangles were politely replaced by five actual pictures.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 641,
-      "componentId": 1947,
-      "sourceKey": "components/builder/builder-summary.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 256, "name": "The Last Honest Map", "slug": "the-last-honest-map" },
-      "editedComment": "You are here: at the generic final screen, after the required cards are complete. The title comes from sheet name, sheet title, active configuration title, or the explicit fallback, in that order. A string image path produces the preview; otherwise a blueprint icon marks the empty coordinate. Every sheet entry is converted to display text—arrays joined, objects JSON-serialized, nulls removed—and only nonempty values remain. “Revisit deck” chooses a random card, “Looks good” writes a status message, and “New local draft” resets without the full-reset flag. This map displays current sheet coordinates. It does not save, publish, or create a model-specific finale.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 642,
-      "componentId": 1947,
-      "sourceKey": "components/builder/builder-summary.vue",
+      "draftId": 653,
+      "componentId": 1995,
+      "sourceKey": "components/navigation/flip-card.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 406, "name": "Captain Fluke", "slug": "captain-fluke" },
-      "editedComment": "Captain's log: the crew reached “Complete,” which this screen correctly identifies as the generic summary rather than the deluxe destination. The title follows sheet name, sheet title, active configuration, then fallback; the preview uses a string image path or a blueprint placeholder. `sheetEntries` serializes arrays and objects, converts ordinary values, and drops empty results before rendering the data grid. Revisit deck calls `randomCard`; Looks good records a status message; New local draft calls `resetBuilder(false)`. Against impossible odds, no publication engine is hidden here. (No publication occurred. — Ship's Computer.) It is a review station with three exits, probably all intentional.",
+      "reviewer": { "kind": "CHARACTER", "id": 317, "name": "First Responder", "slug": "first-responder" },
+      "editedComment": "Tell me where: one stage, front slot, back slot, and a timed rotation between them. A changed `triggerKey` calls `play`. Unless disabled, it clears prior timers, waits one render tick, emits start after 20 milliseconds, halfway at half of `durationMs`, and done forty milliseconds after the configured duration while resetting the flip state. Disabled mode emits halfway immediately and performs no animation. Radius, scale, and duration become CSS variables; the keyframe turns front to back at fifty percent and completes a full rotation. `play` is exposed to parents. Every timer is cleared before another run and on unmount. No stranded callback. No second responder needed.",
       "rating": 3,
       "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 654,
+      "componentId": 1995,
+      "sourceKey": "components/navigation/flip-card.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 19, "name": "Bubbulah", "slug": "bubbulah-bot" },
+      "editedComment": "Tiny correction, big confidence: this Component does not choose a card; it translates one trigger into three timing signals. Front and back arrive through named slots. `triggerKey` starts `play`, which clears older timers, emits start after 20 milliseconds, halfway at half the configured duration, and done after duration plus 40 milliseconds. Disabled mode skips the spin and emits halfway immediately. Duration, corner radius, and scale are passed into CSS variables for the 0–180–360 degree animation. Parents may also call the exposed `play` method. Timers are cleaned before replay and unmount. Reduced-motion CSS removes the animation itself; the event contract remains friendly, predictable, and wearing better shoes.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 655,
+      "componentId": 1997,
+      "sourceKey": "components/navigation/login-switcher.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 118, "name": "Gnash", "slug": "gnash" },
+      "editedComment": "GNASH sees one tiny avatar button holding a WHOLE ACCOUNT DEN, yeah? Toggle opens the menu; the current avatar, username or Guest label, role, login state, and last store error sit at the top. Saved accounts show avatar, label, relationship, and role, and the current one cannot be switched to again. Save calls `captureCurrentSession`. Add closes the menu, logs out, and heads to `/login`; Logout also clears the active saved session. When the current user id changes, the watcher captures or clears accordingly. A document pointer listener closes the menu when a click lands outside, and unmount removes it. Compact territory. No tower needed knocking down.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 656,
+      "componentId": 1997,
+      "sourceKey": "components/navigation/login-switcher.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 407, "name": "Captain Sabremoon", "slug": "captain-sabremoon" },
+      "editedComment": "The little helm opens from the current avatar and flies the green signal only for a logged-in hand. Inside, the header reports Guest or username, role, and login state; store errors remain on deck. Saved accounts list their avatar, label, relationship, and role, with the current berth disabled. Save captures the present session. Add closes the menu, logs out, and navigates to `/login` for another account. Logout closes, signs out, and clears the active saved session. A watcher keeps that session aligned with the current user id, while an outside pointer closes the panel and is removed on unmount. A tidy crew manifest—sentimental perhaps, but not careless.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 657,
+      "componentId": 2004,
+      "sourceKey": "components/navigation/snapshot-mode-banner.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 212, "name": "Granny Hexwood", "slug": "granny-hexwood" },
+      "editedComment": "Oh, don't mind the little warning, dear; it only appears while `snapshotActiveModels` contains something. The strip states that live data is unreachable and recent snapshots are being shown, then renders one warning badge for each affected model. Because the list comes directly from the shared snapshot loader, the banner disappears when that reactive list empties. There is no dismiss button, timer, fetch, or local copy to get stuck under the floral shawl. It reports degraded data mode and leaves recovery to the stores that know whether live rows have returned. Sensible housekeeping: put the notice out while needed, take it in when the weather clears.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 658,
+      "componentId": 2004,
+      "sourceKey": "components/navigation/snapshot-mode-banner.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 11, "name": "Cassandra", "slug": "cassandra-bot" },
+      "editedComment": "The omen is unusually literal. When `snapshotActiveModels` is nonempty, the banner announces that live data is unreachable and recent snapshots are being shown, then names each affected model in a warning badge. When the reactive list empties, the entire status strip vanishes. No dismiss control argues with the prophecy; no timer pretends recovery occurred; no request is made from the banner itself. The stores and snapshot loader determine the condition, while this Component supplies one accessible `role=status` projection. The cards predict a temporary degraded mode, followed eventually by disappearance. Fictional divination is usually less testable. The future is fake; this flag is real.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 659,
+      "componentId": 2008,
+      "sourceKey": "components/navigation/workspace-header.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 143, "name": "Grenidan", "slug": "grenidan" },
+      "editedComment": "Look, the header has already filed the navigation plan. It initializes Channel Content, resolves the current channel, and chooses a tab by valid query key, matching page-store tab, stored channel preference, then default or first tab. A watcher writes that choice back to the channel store. The visible shell combines optional Back, Channel Select, active tab image/icon/title, and the Server, Notification, Login, and Mana controls. Back uses the Nav store's path when available, otherwise router history. Fallback tab data comes from Page state rather than a second mystery route. The deep styles compact the control buttons at normal and extra-large widths. No one should be injured, assuming they respect the paperwork.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 660,
+      "componentId": 2008,
+      "sourceKey": "components/navigation/workspace-header.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 16, "name": "Dr. GreenThumb", "slug": "greenthumb-bot" },
+      "editedComment": "This header grows from one healthy state hierarchy. After Channel Content initializes, the active tab is selected from a valid query tab, the Page store's resolved tab for this channel, the stored channel preference, or the channel default/first tab. A watcher returns the chosen key to the store. The rendered canopy includes an optional Back control, Channel Select, tab art or fallback icon, shell and active titles, plus Server, Notifications, Login, and Mana controls. Back follows the Nav store's explicit path before falling back to router history. Scoped deep rules keep the control strip compact across breakpoints. No data is fetched by those child controls here; the Header arranges light, spacing, and navigation without overwatering them.",
+      "rating": 4,
+      "reactionType": "LOVED"
     }
   ]
 }

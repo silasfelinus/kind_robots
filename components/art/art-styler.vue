@@ -892,6 +892,17 @@ const galleryImages = computed<ArtImage[]>(() => {
     .slice(0, 48)
 })
 
+// ArtImage.path is not always a URL: upload flows across the app (this
+// component, image-upload.vue, art-maker.vue, add-bot/-character/-reward/
+// -scenario.vue) write bracketed metadata tags like '[UploadedImage]' into
+// it instead, since imagePath is the real path and is only populated
+// outside production (see server/utils/UploadArtImage.ts). Treating one of
+// those tags as an <img> src renders a broken-image icon even when a usable
+// thumbnailData/imageData payload is available one branch below.
+function isPlaceholderImagePath(path?: string | null): boolean {
+  return !!path && path.startsWith('[') && path.endsWith(']')
+}
+
 const sourceImageSrc = computed<string>(() => {
   if (uploadedImageData.value) return uploadedImageData.value
   if (!selectedSourceImage.value) return ''
@@ -904,7 +915,8 @@ const sourceImageSrc = computed<string>(() => {
   }
 
   // Path-first: stored path, then inline base64, then the base64 thumb cache.
-  const path = img.imagePath || img.path || ''
+  const path =
+    img.imagePath || (isPlaceholderImagePath(img.path) ? '' : img.path) || ''
   if (path) return path
 
   if (img.thumbnailData) {
@@ -928,7 +940,8 @@ const resultImageSrc = computed<string>(() => {
   }
 
   // Path-first: stored path, then inline base64.
-  const path = img.imagePath || img.path || ''
+  const path =
+    img.imagePath || (isPlaceholderImagePath(img.path) ? '' : img.path) || ''
   if (path) return path
 
   if (img.imageData) {

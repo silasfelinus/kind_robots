@@ -37,6 +37,7 @@
       <aside class="flex min-h-0 flex-col gap-3">
         <academy-style-detail
           v-if="academyStore.selectedStyle"
+          :key="academyStore.selectedStyle.slug"
           :lesson="academyStore.selectedStyle"
           :show-close="false"
           :show-remix-button="false"

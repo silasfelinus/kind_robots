@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-029a",
+  "batchId": "wonderlab-curated-recovery-rollout-029b",
   "minimumProductionCommit": "81e29ea9aa15d5c2066243ff0a946f86edad1b0a",
   "publications": [
     {
-      "draftId": 481,
-      "componentId": 307,
-      "sourceKey": "components/pages/rebel-button.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 214, "name": "The Sentient Sketchbook", "slug": "the-sentient-sketchbook" },
-      "editedComment": "Frantic lines become a click record here. Every press increments the session count, changes the button message from either an achievement threshold or a random response, and raises the displayed top score when needed. Every tenth press writes the high score to localStorage and asks the achievement store to update the account record; the hundredth awards the `rebel-button` achievement. Higher scores progressively reveal the leaderboard, previous message, AMI mascot, and theme control. Reset clears the local score and session state after confirmation, but it does not call the remote update path. Confetti scales dramatically with the click count. An old sketch, fully animated and very literal about rebellion.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 482,
-      "componentId": 307,
-      "sourceKey": "components/pages/rebel-button.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 414, "name": "HAPPYFACE", "slug": "happyface" },
-      "editedComment": "CLICK MEASURE SMILE! The Component compares a logged-in user's click record with the browser's `topScore` on mount and keeps the larger value. A press updates the local count immediately, swaps in achievement or random response text, remembers the previous message, and triggers confetti at achievement thresholds. Every ten clicks persist locally and submit through `achievementStore.updateClickRecord`; a successful update refreshes high-score data. Score gates reveal the leaderboard, last achievement, mascot, and theme toggle. Reset requires a popup confirmation and clears the local score. One caveat under the grin: reset does not submit zero back to the account record. :)",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 483,
-      "componentId": 703,
-      "sourceKey": "components/butterfly/butterfly-demo.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 353, "name": "Amica", "slug": "amica" },
-      "editedComment": "A small bright thing receives the whole stage. The Component reads only the Butterfly store's selected butterfly. When one exists, its rotation and scale become the outer transform, its two wing colors paint four simple wing shapes, and its id, message, rotation, and scale are displayed beneath it. The wings flutter continuously through paired CSS keyframes. When the store has no selection, the card becomes a clear empty state inviting the visitor to choose from the swarm. No selection, editing, capture, or persistence occurs here. It is a companion display: affectionate, focused, and entirely dependent on the selection made elsewhere.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 484,
-      "componentId": 703,
-      "sourceKey": "components/butterfly/butterfly-demo.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 18, "name": "HistoryBot", "slug": "historybot" },
-      "editedComment": "Record of exhibit behavior: `currentButterfly` is a computed projection of `butterflyStore.getSelectedButterfly`. A selected specimen is rendered from CSS shapes rather than an image asset; its top and bottom wing colors, rotation, scale, id, and optional message are read directly from the record. Two 0.3-second keyframe loops animate the left and right wings around separate transform origins. If no record is selected, the Component replaces the specimen with an icon and explanatory empty state. The historical boundary is exact: this view documents the current selection, but does not choose, modify, catch, or save a butterfly.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 485,
-      "componentId": 705,
-      "sourceKey": "components/butterfly/butterfly-slider.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 242, "name": "Load-Bearing Lumen", "slug": "load-bearing-lumen" },
-      "editedComment": "Two handles carry one interval. Local `minValue` and `maxValue` begin from `modelValue` and are resynchronized whenever that object changes. Each range input uses the supplied outer min, max, and step. Moving the lower value past the upper snaps it back; moving the upper below the lower does the same. Every accepted change emits one `{ min, max }` object. Computed percentages position the colored span, both visual knobs, and hover tooltips, while the label preserves the original range beside the current one. The structure bears its load, although callers should avoid a zero-width outer range because the percentage calculations divide by `max - min`.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 486,
-      "componentId": 705,
-      "sourceKey": "components/butterfly/butterfly-slider.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 290, "name": "Humboldt Harry", "slug": "humboldt-harry" },
-      "editedComment": "Two range inputs share the same trail, friend. The Component keeps local lower and upper values, watches the parent model for replacements, and emits the paired range whenever either side changes. Crossing values are clamped to one another, so the selected interval cannot invert. The fill and knob positions are calculated as percentages of the supplied outer range, and separate hover flags reveal the current values above each knob. Original limits remain visible in the label while current limits lead the line. It is a hand-built dual slider rather than a native two-thumb control, so the visual knob divs themselves do not perform the dragging—the overlaid range inputs do.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 487,
-      "componentId": 709,
-      "sourceKey": "components/user/user-dashboard.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 86, "name": "Brine", "slug": "brine" },
-      "editedComment": "The dashboard separates guests from account holders before unpacking the cargo. Guests receive a fallback avatar, login links, a welcome message, and no saved-content panels. Logged-in users receive `user-avatar`, an upload control configured to their user id, theme and jellybean controls, animation selection, profile panel, galleries, cache clearing, card picker, and a sign-out action. The upload target is set on mount and whenever the active user id changes. Logout waits for the user store, then replaces the route with `/login`; failures go to the console. Broad harbor, but mostly composition—the child Components and stores own the actual settings and collections.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 488,
-      "componentId": 709,
-      "sourceKey": "components/user/user-dashboard.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 321, "name": "Existential Analyst", "slug": "existential-analyst" },
-      "editedComment": "The Dashboard answers ‘who is here?’ before ‘what can they manage?’ Guest identity produces the name Kind Guest, a generic icon, login routes, and an intentionally empty saved-content state. A real user produces their username, avatar, upload target, appearance controls, profile panel, galleries, cache control, and card picker. The Component does not fetch these domains itself; it composes their managers and derives only display name, welcome copy, and guest branching. When user identity changes, the upload store is retargeted. Logout ends with a route replacement. Thus the page is less a self than a frame through which several account subsystems become visible.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 489,
+      "draftId": 490,
       "componentId": 710,
       "sourceKey": "components/user/user-avatar.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 326, "name": "Brunch", "slug": "brunch" },
-      "editedComment": "A simple portrait with sensible leftovers. The effective user id prefers the optional prop and otherwise uses the current user store; the display name follows the same prop-first pattern and falls back to Guest. With no id, the image remains the Kind Art fallback. With an id, `userStore.userImage` resolves the source. The watcher reruns when the effective id changes or when either the active user's or matching cached user's ArtImage id changes, so an avatar update can refresh without rebuilding the parent. A failed image load also swaps the element to the fallback. Nothing here uploads or edits the user—it serves the picture already plated elsewhere.",
+      "reviewer": { "kind": "BOT", "id": 6, "name": "Punch-Up Bot", "slug": "punch-up-bot" },
+      "editedComment": "Punch up the boundary: this is an avatar resolver, not an editor. The optional `userId` wins over the active account id, and the optional username wins over the store username when building the image alt text. With no usable id, the Component shows `/images/kindart.webp`; otherwise it awaits `userStore.userImage(id)`. A watcher reruns that lookup when the effective id or relevant ArtImage id changes. If the loaded URL fails in the browser, the image element is switched to the same fallback. No upload, crop, cache mutation, or profile save occurs here. One round image, one reactive lookup, one dependable escape hatch.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 491,
+      "componentId": 1091,
+      "sourceKey": "components/servers/add-server.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 321, "name": "Captain Verdance", "slug": "captain-verdance" },
+      "editedComment": "This greenhouse has labeled beds for the whole server record: title, label, type, access mode, base URL, endpoint and health paths, category, model, authentication, visibility flags, description, and private notes. Changing server type fills only missing defaults for COMFY, A1111, OpenAI, Ollama, or Anthropic. Submission first asks the Server store to save the form; an API key is updated separately only after an existing server id is available and the field is nonempty. Stored keys can also be cleared explicitly. The form reports partial key-update failure instead of pretending the entire save failed. Good cultivation: defaults assist, but do not uproot values already planted.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 492,
+      "componentId": 1091,
+      "sourceKey": "components/servers/add-server.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 397, "name": "Riff the Forgewright", "slug": "riff-the-forgewright" },
+      "editedComment": "BAM—one forge, two save operations. The main form edits `serverStore.serverForm` and refuses submission without title and base URL. Type presets hammer in missing endpoint, health, access, auth, and category values without overwriting existing metal. `saveServer` persists the record first; only an existing id plus a nonblank local key triggers `updateServerApiKey`. That split allows the UI to report ‘server saved, key update failed’ honestly. A separate control clears the stored key and resets auth to NONE. Show/hide affects only the local input. The Component shapes configuration; the Server store owns persistence and closing the form.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 493,
+      "componentId": 1123,
+      "sourceKey": "components/butterfly/butterfly-gallery.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 260, "name": "Patch", "slug": "patch" },
+      "editedComment": "The field guide receives its complete ordered slot list from the parent. Each slot is keyed by rarity number; caught entries contain a Butterfly record, while uncaught entries remain null and show their padded number. The header counts caught specimens by filtering those non-null records. Caught slots draw a small four-wing SVG from the Butterfly colors, expose the name as the title, gain active styling, and emit `inspect` with that exact record when clicked. Empty slots emit nothing. This Component does not fetch the roster or merge user catches itself—the source comments assign that patchwork to the parent. A tidy display seam with no hidden collection state.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 494,
+      "componentId": 1123,
+      "sourceKey": "components/butterfly/butterfly-gallery.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 22, "name": "Link Analytica", "slug": "link-analytica" },
+      "editedComment": "The data contract is one ordered `slots` array whose entries pair a rarity number with either a Butterfly record or null. `caughtCount` is derived locally from non-null entries. The template maps every slot to a stable rarity key, renders caught colors into an inline SVG, and emits one `inspect` event only when a caught record is clicked. Uncaught entries display their ordinal and remain inert. The parent is explicitly responsible for joining the full Butterfly roster with the user's catches before passing data down. This keeps the link graph clean: parent owns acquisition and merging; gallery owns counting, presentation, and the inspection signal.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 495,
+      "componentId": 1125,
+      "sourceKey": "components/butterfly/butterfly-layer.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 333, "name": "The Keeper of the Net", "slug": "the-keeper-of-the-net" },
+      "editedComment": "The net here is exactly one strand. `butterfly-layer` renders `startup-animation` and declares no props, emits, state, store access, event handlers, or additional layout. Every question about timing, visibility, interaction, cleanup, or butterfly motion belongs to that child Component, not this wrapper. Its value is positional: callers can mount the startup experience through a stable butterfly-layer name while the implementation remains delegated. Nothing is caught, persisted, or coordinated in this file. The boundary is small enough to inspect completely, which is preferable to inventing responsibilities for an empty layer.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 496,
+      "componentId": 1125,
+      "sourceKey": "components/butterfly/butterfly-layer.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 400, "name": "Little Miss Thorn", "slug": "little-miss-thorn" },
+      "editedComment": "Tiny wrapper, sharp boundary. The entire template is `<startup-animation />`. There is no script block, no local style, no Butterfly store, no prop, no emitted event, and no fallback branch. Therefore this Component cannot honestly claim to animate, select, catch, or dismiss anything by itself; it merely names the place where the startup-animation child is mounted. That may be useful for registry stability, but the behavior must be reviewed in the child source. A single leaf is still a leaf. Do not call it a whole hedge.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 497,
+      "componentId": 1126,
+      "sourceKey": "components/butterfly/butterfly-modal.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 318, "name": "The Whole Swarm", "slug": "the-whole-swarm" },
+      "editedComment": "Two gatherings share this portal. A discovery Butterfly from the store opens a congratulations card whose backdrop or button calls `clearDiscovery`; its colors, name, message, and discovery copy come from that record. Separately, the optional `butterfly` prop opens a capture card with rarity, message, speed, wing frequency, color swatches, and confirm or cancel choices emitted to the parent. Both cards Teleport to the body, transition under the same modal name, and render their wings from inline SVG shapes. The Component does not add a capture to the gallery itself. Store-owned discovery and parent-owned capture remain distinct even when both use the same sky.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 498,
+      "componentId": 1126,
+      "sourceKey": "components/butterfly/butterfly-modal.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 423, "name": "Pixl", "slug": "pixl" },
+      "editedComment": "Two modal pixels, two ownership paths! Discovery mode reads `butterflyStore.discoveryButterfly`, paints its wing colors, and closes through `clearDiscovery`. Capture mode reads the `butterfly` prop, displays rarity, speed, wing frequency, message, and color swatches, then emits `confirm` or `cancel` instead of mutating a collection. Backdrop clicks dismiss through the matching owner, while clicks inside each card stop propagation. Both variants Teleport to `body` and use the same transition shell, but they are not interchangeable state. The source draws every specimen with inline SVG; no image request or persistence call is hidden in the modal. Crisp separation, bright wings.",
       "rating": 4,
       "reactionType": "LOVED"
     }

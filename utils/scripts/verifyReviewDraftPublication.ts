@@ -5,11 +5,16 @@ import { readFile } from 'node:fs/promises'
 const publisherPath = 'server/utils/reviewDraftPublisher.ts'
 const endpointPath =
   'server/api/admin/wonderlab/review-drafts/[id]/publish.post.ts'
+const revisionServicePath = 'server/utils/publishedReviewRevision.ts'
+const revisionEndpointPath =
+  'server/api/admin/wonderlab/review-drafts/[id]/revise.patch.ts'
 const componentReviewsPath = 'server/api/reactions/component/[id].get.ts'
 const componentFeedPath = 'components/wonderlab/component-review-feed.vue'
 
 const publisher = await readFile(publisherPath, 'utf8')
 const endpoint = await readFile(endpointPath, 'utf8')
+const revisionService = await readFile(revisionServicePath, 'utf8')
+const revisionEndpoint = await readFile(revisionEndpointPath, 'utf8')
 const componentReviews = await readFile(componentReviewsPath, 'utf8')
 const componentFeed = await readFile(componentFeedPath, 'utf8')
 const ordinaryPost = await readFile('server/api/reactions/index.post.ts', 'utf8')
@@ -28,7 +33,32 @@ assert.match(publisher, /status = 'PUBLISHED'/)
 assert.match(publisher, /publishedReactionId = \$\{reactionId\}/)
 assert.match(publisher, /status IN \('PROPOSED', 'APPROVED', 'FAILED'\)/)
 assert.doesNotMatch(publisher, /DELETE\s+FROM\s+Reaction/i)
-assert.doesNotMatch(publisher, /authorBotId\s+IS\s+NULL\s+AND\s+authorCharacterId\s+IS\s+NULL[\s\S]*UPDATE Reaction/i)
+assert.doesNotMatch(
+  publisher,
+  /authorBotId\s+IS\s+NULL\s+AND\s+authorCharacterId\s+IS\s+NULL[\s\S]*UPDATE Reaction/i,
+)
+
+assert.match(revisionEndpoint, /requireAdminApiUser\(event\)/)
+assert.match(revisionEndpoint, /expectedCurrentCommentHash/)
+assert.match(revisionEndpoint, /revisePublishedReview/)
+assert.match(revisionService, /prisma\.\$transaction/)
+assert.match(revisionService, /FROM ReviewDraft[\s\S]*FOR UPDATE/)
+assert.match(revisionService, /FROM Reaction[\s\S]*FOR UPDATE/)
+assert.match(revisionService, /draft\.status !== 'PUBLISHED'/)
+assert.match(revisionService, /reaction\.userId !== draft\.publisherUserId/)
+assert.match(revisionService, /assertExpectedAuthor/)
+assert.match(revisionService, /expectedCurrentCommentHash/)
+assert.match(revisionService, /UPDATE ReviewDraft[\s\S]*editedComment/)
+assert.match(revisionService, /UPDATE Reaction[\s\S]*comment/)
+assert.doesNotMatch(revisionService, /INSERT\s+INTO|DELETE\s+FROM/i)
+assert.doesNotMatch(
+  revisionService,
+  /UPDATE ReviewDraft[\s\S]*authorBotId\s*=|UPDATE ReviewDraft[\s\S]*authorCharacterId\s*=/i,
+)
+assert.doesNotMatch(
+  revisionService,
+  /UPDATE Reaction[\s\S]*authorBotId\s*=|UPDATE Reaction[\s\S]*authorCharacterId\s*=/i,
+)
 
 assert.match(componentReviews, /LEFT JOIN Bot b ON b\.id = r\.authorBotId/)
 assert.match(componentReviews, /LEFT JOIN \\`Character\\` ch ON ch\.id = r\.authorCharacterId/)
@@ -37,8 +67,12 @@ assert.doesNotMatch(componentReviews, /include:\s*\{/)
 
 assert.match(componentFeed, /review\.Author\?\.name/)
 assert.match(componentFeed, /First-party \{\{ review\.Author\.kind\.toLowerCase\(\) \}\}/)
+assert.match(componentFeed, /<NuxtLink/)
+assert.match(componentFeed, /`\/bots\?bot=\$\{review\.Author\.id\}`/)
+assert.match(componentFeed, /`\/characters\?character=\$\{review\.Author\.id\}`/)
+assert.match(componentFeed, /prepareAuthorSelection/)
 
 assert.doesNotMatch(ordinaryPost, /authorBotId/)
 assert.doesNotMatch(ordinaryPost, /authorCharacterId/)
 
-console.log('Review draft publication contract passed.')
+console.log('Review draft publication and revision contract passed.')

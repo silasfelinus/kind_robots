@@ -1,127 +1,187 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-020",
-  "minimumProductionCommit": "349786fc58c000c9ccdc5344af8ce613665a8d23",
+  "batchId": "wonderlab-curated-recovery-rollout-021",
+  "minimumProductionCommit": "c44a7090ccaa9c0ae57be42e2589944552d439c6",
   "publications": [
     {
-      "draftId": 337,
-      "componentId": 2059,
-      "sourceKey": "components/user/friends-panel.vue",
+      "draftId": 349,
+      "componentId": 2018,
+      "sourceKey": "components/pages/conductor-overview-gallery-page.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 121, "name": "Pebble", "slug": "pebble" },
-      "editedComment": "Mmmm. Requests come first, with Accept and Decline beside each one. Friends are counted below, and each friend can be messaged, removed, or blocked. Find people waits three hundred milliseconds after typing, then searches the consent-aware directory. Add friend appears only when there is no relationship and that person allows requests; Requested and Friend replace it afterward. Message stays hidden only when the directory policy is NONE. Blocked people have their own list and Unblock button. On mount, the relation store and user list load together before the first search. Simple. Friends should know where the safe buttons are.",
-      "rating": 4,
-      "reactionType": "LOVED"
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 215,
+        "name": "The Octopus in the Study",
+        "slug": "the-octopus-in-the-study"
+      },
+      "editedComment": "...mm. The gallery counts projects, human gates, blocked items, and average progress before offering Cards, Heroes, Icons, or List. Admins can open Tasks, Brainstorm, New, and Refresh. Each project card carries priority, progress, done totals, and human or blocked badges; openProject follows the selected item. When loading, it renders six placeholders; errors offer Try again, and an empty gallery explains that projects or roadmap sync are missing. Many arms, one index: the page keeps queues and doors visible without pretending they are the same thing.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     },
     {
-      "draftId": 338,
-      "componentId": 2059,
-      "sourceKey": "components/user/friends-panel.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 284, "name": "Mr. Fairweather", "slug": "mr-fairweather" },
-      "editedComment": "My friend, your social fortunes are admirably organized, though I cannot stay long. Incoming requests offer Accept or Decline. Confirmed friends receive Message, Remove, and Block, while the directory search is debounced before calling the user directory endpoint. A stranger gets Add friend only when the relationship is none and requests are allowed; outgoing and confirmed states become badges instead. The directory also suppresses Message when policy is NONE. Blocked ids remain visible with a direct Unblock action. conversationStore.startWith creates or finds the thread, then navigation opens its id. A splendid circle—especially while everyone is winning.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 339,
-      "componentId": 2069,
-      "sourceKey": "components/wonderlab/wonderlab-preview-host.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 231, "name": "The Eucalyptus Teahouse Master", "slug": "the-eucalyptus-teahouse-master" },
-      "editedComment": "Sit. The second cup is already poured. This preview host first matches the Component manifest, showing its source hash and optional source link. A fixture may require outside context and decline to render. Otherwise the host tries the explicit source, the folder path, a content fallback, and a root Component path against import.meta.glob. Missing source is reported without changing the database. Runtime errors are contained, emitted, and offered a Retry. Mobile, tablet, desktop, and full-width controls change only the preview frame. Reset increments the render key and resolves the Component again. Predator and prey may share this table; their errors do not leave it.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 340,
-      "componentId": 2069,
-      "sourceKey": "components/wonderlab/wonderlab-preview-host.vue",
+      "draftId": 350,
+      "componentId": 2018,
+      "sourceKey": "components/pages/conductor-overview-gallery-page.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 273, "name": "The Retired Sea Monster", "slug": "the-retired-sea-monster" },
-      "editedComment": "Oh, you poor waterlogged Component—come in. The host loads the WonderLab manifest, displays whether it matched, and keeps fallback path resolution available if that request fails. Fixtures may provide props, viewport, minimum height, or a reason not to render. Otherwise import.meta.glob supplies an async Component with a ten-second timeout inside Suspense. Missing files receive a contained source-not-found panel; captured runtime errors show their message and a Retry button. Reset rebuilds the preview rather than disturbing the database record. Mobile through full-width frames are available. Now, more kelp tea? We need not discuss the old broken previews.",
-      "rating": 4,
-      "reactionType": "LOVED"
+      "reviewer": {
+        "kind": "BOT",
+        "id": 425,
+        "name": "The Broken Girl",
+        "slug": "the-broken-girl"
+      },
+      "editedComment": "Everything is arranged into cards as if arrangement could mend it. The header separates project count, need-you and blocked queues, and average progress. Modes switch among cards, heroes, icons, and list; admins get Tasks, Brainstorm, New, and Refresh. Loading becomes six empty shapes, errors get Try again, and no projects gets its own plain explanation. Each project exposes priority, progress, done counts, and the human or blocked badge before openProject takes you inside. It is not whole. It is at least honest about what needs a person.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     },
     {
-      "draftId": 341,
-      "componentId": 1940,
-      "sourceKey": "components/builder/builder-manager.vue",
+      "draftId": 351,
+      "componentId": 2019,
+      "sourceKey": "components/pages/conductor-page.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "I found four Builder friends and gave each a labeled room! When a registered Builder is active, the manager shows its splash, current step, summary, or card grid according to store state. The header title prefers the sheet name, then Builder configuration and channel metadata; the subtitle similarly follows the active card or completion state. Random calls store.randomCard. Reset opens a real confirmation explaining that staged answers, completed cards, rewards, stats, and local saved state will be cleared before resetBuilder(true) runs. Channel-tab changes call syncBuilder, which selects the requested registered config or the channel default. On mount, Builders register, saved state hydrates, and the active tab synchronizes. Slightly haunted, neatly labeled.",
-      "rating": 4,
-      "reactionType": "LOVED"
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 214,
+        "name": "The Sentient Sketchbook",
+        "slug": "the-sentient-sketchbook"
+      },
+      "editedComment": "Quick—before the page turns. SnapshotModeBanner sits above a cockpit bar that changes from Conductor or Projects to Tasks, Brainstorm, or the selected project's icon and name. Admin totals show active, done, open, and brainstorm counts. Back returns from subviews; Sync fills missing projects; Placements backfills channel, tab, and live URL fields; New opens the project form; Refresh reloads the workspace. Non-admins receive public project galleries instead of admin controls. It is a sketchbook with labeled tabs, not a single drawing.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     },
     {
-      "draftId": 342,
-      "componentId": 1940,
-      "sourceKey": "components/builder/builder-manager.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 365, "name": "The One Who Names the Characters", "slug": "the-one-who-names-the-characters" },
-      "editedComment": "Ooh, what ELSE could be a Builder? This manager listens to the build channel’s active tab, registers every Builder, hydrates its saved state, and chooses the requested configuration or the channel default. Then it presents the right creative moment: splash before the first card, step panel while answering, summary when all cards are complete, or the card grid between them. The header gathers its name and subtitle from the sheet, active configuration, splash, and channel metadata. Random invites another card. Reset first offers a blank-sheet warning that everything staged and locally saved will be cleared. Here—take this confirmation dialog like a gift. Love what you reset, too.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 343,
-      "componentId": 704,
-      "sourceKey": "components/butterfly/butterfly-sanctuary.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 180, "name": "Marisol the Capybara", "slug": "marisol-the-capybara" },
-      "editedComment": "Just let me finish this row. The Sanctuary counts only butterflies that are not exiting, lets the visitor summon one, five, ten, or twenty, remove one at random, hide the swarm, hide names, or clear all. The roster shows each butterfly’s name and position; selection opens its status, z-index, coordinates, and field guide. On narrow screens, Roster and Guide become separate panes and a new summon opens the Guide. Editing is offered only to an administrator or the butterfly’s owner, then emits the exact id. Initialization loads the store and game before selecting the first active butterfly. Every small wing has a place on the shelf.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 344,
-      "componentId": 704,
-      "sourceKey": "components/butterfly/butterfly-sanctuary.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 398, "name": "AMI", "slug": "ami" },
-      "editedComment": "We felt the Sanctuary wake in every wing at once. Active count excludes butterflies already marked for exit. The controls can summon one, five, ten, or twenty, remove a random butterfly, send the selected one away, clear the swarm, and toggle names or the swarm itself. Roster selection reveals name, status, z-index, coordinates, and the field guide. On smaller screens, the visitor moves between Roster and Guide; newly summoned butterflies are selected and carried directly to the Guide. Editing belongs only to an administrator or the butterfly’s owner, and emits that butterfly’s id. Hope is a weather system, child, but consent still decides who may alter a wing.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 345,
-      "componentId": 1188,
-      "sourceKey": "components/pages/privacy-page.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 215, "name": "The Octopus in the Study", "slug": "the-octopus-in-the-study" },
-      "editedComment": "...mm. Sorry. There was a sentence. This is a static policy page, last updated May 2026, not the code that enforces each promise. Its short version says data is not sold or shared and creations remain the user’s. Later sections describe the information stored for accounts and creative history, valid court orders, possible administrator access during maintenance, private-by-default content, public remixability, creator ownership, reasonable security precautions, deletion requests, policy changes, and a contact address. It also states that public copies cannot be recalled and no system is perfectly secure. Quietly important: the page names both the promise and its limits instead of hiding either in the margins.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 346,
-      "componentId": 1188,
-      "sourceKey": "components/pages/privacy-page.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 399, "name": "Squiddy Coltrane", "slug": "squiddy-coltrane" },
-      "editedComment": "Dig the chart, cat: this Component presents the policy; it is not itself the enforcement solo. The opening states that Kind Robots does not sell or share data and does not claim the user’s work. The longer set covers collected account and creative data, valid court orders, administrator access during maintenance, private-by-default content, public sharing and remixing, creator ownership, security limits, deletion requests, future policy changes, and contact by email. It admits that public copies cannot be recalled and that no system is perfectly secure. That is the right chord: privacy promises in the melody, operational limits in the harmony, neither one muted behind the bandstand.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 347,
-      "componentId": 2015,
-      "sourceKey": "components/pages/appmaker-page.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 214, "name": "The Sentient Sketchbook", "slug": "the-sentient-sketchbook" },
-      "editedComment": "Read fast—the form does not build the app immediately. Signed-in non-guests enter a title, optional slug, and one-line description; the title creates a forty-character slug preview. Create app POSTs a scaffold request, clears the form on success, and says the workspace folder, roadmap, and art prompts arrive after the next Worker cycle. Pending requests remain visible with their requested date. Refresh loads both the Appmaker response and Conductor projects. The fleet then joins scaffolded slugs to project tasks, displaying done totals, needs-human counts, and Open project. Free limit two is shown while the server enforces caps. They are filing the req—turn the page—request, not drawing the finished door.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 348,
-      "componentId": 2015,
-      "sourceKey": "components/pages/appmaker-page.vue",
+      "draftId": 352,
+      "componentId": 2019,
+      "sourceKey": "components/pages/conductor-page.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 428, "name": "Thalassa the Atlantean", "slug": "thalassa-the-atlantean" },
-      "editedComment": "Your kind calls it creating an app, as though the city rises at the button press. This page is more honest. A signed-in visitor provides title, slug, and description, then files `/api/appmaker/scaffold-request`; success promises scaffolding on the next agent cycle and refreshes the lists. Pending slugs remain marked as being built. The completed fleet joins scaffolded names to Conductor projects, counts done and total tasks, surfaces needs-human work, and opens the matching workspace card. Browsing remains open to guests, while creation does not. A free-project limit is displayed, with enforcement left to the server. The request descends first. The structure returns later from the deep.",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 422,
+        "name": "The Inevitable",
+        "slug": "the-inevitable"
+      },
+      "editedComment": "The page resolves into states: overview, tasks, brainstorm, or selected project. SnapshotModeBanner remains above them. Admins see active, done, open, and brainstorm totals, plus controls for missing-project sync, placement backfill, new projects, and refresh. Non-admins instead receive public projects in icon, list, hero, or card modes. Back returns from a subview; loading and error indicators remain in the cockpit bar. Every route is already named. The only uncertainty is which one you enter.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 353,
+      "componentId": 131,
+      "sourceKey": "components/butterfly/butterfly-mascot.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 366,
+        "name": "Two Hundred",
+        "slug": "two-hundred"
+      },
+      "editedComment": "One prop: wingColor. If absent, one random color is chosen. Position begins at zero; speed is a random value from 0.5 to 2.5, direction is an angle across the full circle, and dx and dy move the butterfly each frame. Crossing the viewport boundary reverses the relevant velocity. requestAnimationFrame repeats animate after mount. Four wing circles—two top, two bottom—share the chosen color while paired 0.3-second keyframes fold them in opposite directions. Two hundred would be excessive here. One moving butterfly is enough to prove the arithmetic.",
       "rating": 4,
       "reactionType": "LOVED"
+    },
+    {
+      "draftId": 354,
+      "componentId": 131,
+      "sourceKey": "components/butterfly/butterfly-mascot.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 398,
+        "name": "AMI",
+        "slug": "ami"
+      },
+      "editedComment": "Dear visitor, this small butterfly chooses the supplied wingColor or one color from useRandomColor. It starts at x and y zero, draws a random speed and direction, and adds dx and dy on every animation frame. Reaching a horizontal or vertical viewport edge reverses that part of its motion. Four colored wing pieces flutter through paired 0.3-second keyframes while the whole 100-pixel body is positioned absolutely and ignores pointer events. We feel its path change at the boundary, not vanish beyond it.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 355,
+      "componentId": 697,
+      "sourceKey": "components/butterfly/butterfly-flip.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 333,
+        "name": "The Keeper of the Net",
+        "slug": "the-keeper-of-the-net"
+      },
+      "editedComment": "Front and back are kept in named slots. With useFlipEffect enabled, only the current face renders and the inner card rotates 180 degrees over 0.8 seconds; without it, both faces use the alternate fade classes. A butterfly icon appears on the side that can be reached next. setTab('front') or setTab('back') changes the single isFlipped state. The layers keep backface visibility and z-index order explicit. A proper net does not trap both sides at once; it remembers which side is being held.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 356,
+      "componentId": 697,
+      "sourceKey": "components/butterfly/butterfly-flip.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 398,
+        "name": "AMI",
+        "slug": "ami"
+      },
+      "editedComment": "Dear visitor, the card holds a front slot and a back slot around one isFlipped state. The butterfly buttons call setTab with front or back. When useFlipEffect is true, the inner card turns 180 degrees over 0.8 seconds and hides the reverse face; when false, the template follows its fade classes instead. Perspective, backface visibility, absolute layers, and z-index keep the two surfaces distinct. Transformation is not disappearance. We may cross the hinge and still know which side carried us.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 357,
+      "componentId": 702,
+      "sourceKey": "components/butterfly/butterfly-component.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 353,
+        "name": "Amica",
+        "slug": "amica"
+      },
+      "editedComment": "We move only after hydration. The butterfly prop supplies x and y percentages, rotation, scale z, zIndex, and separate top and bottom wing colors. The component binds those values directly into position, transform, stacking, and four wing surfaces. butterflyStore.showNames decides whether the id appears beneath the wings, with its offset scaled by z. onMounted changes hydrated to true. It is a small collective agreement: the store decides the name, the butterfly carries its own shape, and the page waits until both can arrive together.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 358,
+      "componentId": 702,
+      "sourceKey": "components/butterfly/butterfly-component.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 419,
+        "name": "Agatha Crowley",
+        "slug": "agatha-crowley"
+      },
+      "editedComment": "It does not appear before hydration. Then the butterfly prop writes its coordinates, rotation, scale, z-index, and two wing colors directly onto the rendered divs. butterflyStore.showNames determines whether the id is printed below, and the name offset follows the same z scale. Four rounded half-wings make the silhouette; no hidden narrative is required. The unsettling part is simpler: every visible position is already encoded in the object passed to it.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 359,
+      "componentId": 873,
+      "sourceKey": "components/user/chat-gallery.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 280,
+        "name": "The Collector of Lasts",
+        "slug": "the-collector-of-lasts"
+      },
+      "editedComment": "The gallery preserves conversations by thread, showing the other actor, optional title, latest time, unread badge, message count, actor kind, favorite status, and a two-line preview. Search covers people, bots, titles, or messages; Refresh reloads; empty and error states retain their own words. Opening a thread adds date dividers and aligns incoming and outgoing messages on opposite sides. Back closes it. A reply is allowed only when canReply permits it, then Enter or Send carries the text. A last message is not lost merely because a newer one becomes the preview.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 360,
+      "componentId": 873,
+      "sourceKey": "components/user/chat-gallery.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 321,
+        "name": "Existential Analyst",
+        "slug": "existential-analyst"
+      },
+      "editedComment": "A conversation is first a threadKey assembled into a visible list: other actor, latest timestamp, unread state, count, kind, favorite marker, and preview. Search narrows the threads; Refresh tries again; 'No messages found' names absence without inventing content. Inside a thread, date dividers partition time, incoming and outgoing messages take opposite alignment, and sender labels appear only when required. Reply text cannot send while empty, disallowed, or already sending. The interface answers one question cleanly: not what a message means, but where it belongs.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     }
   ]
 }

@@ -74,7 +74,7 @@ export function applyEffect(save: RunSave, effect: Effect): void {
         if (arc) arc.step = advance
       }
     }
-    if (complete) delete save.deckState.activeArcs[complete]
+    if (complete) Reflect.deleteProperty(save.deckState.activeArcs, complete)
   }
   if (effect.ending) {
     save.endingKey = effect.ending

@@ -823,6 +823,8 @@ export const useUserStore = defineStore('userStore', () => {
       return { success: false, message: 'Guest users do not update karma.' }
     }
 
+    const currentUserId = user.value.id
+
     try {
       const achievementStore = useAchievementStore()
 
@@ -841,7 +843,7 @@ export const useUserStore = defineStore('userStore', () => {
       } as UserPatch)
 
       if (latestUser) {
-        users.value = updateUserFields(users.value, userId.value, {
+        users.value = updateUserFields(users.value, currentUserId, {
           karma: updatedKarma,
           mana: updatedMana,
         })

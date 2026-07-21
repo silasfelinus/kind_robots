@@ -101,7 +101,6 @@ export const createLoaderButterfly = (
     status: settings.status,
     noiseOffsetX: Math.random() * 1000,
     noiseOffsetY: Math.random() * 1000,
-    userId: null,
     message: 'Fluttering ominously...',
     designer: 'ami',
     goal: {
@@ -255,7 +254,6 @@ export const createNewButterfly = async (
     status: settings.status,
     noiseOffsetX: Math.random() * 1000,
     noiseOffsetY: Math.random() * 1000,
-    userId: null,
     message,
     designer: 'ami',
     goal: {

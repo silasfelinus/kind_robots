@@ -75,7 +75,7 @@ export type SerendipityBeat = {
 
 export type SerendipitySession = {
   id: string
-  userId: number
+  userId: number | null
   projectSlug?: string
   seed: SerendipityStorySeed
   location?: SerendipityIngredient

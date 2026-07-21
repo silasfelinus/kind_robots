@@ -731,7 +731,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         return
       }
 
-      if (!shouldRun()) return
+      if (!shouldRun() || !userId) return
 
       let achievement = achievements.value.find((entry) => entry.id === achievementId)
 

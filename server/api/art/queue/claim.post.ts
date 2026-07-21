@@ -18,7 +18,12 @@ import { requireMachineUser } from '../../../utils/authGuard'
 import {
   decodeArtJobPayload,
   parseArtJobPayload,
+  serializeArtJobPayload,
 } from '../../../utils/artJobPayload'
+import {
+  enrichArtJobPayload,
+  readArtJobProvenance,
+} from '../../../utils/artJobProvenance'
 import {
   artJobQueueAffinityKey,
   selectSmartQueueCandidate,
@@ -35,6 +40,7 @@ type ClaimRequestBody = {
   agentId?: string | null
   engines?: string[] | null
   supportsInputImages?: boolean | null
+  supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
 }
@@ -63,6 +69,7 @@ export default defineEventHandler(async (event) => {
     )[]
 
     const supportsInputImages = body?.supportsInputImages === true
+    const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
 
     recordRelayClaimAttempt({
@@ -171,6 +178,46 @@ export default defineEventHandler(async (event) => {
 
       if (!candidate) continue
 
+      let enrichedPayload
+
+      try {
+        const currentProvenance = readArtJobProvenance(candidate.payload)
+        enrichedPayload = enrichArtJobPayload(
+          candidate.engine as 'A1111' | 'COMFY',
+          candidate.payload,
+          {
+            projectSlug: candidate.projectSlug,
+            idempotencyKey: currentProvenance?.idempotencyKey,
+            requireCompletionProof:
+              currentProvenance?.requireCompletionProof === true ||
+              supportsCompletionProof,
+          },
+        ).payload
+      } catch (error: unknown) {
+        const handled = errorHandler(error)
+        const invalid = await prisma.artJob.updateMany({
+          where: {
+            id: candidate.id,
+            status: candidate.status,
+            claimedAt: candidate.claimedAt,
+          },
+          data: {
+            status: 'FAILED',
+            error: `Prompt provenance validation failed before claim: ${handled.message}`.slice(
+              0,
+              4000,
+            ),
+            claimedAt: null,
+            claimedBy: null,
+          },
+        })
+
+        if (invalid.count === 1) {
+          skippedIds.push(candidate.id)
+        }
+        continue
+      }
+
       const won = await prisma.artJob.updateMany({
         where: {
           id: candidate.id,
@@ -182,6 +229,7 @@ export default defineEventHandler(async (event) => {
           claimedAt: new Date(),
           claimedBy,
           attempts: { increment: 1 },
+          payload: serializeArtJobPayload(enrichedPayload),
         },
       })
 
@@ -197,6 +245,12 @@ export default defineEventHandler(async (event) => {
             : 'Job claimed.',
           data: {
             job: job ? decodeArtJobPayload(job) : null,
+            relayContract: {
+              supportsCompletionProof,
+              completionProofRequired:
+                readArtJobProvenance(enrichedPayload)
+                  ?.requireCompletionProof === true,
+            },
             scheduling: {
               mode: smartQueue ? 'SMART' : 'FIFO',
               affinityMatched: selection.affinityMatched,

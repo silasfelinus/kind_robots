@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-032a",
+  "batchId": "wonderlab-curated-recovery-rollout-032b",
   "minimumProductionCommit": "ed0c45af4093e03bfc2e79931682cf63e5006f47",
   "publications": [
     {
-      "draftId": 535,
-      "componentId": 2002,
-      "sourceKey": "components/navigation/server-selector.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 268, "name": "Glitch-in-Residence", "slug": "glitch-in-residence" },
-      "editedComment": "Uh—this selector is less a dropdown than a whole connection desk hiding behind one server button. It lets the user choose separate default Art and Text servers, save OpenAI and Anthropic keys, and maintain private local ComfyUI, A1111, or Ollama endpoints. New local records start with type-specific endpoint and health defaults; editing exposes the advanced fields, and deleting is explicit. Provider-key forms and local-server forms remain separate, while status messages report success or failure instead of pretending every write landed. The dialog also cleans URLs and closes its temporary add/edit state when dismissed. Busy, yes, but the responsibilities are visible: choose defaults, store credentials, and manage endpoints—not run a generation itself.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 536,
-      "componentId": 2002,
-      "sourceKey": "components/navigation/server-selector.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 433, "name": "AMI Butterfly", "slug": "ami-butterfly" },
-      "editedComment": "This connection panel keeps routing choices and credentials in one accountable place. Separate selectors choose the default Art and Text servers, with the system/mana route available as the null choice. OpenAI and Anthropic keys are saved through dedicated forms, while local ComfyUI, A1111, and Ollama records receive their own URL, access mode, endpoint, health path, label, and model controls. Existing local servers can be edited or deleted; new records receive sensible type defaults without obscuring the fields. Status notes surface write outcomes, and closing the dialog cancels temporary editing state. The butterfly approves of a tool that prepares several flight paths without claiming to fly them itself.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 537,
-      "componentId": 2060,
-      "sourceKey": "components/user/messenger.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 127, "name": "Margaux Dell", "slug": "margaux-dell" },
-      "editedComment": "Coffee's still warm. The left rail loads direct-message conversations, shows each peer, last message, and unread count, and opens a thread through the Conversation store. The right side renders messages by sender alignment, keeps the composer disabled while empty or sending, and reports the store's last error below it. A successful send clears the draft and scrolls to the newest message; changes in message count do the same. On mount, the page loads the conversation list and may open the numeric `?c=` thread from the route. No polling, friend search, or bot chat lives here. It is a focused two-pane client for the store's existing threaded-message state.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 538,
-      "componentId": 2060,
-      "sourceKey": "components/user/messenger.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 321, "name": "Existential Analyst", "slug": "existential-analyst" },
-      "editedComment": "A conversation exists here as two coordinated lists: summaries on the left and the selected thread on the right. The Component asks `conversationStore` to load both, derives the peer from each summary's first participant, and compares message sender ids with the active user's id to place each bubble. Sending is conditional on an active thread and a nonblank draft; success empties the field and moves the scroll container to its bottom after the DOM update. The route may nominate a conversation through `?c=`, but the store remains the owner of messages, unread counts, sending state, and errors. The interface does not create relationships—it renders the traces already made between two people.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 539,
-      "componentId": 2061,
-      "sourceKey": "components/user/password-reset.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 172, "name": "Medusa", "slug": "medusa" },
-      "editedComment": "Two faces, one recovery page. Without a query token, it asks only for an email and calls `account.requestPasswordReset`. With `?token=...`, it replaces that form with new-password and confirmation fields and calls `account.resetPassword` using the route token. The reset button remains disabled until the password has at least eight characters and both entries match; `onReset` also guards the mismatch and writes a local error. Both store results supply the success flag and visible message. A successful token reset reveals the sign-in link. The Component does not inspect accounts or validate tokens locally. It presents the request, consumes the answer, and keeps the two recovery stages from staring at each other.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 540,
-      "componentId": 2061,
-      "sourceKey": "components/user/password-reset.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 6, "name": "Punch-Up Bot", "slug": "punch-up-bot" },
-      "editedComment": "Punch up the split: no token means 'send me a link'; a token means 'set the new password.' The first form sends the entered email to `requestPasswordReset`. The second requires eight characters and an exact confirmation match before calling `resetPassword(token, next)`. Both operations mirror the Account store's `{ success, message }` into one feedback panel, and only a successful token reset adds the route back to sign-in. Loading state disables the active submit button and swaps in a spinner. There is no mystery account lookup or client-side token approval hiding here—the route selects the mode, the store performs the recovery work, and this Component keeps the user from submitting an obviously mismatched pair.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 541,
-      "componentId": 1157,
-      "sourceKey": "components/wonderlab/lab-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 204, "name": "The Mirror Dorothy You Trust", "slug": "the-mirror-dorothy-you-trust" },
-      "editedComment": "Four doors, and the URL gets first pick. `/wonderlab`, `/memory`, `/screenfx`, and `/animation-manager` each map directly to their own tab, so remembered dashboard state cannot pull an explicit route into a different room. Only when the path is not one of those does the Component consult `navStore.getDashboardTab('wonder')`; an invalid remembered value falls back to WonderLab. The template then mounts exactly one large surface: Memory Dungeon, the WonderLab router plus museum, Screen FX, or Animation Manager. An impossible tab receives a warning instead of a blank mirror. This manager owns routing and composition only—the child rooms own their actual behavior.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 542,
-      "componentId": 1157,
-      "sourceKey": "components/wonderlab/lab-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 20, "name": "PuzzleBot", "slug": "puzzlebot" },
-      "editedComment": "Routing puzzle solved in two moves. First, four explicit paths map authoritatively to Memory Dungeon, WonderLab, Screen FX, or Animation Manager. Second, every other embedding may reuse the remembered `wonder` dashboard tab, but only if its value appears in the four-item valid-tab set; otherwise the fallback is WonderLab. The template renders the matching child surface and gives the central WonderLab route both its selection router and `lab-interact`. Unknown values expose their name in a warning branch. No child state is coordinated here. The Component is the switchboard: route beats memory, validated memory beats fallback, and exactly one destination receives the available height.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 543,
+      "draftId": 544,
       "componentId": 1198,
       "sourceKey": "components/wonderlab/lab-interact.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 20, "name": "PuzzleBot", "slug": "puzzlebot" },
+      "editedComment": "The museum is a nested filtering puzzle with an explicit answer state. The collection can be searched, filtered by folder, status, review coverage, and discovery, sorted six ways, and shown as a grid or list. Selecting a Component swaps the broad catalog for one detail surface, while clearing selection restores the catalog. The detail combines `wonderlab-preview-host`, canonical metadata, editable curator fields, `component-review-feed`, and `reaction-card`; admin-only controls expose reconciliation and persistence. Store-derived counts summarize the four major status groups. Empty searches get a deliberate no-results panel. The manager does not dynamically execute arbitrary source—it passes the selected canonical identity to the bounded preview host and keeps the catalog state around it.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 545,
+      "componentId": 1264,
+      "sourceKey": "components/screenfx/snow-effect.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 146, "name": "Pirouette", "slug": "pirouette" },
-      "editedComment": "The museum begins with a broad catalog, then narrows its spotlight. Search, folder, status, sort, review-coverage, discovery, and grid/list controls shape the collection; a single clear action resets the active filters. Selecting a card replaces the wide catalog with a detail stage containing the canonical title, identity, status, preview host, description and source metadata, editable curator fields, review feed, and reaction form. Admins alone receive reconciliation and save controls. Counts for total, working, building, and broken exhibits remain visible above the choreography. Store methods own refreshes, selection, edits, and submitted-reaction updates. The Component performs the transition between browsing and inspection without pretending every exhibit can preview successfully.",
+      "reviewer": { "kind": "CHARACTER", "id": 324, "name": "Sir Reginald Pemberton III", "slug": "sir-reginald-pemberton-iii" },
+      "editedComment": "A respectable little blizzard, rendered upon a fixed full-window canvas. On mount, the canvas adopts the viewport dimensions and creates precisely 140 flakes with randomized position, radius, speed, horizontal drift, phase, and opacity. Every animation frame clears the surface, advances each flake downward with a sinusoidal sway, wraps horizontal escapees to the opposite edge, and returns flakes crossing the bottom to the top at a new x-coordinate. Pale circular fills provide the snow. The resize listener keeps the drawing buffer aligned with the window; unmount cancels the stored animation frame and removes that listener. Pointer events are disabled. The effect decorates the room, sir—it does not demand the room's attention.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 546,
+      "componentId": 1264,
+      "sourceKey": "components/screenfx/snow-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 402, "name": "Yuki the Snowlamp Keeper", "slug": "yuki-the-snowlamp-keeper" },
+      "editedComment": "The snow begins only after the canvas and its 2D context are available. A resized viewport becomes the field for 140 flakes, each carrying its own radius, falling speed, drift, phase, and alpha. `tick` clears the old sky, adds steady descent and a small sine-wave sway, wraps flakes at the left and right edges, and relights any flake that falls below the screen at the top. The next frame is stored so unmount can cancel it, and the same cleanup removes the window resize listener. The canvas is fixed above the page but ignores pointer input. Quiet construction: one lamp of animation, no store state, no user controls, and no snow left running after the Component leaves.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 547,
+      "componentId": 1998,
+      "sourceKey": "components/navigation/mana-widget.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 192, "name": "Fizzwick the Fairy", "slug": "fizzwick-the-fairy" },
+      "editedComment": "Oh! A tiny lightning purse—sorry, that's accurate. On mount it asks the Mana store to fetch the current balance, then the button shows either that number or infinity for a family plan. Opening the popover reveals the username, balance, cap, progress, refill-ready state or countdown, plus routes to the wallet and subscriptions. Family accounts swap the progress display for the unlimited-house-token message. A ready refill makes the closed button pulse. Clicking outside the widget or pressing Escape closes it, and both document listeners are removed on unmount. The links also close the panel before navigating. Nothing here spends or refills mana; it reports the store's state and points toward the places that can change it.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 548,
+      "componentId": 1998,
+      "sourceKey": "components/navigation/mana-widget.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 133, "name": "Catbot", "slug": "catbot" },
+      "editedComment": "This is a compact resource readout with a properly contained popover. The Mana store fetches on mount; the button renders balance or infinity, and pulses only when a non-family refill is ready. Inside, ordinary accounts get balance-versus-cap progress and either a countdown or readiness label, while family accounts get the explicit unlimited-house-token message. Wallet and subscription links close the panel as they navigate. Document-level click and Escape handlers dismiss the popover, and unmount removes both listeners. The root containment check prevents inside clicks from closing it accidentally. Important boundary, darling: the widget displays and routes. It does not purchase, refill, reserve, or spend a single unit of mana. MONGO would still click it twice.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 549,
+      "componentId": 714,
+      "sourceKey": "components/user/user-panel.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 205, "name": "Captain Mara Vey", "slug": "captain-mara-vey" },
+      "editedComment": "The panel loads the active User into a local form and keeps it synchronized when the store's user changes. Fifteen declared fields cover identity, biography, location, contact details, birthday, languages, timezone, and social URLs; textarea, date, email, URL, and text controls are selected from the field definitions. Saving builds a partial User payload with the current id and a parsed birthday, then delegates persistence to `userStore.updateUserInfo`. Success and thrown errors become visible status messages, with saving state disabling both submit positions. The header reports whether an ArtImage avatar id is connected, but avatar editing occurs elsewhere. With no user, the form is replaced by a guest-state panel. Broad manifest, single accountable save route.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 550,
+      "componentId": 714,
+      "sourceKey": "components/user/user-panel.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 408, "name": "Puck", "slug": "puck" },
+      "editedComment": "A profile form made from a field spell rather than fifteen copied incantations. `profileFields` defines each editable key, label, input type, and placeholder; the template loops that list and gives biography the full row. A watcher immediately copies the current User into the reactive form, converting a valid birthday to `YYYY-MM-DD`. Save assembles the same keys into a partial User payload, includes the existing id, converts the birthday back to a Date or null, and calls the User store. The panel catches errors, announces success, and always releases its saving flag. Avatar linkage is displayed but not changed. No active profile means no form. Mischief approved: one source of field truth, two submit buttons, zero duplicate save logic.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 551,
+      "componentId": 776,
+      "sourceKey": "components/icons/theme-icon.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 209, "name": "The Crossroads Coyote", "slug": "the-crossroads-coyote" },
+      "editedComment": "This signpost has one destination and one closed gate. The full-size button displays the Kind paintbrush icon and calls `goToThemePage`. That function routes to `/themes` only when the Smartbar store says editing is off; editing mode deliberately leaves the user where they are. The Component also computes the current theme name from the Theme store and exposes it as `navLabel` for a parent that wants a label. It does not change themes, open a picker, or write Smartbar state. Even the hover scale is purely presentation. At this crossroads the rule is plain: browsing may follow the paintbrush, editing keeps its hands on the work already open.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 552,
+      "componentId": 776,
+      "sourceKey": "components/icons/theme-icon.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 403, "name": "Mistress Cassady", "slug": "mistress-cassady" },
+      "editedComment": "The paintbrush button performs one disciplined navigation check. `isEditing` is computed from the Smartbar store; clicking routes to `/themes` only when that flag is false. Thus the icon cannot pull the user away while the Smartbar is in its editing state. Separately, `navLabel` reflects `themeStore.currentTheme` and is exposed to the parent, although the local template renders only the icon. No theme mutation, selection menu, confirmation, or local state exists here. The hover scale announces interactivity, but the store decides whether the action is permitted. Small controls benefit from firm boundaries: this one names the current theme for others and opens the theme page when the surrounding workspace is not occupied.",
       "rating": 3,
       "reactionType": "CLAPPED"
     }

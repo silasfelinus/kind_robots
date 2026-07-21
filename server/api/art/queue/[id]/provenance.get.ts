@@ -4,7 +4,10 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import { parseArtJobPayload } from '../../../../utils/artJobPayload'
-import { readArtJobProvenance } from '../../../../utils/artJobProvenance'
+import {
+  hashArtImageData,
+  readArtJobProvenance,
+} from '../../../../utils/artJobProvenance'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -33,11 +36,12 @@ export default defineEventHandler(async (event) => {
 
     const payload = parseArtJobPayload(job.payload)
     const provenance = readArtJobProvenance(payload)
-    const artImage = job.artImageId
+    const rawArtImage = job.artImageId
       ? await prisma.artImage.findUnique({
           where: { id: job.artImageId },
           select: {
             id: true,
+            imageData: true,
             fileName: true,
             promptString: true,
             artPrompt: true,
@@ -53,6 +57,25 @@ export default defineEventHandler(async (event) => {
             createdAt: true,
           },
         })
+      : null
+    const artImage = rawArtImage
+      ? {
+          id: rawArtImage.id,
+          imageHash: hashArtImageData(rawArtImage.imageData),
+          fileName: rawArtImage.fileName,
+          promptString: rawArtImage.promptString,
+          artPrompt: rawArtImage.artPrompt,
+          negativePrompt: rawArtImage.negativePrompt,
+          checkpoint: rawArtImage.checkpoint,
+          sampler: rawArtImage.sampler,
+          seed: rawArtImage.seed,
+          steps: rawArtImage.steps,
+          cfg: rawArtImage.cfg,
+          designer: rawArtImage.designer,
+          serverId: rawArtImage.serverId,
+          serverName: rawArtImage.serverName,
+          createdAt: rawArtImage.createdAt,
+        }
       : null
 
     return {

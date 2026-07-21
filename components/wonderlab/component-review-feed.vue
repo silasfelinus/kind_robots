@@ -275,15 +275,20 @@ function authorHref(review: PublicComponentReview): string | null {
   if (review.Author?.kind === 'CHARACTER') {
     return `/characters?character=${review.Author.id}`
   }
-
-  // There is not yet a public per-user dashboard route. Do not turn a private or
-  // unresolved publisher identity into a misleading link.
+  if (review.User?.isPublic && review.User.id > 0) {
+    return `/users/${review.User.id}`
+  }
   return null
 }
 
 function authorLinkLabel(review: PublicComponentReview): string {
-  const destination = review.Author?.kind === 'BOT' ? 'Bot Gallery' : 'Character Gallery'
-  return `View ${authorName(review)} in the ${destination}`
+  if (review.Author?.kind === 'BOT') {
+    return `View ${authorName(review)} in the Bot Gallery`
+  }
+  if (review.Author?.kind === 'CHARACTER') {
+    return `View ${authorName(review)} in the Character Gallery`
+  }
+  return `View ${authorName(review)}'s public profile`
 }
 
 function prepareAuthorSelection(review: PublicComponentReview): void {

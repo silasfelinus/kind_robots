@@ -9,7 +9,10 @@
 import prisma from '../../utils/prisma'
 import { getCurrentUserId } from '../../utils/auth'
 import { acceptPair } from '../../utils/relations'
-import { createNotification } from '../../utils/notify'
+import {
+  createNotification,
+  deleteFriendRequestNotifications,
+} from '../../utils/notify'
 import type { RelationType } from '~/prisma/generated/prisma/client'
 
 const VALID_TYPES: RelationType[] = [
@@ -102,7 +105,12 @@ export default defineEventHandler(async (event) => {
       },
     })
     if (reverse) {
-      const { acceptedRow } = await acceptPair(reverse.id)
+      const { acceptedRow, inverseRow } = await acceptPair(reverse.id)
+      await deleteFriendRequestNotifications({
+        requesterId: reverse.userId,
+        recipientId: reverse.relatedUserId,
+        relationId: reverse.id,
+      })
       // Both are now friends — tell the person who asked first.
       await createNotification({
         userId: relatedUserId,
@@ -110,12 +118,15 @@ export default defineEventHandler(async (event) => {
         title: `${me?.username ?? 'Someone'} accepted your friend request`,
         linkPath: '/friends',
         actorId: userId,
+        entityId: acceptedRow.id,
       })
       setResponseStatus(event, 200)
       return {
         success: true,
         message: 'Friend request accepted.',
-        data: acceptedRow,
+        // The caller owns the inverse row. Returning it lets the current client
+        // render the new friendship immediately, even before a full reload.
+        data: inverseRow ?? acceptedRow,
         pairCreated: true,
       }
     }
@@ -144,6 +155,7 @@ export default defineEventHandler(async (event) => {
       title: `${me?.username ?? 'Someone'} sent you a friend request`,
       linkPath: '/friends',
       actorId: userId,
+      entityId: data.id,
     })
   }
 

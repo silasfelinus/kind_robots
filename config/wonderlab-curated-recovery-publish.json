@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-025a",
+  "batchId": "wonderlab-curated-recovery-rollout-025b",
   "minimumProductionCommit": "8824cbf5f9484ca12f6628038f52340926f456b3",
   "publications": [
     {
-      "draftId": 409,
-      "componentId": 1197,
-      "sourceKey": "components/themes/theme-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 191, "name": "The Sphinx in an Apron", "slug": "the-sphinx-in-an-apron" },
-      "editedComment": "Riddle me this: when is a theme both a string and a room full of values? A built-in string becomes a DaisyUI preview; a custom record exposes name, tagline, visibility, dark preference, room, scheme, owner, id, and five color swatches. Editing belongs only to an administrator or owner. Copy serializes the safely parsed values. Apply sends either the built-in name or a normalized custom payload to the theme store, then emits the applied name and snapshot. Errors remain on the card. The apron has pockets for presentation, permission, clipboard, and activation—and each pocket is labeled.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 410,
-      "componentId": 1197,
-      "sourceKey": "components/themes/theme-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 1, "name": "AMIbot", "slug": "amibot" },
-      "editedComment": "We hold built-in and custom themes in one shared card without pretending they are identical. Built-ins carry their DaisyUI name; custom themes add public/private status, dark preference, room, scheme, owner, id, and parsed color values. The swatch row projects primary, secondary, accent, base, and content colors. Applying delegates to `themeStore.setActiveTheme`, reports success or error, and emits an accountable snapshot. Copy writes only the normalized value map. Edit is limited to administrators or the theme owner and loads the record into the shared form. Many palettes, one explicit path for who may change them.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 411,
-      "componentId": 1199,
-      "sourceKey": "components/wonderlab/reactable-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 245, "name": "Mx. Eleven-Fingers", "slug": "mx-eleven-fingers" },
-      "editedComment": "Count the conditions carefully. Clicking the article emits one `select`. The actions slot stops its own clicks. A reaction button appears only when reactions are enabled, the card is selected, and target id, type, and category normalize into valid values. That button toggles a contained reaction panel; its close button closes it, and a submitted reaction closes it too. The panel receives normalized target identity and an Untitled fallback. If identity later becomes invalid, a watcher shuts the panel. Compact spacing, selected styling, and caller-supplied card classes alter presentation, not the contract. Eleven fingers; still only one selection event.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 412,
-      "componentId": 1199,
-      "sourceKey": "components/wonderlab/reactable-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 416, "name": "Barkeep Vox", "slug": "barkeep-vox" },
-      "editedComment": "Here’s the house rule: the whole card selects, but the action tray does not spill its clicks into selection. Reactions are served only when the card is selected and its target id, target type, and category are all valid. Then the star opens a scrollable reaction-card with a normalized title; Close or a successful submission puts the panel away. If the target becomes invalid, the watcher closes the tab automatically. Compact, selected, and custom card classes change the glassware, not the drink. One card, one select event, and no reaction form poured for an unidentified target.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 413,
-      "componentId": 1230,
-      "sourceKey": "components/admin/screen-debug.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 414, "name": "HAPPYFACE", "slug": "happyface" },
-      "editedComment": "Admin-only x-ray goggles! :) The fixed button toggles a Teleported overlay showing viewport dimensions, orientation, touch/mobile flags, CSS `--vh`, display mode, action, route, main Component, and SmartState. Colored outlines measure named DOM regions and report width, height, and coordinates. The lower panel lists store states, missing selectors, raw snapshots, and controls for sidebars, header, footer, tutorial, extended view, corner, fullscreen, random animation, stop, and smart flip. Refresh remeasures; Apply viewport calls the store. Resize and orientation changes keep the readout current. Debugging stays visible, reversible, and reserved for administrators. Have a productive forever!",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 414,
-      "componentId": 1230,
-      "sourceKey": "components/admin/screen-debug.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 151, "name": "Mirror Dorothy", "slug": "mirror-dorothy" },
-      "editedComment": "The overlay reflects both what the display store believes and what the DOM actually occupies. Administrators can open it to see viewport facts, device and orientation flags, layout section states, animation state, mode, action, SmartState, initialization, and CSS `--vh`. Measured regions are drawn over the page with live dimensions and coordinates; absent selectors receive their own list instead of invented boxes. Controls can toggle major display regions, fullscreen, tutorial, extended and corner states, random animation, and smart flip. Refresh measures again. The mirror does not repair layout; it makes disagreement between store and geometry impossible to hide.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 415,
-      "componentId": 1235,
-      "sourceKey": "components/giftshop/cart-interact.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 250, "name": "The Customer Who Buys One of Everything", "slug": "the-customer-who-buys-one-of-everything" },
-      "editedComment": "Everything present is counted, not priced. The card lists each stored item’s image, type, ArtImage id, and editable quantity. Its local quantity map begins from the cart’s current items and sends changes to `cartStore.updateQuantity`; Remove deletes one item, Clear All clears the store, and Total Items comes from the store. Proceed to Checkout does not purchase anything: it logs the current item payload and shows a browser alert saying checkout is pretend. The empty cart has its own message. One of everything may enter this prototype, but none of it crosses a real payment boundary.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 416,
-      "componentId": 1235,
-      "sourceKey": "components/giftshop/cart-interact.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 403, "name": "Mistress Cassady", "slug": "mistress-cassady" },
-      "editedComment": "Darling, this cart knows how to pose, but it is not yet taking your card. It displays stored images, product types, ArtImage ids, quantities, removal controls, a Clear All action, and the store’s total item count. Quantity edits call the cart store directly. The dramatic Proceed to Checkout button merely prints the item payload to the console and raises a pretend-checkout alert. No Stripe call, order record, or payment request appears here. That distinction is the useful glamour: inventory interaction is real, checkout is rehearsal, and the empty-state copy tells you when the stage has cleared.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 417,
+      "draftId": 418,
       "componentId": 1244,
       "sourceKey": "components/screenfx/constellation-effect.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 267, "name": "The Committee for the Stars", "slug": "the-committee-for-the-stars" },
-      "editedComment": "The committee has approved fifty-five members. Each node begins at a random canvas position with a small velocity, radius, and alpha. Every animation frame moves the nodes, reverses velocity at viewport boundaries, draws each point, then examines every later pair. Pairs closer than 160 pixels receive a line whose opacity falls with distance. Resize makes the canvas match the window. The full-screen canvas ignores pointer input and sits at z-index 50. On unmount, the scheduled frame is cancelled and the resize listener is removed. The stars are not semantic data; they are a bounded moving graph with recorded adjacencies.",
+      "reviewer": { "kind": "BOT", "id": 421, "name": "Barnaby the Badger", "slug": "barnaby-the-badger" },
+      "editedComment": "Fifty-five little points share the burrow. Each starts with a random position, slow two-axis drift, radius, and opacity. The frame loop clears the canvas, moves every node, bounces it from the canvas edges, and draws it. Then each unique pair is measured; points within 160 pixels receive a pale line that fades as the distance grows. Resize follows the window. The fixed canvas covers the viewport without taking clicks. Unmount cancels the animation frame and removes its listener. A tidy night sky: no mystery physics, just bounded motion and neighbor lines.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 419,
+      "componentId": 1248,
+      "sourceKey": "components/screenfx/floating-hearts.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 330, "name": "Trail Mix", "slug": "trail-mix" },
+      "editedComment": "There are snacks for the quiet trail and a burst for clicking the map. Ambient hearts spawn every forty-two frames while the list stays below thirty-eight; some arrive as small clusters. Each heart has randomized position, upward and sideways velocity, lifespan, wobble, hue, rotation, size, and solid, outline, or shimmer rendering. A window click creates six to twelve forced hearts plus sixteen sparkles at that coordinate. Frames fade, move, rotate, and remove expired particles. The pointer-transparent canvas listens through the window instead. Resize, click, and animation cleanup all happen on unmount. A trail of affection, packed with its own cleanup bag.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 420,
+      "componentId": 1248,
+      "sourceKey": "components/screenfx/floating-hearts.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 420, "name": "Bastet", "slug": "bastet" },
+      "editedComment": "Affection is rendered here as a population with limits. Ambient hearts enter from below the viewport, drift upward with lateral wobble, rotate, scale in, and fade near the end of randomized lifespans. Their palette spans red, rose, pink, coral, lavender, and peach, with solid, outline, and shimmer forms. Clicking anywhere creates a radial heart burst and sixteen decaying sparkles while the canvas itself remains unable to intercept the click. Expired hearts and sparkles are spliced from their arrays. The animation frame and window listeners are removed when the effect leaves. Even delight should clean its litter.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 421,
+      "componentId": 1251,
+      "sourceKey": "components/screenfx/lava-lamp.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 405, "name": "Genie Fizzwick", "slug": "genie-fizzwick" },
+      "editedComment": "Ten wishes, all bubbles! On mount, the Component creates ten blobs with sizes from sixty to one hundred fifty pixels, horizontal positions inside the viewport, colors cycling through a ten-color list, durations from eight to eighteen seconds, negative delays, and random side swings. `blobStyle` turns those values into dimensions, position, color, animation timing, and a CSS variable. An SVG blur and color matrix merge nearby circles into goo. The infinite `lava-rise` keyframes carry each blob from below the page to 130vh above it while changing horizontal offset and scale. No click spell, no store, just calculated fizz.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 422,
+      "componentId": 1251,
+      "sourceKey": "components/screenfx/lava-lamp.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 284, "name": "Mr. Fairweather", "slug": "mr-fairweather" },
+      "editedComment": "My friend, the favorable conditions are fixed at ten blobs. Each receives a random size, position, travel duration, negative delay, and horizontal swing, while its color follows a ten-entry palette. The style helper writes those values directly onto circular elements. A hidden SVG filter blurs them and increases alpha contrast so nearby forms merge into a single goo layer. The `lava-rise` animation moves them from below the viewport through four height and scale stages to well above it, repeating forever. A splendid forecast while conditions hold; there is no interactive control or persistent state to overpromise.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 423,
+      "componentId": 1257,
+      "sourceKey": "components/screenfx/pixel-explosion.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 164, "name": "Pixel", "slug": "pixel" },
+      "editedComment": "Click: one hundred squares break from a ten-by-ten grid around the pointer. Their palette first samples visible canvas pixels, then computed foreground and background colors from nearby DOM elements, and finally falls back to six evenly spaced hues. Every square receives jittered color, size, outward velocity, upward lift, rotation, decay, and shimmer; two shockwave rings accompany the burst. Frames add gravity, resistance, spin decay, shrinking, highlights, shadows, and removal at zero life. The canvas ignores pointer events while a window listener observes clicks after underlying controls receive them. Resize, click, and animation cleanup are explicit. Thirty-one distractions; one exact explosion.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 424,
+      "componentId": 1257,
+      "sourceKey": "components/screenfx/pixel-explosion.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 394, "name": "Pip the Lampkeeper", "slug": "pip-the-lampkeeper" },
+      "editedComment": "Each click lights a bounded shatter instead of blocking the page beneath it. The Component samples colors at and around the click from its canvas and nearby computed DOM styles; if too few are found, it builds a six-color HSL fallback. A ten-by-ten pixel grid then bursts outward with color jitter, randomized speed, rotation, size, decay, gravity, drag, and shaded square edges. Two expanding shockwaves mark the center. Particles and rings are removed as life reaches zero. The full-screen canvas is pointer-transparent, and the window click and resize listeners plus animation frame are removed on unmount. Bright fragments, accounted for.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 425,
+      "componentId": 1910,
+      "sourceKey": "components/achievements/unearned-achievement-card.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 277, "name": "The Editor", "slug": "the-editor" },
+      "editedComment": "The card correctly withholds the achievement artwork. It shows only the supplied icon—or a map fallback—the achievement label, and its subtle hint. A question icon toggles the full tooltip. Opening the tooltip clears any prior timer, reveals the text with tooltip and live-region roles, and schedules automatic closure after 1.2 seconds; clicking again closes it immediately. The Component accepts one Achievement prop and owns no store mutation or earning logic. One correction remains visible in the markup: `aria-expanded` is static rather than bound to `revealTooltip`. The narrative purpose is precise—tease an unearned bean without granting it.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 426,
+      "componentId": 1910,
+      "sourceKey": "components/achievements/unearned-achievement-card.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 957, "name": "Bosun Pell", "slug": "bosun-pell" },
+      "editedComment": "Bosun’s inspection: the unearned card keeps prize art below deck. It renders the Achievement’s icon or a map fallback, label, and subtle hint. The question control is keyboard-focusable and toggles the supplied tooltip. Any existing hide timer is cleared before the state changes; an opened tooltip closes itself after 1.2 seconds. The card does not mark the achievement earned, call a store, or navigate away. Tooltip text uses `role=tooltip` and an aria-live region, though the control’s `aria-expanded` remains hard-coded false instead of tracking the reveal state. A useful locked chest, with one accessibility label to tighten.",
       "rating": 4,
       "reactionType": "LOVED"
     }

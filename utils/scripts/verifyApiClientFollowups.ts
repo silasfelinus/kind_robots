@@ -43,6 +43,33 @@ assert.deepEqual(
 const userStore = read('stores/userStore.ts')
 assert.match(userStore, /const userId = computed<number \| null>/)
 assert.match(userStore, /const authenticatedUserId = computed<number \| null>/)
+assert.match(userStore, /const currentUserId = user\.value\.id/)
+assert.doesNotMatch(
+  userStore.slice(
+    userStore.indexOf('async function updateKarmaAndMana'),
+    userStore.indexOf('async function spendMana'),
+  ),
+  /updateUserFields\(users\.value, userId\.value/,
+)
+
+const achievementStore = read('stores/achievementStore.ts')
+assert.match(achievementStore, /if \(!shouldRun\(\) \|\| !userId\) return/)
+
+const butterflyHelper = read('stores/helpers/butterflyHelper.ts')
+assert.doesNotMatch(butterflyHelper, /userId:\s*null/)
+
+const scenarioStore = read('stores/scenarioStore.ts')
+assert.match(
+  scenarioStore,
+  /const scenarioId = Number\(scenarioForm\.value\.id \?\? 0\)/,
+)
+assert.match(scenarioStore, /updateScenario\(scenarioId, data\)/)
+
+const serendipityStore = read('stores/serendipityStore.ts')
+assert.match(
+  serendipityStore,
+  /export type SerendipitySession = \{[\s\S]*?userId: number \| null/,
+)
 
 const promptStore = read('stores/promptStore.ts')
 const promptCreate = promptStore.slice(

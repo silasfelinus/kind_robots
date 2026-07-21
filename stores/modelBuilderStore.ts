@@ -1424,6 +1424,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         setStatus('error', response.message || 'Failed to cancel run.')
         return
       }
+      // Stop any in-flight async art-generation polls (generateItemAssetAsync)
+      // for this run's items. pollAsyncArtJob's while loop keys off
+      // item.artJobId === jobId, so clearing it makes the loop exit at its
+      // next check instead of finishing minutes later and PATCHing/POSTing
+      // artifacts onto items that belong to a run the user just cancelled —
+      // and popping a misleading "Generated a candidate" success toast for
+      // work they said they no longer want.
+      const cancelledRun =
+        state.runs.find((entry) => entry.id === runId) ??
+        (state.run?.id === runId ? state.run : null)
+      cancelledRun?.items.forEach((item) => {
+        item.artJobId = null
+        item.queueState = null
+      })
       state.runs = state.runs.filter((entry) => entry.id !== runId)
       if (state.run?.id === runId) resetRun()
       setStatus('success', 'Run cancelled.')

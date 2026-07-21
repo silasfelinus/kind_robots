@@ -86,7 +86,12 @@ export function hashArtImageData(value: unknown): string | null {
   const raw = String(value || '').trim()
   if (!raw) return null
 
-  const encoded = raw.includes('base64,') ? raw.split('base64,', 2)[1] : raw
+  const marker = 'base64,'
+  const encoded = raw.includes(marker)
+    ? raw.slice(raw.indexOf(marker) + marker.length)
+    : raw
+
+  if (!encoded) return null
 
   try {
     const bytes = Buffer.from(encoded, 'base64')

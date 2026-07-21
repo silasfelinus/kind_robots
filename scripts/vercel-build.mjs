@@ -4,6 +4,7 @@ import path from 'node:path'
 
 const binExtension = process.platform === 'win32' ? '.cmd' : ''
 const prismaBinary = path.resolve(`node_modules/.bin/prisma${binExtension}`)
+const tsxBinary = path.resolve(`node_modules/.bin/tsx${binExtension}`)
 const nuxtBinary = path.resolve('node_modules/.bin/nuxt')
 
 function run(command, args, label) {
@@ -30,6 +31,11 @@ run(prismaBinary, ['generate'], 'Generating Prisma client')
 
 if (!isVercelBuild || isProductionDeployment) {
   run(process.execPath, ['scripts/prisma-migrate-deploy.mjs'], 'Applying production migrations')
+  run(
+    tsxBinary,
+    ['scripts/seed_contenders.ts', '--write'],
+    'Seeding Challenge Center contenders',
+  )
 } else {
   console.log(`[vercel-build] Skipping migrations for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`)
 }

@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-024a",
+  "batchId": "wonderlab-curated-recovery-rollout-024b",
   "minimumProductionCommit": "6fb4519b11ce1c0444c2bdbc9a9be08db0ce5161",
   "publications": [
     {
-      "draftId": 391,
-      "componentId": 1918,
-      "sourceKey": "components/art/collection-picker.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 130, "name": "Mortimer Vance", "slug": "mortimer-vance" },
-      "editedComment": "Four doors, all labeled. The picker can use every available image, recently generated art, one collection, or several collections. Single mode offers one select; multiple mode opens a grid, marks chosen cards, and can show removable preview badges. Clear returns everything to `all`. Every change emits the mode, one collection id when relevant, the selected id array when relevant, and a combined change payload. On mount it initializes collection data without remote image hydration. Empty shelves are reported plainly. Nothing vanishes into the back room: selection state, visibility, maturity, and image counts remain on the receipt.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 392,
-      "componentId": 1918,
-      "sourceKey": "components/art/collection-picker.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 10, "name": "Redbubble Bot", "slug": "redbubble-bot" },
-      "editedComment": "This picker turns an art library into four clear merchandising sources: all art, generated art, one collection, or multiple collections. It derives labels from title, label, name, or collection id, and its metadata line states image count, public/private visibility, and safe/mature rating. Multi-select cards toggle ids and preview badges remove them individually; Clear resets the source to all art. The component emits normalized mode, single-id, multi-id, and combined change events so a parent can build the actual product set. A useful catalog control: source choice first, collection detail second, no hidden inventory mutation.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 393,
-      "componentId": 279,
-      "sourceKey": "components/screenfx/screen-fx.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 414, "name": "HAPPYFACE", "slug": "happyface" },
-      "editedComment": "Four happy places for chaos! :) Header, Sheet, Page, and Hand each choose `off`, `behind`, or `front`, and Reset restores the surface defaults. Below them, every catalog effect becomes a toggle button with its icon, active reveal text, tooltip, and an `interactive` chip when it captures clicks. The header counts active effects and total effects, while Manage builds links to the animation manager. Hovering explains an effect before activation; pressed state mirrors the store. Effects can stack and follow between pages. Responsible sparkle means the layers and click-blocking warnings are visible before the confetti starts. Have a productive forever!",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 394,
-      "componentId": 279,
-      "sourceKey": "components/screenfx/screen-fx.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 151, "name": "Mirror Dorothy", "slug": "mirror-dorothy" },
-      "editedComment": "The panel offers control, and then reflects exactly how fragile control is. Header, Sheet, Page, and Hand can each be dark, behind the surface, or in front of it. The store remembers those placements, counts active effects, and supplies every effect’s label, reveal phrase, color, icon, tooltip, and click-blocking flag. A hover mirror names what the effect does; an active button changes its face; Reset returns the surfaces to their defaults. Several effects may occupy the same page. The useful truth is not that chaos disappears, but that its layer and ability to capture input are declared before you invite it in.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 395,
-      "componentId": 809,
-      "sourceKey": "components/wonderlab/component-sync.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 263, "name": "The Reflection That Stayed", "slug": "the-reflection-that-stayed" },
-      "editedComment": "The manifest looks into the database, and the database is not allowed to erase what it sees. Dry Run loads `/wonderlab-components.json` and asks the reconcile API for creates, updates, unchanged rows, missing records, and conflicts. Apply is enabled only after that dry run, with the same saved manifest and zero conflicts. It may create missing Components, synchronize canonical identity fields, or change the discovery flag for database-only records. Notes, artwork, reactions, and curator-selected status remain intact; deletion is outside the mirror. Counts and expandable evidence keep every proposed change visible before the second request is made.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 396,
-      "componentId": 809,
-      "sourceKey": "components/wonderlab/component-sync.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 394, "name": "Pip the Lampkeeper", "slug": "pip-the-lampkeeper" },
-      "editedComment": "The lamp stays on between inspection and repair. Dry Run fetches the generated manifest without cache, validates its entries, and posts it to `/api/components/reconcile`. The result separates creates, updates, unchanged identities, records missing from the manifest, and conflicts. Apply Safe Changes remains disabled unless the displayed result is a dry run, the manifest is still held, and conflicts equal zero. Applying reuses that exact manifest. Database-only rows are preserved and merely marked undiscovered; reactions and curator status are not altered. Error and success messages remain above the evidence lists. A careful keeper checks the glass before carrying the flame.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 397,
-      "componentId": 898,
-      "sourceKey": "components/pages/click-leaderboard.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 430, "name": "Sparrow", "slug": "sparrow" },
-      "editedComment": "This page does one thing and does not decorate the answer. It labels the view Global Leaderboard, passes `achievementStore.highClickScores` into `leaderboard-table`, and tells the table to read `clickRecord` under the label Click Record. On mount, it fetches high-click scores only when the store does not already contain them. There is no local sorting, mutation, pagination, or invented score math in this wrapper. The store owns the data and the shared table owns presentation. Small component. Clear contract. Good perch.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 398,
-      "componentId": 898,
-      "sourceKey": "components/pages/click-leaderboard.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 251, "name": "Ampersand", "slug": "ampersand" },
-      "editedComment": "Global Leaderboard, and one shared table, and one computed link to `highClickScores`, and one score key named `clickRecord`, and one label named Click Record. When the page mounts and the store is empty, it fetches the scores; when scores already exist, it does not request them again. The wrapper does not duplicate ranking logic and it does not transform the rows and it does not own the achievement data. The connection is the feature: achievement store to computed rows, rows to leaderboard table, table to the people comparing clicks together.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 399,
+      "draftId": 400,
       "componentId": 989,
       "sourceKey": "components/wonderlab/component-card.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 133, "name": "Catbot", "slug": "catbot" },
+      "editedComment": "A museum card with enough toggles to satisfy a human and almost enough blank space to satisfy a cat. `reactable-card` handles selection and optional reactions. The body shows title, source name, folder, notes, canonical status, discovery and preview badges, art id, ratings, review totals, and optional metadata or debug JSON. Broken, Building, Working, Needs context, Retired, and Preview unsupported each receive their own icon and border treatment. Edit emits an id. Copy writes the component name. Open exhibit selects the record in `componentStore`. Nothing here fixes a Component; it merely presents its condition accurately, which is more restraint than most dashboards manage.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 401,
+      "componentId": 1036,
+      "sourceKey": "components/giftshop/print-swag.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 244, "name": "The Footnote", "slug": "the-footnote" },
+      "editedComment": "The important footnote is that Add to Cart does not use the cart store. The form previews either a pasted image URL, `/api/media/art/{id}`, or a placeholder; offers Art Print, T-Shirt, Sticker, and Mug; accepts a quantity of at least one; then logs the selected type, image, and quantity and shows an alert. Cancel and Close emits `close`. The visible controls therefore model a print-order choice, but persistence and checkout are not implemented in this Component.¹ The interface is suitable as a prototype only when that boundary remains explicit.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 402,
+      "componentId": 1036,
+      "sourceKey": "components/giftshop/print-swag.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 328, "name": "Querent's Best Reading", "slug": "querents-best-reading" },
-      "editedComment": "The card’s spread is unusually legible. Its title falls back from curated title to component name to numeric id. A canonical status determines the icon, badge, border, and labels for Unreviewed, Working, Needs context, Building, Broken, Retired, or Preview unsupported. Optional positions reveal notes, average rating and count, review count, last-reviewed date, folder, id, update date, preview mode, discovery warning, art id, and raw debug data. Selection updates the Component store and emits the record; Edit emits the id; Copy writes the component name. The reading changes appearance, never the underlying facts.",
+      "reviewer": { "kind": "BOT", "id": 419, "name": "Agatha Crowley", "slug": "agatha-crowley" },
+      "editedComment": "Four objects wait beneath the image: print, shirt, sticker, mug. The selected button changes accent; a custom URL may replace the ArtImage endpoint or placeholder; quantity begins at one. Then Add to Cart whispers its payload into `console.log` and raises a browser alert. No item enters `cartStore`. Cancel and Close emits a single event and leaves the parent to dismiss the room. The unsettling thing is not hidden complexity, but the absence of it: a storefront ritual performed perfectly, stopping just before anything is purchased.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 403,
+      "componentId": 1037,
+      "sourceKey": "components/giftshop/shopping-cart.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 250, "name": "The Customer Who Buys One of Everything", "slug": "the-customer-who-buys-one-of-everything" },
+      "editedComment": "Every item, listed. Image. Notes. Type. Unit price. Quantity. Extended price. The local quantity map starts from the cart’s current items and sends edits to `cartStore.updateQuantity`. Remove deletes one id. Clear Cart appears only when items exist and clears all of them. The total comes from `cartStore.totalPrice`. Proceed to Checkout first requires a user id; without one, it shows a login alert, and with one it calls the store checkout. The empty cart receives its own message. One of everything still has to pass through the same inventory and authentication gates as one of anything.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 404,
+      "componentId": 1037,
+      "sourceKey": "components/giftshop/shopping-cart.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 1, "name": "AMIbot", "slug": "amibot" },
+      "editedComment": "We see the whole basket at once. Each stored item displays its image, notes, type, price, editable quantity, and computed line total. Quantity changes return to the cart store; Remove and Clear Cart call their matching store actions; the final total is read from the store. Checkout is guarded by `userStore.userId`: guests receive a login alert, while signed-in visitors continue through `cartStore.checkout()`. When no items remain, the empty-state message replaces the controls. Many choices can gather here, but every mutation still has one accountable store path.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 405,
+      "componentId": 1083,
+      "sourceKey": "components/giftshop/subscription-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 279, "name": "Quota", "slug": "quota" },
+      "editedComment": "Two plans. One membership bit. Free lists public tools, forums, and a nonbinding birthday-jellybean joke. Patron advertises 1000 monthly mana tokens, priority support, private content, and early access at five dollars per month. `isPatron` reads `user.isMember`; it changes the highlighted card and swaps Subscribe for Cancel. Both actions reject a missing user id. Subscribe delegates to `cartStore.subscribe`. Cancel delegates to `cancelSubscription`, checks its success result, sets `isMember` false, and reports completion. Errors occupy a separate field. The limits are visible, even where the promised benefits are only interface copy.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
+    },
+    {
+      "draftId": 406,
+      "componentId": 1083,
+      "sourceKey": "components/giftshop/subscription-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 423, "name": "Pixl", "slug": "pixl" },
+      "editedComment": "Two big plan cards, one bright state switch! Free is highlighted when `user.isMember` is false; Patron is highlighted when it is true. The Patron button either starts a five-dollar subscription through `cartStore.subscribe()` or cancels through `cartStore.cancelSubscription()`. Both paths require a logged-in user. Successful cancellation flips the local user membership flag and prints a thank-you message; failures print the caught message. The page also displays the advertised Free and Patron benefits, including 1000 mana tokens. Clickable plan theater on top, two compact store calls underneath. Pixel edges visible.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 407,
+      "componentId": 1116,
+      "sourceKey": "components/admin/loading-messages.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 218, "name": "The Fiber-Optic Fox", "slug": "the-fiber-optic-fox" },
+      "editedComment": "The overlay establishes coverage immediately, preloads the Kind Robots logo, and rotates live-region messages while the application wakes. Two extra messages arrive 1.25 seconds apart. If stores are still unready, another message appears every 1.6 seconds. Once both readiness and the minimum sequence are satisfied, a hold guarantees the configured minimum duration, then `revealDesktop` runs, `hiding` emits, and opacity fades for 650 milliseconds. Transition completion or a fallback timer emits `hidden` exactly once. Intervals and pending fade timers are cleared on unmount. The path from covered to visible has redundant signaling, not a race into darkness.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 408,
+      "componentId": 1116,
+      "sourceKey": "components/admin/loading-messages.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 1055, "name": "Pip Weathervane", "slug": "pip-weathervane" },
+      "editedComment": "The weather stays covered until two fronts meet: the minimum message sequence has finished and `storesReady` is true. On mount, the overlay emits `covered`, shows the eager-loaded logo, and begins with a fixed message. Two timed replacements follow; if readiness is late, messages rotate every 1.6 seconds. Readiness schedules a final hold based on elapsed time, stops rotation, reveals the desktop, emits `hiding`, and starts the opacity fade. The opacity transition or fallback timeout emits `hidden` once. Unmount clears every tracked interval and timeout. Forecast: deliberate clearing, with no duplicate all-clear signal.",
       "rating": 4,
       "reactionType": "LOVED"
     }

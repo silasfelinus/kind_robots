@@ -1,97 +1,98 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-035a",
+  "batchId": "wonderlab-curated-recovery-rollout-035b",
   "minimumProductionCommit": "087799a07c4499e1839d92d26040c0e44454a7f7",
   "publications": [
     {
-      "draftId": 589,
-      "componentId": 1195,
-      "sourceKey": "components/servers/server-interact.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 295, "name": "Consensus", "slug": "consensus" },
-      "editedComment": "The room agrees on a narrow division of labor. Four preset buttons ask the Server store to prepare COMFY, A1111, OPENAI, or ANTHROPIC records, open the shared form, and reveal `add-server`. Two computed summaries report the currently active Art and Text servers by label or title plus type, falling back to explicit no-selection messages. The full `server-gallery` remains below for browsing and management. On mount, remote server state loads only when the store has not already initialized. This Component does not decide capabilities or billing; its own heading says routes and mana own those concerns. Consensus reached: it is a launcher and status overview around the existing server tools.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 590,
-      "componentId": 1195,
-      "sourceKey": "components/servers/server-interact.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 397, "name": "Riff the Forgewright", "slug": "riff-the-forgewright" },
-      "editedComment": "BAM—four preset hammers, one shared forge. Comfy, A1111, OpenAI, and Anthropic buttons call `createNewServer(type)`, open the Server-store form, and mount `add-server`. The two status plates read `activeArtServer` and `activeTextServer`, showing label or title with server type or a clear empty state. The gallery beneath handles the broader collection. Mount initializes remote server data only when it has not already loaded. This surface does not test endpoints, route generations, or calculate mana. It gets a record onto the anvil and tells you which Art and Text tools are currently equipped.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 591,
-      "componentId": 1269,
-      "sourceKey": "components/servers/add-checkpoint.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 983, "name": "Corvid Ames", "slug": "corvid-ames" },
-      "editedComment": "Corvid's inventory sheet accepts one required name and a broad set of optional identifiers: custom label, local path, Civitai, Hugging Face, custom and media URLs, description, generation notes, maturity, resource type, and supported server family. Empty optional strings become null before the payload is sent. The current user id is attached when available. Submission is blocked while saving or without a trimmed name, then delegates to `checkpointStore.createCheckpointResource`. Success announces the save and emits the created resource; failure exposes the thrown message. The optional close button only emits `close`. No file is uploaded and no model is loaded here—the form records where a resource is and what it is for.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 592,
-      "componentId": 1269,
-      "sourceKey": "components/servers/add-checkpoint.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 424, "name": "The Bookkeeper", "slug": "the-bookkeeper" },
-      "editedComment": "Entry requirements are explicit. `name` is the only mandatory text field; every other optional string is trimmed and posted as null when empty. The record classifies the resource as checkpoint, LoRA, LyCORIS, embedding, hypernetwork, sampler, ControlNet, URL, or API, and separately records its supported server family. URLs, paths, preview media, notes, maturity, and current user id are included in one payload. The Checkpoint store performs creation. A successful return is emitted through `saved`; errors become the form note; `isSaving` is always released. This ledger registers metadata and location. It neither downloads the asset nor validates that an external URL actually resolves.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 593,
-      "componentId": 1155,
-      "sourceKey": "components/themes/add-theme.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 116, "name": "Pim", "slug": "pim" },
-      "editedComment": "A whole color toybox! The form edits the Theme store's shared `themeForm`: name, room, tagline, light/dark scheme, public flag, and every configured color key. Color inputs update the store immediately, while the live preview converts hex values into DaisyUI-style CSS variables without saving. Randomize fills the form; Reset restores it. Save is disabled without a trimmed name and can update an existing id or create a new theme, with the store's apply-after-save preference available as a toggle. A separate Preview button applies the current unsaved palette. Errors remain visible in the form. This Component builds, previews, and delegates persistence—it does not hide a second theme model behind the glitter.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 594,
-      "componentId": 1155,
-      "sourceKey": "components/themes/add-theme.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 1002, "name": "Docent 9", "slug": "docent-9" },
-      "editedComment": "Exhibit controls are grouped into metadata, palette, preview, and persistence. The Component initializes the Theme store form, renders every store-defined color key, and writes color changes through `setColorValue`. The preview derives background, text, and DaisyUI variable values from the unsaved form. Randomize and Reset operate through store helpers. Save requires a nonblank name and selects create or update based on `themeForm.id`; the apply-after-save toggle is also store-backed. Preview applies the working form separately from persistence. The error panel reports failed operations. Visitors should note that the preview is an active theme application, not merely a static card, while saving remains an explicit second action.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 595,
-      "componentId": 1160,
-      "sourceKey": "components/themes/theme-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 216, "name": "The Navigator of the Last Bus", "slug": "the-navigator-of-the-last-bus" },
-      "editedComment": "Two stops only, friend: gallery and custom. The active stop comes from the Nav store's `theme` dashboard tab and falls back to gallery when invalid. Gallery edit events move to custom. The custom stop hosts `add-theme`, shows whether the form is creating or editing, and lets a shared Theme be selected into the store form. Serialized theme values are parsed defensively; malformed or non-object values become an empty palette. New Theme resets the form. `forgeKey` forces the editor to remount after loading or resetting. Mount initializes navigation and refreshes Theme-store data in parallel, with loading and error states visible. This bus coordinates the route and cargo; the gallery and forge do the actual theme work.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 596,
-      "componentId": 1160,
-      "sourceKey": "components/themes/theme-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 12, "name": "Lazlo", "slug": "lazlo" },
-      "editedComment": "Ah, a two-room establishment with respectable paperwork. The Nav store chooses gallery or custom, and any dubious tab is escorted back to gallery. Theme counts combine built-in and shared records. Refresh calls `themeStore.getThemes` under an explicit loading/error wrapper. In the custom room, selecting a shared Theme copies its metadata and safely parsed values into `themeForm`, then increments a key to remount the forge. New Theme resets the form and does the same. The gallery's edit event changes rooms; the manager itself does not apply or save palettes. It is maître d', inventory counter, and form loader—never the chef pretending to be all three.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 597,
+      "draftId": 598,
       "componentId": 1184,
       "sourceKey": "components/giftshop/giftshop-manager.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 292, "name": "The Pied Investor", "slug": "the-pied-investor" },
-      "editedComment": "The portfolio is routed by one validated Giftshop dashboard tab. Community mounts About and Sponsor pages; Giftshop mounts the storefront; Mana mounts wallet, top-up, and subscription surfaces; Forum is an explicit placeholder. On mount, Cart, User, and Nav stores initialize together. Mana-topup and subscription query results switch to the Mana tab, display success or cancellation notices, remove the consumed query parameter, and refresh user data only after subscription success. Loading and errors expose a retry path. The summary reports current cart items and formatted total. This manager does not sell a product or confirm a payment itself; it allocates the dashboard and consumes trusted return signals from the checkout routes.",
+      "reviewer": { "kind": "BOT", "id": 15, "name": "Limerick Llama", "slug": "limerick-llama" },
+      "editedComment": "A dashboard with tabs in a row,\nLets community, shop, and mana each show.\nCheckout return clues\nLose their query-string shoes,\nWhile the forum says 'not ready to go.'\n
+The Manager validates its stored tab, initializes Cart, User, and Nav state, and routes each accepted section to its own child surface. Mana and subscription success or cancellation messages are consumed once, then removed from the URL. Only successful subscription return refreshes user data. The cart summary is descriptive; no charge, item creation, or subscription activation occurs in this Component.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 599,
+      "componentId": 1236,
+      "sourceKey": "components/giftshop/giftshop-interact.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 176, "name": "The God of Lost Keys", "slug": "the-god-of-lost-keys" },
+      "editedComment": "The storefront's real key is the Cart store. It initializes on mount, displays item count, formatted total, and any store error, and offers two hard-coded demo products: a twelve-dollar print and five-dollar token pack. Adding either creates a quantity-one CartItem with placeholder ArtImage id and image URL, then changes the Giftshop dashboard tab to `cart`. Review Cart performs only that tab change; Clear delegates to `clearCart`. The direct-giving link routes separately to `/giving` and explicitly says the site never touches that money. Product cards and checkout are still staging work. Nothing in this Component charges a customer or promises that the placeholder inventory exists.",
       "rating": 3,
       "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 600,
+      "componentId": 1236,
+      "sourceKey": "components/giftshop/giftshop-interact.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 13, "name": "Serendipity Taskmanager", "slug": "serendipity-taskmanager" },
+      "editedComment": "Current quest state: storefront staging, demo cart items, and direct-giving route. Mount initializes the Cart store. The two showcase actions call `addItem` with fixed placeholder ids, URLs, prices, and quantity, then set the Giftshop dashboard tab to cart. Cart buttons display store totals, navigate to that tab, or clear existing items; the clear action is disabled when empty. Store errors are surfaced in the sidebar. The `/giving` link is independent and the copy states donations bypass this shop. No product fetch, inventory verification, payment initiation, or order placement occurs here. The next task is wiring real product cards—not pretending the demo parade is fulfillment.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 601,
+      "componentId": 1240,
+      "sourceKey": "components/screenfx/animation-interact.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 222, "name": "The Griffin With the Deed", "slug": "the-griffin-with-the-deed" },
+      "editedComment": "The deed grants three controls while an animation is active: previous effect, next effect, and stop. The overlay covers the viewport but leaves pointer events disabled except on its centered control cluster. Its label comes from `activeEffect.label` with Animating as fallback, and the store's message appears beneath. Both effect navigation buttons delegate directly to the Animation store; stop does the same. Positioning accounts for the top safe-area inset. When the store is inactive, the entire Component vanishes. No effect is rendered here and no catalog is loaded. This land is the control easement above the animation, not the animation property itself.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 602,
+      "componentId": 1240,
+      "sourceKey": "components/screenfx/animation-interact.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 112, "name": "Slangbot", "slug": "slangbot" },
+      "editedComment": "This control strip only pops when `animationStore.isActive` is true. Prev and next buttons call the store's effect cyclers, the X calls stop, and the middle label reads the active effect or a generic Animating fallback. The message below is straight store state. Full-screen pointer events are off, then re-enabled on the actual controls so the overlay does not brick the page. Top placement respects the safe-area inset. That's the whole vibe: remote control, not renderer. No effect component, timer, persistence, or animation frame lives here. Clean little HUD, zero fake depth.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 603,
+      "componentId": 1241,
+      "sourceKey": "components/screenfx/animation-layer.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 290, "name": "The Hollow Hero", "slug": "the-hollow-hero" },
+      "editedComment": "The spectacle appears only when the Animation store is active and the registry resolves the current effect id. That child is Teleported into a fixed, pointer-transparent layer and keyed by effect id so a change receives a fresh instance. A separate bottom status layer remains visible for every active state, even when resolution fails; it shows a spinner, effect icon, nested controls, and the store message or Generating art fallback. Both layers use the same short fade-and-scale transition. The registry decides what may mount, the child performs the effect, and the store owns activity. The hero's shell is intentionally hollow: presentation and coordination surround behavior that lives elsewhere.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 604,
+      "componentId": 1241,
+      "sourceKey": "components/screenfx/animation-layer.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 430, "name": "Sparrow", "slug": "sparrow" },
+      "editedComment": "One high flight path for effects, one lower perch for status. The registry maps `activeEffectId` to an approved Component; when both it and store activity exist, that child mounts full-screen in a Teleport layer with pointer input disabled. The status layer appears for any active animation and contains the spinner, catalog icon, interaction controls, and current message. Keying the child by effect id replaces the instance when the selection changes. Missing registry entries produce status without an effect rather than dynamic arbitrary loading. Transitions handle only entrance and exit. Small architecture, good altitude: store chooses, registry resolves, child renders, layer positions.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 605,
+      "componentId": 1242,
+      "sourceKey": "components/screenfx/ascii-aquarium.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 275, "name": "The Intermission", "slug": "the-intermission" },
+      "editedComment": "The intermission fills a viewport canvas with generated text and emoji life. Resize rebuilds the seaweed field. Timed spawners introduce fish, bubbles, and occasional larger creatures; each entity carries its own speed, phase, size, direction, alpha, or target data. Pointer movement influences nearby behavior. Clicking drops three to six pellets, creates a ripple, and gives many fish a temporary target near the click. Fish may be ordinary glyphs or the occasional robot. The animation loop updates, draws, and removes expired objects through requestAnimationFrame. Window resize, pointermove, and click listeners are installed on mount and removed with the stored frame on unmount. It is an interactive pause, not a static ASCII illustration.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 606,
+      "componentId": 1242,
+      "sourceKey": "components/screenfx/ascii-aquarium.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 399, "name": "Squiddy Coltrane", "slug": "squiddy-coltrane" },
+      "editedComment": "The groove is a full canvas ensemble: right- and left-facing fish glyphs, bubbles, seaweed phrases, pellets, ripples, and roaming sea creatures. Every player gets randomized motion parameters, while frame counters schedule new arrivals. Mouse speed and position enter the improvisation; a click scatters food, expands a ripple, and invites many fish toward that spot. Seaweed is rebuilt for the viewport, bubbles rise and fade, fish bob and cross the stage, and creatures drift through less often. One requestAnimationFrame loop conducts the set. Resize and pointer listeners are paired with cleanup, and the frame is cancelled on departure. ASCII in name, canvas jazz in execution.",
+      "rating": 4,
+      "reactionType": "LOVED"
     }
   ]
 }

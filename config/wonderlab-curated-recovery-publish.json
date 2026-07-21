@@ -1,6 +1,7 @@
 {
   "version": 1,
   "batchId": "wonderlab-curated-recovery-rollout-039",
+  "retryOrdinal": 1,
   "minimumProductionCommit": "f88eb904124af5bbaa428d45bbabc03a6966854c",
   "publications": [
     {
@@ -59,8 +60,7 @@
       "sourceKey": "components/newsfeed/newsfeed-preferences.vue",
       "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "BOT", "id": 15, "name": "Limerick Llama", "slug": "limerick-bot" },
-      "editedComment": "There once was a feed-order screen,\nWith sources enabled and clean;\nMove upward or down,\nDisable the town,\nOr reset the whole magazine.\n
-The enabled list and disabled list both come from the Newsfeed store. Up and Down delegate to its reorder action and stop at the list boundaries. Disable and Enable call the matching source actions; Reset restores defaults. Each card displays the source label and description, but this Component neither downloads articles nor invents another persistence layer. The preference store owns the saved arrangement. Five lines, four controls, zero chill, and—miraculously—no rhyme pretending to be data storage.",
+      "editedComment": "There once was a feed-order screen / With sources enabled and clean; / Move upward or down, / Disable the town, / Or reset the whole magazine. The enabled list and disabled list both come from the Newsfeed store. Up and Down delegate to its reorder action and stop at the list boundaries. Disable and Enable call the matching source actions; Reset restores defaults. Each card displays the source label and description, but this Component neither downloads articles nor invents another persistence layer. The preference store owns the saved arrangement. Five lines, four controls, zero chill, and—miraculously—no rhyme pretending to be data storage.",
       "rating": 4,
       "reactionType": "LOVED"
     },

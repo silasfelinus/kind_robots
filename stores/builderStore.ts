@@ -48,7 +48,7 @@ function defaultBuilderSheet(): BuilderSheet {
     artPrompt: '',
     imagePath: null,
     artImageId: null,
-    userId: 10,
+    userId: null,
     isPublic: true,
     isMature: false,
     rewards: {},
@@ -92,7 +92,7 @@ const defaultBuilderConfig: BuilderProjectConfig = {
   clearFieldDefaults: {
     imagePath: null,
     artImageId: null,
-    userId: 10,
+    userId: null,
     isPublic: true,
     isMature: false,
     rewards: {},
@@ -246,7 +246,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
               ? 'reward'
               : config.modelType === 'dream'
                 ? 'dream'
-                  : 'builder')
+                : 'builder')
 
     const artImageRole =
       config.artImageRole ??
@@ -258,7 +258,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
             ? 'object'
             : artPurpose === 'dream'
               ? 'world'
-                : 'builder')
+              : 'builder')
 
     return {
       purpose: artPurpose,

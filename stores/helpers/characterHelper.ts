@@ -7,12 +7,7 @@ import type {
 } from '@/stores/helpers/builderCards'
 
 export type CharacterStatKey =
-  | 'luck'
-  | 'might'
-  | 'wits'
-  | 'grace'
-  | 'charm'
-  | 'empathy'
+  'luck' | 'might' | 'wits' | 'grace' | 'charm' | 'empathy'
 
 export type CharacterRewardSlotKey = 'starting-skill' | 'starting-item'
 
@@ -67,7 +62,7 @@ export type CharacterSheetDraft = {
   artPrompt: string
   artImageId: number | null
   imagePath: string | null
-  userId: number
+  userId: number | null
   designer: string | null
   isPublic: boolean
   isMature: boolean
@@ -255,7 +250,9 @@ export function builderRewardOptionToCharacterRewardDraft(
   }
 }
 
-export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
+export function createEmptyCharacterSheet(
+  userId: number | null = null,
+): CharacterSheetDraft {
   return {
     id: null,
     name: '',

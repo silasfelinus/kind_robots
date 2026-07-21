@@ -61,10 +61,7 @@
             image-fit="contain"
           />
 
-          <div
-            v-else
-            class="kr-note kr-note-warning"
-          >
+          <div v-else class="kr-note kr-note-warning">
             No character selected. Return to the gallery and pick a beautiful
             little problem.
           </div>
@@ -420,8 +417,7 @@
 
               <pre
                 class="max-h-96 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-100 p-3 text-sm text-base-content/75"
-                >{{ adventurePrompt }}</pre
-              >
+                >{{ adventurePrompt }}</pre>
             </section>
           </article>
 
@@ -479,8 +475,7 @@
               class="max-h-96 overflow-auto rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
               >{{
                 JSON.stringify(characterStore.selectedCharacter, null, 2)
-              }}</pre
-            >
+              }}</pre>
           </article>
         </section>
       </main>
@@ -721,12 +716,10 @@ function buildCharacterMessages(content: string): BotCafeMessage[] {
         messageItem.content === content
       )
     })
-    .map(
-      (messageItem): BotCafeMessage => ({
-        role: messageItem.role,
-        content: messageItem.content,
-      }),
-    )
+    .map((messageItem): BotCafeMessage => ({
+      role: messageItem.role,
+      content: messageItem.content,
+    }))
 
   return [
     {
@@ -763,7 +756,6 @@ async function sendCharacterChat() {
   try {
     const chat = await chatStore.addChat({
       content,
-      userId: userStore.userId || userStore.user?.id || 10,
       type: 'Weirdlandia',
       characterId: character.id,
       recipientId: null,

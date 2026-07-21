@@ -457,7 +457,7 @@ function resetForAdd() {
     artPrompt: '',
     imagePath: null,
     artImageId: null,
-    userId: userStore.userId || 10,
+    userId: userStore.authenticatedUserId,
   }
 
   uploadedPreviewImage.value = null
@@ -636,7 +636,8 @@ async function saveScenario() {
       ...scenarioStore.scenarioForm,
       locations:
         selectedDream?.title || scenarioStore.scenarioForm.locations || '',
-      userId: scenarioStore.scenarioForm.userId || userStore.userId || 10,
+      userId:
+        scenarioStore.scenarioForm.userId || userStore.authenticatedUserId,
     }
 
     const saved = await scenarioStore.saveScenario()

@@ -12,15 +12,10 @@ import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
 
 export type SerendipityTone =
-  | 'cozy'
-  | 'adventurous'
-  | 'mysterious'
-  | 'funny'
-  | 'tender'
-  | 'surprising'
+  'cozy' | 'adventurous' | 'mysterious' | 'funny' | 'tender' | 'surprising'
 
 export type SerendipityStorySeed = {
-  userId: number
+  userId: number | null
   projectSlug?: string
   locationDreamSlug?: string
   genreFacetSlug?: string
@@ -54,11 +49,7 @@ export type SerendipityRealHook = {
 export type SerendipityQuestion = {
   prompt: string
   realWorldKind:
-    | 'honeydo'
-    | 'needs-human'
-    | 'kaizen'
-    | 'desired-feature'
-    | 'preference'
+    'honeydo' | 'needs-human' | 'kaizen' | 'desired-feature' | 'preference'
   projectSlug?: string
   conductorTaskId?: string
   todoId?: number
@@ -70,10 +61,7 @@ export type SerendipityAnswer = {
   selectedOption?: string
   capturedAt: string
   writeBackStatus:
-    | 'not-applicable'
-    | 'pending-human-gate'
-    | 'queued'
-    | 'written'
+    'not-applicable' | 'pending-human-gate' | 'queued' | 'written'
 }
 
 export type SerendipityBeat = {
@@ -360,9 +348,7 @@ export const useSerendipityStore = defineStore('serendipityStore', () => {
       conductorStore.hasLoaded
         ? Promise.resolve()
         : conductorStore.fetchProjects(),
-      projectStore.loaded
-        ? Promise.resolve()
-        : projectStore.fetchProjects(),
+      projectStore.loaded ? Promise.resolve() : projectStore.fetchProjects(),
     ])
   }
 
@@ -601,7 +587,7 @@ story, and end with warmth. This is the finale — do NOT end with a question.`
     genre?: SerendipityIngredient
   }): Promise<boolean> {
     const seed: SerendipityStorySeed = {
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
+      userId: userStore.authenticatedUserId,
       projectSlug: input.projectSlug,
       locationDreamSlug: input.location?.slug,
       genreFacetSlug: input.genre?.slug,

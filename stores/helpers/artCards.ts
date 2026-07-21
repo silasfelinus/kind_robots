@@ -137,12 +137,12 @@ export type ArtBuilderSheet = BuilderSheet & {
   negativeFilters: string[]
   imagePath: string | null
   artImageId: number | null
-  userId: number
+  userId: number | null
   isPublic: boolean
   isMature: boolean
 }
 
-export function defaultArtSheet(userId = 10): ArtBuilderSheet {
+export function defaultArtSheet(userId: number | null = null): ArtBuilderSheet {
   return {
     mode: 'text2img',
     sourceImage: '',

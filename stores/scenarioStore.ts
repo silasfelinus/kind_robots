@@ -226,7 +226,17 @@ function toScenarioForm(scenario: ScenarioWithRelations): ScenarioForm {
 }
 
 function toScenarioPayload(form: ScenarioForm) {
-  const { Dreams, Facets, Characters, _count, ...payload } = form
+  const {
+    id: _id,
+    userId: _userId,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    Dreams,
+    Facets,
+    Characters,
+    _count,
+    ...payload
+  } = form
 
   return {
     ...payload,
@@ -634,8 +644,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       }
 
       upsertScenario(res.data)
-      const created =
-        (await fetchScenarioById(res.data.id, true)) ?? res.data
+      const created = (await fetchScenarioById(res.data.id, true)) ?? res.data
 
       selectedScenario.value = created
       scenarioForm.value = toScenarioForm(created)

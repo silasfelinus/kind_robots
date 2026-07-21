@@ -429,7 +429,6 @@ export const useStoryStore = defineStore('storyStore', () => {
 
     const payload: ChatRuntimeInput = {
       content,
-      userId: userStore.userId ?? userStore.user?.id ?? 10,
       type: 'Weirdlandia',
       characterId: null,
       recipientId: null,

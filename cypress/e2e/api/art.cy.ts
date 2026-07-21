@@ -40,7 +40,8 @@ describe('ArtImage Management API Tests', () => {
       const parsedValue = Number(env.LOLA_TEST_SERVER_ID ?? 37)
       lolaTestServerId = Number.isFinite(parsedValue) ? parsedValue : 37
 
-      expect(apiKey, 'API_KEY or ADMIN_TOKEN').to.be.a('string').and.not.be.empty
+      expect(apiKey, 'API_KEY or ADMIN_TOKEN').to.be.a('string').and.not.be
+        .empty
       expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
       expect(lolaTestServerId, 'LOLA_TEST_SERVER_ID').to.be.a('number')
     })
@@ -77,6 +78,8 @@ describe('ArtImage Management API Tests', () => {
         expect(response.body.success).to.be.true
         expect(response.body.data).to.be.an('object').that.is.not.empty
         expect(response.body.data).to.have.property('id')
+        expect(response.body.data).to.not.have.property('imageData')
+        expect(response.body.data).to.not.have.property('thumbnailData')
 
         fixtureArtImageId = response.body.data.id
         generatedPath = response.body.data.path || response.body.data.imagePath
@@ -260,6 +263,8 @@ describe('ArtImage Management API Tests', () => {
         designer: 'updatedDesigner',
         isPublic: true,
       })
+      expect(response.body.data).to.not.have.property('imageData')
+      expect(response.body.data).to.not.have.property('thumbnailData')
     })
   })
 

@@ -96,7 +96,10 @@ export const useUserStore = defineStore('userStore', () => {
 
   const isGuest = computed(() => !user.value || user.value.id === 10)
   const isLoggedIn = computed(() => !!user.value && user.value.id !== 10)
-  const userId = computed(() => user.value?.id ?? 10)
+  const userId = computed<number | null>(() => user.value?.id ?? null)
+  const authenticatedUserId = computed<number | null>(() =>
+    isLoggedIn.value ? (user.value?.id ?? null) : null,
+  )
   const username = computed(() => user.value?.username ?? 'Kind Guest')
   const karma = computed(() => user.value?.karma ?? 1000)
   const mana = computed(() => user.value?.mana ?? 0)
@@ -120,7 +123,7 @@ export const useUserStore = defineStore('userStore', () => {
   // with the other *Promise refs near the top of the store
   const promotePromise = ref<Promise<{
     success: boolean
-    userId: number
+    userId: number | null
     promoted: boolean
     message?: string
   }> | null>(null)
@@ -307,7 +310,7 @@ export const useUserStore = defineStore('userStore', () => {
   // Called by generation stores before any chargeable work.
   async function ensureRealUser(): Promise<{
     success: boolean
-    userId: number
+    userId: number | null
     promoted: boolean
     message?: string
   }> {
@@ -885,6 +888,7 @@ export const useUserStore = defineStore('userStore', () => {
     isGuest,
     isLoggedIn,
     userId,
+    authenticatedUserId,
     username,
     karma,
     mana,

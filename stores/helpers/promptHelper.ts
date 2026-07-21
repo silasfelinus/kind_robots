@@ -24,7 +24,6 @@ export function estimateTokenCount(text: string): number {
 export function buildPromptPayload(p: Partial<Prompt>): Partial<Prompt> {
   return {
     prompt: p.prompt?.trim() || '',
-    userId: p.userId ?? 1,
     botId: p.botId ?? null,
     artImageId: p.artImageId ?? null,
     creationSource: 'UNKNOWN',

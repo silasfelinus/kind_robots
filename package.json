@@ -86,7 +86,8 @@
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "generatesmart": "node utils/scripts/generate-smart-icons.mjs"
+    "generatesmart": "node utils/scripts/generate-smart-icons.mjs",
+    "test:api-client-followups": "tsx utils/scripts/verifyApiClientFollowups.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

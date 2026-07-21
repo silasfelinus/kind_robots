@@ -148,7 +148,7 @@ const artStore = useArtStore()
 const reactionStore = useReactionStore() as ReactionFetchStore
 
 const currentArtImage = computed(() => artStore.currentArtImage)
-const userId = computed(() => userStore.user?.id || userStore.userId || 10)
+const userId = computed(() => userStore.authenticatedUserId)
 
 const rating = ref(0)
 const hoverRating = ref(0)

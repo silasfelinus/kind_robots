@@ -25,6 +25,7 @@ import {
   getOrFetchArtImageById,
 } from '@/stores/helpers/artHelper'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
+import { mergeArtImageRecords } from '@/stores/helpers/artImageMerge'
 import {
   modelNamesMatch,
   parseA1111GenerationInfo,
@@ -89,11 +90,7 @@ function validateImagePrompt(prompt: string): {
 }
 
 export type ArtImageGenerationEngine =
-  | 'a1111'
-  | 'comfy'
-  | 'flux'
-  | 'kontext'
-  | 'openai'
+  'a1111' | 'comfy' | 'flux' | 'kontext' | 'openai'
 
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
@@ -153,11 +150,7 @@ export interface GenerateArtData {
 export type ArtGenerationProvider = 'any' | 'comfy' | 'a1111' | 'openai'
 
 export type ArtGenerationModelFamily =
-  | 'any'
-  | 'sdxl'
-  | 'flux'
-  | 'kontext'
-  | 'openai-image'
+  'any' | 'sdxl' | 'flux' | 'kontext' | 'openai-image'
 
 export interface ArtGenerationRequirement {
   provider?: ArtGenerationProvider
@@ -304,17 +297,9 @@ function mergeUniqueArtImages(
   existing: ArtImage[],
   incoming: ArtImage[],
 ): ArtImage[] {
-  const map = new Map<number, ArtImage>()
-
-  for (const image of existing) {
-    map.set(image.id, image)
-  }
-
-  for (const image of incoming) {
-    map.set(image.id, image)
-  }
-
-  return Array.from(map.values()).sort(sortNewestArtImages)
+  return mergeArtImageRecords(existing, incoming)
+    .map((image) => image as ArtImage)
+    .sort(sortNewestArtImages)
 }
 
 export const useArtStore = defineStore('artStore', () => {
@@ -384,8 +369,7 @@ export const useArtStore = defineStore('artStore', () => {
 
   const currentImagePath = computed(() => {
     const image = state.currentArtImage as
-      | (ArtImage & { imageData?: string | null; path?: string | null })
-      | null
+      (ArtImage & { imageData?: string | null; path?: string | null }) | null
 
     // Path-first: render from the stored path when present, fall back to inline
     // base64 only for pathless (e.g. freshly uploaded) art.
@@ -625,7 +609,7 @@ export const useArtStore = defineStore('artStore', () => {
 
       if (!state.artForm.userId) {
         setArtForm({
-          userId: userStore.userId || userStore.user?.id || 10,
+          userId: userStore.authenticatedUserId,
           designer:
             userStore.username || userStore.user?.username || 'Kind Designer',
         })
@@ -809,7 +793,7 @@ export const useArtStore = defineStore('artStore', () => {
       promptString: '',
       negativePrompt: '',
       pitch: '',
-      userId: userStore.userId || userStore.user?.id || 10,
+      userId: userStore.authenticatedUserId,
       engine: undefined,
       checkpoint: '',
       sampler: '',
@@ -1130,14 +1114,23 @@ export const useArtStore = defineStore('artStore', () => {
         throw new Error(response.message || 'Failed to create art image.')
       }
 
-      const cleanImage = stripHeavyImageFields(response.data)
+      addOrUpdateArtImages([response.data])
 
-      addOrUpdateArtImages([cleanImage])
-      state.currentArtImage = cleanImage
+      let created = imageById.value.get(response.data.id) ?? response.data
+      if (input.imageData || input.thumbnailData) {
+        created =
+          (await getArtImageById(response.data.id, {
+            force: true,
+            includeImageData: Boolean(input.imageData),
+            includeThumbnailData: Boolean(input.thumbnailData),
+          })) ?? created
+      }
+
+      state.currentArtImage = created
 
       return {
         success: true,
-        data: response.data,
+        data: created,
         message: response.message || 'Art image created.',
       }
     } catch (error) {
@@ -1173,13 +1166,23 @@ export const useArtStore = defineStore('artStore', () => {
 
       addOrUpdateArtImages([response.data])
 
+      let updated = imageById.value.get(id) ?? response.data
+      if (updates.imageData || updates.thumbnailData) {
+        updated =
+          (await getArtImageById(id, {
+            force: true,
+            includeImageData: Boolean(updates.imageData),
+            includeThumbnailData: Boolean(updates.thumbnailData),
+          })) ?? updated
+      }
+
       if (state.currentArtImage?.id === id) {
-        state.currentArtImage = response.data
+        state.currentArtImage = updated
       }
 
       return {
         success: true,
-        data: response.data,
+        data: updated,
         message: response.message || 'Art image updated.',
       }
     } catch (error) {
@@ -1944,7 +1947,19 @@ export const useArtStore = defineStore('artStore', () => {
       )
     }
 
-    return response.data
+    addOrUpdateArtImages([response.data])
+    const hydrated = await getArtImageById(response.data.id, {
+      force: true,
+      includeImageData: true,
+    })
+
+    if (!hydrated) {
+      throw new Error(
+        `ArtImage #${response.data.id} was saved but its media could not be loaded.`,
+      )
+    }
+
+    return hydrated
   }
 
   function getBackendArtImageGenerationEndpoint(
@@ -2193,8 +2208,10 @@ export const useArtStore = defineStore('artStore', () => {
 
   function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {
     const checkpointStore = useCheckpointStore()
-    const userId =
-      artData?.userId || userStore.userId || userStore.user?.id || 10
+    const userId = userStore.authenticatedUserId
+    if (!userId) {
+      throw new Error('A signed-in user is required to generate art')
+    }
 
     const basePrompt =
       artData?.promptString ||
@@ -2585,9 +2602,14 @@ export const useArtStore = defineStore('artStore', () => {
     state.currentArtImage = image
     state.lastGeneratedArtImage = image
 
+    const ownerId = userStore.authenticatedUserId
+    if (!ownerId) {
+      throw new Error('The generated image has no authenticated owner.')
+    }
+
     await addGeneratedArtImageToCollections(
       image,
-      data.userId || 10,
+      ownerId,
       data.artCollectionId,
     )
 

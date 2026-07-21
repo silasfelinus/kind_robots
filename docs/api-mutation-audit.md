@@ -24,31 +24,32 @@ only when it matches.
 
 ## Per-family summary
 
-| Family | Auth | Ownership | Input | Relations | Projection | Verdict |
-|---|---|---|---|---|---|---|
-| dreams | requireApiUser | auth | reject | E+P | lean | clean |
-| scenarios | validateApiKey | auth | reject | E+P | lean | clean |
-| characters | validateApiKey | auth | reject | E+P | lean | clean |
-| rewards | validateApiKey | auth | reject | E+P | lean | clean |
-| themes | validateApiKey | auth | reject | n/a | lean | clean |
-| reactions (main) | validateApiKey | auth | reject | **E+P** (per-category) | full | clean |
-| sheets | requireApiUser | auth | reject | E (artImageId format) | lean | clean |
-| projects | requireApiUser | auth | reject | E+P | lean | clean |
-| todos | requireApiUser | auth (SQL-scoped) | reject (compat-tolerant) | E+P | full | clean |
-| logs | requireApiUser | auth | reject | n/a | full | clean |
-| chats | validateApiKey | auth | reject | E+P | lean | clean |
-| achievements | requireAdminApiUser / owner | admin / auth | reject | E | lean | clean |
-| art/collection | requireApiUser | auth | reject | E+P | lean | clean |
-| art/image | requireMachineUser | owner/admin (transfer blocked) | **ignore** | E+P (Dream/Collection); **serverId/checkpointResourceId E only** | full (blob) | see F-2/F-4/F-5 |
-| bots | requireApiUser / validateApiKey | auth | **ignore** | E+P | lean | see F-4/F-6 |
-| prompts (create) | validateApiKey | auth | **ignore** | E only | lean | see F-4 |
-| resources | validateApiKey | auth | **ignore** | E only | lean | see F-4 |
-| server | requireAuthUser | auth (reassign blocked) | ignore (privilege fields gated) | enum | safeServer | see F-4 |
-| users | requireApiUser / dedicated admin routes | self / admin | allowlist | n/a | scoped | clean |
+| Family           | Auth                                    | Ownership                      | Input                           | Relations                                                        | Projection  | Verdict         |
+| ---------------- | --------------------------------------- | ------------------------------ | ------------------------------- | ---------------------------------------------------------------- | ----------- | --------------- |
+| dreams           | requireApiUser                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| scenarios        | validateApiKey                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| characters       | validateApiKey                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| rewards          | validateApiKey                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| themes           | validateApiKey                          | auth                           | reject                          | n/a                                                              | lean        | clean           |
+| reactions (main) | validateApiKey                          | auth                           | reject                          | **E+P** (per-category)                                           | full        | clean           |
+| sheets           | requireApiUser                          | auth                           | reject                          | E (artImageId format)                                            | lean        | clean           |
+| projects         | requireApiUser                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| todos            | requireApiUser                          | auth (SQL-scoped)              | reject (compat-tolerant)        | E+P                                                              | full        | clean           |
+| logs             | requireApiUser                          | auth                           | reject                          | n/a                                                              | full        | clean           |
+| chats            | validateApiKey                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| achievements     | requireAdminApiUser / owner             | admin / auth                   | reject                          | E                                                                | lean        | clean           |
+| art/collection   | requireApiUser                          | auth                           | reject                          | E+P                                                              | lean        | clean           |
+| art/image        | requireMachineUser                      | owner/admin (transfer blocked) | **ignore**                      | E+P (Dream/Collection); **serverId/checkpointResourceId E only** | full (blob) | see F-2/F-4/F-5 |
+| bots             | requireApiUser / validateApiKey         | auth                           | **ignore**                      | E+P                                                              | lean        | see F-4/F-6     |
+| prompts (create) | validateApiKey                          | auth                           | **ignore**                      | E only                                                           | lean        | see F-4         |
+| resources        | validateApiKey                          | auth                           | **ignore**                      | E only                                                           | lean        | see F-4         |
+| server           | requireAuthUser                         | auth (reassign blocked)        | ignore (privilege fields gated) | enum                                                             | safeServer  | see F-4         |
+| users            | requireApiUser / dedicated admin routes | self / admin                   | allowlist                       | n/a                                                              | scoped      | clean           |
 
 ## Findings
 
 ### Fixed in this pass
+
 - **[FIXED] Narrator write access control** — `bots/threads.post.ts`,
   `bots/topics.post.ts` gated on a valid key only and upserted global
   `NarratorThread`/`NarratorTopic` rows. Now require admin or server key (PR #600).
@@ -86,18 +87,15 @@ only when it matches.
 
 ### Remaining — ranked
 
-- **F-5 (residual, low): heavy response graphs.** `art/image` create/patch/save
-  return the full row including the base64 `imageData`/`thumbnailData` blobs.
-  A lean projection is preferable, but the stores/components read `imageData`
-  straight off these objects (e.g. `botHelper`, `artStore`, `memoryStore`), so
-  trimming the mutation response would break freshly-created image rendering —
-  this needs a client-side change and product decision, not a blind server edit.
+- **[FIXED] F-5 (art/image): lean mutation projections.** `art/image`
+  create/patch/save-generated now use the named `artImageMutationSelect`, which
+  excludes inline media blobs. Callers that need immediate pixels explicitly
+  hydrate `GET /api/art/image/:id`, and lean cache merges preserve richer media.
 
-- **Phase 4 (store-safety): the `?? 10` fallback-user sweep.** Several stores
-  default `userId` to `10` when unauthenticated. The server now ignores any
-  client-supplied `userId`, so this is no longer a spoofing vector, but the
-  fallback still fabricates ownership client-side. Removing it touches ~15 stores'
-  type contracts and needs the running app to validate.
+- **[FIXED] Phase 4 (store-safety): fallback-user sweep.** Mutable client forms
+  now use the authenticated identity or `null`; auth-owned mutation requests omit
+  client identity. A source contract rejects new `userId`/`ownerId` fallbacks to
+  users 1 or 10 while leaving deliberate static seed ownership out of scope.
 
 - **F-6 (low, by design): server-key ownership bypass.** A server key bypasses
   owner checks on `characters`/`bots` mutation/delete. No owner **reassignment** is
@@ -111,6 +109,7 @@ families and fixed the findings below (all merged to `main`; each bullet notes
 the fix, not a TODO).
 
 ### High
+
 - **[FIXED] auth/login password-hash leak** — `validateUserCredentials` returned
   the full `User` row (including the bcrypt `password` hash) to the login
   response. Now strips `password` before returning (PR #653).
@@ -132,6 +131,7 @@ the fix, not a TODO).
   gated to own-or-public (admins bypass) with a lean response select (PR #658).
 
 ### Medium
+
 - **[FIXED] appmaker scaffold command injection** — `scaffold-request` built a
   shell command string (stored for Worker execution) by interpolating `title`
   unescaped and `description` with only quote-swapping. Both are now POSIX
@@ -163,12 +163,14 @@ the fix, not a TODO).
   uses the standard `errorHandler` + status envelope.
 
 ### Audited — clean
+
 - Stripe money routes (`checkout`, webhooks) do not trust client-supplied
   amounts or user identity.
 - The admin / components / conductor / chatgpt-content mutation surfaces were
   reviewed and found already gated (admin/server-key or owner checks in place).
 
 ## Workflows
+
 - The only auto-committing pipeline is `fallback-snapshot.yml` (`contents: write`),
   triggered by `schedule`/`workflow_dispatch` only — never `pull_request` — and
   guarded to `refs/heads/main`. No PR-triggered workflow has write permissions.
@@ -177,6 +179,7 @@ the fix, not a TODO).
   server-key gated; the achievements/wonderlab ones are.
 
 ## Definition-of-done status
+
 - No public mutation persists ownership from request identity, across both the
   core families and the Phase 6 sweep. ✅
 - Every public create/patch path in the audited families rejects unknown/system
@@ -193,6 +196,5 @@ the fix, not a TODO).
 - No credential or server secret leaks through a mutation response or an
   outbound proxy request (auth/login hash + comfy SSRF/token closed in Phase 6). ✅
 - CI has no self-mutating PR workflows. ✅
-- The only remainders — F-5 (art/image blob projection) and Phase 4 (the `?? 10`
-  store fallback) — are client-coupled and intentionally left for a client-side
-  change / product decision, not a blind server edit.
+- F-5 (ArtImage blob projection) and the Phase 4 fallback-owner sweep were
+  completed together in #829 with explicit hydration and source contracts. ✅

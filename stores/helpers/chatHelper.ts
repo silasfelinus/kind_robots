@@ -5,7 +5,7 @@ import { ErrorType } from '@/stores/errorStore'
 
 export interface AddChatInput {
   content: string
-  userId: number
+  userId?: number | null
   botId?: number | null
   botName?: string | null
   recipientId: number | null
@@ -54,9 +54,7 @@ type ChatCreateRequest = Pick<
   | 'projectId'
 >
 
-type ChatPatchRequest = Partial<
-  Omit<ChatCreateRequest, 'projectId'>
->
+type ChatPatchRequest = Partial<Omit<ChatCreateRequest, 'projectId'>>
 
 function normalizeChatIdentity(value?: string | null): string {
   return String(value || '')
@@ -136,7 +134,7 @@ export function buildNewChat(
 
   return {
     content: input.content,
-    userId: input.userId,
+    userId: input.userId ?? null,
     sender,
     recipient,
     isPublic: input.isPublic ?? !isDirectUserChat,

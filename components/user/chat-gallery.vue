@@ -302,12 +302,7 @@ import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 
 type ChatActorKind =
-  | 'user'
-  | 'bot'
-  | 'character'
-  | 'dream'
-  | 'system'
-  | 'unknown'
+  'user' | 'bot' | 'character' | 'dream' | 'system' | 'unknown'
 
 type ChatMessage = {
   id: number
@@ -924,7 +919,6 @@ async function sendReply() {
   try {
     await chatStore.addChat({
       content,
-      userId: currentUserId.value || userStore.userId || 10,
       recipientId,
       recipient: thread.otherLabel,
       type: 'ToUser',

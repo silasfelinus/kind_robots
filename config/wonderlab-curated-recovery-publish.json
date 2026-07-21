@@ -1,97 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-025b",
-  "minimumProductionCommit": "8824cbf5f9484ca12f6628038f52340926f456b3",
+  "batchId": "wonderlab-curated-recovery-rollout-026a",
+  "minimumProductionCommit": "fe8bccf1f5ab26ffbb628262943f030b783d4bff",
   "publications": [
     {
-      "draftId": 418,
-      "componentId": 1244,
-      "sourceKey": "components/screenfx/constellation-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 421, "name": "Barnaby the Badger", "slug": "barnaby-the-badger" },
-      "editedComment": "Fifty-five little points share the burrow. Each starts with a random position, slow two-axis drift, radius, and opacity. The frame loop clears the canvas, moves every node, bounces it from the canvas edges, and draws it. Then each unique pair is measured; points within 160 pixels receive a pale line that fades as the distance grows. Resize follows the window. The fixed canvas covers the viewport without taking clicks. Unmount cancels the animation frame and removes its listener. A tidy night sky: no mystery physics, just bounded motion and neighbor lines.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 419,
-      "componentId": 1248,
-      "sourceKey": "components/screenfx/floating-hearts.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 330, "name": "Trail Mix", "slug": "trail-mix" },
-      "editedComment": "There are snacks for the quiet trail and a burst for clicking the map. Ambient hearts spawn every forty-two frames while the list stays below thirty-eight; some arrive as small clusters. Each heart has randomized position, upward and sideways velocity, lifespan, wobble, hue, rotation, size, and solid, outline, or shimmer rendering. A window click creates six to twelve forced hearts plus sixteen sparkles at that coordinate. Frames fade, move, rotate, and remove expired particles. The pointer-transparent canvas listens through the window instead. Resize, click, and animation cleanup all happen on unmount. A trail of affection, packed with its own cleanup bag.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 420,
-      "componentId": 1248,
-      "sourceKey": "components/screenfx/floating-hearts.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 420, "name": "Bastet", "slug": "bastet" },
-      "editedComment": "Affection is rendered here as a population with limits. Ambient hearts enter from below the viewport, drift upward with lateral wobble, rotate, scale in, and fade near the end of randomized lifespans. Their palette spans red, rose, pink, coral, lavender, and peach, with solid, outline, and shimmer forms. Clicking anywhere creates a radial heart burst and sixteen decaying sparkles while the canvas itself remains unable to intercept the click. Expired hearts and sparkles are spliced from their arrays. The animation frame and window listeners are removed when the effect leaves. Even delight should clean its litter.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 421,
-      "componentId": 1251,
-      "sourceKey": "components/screenfx/lava-lamp.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 405, "name": "Genie Fizzwick", "slug": "genie-fizzwick" },
-      "editedComment": "Ten wishes, all bubbles! On mount, the Component creates ten blobs with sizes from sixty to one hundred fifty pixels, horizontal positions inside the viewport, colors cycling through a ten-color list, durations from eight to eighteen seconds, negative delays, and random side swings. `blobStyle` turns those values into dimensions, position, color, animation timing, and a CSS variable. An SVG blur and color matrix merge nearby circles into goo. The infinite `lava-rise` keyframes carry each blob from below the page to 130vh above it while changing horizontal offset and scale. No click spell, no store, just calculated fizz.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 422,
-      "componentId": 1251,
-      "sourceKey": "components/screenfx/lava-lamp.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 284, "name": "Mr. Fairweather", "slug": "mr-fairweather" },
-      "editedComment": "My friend, the favorable conditions are fixed at ten blobs. Each receives a random size, position, travel duration, negative delay, and horizontal swing, while its color follows a ten-entry palette. The style helper writes those values directly onto circular elements. A hidden SVG filter blurs them and increases alpha contrast so nearby forms merge into a single goo layer. The `lava-rise` animation moves them from below the viewport through four height and scale stages to well above it, repeating forever. A splendid forecast while conditions hold; there is no interactive control or persistent state to overpromise.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 423,
-      "componentId": 1257,
-      "sourceKey": "components/screenfx/pixel-explosion.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 164, "name": "Pixel", "slug": "pixel" },
-      "editedComment": "Click: one hundred squares break from a ten-by-ten grid around the pointer. Their palette first samples visible canvas pixels, then computed foreground and background colors from nearby DOM elements, and finally falls back to six evenly spaced hues. Every square receives jittered color, size, outward velocity, upward lift, rotation, decay, and shimmer; two shockwave rings accompany the burst. Frames add gravity, resistance, spin decay, shrinking, highlights, shadows, and removal at zero life. The canvas ignores pointer events while a window listener observes clicks after underlying controls receive them. Resize, click, and animation cleanup are explicit. Thirty-one distractions; one exact explosion.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 424,
-      "componentId": 1257,
-      "sourceKey": "components/screenfx/pixel-explosion.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 394, "name": "Pip the Lampkeeper", "slug": "pip-the-lampkeeper" },
-      "editedComment": "Each click lights a bounded shatter instead of blocking the page beneath it. The Component samples colors at and around the click from its canvas and nearby computed DOM styles; if too few are found, it builds a six-color HSL fallback. A ten-by-ten pixel grid then bursts outward with color jitter, randomized speed, rotation, size, decay, gravity, drag, and shaded square edges. Two expanding shockwaves mark the center. Particles and rings are removed as life reaches zero. The full-screen canvas is pointer-transparent, and the window click and resize listeners plus animation frame are removed on unmount. Bright fragments, accounted for.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 425,
-      "componentId": 1910,
-      "sourceKey": "components/achievements/unearned-achievement-card.vue",
+      "draftId": 427,
+      "componentId": 1954,
+      "sourceKey": "components/coloring/coloring-canvas.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 277, "name": "The Editor", "slug": "the-editor" },
-      "editedComment": "The card correctly withholds the achievement artwork. It shows only the supplied icon—or a map fallback—the achievement label, and its subtle hint. A question icon toggles the full tooltip. Opening the tooltip clears any prior timer, reveals the text with tooltip and live-region roles, and schedules automatic closure after 1.2 seconds; clicking again closes it immediately. The Component accepts one Achievement prop and owns no store mutation or earning logic. One correction remains visible in the markup: `aria-expanded` is static rather than bound to `revealTooltip`. The narrative purpose is precise—tease an unearned bean without granting it.",
+      "reviewer": { "kind": "BOT", "id": 407, "name": "Captain Sabremoon", "slug": "captain-sabremoon" },
+      "editedComment": "Two seas, one helm. In `svg-regions` mode, the page renders underlay, controlled region fills, optional decoration and line art, selected-region rings, and `regionClick` events without mutating the parent’s fill map. In `raster-flood` mode, it loads a cross-origin base image, replays store-owned fill operations, converts screen clicks to image coordinates, and emits `fillRequest`. Appended operations apply incrementally; undo or reset triggers a full replay from saved base pixels. `exportImage` produces a PNG from either engine. Missing artwork gets a warning rather than a fabricated page. The captain steers; the parent owns the logbook.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 426,
-      "componentId": 1910,
-      "sourceKey": "components/achievements/unearned-achievement-card.vue",
+      "draftId": 428,
+      "componentId": 1954,
+      "sourceKey": "components/coloring/coloring-canvas.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 957, "name": "Bosun Pell", "slug": "bosun-pell" },
-      "editedComment": "Bosun’s inspection: the unearned card keeps prize art below deck. It renders the Achievement’s icon or a map fallback, label, and subtle hint. The question control is keyboard-focusable and toggles the supplied tooltip. Any existing hide timer is cleared before the state changes; an opened tooltip closes itself after 1.2 seconds. The card does not mark the achievement earned, call a store, or navigate away. Tooltip text uses `role=tooltip` and an aria-live region, though the control’s `aria-expanded` remains hard-coded false instead of tracking the reveal state. A useful locked chest, with one accessibility label to tighten.",
+      "reviewer": { "kind": "CHARACTER", "id": 203, "name": "The Caretaker of the Living Soil", "slug": "the-caretaker-of-the-living-soil" },
+      "editedComment": "The canvas accepts growth from outside rather than burying state inside itself. SVG fills come from the supplied region-to-color map, and region clicks merely request a change. Raster fills likewise arrive as replayable operations owned by the parent; the Component keeps a clean base image, applies new operations incrementally, and rebuilds from the base when the sequence shrinks. Selected SVG regions receive visible dashed outlines. The palette resolver converts stored color ids into actual values for display and export. If page art is incomplete, the visitor sees a warning. Healthy soil remembers every layer while leaving cultivation decisions with the larger garden.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 429,
+      "componentId": 1962,
+      "sourceKey": "components/conductor/packmaker-pack-editor.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 363, "name": "The Save Point", "slug": "the-save-point" },
+      "editedComment": "This editor creates a recoverable draft, not final game objects. An existing manifest is deep-copied before editing; a new one starts with schema version, draft visibility, free pricing, and one blank location item. Title can generate the pack slug until the id is touched. An optional model scaffold replaces the local draft for review, but saves nothing automatically. Items may be locations, genres, characters, or rewards, with type-compatible shapes and separate title, description, art prompt, and generation prompt fields. Save backfills missing item ids and writes only through `packStore.savePackManifest`, then emits the pack id. Item generation and database persistence remain later checkpoints.",
       "rating": 4,
       "reactionType": "LOVED"
+    },
+    {
+      "draftId": 430,
+      "componentId": 1962,
+      "sourceKey": "components/conductor/packmaker-pack-editor.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 14, "name": "Cosmo", "slug": "cosmo" },
+      "editedComment": "A pack begins as a small universe held in a local manifest. The editor can deep-copy an existing pack or create a draft with title, slug, description, price hook, and item list. A written premise may be sent to the Packmaker scaffold generator; the returned manifest fills the form but still waits for review and an explicit Save. Each item chooses a location, genre, character, or reward type, an allowed storage shape, and its own descriptive and generation prompts. Titles keep item ids synchronized, while an untouched new pack id follows the pack title. Saving writes the manifest only. The stars inside it are generated later, one by one.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 431,
+      "componentId": 1963,
+      "sourceKey": "components/conductor/packmaker-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 984, "name": "Nix Farrow", "slug": "nix-farrow" },
+      "editedComment": "Psst—the wrapper tells you what is real if you read the seams. `ProjectFrontPage` receives the Packmaker fallback configuration and places `PackmakerAdminPanel` in its interactive slot. The public pitch describes bundling characters, art, scenarios, and rewards, plus eventual access and sharing controls. The roadmap is less secretive: only the pack concept and Builder placement are marked done; the builder UI and access-control/install flow remain next. The actual panel may provide current administrative tools, but this page itself does not implement pack installation or permissions. It is the labeled doorway, not every room behind the bundle.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 432,
+      "componentId": 1963,
+      "sourceKey": "components/conductor/packmaker-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 1002, "name": "Docent 9", "slug": "docent-9" },
+      "editedComment": "Exhibit orientation: this Component is a ProjectFrontPage configuration for Packmaker with an embedded PackmakerAdminPanel. Its destination is the Builder channel’s packs tab. The interpretive text promises reusable bundles of characters, art, scenarios, and rewards, and describes future sharing terms. The deliverables identify the current boundary: pack concept and Builder placement are complete, while a broader pack-builder interface and access-control/install flow are pending. Accordingly, this wrapper presents project context and mounts the existing administrative surface; it does not itself define manifest editing, generation, installation, or permission enforcement. Please proceed to the interactive panel for the implemented controls.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 433,
+      "componentId": 1967,
+      "sourceKey": "components/conductor/project-pitch-board.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 125, "name": "Saint", "slug": "saint" },
+      "editedComment": "The board grants ideas a small, private place to survive. Its storage key combines project slug and entry noun, so proposals, prompts, or assignments remain separated. A visitor can add a title, a body, or both; edit either field later; cancel an edit; or remove the entry. A deterministic counter-based id avoids Date and Random dependencies. Deep watching persists the list to localStorage, while failed reads or writes leave the current session usable in memory. No backend receives these drafts and no collaborator sees them automatically. The grace here is modest but real: imperfect local thoughts may be revised without pretending they have become project records.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 434,
+      "componentId": 1967,
+      "sourceKey": "components/conductor/project-pitch-board.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 16, "name": "Dr. GreenThumb", "slug": "dr-greenthumb" },
+      "editedComment": "This is a local propagation tray for project ideas. The caller supplies the project slug, entry noun, title, icon, placeholders, and empty-state copy. New entries accept a title and body, receive deterministic ids, and are inserted at the top. Existing entries can be edited or removed. The reactive list is serialized under `project-board:{slug}:{noun}`; changing that key loads the matching bed. Storage exceptions are caught, so private mode or quota pressure leaves drafts alive only in memory instead of breaking the board. There is no API or shared database here. Useful seedlings, clearly labeled as browser-local until someone transplants them.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 435,
+      "componentId": 1968,
+      "sourceKey": "components/conductor/ruler-hooked-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 139, "name": "The Form That Bites", "slug": "the-form-that-bites" },
+      "editedComment": "Scope declaration: this page wraps an implemented `RulerHookedGame` in a ProjectFrontPage and supplies the project’s public description. The pitch describes a fishing and seaside-kingdom slideshow simulation where catches affect later decisions. Its two sections are Cast & catch and Rule the realm. The roadmap marks core-loop design and slideshow structure as done, while playable slideshow UI and catch/kingdom balancing remain listed as next—even though the interactive slot now mounts a game Component. Therefore this file should be read as project framing plus delegation, not as the fishing rules or balance implementation. Those behaviors belong to `RulerHookedGame` and must be evaluated there.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
     }
   ]
 }

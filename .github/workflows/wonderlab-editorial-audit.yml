@@ -1,5 +1,5 @@
 name: WonderLab Editorial Coverage Audit
-# final ledger refresh: 1
+# final ledger refresh: 2
 
 on:
   pull_request:

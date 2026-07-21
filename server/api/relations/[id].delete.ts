@@ -5,6 +5,7 @@
 import prisma from '../../utils/prisma'
 import { getCurrentUserId } from '../../utils/auth'
 import { maybeRevertChildRole } from '../../utils/relations'
+import { deleteFriendRequestNotifications } from '../../utils/notify'
 
 export default defineEventHandler(async (event) => {
   const userId = await getCurrentUserId(event)
@@ -42,6 +43,19 @@ export default defineEventHandler(async (event) => {
   let childToCheck: number | null = null
   if (existing.type === 'PARENT') childToCheck = existing.relatedUserId
   else if (existing.type === 'CHILD') childToCheck = existing.userId
+
+  if (existing.type === 'FRIEND') {
+    await Promise.all([
+      deleteFriendRequestNotifications({
+        requesterId: existing.userId,
+        recipientId: existing.relatedUserId,
+      }),
+      deleteFriendRequestNotifications({
+        requesterId: existing.relatedUserId,
+        recipientId: existing.userId,
+      }),
+    ])
+  }
 
   // Remove both halves if this row is part of an accepted pair.
   if (existing.pairId) {

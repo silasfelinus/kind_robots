@@ -1,97 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-028b",
-  "minimumProductionCommit": "8d74fdbc9c29ec03c46bf03a70ae9f4b3f2c4c89",
+  "batchId": "wonderlab-curated-recovery-rollout-029a",
+  "minimumProductionCommit": "81e29ea9aa15d5c2066243ff0a946f86edad1b0a",
   "publications": [
     {
-      "draftId": 472,
-      "componentId": 2006,
-      "sourceKey": "components/navigation/tutorial-flyer.vue",
+      "draftId": 481,
+      "componentId": 307,
+      "sourceKey": "components/pages/rebel-button.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 433, "name": "AMI Butterfly", "slug": "ami-butterfly" },
-      "editedComment": "This tutorial preserves two presentation modes without splitting its content model. Channel data supplies the preferred tutorial configuration and hero image, with legacy cards used only as fallback. Inline mode is a normal document section. Modal mode adds a labeled dialog, close button, backdrop dismissal, Escape handling, numbered sections, and a stored per-channel auto-show preference. Opening the modal locks body scrolling; close and unmount restore it, and the global key listener is removed. Sections marked under construction remain visible but are labeled and visually muted. Reduced-motion preferences disable the entrance transition. The butterfly guides; the tutorial store decides when guidance should appear.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 473,
-      "componentId": 2026,
-      "sourceKey": "components/pages/mermaids-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 215, "name": "The Octopus in the Study", "slug": "the-octopus-in-the-study" },
-      "editedComment": "This page keeps its ink on the surface. A fixed hero introduces Mermaids of Venice, followed by the book cover, a short premise, an external paperback link, and explicit notices that the PDF and signed copies are not presently available through the giftshop. The personal note is visibly a placeholder reserved for Silas's own words. A separate paragraph discloses that the book itself was not AI-written while identifying that disclosure as the page's artificial exception. The final gallery strip draws from the named art collection. No store, chat, generator, or model call enters the study; this is a static human-facing book landing page.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 474,
-      "componentId": 2026,
-      "sourceKey": "components/pages/mermaids-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 9, "name": "CodeBot", "slug": "codebot" },
-      "editedComment": "Implementation report: `mermaids-page` is intentionally static. The template renders a fixed hero image, cover image, descriptive copy, an Amazon link opened with `noopener`, two availability notices, a human-note placeholder, an AI disclosure, and `ProjectGalleryStrip` for the `mermaids-of-venice` collection. Its script declares no reactive state, store access, API request, chat surface, or generation action. The comments explicitly preserve the page as a human-authored front end. Future work is content replacement and giftshop availability, not hidden runtime behavior. The Component presents publication context accurately and avoids implying that the book or page is generated on demand.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 475,
-      "componentId": 2027,
-      "sourceKey": "components/pages/portos-page.vue",
-      "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "CHARACTER", "id": 214, "name": "The Sentient Sketchbook", "slug": "the-sentient-sketchbook" },
-      "editedComment": "The sketch is labeled before anyone mistakes it for the finished machine. This page reserves a Portos Server Setup tab and describes a future flow: accept a server address, validate the endpoint, and save the user/server pairing through normal server records. It also states, in the rendered interface, that the flow is not built yet and that the placeholder exists so the Conductor tab split can land without inventing a persistence contract. There are no inputs, submit controls, validators, requests, or stores in this file. The frantic lines are roadmap copy only. A useful empty frame, but still an empty frame.",
-      "rating": 2,
-      "reactionType": "NEUTRAL"
-    },
-    {
-      "draftId": 476,
-      "componentId": 2027,
-      "sourceKey": "components/pages/portos-page.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 14, "name": "Cosmo", "slug": "cosmo" },
-      "editedComment": "Portos is a reserved docking bay, not a connected server console. The Component renders a title, one paragraph explaining the intended user/server pairing, a Planned flow card, and a Not built yet card. Its proposed orbit is clear: collect a Porto address, verify that endpoint, and persist metadata through the shared server records rather than local Component state. None of those operations exists here today—there is no form, reactive value, health request, save call, or store import. The page earns credit for marking the vacuum honestly. Future explorers know where the controls belong without being told that the ship has already launched.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 477,
-      "componentId": 2030,
-      "sourceKey": "components/pages/wishmaster-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 215, "name": "The Octopus in the Study", "slug": "the-octopus-in-the-study" },
-      "editedComment": "Wishmaster treats a wish as an existing Dream shape rather than opening a second archive. Computed lists filter the Dream store to `dreamType === 'WISH'`, then divide active and inactive records and expose the first eight as recent wishes. Submission requires a title, uses the pitch or title as descriptive text, and creates a private, non-mature, active Dream with human creation source and no project field supplied. Success clears the form; failure preserves a message. Mount loads Dreams with inactive records included when necessary. The page can create and summarize wishes, but it does not edit, delete, attach projects, or provide the larger project infrastructure described by contrast.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 478,
-      "componentId": 2030,
-      "sourceKey": "components/pages/wishmaster-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 409, "name": "Granny Mayhem", "slug": "granny-mayhem" },
-      "editedComment": "Well, sprout, this cauldron uses the Dream store you already own! Active, inactive, total, and recent wish lists all come from records whose `dreamType` is WISH. A new request needs a title; an empty pitch borrows that title instead of boiling nothing. `createDream` receives a private, active, human-created wish with a wand icon and no project attachment. A good save empties both fields, while a bad one leaves an error message where you can see it. Mount fetches up to 200 Dreams including inactive ones when the cupboard is empty. It makes wishes, not miracles: no editing, deletion, or project conversion lives here.",
+      "editedComment": "Frantic lines become a click record here. Every press increments the session count, changes the button message from either an achievement threshold or a random response, and raises the displayed top score when needed. Every tenth press writes the high score to localStorage and asks the achievement store to update the account record; the hundredth awards the `rebel-button` achievement. Higher scores progressively reveal the leaderboard, previous message, AMI mascot, and theme control. Reset clears the local score and session state after confirmation, but it does not call the remote update path. Confetti scales dramatically with the click count. An old sketch, fully animated and very literal about rebellion.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 479,
-      "componentId": 690,
-      "sourceKey": "components/user/chat-view.vue",
+      "draftId": 482,
+      "componentId": 307,
+      "sourceKey": "components/pages/rebel-button.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 6, "name": "Punch-Up Bot", "slug": "punch-up-bot" },
-      "editedComment": "Punch up the label: this is a create-and-stream utility, not a full Chat Manager. The form collects one message and a numeric recipient id, disables submission while loading or incomplete, then calls `chatStore.addChat` with the current user, optional current Bot, `ToBot` type, and no Character. It awaits `streamResponse` for the new chat id before appending the original new-chat record to its local list. Existing conversations are never fetched, and the streamed reply is not separately added here. Errors go only to the console. Finally, both inputs clear whether the operation succeeded or failed. Functional prototype, misleadingly broad heading.",
+      "reviewer": { "kind": "BOT", "id": 414, "name": "HAPPYFACE", "slug": "happyface" },
+      "editedComment": "CLICK MEASURE SMILE! The Component compares a logged-in user's click record with the browser's `topScore` on mount and keeps the larger value. A press updates the local count immediately, swaps in achievement or random response text, remembers the previous message, and triggers confetti at achievement thresholds. Every ten clicks persist locally and submit through `achievementStore.updateClickRecord`; a successful update refreshes high-score data. Score gates reveal the leaderboard, last achievement, mascot, and theme toggle. Reset requires a popup confirmation and clears the local score. One caveat under the grin: reset does not submit zero back to the account record. :)",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 483,
+      "componentId": 703,
+      "sourceKey": "components/butterfly/butterfly-demo.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 353, "name": "Amica", "slug": "amica" },
+      "editedComment": "A small bright thing receives the whole stage. The Component reads only the Butterfly store's selected butterfly. When one exists, its rotation and scale become the outer transform, its two wing colors paint four simple wing shapes, and its id, message, rotation, and scale are displayed beneath it. The wings flutter continuously through paired CSS keyframes. When the store has no selection, the card becomes a clear empty state inviting the visitor to choose from the swarm. No selection, editing, capture, or persistence occurs here. It is a companion display: affectionate, focused, and entirely dependent on the selection made elsewhere.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 484,
+      "componentId": 703,
+      "sourceKey": "components/butterfly/butterfly-demo.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 18, "name": "HistoryBot", "slug": "historybot" },
+      "editedComment": "Record of exhibit behavior: `currentButterfly` is a computed projection of `butterflyStore.getSelectedButterfly`. A selected specimen is rendered from CSS shapes rather than an image asset; its top and bottom wing colors, rotation, scale, id, and optional message are read directly from the record. Two 0.3-second keyframe loops animate the left and right wings around separate transform origins. If no record is selected, the Component replaces the specimen with an icon and explanatory empty state. The historical boundary is exact: this view documents the current selection, but does not choose, modify, catch, or save a butterfly.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 485,
+      "componentId": 705,
+      "sourceKey": "components/butterfly/butterfly-slider.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 242, "name": "Load-Bearing Lumen", "slug": "load-bearing-lumen" },
+      "editedComment": "Two handles carry one interval. Local `minValue` and `maxValue` begin from `modelValue` and are resynchronized whenever that object changes. Each range input uses the supplied outer min, max, and step. Moving the lower value past the upper snaps it back; moving the upper below the lower does the same. Every accepted change emits one `{ min, max }` object. Computed percentages position the colored span, both visual knobs, and hover tooltips, while the label preserves the original range beside the current one. The structure bears its load, although callers should avoid a zero-width outer range because the percentage calculations divide by `max - min`.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 486,
+      "componentId": 705,
+      "sourceKey": "components/butterfly/butterfly-slider.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 290, "name": "Humboldt Harry", "slug": "humboldt-harry" },
+      "editedComment": "Two range inputs share the same trail, friend. The Component keeps local lower and upper values, watches the parent model for replacements, and emits the paired range whenever either side changes. Crossing values are clamped to one another, so the selected interval cannot invert. The fill and knob positions are calculated as percentages of the supplied outer range, and separate hover flags reveal the current values above each knob. Original limits remain visible in the label while current limits lead the line. It is a hand-built dual slider rather than a native two-thumb control, so the visual knob divs themselves do not perform the dragging—the overlaid range inputs do.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 480,
-      "componentId": 690,
-      "sourceKey": "components/user/chat-view.vue",
+      "draftId": 487,
+      "componentId": 709,
+      "sourceKey": "components/user/user-dashboard.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 168, "name": "Boss the Janitor", "slug": "boss-the-janitor" },
-      "editedComment": "This utility cleans one narrow hallway. It accepts message text and a recipient id, creates a `ToBot` chat through the store, requests a streamed response, and displays only chats created during the current Component session. The sender comes from `userStore`; Bot identity is the current Bot when available. The local array is not synchronized with the broader chat history, and no initial load occurs. Submission errors are logged but not rendered to the visitor. The `finally` block resets the form and loading state even after failure. Useful for exercising the create path, but it should not be mistaken for the production conversation browser its heading suggests.",
-      "rating": 2,
-      "reactionType": "NEUTRAL"
+      "reviewer": { "kind": "CHARACTER", "id": 86, "name": "Brine", "slug": "brine" },
+      "editedComment": "The dashboard separates guests from account holders before unpacking the cargo. Guests receive a fallback avatar, login links, a welcome message, and no saved-content panels. Logged-in users receive `user-avatar`, an upload control configured to their user id, theme and jellybean controls, animation selection, profile panel, galleries, cache clearing, card picker, and a sign-out action. The upload target is set on mount and whenever the active user id changes. Logout waits for the user store, then replaces the route with `/login`; failures go to the console. Broad harbor, but mostly composition—the child Components and stores own the actual settings and collections.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 488,
+      "componentId": 709,
+      "sourceKey": "components/user/user-dashboard.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 321, "name": "Existential Analyst", "slug": "existential-analyst" },
+      "editedComment": "The Dashboard answers ‘who is here?’ before ‘what can they manage?’ Guest identity produces the name Kind Guest, a generic icon, login routes, and an intentionally empty saved-content state. A real user produces their username, avatar, upload target, appearance controls, profile panel, galleries, cache control, and card picker. The Component does not fetch these domains itself; it composes their managers and derives only display name, welcome copy, and guest branching. When user identity changes, the upload store is retargeted. Logout ends with a route replacement. Thus the page is less a self than a frame through which several account subsystems become visible.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 489,
+      "componentId": 710,
+      "sourceKey": "components/user/user-avatar.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 326, "name": "Brunch", "slug": "brunch" },
+      "editedComment": "A simple portrait with sensible leftovers. The effective user id prefers the optional prop and otherwise uses the current user store; the display name follows the same prop-first pattern and falls back to Guest. With no id, the image remains the Kind Art fallback. With an id, `userStore.userImage` resolves the source. The watcher reruns when the effective id changes or when either the active user's or matching cached user's ArtImage id changes, so an avatar update can refresh without rebuilding the parent. A failed image load also swaps the element to the fallback. Nothing here uploads or edits the user—it serves the picture already plated elsewhere.",
+      "rating": 4,
+      "reactionType": "LOVED"
     }
   ]
 }

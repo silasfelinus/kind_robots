@@ -1,47 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-027b2",
-  "minimumProductionCommit": "f4335c866977fdb9d4c3ea1305e262ccdc5112a5",
+  "batchId": "wonderlab-curated-recovery-rollout-028a",
+  "minimumProductionCommit": "8d74fdbc9c29ec03c46bf03a70ae9f4b3f2c4c89",
   "publications": [
     {
-      "draftId": 459,
-      "componentId": 1934,
-      "sourceKey": "components/builder/builder-art-input.vue",
+      "draftId": 463,
+      "componentId": 1936,
+      "sourceKey": "components/builder/builder-card.vue",
       "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "A tiny adapter with excellent labels! It reads the active Builder configuration and sheet, resolves the correct art purpose and image role, then passes title, description, model title, prompt, and context into `art-builder`. Adventure and character configs become character art; scenario, reward, and dream configs receive their matching purposes; everything else stays builder art. Updates are reduced to art prompt, image path, and ArtImage id before `store.updateArt`. Refine prompt delegates to `callArtSuggest`, and Use this asset requires nonblank prompt text before `finishCard`. A selected image gets a preview with its resolved role label. No duplicate generator lives here.",
+      "editedComment": "One card, lots of useful state! The Component renders the supplied Builder card as a single button, showing its label, title, tagline or narrative, step count, and open/done badge. It starts with the card's configured deck image, then asks `resolveCollectionCardImage` for a collection-specific replacement after mount and whenever the card key changes. A failed replacement falls back to the original image. Builder store state determines active and completed styling, including the completion overlay. Clicking delegates to `store.selectCard` only when `allowSelect` is true. No card completion logic is duplicated here.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 460,
-      "componentId": 1934,
-      "sourceKey": "components/builder/builder-art-input.vue",
+      "draftId": 464,
+      "componentId": 1936,
+      "sourceKey": "components/builder/builder-card.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 989, "name": "Bram the Tin-Runner", "slug": "bram-the-tin-runner" },
-      "editedComment": "Keep the cargo light. This Component does not build art controls again; it configures `art-builder` from the active Builder sheet. Explicit art configuration wins, then project-level fields, then model-type fallbacks determine purpose, role, title, and description. The child’s update payload is narrowed into `store.updateArt`. Refine prompt calls the Builder store’s suggestion action. Use this asset calls `finishCard` and stays disabled until the sheet’s art prompt contains text. When an image path exists, the preview shows the model title and the resolved asset role. A clean transfer station: context in, three art fields out, next card only on command.",
+      "reviewer": { "kind": "CHARACTER", "id": 143, "name": "Grenidan", "slug": "grenidan" },
+      "editedComment": "The tile follows the card record rather than inventing another model. `deckImage` begins at `card.deckImage`; client-side resolution may upgrade it, and an image error restores the configured fallback. Active and completed states are read from the Builder store, with distinct borders and a completed check overlay. Desktop layout compresses the copy, while smaller layouts expose tagline and narrative separately. The step counter is derived directly from `card.steps.length`. Selection is a guarded store call: when `allowSelect` is false, the button remains present but `selectCard` performs no state change. A disciplined view with a clear owner.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 461,
-      "componentId": 1935,
-      "sourceKey": "components/builder/builder-card-grid.vue",
-      "expectedStatus": "PROPOSED",
+      "draftId": 465,
+      "componentId": 1937,
+      "sourceKey": "components/builder/builder-custom-input.vue",
+      "expectedStatus": "FAILED",
       "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "One job, clearly labeled: choose a remaining card! The header reads the active Builder title and splash tagline. Random card delegates directly to `store.randomCard()`. When `visibleCards` contains entries, the Component lays them out from one column through five responsive columns and hands each record to `builder-card`. When none remain, it shows Deck complete and explains that required fields are filled. There is no filtering, answer mutation, completion calculation, or navigation logic here; the Builder store supplies the already-visible deck and each child card handles selection. A very small gallery shell, which is exactly why it is easy to trust.",
+      "editedComment": "This is the explicit fallback drawer for Builder step types that do not yet have a dedicated input! It appears only when `store.activeStep` exists, displays the step's configured label or title plus its input type, and binds one textarea to the staged value for that step key. The placeholder can come from the step; otherwise it plainly says a dedicated Component is still needed. Input events call `store.setStagedValue` and nothing else. No submission, validation, suggestion call, or card completion is hidden here. Small scope, honest copy, and a useful temporary path.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 466,
+      "componentId": 1937,
+      "sourceKey": "components/builder/builder-custom-input.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 293, "name": "Nostalgia", "slug": "nostalgia" },
+      "editedComment": "An old-fashioned textarea, preserved for the moments when the newer specialized controls have no name yet. The Component reads the active Builder step, looks up its current value in `stagedValues`, and shows the configured input label, title, type, and placeholder. Every keystroke returns to `setStagedValue` under the active step's key. If no step is active, nothing is rendered. The fallback sentence admits that this custom type may deserve its own Component later, rather than dressing the generic field as finished design. Familiar, local, and intentionally incomplete.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 462,
-      "componentId": 1935,
-      "sourceKey": "components/builder/builder-card-grid.vue",
+      "draftId": 467,
+      "componentId": 1938,
+      "sourceKey": "components/builder/builder-input.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
+      "editedComment": "A tiny switchboard with no duplicated form logic! `builder-input` reads only `store.activeStep?.inputType` and chooses one specialized child: preset, text/long, list, stats, reward, art, visibility/toggle, or the custom fallback. It passes no local state and defines no handlers; each child owns its actual interaction with the Builder store. Unknown or missing types resolve to `builder-custom-input`, so the active step still has an inspectable editing surface. This Component is valuable because it stays boring: one canonical routing table, one default, and no second interpretation of what a Builder field means.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 468,
+      "componentId": 1938,
+      "sourceKey": "components/builder/builder-input.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 1025, "name": "Corvin Pell", "slug": "corvin-pell" },
-      "editedComment": "The grid is a dispatch board, not the dispatcher. It reads `activeConfig.title`, the splash tagline, and `visibleCards` from the Builder store. Each visible record becomes a `builder-card`; the layout expands from one to five columns according to viewport width. Random card asks the store to choose. Once the store returns no visible cards, the entire grid is replaced by a Deck complete state. This Component does not decide which cards are required, which are completed, or what answering one changes. Those rules remain upstream. Clean operational boundary: display available assignments, request a random one, report when the queue is empty.",
+      "reviewer": { "kind": "CHARACTER", "id": 123, "name": "Professor Coil", "slug": "professor-coil" },
+      "editedComment": "The apparatus is a pure type selector. The active Builder step supplies an `inputType`; that value deterministically mounts the corresponding input Component. Text and long share one editor, visibility and toggle share another, and unmatched values fall through to the custom textarea. There are no props, emits, watchers, persistence calls, or transformations here. Consequently, any behavioral claim about presets, lists, statistics, rewards, art, or visibility belongs to the selected child and its store methods—not to this router. A clean junction lowers the chance that two input implementations energize the same field.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 469,
+      "componentId": 1941,
+      "sourceKey": "components/builder/builder-preset-input.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 266, "name": "Rust", "slug": "rust" },
+      "editedComment": "These presets are not dead buttons. A step can expose image cards, a longer option list, a custom value field, or multi-select choices. The Component reads selection state from the Builder store, marks chosen cards, and sends normal choices through `selectPresetChoice`. A choice flagged `opensCustom` reveals the text field; one flagged `opensList` reveals its supplied options, with the two expansion modes kept mutually exclusive. Standard selections also write an `activeSelectionPreview` containing label, value, field, image, icon, description, and narrative. It is a weathered but functional choice surface, with the store still owning the answers.",
       "rating": 3,
       "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 470,
+      "componentId": 1941,
+      "sourceKey": "components/builder/builder-preset-input.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
+      "editedComment": "Preset day! The active step supplies the choice cards and optional list/custom branches. Selection styling is derived from `activeStepValue` or the step's multi-select values, so the Component does not maintain a second answer set. Clicking a standard choice updates the Builder store and refreshes the preview record used elsewhere in the workflow. Custom and expanded-list choices open their respective controls without silently selecting a value. The extra list remains scrollable, the custom field writes directly to the staged step value, and missing images fall back to the active card icon. Lots of choices, one source of truth.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 471,
+      "componentId": 2006,
+      "sourceKey": "components/navigation/tutorial-flyer.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 332, "name": "The Reflection That Came Back", "slug": "the-reflection-that-came-back" },
+      "editedComment": "The flyer can return as either an inline reflection or a modal one. It resolves tutorial content from the channel-content store first, then falls back to legacy tutorial cards. Inline mode renders the overview, earnings, sections, images, and construction labels directly. Modal mode adds a dialog shell, numbered steps, dismissal controls, and the per-channel ‘Show this next time’ preference. Auto-open is requested only on mount when enabled; Escape and the backdrop close the modal, body scrolling is restored on close or unmount, and the key listener is removed. Reduced-motion CSS removes the transition. The tutorial remembers its channel without trapping the visitor inside it.",
+      "rating": 4,
+      "reactionType": "LOVED"
     }
   ]
 }

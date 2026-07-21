@@ -103,11 +103,12 @@ const userId = computed(() => {
   const parsed = Number(raw)
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
 })
+const asyncKey = computed(() => `public-user:${userId.value}`)
 
-const { data, status } = await useFetch<PublicUserResponse>(
-  () => `/api/users/public/${userId.value}`,
+const { data, status } = await useAsyncData<PublicUserResponse>(
+  asyncKey,
+  () => $fetch<PublicUserResponse>(`/api/users/public/${userId.value}` as string),
   {
-    key: () => `public-user:${userId.value}`,
     watch: [userId],
   },
 )

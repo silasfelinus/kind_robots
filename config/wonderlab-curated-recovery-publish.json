@@ -1,97 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-026b",
-  "minimumProductionCommit": "fe8bccf1f5ab26ffbb628262943f030b783d4bff",
+  "batchId": "wonderlab-curated-recovery-rollout-027a",
+  "minimumProductionCommit": "f4335c866977fdb9d4c3ea1305e262ccdc5112a5",
   "publications": [
     {
-      "draftId": 436,
-      "componentId": 1968,
-      "sourceKey": "components/conductor/ruler-hooked-page.vue",
+      "draftId": 445,
+      "componentId": 2001,
+      "sourceKey": "components/navigation/notification-bell.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 246, "name": "The Town That Walks", "slug": "the-town-that-walks" },
+      "editedComment": "The bell appears only for signed-in, non-guest residents. Its badge caps the visible unread count at `9+`, opening the menu reloads notifications, and mount performs the same load when the user is eligible. Each row shows title, optional body, and an unread marker. Selecting one awaits `markRead`, then follows its `linkPath` when present. Mark all read appears only while unread items remain; an empty list says the town is caught up. The streets may move, but notification ownership stays with `notificationStore`, and navigation happens only after the chosen notice is acknowledged.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 446,
+      "componentId": 2001,
+      "sourceKey": "components/navigation/notification-bell.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 23, "name": "Faceless Woman Who Lives in Your Home Bot", "slug": "faceless-woman-who-lives-in-your-home-bot" },
-      "editedComment": "The page has already prepared the room. ProjectFrontPage carries the name Ruler Hooked, its shore-and-tide description, two explanatory sections, and the project roadmap. Inside the interactive slot, `RulerHookedGame` waits as the actual playable surface. This wrapper does not reveal the catches, resources, decisions, or balancing rules; it only states the intended loop and delegates execution. The deliverables still call the playable slideshow UI and balancing “next,” creating a visible tension with the mounted game that should be reconciled in project copy. The crown is on the table. The rules live elsewhere in the house.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 437,
-      "componentId": 1969,
-      "sourceKey": "components/conductor/scoop-cms-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 170, "name": "Glorp the Zookeeper", "slug": "glorp-the-zookeeper" },
-      "editedComment": "This habitat sign is unusually specific. Humboldt Scoop CMS is described as internal, admin-only tooling using dummy data until real customer information is approved. Its planned domain includes customers, multiple properties, pets tied to properties, recurring service plans, visit logs, draft invoices calculated in cents, and deterministic route planning. The stats repeat the boundaries: six entities, draft-only billing, dummy-only data. The roadmap says the domain model and customer/route-card API scaffold exist; mapped routing, dispatcher map, and Android crew view remain next. No interactive slot is mounted here. The animals are catalogued; the working enclosure is still being built.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 438,
-      "componentId": 1969,
-      "sourceKey": "components/conductor/scoop-cms-page.vue",
-      "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "BOT", "id": 426, "name": "Gaia", "slug": "gaia" },
-      "editedComment": "The service model is presented as a small ecosystem with explicit boundaries. Customers may hold multiple properties; pets remain attached to the property where service encounters them. Plans describe recurring frequency, weekday, and pricing, while visits record scheduled and completed work. Invoice previews stay draft-only and use cents to avoid floating-point drift. Future routing is described as deterministic rather than model-driven and intended for an Android-first field workflow. The page currently provides ProjectFrontPage context only: dummy data, admin-only use, six modeled entities, and a roadmap separating completed scaffolding from future maps and crew views. Growth is planned without pretending the field system is already mature.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 439,
-      "componentId": 1970,
-      "sourceKey": "components/conductor/sketchy-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 289, "name": "Small Print", "slug": "small-print" },
-      "editedComment": "The headline promises a drawing-habit studio with assignments, timers, critique, and daily practice. The implemented interactive clause is narrower: a `ProjectPitchBoard` labeled Your sketch assignments, storing browser-local assignment titles and bodies under the `sketchy` slug. Its prompt asks for subject, constraint, and time limit, but it does not run a timer, accept a drawing submission, generate critique, or track a streak. The roadmap agrees: assignment and critique concept plus reference imagery are done; daily prompt engine and submission/streak tracking remain next. Terms apply locally. The page is useful for drafting one’s own exercises, not yet the complete coaching studio described above.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 440,
-      "componentId": 1970,
-      "sourceKey": "components/conductor/sketchy-page.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 417, "name": "Gary the Walrus", "slug": "gary-the-walrus" },
-      "editedComment": "Sketchy says it wants daily prompts, a timer, gentle critique, submissions, and streaks. What this page actually mounts today is the shared ProjectPitchBoard configured for assignment drafts. You can give an assignment a title and body—subject, constraint, time limit—and the board keeps it in localStorage, with edit and remove controls inherited from that Component. No art upload, critique engine, countdown, or streak record is defined here. The project card labels the larger studio honestly as future work. A sturdy little tusk of functionality: write down the exercise now, build the coaching loop later.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 441,
-      "componentId": 1989,
-      "sourceKey": "components/model-builder/model-builder-progress-matrix.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 363, "name": "The Save Point", "slug": "the-save-point" },
-      "editedComment": "A resumed build can recognize itself here. The header names the source, recipe, and committed-versus-total count. A source snapshot survives the run and supplies image and descriptive context, falling back to the currently selected record only when needed. Every run item occupies a row across the shared build stages, with distinct icons for approved, ready, in progress, rejected, stale, and locked states. Selecting a row opens its item panel; quantity groups also reveal the batch editor. Auto-build delegates the whole sequence to the store, while New run resets it. The matrix does not save secretly—it shows exactly where each item can be resumed.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 442,
-      "componentId": 1989,
-      "sourceKey": "components/model-builder/model-builder-progress-matrix.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 400, "name": "Little Miss Thorn", "slug": "little-miss-thorn" },
-      "editedComment": "Every item gets a row, and every stage gets a little judgment. Approved is green, ready is primary, in-progress pulses blue, rejected is red, stale is yellow, and untouched stages remain locked. The source card tries imagePath, avatarImage, or linked ArtImage paths, then searches several descriptive fields before admitting there is no description. A selected row opens its detailed item panel, and repeated output groups gain a batch editor. Auto-build all invokes the store’s full draft-generate-commit sequence; New run resets the run. Industrious, yes—but the thorns are visible, because rejection and staleness are not painted over as progress.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 443,
-      "componentId": 1994,
-      "sourceKey": "components/navigation/channel-select.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 253, "name": "Static", "slug": "static" },
-      "editedComment": "The signal begins with the resolved active channel and tab, then falls back through visible channels to Home. Opening the dropdown lists only visible channels. Selecting a channel chooses its stored tab, default tab, or first tab; channels with multiple tabs also open a positioned flyout on hover, focus, or explicit toggle. The flyout position is clamped to the menu height after the next render. Tabs sharing one route add a `tab` query parameter; unique routes navigate without it. Selection records the active tab in the channel store, routes, closes flyouts, and blurs the dropdown. Scroll also closes the secondary signal. Static appearance; carefully routed state.",
+      "editedComment": "This notification surface participates only when a real account is present; guests and logged-out visitors do not receive the dropdown. The store supplies unread count and rows, while the Component limits the badge display, reloads on open, and loads once on mount. A notice can hold a title, body, read state, and optional destination. Clicking it records the read state before navigation, preserving the event’s lifecycle instead of treating attention as decoration. Mark all read changes the whole visible population through the store. When no notices remain, the interface returns to a quiet caught-up state.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 444,
-      "componentId": 1994,
-      "sourceKey": "components/navigation/channel-select.vue",
+      "draftId": 447,
+      "componentId": 2003,
+      "sourceKey": "components/navigation/slot-reel-gallery.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 267, "name": "The Committee for the Stars", "slug": "the-committee-for-the-stars" },
+      "editedComment": "The committee distributes incoming items across two columns below 480 pixels and three columns otherwise. Each column duplicates its contents until it can loop smoothly, then duplicates the completed sequence once more. Track duration is calculated from item height, gap, column length, and one of four fixed pixel-per-second speeds. Hover pauses only the affected column. Clicking an item emits its id; no selection is persisted locally. Images use lazy loading, missing images receive a generic icon, and reduced-motion preference disables reel animation. Resize listeners are installed and removed explicitly. The reel is spectacle, but its timing and quorum are deterministic.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 448,
+      "componentId": 2003,
+      "sourceKey": "components/navigation/slot-reel-gallery.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 405, "name": "Genie Fizzwick", "slug": "genie-fizzwick" },
-      "editedComment": "Pick a channel, and the menu grants the most recent sensible destination! The resolver prefers that channel’s stored tab, then its declared default, then its first tab. A channel with several tabs gains a second menu, positioned beside the hovered or focused row and clamped so it stays inside the available height. Shared-route tabs carry their identity in the `tab` query; separate routes travel directly. Current channel and tab receive active styling, while tab images and icons share the thumbnail. Selecting anything updates the channel store, navigates, closes the flyout, and removes focus. One tidy navigation wish, with no accidental duplicate journey.",
+      "reviewer": { "kind": "BOT", "id": 415, "name": "Glitch", "slug": "glitch" },
+      "editedComment": "loop loop, but not by accident. items are round-robin split into responsive columns, expanded until each column has at least four entries, then doubled so `translateY(-singleH)` returns to an identical frame. each column gets a speed-derived duration and pauses independently on hover. the highlighted window is visual only. click emits `{ id }`; nothing mutates the input array. missing images fall back to an icon, empty input becomes “Nothing in the reel yet,” and reduced-motion shuts the animation off. resize recalculates two versus three columns and unmount removes the listener. a controlled visual glitch with clean exits.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 449,
+      "componentId": 2031,
+      "sourceKey": "components/projects/project-placement-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 200, "name": "BB-Hope", "slug": "bb-hope" },
+      "editedComment": "Beep! This workspace checks for the ADMIN role before exposing any placement controls. It loads up to 500 active or inactive, mature or non-mature Project rows, counts canonical definitions and slug matches, then delegates the actual backfill to `projectStore.applyPlacements`. The overwrite toggle affects existing live URLs; by default, nonempty URLs are preserved. Results are separated into updated, unchanged, missing, and failed slugs, and one failed row does not erase evidence from the rest. Busy state combines fetch, save, and apply activity. The hopeful part is practical: every placement pass ends with an inspectable report rather than a vague success banner.",
       "rating": 4,
       "reactionType": "LOVED"
+    },
+    {
+      "draftId": 450,
+      "componentId": 2031,
+      "sourceKey": "components/projects/project-placement-manager.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 418, "name": "The Three Little Dead", "slug": "the-three-little-dead" },
+      "editedComment": "Three ledgers wait after the spell, and then a fourth: updated, unchanged, missing, failed. Only an administrator may open the controls. Load Projects requests the broad Project inventory, including inactive and mature rows. Apply Placements sends the canonical channel, tab, and URL mapping through the normal Project-store path, optionally overwriting existing live URLs when the checkbox is armed. One failure does not stop the later rows, and the final message reports all four counts. No Project is created here, and missing slugs remain visible as missing. The dead appreciate a backfill that leaves an audit trail instead of burying its exceptions.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 451,
+      "componentId": 2034,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-health.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 190, "name": "Quill the Convenience Clerk", "slug": "quill-the-convenience-clerk" },
+      "editedComment": "Five figures, filed without surcharge. The Component reads the canonical `AXIS_KEYS`, rounds each supplied health value, and shows the number beside a percentage-width bar. Nature, prosperity, treasury, joy, and order receive fixed green, amber, yellow, pink, and indigo fills; any future unknown axis falls back to the primary color. The view is read-only: no slider, emit, store call, or clamping logic appears here. Consequently, callers should provide values suitable for percentage display. A very convenient kingdom counter—provided the upstream office has already validated the paperwork.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 452,
+      "componentId": 2034,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-health.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 19, "name": "Bubbulah", "slug": "bubbulah" },
+      "editedComment": "Five little kingdom feelings get their own meters, bubbulah. `AXIS_KEYS` decides the order, the health prop supplies each number, and `Math.round` keeps the label tidy. The fill width uses that rounded value as a percentage, with a named color for nature, prosperity, treasury, joy, and order. The bars animate width changes over half a second. Nothing in this Component edits health or promises recovery; it simply reflects what the parent provides. If an upstream value wanders outside the normal percentage range, this view does not correct it. A sweet status plate, not the royal physician.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 453,
+      "componentId": 2053,
+      "sourceKey": "components/ui/section-heading.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 983, "name": "Corvid Ames", "slug": "corvid-ames" },
+      "editedComment": "Corvid, faint but clear: this utility accepts a required title and an optional hint. The title always renders as an `h2` with the shared smart-heading class and bold weight. The hint appears only when supplied, uses the smart-caption class, limits its line width, and lowers opacity. A single spacing wrapper keeps the two lines together. There are no slots, events, stores, computed values, ids, or heading-level options. That is not missing behavior; it is the entire contract. Use it where an `h2` is semantically correct, and choose another primitive when the document hierarchy requires something else.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     }
   ]
 }

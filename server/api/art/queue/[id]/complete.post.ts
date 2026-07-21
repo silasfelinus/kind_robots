@@ -19,6 +19,14 @@ import {
   serializeArtJobPayload,
   type ArtJobPayloadRecord,
 } from '../../../../utils/artJobPayload'
+import {
+  assertArtImageMatchesCompletion,
+  attachCompletionTrace,
+  normalizeArtPrompt,
+  readArtJobProvenance,
+  validateArtJobCompletionProof,
+  type ArtJobCompletionProof,
+} from '../../../../utils/artJobProvenance'
 
 const MAX_ATTEMPTS = 3
 
@@ -26,6 +34,7 @@ type CompleteRequestBody = {
   success?: boolean
   artImageId?: number | null
   error?: string | null
+  provenance?: ArtJobCompletionProof | null
 }
 
 type RetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
@@ -83,6 +92,23 @@ function readSavePolicy(payload: unknown): {
   }
 }
 
+function assertUploadedPrompt(payload: unknown, image: ArtImage): void {
+  const provenance = readArtJobProvenance(payload)
+  if (!provenance) return
+
+  const uploadedPrompt = normalizeArtPrompt(
+    image.promptString || image.artPrompt || '',
+  )
+
+  if (uploadedPrompt && uploadedPrompt !== provenance.normalizedPrompt) {
+    throw createError({
+      statusCode: 409,
+      message:
+        'Uploaded ArtImage prompt metadata does not match the ArtJob prompt. Completion rejected.',
+    })
+  }
+}
+
 function snapshotData(image: ArtImage): Prisma.ArtImageUncheckedCreateInput {
   return {
     imageData: image.imageData,
@@ -95,9 +121,6 @@ function snapshotData(image: ArtImage): Prisma.ArtImageUncheckedCreateInput {
     checkpointResourceId: image.checkpointResourceId,
     designer: image.designer,
     genres: image.genres,
-    // Revision rows are historical render snapshots, not another canonical file
-    // placement. Keep their bytes and generation metadata but avoid duplicating
-    // path claims that still belong to the stable target ArtImage.
     imagePath: null,
     heroPath: null,
     cardPath: null,
@@ -213,6 +236,7 @@ export default defineEventHandler(async (event) => {
     let updated
     let archivedArtImageId: number | null = null
     let replacedArtImageId: number | null = null
+    let completionTrace: Record<string, unknown> | null = null
 
     if (body.success) {
       const uploadedArtImageId = Number(body.artImageId)
@@ -225,6 +249,20 @@ export default defineEventHandler(async (event) => {
         })
       }
 
+      const validatedCompletionTrace: Record<string, unknown> =
+        job.engine === 'COMFY'
+          ? validateArtJobCompletionProof(job.payload, body.provenance)
+          : {
+              status: 'NOT_REQUIRED',
+              verified: true,
+              verifiedAt: new Date().toISOString(),
+            }
+
+      completionTrace = validatedCompletionTrace
+      const tracedPayload = attachCompletionTrace(
+        job.payload,
+        validatedCompletionTrace,
+      )
       const retry = readRetry(job.payload)
       const savePolicy = readSavePolicy(job.payload)
 
@@ -265,14 +303,16 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          assertUploadedPrompt(job.payload, staged)
+          assertArtImageMatchesCompletion(
+            validatedCompletionTrace,
+            staged.imageData,
+          )
+
           const archived = await tx.artImage.create({
             data: snapshotData(target),
           })
 
-          // ArtJobs are historical render records. Move every prior job that
-          // referenced the canonical id onto the archived snapshot before the
-          // canonical row is replaced, keeping trainer feedback tied to its
-          // original pixels.
           await tx.artJob.updateMany({
             where: {
               artImageId: targetArtImageId,
@@ -293,7 +333,7 @@ export default defineEventHandler(async (event) => {
               artImageId: targetArtImageId,
               error: null,
               payload: serializeArtJobPayload(
-                completedPayload(job.payload, archived.id),
+                completedPayload(tracedPayload, archived.id),
               ),
             },
           })
@@ -307,12 +347,30 @@ export default defineEventHandler(async (event) => {
         archivedArtImageId = result.archivedId
         replacedArtImageId = targetArtImageId
       } else {
+        const uploaded = await prisma.artImage.findUnique({
+          where: { id: uploadedArtImageId },
+        })
+
+        if (!uploaded) {
+          throw createError({
+            statusCode: 409,
+            message: `Uploaded ArtImage ${uploadedArtImageId} no longer exists.`,
+          })
+        }
+
+        assertUploadedPrompt(job.payload, uploaded)
+        assertArtImageMatchesCompletion(
+          validatedCompletionTrace,
+          uploaded.imageData,
+        )
+
         updated = await prisma.artJob.update({
           where: { id },
           data: {
             status: 'DONE',
             artImageId: uploadedArtImageId,
             error: null,
+            payload: serializeArtJobPayload(tracedPayload),
           },
         })
 
@@ -349,6 +407,7 @@ export default defineEventHandler(async (event) => {
         job: decodeArtJobPayload(updated),
         replacedArtImageId,
         archivedArtImageId,
+        completionTrace,
       },
       statusCode: 200,
     }

@@ -12,6 +12,7 @@ import {
   decodeArtJobPayload,
   serializeArtJobPayload,
 } from '../../../utils/artJobPayload'
+import { enrichArtJobPayload } from '../../../utils/artJobProvenance'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -21,6 +22,12 @@ type QueueRequestBody = {
   payload?: Record<string, unknown> | null
   priority?: number | null
   projectSlug?: string | null
+  idempotencyKey?: string | null
+  requireCompletionProof?: boolean | null
+}
+
+type LockRow = {
+  acquired?: number | bigint | string | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -37,9 +44,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const payload = body?.payload
+    const rawPayload = body?.payload
 
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    if (
+      !rawPayload ||
+      typeof rawPayload !== 'object' ||
+      Array.isArray(rawPayload)
+    ) {
       throw createError({
         statusCode: 400,
         message:
@@ -53,25 +64,96 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
     }
 
-    const priority = Number.isInteger(body?.priority) ? Number(body?.priority) : 0
+    const priority = Number.isInteger(body?.priority)
+      ? Number(body?.priority)
+      : 0
 
-    const job = await prisma.artJob.create({
-      data: {
-        engine: engine as 'A1111' | 'COMFY',
-        payload: serializeArtJobPayload(payload),
-        priority,
+    const { payload, provenance } = enrichArtJobPayload(
+      engine as 'A1111' | 'COMFY',
+      rawPayload,
+      {
         projectSlug,
-        userId: auth.user.id,
+        idempotencyKey: body?.idempotencyKey,
+        requireCompletionProof:
+          engine === 'COMFY' && body?.requireCompletionProof === true,
       },
-    })
+    )
 
-    event.node.res.statusCode = 201
+    const fingerprintNeedle = `"attemptFingerprint":"${provenance.attemptFingerprint}"`
+    const lockName = `artjob:${auth.user.id}:${provenance.attemptFingerprint}`.slice(
+      0,
+      64,
+    )
+
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const lockRows = await tx.$queryRaw<LockRow[]>`
+          SELECT GET_LOCK(${lockName}, 3) AS acquired
+        `
+
+        if (Number(lockRows[0]?.acquired) !== 1) {
+          throw createError({
+            statusCode: 409,
+            message:
+              'A matching ArtJob enqueue is already being processed. Retry shortly.',
+          })
+        }
+
+        try {
+          const existing = await tx.artJob.findFirst({
+            where: {
+              userId: auth.user.id,
+              status: { in: ['PENDING', 'RUNNING', 'DONE'] },
+              payload: { contains: fingerprintNeedle },
+            },
+            orderBy: { id: 'desc' },
+          })
+
+          if (existing) {
+            return { job: existing, deduplicated: true }
+          }
+
+          const job = await tx.artJob.create({
+            data: {
+              engine: engine as 'A1111' | 'COMFY',
+              payload: serializeArtJobPayload(payload),
+              priority,
+              projectSlug,
+              userId: auth.user.id,
+            },
+          })
+
+          return { job, deduplicated: false }
+        } finally {
+          await tx.$queryRaw`
+            SELECT RELEASE_LOCK(${lockName}) AS released
+          `
+        }
+      },
+      { timeout: 10_000 },
+    )
+
+    if (!result.deduplicated) {
+      event.node.res.statusCode = 201
+    }
 
     return {
       success: true,
-      message: 'Art job queued.',
-      data: { job: decodeArtJobPayload(job) },
-      statusCode: 201,
+      message: result.deduplicated
+        ? `Matching ArtJob ${result.job.id} already exists; duplicate enqueue suppressed.`
+        : 'Art job queued.',
+      data: {
+        job: decodeArtJobPayload(result.job),
+        deduplicated: result.deduplicated,
+        provenance: {
+          promptHash: provenance.promptHash,
+          workflowHash: provenance.workflowHash,
+          workflowPromptHash: provenance.workflowPromptHash,
+          attemptFingerprint: provenance.attemptFingerprint,
+          expectedModels: provenance.expectedModels,
+        },
+      },
+      statusCode: result.deduplicated ? 200 : 201,
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)

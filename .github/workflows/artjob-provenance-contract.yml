@@ -1,0 +1,41 @@
+name: ArtJob Provenance Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/api/art/queue/**"
+      - "server/utils/artJobProvenance.ts"
+      - "utils/scripts/verifyArtJobProvenance.ts"
+      - ".github/workflows/artjob-provenance-contract.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "server/api/art/queue/**"
+      - "server/utils/artJobProvenance.ts"
+      - "utils/scripts/verifyArtJobProvenance.ts"
+      - ".github/workflows/artjob-provenance-contract.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+
+      - name: Verify prompt and output provenance
+        run: npx tsx utils/scripts/verifyArtJobProvenance.ts
+
+      - name: TypeScript check
+        run: npm run test

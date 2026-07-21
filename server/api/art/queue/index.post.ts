@@ -12,6 +12,7 @@ import {
   decodeArtJobPayload,
   serializeArtJobPayload,
 } from '../../../utils/artJobPayload'
+import { enrichArtJobPayload } from '../../../utils/artJobProvenance'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -21,6 +22,8 @@ type QueueRequestBody = {
   payload?: Record<string, unknown> | null
   priority?: number | null
   projectSlug?: string | null
+  idempotencyKey?: string | null
+  requireCompletionProof?: boolean | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -37,9 +40,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const payload = body?.payload
+    const rawPayload = body?.payload
 
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    if (
+      !rawPayload ||
+      typeof rawPayload !== 'object' ||
+      Array.isArray(rawPayload)
+    ) {
       throw createError({
         statusCode: 400,
         message:
@@ -53,7 +60,49 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
     }
 
-    const priority = Number.isInteger(body?.priority) ? Number(body?.priority) : 0
+    const priority = Number.isInteger(body?.priority)
+      ? Number(body?.priority)
+      : 0
+
+    const { payload, provenance } = enrichArtJobPayload(
+      engine as 'A1111' | 'COMFY',
+      rawPayload,
+      {
+        projectSlug,
+        idempotencyKey: body?.idempotencyKey,
+        requireCompletionProof:
+          engine === 'COMFY' && body?.requireCompletionProof === true,
+      },
+    )
+
+    const fingerprintNeedle = `"attemptFingerprint":"${provenance.attemptFingerprint}"`
+    const existing = await prisma.artJob.findFirst({
+      where: {
+        userId: auth.user.id,
+        status: { in: ['PENDING', 'RUNNING', 'DONE'] },
+        payload: { contains: fingerprintNeedle },
+      },
+      orderBy: { id: 'desc' },
+    })
+
+    if (existing) {
+      return {
+        success: true,
+        message: `Matching ArtJob ${existing.id} already exists; duplicate enqueue suppressed.`,
+        data: {
+          job: decodeArtJobPayload(existing),
+          deduplicated: true,
+          provenance: {
+            promptHash: provenance.promptHash,
+            workflowHash: provenance.workflowHash,
+            workflowPromptHash: provenance.workflowPromptHash,
+            attemptFingerprint: provenance.attemptFingerprint,
+            expectedModels: provenance.expectedModels,
+          },
+        },
+        statusCode: 200,
+      }
+    }
 
     const job = await prisma.artJob.create({
       data: {
@@ -70,7 +119,17 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Art job queued.',
-      data: { job: decodeArtJobPayload(job) },
+      data: {
+        job: decodeArtJobPayload(job),
+        deduplicated: false,
+        provenance: {
+          promptHash: provenance.promptHash,
+          workflowHash: provenance.workflowHash,
+          workflowPromptHash: provenance.workflowPromptHash,
+          attemptFingerprint: provenance.attemptFingerprint,
+          expectedModels: provenance.expectedModels,
+        },
+      },
       statusCode: 201,
     }
   } catch (error: unknown) {

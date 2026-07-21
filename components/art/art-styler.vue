@@ -991,11 +991,22 @@ function isUsableKontextServer(
   return true
 }
 
+const ACCEPTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp'])
+
+function isAcceptedImageFile(file: File): boolean {
+  return ACCEPTED_IMAGE_TYPES.has(file.type)
+}
+
 function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
 
-  if (input.files?.[0]) {
-    processUploadedFile(input.files[0])
+  if (file) {
+    if (!isAcceptedImageFile(file)) {
+      errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
+    } else {
+      processUploadedFile(file)
+    }
   }
 
   if (fileInput.value) {
@@ -1010,7 +1021,7 @@ function handleDrop(event: DragEvent) {
 
   if (!file) return
 
-  if (!file.type.startsWith('image/')) {
+  if (!isAcceptedImageFile(file)) {
     errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
     return
   }

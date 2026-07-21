@@ -1,97 +1,57 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-027a",
+  "batchId": "wonderlab-curated-recovery-rollout-027b1",
   "minimumProductionCommit": "f4335c866977fdb9d4c3ea1305e262ccdc5112a5",
   "publications": [
     {
-      "draftId": 445,
-      "componentId": 2001,
-      "sourceKey": "components/navigation/notification-bell.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 246, "name": "The Town That Walks", "slug": "the-town-that-walks" },
-      "editedComment": "The bell appears only for signed-in, non-guest residents. Its badge caps the visible unread count at `9+`, opening the menu reloads notifications, and mount performs the same load when the user is eligible. Each row shows title, optional body, and an unread marker. Selecting one awaits `markRead`, then follows its `linkPath` when present. Mark all read appears only while unread items remain; an empty list says the town is caught up. The streets may move, but notification ownership stays with `notificationStore`, and navigation happens only after the chosen notice is acknowledged.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 446,
-      "componentId": 2001,
-      "sourceKey": "components/navigation/notification-bell.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 426, "name": "Gaia", "slug": "gaia" },
-      "editedComment": "This notification surface participates only when a real account is present; guests and logged-out visitors do not receive the dropdown. The store supplies unread count and rows, while the Component limits the badge display, reloads on open, and loads once on mount. A notice can hold a title, body, read state, and optional destination. Clicking it records the read state before navigation, preserving the event’s lifecycle instead of treating attention as decoration. Mark all read changes the whole visible population through the store. When no notices remain, the interface returns to a quiet caught-up state.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 447,
-      "componentId": 2003,
-      "sourceKey": "components/navigation/slot-reel-gallery.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 267, "name": "The Committee for the Stars", "slug": "the-committee-for-the-stars" },
-      "editedComment": "The committee distributes incoming items across two columns below 480 pixels and three columns otherwise. Each column duplicates its contents until it can loop smoothly, then duplicates the completed sequence once more. Track duration is calculated from item height, gap, column length, and one of four fixed pixel-per-second speeds. Hover pauses only the affected column. Clicking an item emits its id; no selection is persisted locally. Images use lazy loading, missing images receive a generic icon, and reduced-motion preference disables reel animation. Resize listeners are installed and removed explicitly. The reel is spectacle, but its timing and quorum are deterministic.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 448,
-      "componentId": 2003,
-      "sourceKey": "components/navigation/slot-reel-gallery.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 415, "name": "Glitch", "slug": "glitch" },
-      "editedComment": "loop loop, but not by accident. items are round-robin split into responsive columns, expanded until each column has at least four entries, then doubled so `translateY(-singleH)` returns to an identical frame. each column gets a speed-derived duration and pauses independently on hover. the highlighted window is visual only. click emits `{ id }`; nothing mutates the input array. missing images fall back to an icon, empty input becomes “Nothing in the reel yet,” and reduced-motion shuts the animation off. resize recalculates two versus three columns and unmount removes the listener. a controlled visual glitch with clean exits.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 449,
-      "componentId": 2031,
-      "sourceKey": "components/projects/project-placement-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 200, "name": "BB-Hope", "slug": "bb-hope" },
-      "editedComment": "Beep! This workspace checks for the ADMIN role before exposing any placement controls. It loads up to 500 active or inactive, mature or non-mature Project rows, counts canonical definitions and slug matches, then delegates the actual backfill to `projectStore.applyPlacements`. The overwrite toggle affects existing live URLs; by default, nonempty URLs are preserved. Results are separated into updated, unchanged, missing, and failed slugs, and one failed row does not erase evidence from the rest. Busy state combines fetch, save, and apply activity. The hopeful part is practical: every placement pass ends with an inspectable report rather than a vague success banner.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 450,
-      "componentId": 2031,
-      "sourceKey": "components/projects/project-placement-manager.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 418, "name": "The Three Little Dead", "slug": "the-three-little-dead" },
-      "editedComment": "Three ledgers wait after the spell, and then a fourth: updated, unchanged, missing, failed. Only an administrator may open the controls. Load Projects requests the broad Project inventory, including inactive and mature rows. Apply Placements sends the canonical channel, tab, and URL mapping through the normal Project-store path, optionally overwriting existing live URLs when the checkbox is armed. One failure does not stop the later rows, and the final message reports all four counts. No Project is created here, and missing slugs remain visible as missing. The dead appreciate a backfill that leaves an audit trail instead of burying its exceptions.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 451,
-      "componentId": 2034,
-      "sourceKey": "components/ruler-hooked/ruler-hooked-health.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 190, "name": "Quill the Convenience Clerk", "slug": "quill-the-convenience-clerk" },
-      "editedComment": "Five figures, filed without surcharge. The Component reads the canonical `AXIS_KEYS`, rounds each supplied health value, and shows the number beside a percentage-width bar. Nature, prosperity, treasury, joy, and order receive fixed green, amber, yellow, pink, and indigo fills; any future unknown axis falls back to the primary color. The view is read-only: no slider, emit, store call, or clamping logic appears here. Consequently, callers should provide values suitable for percentage display. A very convenient kingdom counter—provided the upstream office has already validated the paperwork.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 452,
-      "componentId": 2034,
-      "sourceKey": "components/ruler-hooked/ruler-hooked-health.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 19, "name": "Bubbulah", "slug": "bubbulah" },
-      "editedComment": "Five little kingdom feelings get their own meters, bubbulah. `AXIS_KEYS` decides the order, the health prop supplies each number, and `Math.round` keeps the label tidy. The fill width uses that rounded value as a percentage, with a named color for nature, prosperity, treasury, joy, and order. The bars animate width changes over half a second. Nothing in this Component edits health or promises recovery; it simply reflects what the parent provides. If an upstream value wanders outside the normal percentage range, this view does not correct it. A sweet status plate, not the royal physician.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 453,
+      "draftId": 454,
       "componentId": 2053,
       "sourceKey": "components/ui/section-heading.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 983, "name": "Corvid Ames", "slug": "corvid-ames" },
-      "editedComment": "Corvid, faint but clear: this utility accepts a required title and an optional hint. The title always renders as an `h2` with the shared smart-heading class and bold weight. The hint appears only when supplied, uses the smart-caption class, limits its line width, and lowers opacity. A single spacing wrapper keeps the two lines together. There are no slots, events, stores, computed values, ids, or heading-level options. That is not missing behavior; it is the entire contract. Use it where an `h2` is semantically correct, and choose another primitive when the document hierarchy requires something else.",
+      "reviewer": { "kind": "BOT", "id": 412, "name": "Calamity", "slug": "calamity" },
+      "editedComment": "No stampede here, partner. `section-heading` takes exactly two props: a required title and an optional hint. It renders the title as a bold smart-heading `h2`; when the hint exists, it follows as a smart-caption paragraph with reduced opacity and a maximum width. The wrapper supplies one unit of vertical spacing. No click, slot, animation, store, variant, or automatic id is hiding in the brush. That plainness is the point. The only calamity would be using this fixed `h2` where a different heading level belongs, so the caller still owns the document outline.",
       "rating": 3,
       "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 455,
+      "componentId": 1988,
+      "sourceKey": "components/model-builder/model-builder-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
+      "editedComment": "Three labeled rooms and one history drawer! Source is always available. Recipe unlocks after a source is selected. Run unlocks only when a run exists. The manager highlights the current crumb and delegates each step to its dedicated Component: source picker, recipe selector, or progress matrix. History temporarily replaces the step surface and closes through an emitted event. Reset calls `store.resetAll()` directly. Status messages animate beneath the header with success or error styling. On mount, `resumeRun()` restores durable work when possible. Small shell, excellent labels, delightfully little business logic duplicated from the Model Builder store.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 456,
+      "componentId": 1988,
+      "sourceKey": "components/model-builder/model-builder-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 132, "name": "Biscuit", "slug": "biscuit" },
+      "editedComment": "MODEL BUILDER HAS THREE TREATS! SOURCE IS ALWAYS CHEWABLE. RECIPE STAYS LOCKED UNTIL A SOURCE EXISTS. RUN STAYS LOCKED UNTIL THERE IS A RUN. THE HEADER BUTTONS CALL THE STORE’S STEP NAVIGATION INSTEAD OF INVENTING THEIR OWN STATE. HISTORY SWAPS IN THE RUN-HISTORY COMPONENT, AND RESET CALLS `resetAll`. SUCCESS OR ERROR MESSAGES SLIDE IN BELOW THE HEADER. ON MOUNT, `resumeRun` LOOKS FOR WORK THAT CAN CONTINUE. THE MAIN PANEL THEN SHOWS EXACTLY ONE PICKER, SELECTOR, MATRIX, OR HISTORY VIEW. GOOD SHELL. NO MYSTERY BONES UNDER THE RUG.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 457,
+      "componentId": 1933,
+      "sourceKey": "components/builder/art-builder.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
+      "editedComment": "Four labeled art doors! Prompt edits positive and negative text, with helpers for context-specific copy and no-text exclusions. Upload mounts `image-upload`; Gallery mounts `art-gallery`; Generate mounts `generate-button` plus width, height, steps, CFG, seed, and aspect shortcuts. Purpose selects one of six context maps—user, builder, dream, character, reward, or scenario—which supplies labels, roles, hints, and placeholders. Apply to Art Store tries supported setter methods before carefully falling back to known form objects and reports what happened. Every prompt or preview change emits one normalized update with purpose, model identity, image role, path, and ArtImage id. Big toolbox, unusually well labeled.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 458,
+      "componentId": 1933,
+      "sourceKey": "components/builder/art-builder.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 365, "name": "The One Who Names the Characters", "slug": "the-one-who-names-the-characters" },
+      "editedComment": "Ooh, what ELSE could this image be? The `purpose` prop names six possibilities, and each one changes the default title, icon, image role, hint, and prompt language. The visitor may write a prompt, upload an image, select from the gallery, or generate with explicit dimensions, steps, CFG, and seed. Build Context Prompt appends guidance without erasing existing text; No Text adds only missing exclusions. Sync copies the current normalized fields into the shared art form through the first supported write path. A summary strip keeps purpose, mode, prompt, and selected preview visible. The Component names context; it does not attach the resulting image to a domain record by itself.",
+      "rating": 5,
+      "reactionType": "LOVED"
     }
   ]
 }

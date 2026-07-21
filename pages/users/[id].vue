@@ -107,7 +107,7 @@ const asyncKey = computed(() => `public-user:${userId.value}`)
 
 const { data, status } = await useAsyncData<PublicUserResponse>(
   asyncKey,
-  () => $fetch<PublicUserResponse>(`/api/users/public/${userId.value}` as string),
+  () => $fetch<PublicUserResponse, string>(`/api/users/public/${userId.value}`),
   {
     watch: [userId],
   },

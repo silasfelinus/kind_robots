@@ -1,8 +1,8 @@
 name: Apply API follow-up TypeScript fixes
 
 on:
-  push:
-    branches: [agent/api-followups-ts-fix]
+  pull_request:
+    branches: [main]
     paths:
       - ".github/workflows/apply-api-followups-ts-fix.yml"
 
@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -30,11 +31,7 @@ jobs:
                   raise RuntimeError(f"Expected one match in {path}: {old[:100]!r}")
               target.write_text(text.replace(old, new, 1))
 
-          replace_once(
-              "stores/achievementStore.ts",
-              "      if (!shouldRun()) return\n\n      let achievement =",
-              "      if (!shouldRun() || !userId) return\n\n      let achievement =",
-          )
+          replace_once("stores/achievementStore.ts", "      if (!shouldRun()) return\n\n      let achievement =", "      if (!shouldRun() || !userId) return\n\n      let achievement =")
 
           butterfly = Path("stores/helpers/butterflyHelper.ts")
           butterfly_text = butterfly.read_text()
@@ -47,23 +44,13 @@ jobs:
               "      const data = toScenarioPayload(scenarioForm.value)\n\n      if (data.id && data.id > 0) {\n        return await updateScenario(data.id, data)\n      }",
               "      const scenarioId = Number(scenarioForm.value.id ?? 0)\n      const data = toScenarioPayload(scenarioForm.value)\n\n      if (scenarioId > 0) {\n        return await updateScenario(scenarioId, data)\n      }",
           )
-
-          replace_once(
-              "stores/serendipityStore.ts",
-              "export type SerendipitySession = {\n  id: string\n  userId: number\n",
-              "export type SerendipitySession = {\n  id: string\n  userId: number | null\n",
-          )
-
+          replace_once("stores/serendipityStore.ts", "export type SerendipitySession = {\n  id: string\n  userId: number\n", "export type SerendipitySession = {\n  id: string\n  userId: number | null\n")
           replace_once(
               "stores/userStore.ts",
               "  async function updateKarmaAndMana() {\n    if (!user.value || user.value.id === 10) {\n      return { success: false, message: 'Guest users do not update karma.' }\n    }\n\n    try {",
               "  async function updateKarmaAndMana() {\n    if (!user.value || user.value.id === 10) {\n      return { success: false, message: 'Guest users do not update karma.' }\n    }\n\n    const currentUserId = user.value.id\n\n    try {",
           )
-          replace_once(
-              "stores/userStore.ts",
-              "        users.value = updateUserFields(users.value, userId.value, {",
-              "        users.value = updateUserFields(users.value, currentUserId, {",
-          )
+          replace_once("stores/userStore.ts", "        users.value = updateUserFields(users.value, userId.value, {", "        users.value = updateUserFields(users.value, currentUserId, {")
       - name: Verify diff
         run: git diff --check
       - name: Commit and push target branch

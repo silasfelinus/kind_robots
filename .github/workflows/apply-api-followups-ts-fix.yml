@@ -26,31 +26,58 @@ jobs:
 
           def replace_once(path: str, old: str, new: str) -> None:
               target = Path(path)
-              text = target.read_text()
-              if text.count(old) != 1:
+              with target.open("r", encoding="utf-8", newline="") as handle:
+                  text = handle.read()
+              newline = "\r\n" if "\r\n" in text else "\n"
+              old_native = old.replace("\n", newline)
+              new_native = new.replace("\n", newline)
+              count = text.count(old_native)
+              print(f"{path}: {count} match(es)")
+              if count != 1:
                   raise RuntimeError(f"Expected one match in {path}: {old[:100]!r}")
-              target.write_text(text.replace(old, new, 1))
+              with target.open("w", encoding="utf-8", newline="") as handle:
+                  handle.write(text.replace(old_native, new_native, 1))
 
-          replace_once("stores/achievementStore.ts", "      if (!shouldRun()) return\n\n      let achievement =", "      if (!shouldRun() || !userId) return\n\n      let achievement =")
+          replace_once(
+              "stores/achievementStore.ts",
+              "      if (!shouldRun()) return\n\n      let achievement =",
+              "      if (!shouldRun() || !userId) return\n\n      let achievement =",
+          )
 
           butterfly = Path("stores/helpers/butterflyHelper.ts")
-          butterfly_text = butterfly.read_text()
-          if butterfly_text.count("    userId: null,\n") != 2:
+          with butterfly.open("r", encoding="utf-8", newline="") as handle:
+              butterfly_text = handle.read()
+          newline = "\r\n" if "\r\n" in butterfly_text else "\n"
+          butterfly_owner = f"    userId: null,{newline}"
+          butterfly_count = butterfly_text.count(butterfly_owner)
+          print(f"stores/helpers/butterflyHelper.ts: {butterfly_count} placeholder owner(s)")
+          if butterfly_count != 2:
               raise RuntimeError("Expected two nullable butterfly placeholder owners")
-          butterfly.write_text(butterfly_text.replace("    userId: null,\n", ""))
+          with butterfly.open("w", encoding="utf-8", newline="") as handle:
+              handle.write(butterfly_text.replace(butterfly_owner, ""))
 
           replace_once(
               "stores/scenarioStore.ts",
               "      const data = toScenarioPayload(scenarioForm.value)\n\n      if (data.id && data.id > 0) {\n        return await updateScenario(data.id, data)\n      }",
               "      const scenarioId = Number(scenarioForm.value.id ?? 0)\n      const data = toScenarioPayload(scenarioForm.value)\n\n      if (scenarioId > 0) {\n        return await updateScenario(scenarioId, data)\n      }",
           )
-          replace_once("stores/serendipityStore.ts", "export type SerendipitySession = {\n  id: string\n  userId: number\n", "export type SerendipitySession = {\n  id: string\n  userId: number | null\n")
+
+          replace_once(
+              "stores/serendipityStore.ts",
+              "export type SerendipitySession = {\n  id: string\n  userId: number\n",
+              "export type SerendipitySession = {\n  id: string\n  userId: number | null\n",
+          )
+
           replace_once(
               "stores/userStore.ts",
               "  async function updateKarmaAndMana() {\n    if (!user.value || user.value.id === 10) {\n      return { success: false, message: 'Guest users do not update karma.' }\n    }\n\n    try {",
               "  async function updateKarmaAndMana() {\n    if (!user.value || user.value.id === 10) {\n      return { success: false, message: 'Guest users do not update karma.' }\n    }\n\n    const currentUserId = user.value.id\n\n    try {",
           )
-          replace_once("stores/userStore.ts", "        users.value = updateUserFields(users.value, userId.value, {", "        users.value = updateUserFields(users.value, currentUserId, {")
+          replace_once(
+              "stores/userStore.ts",
+              "        users.value = updateUserFields(users.value, userId.value, {",
+              "        users.value = updateUserFields(users.value, currentUserId, {",
+          )
       - name: Verify diff
         run: git diff --check
       - name: Commit and push target branch

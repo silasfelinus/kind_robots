@@ -66,6 +66,7 @@ export type AssignWonderLabReviewerPortfolioOptions = {
 const ACTIVE_EDITORIAL_DRAFT_STATUSES = new Set<ReviewDraftStatus>([
   'PROPOSED',
   'APPROVED',
+  'FAILED',
 ])
 
 export function isWonderLabActiveEditorialDraft(

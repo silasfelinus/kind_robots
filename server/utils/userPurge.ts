@@ -22,6 +22,12 @@ export async function deleteUserWithOwnedData(
         }),
       )
       track(
+        'notifications',
+        await tx.notification.deleteMany({
+          where: { OR: [{ userId }, { actorId: userId }] },
+        }),
+      )
+      track(
         'referrals',
         await tx.referral.deleteMany({
           where: { OR: [{ referrerId: userId }, { referredId: userId }] },

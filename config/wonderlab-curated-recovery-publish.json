@@ -1,57 +1,47 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-027b1",
+  "batchId": "wonderlab-curated-recovery-rollout-027b2",
   "minimumProductionCommit": "f4335c866977fdb9d4c3ea1305e262ccdc5112a5",
   "publications": [
     {
-      "draftId": 454,
-      "componentId": 2053,
-      "sourceKey": "components/ui/section-heading.vue",
+      "draftId": 459,
+      "componentId": 1934,
+      "sourceKey": "components/builder/builder-art-input.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
+      "editedComment": "A tiny adapter with excellent labels! It reads the active Builder configuration and sheet, resolves the correct art purpose and image role, then passes title, description, model title, prompt, and context into `art-builder`. Adventure and character configs become character art; scenario, reward, and dream configs receive their matching purposes; everything else stays builder art. Updates are reduced to art prompt, image path, and ArtImage id before `store.updateArt`. Refine prompt delegates to `callArtSuggest`, and Use this asset requires nonblank prompt text before `finishCard`. A selected image gets a preview with its resolved role label. No duplicate generator lives here.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 460,
+      "componentId": 1934,
+      "sourceKey": "components/builder/builder-art-input.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 412, "name": "Calamity", "slug": "calamity" },
-      "editedComment": "No stampede here, partner. `section-heading` takes exactly two props: a required title and an optional hint. It renders the title as a bold smart-heading `h2`; when the hint exists, it follows as a smart-caption paragraph with reduced opacity and a maximum width. The wrapper supplies one unit of vertical spacing. No click, slot, animation, store, variant, or automatic id is hiding in the brush. That plainness is the point. The only calamity would be using this fixed `h2` where a different heading level belongs, so the caller still owns the document outline.",
+      "reviewer": { "kind": "CHARACTER", "id": 989, "name": "Bram the Tin-Runner", "slug": "bram-the-tin-runner" },
+      "editedComment": "Keep the cargo light. This Component does not build art controls again; it configures `art-builder` from the active Builder sheet. Explicit art configuration wins, then project-level fields, then model-type fallbacks determine purpose, role, title, and description. The child’s update payload is narrowed into `store.updateArt`. Refine prompt calls the Builder store’s suggestion action. Use this asset calls `finishCard` and stays disabled until the sheet’s art prompt contains text. When an image path exists, the preview shows the model title and the resolved asset role. A clean transfer station: context in, three art fields out, next card only on command.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 455,
-      "componentId": 1988,
-      "sourceKey": "components/model-builder/model-builder-manager.vue",
+      "draftId": 461,
+      "componentId": 1935,
+      "sourceKey": "components/builder/builder-card-grid.vue",
       "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "Three labeled rooms and one history drawer! Source is always available. Recipe unlocks after a source is selected. Run unlocks only when a run exists. The manager highlights the current crumb and delegates each step to its dedicated Component: source picker, recipe selector, or progress matrix. History temporarily replaces the step surface and closes through an emitted event. Reset calls `store.resetAll()` directly. Status messages animate beneath the header with success or error styling. On mount, `resumeRun()` restores durable work when possible. Small shell, excellent labels, delightfully little business logic duplicated from the Model Builder store.",
+      "editedComment": "One job, clearly labeled: choose a remaining card! The header reads the active Builder title and splash tagline. Random card delegates directly to `store.randomCard()`. When `visibleCards` contains entries, the Component lays them out from one column through five responsive columns and hands each record to `builder-card`. When none remain, it shows Deck complete and explains that required fields are filled. There is no filtering, answer mutation, completion calculation, or navigation logic here; the Builder store supplies the already-visible deck and each child card handles selection. A very small gallery shell, which is exactly why it is easy to trust.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 456,
-      "componentId": 1988,
-      "sourceKey": "components/model-builder/model-builder-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 132, "name": "Biscuit", "slug": "biscuit" },
-      "editedComment": "MODEL BUILDER HAS THREE TREATS! SOURCE IS ALWAYS CHEWABLE. RECIPE STAYS LOCKED UNTIL A SOURCE EXISTS. RUN STAYS LOCKED UNTIL THERE IS A RUN. THE HEADER BUTTONS CALL THE STORE’S STEP NAVIGATION INSTEAD OF INVENTING THEIR OWN STATE. HISTORY SWAPS IN THE RUN-HISTORY COMPONENT, AND RESET CALLS `resetAll`. SUCCESS OR ERROR MESSAGES SLIDE IN BELOW THE HEADER. ON MOUNT, `resumeRun` LOOKS FOR WORK THAT CAN CONTINUE. THE MAIN PANEL THEN SHOWS EXACTLY ONE PICKER, SELECTOR, MATRIX, OR HISTORY VIEW. GOOD SHELL. NO MYSTERY BONES UNDER THE RUG.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 457,
-      "componentId": 1933,
-      "sourceKey": "components/builder/art-builder.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "Four labeled art doors! Prompt edits positive and negative text, with helpers for context-specific copy and no-text exclusions. Upload mounts `image-upload`; Gallery mounts `art-gallery`; Generate mounts `generate-button` plus width, height, steps, CFG, seed, and aspect shortcuts. Purpose selects one of six context maps—user, builder, dream, character, reward, or scenario—which supplies labels, roles, hints, and placeholders. Apply to Art Store tries supported setter methods before carefully falling back to known form objects and reports what happened. Every prompt or preview change emits one normalized update with purpose, model identity, image role, path, and ArtImage id. Big toolbox, unusually well labeled.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 458,
-      "componentId": 1933,
-      "sourceKey": "components/builder/art-builder.vue",
+      "draftId": 462,
+      "componentId": 1935,
+      "sourceKey": "components/builder/builder-card-grid.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 365, "name": "The One Who Names the Characters", "slug": "the-one-who-names-the-characters" },
-      "editedComment": "Ooh, what ELSE could this image be? The `purpose` prop names six possibilities, and each one changes the default title, icon, image role, hint, and prompt language. The visitor may write a prompt, upload an image, select from the gallery, or generate with explicit dimensions, steps, CFG, and seed. Build Context Prompt appends guidance without erasing existing text; No Text adds only missing exclusions. Sync copies the current normalized fields into the shared art form through the first supported write path. A summary strip keeps purpose, mode, prompt, and selected preview visible. The Component names context; it does not attach the resulting image to a domain record by itself.",
-      "rating": 5,
-      "reactionType": "LOVED"
+      "reviewer": { "kind": "CHARACTER", "id": 1025, "name": "Corvin Pell", "slug": "corvin-pell" },
+      "editedComment": "The grid is a dispatch board, not the dispatcher. It reads `activeConfig.title`, the splash tagline, and `visibleCards` from the Builder store. Each visible record becomes a `builder-card`; the layout expands from one to five columns according to viewport width. Random card asks the store to choose. Once the store returns no visible cards, the entire grid is replaced by a Deck complete state. This Component does not decide which cards are required, which are completed, or what answering one changes. Those rules remain upstream. Clean operational boundary: display available assignments, request a random one, report when the queue is empty.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     }
   ]
 }

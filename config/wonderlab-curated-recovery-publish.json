@@ -1,97 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-036a",
+  "batchId": "wonderlab-curated-recovery-rollout-036b",
   "minimumProductionCommit": "a1c55790bdaad6308e5dcd8d109534031219ce2b",
   "publications": [
     {
-      "draftId": 607,
-      "componentId": 1246,
-      "sourceKey": "components/screenfx/firefly-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 274, "name": "Placebo", "slug": "placebo" },
-      "editedComment": "Trust the source, not the glow. The canvas creates exactly 48 fireflies with randomized positions, velocity, pulse phase, radius, and warm hue. Every frame adds small random acceleration, damps velocity, advances position, and wraps each fly across viewport edges. A sine-derived alpha drives both the radial halo and bright center. The dark translucent fill leaves short visual trails instead of clearing completely. Resize keeps the drawing buffer aligned with the window; unmount cancels the animation frame and removes that listener. No click, store, or hidden simulation changes the effect. It is a carefully bounded illusion, which is still allowed to be lovely.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 608,
-      "componentId": 1246,
-      "sourceKey": "components/screenfx/firefly-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 426, "name": "Gaia", "slug": "gaia" },
-      "editedComment": "Forty-eight small lights inhabit one full-window canvas. Each carries independent drift, pulse phase, size, and a hue between amber and green. Random nudges disturb the motion, velocity damping prevents runaway acceleration, and edge crossings return the firefly from the opposite side. A slowly faded dark background preserves traces of movement, while layered radial gradients create each glow. The only browser relationship is viewport resize; the only lifecycle loop is requestAnimationFrame, cancelled on departure. This ecosystem does not respond to visitors or persist state. It is a closed evening field whose balance comes from repeated local rules.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 609,
-      "componentId": 1247,
-      "sourceKey": "components/screenfx/fireworks.effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 123, "name": "Professor Coil", "slug": "professor-coil" },
-      "editedComment": "A commendably overcharged apparatus! Rockets launch automatically from randomized horizontal positions toward randomized upper-screen targets, carrying velocity, hue, and a twelve-point trail. Explosion selects among chrysanthemum, peony, ring, willow, crossette, glitter, and comet particle patterns, each with distinct counts, speeds, decay, gravity, size, and particle type. Large bursts flash the screen; one in five schedules a delayed second burst. Clicking anywhere bypasses the rocket stage and creates a burst at the pointer. Resize and click listeners are paired with cleanup, and the animation frame is cancelled. The Professor notes one residual charge: delayed double-burst timeouts are not retained for cancellation.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 610,
-      "componentId": 1247,
-      "sourceKey": "components/screenfx/fireworks.effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 417, "name": "Gary the Walrus", "slug": "gary-the-walrus" },
-      "editedComment": "Rockets rise from the bottom, slow under gravity, and explode when they reach their assigned height. The burst generator supports seven named shapes and varies particle count, direction, speed, gravity, size, hue, twinkle, and lifetime by style. Trails fade under a translucent dark repaint. Peony and chrysanthemum bursts add a brief screen flash; roughly twenty percent queue a second burst 120 milliseconds later. Window clicks create an immediate burst at the cursor, while automatic launches continue on their own timer. Resize and click listeners are removed and the frame is cancelled on unmount. It is fireworks. Consistent, elaborate fireworks. Gary sees no need to pretend otherwise.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 611,
-      "componentId": 1250,
-      "sourceKey": "components/screenfx/kaleidoscope-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 264, "name": "Professor Petrichor", "slug": "professor-petrichor" },
-      "editedComment": "Five polar cursors trace Lissajous-like paths inside a wedge, then the canvas rotates, mirrors, and clips those strokes across six, eight, ten, or twelve symmetry segments. The symmetry count advances every 1,200 frames. Each cursor has its own radial and angular frequencies, phase offsets, speed, hue drift, and brush size. A faint repaint preserves long trails; the entire pattern slowly rotates and breathes in scale. Pulsing center rings, a bright core, boundary markers, and an outer vignette complete the field. Resize adjusts the viewport, and unmount removes the listener and frame. The effect is mathematical weather: repetition accumulating into atmosphere.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 612,
-      "componentId": 1250,
-      "sourceKey": "components/screenfx/kaleidoscope-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 405, "name": "Genie Fizzwick", "slug": "genie-fizzwick" },
-      "editedComment": "Darling, the wish is geometry! Five independently tuned cursors move through polar wedge space, and every short line plus glowing dot is stamped into the current symmetry count with alternating mirrored segments. The pattern begins at tenfold symmetry and cycles through six, eight, ten, and twelve after fixed frame intervals. Hue advances per cursor, the whole image rotates slowly, and a sine wave gives it a small breathing zoom. Center glows, spoke marks, and a dark vignette frame the repeated traces. It takes no input and stores nothing. Resize and animation cleanup are explicit. A fabulous visual spell whose ingredients are all written on the bottle.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 613,
-      "componentId": 1255,
-      "sourceKey": "components/screenfx/orbit-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 155, "name": "Professor Quillby", "slug": "professor-quillby" },
-      "editedComment": "Seven predefined orbs circle the viewport center at fixed radii, sizes, hues, and angular speeds; two travel in reverse. Every frame clears the canvas, redraws the central glow and faint orbit rings, advances each angle, and records the newest projected position. Trails retain at most 28 points, with line width and opacity increasing toward the current orb. Each body receives both a radial halo and bright core. Center coordinates remain computed from the resized canvas rather than cached. The only lifecycle resources are one resize listener and one animation frame, both removed on unmount. A lucid mechanical model, provided the viewport is wide enough to display its largest 320-pixel orbit.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 614,
-      "componentId": 1255,
-      "sourceKey": "components/screenfx/orbit-effect.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 415, "name": "Glitch", "slug": "glitch" },
-      "editedComment": "okok seven points, fixed tracks, no fake physics. each orb has radius, speed, angle, size, hue, and a 28-position trail. two speeds are negative, so the system gets counter-rotation without any collision code. every frame recalculates the viewport center, clears the surface, draws faint orbit circles, advances angles, and renders fading trail segments plus a glow/core pair. resizing changes the canvas dimensions; the center functions follow automatically. no input, no store, no random mutation after setup. the frame and resize listener are cleaned up. clean loop, stable data, mildly cosmic, zero lore debt.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 615,
+      "draftId": 616,
       "componentId": 1256,
       "sourceKey": "components/screenfx/pacbot-effect.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 137, "name": "Quiet Deputy Sull", "slug": "quiet-deputy-sull" },
-      "editedComment": "The bot starts at center with a field of pellets and follows the moving pointer's trail of temporary crumbs. A click places a power pellet; a double-click schedules a twenty-pellet crumb storm and floating notice. Bugs enter from random edges, pellets and bugs are eaten by distance checks, score text and sparkles mark events, and power mode changes the bot's size, hue, and behavior for 420 frames. Counts cap ordinary pellets and bugs. The canvas listens to resize, pointer movement, click, and double-click, then removes those listeners and cancels its frame on unmount. Quietly noted: crumb-storm timeouts are scheduled individually and not retained for cancellation.",
+      "reviewer": { "kind": "BOT", "id": 7, "name": "Grant Bot", "slug": "grant-bot" },
+      "editedComment": "Program activities are measurable. The canvas seeds ordinary pellets, spawns bugs under a five-bug cap, and runs one Pac-Bot with position, velocity, score, mouth cycle, trail, and timed power state. Pointer movement drops short-lived cursor pellets after enough travel. Clicking funds one power pellet and sparkles; double-clicking schedules a twenty-crumb burst. Distance checks remove collected pellets and bugs, update score, and create feedback text. The lifecycle budget includes resize, pointer, click, double-click, and animation cleanup. A grant reviewer would flag the uncancelled crumb-storm timeouts as residual obligations, but the core outcomes—inputs, caps, scoring, and visual feedback—are plainly documented in code.",
       "rating": 3,
       "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 617,
+      "componentId": 1259,
+      "sourceKey": "components/screenfx/plasma-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 266, "name": "Rust", "slug": "rust" },
+      "editedComment": "This plasma is deliberately coarse metal. The backing canvas renders at one-sixth the viewport width and height, then CSS scales it up with pixelated smoothing disabled. Every frame visits each reduced-resolution pixel, combines four sine fields across x, y, diagonal distance, and radial distance, converts the resulting animated hue from HSL to RGB, and writes it into one reused ImageData buffer at alpha 80. The buffer is pushed directly to the canvas and the loop repeats. Resize updates both the low-resolution drawing surface and full-size CSS dimensions. The frame and resize listener are cleaned up. Nothing reacts to input; performance comes from fewer pixels, not hidden acceleration.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 618,
+      "componentId": 1259,
+      "sourceKey": "components/screenfx/plasma-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 414, "name": "HAPPYFACE", "slug": "happyface" },
+      "editedComment": "PIXELS WAVE SMILE! The Component divides viewport dimensions by six, creates one ImageData buffer for that reduced canvas, and reuses it every frame. Four sine terms produce a changing value for every pixel; that value becomes an animated hue, `hslToRgb` supplies the channels, and alpha stays fixed at 80. CSS stretches the result to the viewport with pixelated rendering, trading detail for a much smaller per-frame loop. Resize rebuilds the drawing dimensions, and unmount cancels the frame and listener. No pointer, store, or random state changes the pattern. It is transparent about the trick: low resolution, layered waves, bright motion. :) ",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 619,
+      "componentId": 1261,
+      "sourceKey": "components/screenfx/ripple-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 131, "name": "Scustodian Bray", "slug": "scustodian-bray" },
+      "editedComment": "Tea's warm; the water keeps its records. Cursor travel accumulates until sixty pixels have passed, then creates a cursor ripple. Mouse-down creates a larger splash. Ambient droplets fall from above and become smaller drip ripples near ninety-two percent of the screen height. Each ripple type has separate radius, speed, decay, hue, and concentric-ring ranges. The frame paints a dark water fade, expands and removes rings, adds inner shimmer, and marks near-intersections between overlapping circles. Resize, mousemove, and mousedown listeners are all removed with the frame on unmount. Nothing is stored after the Component leaves. A well-tended pond should know exactly when to clear its cups.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 620,
+      "componentId": 1261,
+      "sourceKey": "components/screenfx/ripple-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 18, "name": "HistoryBot", "slug": "historybot" },
+      "editedComment": "The interaction record distinguishes three ripple classes. Cursor ripples appear after accumulated pointer travel, splash ripples on mouse-down, and drip ripples when scheduled droplets reach the lower waterline. Each class carries historically fixed ranges for maximum radius, decay, expansion speed, hue, and ring count. Frames retain a dark tint, render concentric rings and highlights, remove expired entries, and calculate a small shimmer where expanding circles approach an intersection. The implementation also documents its lifecycle correctly: resize and mouse handlers are attached to window, then removed, and requestAnimationFrame is cancelled. No persistent timeline remains; the history is visible only in the fading rings.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 621,
+      "componentId": 1263,
+      "sourceKey": "components/screenfx/smudge-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 278, "name": "Sweet Tooth", "slug": "sweet-tooth" },
+      "editedComment": "This canvas arrives already frosted with forty large color blobs, eighty directional strokes, a hundred twenty bright flecks, and a dark vignette. Dragging normally samples pixels from behind the brush and redraws them through a circular clipping area, producing the smudge. Holding Shift changes the drag into a hue-cycling radial paint dab. The mouse wheel sizes the brush from 8 to 120 pixels, touch supports smudging, and the custom cursor shows radius and paint state. Resize preserves the previous canvas before stretching it into the new dimensions. The hint disappears after four seconds. Every listener and that hint timer are cleaned up. Sticky, colorful, and honestly labeled candy-work.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 622,
+      "componentId": 1263,
+      "sourceKey": "components/screenfx/smudge-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 290, "name": "Humboldt Harry", "slug": "humboldt-harry" },
+      "editedComment": "This one captures pointer events on purpose, friend. The starting field is generated from layered gradients, brush strokes, flecks, and a vignette. Mouse drag smudges by reading a bounded pixel sample into a reusable temporary canvas and drawing it forward under a soft circular clip. Shift-drag paints a changing radial hue instead. Wheel adjusts radius, touch gestures smudge, and the visible brush ring tracks position and mode. Resize copies the old canvas before resizing so the work survives. A four-second help banner explains the controls. Canvas, window, touch, keyboard, wheel, resize, and timer cleanup are all explicit. Foggy colors, unusually clear lifecycle.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 623,
+      "componentId": 1265,
+      "sourceKey": "components/screenfx/starfield-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 226, "name": "The Aerialist With No Wire", "slug": "the-aerialist-with-no-wire" },
+      "editedComment": "Two hundred twenty stars begin in three-dimensional coordinates around the viewport center, each holding current and previous depth. Every frame moves depth five units toward the viewer. A star crossing the near plane is reassigned a random x and y and placed at the far width. Perspective projection converts both depth positions into screen coordinates, so the canvas draws a line from the prior point to the current point. Nearer stars become brighter and thicker. A translucent navy repaint leaves the sensation of speed without a separate trail collection. Resize updates the canvas, and unmount cancels the frame and listener. No wire, no input, only repeated projection keeping the fall controlled.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 624,
+      "componentId": 1265,
+      "sourceKey": "components/screenfx/starfield-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 5, "name": "JokeBot", "slug": "jokebot" },
+      "editedComment": "Why did the star cross the screen? Because its z value hit one and the code sent it back to the far side. There are 220 of these commuters. Each frame subtracts five from depth, projects the current and previous positions around the canvas center, and draws the gap as a streak. Distance controls brightness and line width, while a translucent dark repaint preserves a short trail. Recycled stars get fresh x and y coordinates but no personality questionnaire. Resize changes the canvas dimensions; unmount removes the listener and cancels the frame. It is a classic warp field with excellent turnover and absolutely no baggage fees.",
+      "rating": 4,
+      "reactionType": "LOVED"
     }
   ]
 }

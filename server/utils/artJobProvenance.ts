@@ -18,6 +18,7 @@ export type ArtJobCompletionProof = {
   promptHash?: string | null
   workflowHash?: string | null
   workflowPromptHash?: string | null
+  imageHash?: string | null
   output?: Partial<ArtJobCompletionOutput> | null
 }
 
@@ -79,6 +80,21 @@ export function normalizeArtPrompt(value: unknown): string {
   return String(value || '')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+export function hashArtImageData(value: unknown): string | null {
+  const raw = String(value || '').trim()
+  if (!raw) return null
+
+  const encoded = raw.includes('base64,') ? raw.split('base64,', 2)[1] : raw
+
+  try {
+    const bytes = Buffer.from(encoded, 'base64')
+    if (!bytes.length) return null
+    return createHash('sha256').update(bytes).digest('hex')
+  } catch {
+    return null
+  }
 }
 
 function collectWorkflowStrings(
@@ -295,6 +311,7 @@ export function validateArtJobCompletionProof(
     rawProof.workflowPromptHash,
     'workflowPromptHash',
   )
+  const imageHash = requiredString(rawProof.imageHash, 'imageHash')
   const output = rawProof.output || {}
   const filename = requiredString(output.filename, 'output.filename')
   const subfolder = String(output.subfolder || '').trim()
@@ -325,9 +342,28 @@ export function validateArtJobCompletionProof(
     promptHash,
     workflowHash,
     workflowPromptHash,
+    imageHash,
     output: { filename, subfolder, type },
     expectedModels: provenance.expectedModels,
     attemptFingerprint: provenance.attemptFingerprint,
+  }
+}
+
+export function assertArtImageMatchesCompletion(
+  completion: Record<string, unknown>,
+  imageData: unknown,
+): void {
+  if (completion.status !== 'VERIFIED') return
+
+  const expectedHash = requiredString(completion.imageHash, 'imageHash')
+  const actualHash = hashArtImageData(imageData)
+
+  if (!actualHash || actualHash !== expectedHash) {
+    throw createError({
+      statusCode: 409,
+      message:
+        'Uploaded ArtImage bytes do not match the image hash from the claimed Comfy output.',
+    })
   }
 }
 

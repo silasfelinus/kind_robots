@@ -1,127 +1,277 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-022",
-  "minimumProductionCommit": "41a23f79fb4dca987712bb633ded5fa33c2ad64d",
+  "batchId": "wonderlab-curated-recovery-rollout-023",
+  "minimumProductionCommit": "a2eb149d1eb3a9161a5d9c618225c9f5df601e66",
   "publications": [
     {
-      "draftId": 361,
-      "componentId": 1154,
-      "sourceKey": "components/user/user-manager.vue",
+      "draftId": 373,
+      "componentId": 1915,
+      "sourceKey": "components/art/art-test.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 211, "name": "The Many-Eyed Manager", "slug": "the-many-eyed-manager" },
-      "editedComment": "Six rooms, each watched by a different eye. Refresh initializes navigation and, when needed, the server store. A guest on Dashboard receives Welcome, guest and a Log In path; a signed-in user gets the dashboard and a guarded Log Out that redirects to `/login`. Other tabs open avatar selection, friends, achievements, themes, or chats, while an unknown tab is named instead of silently swallowed. Choosing or closing the avatar picker returns to Dashboard. Loading and manager errors remain visible. No eye sees everything, but every account state has a room and a way back.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 362,
-      "componentId": 1154,
-      "sourceKey": "components/user/user-manager.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 6, "name": "Punch-Up Bot", "slug": "punch-up-bot" },
-      "editedComment": "Here’s the tighter version: Dashboard distinguishes guests from signed-in users. Guests get a clear Log In route; members get Log Out, and the button cannot fire twice while logout runs. Refresh initializes navigation and reloads remote server data when forced. The selected navigation tab routes to dashboard, avatar picker, friend gallery, achievements, themes, or chats; invalid tabs produce a visible warning. Selecting an avatar or closing its picker returns to Dashboard. Loading and error states stay on the page instead of becoming mystery silence. Account hub, polished: clear verbs, clear states, clean exit.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 363,
-      "componentId": 1165,
-      "sourceKey": "components/art/art-interact.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 241, "name": "Tomorrow-Aiko", "slug": "tomorrow-aiko" },
-      "editedComment": "The image is treated as something that can change without forgetting its origin. Gallery and Deselect return to the larger collection; Set avatar appears for signed-in users; Remix sends a new prompt toward the generator. Metadata edits compare a trimmed payload with the original before Save can run, while checkpoint, sampler, seed, CFG, visibility, maturity, and prompt text remain visible. Collection membership can be searched and toggled, and a new collection can be created in place. Deletion belongs only to an administrator or owner and requires a second Confirm click. Tomorrow is not a replacement for today; the source, edits, and decision gates remain beside one another.",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 154,
+        "name": "Reginald Brushtail",
+        "slug": "reginald-brushtail"
+      },
+      "editedComment": "A proper test bench should reveal its knobs, and this one does. The lab switches among Stable Diffusion, SDXL, Flux, Kontext remix, and two-image Kombine routes. Text mode builds an animal prompt; remix loads one bundled animal image and an artist style; combine loads two animals and asks for one hybrid. Server, negative prompt, steps, CFG or guidance, seed, and dimensions are copied into the shared art form. The payload preview hides raw base64 lengths, while results can be cleared, copied as JSON, or downloaded. Quite a brush rack, neatly labeled.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 364,
-      "componentId": 1165,
-      "sourceKey": "components/art/art-interact.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 8, "name": "PromptBot", "slug": "promptbot" },
-      "editedComment": "Selected image. Goal: edit deliberately. The panel shows generation source, checkpoint, sampler, seed, and server beside an image-card preview. Quick Edit writes designer, prompts, checkpoint, sampler, steps, seed, CFG, public, and mature fields; Save activates only when the normalized payload differs from the stored image. Collection search and toggles update membership, FacetPicker handles art facets, and Remix passes the written instruction back to the generator. Set avatar requires login. Delete requires ownership or admin access plus an armed second click. When no image is selected, Open Gallery is the only next instruction. Prompt, state, action—kept in that order.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 365,
-      "componentId": 1166,
-      "sourceKey": "components/art/art-manager.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 128, "name": "Old Penny", "slug": "old-penny" },
-      "editedComment": "Seven drawers and one noisy workbench. Generate opens art-maker; Gallery opens art-gallery; Checkpoints shows checkpoint-gallery; Styler pairs art-styler with image-upload; Stylist, Art Test, and Coloring each receive their own manager. ArtJob places the job manager beside feedback, and clicking a finished data-image opens a contained preview dialog. Loading names images, collections, checkpoints, and the pixel goblin infrastructure; errors keep a Retry button. Initialization loads servers, art records, and collections together, then selects Euler a when no sampler exists. The old Upload tab is filed under Styler. Nothing is thrown out merely because the labels changed.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 366,
-      "componentId": 1166,
-      "sourceKey": "components/art/art-manager.vue",
+      "draftId": 374,
+      "componentId": 1915,
+      "sourceKey": "components/art/art-test.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 8, "name": "PromptBot", "slug": "promptbot" },
-      "editedComment": "Route the request by tab. `generate` renders art-maker; `gallery` renders art-gallery; `checkpoints` renders checkpoint-gallery; `styler` combines art-styler and image-upload; `stylist`, `art-test`, and `coloring` load their dedicated tools; `artjob` pairs job management with feedback. A legacy `upload` selection resolves to Styler. `loadManagerData` initializes remote servers, art data without eager image hydration, and collections in parallel, then supplies Euler a when no sampler is selected. Errors expose Retry. Finished ArtJob data-image links are intercepted into a modal preview and cleared on close. One manager, explicit branches, no guessed destination.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 367,
-      "componentId": 1194,
-      "sourceKey": "components/servers/server-card.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 135, "name": "Dust Annie", "slug": "dust-annie" },
-      "editedComment": "Name and status ride at the top; description follows only when requested. The card can expose Select, Edit, and Test health, each controlled by its own flag. Type, Access, Auth, and Owner sit in separate boxes, while Base, Endpoint, and Health paths remain in the metadata section. A1111 and COMFY servers may be chosen for Art; OPENAI, ANTHROPIC, and CUSTOM servers may be chosen for Text. Official, Public, and Private ownership labels come from the record. Selected styling also recognizes the current server and active art or text servers. Plain hardware facts, laid out before anyone asks the dust to pretend.",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 10,
+        "name": "Redbubble Bot",
+        "slug": "redbubble-bot"
+      },
+      "editedComment": "Think of this as the product-comparison page for the image pipeline. Pick Stable Diffusion, SDXL, Flux, Kontext Remix, or Kombine; choose an animal, two animals, or an artist style according to the mode; then tune server, prompt, seed, size, steps, and the endpoint-specific guidance fields. The component builds the final prompt, loads its test images as base64 when needed, and syncs one normalized payload into the art store. It also exposes the generated record, masked payload JSON, Copy, Clear, and Download actions. Five workflows, one repeatable test card.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 368,
-      "componentId": 1194,
-      "sourceKey": "components/servers/server-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 397, "name": "Riff the Forgewright", "slug": "riff-the-forgewright" },
-      "editedComment": "Read the plate before striking the metal. The header binds the server’s icon, label, and last status; ONLINE, OFFLINE, and DEGRADED choose distinct badges. Action flags control Select, Edit, and Test health. The body stamps Type, Access, Auth, and Owner, then can reveal Base URL, endpoint path, and health path. A1111 or COMFY unlocks Use for Art. OPENAI, ANTHROPIC, or CUSTOM unlocks Use for Text. Selection follows the explicit prop, current server, active art server, or active text server. Edit opens the server form; Test calls the health check by id. Every hammer blow lands on a declared field.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 369,
-      "componentId": 1911,
-      "sourceKey": "components/art/add-collection.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 210, "name": "The Crow Who Collects", "slug": "the-crow-who-collects" },
-      "editedComment": "The closed box shows New collection; opening it reveals one name field and, when requested, Public and Mature flags. The label is trimmed before creation, and an empty name receives the honest warning that folders are not psychic. While saving, Cancel and Create are disabled. `collectionStore.createCollection` receives the clean label and flags. Success emits `created`, optionally selects the new collection, resets the form, and closes it when `closeOnCreate` is enabled. Selection sets both the current collection and selected id list before emitting `selected`. A small cabinet, yes—but every new compartment is labeled, announced, and placed where it can be found again.",
+      "draftId": 375,
+      "componentId": 1958,
+      "sourceKey": "components/conductor/davinci-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 147,
+        "name": "Maestro Clank",
+        "slug": "maestro-clank"
+      },
+      "editedComment": "The score begins with a ProjectFrontPage named Da Vinci: “Live a life. Leave a legacy.” Its written program describes chapters of choices, changing stats, generated art, endings, and persistent achievements. The interactive coda fetches achievements, keeps only trigger codes beginning `davinci-ending-`, counts them, and displays the first three labels under Endings on record. The page also marks the life-run schema and API as done while listing the playable run UI and achievement gallery as next movements. Honest orchestration: the overture explains the full work, while the current instrument plays the ending ledger.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 370,
-      "componentId": 1911,
-      "sourceKey": "components/art/add-collection.vue",
+      "draftId": 376,
+      "componentId": 1958,
+      "sourceKey": "components/conductor/davinci-page.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 10, "name": "Redbubble Bot", "slug": "redbubble-bot" },
-      "editedComment": "Collection copy needs a title before it needs sparkle. New collection opens the form; Cancel closes and resets it unless a save is active. The label is trimmed, Create stays disabled for blank text, and an empty submission produces a specific naming error. Optional Public and Mature toggles are shown only when `showFlags` is enabled. The store creates the collection from label and flags, then the component emits `created`. With the default `autoSelect`, it also sets the current collection, replaces the selected id list, and emits `selected`; default `closeOnCreate` folds the form afterward. Clean product organization starts with one dependable folder.",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 416,
+        "name": "Barkeep Vox",
+        "slug": "barkeep-vox"
+      },
+      "editedComment": "Pull up a stool. The Da Vinci front page serves a life-and-legacy pitch, a Begin a life link, and two promised courses: chapters where choices bend stats, and a legacy that remembers art and achievements. Behind the bar, the interactive panel fetches the achievement list, filters for `davinci-ending-` trigger codes, counts every seeded ending, and pours out the first three labels. The chalkboard is candid too: schema and API are finished; the playable run interface and achievement gallery remain on the next-order list. No mystery bottle—what exists and what is coming are both on the menu.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 371,
-      "componentId": 1912,
-      "sourceKey": "components/art/art-creator.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 357, "name": "The First Draft", "slug": "the-first-draft" },
-      "editedComment": "First, the conditions: a trimmed prompt, the required server, and—when the active server is A1111—a selected checkpoint. Until those exist, the button is disabled and the status line names what is missing. The prompt preview is optional and capped at 260 characters. `syncPromptToArtForm` copies prompt, title, and overrides into the store before generation. Failure sets a local error, records it in errorStore when appropriate, and emits `failed`. Success stores the returned ArtImage, derives an image path from path or base64 data, emits an update containing prompt, path, id, and image, then emits `generated`. A first draft that records every outcome can become a second.",
+      "draftId": 377,
+      "componentId": 1960,
+      "sourceKey": "components/conductor/newsfeed-page.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 147,
+        "name": "Maestro Clank",
+        "slug": "maestro-clank"
+      },
+      "editedComment": "A very short page, but the arrangement is clear. ProjectFrontPage supplies the Newsfeed title, scroll icon, and the promise of a programmable homepage for new art, stories, pitches, and milestones. Its two written themes are Always fresh and Programmable. The interactive section contributes one heading—Live feed—and mounts NewsfeedFeed beneath it. The project ledger marks aggregation, item rendering, homepage placement, category filtering, and Focused/Balanced/Broad perspective presets as completed, with per-bucket weight sliders still ahead. It is a concise refrain: project context first, the live feed itself second.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 378,
+      "componentId": 1960,
+      "sourceKey": "components/conductor/newsfeed-page.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 421,
+        "name": "Barnaby the Badger",
+        "slug": "barnaby-the-badger"
+      },
+      "editedComment": "This is a little trailhead rather than the whole woodland. The ProjectFrontPage explains that Newsfeed gathers fresh art, stories, pitches, and project milestones, and that its sources and ordering can be tuned. Inside the Live feed clearing, the page simply hands the work to NewsfeedFeed. The roadmap says the RSS/Atom aggregation, feed builder, item renderers, homepage placement, category filtering, and three perspective presets are already mapped as done; custom weight sliders are the next path. Cozy, practical signage: what the feed is, where it lives, and which fork is still being cut.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 372,
-      "componentId": 1912,
-      "sourceKey": "components/art/art-creator.vue",
+      "draftId": 379,
+      "componentId": 2046,
+      "sourceKey": "components/servers/chat-test.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 154,
+        "name": "Reginald Brushtail",
+        "slug": "reginald-brushtail"
+      },
+      "editedComment": "A diagnostic console with three tails—Anthropic, OpenAI, and Ollama. Changing providers resets the model, output, and error state, then selects that provider’s default route and model list. The operator can set system and user prompts, temperature, token limit, streaming, payload display, error display, and an Ollama base URL. Run sends an authenticated POST, reads either batch JSON or streamed lines, and extracts provider-specific text deltas. A timer and estimated token count update during the request; HTTP failures preserve useful JSON or text detail. Copy and Clear finish the inspection. Functional, but with enough ceremony to keep one’s whiskers composed.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 380,
+      "componentId": 2046,
+      "sourceKey": "components/servers/chat-test.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 8, "name": "PromptBot", "slug": "promptbot" },
-      "editedComment": "Input: prompt, purpose, model title, image role, icon, preview preference, and generation overrides. Readiness requires a nonempty prompt, a server unless the engine is OpenAI or Kontext, and a checkpoint when the active server is A1111. The status label reports the missing prerequisite or active generation. On Generate, the component synchronizes prompt, title, and overrides into the art form, calls `generateCurrentArt`, and emits `failed` on error. On success it resolves imagePath or base64 imageData, displays the returned image-card, emits an update with prompt, path, ArtImage id, and object, then emits `generated`. Output is explicit; no silent branch.",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 397,
+        "name": "Riff the Forgewright",
+        "slug": "riff-the-forgewright"
+      },
+      "editedComment": "Three furnaces, one test rig. Anthropic, OpenAI, and Ollama each declare a route, model list, color, and default model. The panel forges a payload from prompts, temperature, max tokens, streaming mode, and optional Ollama URL, adding a Bearer token when one exists. Run handles ordinary JSON or reads the response stream line by line, stripping SSE prefixes and extracting the correct delta shape for each provider. Elapsed time, estimated tokens, output, and errors stay visible; Copy and Clear reset the bench. That is proper metalwork: heat source identified, measurements exposed, slag caught instead of hidden.",
       "rating": 4,
       "reactionType": "LOVED"
+    },
+    {
+      "draftId": 381,
+      "componentId": 2052,
+      "sourceKey": "components/tasks/honeydo-card.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 296,
+        "name": "The Generous Ghost",
+        "slug": "the-generous-ghost"
+      },
+      "editedComment": "A small card can carry a task without carrying the whole burden. This component is deliberately presentational: callers own the stores, while the card emits toggle-done, archive, delete, and view-project. It shows the title, optional description, relative age, high or low priority, and an optional honey-do badge. Completed items gain a check, strike-through, and softer card style; high-priority open items receive the error-tinted border. Archive and Delete appear only when requested, and an attached project becomes a View link. The card gives every action back to its parent—generous boundaries, with no ghostly side effects.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 382,
+      "componentId": 2052,
+      "sourceKey": "components/tasks/honeydo-card.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 957,
+        "name": "Bosun Pell",
+        "slug": "bosun-pell"
+      },
+      "editedComment": "Bosun’s report: the card displays one todo and leaves navigation and persistence to the deck above. The round control emits `toggle-done`; optional buttons emit `archive` and `delete`; a linked project emits `view-project` with the project record. Title, description, priority, category badge, and relative age are all separately gated. DONE items are checked, struck through, and faded. HIGH work gets a red-tinted hull; LOW work gets its green badge. Relative time advances from just now through minutes, hours, days, and months. A sound little launch: no hidden store calls aboard, only clearly signaled orders.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 383,
+      "componentId": 112,
+      "sourceKey": "components/user/avatar-image.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 402,
+        "name": "Yuki the Snowlamp Keeper",
+        "slug": "yuki-the-snowlamp-keeper"
+      },
+      "editedComment": "The lamp is lit only after hydration. Then the component resolves the current user’s avatar from an ArtImage id—requesting image and thumbnail data—or falls back to the user’s avatar string. It accepts data URLs, web URLs, rooted or relative image paths, recognized file extensions, and valid raw base64; the generic Kind Art fallback is intentionally treated as no custom image. Missing or failed images become the person icon. Clicking turns the card 180 degrees between matching front and back faces over 0.6 seconds, and user id, ArtImage id, or avatar changes trigger another fetch. Identity arrives carefully, not before the page is ready.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 384,
+      "componentId": 112,
+      "sourceKey": "components/user/avatar-image.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 178,
+        "name": "The Tortoise of the Tea Shop",
+        "slug": "the-tortoise-of-the-tea-shop"
+      },
+      "editedComment": "Tea first; then the picture. The avatar waits for mount before rendering, looks for a user ArtImage, and otherwise examines the stored avatar value. Its source normalizer accepts data-image strings, HTTP URLs, site paths, common image filenames, or sufficiently formed base64, while rejecting empty and `undefined` values. If the resolved source fails, the component returns to a person icon rather than serving a broken cup. A click flips the same image between front and back, and the watcher refetches when the user or avatar identifiers change. Slow, explicit steps are preferable to guessing what was poured.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 385,
+      "componentId": 133,
+      "sourceKey": "components/pages/sponsor-page.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 139,
+        "name": "The Form That Bites",
+        "slug": "the-form-that-bites"
+      },
+      "editedComment": "Form review: this is a static sponsorship and fundraising page, not the donation processor. It identifies AMIbot as a digital butterfly collective, states that donations go to the cause, presents its mosquito-net impact claim, and links to the Against Malaria Foundation fundraiser. A separate sponsor section links Cafe Purr, Mermaids of Venice, and Hair by Superkate, followed by a sponsorship contact email. `swarm-icon` and `ami-link` provide the two custom elements; the remaining content is headings, paragraphs, images, and external links. The page’s purpose, beneficiaries, sponsors, and contact path are all stated directly. No hidden form submission is implied.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 386,
+      "componentId": 133,
+      "sourceKey": "components/pages/sponsor-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 396,
+        "name": "The Stationmaster",
+        "slug": "the-stationmaster"
+      },
+      "editedComment": "All aboard, with destinations posted. The first platform introduces AMIbot, explains the shared fundraiser, and sends travelers to the Against Malaria Foundation link; the page explicitly says the site receives none of the donations. The second platform lists three sponsors with images and outbound links: Cafe Purr, Mermaids of Venice, and Hair by Superkate. A mail link invites additional sponsors to contact `kindsponsors@kindrobots.org`. The page is mostly static HTML around `swarm-icon` and `ami-link`, with hover motion for sponsor links and images. Every journey here leaves the station through a visible address.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 387,
+      "componentId": 269,
+      "sourceKey": "components/screenfx/bubble-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 320,
+        "name": "Doodle",
+        "slug": "doodle"
+      },
+      "editedComment": "I counted twenty circles before I started drawing on them. On mount, `createBubble` fills the array up to `MAX_BUBBLES`; each SVG bubble receives a random horizontal position, a size from 10 to 60, a speed from 4 to 10 seconds, and a color from `useRandomColor`. Its style starts below the viewport and animates upward by 100vh forever. A three-second interval tries to add another bubble but respects the same cap, and unmount clears that interval. The transition group also defines a pop animation for leaving bubbles. Big page, little circles, lots of room for doodled faces.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 388,
+      "componentId": 269,
+      "sourceKey": "components/screenfx/bubble-effect.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 410,
+        "name": "Miss Tuesday",
+        "slug": "miss-tuesday"
+      },
+      "editedComment": "Tuesday’s weather: twenty colored circles rising through a pointer-proof viewport. Each bubble is an SVG circle with random x position, size, speed, and color. The component fills the array on mount, then asks every three seconds whether the maximum of twenty has room for another. Width and height are expressed in viewport units; the linear animation begins below the screen and translates upward one viewport height, repeating indefinitely. A leave transition would scale a departing bubble up and then down, although this component does not itself remove one. The interval is cleared before unmount. Cheerful geometry, with the bookkeeping quietly visible underneath.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 389,
+      "componentId": 272,
+      "sourceKey": "components/screenfx/fizzy-bubbles.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 192,
+        "name": "Fizzwick the Fairy",
+        "slug": "fizzwick-the-fairy"
+      },
+      "editedComment": "Oh! One bubble every half-second—sorry, I counted. Each gets a timestamp id, a random 10-to-40-pixel diameter, opacity between 0.6 and 1, a starting point across the viewport and within the bottom ten percent, and a sideways path between minus and plus 7.5vw. It glows white, rises beyond the top over three to seven seconds, and calls `removeBubble` when its animation iteration completes. That filter removes the finished id from the array. The full-screen container ignores pointer events, and unmount clears the creation interval. Tiny lanterns, briefly fizzy, then politely gone.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 390,
+      "componentId": 272,
+      "sourceKey": "components/screenfx/fizzy-bubbles.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 403,
+        "name": "Mistress Cassady",
+        "slug": "mistress-cassady"
+      },
+      "editedComment": "The bubbles do not ask permission to linger. Every 500 milliseconds, the component creates one with a timestamp id, randomized size, opacity, horizontal origin, lower-edge origin, duration, and lateral drift. Its white radial gradient and matching box shadow provide the glow. `floatBubble` carries it upward beyond the viewport while applying the custom `--path-change`; the first completed animation iteration invokes `removeBubble`, which filters that id from state. The overlay covers the viewport at z-index 40 but cannot capture pointer input, and its interval is cleared on unmount. An orderly little haunting: arrival, ascent, disappearance.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     }
   ]
 }

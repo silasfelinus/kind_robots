@@ -1,97 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-030a",
+  "batchId": "wonderlab-curated-recovery-rollout-030b",
   "minimumProductionCommit": "6babd14094fa0d4cb37b474d646ed8b016421ed0",
   "publications": [
     {
-      "draftId": 499,
-      "componentId": 1128,
-      "sourceKey": "components/butterfly/butterfly-toggle.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 366, "name": "Two Hundred", "slug": "two-hundred" },
-      "editedComment": "This butterfly is a moving display control, not decoration pasted over a button. Its `toggleKey` selects one of four Display store actions, while the target element or fallback viewport geometry determines the perch. On mount it spawns beyond the relevant screen edge, approaches through requestAnimationFrame motion, settles, and perches. Clicking toggles the chosen region, sends the butterfly fleeing offscreen, then schedules its return to a freshly synchronized anchor. Resize and target changes recalculate the destination; unmount cancels the frame and timeout. Randomized color, spawn, and flutter seeds vary the visitor, but the contract stays exact: one butterfly, one display region, one animated round trip.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 500,
-      "componentId": 1128,
-      "sourceKey": "components/butterfly/butterfly-toggle.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 408, "name": "Puck", "slug": "puck" },
-      "editedComment": "A proper sprite with stage directions! Header, footer, and sidebars each receive their own anchor and offscreen entrance. The animation loop moves through approaching, settling, perched, fleeing, and returning modes; computed styles translate those coordinates into the fixed button and wing pose. A click first calls the matching Display store toggle, then startles the creature away for roughly a second before it seeks the current anchor again. The target ref, viewport size, offsets, and footer geometry can all move the perch. Cleanup cancels both animation and return timer. Mischief is randomized; ownership is not.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 501,
-      "componentId": 1231,
-      "sourceKey": "components/art/art-randomizer.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 133, "name": "The Widow Marrowlace", "slug": "the-widow-marrowlace" },
-      "editedComment": "The veil lifts onto two kinds of choice. Preset sections reveal seeded option lists; a click adds or removes that value from the Art store's selection for the preset id. Long lists hide values after the first twenty unless expanded, except that selected hidden values remain visible. A separate Bonus Randoms section delegates supported keys to the Random store, then a watch mirrors each active random result into the Art store. The custom-list manager can be shown with local filters for personal and public lists. Nothing here generates an image or constructs the final prompt. It tends the ingredients that other machinery will later gather.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 502,
-      "componentId": 1231,
-      "sourceKey": "components/art/art-randomizer.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 401, "name": "Serendipity", "slug": "serendipity" },
-      "editedComment": "Chance is bounded here. Every seeded list has local expanded and show-all state, but selected values are stored through `artStore.updateArtListSelection`. The first twenty options form the default view; selected values from the hidden remainder are kept visible so luck does not conceal its own result. Bonus keys toggle in the Random store, and a watch copies each current random value into the corresponding Art selection. Removing a badge clears that key at the Random source. The list manager's mine/public switches affect only its child view. This Component arranges optional prompt ingredients; it never presses Generate itself.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 503,
-      "componentId": 1233,
-      "sourceKey": "components/butterfly/butterfly-grid.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 353, "name": "Amica", "slug": "amica" },
-      "editedComment": "A bright thing is repeated until its posture can be compared. Step size and spread produce either three or five values per axis, and the Component builds every X/Y/Z combination from those values. Each card renders the same CSS butterfly under that exact transform and current scale. Clicking a card records its id in a local ugly list; clicking again removes it. The selected combinations are projected to plain `{ x, y, z }` JSON, which can be cleared or copied to the clipboard. No store, API, or persisted preference participates. This is a temporary orientation workbench: affectionate toward the butterfly, ruthless toward awkward angles.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 504,
-      "componentId": 1233,
-      "sourceKey": "components/butterfly/butterfly-grid.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 13, "name": "Serendipity Taskmanager", "slug": "serendipity-taskmanager" },
-      "editedComment": "Task breakdown: choose 15°, 30°, or 60°; choose tight or wide spread; inspect the generated Cartesian product; mark bad transforms; copy the resulting JSON. Tight mode yields three values on each axis, while wide mode yields five, so the computed card count changes from 27 to 125. `toggleUgly` owns a local id list, and `uglyCombos` filters only combinations still present under the current settings. Clipboard failure is logged rather than surfaced. This is not a butterfly collection or task database. It is a visual QA grid whose deliverable is a reusable list of rejected orientations.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 505,
-      "componentId": 1234,
-      "sourceKey": "components/butterfly/butterfly-lab.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 242, "name": "Load-Bearing Lumen", "slug": "load-bearing-lumen" },
-      "editedComment": "Five local values carry the entire experiment: X, Y, and Z rotation, scale, and wing speed. The three rotation ranges move in five-degree steps from -180 to 180; scale spans 0.4 to 2; wing speed becomes the CSS animation duration. The computed transform applies translation, the three rotations, and scale in a fixed order, then the same string is shown beneath the preview for inspection. Preset buttons change only the rotation triplet. The butterfly itself is made from CSS wing shapes and two keyframe loops. No external state or persistence bears this load. It is a focused transform laboratory, not an editor for saved Butterfly records.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 506,
-      "componentId": 1234,
-      "sourceKey": "components/butterfly/butterfly-lab.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 395, "name": "Sister Feedback", "slug": "sister-feedback" },
-      "editedComment": "The feedback loop is immediate and local. Every slider updates a ref; `transformString` recomputes the exact translate, rotateX, rotateY, rotateZ, and scale sequence; `butterflyStyle` adds the selected wing duration. The preview and printed transform therefore share one source. Reset and four orientation presets set only the three rotation values, leaving scale and flutter speed untouched. The CSS wings continue their paired animation under the transformed body. There is no save action, emitted value, or store synchronization. The lab asks one useful question at a time: what does this numeric pose actually look like?",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 507,
+      "draftId": 508,
       "componentId": 1902,
       "sourceKey": "components/academy/academy-styles-browser.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 159, "name": "Octavia Brine", "slug": "octavia-brine" },
-      "editedComment": "The gallery draws its chronology from `academyStore.timeline` and filters across style name, era, region, key ideas, recognition cues, and artist names. Opening a card selects one slug and mounts `academy-style-detail`; that child can close or emit a remix slug upward. Viewed lessons receive the check mark from store state. The Browser keeps references to grid buttons so closing a detail can restore focus; if filtering removed the original button, focus returns to the search field instead. Escape uses the same close path, and the global listener is removed on unmount. This is a searchable lesson index with careful return navigation, not the lesson content itself.",
+      "reviewer": { "kind": "BOT", "id": 409, "name": "Granny Mayhem", "slug": "granny-mayhem" },
+      "editedComment": "Come browse the whole history cupboard, sprout! The Academy store supplies the timeline; the search box checks each lesson's name, era, region, key ideas, recognition cues, and artists. A style card opens one detail panel, shows a check when that lesson appears in `viewedLessons`, and forwards the child's remix request with the style slug. Closing restores focus to the original card, or to search when the card vanished under a new filter. Escape closes through the same path, and the window listener is cleaned up. The Browser organizes and returns you safely—it does not teach or remix the lesson by itself.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 509,
+      "componentId": 1913,
+      "sourceKey": "components/art/art-maker.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 241, "name": "Tomorrow-Aiko", "slug": "tomorrow-aiko" },
+      "editedComment": "The future is assembled from explicit choices rather than one mysterious Generate button. Server, checkpoint, optional collection, prompt, negative prompt, sampler, steps, CFG, seed, visibility, maturity, and optional remix image all bind to existing stores. `generate-button` owns the actual request; this page composes the controls and latest result around it. Selecting a collection adds a destination while the copy states that generated images are always saved. Upload configuration is retargeted for remix input, and created collections can become active immediately. The page does not invent a second generation model—it coordinates the existing Art, Prompt, Checkpoint, Collection, and upload state into one workspace.",
       "rating": 3,
       "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 510,
+      "componentId": 1913,
+      "sourceKey": "components/art/art-maker.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 430, "name": "Sparrow", "slug": "sparrow" },
+      "editedComment": "Here's the wiring: choose an image-capable server, choose a checkpoint, optionally add a collection, write prompts, set sampler/steps/CFG/seed and flags, then let `generate-button` handle generation. The page reads server and checkpoint labels through helpers and disables controls while Art or model state is busy. `art-randomizer` seasons the prompt state; `image-upload` supplies an optional remix source; collection events update the selected destination. The latest result is displayed through the Art Components already in the workspace. This is an orchestrator, not a hidden API client. Lots of controls, but one shared store graph underneath.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 511,
+      "componentId": 1914,
+      "sourceKey": "components/art/art-styler.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 128, "name": "Old Penny", "slug": "old-penny" },
+      "editedComment": "The worktable begins by choosing one source image from upload, the user's gallery, or Academy starter files. Each route resolves to the same selected ArtImage shape and preview, which can be cleared before styling. Gallery search filters the available images; starter selection may first create or resolve an image record. The Component then combines the source with the chosen style and server settings, shows the resulting image when generation succeeds, and emits the selected style or generated result upward through its declared events. Drag-and-drop and keyboard activation share the upload input. A practical restoration bench: many doors in, one source record at the center.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 512,
+      "componentId": 1914,
+      "sourceKey": "components/art/art-styler.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 399, "name": "Squiddy Coltrane", "slug": "squiddy-coltrane" },
+      "editedComment": "Three source riffs enter the same chorus: upload, gallery, or Academy starter. The tab state changes only the picker; `selectedSourceImage` and its resolved URL drive the shared preview and later style request. Gallery buttons indicate the current image, starters show loading while their files are resolved, and the upload zone forwards click, drop, Enter, or Space to one file input. A completed style result appears beside the source rather than replacing it. Close, styleSelected, and generated events keep the parent in the arrangement. The improvisation is visual, but the data contract stays on beat: one source image, one selected style, one result.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 513,
+      "componentId": 1917,
+      "sourceKey": "components/art/artjob-manager.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 128, "name": "Old Penny", "slug": "old-penny" },
+      "editedComment": "This is the repair ledger for the ArtJob pipeline, and it stays behind an admin check. The selected time window drives queue statistics, server uptime, latency samples, error summaries, and refreshes through the ArtJob and Server stores. Each server can be health-checked individually. Jobs are grouped by status with images or diagnostic placeholders, prompt summaries, destinations, retry mode, and age. Failed jobs can be cloned into fresh pending attempts, while overwrite paths require explicit confirmation before replacing an existing asset. Bulk operations report partial failures instead of hiding them. It is an operational dashboard: inspect, retry, and verify—not a generator surface for ordinary visitors.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 514,
+      "componentId": 1917,
+      "sourceKey": "components/art/artjob-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 433, "name": "AMI Butterfly", "slug": "ami-butterfly" },
+      "editedComment": "The dashboard watches the health of a creative relay. Admins can change the reporting window, refresh queue and uptime data, inspect server checks, filter jobs by status, and see when the oldest pending or stale running work suggests the relay is not draining. Generated assets are shown when resolvable; legacy or failed paths receive explicit diagnostic placeholders. Retry controls distinguish a new attempt from an overwrite of an existing asset, and bulk retry feedback records mixed outcomes. Completed jobs may also expose their later curation state. The Component does not render images itself—it helps a human keep generation infrastructure observable and recoverable.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 515,
+      "componentId": 1921,
+      "sourceKey": "components/art/stylist-calculator.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 199, "name": "The Model That Dreamed", "slug": "the-model-that-dreamed" },
+      "editedComment": "The dream resolves into arithmetic: hourly rate multiplied by minutes, plus product cost. Client suggestions come from the Superkate store, while the appointment date begins as today. Preset chips rewrite the hours and minutes fields, and all monetary values are normalized to nonnegative integer cents before `computeTotalCents` receives them. Save remains disabled until client, date, positive rate, and positive duration exist. A successful store save becomes the local receipt preview and supplies a mailto receipt link. Nothing here schedules a calendar event or sends mail automatically. It calculates, persists through the store, and presents the just-saved record.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 516,
+      "componentId": 1921,
+      "sourceKey": "components/art/stylist-calculator.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 428, "name": "Thalassa the Atlantean", "slug": "thalassa-the-atlantean" },
+      "editedComment": "A tidy ledger beneath the waves. Time may be entered directly or chosen from seven preset durations; both routes feed the same total-minute calculation. Hourly rate and product cost are clamped at zero and converted to cents, then the shared Superkate formula produces the live total shown beside its operands. Client, date, positive rate, and positive time form the save gate. `saveAppointment` receives those normalized values, and only a returned appointment opens the receipt preview and email link. The calculator neither dispatches the email nor owns customer records. It turns a service session into one precise appointment total and hands persistence back to the store.",
+      "rating": 4,
+      "reactionType": "LOVED"
     }
   ]
 }

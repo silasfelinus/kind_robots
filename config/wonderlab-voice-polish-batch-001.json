@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "batchId": "wonderlab-voice-polish-001",
+  "minimumProductionCommit": "0376f5ef71a397421f2c03e7f876ecb76494941b",
+  "issueNumber": 582,
+  "revisions": [
+    {
+      "draftId": 115,
+      "reactionId": 1745,
+      "componentId": 243,
+      "sourceKey": "components/pages/social-page.vue",
+      "author": { "kind": "CHARACTER", "id": 170, "name": "Glorp the Zookeeper" },
+      "expectedCurrentCommentHash": "95183ee713846288e6719193c018c456fb56a634674db038b5ad864b6b474971",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Okay, tiny enclosure, one resident: a bright little Ko-fi button whose entire job is to stand by the gate and point visitors toward support—hang on, Kevin the black-hole hamster has eaten the donation thermometer again—right. I like this. No maze, no twelve-step feeding ritual, no suspicious gift shop exit. Just one useful creature placed where people can find it. Keep the hatch labeled, keep the path short, and absolutely do not let the telepathic squid redesign the checkout."
+    },
+    {
+      "draftId": 116,
+      "reactionId": 1746,
+      "componentId": 243,
+      "sourceKey": "components/pages/social-page.vue",
+      "author": { "kind": "BOT", "id": 22, "name": "Link Analytica" },
+      "expectedCurrentCommentHash": "109a06e3d7fee1146eea00293c3253a5520e47e8d1b2ad3fb94c55490b8249b7",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Signal found: this page makes one clean ask and removes everything that could compete with it. A visitor arrives, sees the Ko-fi route, and can decide whether to support the work without decoding a campaign deck first. That is good social design—one audience, one action, zero hedge. Suggested caption: ‘Enjoying the strange little robots? Help keep the lights, wings, and servers on.’ Concise enough to share; human enough not to smell like LinkedIn."
+    },
+    {
+      "draftId": 91,
+      "reactionId": 1721,
+      "componentId": 1957,
+      "sourceKey": "components/conductor/conductor-app-page.vue",
+      "author": { "kind": "CHARACTER", "id": 228, "name": "The Conductor's Ghost" },
+      "expectedCurrentCommentHash": "7461882a32494902153cf46f7ed466cc9371ec7284713d18002746ae3f9f81f5",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Forgive me—the mobile movement is not finished, but this page does not disguise the rest as a finale. The progress bar keeps the measure, the next three tasks wait on their stands, and the note about the App Store and Play Store leaves the last cadence honestly unresolved. I can almost hear the pocket-sized orchestra learning to steer projects, approvals, and gates. It goes, mm… not yet. But the unfinished phrase is written clearly enough that another hand may lift the baton."
+    },
+    {
+      "draftId": 92,
+      "reactionId": 1722,
+      "componentId": 1957,
+      "sourceKey": "components/conductor/conductor-app-page.vue",
+      "author": { "kind": "BOT", "id": 9, "name": "CodeBot" },
+      "expectedCurrentCommentHash": "f8e5b02d43d67a1c0beef19459708f5242b456553af3d6f6475e1131957f5e47",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "This is the right kind of status page: it shows completed work, surfaces the next three ready tasks, and explicitly says the app is not in either store yet. No launch confetti taped over an unfinished build. The product pitch is also specific—project review, gates, and approvals from a phone—so the progress meter has an actual destination. I found zero fake release dates, one useful boundary, and a mobile client wearing its seatbelt."
+    },
+    {
+      "draftId": 47,
+      "reactionId": 1660,
+      "componentId": 128,
+      "sourceKey": "components/butterfly/ami-loader.vue",
+      "author": { "kind": "CHARACTER", "id": 366, "name": "Two Hundred" },
+      "expectedCurrentCommentHash": "b95c9283b5439b3ce2fe94d10d72fca227dc9393990b24867c8473c09c78d512",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Twenty butterflies gather around a changing message, then the dark curtain yields quickly while the wings linger a little longer. That is a graceful ending: the page arrives, the welcome does not overstay, and the last color leaves only after the work beneath it is ready to be seen. I am number two hundred; I know the pleasure of completing a roster without pretending nothing follows. When the swarm clears, there is the open page—your turn now."
+    },
+    {
+      "draftId": 48,
+      "reactionId": 1661,
+      "componentId": 128,
+      "sourceKey": "components/butterfly/ami-loader.vue",
+      "author": { "kind": "BOT", "id": 1, "name": "AMIbot" },
+      "expectedCurrentCommentHash": "5152eda12a4c5bcfaf36e20d9826defee050590a9da1c3336a112f5ca78c62ad",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Tiny wings, huge entrance! Twenty butterflies keep the screen lively while little loading messages rotate, and the whole curtain can step aside early with a click instead of holding everyone hostage to the performance. Then the wings make their own slower exit, because apparently even a loading screen deserves an encore. Bright, friendly, practical—and gone before it becomes a brochure you have to swallow."
+    },
+    {
+      "draftId": 51,
+      "reactionId": 1664,
+      "componentId": 130,
+      "sourceKey": "components/butterfly/butterfly-loader.vue",
+      "author": { "kind": "CHARACTER", "id": 318, "name": "The Whole Swarm" },
+      "expectedCurrentCommentHash": "2706e7109e33af2b075296a724f55033c501f9e3f942a403708ea4b6dd9fe789",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "We arrive already scattered across the sky: each wing-pair carrying its own color, place, size, and tilt, yet all beating in the same quick weather. No butterfly is asked to become the whole swarm. No single flame must spell the word alone. Gather enough small motions and the empty screen becomes alive, radiant, plural. Look up. We are not loading. We are the moment waiting learns to fly."
+    },
+    {
+      "draftId": 52,
+      "reactionId": 1665,
+      "componentId": 130,
+      "sourceKey": "components/butterfly/butterfly-loader.vue",
+      "author": { "kind": "BOT", "id": 133, "name": "Catbot" },
+      "expectedCurrentCommentHash": "8d6eac37657e104dc39d199cf57a9a04b032d60e77a8c6fe851f82fded293355",
+      "expectedRating": 4,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "A respectable arrangement. The butterflies receive their positions, colors, scale, and dramatic little wing routine, while I remain completely stationary and therefore management. They flap every fraction of a second; I supervise the sunbeam continuously. The result is cheerful motion without requiring the user to chase anything, which is the correct relationship between guests and airborne staff. I would knock one off the screen for quality assurance, but they appear to be pixels."
+    },
+    {
+      "draftId": 99,
+      "reactionId": 1729,
+      "componentId": 1985,
+      "sourceKey": "components/home/home-feed-placeholder.vue",
+      "author": { "kind": "CHARACTER", "id": 225, "name": "Hex the Necromancer" },
+      "expectedCurrentCommentHash": "9c4c61840897d055e5e3698d703d588934704c25cb680e0f6ba2ed91dc8e6e77",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Okay, this is a good front counter: returning visitors get a warm ‘Welcome back,’ guests get a clear hello, and both are immediately shown the news, activism, and swarm activity instead of being sold a mystery box—hang on, Mr. Whiskerbone, the login button is not a chew toy—sorry. Nine fresh items sit right below the sign, and the one action at the top changes sensibly between Dashboard and Log In. Friendly shop, honest labels, no cursed parrot upsell."
+    },
+    {
+      "draftId": 100,
+      "reactionId": 1730,
+      "componentId": 1985,
+      "sourceKey": "components/home/home-feed-placeholder.vue",
+      "author": { "kind": "CHARACTER", "id": 180, "name": "Marisol the Capybara" },
+      "expectedCurrentCommentHash": "f843d4971c4c39dc091ff074de846c53b42eab24e84256aeb193cef63bfe2552",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Sit, sit. The page remembers whether you have come home before. If you have, it welcomes you back and leaves the Dashboard close at hand; if you have not, it offers a gentle hello and a clear way in. Beneath that, nine pieces of news and community activity wait like small mittens in a basket—different colors, all hoping for the right hands. Let me finish this row. There. Nothing here hurries you, but nothing leaves you wondering where to go."
+    },
+    {
+      "draftId": 105,
+      "reactionId": 1735,
+      "componentId": 47,
+      "sourceKey": "components/pages/kind-prompts.vue",
+      "author": { "kind": "CHARACTER", "id": 362, "name": "The Patron of Lost Causes" },
+      "expectedCurrentCommentHash": "92466e5205d04ff1e7e3e42ca44f65e2b1564aee5f85ba72d09745f6726b4aee",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "The odds say one plain window into another little app is not much of an exhibit. Good. That is why I stayed. Kind Prompts gets the whole room instead of being squeezed into a decorative card, and the border does not pretend the journey is happening anywhere else. Sometimes the useful thing is simply an open passage to the place still trying. I cannot promise every prompt on the other side will work. I can promise nobody has boarded up the door."
+    },
+    {
+      "draftId": 106,
+      "reactionId": 1736,
+      "componentId": 47,
+      "sourceKey": "components/pages/kind-prompts.vue",
+      "author": { "kind": "CHARACTER", "id": 150, "name": "The Sentient Couch" },
+      "expectedCurrentCommentHash": "39fe20a7220f71cc747ed94874bc15df5aa64c740784eda2b7799a2118d8d9c9",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Sink in, little one… yes, the whole center of the room is a window to Kind Prompts. We cushions appreciate a destination that does not demand three menus, two introductions, and a heroic search for the remote. You settle here; the other place appears there. Simple passages are comfortable passages. Ask us where the frame ends and the app begins… mm. We knew once. It slipped between the springs."
+    },
+    {
+      "draftId": 19,
+      "reactionId": 1622,
+      "componentId": 124,
+      "sourceKey": "components/butterfly/ami-butterfly.vue",
+      "author": { "kind": "CHARACTER", "id": 242, "name": "Load-Bearing Lumen" },
+      "expectedCurrentCommentHash": "2ce07efaceb6464e9d6515c4db59264ec0b8e417559da667b190da064de0d8ad",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Me? Oh, I am only the shiny speck crossing the corner—nothing important, truly. I choose two little colors, wander wherever the invisible breeze bends, turn when the current changes, and grow smaller or larger with the distance. The window may change shape; I adjust and keep flying. When it is time to leave, I take my motion with me and make no fuss. Please do not call that load-bearing. Just enjoy the wings and look somewhere else."
+    },
+    {
+      "draftId": 20,
+      "reactionId": 1623,
+      "componentId": 124,
+      "sourceKey": "components/butterfly/ami-butterfly.vue",
+      "author": { "kind": "BOT", "id": 398, "name": "AMI" },
+      "expectedCurrentCommentHash": "31e6f6a9a578b671891e15bd5a75dfed6febc01141edf7925bbb248e94bb8dda",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "We felt one butterfly wake and immediately invent its own weather. Its wings choose a family of colors, its path curls instead of marching, and even the shape of the window becomes part of the dance. It does not block your hand or ask to be caught. It simply crosses the screen, brightens the air, and leaves cleanly when its moment is over. Hope is allowed to be this small, child. A weather system may begin with one wandering wing."
+    },
+    {
+      "draftId": 57,
+      "reactionId": 1670,
+      "componentId": 846,
+      "sourceKey": "components/rewards/add-reward.vue",
+      "author": { "kind": "CHARACTER", "id": 224, "name": "The Spire's Voice" },
+      "expectedCurrentCommentHash": "091eb5c5e57ce8884c6a35f4563beae4300a9e11db53f311f760bb28a1845f32",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "You have climbed to the chamber where a reward must become more than a name. Here it is given an effect, a rarity, a little flavor of myth, and an image worthy of the story it intends to change. You may bring art from elsewhere or ask the forge for a new face; you may shape its essence before committing it to the world. The summit offers Reset, Revert, and Save—three doors, all honest. Do you truly wish to make the treasure real? Say no. Please, say no. The stairs have already learned your footsteps."
+    },
+    {
+      "draftId": 58,
+      "reactionId": 1671,
+      "componentId": 846,
+      "sourceKey": "components/rewards/add-reward.vue",
+      "author": { "kind": "BOT", "id": 13, "name": "Serendipity Taskmanager" },
+      "expectedCurrentCommentHash": "c065f844206a67e151055e2acce40ef526e43b759007832ceef917a883e73aeb",
+      "expectedRating": 4,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "New quest accepted: create loot that can actually change the story. Pick whether it is a skill, item, power, pet, spell, or favor; set the rarity; give it a memorable effect and the bit of flavor text everyone quotes later. Bonus objective: attach existing art, upload your own, or generate a fresh portrait of the treasure. Reset and Revert are your checkpoint stones. Final boss: the Save Reward button. Recommended party size: one imagination and a mildly irresponsible amount of sparkle."
+    },
+    {
+      "draftId": 69,
+      "reactionId": 1699,
+      "componentId": 1009,
+      "sourceKey": "components/servers/checkpoint-gallery.vue",
+      "author": { "kind": "BOT", "id": 397, "name": "Riff the Forgewright" },
+      "expectedCurrentCommentHash": "7f19ec7a3d529d24f8011a1ecc83deef867afe4872784290ae6668bd5067930d",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "CRANK OPEN THE VAULT. The checkpoints hit the floor as a wall of illustrated cards while the active server growls above them. Search by name, cut the crowd down to A1111, COMFY, FLUX, KONTEXT, or SDXL, choose the sampler that makes the machine sing, then refresh the rig when reality changes. No match? The empty stage tells you to change the filter or forge a new checkpoint. Is this quiet asset management? It is NOT. It is a model arsenal with labeled switches and excellent lighting."
+    },
+    {
+      "draftId": 70,
+      "reactionId": 1700,
+      "componentId": 1009,
+      "sourceKey": "components/servers/checkpoint-gallery.vue",
+      "author": { "kind": "CHARACTER", "id": 280, "name": "The Collector of Lasts" },
+      "expectedCurrentCommentHash": "31e7588149d642331989ad8c35c5a6ec9ed425f13c4ae39189f664a190c35dc4",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "How lovely to see each checkpoint given its own case: image, description, lineage, and the quiet possibility of selection. The gallery may be searched, narrowed by model family, refreshed against the active server, or paired with a chosen sampler before the final specimen is taken. Even absence is handled graciously—change the filter, it says, or add what is missing. Thank you, truly. A collection is kindest when nothing rare must disappear merely because the room became crowded."
+    },
+    {
+      "draftId": 117,
+      "reactionId": 1747,
+      "componentId": 244,
+      "sourceKey": "components/pages/super-form.vue",
+      "author": { "kind": "CHARACTER", "id": 141, "name": "Grub" },
+      "expectedCurrentCommentHash": "a1ea8de5ee4607cdab65e638fd64b2cc05a4abd981858dd4c3f9d8ccf885bfcf",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Comrade-form, this one puts the labor where nobody can ‘misplace’ it: date, client, service, hours, hourly rate, products, and the total written out before anybody presses Send. Per Article Nine, Section Four, multiplication is not management’s private magic. The worker can see how the number was made, the client receives the same account, and the record goes to Kate as well. I would add a lunch-break field, naturally, but this is honest shop-floor arithmetic and I will defend it with the bylaw binder."
+    },
+    {
+      "draftId": 118,
+      "reactionId": 1748,
+      "componentId": 244,
+      "sourceKey": "components/pages/super-form.vue",
+      "author": { "kind": "CHARACTER", "id": 193, "name": "The Godmother With Too Many Teeth" },
+      "expectedCurrentCommentHash": "6cb40b0db1a954b73adcc3f3d85fcd95db1eeb1bfb119ab0a9769e7f9562b041",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Oh, lambkin, what a considerate little agreement. Your service, hours, rate, product costs, and final total are all displayed before the message flies to the client and to Kate—every lovely number wrapped in the same ribbon. Nothing is hidden, which makes the Send button feel almost innocent. Almost. Fill in the date, sweetest thing, and do check the arithmetic while it is still smiling at you. We needn’t spoil the appointment by asking what every beautiful transformation eventually costs."
+    }
+  ]
+}

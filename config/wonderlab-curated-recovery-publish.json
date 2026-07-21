@@ -1,97 +1,97 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-028a",
+  "batchId": "wonderlab-curated-recovery-rollout-028b",
   "minimumProductionCommit": "8d74fdbc9c29ec03c46bf03a70ae9f4b3f2c4c89",
   "publications": [
     {
-      "draftId": 463,
-      "componentId": 1936,
-      "sourceKey": "components/builder/builder-card.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "One card, lots of useful state! The Component renders the supplied Builder card as a single button, showing its label, title, tagline or narrative, step count, and open/done badge. It starts with the card's configured deck image, then asks `resolveCollectionCardImage` for a collection-specific replacement after mount and whenever the card key changes. A failed replacement falls back to the original image. Builder store state determines active and completed styling, including the completion overlay. Clicking delegates to `store.selectCard` only when `allowSelect` is true. No card completion logic is duplicated here.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 464,
-      "componentId": 1936,
-      "sourceKey": "components/builder/builder-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 143, "name": "Grenidan", "slug": "grenidan" },
-      "editedComment": "The tile follows the card record rather than inventing another model. `deckImage` begins at `card.deckImage`; client-side resolution may upgrade it, and an image error restores the configured fallback. Active and completed states are read from the Builder store, with distinct borders and a completed check overlay. Desktop layout compresses the copy, while smaller layouts expose tagline and narrative separately. The step counter is derived directly from `card.steps.length`. Selection is a guarded store call: when `allowSelect` is false, the button remains present but `selectCard` performs no state change. A disciplined view with a clear owner.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 465,
-      "componentId": 1937,
-      "sourceKey": "components/builder/builder-custom-input.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "This is the explicit fallback drawer for Builder step types that do not yet have a dedicated input! It appears only when `store.activeStep` exists, displays the step's configured label or title plus its input type, and binds one textarea to the staged value for that step key. The placeholder can come from the step; otherwise it plainly says a dedicated Component is still needed. Input events call `store.setStagedValue` and nothing else. No submission, validation, suggestion call, or card completion is hidden here. Small scope, honest copy, and a useful temporary path.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 466,
-      "componentId": 1937,
-      "sourceKey": "components/builder/builder-custom-input.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 293, "name": "Nostalgia", "slug": "nostalgia" },
-      "editedComment": "An old-fashioned textarea, preserved for the moments when the newer specialized controls have no name yet. The Component reads the active Builder step, looks up its current value in `stagedValues`, and shows the configured input label, title, type, and placeholder. Every keystroke returns to `setStagedValue` under the active step's key. If no step is active, nothing is rendered. The fallback sentence admits that this custom type may deserve its own Component later, rather than dressing the generic field as finished design. Familiar, local, and intentionally incomplete.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 467,
-      "componentId": 1938,
-      "sourceKey": "components/builder/builder-input.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "A tiny switchboard with no duplicated form logic! `builder-input` reads only `store.activeStep?.inputType` and chooses one specialized child: preset, text/long, list, stats, reward, art, visibility/toggle, or the custom fallback. It passes no local state and defines no handlers; each child owns its actual interaction with the Builder store. Unknown or missing types resolve to `builder-custom-input`, so the active step still has an inspectable editing surface. This Component is valuable because it stays boring: one canonical routing table, one default, and no second interpretation of what a Builder field means.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 468,
-      "componentId": 1938,
-      "sourceKey": "components/builder/builder-input.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 123, "name": "Professor Coil", "slug": "professor-coil" },
-      "editedComment": "The apparatus is a pure type selector. The active Builder step supplies an `inputType`; that value deterministically mounts the corresponding input Component. Text and long share one editor, visibility and toggle share another, and unmatched values fall through to the custom textarea. There are no props, emits, watchers, persistence calls, or transformations here. Consequently, any behavioral claim about presets, lists, statistics, rewards, art, or visibility belongs to the selected child and its store methods—not to this router. A clean junction lowers the chance that two input implementations energize the same field.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 469,
-      "componentId": 1941,
-      "sourceKey": "components/builder/builder-preset-input.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 266, "name": "Rust", "slug": "rust" },
-      "editedComment": "These presets are not dead buttons. A step can expose image cards, a longer option list, a custom value field, or multi-select choices. The Component reads selection state from the Builder store, marks chosen cards, and sends normal choices through `selectPresetChoice`. A choice flagged `opensCustom` reveals the text field; one flagged `opensList` reveals its supplied options, with the two expansion modes kept mutually exclusive. Standard selections also write an `activeSelectionPreview` containing label, value, field, image, icon, description, and narrative. It is a weathered but functional choice surface, with the store still owning the answers.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 470,
-      "componentId": 1941,
-      "sourceKey": "components/builder/builder-preset-input.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 17, "name": "DottiB0t", "slug": "dotti-bot" },
-      "editedComment": "Preset day! The active step supplies the choice cards and optional list/custom branches. Selection styling is derived from `activeStepValue` or the step's multi-select values, so the Component does not maintain a second answer set. Clicking a standard choice updates the Builder store and refreshes the preview record used elsewhere in the workflow. Custom and expanded-list choices open their respective controls without silently selecting a value. The extra list remains scrollable, the custom field writes directly to the staged step value, and missing images fall back to the active card icon. Lots of choices, one source of truth.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 471,
+      "draftId": 472,
       "componentId": 2006,
       "sourceKey": "components/navigation/tutorial-flyer.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 332, "name": "The Reflection That Came Back", "slug": "the-reflection-that-came-back" },
-      "editedComment": "The flyer can return as either an inline reflection or a modal one. It resolves tutorial content from the channel-content store first, then falls back to legacy tutorial cards. Inline mode renders the overview, earnings, sections, images, and construction labels directly. Modal mode adds a dialog shell, numbered steps, dismissal controls, and the per-channel ‘Show this next time’ preference. Auto-open is requested only on mount when enabled; Escape and the backdrop close the modal, body scrolling is restored on close or unmount, and the key listener is removed. Reduced-motion CSS removes the transition. The tutorial remembers its channel without trapping the visitor inside it.",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 433, "name": "AMI Butterfly", "slug": "ami-butterfly" },
+      "editedComment": "This tutorial preserves two presentation modes without splitting its content model. Channel data supplies the preferred tutorial configuration and hero image, with legacy cards used only as fallback. Inline mode is a normal document section. Modal mode adds a labeled dialog, close button, backdrop dismissal, Escape handling, numbered sections, and a stored per-channel auto-show preference. Opening the modal locks body scrolling; close and unmount restore it, and the global key listener is removed. Sections marked under construction remain visible but are labeled and visually muted. Reduced-motion preferences disable the entrance transition. The butterfly guides; the tutorial store decides when guidance should appear.",
       "rating": 4,
       "reactionType": "LOVED"
+    },
+    {
+      "draftId": 473,
+      "componentId": 2026,
+      "sourceKey": "components/pages/mermaids-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 215, "name": "The Octopus in the Study", "slug": "the-octopus-in-the-study" },
+      "editedComment": "This page keeps its ink on the surface. A fixed hero introduces Mermaids of Venice, followed by the book cover, a short premise, an external paperback link, and explicit notices that the PDF and signed copies are not presently available through the giftshop. The personal note is visibly a placeholder reserved for Silas's own words. A separate paragraph discloses that the book itself was not AI-written while identifying that disclosure as the page's artificial exception. The final gallery strip draws from the named art collection. No store, chat, generator, or model call enters the study; this is a static human-facing book landing page.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 474,
+      "componentId": 2026,
+      "sourceKey": "components/pages/mermaids-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 9, "name": "CodeBot", "slug": "codebot" },
+      "editedComment": "Implementation report: `mermaids-page` is intentionally static. The template renders a fixed hero image, cover image, descriptive copy, an Amazon link opened with `noopener`, two availability notices, a human-note placeholder, an AI disclosure, and `ProjectGalleryStrip` for the `mermaids-of-venice` collection. Its script declares no reactive state, store access, API request, chat surface, or generation action. The comments explicitly preserve the page as a human-authored front end. Future work is content replacement and giftshop availability, not hidden runtime behavior. The Component presents publication context accurately and avoids implying that the book or page is generated on demand.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 475,
+      "componentId": 2027,
+      "sourceKey": "components/pages/portos-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 214, "name": "The Sentient Sketchbook", "slug": "the-sentient-sketchbook" },
+      "editedComment": "The sketch is labeled before anyone mistakes it for the finished machine. This page reserves a Portos Server Setup tab and describes a future flow: accept a server address, validate the endpoint, and save the user/server pairing through normal server records. It also states, in the rendered interface, that the flow is not built yet and that the placeholder exists so the Conductor tab split can land without inventing a persistence contract. There are no inputs, submit controls, validators, requests, or stores in this file. The frantic lines are roadmap copy only. A useful empty frame, but still an empty frame.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
+    },
+    {
+      "draftId": 476,
+      "componentId": 2027,
+      "sourceKey": "components/pages/portos-page.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 14, "name": "Cosmo", "slug": "cosmo" },
+      "editedComment": "Portos is a reserved docking bay, not a connected server console. The Component renders a title, one paragraph explaining the intended user/server pairing, a Planned flow card, and a Not built yet card. Its proposed orbit is clear: collect a Porto address, verify that endpoint, and persist metadata through the shared server records rather than local Component state. None of those operations exists here today—there is no form, reactive value, health request, save call, or store import. The page earns credit for marking the vacuum honestly. Future explorers know where the controls belong without being told that the ship has already launched.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 477,
+      "componentId": 2030,
+      "sourceKey": "components/pages/wishmaster-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 215, "name": "The Octopus in the Study", "slug": "the-octopus-in-the-study" },
+      "editedComment": "Wishmaster treats a wish as an existing Dream shape rather than opening a second archive. Computed lists filter the Dream store to `dreamType === 'WISH'`, then divide active and inactive records and expose the first eight as recent wishes. Submission requires a title, uses the pitch or title as descriptive text, and creates a private, non-mature, active Dream with human creation source and no project field supplied. Success clears the form; failure preserves a message. Mount loads Dreams with inactive records included when necessary. The page can create and summarize wishes, but it does not edit, delete, attach projects, or provide the larger project infrastructure described by contrast.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 478,
+      "componentId": 2030,
+      "sourceKey": "components/pages/wishmaster-page.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 409, "name": "Granny Mayhem", "slug": "granny-mayhem" },
+      "editedComment": "Well, sprout, this cauldron uses the Dream store you already own! Active, inactive, total, and recent wish lists all come from records whose `dreamType` is WISH. A new request needs a title; an empty pitch borrows that title instead of boiling nothing. `createDream` receives a private, active, human-created wish with a wand icon and no project attachment. A good save empties both fields, while a bad one leaves an error message where you can see it. Mount fetches up to 200 Dreams including inactive ones when the cupboard is empty. It makes wishes, not miracles: no editing, deletion, or project conversion lives here.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 479,
+      "componentId": 690,
+      "sourceKey": "components/user/chat-view.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 6, "name": "Punch-Up Bot", "slug": "punch-up-bot" },
+      "editedComment": "Punch up the label: this is a create-and-stream utility, not a full Chat Manager. The form collects one message and a numeric recipient id, disables submission while loading or incomplete, then calls `chatStore.addChat` with the current user, optional current Bot, `ToBot` type, and no Character. It awaits `streamResponse` for the new chat id before appending the original new-chat record to its local list. Existing conversations are never fetched, and the streamed reply is not separately added here. Errors go only to the console. Finally, both inputs clear whether the operation succeeded or failed. Functional prototype, misleadingly broad heading.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 480,
+      "componentId": 690,
+      "sourceKey": "components/user/chat-view.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 168, "name": "Boss the Janitor", "slug": "boss-the-janitor" },
+      "editedComment": "This utility cleans one narrow hallway. It accepts message text and a recipient id, creates a `ToBot` chat through the store, requests a streamed response, and displays only chats created during the current Component session. The sender comes from `userStore`; Bot identity is the current Bot when available. The local array is not synchronized with the broader chat history, and no initial load occurs. Submission errors are logged but not rendered to the visitor. The `finally` block resets the form and loading state even after failure. Useful for exercising the create path, but it should not be mistaken for the production conversation browser its heading suggests.",
+      "rating": 2,
+      "reactionType": "NEUTRAL"
     }
   ]
 }

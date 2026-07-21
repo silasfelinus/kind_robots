@@ -860,6 +860,7 @@ const isDragging = ref(false)
 const gallerySearch = ref('')
 const galleryThumbs = ref<Record<number, string>>({})
 const isLoadingGallery = ref(false)
+let gallerySelectionToken = 0
 
 const starterEntries = ref<StarterEntry[]>([])
 const isLoadingStarters = ref(false)
@@ -1146,6 +1147,8 @@ async function selectGalleryImage(image: ArtImage) {
   successMessage.value = ''
   selectedStarterFile.value = null
 
+  const token = ++gallerySelectionToken
+
   if (galleryThumbs.value[image.id]) {
     selectedSourceImage.value = image
     return
@@ -1156,6 +1159,8 @@ async function selectGalleryImage(image: ArtImage) {
       includeImageData: false,
       includeThumbnailData: true,
     })
+
+    if (token !== gallerySelectionToken) return
 
     if (fetched) {
       const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
@@ -1172,7 +1177,9 @@ async function selectGalleryImage(image: ArtImage) {
       selectedSourceImage.value = image
     }
   } catch {
-    selectedSourceImage.value = image
+    if (token === gallerySelectionToken) {
+      selectedSourceImage.value = image
+    }
   }
 }
 

@@ -512,7 +512,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref, watchEffect } from 'vue'
+import {
+  computed,
+  nextTick,
+  onUnmounted,
+  reactive,
+  ref,
+  watchEffect,
+} from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUploadStore } from '@/stores/uploadStore'
 import type { ConnectableModel, UploadMetadata } from '@/stores/uploadStore'
@@ -760,6 +767,16 @@ async function handleBatchUpload() {
   failedFiles.value = new Set(
     result.failed.map((r) => r.file).filter(Boolean) as File[],
   )
+
+  // Give the per-thumbnail success checkmark a frame to actually render
+  // before its item is spliced out of the queue (or the whole queue is
+  // cleared) below — both used to happen in this same synchronous tick,
+  // so `succeededFiles` was populated and then immediately made
+  // unobservable before Vue ever flushed a DOM update showing it.
+  if (succeededFiles.value.size) {
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 700))
+  }
 
   // Drop already-uploaded files from the queue so a retry click only
   // resubmits the ones that actually failed — otherwise a second click

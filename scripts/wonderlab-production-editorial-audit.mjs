@@ -324,6 +324,33 @@ const report = {
   },
   reviewerUsage,
   underrepresentedReviewers,
+  draftedAssignments: exhibitCoverage
+    .flatMap((exhibit) =>
+      exhibit.reviewers
+        .filter((reviewer) => reviewer.coverage === 'DRAFTED')
+        .map((reviewer) => ({
+          componentId: exhibit.componentId,
+          componentName: exhibit.componentName,
+          title: exhibit.title,
+          folderName: exhibit.folderName,
+          sourcePath: exhibit.sourcePath,
+          status: exhibit.status,
+          draftId: Number(reviewer.draftId) || null,
+          draftStatus: reviewer.draftStatus || null,
+          reviewer: {
+            ...reviewer.author,
+            name: reviewer.name,
+            slug: reviewer.slug,
+            score: reviewer.score,
+            reasons: reviewer.reasons,
+          },
+        })),
+    )
+    .sort((left, right) =>
+      left.componentId - right.componentId ||
+      left.reviewer.kind.localeCompare(right.reviewer.kind) ||
+      left.reviewer.id - right.reviewer.id,
+    ),
   priorityMissingAssignments: exhibitCoverage
     .flatMap((exhibit) =>
       exhibit.reviewers

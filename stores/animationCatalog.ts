@@ -156,6 +156,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'magnetic-sand-garden',
+    label: 'Magnetic Sand Garden',
+    reveal: 'The dunes reorganize',
+    icon: 'kind-icon:vortex',
+    tooltip: 'Metallic sand gathers into ridges and valleys; click to flip the field 🧲',
+    color: '#94a3b8',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'gravity-garden',
     label: 'Gravity Garden',
     reveal: 'The garden noticed you',

@@ -53,13 +53,13 @@ export default defineEventHandler(async (event) => {
       }
     }
     const { acceptedRow, inverseRow } = await acceptPair(existing.id)
-    await deleteFriendRequestNotifications({
-      requesterId: existing.userId,
-      recipientId: existing.relatedUserId,
-      relationId: existing.id,
-    })
     // Tell the original requester their request was accepted.
     if (existing.type === 'FRIEND') {
+      await deleteFriendRequestNotifications({
+        requesterId: existing.userId,
+        recipientId: existing.relatedUserId,
+        relationId: existing.id,
+      })
       const accepter = await prisma.user.findUnique({
         where: { id: userId },
         select: { username: true },

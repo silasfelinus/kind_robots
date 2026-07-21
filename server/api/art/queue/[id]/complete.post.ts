@@ -20,6 +20,7 @@ import {
   type ArtJobPayloadRecord,
 } from '../../../../utils/artJobPayload'
 import {
+  assertArtImageMatchesCompletion,
   attachCompletionTrace,
   normalizeArtPrompt,
   readArtJobProvenance,
@@ -120,6 +121,9 @@ function snapshotData(image: ArtImage): Prisma.ArtImageUncheckedCreateInput {
     checkpointResourceId: image.checkpointResourceId,
     designer: image.designer,
     genres: image.genres,
+    // Revision rows are historical render snapshots, not another canonical file
+    // placement. Keep their bytes and generation metadata but avoid duplicating
+    // path claims that still belong to the stable target ArtImage.
     imagePath: null,
     heroPath: null,
     cardPath: null,
@@ -257,10 +261,7 @@ export default defineEventHandler(async (event) => {
               verifiedAt: new Date().toISOString(),
             }
 
-      const tracedPayload = attachCompletionTrace(
-        job.payload,
-        completionTrace,
-      )
+      const tracedPayload = attachCompletionTrace(job.payload, completionTrace)
       const retry = readRetry(job.payload)
       const savePolicy = readSavePolicy(job.payload)
 
@@ -302,11 +303,16 @@ export default defineEventHandler(async (event) => {
           }
 
           assertUploadedPrompt(job.payload, staged)
+          assertArtImageMatchesCompletion(completionTrace, staged.imageData)
 
           const archived = await tx.artImage.create({
             data: snapshotData(target),
           })
 
+          // ArtJobs are historical render records. Move every prior job that
+          // referenced the canonical id onto the archived snapshot before the
+          // canonical row is replaced, keeping trainer feedback tied to its
+          // original pixels.
           await tx.artJob.updateMany({
             where: {
               artImageId: targetArtImageId,
@@ -353,6 +359,7 @@ export default defineEventHandler(async (event) => {
         }
 
         assertUploadedPrompt(job.payload, uploaded)
+        assertArtImageMatchesCompletion(completionTrace, uploaded.imageData)
 
         updated = await prisma.artJob.update({
           where: { id },

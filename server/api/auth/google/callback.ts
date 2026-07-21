@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'
 
   try {
-    const tokenResponse = await $fetch<GoogleTokenResponse>(
+    const tokenResponse = await $fetch<GoogleTokenResponse, string>(
       'https://oauth2.googleapis.com/token',
       {
         method: 'POST',
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
 
     const { access_token } = tokenResponse
 
-    const userInfo = await $fetch<GoogleUserInfoResponse>(
+    const userInfo = await $fetch<GoogleUserInfoResponse, string>(
       'https://www.googleapis.com/oauth2/v3/userinfo',
       { headers: { Authorization: `Bearer ${access_token}` } },
     )

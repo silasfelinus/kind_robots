@@ -296,9 +296,23 @@ function isInProgress(setSlug: string, pageId: string): boolean {
   return coloringStore.inProgressPageIds.includes(`${setSlug}/${pageId}`)
 }
 
+// Plain `fetch`, not Nuxt's `$fetch`, for these three: they're static public/
+// data files, not server/api/** routes, but $fetch's generic overload still
+// resolves every request against the full typed NitroFetchRequest route-key
+// union — expensive, and got expensive enough to push vue-tsc over its
+// recursion limit (TS2589) once appmaker/t-009 added a couple more route
+// files. All three only ever run client-side (loadSets is onMounted-only,
+// openPage is a user click), so a relative URL resolves fine.
+async function fetchStaticJson<T>(url: string): Promise<T> {
+  const response = await fetch(url)
+  return (await response.json()) as T
+}
+
 async function loadSetSlugs(): Promise<string[]> {
   try {
-    const index = await $fetch<{ sets: string[] }>(`${DATA_BASE}/index.json`)
+    const index = await fetchStaticJson<{ sets: string[] }>(
+      `${DATA_BASE}/index.json`,
+    )
     return Array.isArray(index?.sets) && index.sets.length
       ? index.sets
       : FALLBACK_SET_SLUGS
@@ -314,7 +328,9 @@ async function loadSets() {
     const slugs = await loadSetSlugs()
     const loaded = await Promise.all(
       slugs.map((slug) =>
-        $fetch<ColoringSetManifest>(`${DATA_BASE}/${slug}/manifest.json`),
+        fetchStaticJson<ColoringSetManifest>(
+          `${DATA_BASE}/${slug}/manifest.json`,
+        ),
       ),
     )
 
@@ -329,7 +345,7 @@ async function openPage(set: ColoringSetManifest, pageRef: ColoringSetPageRef) {
   loadError.value = ''
 
   try {
-    const definition = await $fetch<ColoringPageDefinition>(
+    const definition = await fetchStaticJson<ColoringPageDefinition>(
       `${DATA_BASE}/${set.slug}/${pageRef.file}`,
     )
 

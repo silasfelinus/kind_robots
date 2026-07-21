@@ -134,7 +134,7 @@ export default defineEventHandler(async (event) => {
 
     const url = getA1111OptionsUrl(server)
 
-    const res = await $fetch<SDOptionsResponse>(url, {
+    const res = await $fetch<SDOptionsResponse, string>(url, {
       method: 'GET',
       headers: buildServerHeaders(server),
       timeout: 20_000,

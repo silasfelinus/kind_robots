@@ -202,7 +202,7 @@ const sendBrevoEmail = async (data: FormData & { totalCost: number }) => {
   }
 
   try {
-    await $fetch('https://api.brevo.com/v3/smtp/email', {
+    await $fetch<unknown, string>('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
         'api-key': apiKey, // Safely pass the API key now

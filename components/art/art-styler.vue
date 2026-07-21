@@ -1088,9 +1088,19 @@ async function loadStarterEntries(): Promise<void> {
   isLoadingStarters.value = true
 
   try {
-    starterEntries.value = await $fetch<StarterEntry[]>(
+    // Plain `fetch`, not Nuxt's `$fetch`: this is a static public/ asset, not
+    // a server/api/** route, but `$fetch`'s generic overload still resolves
+    // every request against the full typed NitroFetchRequest route-key union
+    // (TypedInternalResponse/MatchedRoutes). That match gets more expensive
+    // as server/api/** grows and pushed vue-tsc over its recursion limit
+    // here (TS2589) once appmaker/t-009 added a couple more route files —
+    // this call only ever runs client-side (triggered by a sourceTab watcher
+    // on user interaction), so a relative URL resolves fine without $fetch's
+    // isomorphic base-URL handling.
+    const response = await fetch(
       '/images/academy/starters/starters.manifest.json',
     )
+    starterEntries.value = (await response.json()) as StarterEntry[]
   } catch (error) {
     console.warn('[art-styler] loadStarterEntries:', error)
   } finally {

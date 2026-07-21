@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {
+  assertArtImageMatchesCompletion,
   enrichArtJobPayload,
+  hashArtImageData,
   validateArtJobCompletionProof,
 } from '../../server/utils/artJobProvenance'
 
@@ -31,6 +33,14 @@ function workflow(prompt: string, seed: number) {
 
 const promptA = 'A vampire family portrait in a velvet crypt lounge.'
 const promptB = 'A lighthouse keeper confronting a sea monster.'
+const imageDataA = Buffer.from('job-a-pixels').toString('base64')
+const imageDataB = Buffer.from('job-b-pixels').toString('base64')
+const imageHashA = hashArtImageData(imageDataA)
+const imageHashB = hashArtImageData(imageDataB)
+
+assert.ok(imageHashA)
+assert.ok(imageHashB)
+assert.notEqual(imageHashA, imageHashB)
 
 const attemptA = enrichArtJobPayload(
   'COMFY',
@@ -106,6 +116,7 @@ const verified = validateArtJobCompletionProof(attemptA.payload, {
   promptHash: attemptA.provenance.promptHash,
   workflowHash: attemptA.provenance.workflowHash,
   workflowPromptHash: attemptA.provenance.workflowPromptHash,
+  imageHash: imageHashA,
   output: {
     filename: 'job-a.png',
     subfolder: '',
@@ -115,6 +126,12 @@ const verified = validateArtJobCompletionProof(attemptA.payload, {
 
 assert.equal(verified.verified, true)
 assert.equal(verified.promptId, 'comfy-prompt-a')
+assertArtImageMatchesCompletion(verified, imageDataA)
+assert.throws(
+  () => assertArtImageMatchesCompletion(verified, imageDataB),
+  /bytes do not match/i,
+  'a correct prompt_id tuple must not be associated with different uploaded pixels',
+)
 
 assert.throws(
   () =>
@@ -124,6 +141,7 @@ assert.throws(
       promptHash: attemptA.provenance.promptHash,
       workflowHash: attemptB.provenance.workflowHash,
       workflowPromptHash: attemptB.provenance.workflowPromptHash,
+      imageHash: imageHashB,
       output: {
         filename: 'job-b.png',
         subfolder: '',

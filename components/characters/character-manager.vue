@@ -75,7 +75,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from '#app'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useNavStore } from '@/stores/navStore'
 import {
@@ -88,6 +89,7 @@ import {
 
 const dashboardKey: DashboardKey = 'character'
 
+const route = useRoute()
 const characterStore = useCharacterStore()
 const navStore = useNavStore()
 
@@ -151,8 +153,23 @@ async function loadManagerData(force = false) {
   }
 }
 
+function querySelectionId(value: unknown): number | null {
+  const raw = Array.isArray(value) ? value[0] : value
+  const id = Number(raw)
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
+async function syncCharacterFromRoute(): Promise<void> {
+  const id = querySelectionId(route.query.characterId)
+  if (!id) return
+
+  navStore.setDashboardTab(dashboardKey, 'characters')
+  await characterStore.selectCharacter(id)
+}
+
 async function refreshManagerData() {
   await loadManagerData(true)
+  await syncCharacterFromRoute()
 }
 
 function goToDefaultTab() {
@@ -161,5 +178,13 @@ function goToDefaultTab() {
 
 onMounted(async () => {
   await loadManagerData()
+  await syncCharacterFromRoute()
+
+  watch(
+    () => route.query.characterId,
+    () => {
+      void syncCharacterFromRoute()
+    },
+  )
 })
 </script>

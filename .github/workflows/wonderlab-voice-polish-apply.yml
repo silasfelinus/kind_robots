@@ -1,0 +1,230 @@
+name: WonderLab Voice Polish Apply
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-apply.yml'
+      - 'scripts/apply-wonderlab-voice-polish-batch.mjs'
+      - 'config/wonderlab-voice-polish-batch-*.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-apply.yml'
+      - 'scripts/apply-wonderlab-voice-polish-batch.mjs'
+      - 'config/wonderlab-voice-polish-batch-*.json'
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: 'Voice-polish manifest path'
+        required: false
+        default: 'config/wonderlab-voice-polish-batch-001.json'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: wonderlab-voice-polish-apply
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate guarded voice-polish manifest
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate scripts and manifest
+        run: |
+          set -euo pipefail
+          node --check scripts/apply-wonderlab-voice-polish-batch.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const path = 'config/wonderlab-voice-polish-batch-001.json'
+          const manifest = JSON.parse(fs.readFileSync(path, 'utf8'))
+          assert.equal(manifest.version, 1)
+          assert.match(manifest.minimumProductionCommit, /^[0-9a-f]{40}$/)
+          assert.ok(Array.isArray(manifest.revisions))
+          assert.ok(manifest.revisions.length > 0 && manifest.revisions.length <= 20)
+          assert.ok(new Set(manifest.revisions.map((entry) => entry.componentId)).size <= 10)
+          assert.equal(new Set(manifest.revisions.map((entry) => entry.draftId)).size, manifest.revisions.length)
+          assert.equal(new Set(manifest.revisions.map((entry) => entry.reactionId)).size, manifest.revisions.length)
+          for (const entry of manifest.revisions) {
+            assert.ok(Number.isInteger(entry.draftId) && entry.draftId > 0)
+            assert.ok(Number.isInteger(entry.reactionId) && entry.reactionId > 0)
+            assert.ok(Number.isInteger(entry.componentId) && entry.componentId > 0)
+            assert.ok(['BOT', 'CHARACTER'].includes(entry.author?.kind))
+            assert.ok(Number.isInteger(entry.author?.id) && entry.author.id > 0)
+            assert.match(entry.expectedCurrentCommentHash, /^[0-9a-f]{64}$/)
+            assert.ok(entry.sourceKey.endsWith('.vue') && fs.existsSync(entry.sourceKey))
+            assert.ok(entry.editedComment.trim().length >= 80)
+            assert.ok(entry.editedComment.length <= 2000)
+          }
+          const runner = fs.readFileSync('scripts/apply-wonderlab-voice-polish-batch.mjs', 'utf8')
+          for (const required of [
+            '/review-drafts/${revision.draftId}/revise',
+            'expectedCurrentCommentHash',
+            'assertPublicLock',
+            'beforeDraft.status',
+            'afterDraft.status',
+            'publisherUserId',
+          ]) assert.ok(runner.includes(required), `missing guarded apply boundary: ${required}`)
+          for (const forbidden of [
+            '/publish',
+            '/generate',
+            '/approve',
+            '/reject',
+            'DATABASE_URL',
+            'prisma.',
+          ]) assert.ok(!runner.includes(forbidden), `voice-polish runner crossed boundary: ${forbidden}`)
+          console.log('WonderLab guarded voice-polish manifest passed.')
+          NODE
+
+  apply:
+    name: Revise published reviews in place
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-voice-polish-apply]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Resolve manifest
+        id: manifest
+        env:
+          INPUT_MANIFEST: ${{ github.event.inputs.manifest || 'config/wonderlab-voice-polish-batch-001.json' }}
+        run: |
+          set -euo pipefail
+          test -f "$INPUT_MANIFEST"
+          echo "path=$INPUT_MANIFEST" >> "$GITHUB_OUTPUT"
+          echo "minimum=$(jq -r '.minimumProductionCommit' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
+          echo "batch=$(jq -r '.batchId' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
+      - name: Verify revision endpoint ancestry
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          MINIMUM_COMMIT: ${{ steps.manifest.outputs.minimum }}
+        run: |
+          set -euo pipefail
+          body="$(curl -sf --max-time 20 "$BASE_URL/api/version")"
+          live="$(printf '%s' "$body" | jq -r '.data.commit // empty')"
+          test -n "$live"
+          if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+            git fetch --quiet origin main
+          fi
+          if ! git merge-base --is-ancestor "$MINIMUM_COMMIT" "$live"; then
+            echo "::error::Production $live does not contain guarded revision commit $MINIMUM_COMMIT."
+            exit 1
+          fi
+          echo "Production $live contains the guarded revision endpoint."
+      - name: Apply exact voice-polish revisions
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_VOICE_POLISH_MANIFEST: ${{ steps.manifest.outputs.path }}
+          WONDERLAB_VOICE_POLISH_OUTPUT: wonderlab-voice-polish-apply-artifacts
+        run: node scripts/apply-wonderlab-voice-polish-batch.mjs
+      - name: Re-audit oldest published reviews
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_VOICE_POLISH_OUTPUT: wonderlab-voice-polish-post-audit
+          WONDERLAB_VOICE_POLISH_LIMIT: '120'
+          WONDERLAB_VOICE_POLISH_MAX_DRAFT_ID: '260'
+        run: node scripts/wonderlab-voice-polish-inventory.mjs
+      - name: Upload voice-polish evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-voice-polish-${{ steps.manifest.outputs.batch }}-${{ github.run_id }}
+          path: |
+            wonderlab-voice-polish-apply-artifacts
+            wonderlab-voice-polish-post-audit
+          retention-days: 30
+      - name: Update rollout ledger
+        uses: actions/github-script@v7
+        env:
+          APPLY_REPORT: wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.json
+          APPLY_COMMENT: wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.md
+          AUDIT_REPORT: wonderlab-voice-polish-post-audit/wonderlab-voice-polish-inventory.json
+        with:
+          script: |
+            const fs = require('node:fs')
+            const apply = JSON.parse(fs.readFileSync(process.env.APPLY_REPORT, 'utf8'))
+            const audit = JSON.parse(fs.readFileSync(process.env.AUDIT_REPORT, 'utf8'))
+            const report = fs.readFileSync(process.env.APPLY_COMMENT, 'utf8')
+            const marker = `<!-- WONDERLAB_VOICE_POLISH_BATCH:${apply.batchId} -->`
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const body = [
+              marker,
+              report.trim(),
+              `- **Technical/template-heavy candidates after batch:** ${audit.scan.flaggedTechnicalReviews}`,
+              `- **Workflow:** [run ${context.runId}](${runUrl})`,
+            ].join('\n')
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 582,
+              per_page: 100,
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: 582,
+                body,
+              })
+            }
+
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 582,
+            })
+            const start = '<!-- WONDERLAB_VOICE_POLISH_STATUS_START -->'
+            const end = '<!-- WONDERLAB_VOICE_POLISH_STATUS_END -->'
+            const current = issue.data.body || ''
+            const startIndex = current.indexOf(start)
+            const endIndex = current.indexOf(end)
+            const status = [
+              start,
+              '## Current WonderLab voice-polish status',
+              '',
+              `- Production: \`${audit.production.commit || 'unknown'}\` · deployment \`${audit.production.deploymentId || 'unknown'}\``,
+              `- Oldest published reviews inventoried: **${audit.scan.requestedPublishedReviews}**`,
+              `- Draft range: **#${audit.scan.firstDraftId}–#${audit.scan.lastDraftId}**`,
+              `- Published reviews revised in place: **${apply.revisedReviews} / ${audit.scan.requestedPublishedReviews}**`,
+              `- Components polished in this batch: **${apply.revisedComponents}**`,
+              `- Technical/template-heavy candidates remaining: **${audit.scan.flaggedTechnicalReviews}**`,
+              `- Latest apply workflow: [run ${context.runId}](${runUrl})`,
+              '- Revision state: **first guarded batch complete; additional personality passes pending**',
+              '',
+              end,
+            ].join('\n')
+            const next =
+              startIndex >= 0 && endIndex >= startIndex
+                ? `${current.slice(0, startIndex)}${status}${current.slice(endIndex + end.length)}`
+                : `${current.trimEnd()}\n\n${status}\n`
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 582,
+              body: next,
+            })

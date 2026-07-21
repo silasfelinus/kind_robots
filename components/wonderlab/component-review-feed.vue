@@ -62,7 +62,28 @@
         class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm"
       >
         <div class="flex items-start gap-3">
+          <NuxtLink
+            v-if="authorHref(review)"
+            :to="authorHref(review) as string"
+            class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/20 bg-primary/10 transition hover:border-primary/60 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :aria-label="authorLinkLabel(review)"
+            @click="prepareAuthorSelection(review)"
+          >
+            <img
+              v-if="authorAvatar(review)"
+              :src="normalizeImagePath(authorAvatar(review) as string)"
+              :alt="authorName(review)"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+            <Icon
+              v-else
+              :name="review.Author ? 'kind-icon:sparkles' : 'kind-icon:user'"
+              class="size-5 text-primary"
+            />
+          </NuxtLink>
           <div
+            v-else
             class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-primary/20 bg-primary/10"
           >
             <img
@@ -82,7 +103,15 @@
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="min-w-0">
-                <p class="truncate font-black">{{ authorName(review) }}</p>
+                <NuxtLink
+                  v-if="authorHref(review)"
+                  :to="authorHref(review) as string"
+                  class="block truncate font-black underline-offset-2 transition hover:text-primary hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  @click="prepareAuthorSelection(review)"
+                >
+                  {{ authorName(review) }}
+                </NuxtLink>
+                <p v-else class="truncate font-black">{{ authorName(review) }}</p>
                 <div class="mt-1 flex flex-wrap items-center gap-2">
                   <span
                     v-if="review.Author"
@@ -138,6 +167,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { Reaction } from '~/prisma/generated/prisma/client'
+import { useBotStore } from '@/stores/botStore'
+import { useCharacterStore } from '@/stores/characterStore'
 import { useReactionStore } from '@/stores/reactionStore'
 
 type PublicReviewUser = {
@@ -172,6 +203,8 @@ const props = withDefaults(
   },
 )
 
+const botStore = useBotStore()
+const characterStore = useCharacterStore()
 const reactionStore = useReactionStore()
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -235,6 +268,33 @@ function authorAvatar(review: PublicComponentReview): string | null {
 
 function authorRole(review: PublicComponentReview): string | null {
   return review.Author?.role || review.User?.Role || null
+}
+
+function authorHref(review: PublicComponentReview): string | null {
+  if (review.Author?.kind === 'BOT') return `/bots?bot=${review.Author.id}`
+  if (review.Author?.kind === 'CHARACTER') {
+    return `/characters?character=${review.Author.id}`
+  }
+
+  // There is not yet a public per-user dashboard route. Do not turn a private or
+  // unresolved publisher identity into a misleading link.
+  return null
+}
+
+function authorLinkLabel(review: PublicComponentReview): string {
+  const destination = review.Author?.kind === 'BOT' ? 'Bot Gallery' : 'Character Gallery'
+  return `View ${authorName(review)} in the ${destination}`
+}
+
+function prepareAuthorSelection(review: PublicComponentReview): void {
+  if (review.Author?.kind === 'BOT') {
+    void botStore.selectBot(review.Author.id)
+    return
+  }
+
+  if (review.Author?.kind === 'CHARACTER') {
+    void characterStore.selectCharacter(review.Author.id)
+  }
 }
 
 function normalizeImagePath(value: string): string {

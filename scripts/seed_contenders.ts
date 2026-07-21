@@ -10,7 +10,7 @@
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from '../server/utils/databaseAdapterConfig'
 
 type ContenderSeed = {
   slug: string
@@ -165,7 +165,9 @@ export function createSeedPrismaClient(): PrismaClient {
   if (!databaseUrl) {
     throw new Error('DATABASE_URL is required when running with --write')
   }
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+  // SSL-aware adapter (see server/utils/prisma.ts) — ProxySQL enforces TLS,
+  // and a bare `new PrismaMariaDb(url)` is rejected with "SSL is required".
+  return new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 }
 
 export async function seedContenders(

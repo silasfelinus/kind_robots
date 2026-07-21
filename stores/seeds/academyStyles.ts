@@ -1384,6 +1384,47 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image in the American Regionalist style: smooth, simplified sculptural forms with crisp outlines, sharp-focus representational realism, a rural Midwestern American setting, a dramatic rolling sky, and a muted earthy palette with a few bold accent colors',
     },
   },
+  {
+    slug: 'mughal-miniature',
+    name: 'Mughal Miniature Painting',
+    era: 'c. 1560–1650',
+    sortYear: 1560,
+    region: 'Imperial atelier, Mughal India',
+    keyIdeas:
+      "Akbar's Imperial atelier fused the flat, jewel-toned Persian manuscript tradition with Indian color sense and an increasingly naturalistic, observational eye — figures gained volume and individualized faces, and landscapes gained atmospheric recession that Persian miniatures deliberately avoided. Akbar-era works are crowded narrative scenes illustrating dynastic chronicles, built from teams of specialist painters. Under Jahangir the emphasis shifted from crowded narrative toward exacting single-subject portraiture and scientific nature studies. Gold is used more sparingly and locally than in Persian work, reserved for thrones, halos, and ornament rather than whole sky fields; fine stippled brushwork gives faces and fabric a rounded, sculptural finish quite distinct from Persian flat color fields.",
+    recognitionCues: [
+      "Individualized, naturalistic faces with fine stippled modeling rather than Persian miniature's flatter, more stylized features",
+      "Landscape recedes with atmospheric haze and diminishing scale (unlike Persian miniature's higher-not-smaller convention)",
+      'Gold used locally and sparingly — thrones, halos, jewelry — not as a flat background field',
+      'Crowded, staged narrative compositions (Akbar-era) or a single emphatically isolated portrait/animal/plant subject on a plain ground (Jahangir-era)',
+      'Fine, dense brushwork rendering brocade and jewelry with near-scientific precision',
+      'A wide decorative border of scrollwork or florals framing the central scene, separate in style from the painting itself',
+    ],
+    artists: [
+      {
+        name: 'Basawan',
+        years: 'fl. 1560–1600',
+        note: "Leading painter of Akbar's atelier, celebrated for naturalistic figures and psychological nuance within densely staged Akbarnama narrative scenes.",
+      },
+      {
+        name: 'Bichitr',
+        years: 'fl. 17th century, active into the 1640s',
+        note: 'Court painter under Jahangir and Shah Jahan known for elaborate allegorical compositions and precise portraiture.',
+      },
+      {
+        name: 'Ustad Mansur',
+        years: 'fl. c. 1590 – d. 1624',
+        note: "Jahangir's court naturalist-painter, titled Nadir al-Asr (\"Wonder of the Age\"), renowned for scientifically exacting studies of birds, animals, and plants.",
+      },
+    ],
+    failureMode:
+      'Risks collapsing into a generic "Indo-Persian miniature" filter indistinguishable from Persian Miniature Painting — lean on stippled naturalistic faces, atmospheric haze, and sparing local gold to keep the two movements visually distinct',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Mughal miniature: naturalistic, individualized faces with fine stippled modeling, atmospheric landscape recession, gold used sparingly for thrones/halos/ornament only, dense precise brushwork on brocade and jewelry, and a wide floral or scrollwork decorative border, distinct from flatter Persian miniature color fields',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> =

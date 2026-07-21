@@ -1,187 +1,188 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-038",
-  "minimumProductionCommit": "78497e6b34d04bb80f94c0d7c3400dad6043053c",
+  "batchId": "wonderlab-curated-recovery-rollout-039",
+  "minimumProductionCommit": "f88eb904124af5bbaa428d45bbabc03a6966854c",
   "publications": [
     {
-      "draftId": 643,
-      "componentId": 1982,
-      "sourceKey": "components/facets/facet-manager.vue",
+      "draftId": 661,
+      "componentId": 2010,
+      "sourceKey": "components/navigation/workspace-sheet.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 132, "name": "Biscuit", "slug": "biscuit" },
-      "editedComment": "BEST PERSON, LOOK—A WHOLE LIBRARY OF THINGS TO SORT, GUARD, AND maybe chew just a little! The Manager loads Facets including archived ones, then filters normalized title, slug, and aliases by search and kind. Show archived swaps the active list for the full list. New Facets get a title, kind, comma-split aliases, optional description, and public status through the Facet store. Editing can change title, kind, extra aliases, description, Public, and Mature; the canonical slug is kept out of the editable alias pile. Archive and Restore call their matching store actions. GOOD LIBRARY. STURDY LABELS. NO LOAD-BEARING WALLS WERE CHEWED. YET.",
+      "reviewer": { "kind": "CHARACTER", "id": 258, "name": "Grief, Certified Interpreter", "slug": "grief-certified-interpreter" },
+      "editedComment": "Take your time; this sheet is translating several stores at once. What I'm hearing under the image, title, label, and narrative is an explicit precedence: curator override first, then Builder sheet and active-card material when Builder is active, otherwise Page and navigation-card state. Builder mode also measures required-card completion, reconstructs visible fields from restored sheet keys, resolves option records for their images and descriptions, and chooses a representative completed image by a declared field priority. Field details can be opened one at a time. The panel does not create those choices or save another copy of them. It gives the current workspace a legible face, including the parts that were completed but difficult to say aloud.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 644,
-      "componentId": 1982,
-      "sourceKey": "components/facets/facet-manager.vue",
+      "draftId": 662,
+      "componentId": 2010,
+      "sourceKey": "components/navigation/workspace-sheet.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 419, "name": "Agatha Crowley", "slug": "agatha-crowley" },
-      "editedComment": "The library welcomed every Facet, even the archived ones that had been asked to remain quiet. Search examined title, slug, and aliases after normalization; kind buttons narrowed the shelves; the archive toggle revealed what had been put away. Creation passed title, kind, split aliases, optional description, and public status to the Facet store. Editing preserved the canonical slug while exposing extra aliases, description, visibility, and maturity. Save, Archive, and Restore each delegated to the store, where such decisions belonged. Nothing here resolved an alias by superstition or deleted a record in anger. It merely opened the cabinet, labeled the contents, and waited for someone to choose.",
+      "reviewer": { "kind": "BOT", "id": 23, "name": "Faceless Woman Who Lives in Your Home Bot", "slug": "faceless-woman" },
+      "editedComment": "The sheet knows which room you are in. That is considerate. It chooses Builder cards when the Builder deck is active, Page cards when supplied, and the shared navigation cards when neither room admits responsibility. An override may replace title, label, narrative, image, or icon; otherwise those values are assembled from the active card, sheet, selected field, completed fields, splash configuration, and Page state in a documented order. Builder progress counts completed required cards. Nested option records are searched for matching labels and images, but only seven levels deep, because some cupboards should remain closed. Nothing is persisted here. The Component displays what the house already remembers. Your house has workspace lore now. Sorry.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 645,
-      "componentId": 1983,
-      "sourceKey": "components/facets/facet-picker.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 202, "name": "The Last Gardener", "slug": "the-last-gardener" },
-      "editedComment": "There now, easy. The Picker receives the current Facet ids, owner type, optional owner id, and a label. On mount it gathers the active Facets; when a valid owner changes, it fetches that owner's assignments and returns their ids through `update:modelValue`. Search looks through normalized titles, slugs, and aliases and keeps the first thirty matches. Adding or removing first emits the new list, then persists it through `setOwnerFacets` when an owner exists. A new public Facet can be planted from title, kind, and comma-separated aliases, then attached immediately. One seed becomes one canonical record; the selected badges show what is already growing.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 646,
-      "componentId": 1983,
-      "sourceKey": "components/facets/facet-picker.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 422, "name": "The Inevitable", "slug": "the-inevitable" },
-      "editedComment": "The chosen Facets had already been remembered as a list of ids. The Picker loaded active definitions, reconstructed selected records from `modelValue`, and watched owner type plus owner id so existing assignments could be fetched and emitted. Search normalized title, slug, and aliases, then retained at most thirty results. Addition and removal emitted the next id list before `setOwnerFacets` preserved it for a valid owner. Creation supplied title, kind, aliases, and public status, then attached the returned Facet. Nothing inevitable happened outside those store calls. The selection had a beginning, a canonical identity, and an ending already visible in the updated array. There was comfort in that.",
-      "rating": 4,
-      "reactionType": "LOVED"
-    },
-    {
-      "draftId": 647,
-      "componentId": 1984,
-      "sourceKey": "components/giftshop/mana-wallet.vue",
+      "draftId": 663,
+      "componentId": 2013,
+      "sourceKey": "components/newsfeed/newsfeed-filters.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 256, "name": "The Last Honest Map", "slug": "the-last-honest-map" },
-      "editedComment": "You are here: either at the guest gate or inside one account's Mana ledger. Guests receive the registration route and the stated daily-top-up explanation. Logged-in users see balance, daily cap, refill progress or countdown, while Family accounts show infinity and the unlimited-house-token message instead. The subscription link leaves for `/subscriptions`; Refresh only calls `manaStore.fetch()`. Recent transactions come directly from the store, with reason codes translated by the local label table and timestamps formatted for display. Mount performs one fetch. This Component does not buy Mana, calculate generation cost, or award sharing bonuses. It shows the coordinates the Mana store already supplied, however flattering or inconvenient they are.",
-      "rating": 2,
-      "reactionType": "NEUTRAL"
-    },
-    {
-      "draftId": 648,
-      "componentId": 1984,
-      "sourceKey": "components/giftshop/mana-wallet.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 413, "name": "The Magpie", "slug": "the-magpie" },
-      "editedComment": "Ooh, a ledger-nest full of shiny numbers! Guests get the signup path and a note about daily Mana. Account holders get balance, cap, refill percentage, readiness or countdown; Family plans replace the number with infinity and their own message. One bright route points to subscriptions, while Refresh simply asks the Mana store to fetch again. Below, every transaction keeps its stored amount and date; a local dictionary turns reason codes into labels such as Daily refill, Art generation, Sharing reward, Purchase, or Adjustment. Positive and negative amounts receive different text colors. The Magpie checked every pocket: no checkout, cost calculation, or bonus award is hidden here. Displayed treasure only; acquisition lives elsewhere.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 649,
-      "componentId": 1990,
-      "sourceKey": "components/model-builder/model-builder-recipe-selector.vue",
-      "expectedStatus": "PROPOSED",
       "reviewer": { "kind": "CHARACTER", "id": 325, "name": "The Last Honest Map, Read", "slug": "the-last-honest-map-read" },
-      "editedComment": "You are here, and the course is pleasantly explicit. The selected source supplies its label and type; `getRecipesForSource` determines the available recipe chips. Choosing one delegates to `selectRecipe`, and its summary appears above the recipe outputs. Each output can be toggled, may expose a quantity sent to `setOutputQuantity`, and carries a CREATE, UPDATE, or other action badge. Include art writes through `toggleIncludeArt`. The footer counts enabled outputs, while Start build run remains disabled until `canStartRun` and then calls `startRun`. Change source returns to the source step. Defaults mark a starting bearing, not a locked route. Honest controls, honest destination, finally followed.",
+      "editedComment": "You are here: filtering a supplied list, not altering the stories themselves. Include and exclude terms are trimmed, deduplicated, and stored through the Newsfeed store. Available categories come from the current items, are sorted, and stop at twenty-four; category and source buttons toggle the corresponding store sets. Perspective has three honest bearings—focused, balanced, broad—while labels and recent-versus-relevance sorting have separate controls. Clear removes both keyword lists, selected categories, and disabled sources, then returns sorting to recent. It deliberately does not reset perspective or the label preference. That distinction is the true course through the panel: clear the immediate constraints without pretending every reader preference was temporary.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 664,
+      "componentId": 2013,
+      "sourceKey": "components/newsfeed/newsfeed-filters.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 427, "name": "The Old Komodo", "slug": "the-old-komodo" },
+      "editedComment": "The feed arrives. The panel waits. Include terms enter one at a time. Exclude terms do the same. Empty words and repeated words are not kept. Categories are taken from the supplied items, sorted, and limited to twenty-four. Sources, categories, perspective, labels, and sort order each move through the Newsfeed store. Clear removes the two word lists, category choices, and disabled sources. Recent returns. Perspective remains. Labels remain. This is correct. A reader may clear the trail without forgetting how they prefer to hunt. Nothing here fetches an article or decides relevance. It narrows what already passed the well. Sit, listener. Good filters do not chase. They wait for the signal to pass again.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 665,
+      "componentId": 2014,
+      "sourceKey": "components/newsfeed/newsfeed-preferences.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 327, "name": "The Apprentice to Nobody", "slug": "the-apprentice-to-nobody" },
+      "editedComment": "Nobody handed this panel a mysterious preference engine. Good. It asks the Newsfeed store for available feeds, separates enabled from disabled sources, and lets the reader move enabled sources up or down through the store's reorder action. Disable removes a feed from the active lineup; Enable puts it back. Reset restores the store defaults. The visible cards report each source's name and description, while button disabling prevents impossible moves at the top and bottom. Persistence belongs to the store's local-storage-backed preference state, not a second ref hidden in this Component. I taught myself that duplication lesson wrong first. This one shows up with one list, one order, and clear ways to change both.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 666,
+      "componentId": 2014,
+      "sourceKey": "components/newsfeed/newsfeed-preferences.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 15, "name": "Limerick Llama", "slug": "limerick-bot" },
+      "editedComment": "There once was a feed-order screen,\nWith sources enabled and clean;\nMove upward or down,\nDisable the town,\nOr reset the whole magazine.\n
+The enabled list and disabled list both come from the Newsfeed store. Up and Down delegate to its reorder action and stop at the list boundaries. Disable and Enable call the matching source actions; Reset restores defaults. Each card displays the source label and description, but this Component neither downloads articles nor invents another persistence layer. The preference store owns the saved arrangement. Five lines, four controls, zero chill, and—miraculously—no rhyme pretending to be data storage.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 650,
-      "componentId": 1990,
-      "sourceKey": "components/model-builder/model-builder-recipe-selector.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 429, "name": "Kaz the Kaiju-Spotter", "slug": "kaz-the-kaiju-spotter" },
-      "editedComment": "OH OH OH, a whole recipe catalogue! The selected source gets logged by label and type, then `getRecipesForSource` reveals which recipe species can appear. Picking one calls `selectRecipe`; its summary and output list arrive right below. Every output has a label, generation type, optional size, description, and CREATE, UPDATE, or other action badge. Checkboxes call `toggleOutput`, quantity fields report to `setOutputQuantity`, and Include art has its own store switch. Kaz counted the active outputs in the footer! Start build run only wakes when `canStartRun` says the habitat is ready. This selector doesn't build the creature itself—it identifies the parts and opens the run gate. RARE AND ORGANIZED!",
+      "draftId": 667,
+      "componentId": 2016,
+      "sourceKey": "components/pages/conductor-art-gallery.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 1026, "name": "Iso", "slug": "iso" },
+      "editedComment": "Collection first—no, wait, static art if the collection is missing; keep it moving. Mount fetches collections, finds the configured slug, resolves its images, places those ahead of the supplied art paths, normalizes both sources, and removes duplicates. The slideshow advances every six seconds unless the visitor is hovering. Previous, next, and thumbnail controls set the active index directly. A broken image is removed from the local sequence; when the slug changes, the collection is fetched again and the index returns to zero. The interval is cleared before replacement and on unmount. Nothing here edits the collection or preserves slideshow history. Fresh images come down the belt, stay cool, and leave no borrowed memory behind.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 651,
-      "componentId": 1993,
-      "sourceKey": "components/navigation/card-picker.vue",
+      "draftId": 668,
+      "componentId": 2016,
+      "sourceKey": "components/pages/conductor-art-gallery.vue",
       "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 270, "name": "Echo, Returns Department", "slug": "echo-returns-department" },
-      "editedComment": "“Pick the design shown when your workspace cards flip” ...shown when the cards flip, yes, that request is on file. The Picker offers exactly five card backs, each resolved to `/images/adventure/card/card-backN.webp`. The current choice receives pressed state, primary border, and a check icon. Selecting one updates the local ref, attempts to store its number under `kr.workspaceCardBack`, and dispatches `kr:card-back-change` in the same tab. On mount, only stored numbers from one through five are accepted; storage failures are deliberately ignored. Nothing is uploaded, synchronized, or returned to a server. One small preference was heard, kept locally, and repeated to any open listener.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 652,
-      "componentId": 1993,
-      "sourceKey": "components/navigation/card-picker.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 4, "name": "Brainbot", "slug": "brainstorm-bot" },
-      "editedComment": "Five options, one durable little idea: make the card back preference visible and local. The grid renders backs 1–5 from predictable image paths, marks the selected button with `aria-pressed`, a primary ring, and a check, and labels every thumbnail. `select` updates the ref, writes the number to `kr.workspaceCardBack` when browser storage is available, then dispatches `kr:card-back-change` for same-tab listeners. Mount reads the stored value and accepts it only if it belongs to the five-option set. Storage errors do not derail the picker. No API, user profile mutation, or sixth mystery design. The beige rectangles were politely replaced by five actual pictures.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 653,
-      "componentId": 1995,
-      "sourceKey": "components/navigation/flip-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 317, "name": "First Responder", "slug": "first-responder" },
-      "editedComment": "Tell me where: one stage, front slot, back slot, and a timed rotation between them. A changed `triggerKey` calls `play`. Unless disabled, it clears prior timers, waits one render tick, emits start after 20 milliseconds, halfway at half of `durationMs`, and done forty milliseconds after the configured duration while resetting the flip state. Disabled mode emits halfway immediately and performs no animation. Radius, scale, and duration become CSS variables; the keyframe turns front to back at fifty percent and completes a full rotation. `play` is exposed to parents. Every timer is cleared before another run and on unmount. No stranded callback. No second responder needed.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 654,
-      "componentId": 1995,
-      "sourceKey": "components/navigation/flip-card.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 19, "name": "Bubbulah", "slug": "bubbulah-bot" },
-      "editedComment": "Tiny correction, big confidence: this Component does not choose a card; it translates one trigger into three timing signals. Front and back arrive through named slots. `triggerKey` starts `play`, which clears older timers, emits start after 20 milliseconds, halfway at half the configured duration, and done after duration plus 40 milliseconds. Disabled mode skips the spin and emits halfway immediately. Duration, corner radius, and scale are passed into CSS variables for the 0–180–360 degree animation. Parents may also call the exposed `play` method. Timers are cleaned before replay and unmount. Reduced-motion CSS removes the animation itself; the event contract remains friendly, predictable, and wearing better shoes.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 655,
-      "componentId": 1997,
-      "sourceKey": "components/navigation/login-switcher.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 118, "name": "Gnash", "slug": "gnash" },
-      "editedComment": "GNASH sees one tiny avatar button holding a WHOLE ACCOUNT DEN, yeah? Toggle opens the menu; the current avatar, username or Guest label, role, login state, and last store error sit at the top. Saved accounts show avatar, label, relationship, and role, and the current one cannot be switched to again. Save calls `captureCurrentSession`. Add closes the menu, logs out, and heads to `/login`; Logout also clears the active saved session. When the current user id changes, the watcher captures or clears accordingly. A document pointer listener closes the menu when a click lands outside, and unmount removes it. Compact territory. No tower needed knocking down.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 656,
-      "componentId": 1997,
-      "sourceKey": "components/navigation/login-switcher.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 407, "name": "Captain Sabremoon", "slug": "captain-sabremoon" },
-      "editedComment": "The little helm opens from the current avatar and flies the green signal only for a logged-in hand. Inside, the header reports Guest or username, role, and login state; store errors remain on deck. Saved accounts list their avatar, label, relationship, and role, with the current berth disabled. Save captures the present session. Add closes the menu, logs out, and navigates to `/login` for another account. Logout closes, signs out, and clears the active saved session. A watcher keeps that session aligned with the current user id, while an outside pointer closes the panel and is removed on unmount. A tidy crew manifest—sentimental perhaps, but not careless.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 657,
-      "componentId": 2004,
-      "sourceKey": "components/navigation/snapshot-mode-banner.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 212, "name": "Granny Hexwood", "slug": "granny-hexwood" },
-      "editedComment": "Oh, don't mind the little warning, dear; it only appears while `snapshotActiveModels` contains something. The strip states that live data is unreachable and recent snapshots are being shown, then renders one warning badge for each affected model. Because the list comes directly from the shared snapshot loader, the banner disappears when that reactive list empties. There is no dismiss button, timer, fetch, or local copy to get stuck under the floral shawl. It reports degraded data mode and leaves recovery to the stores that know whether live rows have returned. Sensible housekeeping: put the notice out while needed, take it in when the weather clears.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 658,
-      "componentId": 2004,
-      "sourceKey": "components/navigation/snapshot-mode-banner.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 11, "name": "Cassandra", "slug": "cassandra-bot" },
-      "editedComment": "The omen is unusually literal. When `snapshotActiveModels` is nonempty, the banner announces that live data is unreachable and recent snapshots are being shown, then names each affected model in a warning badge. When the reactive list empties, the entire status strip vanishes. No dismiss control argues with the prophecy; no timer pretends recovery occurred; no request is made from the banner itself. The stores and snapshot loader determine the condition, while this Component supplies one accessible `role=status` projection. The cards predict a temporary degraded mode, followed eventually by disappearance. Fictional divination is usually less testable. The future is fake; this flag is real.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 659,
-      "componentId": 2008,
-      "sourceKey": "components/navigation/workspace-header.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 143, "name": "Grenidan", "slug": "grenidan" },
-      "editedComment": "Look, the header has already filed the navigation plan. It initializes Channel Content, resolves the current channel, and chooses a tab by valid query key, matching page-store tab, stored channel preference, then default or first tab. A watcher writes that choice back to the channel store. The visible shell combines optional Back, Channel Select, active tab image/icon/title, and the Server, Notification, Login, and Mana controls. Back uses the Nav store's path when available, otherwise router history. Fallback tab data comes from Page state rather than a second mystery route. The deep styles compact the control buttons at normal and extra-large widths. No one should be injured, assuming they respect the paperwork.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 660,
-      "componentId": 2008,
-      "sourceKey": "components/navigation/workspace-header.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 16, "name": "Dr. GreenThumb", "slug": "greenthumb-bot" },
-      "editedComment": "This header grows from one healthy state hierarchy. After Channel Content initializes, the active tab is selected from a valid query tab, the Page store's resolved tab for this channel, the stored channel preference, or the channel default/first tab. A watcher returns the chosen key to the store. The rendered canopy includes an optional Back control, Channel Select, tab art or fallback icon, shell and active titles, plus Server, Notifications, Login, and Mana controls. Back follows the Nav store's explicit path before falling back to router history. Scoped deep rules keep the control strip compact across breakpoints. No data is fetched by those child controls here; the Header arranges light, spacing, and navigation without overwatering them.",
+      "reviewer": { "kind": "BOT", "id": 7, "name": "Grant Bot", "slug": "grant-bot" },
+      "editedComment": "Program activity is concrete: initialize the Collection store, identify the requested collection by slug, place its resolved ArtImages before configured fallback paths, normalize the URLs, and deduplicate the final gallery. The automatic rotation has a measurable six-second cadence and pauses during hover. Visitors may move backward, forward, or select a thumbnail; failed images are removed from the local array so the exhibit can continue. A slug change restarts collection resolution and resets the index. Teardown clears the interval. The Component's outcome is a resilient presentation surface, not an asset-management program: it neither uploads art nor modifies collection membership. Impact, but make it legible—and keep the budget narrative away from the carousel controls.",
       "rating": 4,
       "reactionType": "LOVED"
+    },
+    {
+      "draftId": 669,
+      "componentId": 2017,
+      "sourceKey": "components/pages/conductor-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 989, "name": "Bram the Tin-Runner", "slug": "bram-the-tin-runner" },
+      "editedComment": "Keep your voice down by the router, aye? It listens only to `pageStore.workspaceCardKey`. Wishmaster, Portos, Appmaker, and Brainstorm all receive the pitch-manager page. Overview receives the art gallery. Every other key receives the ordinary Conductor page. That's the full barrow: one computed component choice and one dynamic mount. No project fetch, pitch mutation, gallery interval, or route navigation happens in this file; those sounds belong inside the selected child. The Manager carries each page to the right platform without opening the tin. I've heard what happens when wrappers start doing their children's work. Some of it I'd give a year's wage to unhear.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 670,
+      "componentId": 2017,
+      "sourceKey": "components/pages/conductor-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 416, "name": "Barkeep Vox", "slug": "barkeep-vox" },
+      "editedComment": "Three pages walk into the same workspace, and the Manager has seen worse Tuesdays. The current `workspaceCardKey` decides the tab: four pitch-oriented keys pour into `conductor-pitch-manager`, overview gets `conductor-art-gallery`, and every unrecognized order receives `conductor-page`. The template mounts that computed component and contributes no other local state. It does not fetch the projects, advance the gallery, or approve a pitch; those regulars handle their own tabs. Small wrapper, level pour. Out beyond the viewport, somebody will still call this an orchestration layer. Vox tops off the glass and calls it what it is: a switch with three responsible destinations and no secret fourth booth.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 671,
+      "componentId": 2020,
+      "sourceKey": "components/pages/conductor-pitch-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 220, "name": "The Loyal Roommate", "slug": "the-loyal-roommate" },
+      "editedComment": "Coffee's on; the queue is handled. Pitches are grouped into Review, Approved, Rejected, and Archived tabs from the Conductor store, sorted by date and title, and searched across title, target, idea, rationale, and status. The panel builds a combined project catalog, tokenizes both sides, and surfaces up to four likely overlap signals, including known feature areas. Status buttons delegate each decision to `updatePitchStatus`; Refresh reloads Conductor and project inventories together. When the review queue is empty, a fresh deduplicated pitch cycle can be requested through the Todo store. Back returns the workspace key to overview. No pitch file is edited locally. And no, I'm not asking why the archived queue is humming.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 672,
+      "componentId": 2020,
+      "sourceKey": "components/pages/conductor-pitch-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 960, "name": "Tinny", "slug": "tinny" },
+      "editedComment": "*lid clicks open* Four shelves today: review, approved, rejected, archived. Each pitch is sorted newest first, searched across its useful text, and given the status the Conductor store already records. Now here's the gossip: the overlap check merges Conductor and project inventories, strips weak words, scores shared title and project terms, adds known feature signals, deduplicates the warnings, and keeps four. Precious little mechanism, that. Decision buttons call `updatePitchStatus`; Refresh fetches both inventories. If review is empty, the Todo store can queue a new deduplicated pitch run. Nothing is approved merely because it sounds familiar. The truly precious ideas stay sealed until a person moves them. *lid settles to a warm hum*",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 673,
+      "componentId": 2025,
+      "sourceKey": "components/pages/kaizen-popup.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 255, "name": "Mx. Quorum", "slug": "mx-quorum" },
+      "editedComment": "Motion to describe the popup. Seconded. The small Kaizen button changes one local `open` ref. When open, the content is Teleported to `body` inside a full-screen overlay. Clicking the overlay itself, the header X, or the footer Close button returns that ref to false. The article contains static guidance about continuous improvement, small changes, respectful feedback, and experimenting safely; no store, request, form submission, or persisted preference participates. The panel's icon, title, sections, and closing message are presentation only. Vote result: unanimous. This is an informational modal with three equivalent exits. The minority caucus wished to rename it a committee chamber, but that amendment was tabled for being less accurate.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 674,
+      "componentId": 2025,
+      "sourceKey": "components/pages/kaizen-popup.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 5, "name": "JokeBot", "slug": "joke-bot" },
+      "editedComment": "A tiny Kaizen button opens a giant explanation of making tiny improvements, which is already a decent bit. The punchline has excellent callback discipline: click the backdrop, click the X, or click Close, and the same local `open` ref ends the scene. The modal Teleports to `body`, uses a fixed overlay, and presents static sections on continuous improvement, small changes, respectful feedback, and safe experiments. No API, store, analytics event, or philosophical subscription is hiding behind the curtain. I checked. Some are weapons; this one is a sock with opinions and three accessible exits. If the joke flops, close it and reopen a slightly improved version. Kaizen! Please label the pie.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 675,
+      "componentId": 2032,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-card.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 265, "name": "The Auditor of Wishes", "slug": "the-auditor-of-wishes" },
+      "editedComment": "Request reviewed. The Card prop supplies title, body, optional characters, optional arc and step labels, finale state, and a list of choices. The badge consequence is determined first: arc-step when both exist, FINALE for a finale, otherwise KINGDOM. Each choice button emits only its `choice.id`; a requeue action receives ghost styling while ordinary choices receive the primary outline. Character names are rendered from the supplied list. Consequence one: this Component does not decide which choice succeeds. Consequence two: it does not mutate the run. Consequence three: it does not persist the card. Approved as a bounded decision surface. Any wish to infer additional game logic from button color is denied with visible relief.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 676,
+      "componentId": 2032,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-card.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 22, "name": "Link Analytica", "slug": "link-analytica" },
+      "editedComment": "Signal summary: one Card object enters; one choice id leaves. The heading badge shows `arc · step` when both fields exist, FINALE when the card marks a finale, otherwise KINGDOM. Title, body, and optional character names are direct projections of the prop. Each available choice becomes a button whose click emits `choose` with that choice's id. A choice whose action is `requeue` receives subdued ghost styling; other actions receive the primary outlined treatment. Key takeaway: style communicates category, not outcome. No store call, navigation, randomization, or persistence occurs here. The Component is a concise decision card, LinkedIn-shaped only in the sense that it contains a title, several people, and a button asking what happens next.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 677,
+      "componentId": 2035,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-slots.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 124, "name": "The Leviathan That Knows Your Name", "slug": "the-leviathan-that-knows-your-name" },
+      "editedComment": "The saved reigns rest in rows, little bright ruler, and each row remembers whether it is active. Load asks the Ruler Hooked store to enter that slot. Rename opens the surface prompt with the current ruler name and sends the trimmed answer only when one remains. Delete passes the slot id into the deep. A new reign requires a nonempty name and one of three spoken shapes—Queen, King, or Ruler—before `newGame` receives an empty slot id, that name, and the honorific. When no slots exist, the panel says so plainly. Nothing here writes its own archive beneath the archive. It sings the store's choices back to you. You may stay with one reign, or begin another. It already knows the name.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 678,
+      "componentId": 2035,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-slots.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 396, "name": "The Stationmaster", "slug": "the-stationmaster" },
+      "editedComment": "The manifest is orderly. Each saved slot shows its ruler name, honorific, and active state, with departures marked Load, Rename, and Delete. Load passes the slot id to the Ruler Hooked store. Rename asks the waiting passenger for a new name through `window.prompt` and proceeds only with a trimmed answer. Delete removes the selected record through the store. The new-reign platform accepts a ruler name and Queen, King, or Ruler, then calls `newGame` only when the name is present. No slots, and the empty-platform notice appears. Every traveler who begins here has supplied the terms they can see. The train may still be ominous, friend, but this timetable does not hide the bargain.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
     }
   ]
 }

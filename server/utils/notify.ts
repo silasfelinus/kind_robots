@@ -29,3 +29,26 @@ export async function createNotification(input: {
     console.error('[notify] failed to create notification:', err)
   }
 }
+
+export async function deleteFriendRequestNotifications(input: {
+  requesterId: number
+  recipientId: number
+  relationId?: number | null
+}): Promise<void> {
+  try {
+    await prisma.notification.deleteMany({
+      where: {
+        userId: input.recipientId,
+        actorId: input.requesterId,
+        type: 'FRIEND_REQUEST',
+        ...(input.relationId
+          ? {
+              OR: [{ entityId: input.relationId }, { entityId: null }],
+            }
+          : {}),
+      },
+    })
+  } catch (err) {
+    console.error('[notify] failed to delete friend request notifications:', err)
+  }
+}

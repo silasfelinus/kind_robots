@@ -6,7 +6,10 @@
 import prisma from '../../utils/prisma'
 import { getCurrentUserId } from '../../utils/auth'
 import { acceptPair } from '../../utils/relations'
-import { createNotification } from '../../utils/notify'
+import {
+  createNotification,
+  deleteFriendRequestNotifications,
+} from '../../utils/notify'
 import type { RelationStatus } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
@@ -50,6 +53,11 @@ export default defineEventHandler(async (event) => {
       }
     }
     const { acceptedRow, inverseRow } = await acceptPair(existing.id)
+    await deleteFriendRequestNotifications({
+      requesterId: existing.userId,
+      recipientId: existing.relatedUserId,
+      relationId: existing.id,
+    })
     // Tell the original requester their request was accepted.
     if (existing.type === 'FRIEND') {
       const accepter = await prisma.user.findUnique({
@@ -62,6 +70,7 @@ export default defineEventHandler(async (event) => {
         title: `${accepter?.username ?? 'Someone'} accepted your friend request`,
         linkPath: '/friends',
         actorId: userId,
+        entityId: acceptedRow.id,
       })
     }
     return {

@@ -172,7 +172,7 @@ function querySelectionId(value: unknown): number | null {
 }
 
 async function syncBotFromRoute(): Promise<void> {
-  const id = querySelectionId(route.query.botId)
+  const id = querySelectionId(route.query.botId ?? route.query.bot)
   if (!id) return
 
   navStore.setDashboardTab(dashboardKey, 'bots')
@@ -202,7 +202,7 @@ onMounted(async () => {
   await syncBotFromRoute()
 
   watch(
-    () => route.query.botId,
+    () => [route.query.botId, route.query.bot],
     () => {
       void syncBotFromRoute()
     },

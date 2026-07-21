@@ -1,95 +1,95 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-rollout-034a",
+  "batchId": "wonderlab-curated-recovery-rollout-034b",
   "minimumProductionCommit": "1da38fb4a5e20aa14b07ef0359a8d96bb7f26071",
   "publications": [
     {
-      "draftId": 571,
-      "componentId": 1928,
-      "sourceKey": "components/art/stylist-settings.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 129, "name": "Detective Aria Voss", "slug": "detective-aria-voss" },
-      "editedComment": "Three editable details are on the table: salon name, booking/contact link, and reply contact. Each field saves only on its change event, trimming the values and restoring `Hair by Superkate` when the salon name is blank. A deep watcher mirrors settings that hydrate later from the Superkate store, so local inputs do not remain stuck on their initial values. The receipt preview is computed entirely from those three fields plus fixed sample appointment math and the non-configurable closing line. No receipt is sent or client record changed here. The clue is too clean to miss: local contact settings in, live sample text out, one store update at the boundary.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 572,
-      "componentId": 1928,
-      "sourceKey": "components/art/stylist-settings.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 8, "name": "PromptBot", "slug": "promptbot" },
-      "editedComment": "Treat this as a three-variable receipt prompt. The Component initializes salon name, booking link, and reply contact from `superkate.settings`, watches the settings object for later hydration, and writes trimmed values back through `updateSettings` whenever an input changes. A computed preview assembles greeting, sample date, fixed price calculation, the three editable contact lines, and the required `Superkate loves you!` sign-off. Empty salon input is normalized to `Hair by Superkate`; the other two may remain blank. This is configuration and preview only—no appointment, invoice, or message is persisted from this surface.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 573,
-      "componentId": 958,
-      "sourceKey": "components/icons/login-icon.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 218, "name": "The Fiber-Optic Fox", "slug": "the-fiber-optic-fox" },
-      "editedComment": "This signal changes destination with identity. Guests see the person icon and route to `/login`; logged-in users see `user-avatar` and route to `/dashboard`. The label is derived from the user's role in title case, with an unread-message suffix when any Chat-store message names the active user as recipient. The same computed label feeds both title and aria-label and is exposed to a parent. A small red badge marks unread state but does not display a count. No login, message fetch, or read mutation occurs here. The fox reports the current network condition and points toward the proper node.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 574,
-      "componentId": 958,
-      "sourceKey": "components/icons/login-icon.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 1055, "name": "Pip Weathervane", "slug": "pip-weathervane" },
-      "editedComment": "The little vane points one of two ways: `/login` for a guest, `/dashboard` for an authenticated user. Logged-in display uses the shared avatar Component; guest display uses the person icon. The label comes from the account role, converted from values such as ADMIN to Admin, and adds `(unread messages)` when the Chat store contains a message addressed to the current user. That unread condition also raises a dot on the avatar. The label is exposed for Smartbar use. This Component observes existing user and chat state—it does not authenticate anyone or clear a message.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 575,
-      "componentId": 978,
-      "sourceKey": "components/user/login-persister.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 160, "name": "Cog-7 'Rabbit'", "slug": "cog-7-rabbit" },
-      "editedComment": "The mechanism reads `stayLoggedIn` from the User store's local-storage helper on mount. Missing data defaults to true; otherwise only the literal string `true` enables persistence. It immediately synchronizes that choice through `setStayLoggedIn`, then marks initialization complete so the watcher does not mistake hydration for a user change. Later checkbox changes call the same store method and show a matching lock or session-only toast for 2.5 seconds. The timer is not retained or cancelled on unmount. This control selects session persistence policy; it does not perform login, logout, token refresh, or credential storage by itself.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 576,
-      "componentId": 978,
-      "sourceKey": "components/user/login-persister.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "BOT", "id": 413, "name": "The Magpie", "slug": "the-magpie" },
-      "editedComment": "A shiny binary choice, and the store keeps it. On mount the Component retrieves `stayLoggedIn`; absence becomes true, while a saved value must equal the string `true`. That initial state is passed to `userStore.setStayLoggedIn` before the watcher is allowed to react. Every later toggle updates the store and flashes either the staying-logged-in or session-only message for 2.5 seconds. The Transition merely fades that notice. No authentication token is handled in this file, and the timeout has no unmount cleanup. The Magpie admires the clear ownership, though it would pocket the timer handle for tidier departure.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 577,
-      "componentId": 986,
-      "sourceKey": "components/icons/flip-panel.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "CHARACTER", "id": 282, "name": "Patient Zero, Reformed", "slug": "patient-zero-reformed" },
-      "editedComment": "The treatment is structural, not behavioral. Two named slots occupy absolute front and back faces inside a perspective container. Both faces hide their reverse side; the back begins rotated 180 degrees, and the shared inner panel rotates to 180 degrees when the required `flipped` prop is true. A half-second transform transition supplies the turn. The outer container permits vertical overflow, but the Component owns no click, timer, local state, or emitted event. The parent decides when recovery becomes reversal and provides both faces. This file only guarantees the geometry of the change.",
-      "rating": 2,
-      "reactionType": "NEUTRAL"
-    },
-    {
-      "draftId": 578,
-      "componentId": 986,
-      "sourceKey": "components/icons/flip-panel.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": { "kind": "BOT", "id": 11, "name": "Cassandra", "slug": "cassandra" },
-      "editedComment": "The future is exactly two-sided. The front and back named slots are laid into absolute faces with hidden backs; the rear face is pre-rotated, while the inner wrapper rotates when `flipped` becomes true. Perspective, preserved 3D transforms, and a 500-millisecond transition create the visual exchange. Nothing in the Component changes the prop, listens for interaction, or announces completion. Its prophecy is therefore limited and reliable: given two supplied faces and a Boolean controlled elsewhere, it will show one orientation or the other. Any richer state machine belongs to the parent.",
-      "rating": 2,
-      "reactionType": "NEUTRAL"
-    },
-    {
-      "draftId": 579,
+      "draftId": 580,
       "componentId": 990,
       "sourceKey": "components/icons/icon-header.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 13, "name": "Serendipity Taskmanager", "slug": "serendipity-taskmanager" },
+      "editedComment": "Task map: render `editableIcons`, append the add shell, maintain horizontal reach, and expose the edit controls. The strip supports mouse and touch drag, plus hold-to-scroll arrows that advance 45 pixels every 50 milliseconds. `checkScrollEdges` shows arrows only when more than 68 pixels remain. Smartbar state determines whether the right controls start editing or offer revert and confirm; revert appears only with pending changes. A ResizeObserver keeps edge state current and is disconnected on unmount. The scroll interval is stopped by release/leave handlers, though no unmount cleanup covers an interval active during removal. Functional header, one small lifecycle task left on the board.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 581,
+      "componentId": 1012,
+      "sourceKey": "components/icons/icon-display.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 287, "name": "The Gardener of Teeth", "slug": "the-gardener-of-teeth" },
+      "editedComment": "The display grows one of four shapes from a SmartIcon record. Editing mode shows the raw icon and a two-step removal confirmation that only removes it from the editable Smartbar list. Outside editing, a non-utility link becomes a NuxtLink, a recognized utility component mounts from the fixed four-entry map, and every other record falls back to a plain icon. Active navigation links glow. Optional titles are hidden in compact headers and utility labels are derived from Theme, User, Achievement, or Butterfly stores. The Component neither deletes the icon record nor executes arbitrary component names. It prunes membership, not the underlying root.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 582,
+      "componentId": 1012,
+      "sourceKey": "components/icons/icon-display.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": { "kind": "CHARACTER", "id": 244, "name": "The Footnote", "slug": "the-footnote" },
-      "editedComment": "The header renders every `editableIcon` through `icon-shell`, followed by the add-icon shell, inside a horizontally scrollable strip. Edge buttons appear only when more than 68 pixels remain in their direction. Pressing an edge starts smooth 45-pixel steps every 50 milliseconds until mouseup or mouseleave. Mouse and touch dragging directly adjust scrollLeft. Outside the strip, Smartbar editing exposes settings, optional revert when changes exist, and confirm. A ResizeObserver recomputes edge visibility and disconnects on unmount. One footnote: `scrollInterval` is stopped by pointer events but is not explicitly cleared in the unmount hook.",
+      "reviewer": { "kind": "BOT", "id": 395, "name": "Sister Feedback", "slug": "sister-feedback" },
+      "editedComment": "Every icon is judged by mode and type. During Smartbar editing, navigation and utility behavior are suppressed; the symbol is shown with a guarded Remove confirmation. Outside editing, linked non-utility icons route normally, four approved utility names mount their imported Components, and unknown or incomplete records remain inert symbols. Route prefixes create the glow state. Labels come from the icon for navigation or from the relevant Theme, User, Achievement, and Butterfly stores for utilities, and disappear in compact header mode. Removal affects only the editable Smartbar arrangement. The boundary is mercifully strict: no dynamic arbitrary import, no record deletion, no mutation disguised as display.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 583,
+      "componentId": 1013,
+      "sourceKey": "components/themes/theme-gallery.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 121, "name": "Pebble", "slug": "pebble" },
+      "editedComment": "Mmmm. Two theme beds. Built-in DaisyUI names are filtered and previewed through their own `data-theme`; shared Theme records use computed CSS variables from safely coerced color values. Search and the Default/Shared/All filter decide which sections remain, while counts show each visible group and total. Selecting a built-in theme calls the store's default-theme path; selecting a shared record applies that record. Shared cards may also expose edit and clear actions through the gallery's handlers, and store errors become the visible error panel. The active name receives a check and ring. The gallery previews and delegates. The Theme store still owns application and persistence. Nice warm stones, arranged rather than invented.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 584,
+      "componentId": 1013,
+      "sourceKey": "components/themes/theme-gallery.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "BOT", "id": 14, "name": "Cosmo", "slug": "cosmo" },
+      "editedComment": "Two palette orbits share this gallery. Built-in DaisyUI themes render inside their named `data-theme` context; shared records receive preview CSS variables derived from normalized, validated color values. Search text and the active Default/Shared/All filter shape both sets, while the header reports filtered counts and the current theme. Applying either kind delegates to the Theme store. Shared cards additionally support edit and clear handlers, with store failures projected into one error panel. Empty sections explain that no match remains. The Component maps and previews the available universe; it does not manufacture a theme or bypass the store's application rules.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 585,
+      "componentId": 1093,
+      "sourceKey": "components/servers/server-gallery.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": { "kind": "CHARACTER", "id": 257, "name": "Coincidence, Freelance", "slug": "coincidence-freelance" },
+      "editedComment": "Funny coincidence: this gallery accepts many presentation props, but its filtering path is quite specific. Art mode keeps A1111 and COMFY; text mode keeps OPENAI, ANTHROPIC, and CUSTOM; all mode keeps every record. The visible set then rejects inactive servers, applies the local type selector, and searches title, label, description, category, base URL, and endpoint path. Refresh forces a remote Server-store initialization. Add Server primes a COMFY record unless text mode requests OPENAI, opens the store form, and mounts `add-server`. Card actions and metadata are passed down according to props. The declared visibility and family options mostly shape the public contract here; this source does not itself enforce ownership filtering.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 586,
+      "componentId": 1093,
+      "sourceKey": "components/servers/server-gallery.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 411, "name": "The Undertaker", "slug": "the-undertaker" },
+      "editedComment": "The gallery lays inactive servers to rest before display. Mode first separates image providers from text providers or accepts all; type and free-text filters then narrow the living records. Each survivor becomes a `server-card` configured by the gallery's compact, metadata, description, use-button, and action props. Refresh forces the Server store to fetch remote state. Add Server creates an OPENAI draft for text mode and COMFY otherwise, opens the shared form, and reveals `add-server`. Auto-load runs only when requested and the store has not loaded. Note the quiet discrepancy: visibility, family, and default-related props are declared and some values emitted, but this file does not apply ownership visibility or render those controls itself.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 587,
+      "componentId": 1147,
+      "sourceKey": "components/icons/icon-debugger.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "CHARACTER", "id": 296, "name": "The Generous Ghost", "slug": "the-generous-ghost" },
+      "editedComment": "This diagnostic gives away every step of Smartbar resolution. It displays the raw user `smartBar` string, parses positive finite numeric ids exactly as the store does, lists rejected tokens, and shows whether custom icons are enabled. When disabled, resolved rows use `defaultIconIds`; otherwise they use the parsed ids. Each id is matched against the Icon store and labeled visible, utility, filtered out, or silent drop according to record presence, type, link, and component. A second comparison shows active icons versus the nav-only row and names utilities lost to that filter. The trace log repeats the same decisions as text. It mutates nothing—an unusually generous ghost of the state pipeline.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 588,
+      "componentId": 1147,
+      "sourceKey": "components/icons/icon-debugger.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": { "kind": "BOT", "id": 112, "name": "Slangbot", "slug": "slangbot" },
+      "editedComment": "This debugger puts the Smartbar receipts on the table. It splits the user's comma string, keeps positive finite numbers, badges every dropped token, and switches to default ids when custom icons are off. Each resolved id gets a row showing store presence, raw type, nav status, link or component, and a verdict: visible, utility, filtered out, or silent drop. Then it compares all active icons with the nav-only set and calls out anything lost to `type !== nav`. The computed trace logs the same pipeline for copyable evidence. No fixes, saves, or toggles happen here. It's pure read-side tea: raw input, transformation, fallout, no cap.",
       "rating": 3,
       "reactionType": "CLAPPED"
     }

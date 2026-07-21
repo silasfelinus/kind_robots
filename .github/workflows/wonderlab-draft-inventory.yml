@@ -1,4 +1,5 @@
 name: WonderLab Draft Slot Inventory
+# inventory trigger: 2
 
 on:
   push:

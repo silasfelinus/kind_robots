@@ -14,6 +14,8 @@ const runId = String(process.env.GITHUB_RUN_ID || 'unknown')
 const serverUrl = String(process.env.GITHUB_SERVER_URL || 'https://github.com').replace(/\/$/, '')
 const repository = String(process.env.GITHUB_REPOSITORY || 'silasfelinus/kind_robots')
 const runUrl = `${serverUrl}/${repository}/actions/runs/${runId}`
+const inventoryStart = '<!-- WONDERLAB_DRAFT_INVENTORY_START -->'
+const inventoryEnd = '<!-- WONDERLAB_DRAFT_INVENTORY_END -->'
 
 async function optionalReport() {
   try {
@@ -22,6 +24,22 @@ async function optionalReport() {
     if (error?.code === 'ENOENT') return null
     throw error
   }
+}
+
+function draftedAssignmentLines(report) {
+  const drafted = Array.isArray(report?.draftedAssignments)
+    ? report.draftedAssignments
+    : []
+  if (!drafted.length) return []
+
+  const lines = ['', '### Exact draft-only planner assignments', '']
+  for (const entry of drafted) {
+    const reviewer = entry.reviewer || {}
+    lines.push(
+      `- Component #${entry.componentId} **${entry.componentName || entry.title || 'Component'}** → **${reviewer.name || 'Reviewer'}** (${reviewer.kind || 'UNKNOWN'} #${reviewer.id ?? 'unknown'}) · draft #${entry.draftId ?? 'unknown'} · ${entry.draftStatus || 'UNKNOWN'} · \`${entry.sourcePath || 'source unavailable'}\``,
+    )
+  }
+  return lines
 }
 
 function reportLines(report) {
@@ -83,38 +101,58 @@ function reportLines(report) {
     }
   }
 
+  lines.push(...draftedAssignmentLines(report))
   lines.push(
     '',
     `> ${report.scope?.note || 'Coverage reflects portfolio-selected reviewer slots.'}`,
     '',
-    'The uploaded JSON artifact contains the complete eligible-cast usage table, all representation gaps, the top 50 missing high-affinity assignments, and every exhibit without a complete reviewer assignment. This workflow is read-only and performs no generation, approval, editing, or publication.',
+    'The uploaded JSON artifact contains the complete eligible-cast usage table, exact current draft-only assignments, all representation gaps, the top 50 missing high-affinity assignments, and every exhibit without a complete reviewer assignment. This workflow is read-only with respect to application data and performs no generation, approval, editing, or publication.',
   )
   return lines
 }
 
-async function postComment(body) {
-  if (process.env.WONDERLAB_EDITORIAL_AUDIT_POST !== 'true') {
-    console.log('Dry run: editorial audit comment was rendered but not posted.')
-    return
+function ledgerInventory(report) {
+  const drafted = Array.isArray(report?.draftedAssignments)
+    ? report.draftedAssignments
+    : []
+  const coverage = report?.coverage || {}
+  const lines = [
+    inventoryStart,
+    '## Current WonderLab exact rollout inventory',
+    '',
+    `- Production: \`${report?.production?.commit || 'unknown'}\` · deployment \`${report?.production?.deploymentId || 'unknown'}\``,
+    `- Published planner assignments: **${coverage.publishedSlots || 0} / ${coverage.reviewerSlots || 696}**`,
+    `- Draft-only planner assignments: **${coverage.draftedSlots || 0} / ${coverage.reviewerSlots || 696}**`,
+    `- Missing planner assignments: **${coverage.missingSlots || 0} / ${coverage.reviewerSlots || 696}**`,
+    `- Audit workflow: [run ${runId}](${runUrl})`,
+    '',
+  ]
+  for (const entry of drafted) {
+    const reviewer = entry.reviewer || {}
+    lines.push(
+      `- Component #${entry.componentId} **${entry.componentName || entry.title || 'Component'}** → ${reviewer.name || 'Reviewer'} (${reviewer.kind || 'UNKNOWN'} #${reviewer.id ?? 'unknown'}) · draft #${entry.draftId ?? 'unknown'} · ${entry.draftStatus || 'UNKNOWN'} · \`${entry.sourcePath || 'source unavailable'}\``,
+    )
   }
+  lines.push('', inventoryEnd)
+  return lines.join('\n')
+}
 
-  const token = String(process.env.GITHUB_TOKEN || '').trim()
-  if (!token) throw new Error('GITHUB_TOKEN is required to post the editorial audit comment.')
-  if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
-    throw new Error('WONDERLAB_EDITORIAL_AUDIT_ISSUE must be a positive integer.')
+function githubHeaders(token) {
+  return {
+    accept: 'application/vnd.github+json',
+    authorization: `Bearer ${token}`,
+    'content-type': 'application/json',
+    'user-agent': 'kind-robots-wonderlab-editorial-audit',
+    'x-github-api-version': '2022-11-28',
   }
+}
 
+async function postComment(body, token) {
   const response = await fetch(
     `https://api.github.com/repos/${repository}/issues/${issueNumber}/comments`,
     {
       method: 'POST',
-      headers: {
-        accept: 'application/vnd.github+json',
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-        'user-agent': 'kind-robots-wonderlab-editorial-audit',
-        'x-github-api-version': '2022-11-28',
-      },
+      headers: githubHeaders(token),
       body: JSON.stringify({ body }),
     },
   )
@@ -128,9 +166,47 @@ async function postComment(body) {
   console.log(`Posted WonderLab editorial audit evidence: ${result.html_url || 'comment created'}`)
 }
 
+async function updateIssueLedger(report, token) {
+  if (!report) return
+  const issueUrl = `https://api.github.com/repos/${repository}/issues/${issueNumber}`
+  const currentResponse = await fetch(issueUrl, { headers: githubHeaders(token) })
+  if (!currentResponse.ok) {
+    throw new Error(`GitHub issue GET failed with ${currentResponse.status}: ${(await currentResponse.text()).slice(0, 1000)}`)
+  }
+  const issue = await currentResponse.json()
+  const currentBody = String(issue.body || '')
+  const inventory = ledgerInventory(report)
+  const markerPattern = new RegExp(
+    `${inventoryStart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?${inventoryEnd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+  )
+  const body = markerPattern.test(currentBody)
+    ? currentBody.replace(markerPattern, inventory)
+    : `${currentBody.trimEnd()}\n\n${inventory}\n`
+  const updateResponse = await fetch(issueUrl, {
+    method: 'PATCH',
+    headers: githubHeaders(token),
+    body: JSON.stringify({ body }),
+  })
+  if (!updateResponse.ok) {
+    throw new Error(`GitHub issue PATCH failed with ${updateResponse.status}: ${(await updateResponse.text()).slice(0, 1000)}`)
+  }
+  console.log(`Updated issue #${issueNumber} with exact WonderLab draft inventory.`)
+}
+
 const report = await optionalReport()
 const body = `${reportLines(report).join('\n')}\n`
 await mkdir(dirname(commentPath), { recursive: true })
 await writeFile(commentPath, body)
 console.log(body)
-await postComment(body)
+
+if (process.env.WONDERLAB_EDITORIAL_AUDIT_POST !== 'true') {
+  console.log('Dry run: editorial audit comment was rendered but not posted.')
+} else {
+  const token = String(process.env.GITHUB_TOKEN || '').trim()
+  if (!token) throw new Error('GITHUB_TOKEN is required to post the editorial audit comment.')
+  if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
+    throw new Error('WONDERLAB_EDITORIAL_AUDIT_ISSUE must be a positive integer.')
+  }
+  await postComment(body, token)
+  await updateIssueLedger(report, token)
+}

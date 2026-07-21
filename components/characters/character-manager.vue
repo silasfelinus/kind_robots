@@ -160,7 +160,7 @@ function querySelectionId(value: unknown): number | null {
 }
 
 async function syncCharacterFromRoute(): Promise<void> {
-  const id = querySelectionId(route.query.characterId)
+  const id = querySelectionId(route.query.characterId ?? route.query.character)
   if (!id) return
 
   navStore.setDashboardTab(dashboardKey, 'characters')
@@ -181,7 +181,7 @@ onMounted(async () => {
   await syncCharacterFromRoute()
 
   watch(
-    () => route.query.characterId,
+    () => [route.query.characterId, route.query.character],
     () => {
       void syncCharacterFromRoute()
     },

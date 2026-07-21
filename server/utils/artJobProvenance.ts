@@ -115,7 +115,7 @@ export function extractWorkflowTextCandidates(workflow: unknown): string[] {
     values,
   )
 
-  return [...new Set(values)]
+  return [...new Set(values)].sort()
 }
 
 export function extractWorkflowModels(workflow: unknown): string[] {
@@ -161,6 +161,8 @@ export function enrichArtJobPayload(
       message: 'ArtJob payload requires a non-empty promptString.',
     })
   }
+
+  payload.promptString = normalizedPrompt
 
   const promptHash = sha256(normalizedPrompt)
   let workflowHash: string | null = null
@@ -228,7 +230,6 @@ export function enrichArtJobPayload(
       : {}),
   }
 
-  payload.promptString = normalizedPrompt
   payload.attemptFingerprint = attemptFingerprint
   payload.provenance = provenance
 
@@ -241,7 +242,7 @@ export function readArtJobProvenance(
   const provenance = asRecord(parseArtJobPayload(rawPayload).provenance)
   if (provenance.version !== 1) return null
 
-  return provenance as ArtJobProvenanceRecord
+  return provenance as unknown as ArtJobProvenanceRecord
 }
 
 function requiredString(value: unknown, field: string): string {

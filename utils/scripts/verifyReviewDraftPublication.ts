@@ -10,6 +10,8 @@ const revisionEndpointPath =
   'server/api/admin/wonderlab/review-drafts/[id]/revise.patch.ts'
 const componentReviewsPath = 'server/api/reactions/component/[id].get.ts'
 const componentFeedPath = 'components/wonderlab/component-review-feed.vue'
+const publicUserEndpointPath = 'server/api/users/public/[id].get.ts'
+const publicUserPagePath = 'pages/users/[id].vue'
 
 const publisher = await readFile(publisherPath, 'utf8')
 const endpoint = await readFile(endpointPath, 'utf8')
@@ -17,6 +19,8 @@ const revisionService = await readFile(revisionServicePath, 'utf8')
 const revisionEndpoint = await readFile(revisionEndpointPath, 'utf8')
 const componentReviews = await readFile(componentReviewsPath, 'utf8')
 const componentFeed = await readFile(componentFeedPath, 'utf8')
+const publicUserEndpoint = await readFile(publicUserEndpointPath, 'utf8')
+const publicUserPage = await readFile(publicUserPagePath, 'utf8')
 const ordinaryPost = await readFile('server/api/reactions/index.post.ts', 'utf8')
 
 assert.match(endpoint, /requireAdminApiUser\(event\)/)
@@ -70,9 +74,16 @@ assert.match(componentFeed, /First-party \{\{ review\.Author\.kind\.toLowerCase\
 assert.match(componentFeed, /<NuxtLink/)
 assert.match(componentFeed, /`\/bots\?bot=\$\{review\.Author\.id\}`/)
 assert.match(componentFeed, /`\/characters\?character=\$\{review\.Author\.id\}`/)
+assert.match(componentFeed, /`\/users\/\$\{review\.User\.id\}`/)
+assert.match(componentFeed, /review\.User\?\.isPublic/)
 assert.match(componentFeed, /prepareAuthorSelection/)
+
+assert.match(publicUserEndpoint, /isPublic:\s*true/)
+assert.match(publicUserEndpoint, /Public user profile not found/)
+assert.match(publicUserPage, /\/api\/users\/public\/\$\{userId\.value\}/)
+assert.match(publicUserPage, /Public Kind Robots profile/)
 
 assert.doesNotMatch(ordinaryPost, /authorBotId/)
 assert.doesNotMatch(ordinaryPost, /authorCharacterId/)
 
-console.log('Review draft publication and revision contract passed.')
+console.log('Review draft publication, revision, and author-link contract passed.')

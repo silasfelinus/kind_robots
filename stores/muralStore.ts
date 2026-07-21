@@ -201,7 +201,7 @@ export async function loadMuralPageDefinition(): Promise<ColoringPageDefinition>
   if (cachedPageDefinition) return cachedPageDefinition
 
   try {
-    const page = await $fetch<ColoringPageDefinition>(MURAL_PAGE_URL)
+    const page = await $fetch<ColoringPageDefinition, string>(MURAL_PAGE_URL)
 
     if (page?.regions?.length && page.palette?.length) {
       cachedPageDefinition = {

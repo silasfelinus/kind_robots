@@ -315,7 +315,7 @@ function formatDate(entry: MediaEntrySummary): string {
 
 async function loadStats(): Promise<void> {
   try {
-    const res = await $fetch<MediaEntryStatsResponse>(
+    const res = await $fetch<MediaEntryStatsResponse, string>(
       '/api/media-entries/stats',
     )
     if (res?.success) stats.value = res.data
@@ -329,18 +329,21 @@ async function loadEntries(): Promise<void> {
   errorMessage.value = ''
 
   try {
-    const res = await $fetch<MediaEntriesResponse>('/api/media-entries', {
-      query: {
-        search: search.value || undefined,
-        mediaType: activeTypes.value.size
-          ? Array.from(activeTypes.value).join(',')
-          : undefined,
-        starred: starredOnly.value ? 'true' : undefined,
-        sort: sort.value,
-        take,
-        skip: skip.value,
+    const res = await $fetch<MediaEntriesResponse, string>(
+      '/api/media-entries',
+      {
+        query: {
+          search: search.value || undefined,
+          mediaType: activeTypes.value.size
+            ? Array.from(activeTypes.value).join(',')
+            : undefined,
+          starred: starredOnly.value ? 'true' : undefined,
+          sort: sort.value,
+          take,
+          skip: skip.value,
+        },
       },
-    })
+    )
 
     if (!res?.success) {
       throw new Error('Failed to load the watchlist.')

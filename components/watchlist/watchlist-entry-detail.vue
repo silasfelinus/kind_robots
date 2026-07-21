@@ -248,7 +248,7 @@ async function patch(
 ): Promise<MediaEntryDetail | null> {
   errorMessage.value = ''
   try {
-    const res = await $fetch<MediaEntryPatchResponse>(
+    const res = await $fetch<MediaEntryPatchResponse, string>(
       `/api/media-entries/${props.entry.id}`,
       { method: 'PATCH', body },
     )

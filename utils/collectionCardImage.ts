@@ -33,7 +33,15 @@ async function fetchFolderImages(slug: string): Promise<string[]> {
 
   let pending = folderImageCache.get(clean)
   if (!pending) {
-    pending = $fetch<FolderImagesResponse>(
+    // Explicit `<FolderImagesResponse, string>` generics, not just a type
+    // argument on the response: pinning R to `string` (rather than letting
+    // it infer from the dynamic template-literal URL and fall back to the
+    // full NitroFetchRequest route-key union) keeps `$fetch`'s route-match
+    // typing cheap. A dynamic segment there is otherwise one of the more
+    // expensive shapes for TS to resolve, and this call tipped vue-tsc's
+    // recursion limit (TS2589) once the route surface grew enough — see the
+    // similar fix on art-styler.vue's static-asset $fetch, appmaker/t-009.
+    pending = $fetch<FolderImagesResponse, string>(
       `/api/art/collection/folder/${encodeURIComponent(clean)}`,
     )
       .then((res) =>

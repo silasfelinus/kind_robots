@@ -248,11 +248,14 @@ async function loadFeed(): Promise<void> {
       ? feedPreferenceStore.enabledFeedSlugs
       : feedPreferenceStore.availableFeeds.map((feed) => feed.slug)
 
-    const res = await $fetch<{
-      success: boolean
-      message: string
-      data: AggregatedFeedResponse[] | null
-    }>('/api/newsfeed', {
+    const res = await $fetch<
+      {
+        success: boolean
+        message: string
+        data: AggregatedFeedResponse[] | null
+      },
+      string
+    >('/api/newsfeed', {
       query: slugs.length ? { feeds: slugs.join(',') } : undefined,
     })
 

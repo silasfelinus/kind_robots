@@ -296,12 +296,7 @@
 
 <script setup lang="ts">
 type ChallengeType =
-  | ''
-  | 'ART'
-  | 'TEXT'
-  | 'CHARACTER'
-  | 'SCENARIO'
-  | 'REASONING'
+  '' | 'ART' | 'TEXT' | 'CHARACTER' | 'SCENARIO' | 'REASONING'
 type Facet = 'contender' | 'kind' | 'provider' | 'model' | 'generator'
 
 type ContenderLeaderboardEntry = {
@@ -434,7 +429,7 @@ async function loadLeaderboard(): Promise<void> {
     if (typeFilter.value) query.type = typeFilter.value
     if (facetFilter.value !== 'contender') query.facet = facetFilter.value
 
-    const response = await $fetch<LeaderboardResponse>(
+    const response = await $fetch<LeaderboardResponse, string>(
       '/api/challenges/leaderboard',
       {
         query: Object.keys(query).length ? query : undefined,

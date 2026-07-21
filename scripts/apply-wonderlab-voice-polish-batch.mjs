@@ -170,6 +170,29 @@ for (const revision of manifest.revisions) {
   assertPositiveInteger(publisherUserId, 'publisherUserId')
   assertPublicLock(beforeReaction, revision, publisherUserId)
   const publicCommentHash = sha256(beforeReaction.comment)
+  const revisedCommentHash = sha256(revision.editedComment)
+  if (publicCommentHash === revisedCommentHash) {
+    if (beforeDraft.editedComment !== revision.editedComment) {
+      throw new Error(`Draft ${revision.draftId} and its Reaction disagree after a prior revision.`)
+    }
+    results.push({
+      draftId: revision.draftId,
+      reactionId: revision.reactionId,
+      componentId: revision.componentId,
+      sourceKey: revision.sourceKey,
+      author: revision.author,
+      publisherUserId,
+      rating: revision.expectedRating,
+      reactionType: revision.expectedReactionType,
+      previousCommentHash: revision.expectedCurrentCommentHash,
+      revisedCommentHash,
+      outcome: 'ALREADY_APPLIED',
+    })
+    console.log(
+      `Already revised draft #${revision.draftId} / Reaction #${revision.reactionId} as ${revision.author.name}.`,
+    )
+    continue
+  }
   if (publicCommentHash !== revision.expectedCurrentCommentHash) {
     throw new Error(`Reaction ${revision.reactionId} comment changed after curation.`)
   }
@@ -220,7 +243,8 @@ for (const revision of manifest.revisions) {
     rating: revision.expectedRating,
     reactionType: revision.expectedReactionType,
     previousCommentHash: revision.expectedCurrentCommentHash,
-    revisedCommentHash: sha256(revision.editedComment),
+    revisedCommentHash,
+    outcome: 'REVISED',
     endpointResult: {
       reactionId: response.reactionId,
       previousCommentHash: response.previousCommentHash,

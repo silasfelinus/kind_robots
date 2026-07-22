@@ -329,13 +329,25 @@ const fields = ref(item.value?.fieldsDraft ?? '')
 const prompt = ref(item.value?.promptDraft ?? '')
 
 // Keep the textareas in sync when the store's draft fields change under us —
-// e.g. an AI draft writes into the item.
+// e.g. an AI draft writes into the item. Watched per-field (not as one combined
+// array) so a draft/update landing on one field doesn't clobber unsaved edits
+// the user is mid-typing in the other two textareas of the same item.
 watch(
-  () => [item.value?.pitch, item.value?.fieldsDraft, item.value?.promptDraft],
-  () => {
-    pitch.value = item.value?.pitch ?? ''
-    fields.value = item.value?.fieldsDraft ?? ''
-    prompt.value = item.value?.promptDraft ?? ''
+  () => item.value?.pitch,
+  (value) => {
+    pitch.value = value ?? ''
+  },
+)
+watch(
+  () => item.value?.fieldsDraft,
+  (value) => {
+    fields.value = value ?? ''
+  },
+)
+watch(
+  () => item.value?.promptDraft,
+  (value) => {
+    prompt.value = value ?? ''
   },
 )
 

@@ -1,7 +1,7 @@
 // /server/api/stylist/client/[id].delete.ts
 //
 // Delete a client from the authed user's book. Appointment history keeps its
-// clientName snapshot; the FK detaches (SET NULL) per the delete-detach rule.
+// clientName snapshot; private profile photos are removed with the client.
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -22,9 +22,17 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: `Client ${id} not found.` })
     }
 
-    await prisma.stylistClient.delete({ where: { id } })
+    await prisma.$transaction([
+      prisma.artImage.deleteMany({
+        where: {
+          userId: auth.user.id,
+          path: `stylist-client:${id}:profile`,
+        },
+      }),
+      prisma.stylistClient.delete({ where: { id } }),
+    ])
 
-    return { success: true, message: 'Client deleted.', statusCode: 200 }
+    return { success: true, message: 'Client and private photo deleted.', statusCode: 200 }
   } catch (error: unknown) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500

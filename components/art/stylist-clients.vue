@@ -130,14 +130,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import {
   useSuperkateStore,
   type SuperkateCustomer,
 } from '@/stores/superkateStore'
+import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 
 const superkate = useSuperkateStore()
+const userStore = useUserStore()
 
 const name = ref('')
 const email = ref('')
@@ -163,6 +165,25 @@ function edit(customer: SuperkateCustomer) {
   email.value = customer.email
 }
 
+function revokePhotoUrl(clientId: number): void {
+  const current = photoUrls[clientId]
+  if (current?.startsWith('blob:')) URL.revokeObjectURL(current)
+  delete photoUrls[clientId]
+}
+
+async function loadPrivatePhoto(clientId: number, url: string): Promise<void> {
+  const token = userStore.token || userStore.user?.token || ''
+  const response = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
+
+  if (!response.ok) return
+
+  const blob = await response.blob()
+  revokePhotoUrl(clientId)
+  photoUrls[clientId] = URL.createObjectURL(blob)
+}
+
 async function save() {
   if (!name.value.trim()) return
   await superkate.saveCustomer({
@@ -181,10 +202,20 @@ async function loadPhotoIndex(): Promise<void> {
 
   if (!response.success || !response.data) return
 
-  for (const key of Object.keys(photoUrls)) delete photoUrls[Number(key)]
-  for (const client of response.data.clients ?? []) {
-    if (client.photoUrl) photoUrls[client.id] = client.photoUrl
+  const clientsWithPhotos = (response.data.clients ?? []).filter(
+    (client): client is ClientPhotoSummary & { photoUrl: string } =>
+      typeof client.photoUrl === 'string' && client.photoUrl.length > 0,
+  )
+  const activeIds = new Set(clientsWithPhotos.map((client) => client.id))
+
+  for (const key of Object.keys(photoUrls)) {
+    const clientId = Number(key)
+    if (!activeIds.has(clientId)) revokePhotoUrl(clientId)
   }
+
+  await Promise.all(
+    clientsWithPhotos.map((client) => loadPrivatePhoto(client.id, client.photoUrl)),
+  )
 }
 
 async function uploadPhoto(customer: SuperkateCustomer, event: Event): Promise<void> {
@@ -211,7 +242,7 @@ async function uploadPhoto(customer: SuperkateCustomer, event: Event): Promise<v
       throw new Error(response.message || 'Could not save the client photo.')
     }
 
-    photoUrls[customer.id] = response.data.photoUrl
+    await loadPrivatePhoto(customer.id, response.data.photoUrl)
   } catch (error) {
     photoError.value =
       error instanceof Error ? error.message : 'Could not save the client photo.'
@@ -230,12 +261,16 @@ function confirmRemove(customer: SuperkateCustomer) {
 
   if (ok) {
     void superkate.removeCustomer(customer.id)
-    delete photoUrls[customer.id]
+    revokePhotoUrl(customer.id)
     if (editingId.value === customer.id) resetForm()
   }
 }
 
 onMounted(() => {
   void loadPhotoIndex()
+})
+
+onBeforeUnmount(() => {
+  for (const key of Object.keys(photoUrls)) revokePhotoUrl(Number(key))
 })
 </script>

@@ -186,6 +186,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'clockwork-greenhouse',
+    label: 'Clockwork Greenhouse',
+    reveal: 'The garden keeps its own time',
+    icon: 'kind-icon:greenhouse',
+    tooltip: 'Brass stems grow, bloom, and seed on staggered timelines while gear pollinators make their rounds; click to plant a seed 🌱',
+    color: '#b08d57',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

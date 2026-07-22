@@ -135,8 +135,13 @@ export function buildSimpleCheckpointWorkflow(input: SimpleCheckpointInput): {
       class_type: 'LoraLoaderModelOnly',
       _meta: { title: 'Style LoRA' },
     }
+
     // Route the sampler's model through the LoRA; CLIP stays on the encoder.
-    ;(workflow['7'].inputs as Record<string, unknown>).model = ['10', 0]
+    const sampler = workflow['7']
+    if (!sampler?.inputs) {
+      throw new Error('KSampler node is missing from the simple checkpoint workflow.')
+    }
+    sampler.inputs.model = ['10', 0]
   }
 
   return { workflow, seed }

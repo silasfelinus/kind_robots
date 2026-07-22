@@ -108,10 +108,9 @@
           :style="{ width: narratorRailWidth }"
           :coexist="isXl"
           :open="narratorPanelOpen"
-          :dock-visible="narratorDockActive"
+          :dock-visible="false"
           @update:open="setNarratorOpen"
           @update:rendered="setNarratorRendered"
-          @update:compact-message-visible="setNarratorCompactMessageVisible"
         />
       </section>
     </section>
@@ -132,20 +131,79 @@
         </Transition>
       </section>
 
-      <div class="pointer-events-auto fixed bottom-3 right-3 z-40">
+      <div
+        class="pointer-events-auto fixed bottom-3 right-3 z-60 flex items-end gap-2"
+      >
+        <Transition name="kr-dock-message">
+          <article
+            v-if="visibleDockMessage"
+            class="kr-dock-message mb-1 rounded-2xl border border-primary/25 bg-base-100/95 px-3 py-2 text-sm shadow-2xl backdrop-blur"
+          >
+            <div class="flex items-start gap-2">
+              <span
+                v-if="visibleDockMessage.emoticon"
+                class="mt-0.5 text-base leading-none"
+                aria-hidden="true"
+              >
+                {{ visibleDockMessage.emoticon }}
+              </span>
+
+              <div class="min-w-0 flex-1">
+                <p
+                  class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+                >
+                  {{ visibleDockMessage.label }}
+                </p>
+
+                <p class="mt-1 line-clamp-2 leading-relaxed text-base-content/80">
+                  {{ visibleDockMessage.message }}
+                </p>
+              </div>
+            </div>
+          </article>
+        </Transition>
+
         <button
           type="button"
-          class="btn btn-circle btn-sm shadow-2xl"
-          :class="
-            bottomMode === 'closed'
-              ? 'btn-ghost border border-base-300 bg-base-100'
-              : 'btn-primary'
-          "
-          :aria-label="bottomFabLabel"
-          :title="bottomFabLabel"
+          class="kr-workspace-dock group relative shrink-0 overflow-hidden rounded-full border-2 border-primary/40 bg-base-300/95 shadow-2xl transition duration-200 hover:scale-105 hover:border-primary/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :aria-label="bottomDockLabel"
+          :title="bottomDockLabel"
+          :aria-expanded="narratorPanelOpen"
           @click="cycleBottomMode"
         >
-          <Icon :name="bottomFabIcon" class="h-5 w-5" />
+          <div
+            class="absolute -inset-1 rounded-full bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
+          />
+
+          <img
+            v-if="narratorImage"
+            :src="narratorImage"
+            :alt="narratorName || 'Navigator'"
+            class="relative h-full w-full object-cover"
+            loading="lazy"
+          />
+
+          <span
+            v-else
+            class="relative flex h-full w-full items-center justify-center bg-primary/10 text-primary"
+          >
+            <Icon name="kind-icon:robot-color" class="h-8 w-8" />
+          </span>
+
+          <span
+            v-if="currentEmotionRow?.emoticon"
+            class="absolute -right-0.5 -top-0.5 rounded-full border border-base-300 bg-base-100 px-1 py-0.5 text-xs shadow"
+            aria-hidden="true"
+          >
+            {{ currentEmotionRow.emoticon }}
+          </span>
+
+          <span
+            class="absolute bottom-0.5 left-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-100/95 text-primary shadow"
+            aria-hidden="true"
+          >
+            <Icon :name="bottomDockActionIcon" class="h-3.5 w-3.5" />
+          </span>
         </button>
       </div>
 
@@ -166,13 +224,23 @@ import type { CSSProperties } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
+import { useNarratorStore } from '@/stores/narratorStore'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
 const navStore = useNavStore()
+const narratorStore = useNarratorStore()
 const route = useRoute()
 
 const { workspaceSheetOpen } = storeToRefs(navStore)
+const {
+  activeBubble,
+  currentEmotionLabel,
+  currentEmotionRow,
+  narratorImage,
+  narratorIntro,
+  narratorName,
+} = storeToRefs(narratorStore)
 
 const showLoader = ref(true)
 const showBootCurtain = ref(true)
@@ -215,21 +283,26 @@ const isXl = ref(false)
 let mdMedia: MediaQueryList | null = null
 let xlMedia: MediaQueryList | null = null
 
+type BottomMode = 'narrator-compact' | 'narrator-open' | 'hand'
+type DockMessage = {
+  label: string
+  message: string
+  emoticon: string | null
+}
+
+const bottomMode = ref<BottomMode>('narrator-compact')
+const narratorRendered = ref(false)
+const dockMessage = ref<DockMessage | null>(null)
+
+let dockMessageTimer: ReturnType<typeof setTimeout> | null = null
+
 function syncBreakpoints(): void {
   if (mdMedia) isMd.value = mdMedia.matches
   if (xlMedia) isXl.value = xlMedia.matches
 }
 
-type BottomMode = 'closed' | 'hand' | 'narrator-compact' | 'narrator-open'
-const bottomMode = ref<BottomMode>('closed')
-const narratorRendered = ref(false)
-const narratorCompactMessageVisible = ref(false)
-
 const handOpen = computed(() => bottomMode.value === 'hand')
 const narratorPanelOpen = computed(() => bottomMode.value === 'narrator-open')
-const narratorDockActive = computed(
-  () => bottomMode.value === 'narrator-compact' || narratorPanelOpen.value,
-)
 
 const SHEET_W_MD = '20rem'
 const SHEET_W_XL = '24rem'
@@ -240,9 +313,6 @@ const NARRATOR_CIRCLE_MOBILE = '5.25rem'
 const HAND_PANEL_H = '11.5rem'
 
 const narratorCircle = computed(() => {
-  if (!narratorRendered.value) return '0px'
-  if (!narratorDockActive.value) return '0px'
-
   return isMd.value ? NARRATOR_CIRCLE_MD : NARRATOR_CIRCLE_MOBILE
 })
 
@@ -260,11 +330,9 @@ const narratorWidth = computed(() => {
 })
 
 const narratorRailWidth = computed(() => {
-  if (!narratorRendered.value) return '0px'
-  if (narratorPanelOpen.value) return 'min(100%, var(--narrator-w))'
-  if (narratorDockActive.value) return 'var(--narrator-circle)'
+  if (!narratorRendered.value || !narratorPanelOpen.value) return '0px'
 
-  return '0px'
+  return 'min(100%, var(--narrator-w))'
 })
 
 const narratorFooterReserve = computed(() => {
@@ -302,33 +370,59 @@ const footerVars = computed<CSSProperties>(() => {
   } as CSSProperties
 })
 
-const BOTTOM_MODES: BottomMode[] = ['closed', 'hand', 'narrator-open']
+const BOTTOM_MODES: BottomMode[] = [
+  'narrator-compact',
+  'narrator-open',
+  'hand',
+]
 
-const bottomFabIcon = computed(() => {
+const bottomDockLabel = computed(() => {
   switch (bottomMode.value) {
-    case 'hand':
-      return 'kind-icon:card'
-    case 'narrator-compact':
-      return 'kind-icon:robot-color'
     case 'narrator-open':
+      return 'Navigator open — show cards'
+    case 'hand':
+      return 'Cards open — return to navigator dock'
+    default:
+      return 'Navigator docked — open navigator'
+  }
+})
+
+const bottomDockActionIcon = computed(() => {
+  switch (bottomMode.value) {
+    case 'narrator-open':
+      return 'kind-icon:card'
+    case 'hand':
       return 'kind-icon:close'
     default:
-      return 'kind-icon:sparkles'
+      return 'kind-icon:message'
   }
 })
 
-const bottomFabLabel = computed(() => {
-  switch (bottomMode.value) {
-    case 'hand':
-      return 'Cards open — click for narrator'
-    case 'narrator-compact':
-      return 'Narrator docked — click to open'
-    case 'narrator-open':
-      return 'Narrator open — click to close'
-    default:
-      return 'Open workspace tools'
-  }
+const visibleDockMessage = computed(() => {
+  return narratorPanelOpen.value ? null : dockMessage.value
 })
+
+function presentDockMessage(
+  message: string | null | undefined,
+  label: string | null | undefined,
+  emoticon: string | null | undefined,
+): void {
+  const trimmed = message?.trim()
+  if (!trimmed) return
+
+  dockMessage.value = {
+    label: label?.trim() || 'Navigator',
+    message: trimmed,
+    emoticon: emoticon || null,
+  }
+
+  if (dockMessageTimer) clearTimeout(dockMessageTimer)
+
+  dockMessageTimer = setTimeout(() => {
+    dockMessage.value = null
+    dockMessageTimer = null
+  }, 6500)
+}
 
 function cycleBottomMode(): void {
   const idx = BOTTOM_MODES.indexOf(bottomMode.value)
@@ -346,19 +440,9 @@ function setNarratorOpen(value: boolean): void {
 function setNarratorRendered(value: boolean): void {
   narratorRendered.value = value
 
-  if (!value) {
-    if (
-      bottomMode.value === 'narrator-compact' ||
-      bottomMode.value === 'narrator-open'
-    ) {
-      bottomMode.value = 'closed'
-    }
-    narratorCompactMessageVisible.value = false
+  if (!value && bottomMode.value === 'narrator-open') {
+    bottomMode.value = 'narrator-compact'
   }
-}
-
-function setNarratorCompactMessageVisible(value: boolean): void {
-  narratorCompactMessageVisible.value = value
 }
 
 function setWorkspaceSheetOpen(value: boolean): void {
@@ -369,6 +453,37 @@ watch(
   () => route.fullPath,
   (path) => {
     navStore.recordVisit(path)
+  },
+  { immediate: true },
+)
+
+watch(activeBubble, (message) => {
+  presentDockMessage(
+    message,
+    currentEmotionLabel.value,
+    currentEmotionRow.value?.emoticon,
+  )
+})
+
+watch(
+  () => currentEmotionRow.value?.message,
+  (message, previousMessage) => {
+    if (!message || message === previousMessage) return
+
+    presentDockMessage(
+      message,
+      currentEmotionLabel.value,
+      currentEmotionRow.value?.emoticon,
+    )
+  },
+)
+
+watch(
+  narratorIntro,
+  (message) => {
+    if (!dockMessage.value) {
+      presentDockMessage(message, 'Narrator', currentEmotionRow.value?.emoticon)
+    }
   },
   { immediate: true },
 )
@@ -408,6 +523,11 @@ onBeforeUnmount(() => {
   mdMedia?.removeEventListener('change', syncBreakpoints)
   xlMedia?.removeEventListener('change', syncBreakpoints)
 
+  if (dockMessageTimer) {
+    clearTimeout(dockMessageTimer)
+    dockMessageTimer = null
+  }
+
   if (bootCurtainTimeoutId) {
     clearTimeout(bootCurtainTimeoutId)
     bootCurtainTimeoutId = null
@@ -424,6 +544,20 @@ onBeforeUnmount(() => {
 .kr-main {
   padding-right: 0;
   padding-bottom: var(--footer-h);
+}
+
+.kr-workspace-dock {
+  height: var(--narrator-circle);
+  width: var(--narrator-circle);
+}
+
+.kr-dock-message {
+  width: clamp(
+    12rem,
+    calc((100vw - var(--sheet-w, 0px)) / 2 - var(--narrator-circle) - 1rem),
+    24rem
+  );
+  max-width: calc(100vw - var(--narrator-circle) - 2rem);
 }
 
 @media (min-width: 768px) {
@@ -457,7 +591,9 @@ onBeforeUnmount(() => {
 }
 
 .kr-hand-slide-enter-active,
-.kr-hand-slide-leave-active {
+.kr-hand-slide-leave-active,
+.kr-dock-message-enter-active,
+.kr-dock-message-leave-active {
   transition:
     opacity 240ms ease,
     transform 240ms ease;
@@ -467,5 +603,21 @@ onBeforeUnmount(() => {
 .kr-hand-slide-leave-to {
   opacity: 0;
   transform: translateY(1rem);
+}
+
+.kr-dock-message-enter-from,
+.kr-dock-message-leave-to {
+  opacity: 0;
+  transform: translateX(0.75rem) translateY(0.25rem) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kr-workspace-dock,
+  .kr-hand-slide-enter-active,
+  .kr-hand-slide-leave-active,
+  .kr-dock-message-enter-active,
+  .kr-dock-message-leave-active {
+    transition: none;
+  }
 }
 </style>

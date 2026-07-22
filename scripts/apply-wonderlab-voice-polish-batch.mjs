@@ -166,12 +166,11 @@ function authorMatches(actual, expected) {
   return actual?.kind === expected.kind && Number(actual?.id) === expected.id
 }
 
-function findPublicReaction(reviews, reactionId) {
-  return reviews.find((review) => Number(review.id) === reactionId)
-}
-
 function assertPublicLock(review, revision, publisherUserId) {
   if (!review) throw new Error(`Reaction ${revision.reactionId} is not publicly projected.`)
+  if (Number(review.id) !== revision.reactionId) {
+    throw new Error(`Reaction ${revision.reactionId} identity lock changed.`)
+  }
   if (Number(review.componentId) !== revision.componentId) {
     throw new Error(`Reaction ${revision.reactionId} Component lock changed.`)
   }
@@ -219,10 +218,10 @@ for (const revision of manifest.revisions) {
     throw new Error(`Draft ${revision.draftId} reaction type lock changed.`)
   }
 
-  const beforeReviews = await request(
-    `/api/reactions/component/${revision.componentId}?voicePolish=${Date.now()}`,
+  const beforeReaction = await request(
+    `/api/admin/wonderlab/reactions/${revision.reactionId}`,
+    { admin: true },
   )
-  const beforeReaction = findPublicReaction(beforeReviews, revision.reactionId)
   const publisherUserId = Number(beforeDraft.publisherUserId)
   assertPositiveInteger(publisherUserId, 'publisherUserId')
   assertPublicLock(beforeReaction, revision, publisherUserId)
@@ -275,10 +274,10 @@ for (const revision of manifest.revisions) {
     `/api/admin/wonderlab/review-drafts/${revision.draftId}`,
     { admin: true },
   )
-  const afterReviews = await request(
-    `/api/reactions/component/${revision.componentId}?voicePolish=${Date.now()}-${revision.draftId}`,
+  const afterReaction = await request(
+    `/api/admin/wonderlab/reactions/${revision.reactionId}`,
+    { admin: true },
   )
-  const afterReaction = findPublicReaction(afterReviews, revision.reactionId)
   assertPublicLock(afterReaction, revision, publisherUserId)
 
   if (afterDraft.status !== 'PUBLISHED') {

@@ -1,0 +1,79 @@
+name: WonderLab Correct Final Effect Lock
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-correct-final-effect-lock.yml'
+      - 'scripts/correct-wonderlab-final-effect-component-lock.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-correct-final-effect-lock.yml'
+      - 'scripts/correct-wonderlab-final-effect-component-lock.mjs'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validate final-effect lock correction
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate deterministic correction
+        run: |
+          set -euo pipefail
+          node --check scripts/correct-wonderlab-final-effect-component-lock.mjs
+          cp config/wonderlab-voice-polish-batch-014.json "$RUNNER_TEMP/original.json"
+          node scripts/correct-wonderlab-final-effect-component-lock.mjs
+          node <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const before = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/original.json', 'utf8'))
+          const after = JSON.parse(fs.readFileSync('config/wonderlab-voice-polish-batch-014.json', 'utf8'))
+          assert.equal(before.revisions.length, after.revisions.length)
+          const changed = []
+          for (let index = 0; index < before.revisions.length; index += 1) {
+            const left = before.revisions[index]
+            const right = after.revisions[index]
+            if (JSON.stringify(left) !== JSON.stringify(right)) changed.push([left, right])
+          }
+          assert.equal(changed.length, 2)
+          assert.deepEqual(changed.map(([left]) => left.draftId), [227, 228])
+          for (const [left, right] of changed) {
+            assert.equal(left.componentId, 1261)
+            assert.equal(right.componentId, 1262)
+            const copy = { ...right, componentId: 1261 }
+            assert.deepEqual(copy, left)
+          }
+          console.log('Final-effect lock correction changes only drafts #227 and #228 from Component 1261 to 1262.')
+          NODE
+
+  generate:
+    name: Publish corrected manifest branch
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate exact correction branch
+        env:
+          OUTPUT_BRANCH: wonderlab/corrected-final-effect-component-lock
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$OUTPUT_BRANCH"
+          node scripts/correct-wonderlab-final-effect-component-lock.mjs
+          changed="$(git diff --name-only)"
+          test "$changed" = "config/wonderlab-voice-polish-batch-014.json"
+          git add config/wonderlab-voice-polish-batch-014.json
+          git commit -m "Correct WonderLab final-effect Component locks"
+          git push --force origin "HEAD:${OUTPUT_BRANCH}"

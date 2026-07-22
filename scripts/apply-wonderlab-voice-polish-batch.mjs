@@ -15,6 +15,18 @@ const outputDir = resolve(
   process.env.WONDERLAB_VOICE_POLISH_OUTPUT ||
     'wonderlab-voice-polish-apply-artifacts',
 )
+const getAttempts = Math.max(
+  1,
+  Number(process.env.WONDERLAB_VOICE_POLISH_GET_ATTEMPTS || 4),
+)
+const getTimeoutMs = Math.max(
+  5_000,
+  Number(process.env.WONDERLAB_VOICE_POLISH_GET_TIMEOUT_MS || 30_000),
+)
+const mutationTimeoutMs = Math.max(
+  10_000,
+  Number(process.env.WONDERLAB_VOICE_POLISH_MUTATION_TIMEOUT_MS || 60_000),
+)
 
 if (!token) throw new Error('WONDERLAB_ADMIN_TOKEN is required.')
 
@@ -33,22 +45,67 @@ function adminHeaders() {
   }
 }
 
+function sleep(ms) {
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, ms))
+}
+
 async function request(path, { method = 'GET', body, admin = false } = {}) {
-  const response = await fetch(`${baseUrl}${path}`, {
-    method,
-    headers: admin
-      ? adminHeaders()
-      : { accept: 'application/json', 'cache-control': 'no-store' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: 'no-store',
-  })
-  const payload = await response.json().catch(() => null)
-  if (!response.ok) {
-    throw new Error(
-      payload?.message || payload?.statusMessage || `${method} ${path} returned ${response.status}.`,
-    )
+  const normalizedMethod = method.toUpperCase()
+  const isRead = normalizedMethod === 'GET'
+  const attempts = isRead ? getAttempts : 1
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const controller = new AbortController()
+    const timeoutMs = isRead ? getTimeoutMs : mutationTimeoutMs
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+    let response
+
+    try {
+      response = await fetch(`${baseUrl}${path}`, {
+        method: normalizedMethod,
+        headers: admin
+          ? adminHeaders()
+          : { accept: 'application/json', 'cache-control': 'no-store' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+    } catch (error) {
+      clearTimeout(timeoutId)
+      if (isRead && attempt < attempts) {
+        const delayMs = 1_000 * attempt
+        console.warn(
+          `GET ${path} failed on attempt ${attempt}/${attempts}; retrying in ${delayMs}ms: ${error instanceof Error ? error.message : String(error)}`,
+        )
+        await sleep(delayMs)
+        continue
+      }
+      throw error
+    }
+
+    clearTimeout(timeoutId)
+    const payload = await response.json().catch(() => null)
+    if (!response.ok) {
+      const message =
+        payload?.message ||
+        payload?.statusMessage ||
+        `${normalizedMethod} ${path} returned ${response.status}.`
+      const retryableRead =
+        isRead && (response.status === 429 || response.status >= 500)
+      if (retryableRead && attempt < attempts) {
+        const delayMs = 1_000 * attempt
+        console.warn(
+          `GET ${path} returned ${response.status} on attempt ${attempt}/${attempts}; retrying in ${delayMs}ms.`,
+        )
+        await sleep(delayMs)
+        continue
+      }
+      throw new Error(message)
+    }
+    return payload?.data ?? payload
   }
-  return payload?.data ?? payload
+
+  throw new Error(`GET ${path} exhausted ${attempts} attempts.`)
 }
 
 function assertPositiveInteger(value, label) {

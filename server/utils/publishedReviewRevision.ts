@@ -71,93 +71,99 @@ export async function revisePublishedReview(
   const revisedComment = input.editedComment.trim()
   if (!revisedComment) throw new Error('A revised review comment is required.')
 
-  const revision = await prisma.$transaction(async (tx) => {
-    const drafts = await tx.$queryRaw<LockedPublishedDraft[]>`
-      SELECT
-        id,
-        status,
-        componentId,
-        authorBotId,
-        authorCharacterId,
-        publisherUserId,
-        publishedReactionId
-      FROM ReviewDraft
-      WHERE id = ${input.draftId}
-      LIMIT 1
-      FOR UPDATE
-    `
-    const draft = drafts[0]
-    if (!draft) throw new Error(`Review draft ${input.draftId} not found.`)
-    if (draft.status !== 'PUBLISHED') {
-      throw new Error('Only a published review draft may use the revision service.')
-    }
-    if (!draft.publisherUserId || !draft.publishedReactionId) {
-      throw new Error('Published review draft is missing publisher or Reaction linkage.')
-    }
-    if (
-      draft.componentId !== input.expectedComponentId ||
-      draft.publishedReactionId !== input.expectedReactionId
-    ) {
-      throw new Error('Published review Component or Reaction lock is stale.')
-    }
+  const revision = await prisma.$transaction(
+    async (tx) => {
+      const drafts = await tx.$queryRaw<LockedPublishedDraft[]>`
+        SELECT
+          id,
+          status,
+          componentId,
+          authorBotId,
+          authorCharacterId,
+          publisherUserId,
+          publishedReactionId
+        FROM ReviewDraft
+        WHERE id = ${input.draftId}
+        LIMIT 1
+        FOR UPDATE
+      `
+      const draft = drafts[0]
+      if (!draft) throw new Error(`Review draft ${input.draftId} not found.`)
+      if (draft.status !== 'PUBLISHED') {
+        throw new Error('Only a published review draft may use the revision service.')
+      }
+      if (!draft.publisherUserId || !draft.publishedReactionId) {
+        throw new Error('Published review draft is missing publisher or Reaction linkage.')
+      }
+      if (
+        draft.componentId !== input.expectedComponentId ||
+        draft.publishedReactionId !== input.expectedReactionId
+      ) {
+        throw new Error('Published review Component or Reaction lock is stale.')
+      }
 
-    const reactions = await tx.$queryRaw<LockedReaction[]>`
-      SELECT
-        id,
-        userId,
-        componentId,
-        reactionCategory,
-        comment,
-        authorBotId,
-        authorCharacterId
-      FROM Reaction
-      WHERE id = ${draft.publishedReactionId}
-      LIMIT 1
-      FOR UPDATE
-    `
-    const reaction = reactions[0]
-    if (!reaction) throw new Error('The linked published Reaction no longer exists.')
-    if (
-      reaction.componentId !== draft.componentId ||
-      reaction.reactionCategory !== 'COMPONENT' ||
-      reaction.userId !== draft.publisherUserId
-    ) {
-      throw new Error('Published Reaction linkage no longer matches the ReviewDraft.')
-    }
+      const reactions = await tx.$queryRaw<LockedReaction[]>`
+        SELECT
+          id,
+          userId,
+          componentId,
+          reactionCategory,
+          comment,
+          authorBotId,
+          authorCharacterId
+        FROM Reaction
+        WHERE id = ${draft.publishedReactionId}
+        LIMIT 1
+        FOR UPDATE
+      `
+      const reaction = reactions[0]
+      if (!reaction) throw new Error('The linked published Reaction no longer exists.')
+      if (
+        reaction.componentId !== draft.componentId ||
+        reaction.reactionCategory !== 'COMPONENT' ||
+        reaction.userId !== draft.publisherUserId
+      ) {
+        throw new Error('Published Reaction linkage no longer matches the ReviewDraft.')
+      }
 
-    assertExpectedAuthor(draft, reaction, input.expectedAuthor)
+      assertExpectedAuthor(draft, reaction, input.expectedAuthor)
 
-    const previousCommentHash = publishedReviewCommentHash(reaction.comment)
-    if (previousCommentHash !== input.expectedCurrentCommentHash) {
-      throw new Error('Published review comment changed after the revision was prepared.')
-    }
+      const previousCommentHash = publishedReviewCommentHash(reaction.comment)
+      if (previousCommentHash !== input.expectedCurrentCommentHash) {
+        throw new Error('Published review comment changed after the revision was prepared.')
+      }
 
-    await tx.$executeRaw`
-      UPDATE ReviewDraft
-      SET
-        updatedAt = CURRENT_TIMESTAMP(3),
-        editedComment = ${revisedComment}
-      WHERE id = ${draft.id}
-        AND status = 'PUBLISHED'
-        AND publishedReactionId = ${reaction.id}
-    `
+      await tx.$executeRaw`
+        UPDATE ReviewDraft
+        SET
+          updatedAt = CURRENT_TIMESTAMP(3),
+          editedComment = ${revisedComment}
+        WHERE id = ${draft.id}
+          AND status = 'PUBLISHED'
+          AND publishedReactionId = ${reaction.id}
+      `
 
-    await tx.$executeRaw`
-      UPDATE Reaction
-      SET
-        updatedAt = CURRENT_TIMESTAMP(3),
-        comment = ${revisedComment}
-      WHERE id = ${reaction.id}
-        AND componentId = ${draft.componentId}
-        AND userId = ${draft.publisherUserId}
-    `
+      await tx.$executeRaw`
+        UPDATE Reaction
+        SET
+          updatedAt = CURRENT_TIMESTAMP(3),
+          comment = ${revisedComment}
+        WHERE id = ${reaction.id}
+          AND componentId = ${draft.componentId}
+          AND userId = ${draft.publisherUserId}
+      `
 
-    return {
-      reactionId: reaction.id,
-      previousCommentHash,
-      revisedCommentHash: publishedReviewCommentHash(revisedComment),
-    }
-  })
+      return {
+        reactionId: reaction.id,
+        previousCommentHash,
+        revisedCommentHash: publishedReviewCommentHash(revisedComment),
+      }
+    },
+    {
+      maxWait: 10_000,
+      timeout: 20_000,
+    },
+  )
 
   const draft = await getReviewDraftById(input.draftId)
   if (!draft) throw new Error('Revised published review draft could not be reloaded.')

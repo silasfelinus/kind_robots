@@ -1,22 +1,22 @@
 ---
-title: 'Hair Studio'
-room: 'Hair Studio'
-subtitle: 'The Hair by Superkate studio suite'
-description: The whole salon in one tab: try a new color or cut on a client's own photo, price an appointment, keep the client book, and send warm receipts. Client photos stay private.
+title: 'Superkate Services'
+room: 'Hair by Superkate'
+subtitle: 'The Hair by Superkate service desk'
+description: Price appointments, manage clients, review service history, and prepare friendly receipts from one private workspace.
 image: 'background/artgallery.webp'
-icon: kind-icon:magic
-tooltip: Private AI hairstyle studio for Hair by Superkate.
-dottiTip: AMI, I taught the art forge to do hair. Color, cut, the works.
-amiTip: Delightful. Reversible haircuts at last — the only kind I trust.
+icon: kind-icon:sparkles
+tooltip: Private service calculator and client book for Hair by Superkate.
+dottiTip: The salon paperwork has been brushed, trimmed, and placed somewhere sensible.
+amiTip: A rare administrative haircut with no awkward growing-out phase.
 sort: highlight
 channelKey: plan
 tabKey: stylist
-dashboardKey: art
-dashboardTab: stylist
-route: /projects/build/stylist
+dashboardKey: conductor
+dashboardTab: conductor
+route: /stylist
 cards: artCards
-loadingMessage: Loading Hair Studio...
-refreshLabel: Refresh Studio
+loadingMessage: Loading Superkate Services...
+refreshLabel: Refresh Services
 ---
 
 :stylist-manager

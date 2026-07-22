@@ -1,7 +1,6 @@
 ---
 contentType: channel
 channelKey: plan
-dashboardKey: conductor
 label: Plan
 title: Plan
 room: Conductor

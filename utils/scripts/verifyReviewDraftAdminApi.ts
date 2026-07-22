@@ -50,7 +50,8 @@ const listPath = 'server/api/admin/wonderlab/review-drafts/index.get.ts'
 const createPath = 'server/api/admin/wonderlab/review-drafts/index.post.ts'
 const detailPath = 'server/api/admin/wonderlab/review-drafts/[id].get.ts'
 const patchPath = 'server/api/admin/wonderlab/review-drafts/[id].patch.ts'
-const paths = [listPath, createPath, detailPath, patchPath]
+const reactionGuardPath = 'server/api/admin/wonderlab/reactions/[id].get.ts'
+const paths = [listPath, createPath, detailPath, patchPath, reactionGuardPath]
 
 for (const path of paths) {
   const source = await readFile(path, 'utf8')
@@ -64,6 +65,15 @@ assert.doesNotMatch(createSource, /status\??:/)
 
 const patchSource = await readFile(patchPath, 'utf8')
 assert.match(patchSource, /controlled publication service/i)
+
+const reactionGuardSource = await readFile(reactionGuardPath, 'utf8')
+assert.match(reactionGuardSource, /WHERE r\.id = \$\{reactionId\}/)
+assert.match(reactionGuardSource, /LIMIT 1/)
+assert.doesNotMatch(reactionGuardSource, /WHERE r\.componentId/)
+
+const applySource = await readFile('scripts/apply-wonderlab-voice-polish-batch.mjs', 'utf8')
+assert.match(applySource, /\/api\/admin\/wonderlab\/reactions\/\$\{revision\.reactionId\}/)
+assert.doesNotMatch(applySource, /\/api\/reactions\/component\//)
 
 const repositorySource = await readFile('server/utils/reviewDraftRepository.ts', 'utf8')
 assert.match(repositorySource, /INSERT IGNORE INTO ReviewDraft/)

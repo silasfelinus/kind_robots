@@ -1,5 +1,6 @@
 // /utils/scripts/verifyWonderLabCoreFixtures.ts
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   getWonderLabPreviewFixture,
   listWonderLabPreviewFixtureKeys,
@@ -62,6 +63,47 @@ for (const key of [
   const fixture = getWonderLabPreviewFixture(key)
   assert.ok(fixture?.skipReason, `${key} must have an explicit skip reason.`)
 }
+
+const commentaryGuide = readFileSync(
+  'pages/wonderlab/commentary-guide.vue',
+  'utf8',
+)
+const commentaryNavigation = readFileSync(
+  'content/channels/lab/commentary-guide.md',
+  'utf8',
+)
+
+for (const principle of [
+  'Stars carry the evaluation',
+  'Write the personality, not a report',
+  'Let verbosity belong to the speaker',
+  'Use the exhibit as scenery',
+  'Uniform length is a defect',
+  '*purrs*',
+  'Components are the rehearsal room',
+  'Remove the review voice',
+]) {
+  assert.ok(
+    commentaryGuide.includes(principle),
+    `WonderLab commentary guide must retain principle: ${principle}`,
+  )
+}
+
+for (const antiPattern of [
+  'Function lists',
+  'shared house voice',
+  'comments padded to the same length',
+  'Invented behavior',
+]) {
+  assert.ok(
+    commentaryGuide.includes(antiPattern),
+    `WonderLab commentary guide must name anti-pattern: ${antiPattern}`,
+  )
+}
+
+assert.ok(commentaryNavigation.includes('route: /wonderlab/commentary-guide'))
+assert.ok(commentaryNavigation.includes('label: Voice Guide'))
+assert.ok(commentaryNavigation.includes('requiredRole: GUEST'))
 
 const keys = listWonderLabPreviewFixtureKeys()
 assert.equal(keys.length, new Set(keys).size)

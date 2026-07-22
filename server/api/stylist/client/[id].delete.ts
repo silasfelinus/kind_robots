@@ -1,7 +1,6 @@
 // /server/api/stylist/client/[id].delete.ts
-//
-// Delete a client from the authed user's book. Appointment history keeps its
-// clientName snapshot; private profile photos are removed with the client.
+// Delete an owner-scoped client and their complete private gallery. Appointment
+// history keeps its clientName snapshot through the existing SET NULL relation.
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -17,7 +16,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const existing = await prisma.stylistClient.findUnique({ where: { id } })
-
     if (!existing || existing.userId !== auth.user.id) {
       throw createError({ statusCode: 404, message: `Client ${id} not found.` })
     }
@@ -26,17 +24,23 @@ export default defineEventHandler(async (event) => {
       prisma.artImage.deleteMany({
         where: {
           userId: auth.user.id,
-          path: `stylist-client:${id}:profile`,
+          OR: [
+            { path: { startsWith: `stylist-client:${id}:gallery:` } },
+            { path: `stylist-client:${id}:profile` },
+          ],
         },
       }),
       prisma.stylistClient.delete({ where: { id } }),
     ])
 
-    return { success: true, message: 'Client and private photo deleted.', statusCode: 200 }
+    return {
+      success: true,
+      message: 'Client and private gallery deleted.',
+      statusCode: 200,
+    }
   } catch (error: unknown) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
-
     return {
       success: false,
       statusCode: handled.statusCode || 500,

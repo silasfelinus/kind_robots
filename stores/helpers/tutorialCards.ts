@@ -620,6 +620,12 @@ export const tutorialChannels = {
         body: 'The voice frontier: an Alexa skill and local relay that let Serendipity and friends speak and listen. Watch the relay status and learn how to plug in.',
         image: tutorialImage('wonder', 'voice-lab'),
       },
+      {
+        key: 'sketchy',
+        title: 'Sketchy',
+        body: 'A drawing-habit studio: a tier-appropriate assignment, a timer, and kind AI critique that turns "I can\'t draw" into a stack of finished pages.',
+        image: tutorialImage('wonder', 'sketchy'),
+      },
     ],
   },
 } as const satisfies Record<TutorialChannelKey, TutorialChannel>
@@ -645,6 +651,7 @@ const tutorialRouteMap = {
     '/watchlist',
     '/ruler-hooked',
     '/voice-lab',
+    '/sketchy',
   ],
 } as const satisfies Record<TutorialChannelKey, string | readonly string[]>
 

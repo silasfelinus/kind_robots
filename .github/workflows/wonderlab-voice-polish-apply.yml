@@ -173,9 +173,15 @@ jobs:
           set -euo pipefail
           cat "$APPLY_COMMENT" >> "$GITHUB_STEP_SUMMARY"
           printf '\n## Full-corpus post-audit\n\n' >> "$GITHUB_STEP_SUMMARY"
-          jq -r '
-            "- **Published reviews captured:** \(.scan.publishedReviews)\n" +
-            "- **Draft range:** #\(.scan.firstDraftId)–#\(.scan.lastDraftId)\n" +
-            "- **Highest draft ID scanned:** #\(.scan.highestDraftId)\n" +
-            "- **Production:** `\(.production.commit // \"unknown\")` · deployment `\(.production.deploymentId // \"unknown\")`"
-          ' "$AUDIT_REPORT" >> "$GITHUB_STEP_SUMMARY"
+          published="$(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")"
+          first="$(jq -r '.scan.firstDraftId' "$AUDIT_REPORT")"
+          last="$(jq -r '.scan.lastDraftId' "$AUDIT_REPORT")"
+          highest="$(jq -r '.scan.highestDraftId' "$AUDIT_REPORT")"
+          production="$(jq -r '.production.commit // "unknown"' "$AUDIT_REPORT")"
+          deployment="$(jq -r '.production.deploymentId // "unknown"' "$AUDIT_REPORT")"
+          printf '%s\n' \
+            "- **Published reviews captured:** $published" \
+            "- **Draft range:** #$first–#$last" \
+            "- **Highest draft ID scanned:** #$highest" \
+            "- **Production:** \`$production\` · deployment \`$deployment\`" \
+            >> "$GITHUB_STEP_SUMMARY"

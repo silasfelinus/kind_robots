@@ -81,12 +81,12 @@ async function main(): Promise<void> {
     return
   }
 
-  entries = [...entries, ...pendingEntries]
+  const combinedEntries: unknown[] = [...entries, ...pendingEntries]
 
   const errors: string[] = []
   const manifestImageSrcByMovement = new Map<string, string>()
 
-  for (const [index, entry] of entries.entries()) {
+  for (const [index, entry] of combinedEntries.entries()) {
     const label =
       entry && typeof entry === 'object' && 'workTitle' in entry
         ? String((entry as Record<string, unknown>).workTitle)
@@ -196,7 +196,7 @@ async function main(): Promise<void> {
     ? ' with media availability verified'
     : ' (media availability check skipped; set MEDIA_VERIFY_ASSETS=1 to enable)'
   console.log(
-    `Academy examples manifest contract passed: ${entries.length} entries validated from ${manifestSource} plus ${pendingEntries.length} pending media entr${pendingEntries.length === 1 ? 'y' : 'ies'} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
+    `Academy examples manifest contract passed: ${combinedEntries.length} entries validated from ${manifestSource} plus ${pendingEntries.length} pending media entr${pendingEntries.length === 1 ? 'y' : 'ies'} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
   )
 }
 

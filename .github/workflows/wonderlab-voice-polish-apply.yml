@@ -171,7 +171,7 @@ jobs:
               echo "Direct Reaction guard is ready for Reaction #$REACTION_ID."
               exit 0
             fi
-            echo "Direct Reaction guard not ready (attempt $attempt/36); retrying in 10 seconds."
+            echo "Direct Reaction guard not ready (attempt $attempt of 36); retrying in 10 seconds."
             sleep 10
           done
           echo "::error::Direct Reaction guard route did not become ready for Reaction #$REACTION_ID."

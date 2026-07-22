@@ -9,11 +9,11 @@ tooltip: Private AI hairstyle studio for Hair by Superkate.
 dottiTip: AMI, I taught the art forge to do hair. Color, cut, the works.
 amiTip: Delightful. Reversible haircuts at last — the only kind I trust.
 sort: highlight
-channelKey: lab
+channelKey: plan
 tabKey: stylist
 dashboardKey: art
 dashboardTab: stylist
-requiredRole: ADMIN
+route: /projects/build/stylist
 cards: artCards
 loadingMessage: Loading Hair Studio...
 refreshLabel: Refresh Studio

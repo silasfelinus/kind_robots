@@ -44,14 +44,17 @@ function authorProfilePath(author) {
   return author.kind === 'BOT' ? `/api/bots/${author.id}` : `/api/characters/${author.id}`
 }
 
-const [version, components, newestPublished] = await Promise.all([
+const [version, components, corpusStats] = await Promise.all([
   request('/api/version'),
   request('/api/components'),
-  request('/api/admin/wonderlab/review-drafts?status=PUBLISHED&limit=200', { admin: true }),
+  request('/api/admin/wonderlab/review-drafts/stats?status=PUBLISHED', { admin: true }),
 ])
 
-const highestDraftId = Math.max(0, ...newestPublished.map((draft) => Number(draft.id) || 0))
-if (!highestDraftId) throw new Error('No published WonderLab ReviewDrafts were found.')
+const highestDraftId = Number(corpusStats?.highestDraftId) || 0
+const expectedPublishedReviews = Number(corpusStats?.reviewDrafts) || 0
+if (!highestDraftId || !expectedPublishedReviews) {
+  throw new Error('No published WonderLab ReviewDrafts were found.')
+}
 
 const draftIds = Array.from({ length: highestDraftId }, (_, index) => index + 1)
 const scanned = await mapConcurrent(
@@ -63,6 +66,12 @@ const scanned = await mapConcurrent(
 const publishedDrafts = scanned
   .filter((draft) => draft?.status === 'PUBLISHED' && Number(draft?.publishedReactionId) > 0)
   .sort((left, right) => Number(left.id) - Number(right.id))
+
+if (publishedDrafts.length !== expectedPublishedReviews) {
+  throw new Error(
+    `Published ReviewDraft scan was incomplete: stats reported ${expectedPublishedReviews}, but the ID scan captured ${publishedDrafts.length}.`,
+  )
+}
 
 const componentMap = new Map(components.map((component) => [Number(component.id), component]))
 const authors = Array.from(new Map(publishedDrafts.map((draft) => [`${draft.author.kind}:${draft.author.id}`, draft.author])).values())
@@ -101,6 +110,7 @@ const report = {
   production: version,
   scan: {
     highestDraftId,
+    expectedPublishedReviews,
     publishedReviews: inventory.length,
     firstDraftId: inventory[0]?.draftId ?? null,
     lastDraftId: inventory.at(-1)?.draftId ?? null,
@@ -140,7 +150,7 @@ const markdown = [
   '## WonderLab definitive commentary inventory',
   '',
   `- **Production:** \`${version.commit || 'unknown'}\` · deployment \`${version.deploymentId || 'unknown'}\``,
-  `- **Published reviews captured:** ${inventory.length}`,
+  `- **Published reviews captured:** ${inventory.length} / ${expectedPublishedReviews}`,
   `- **Draft range:** #${report.scan.firstDraftId ?? '?'}–#${report.scan.lastDraftId ?? '?'}`,
   `- **Highest draft ID scanned:** #${highestDraftId}`,
   `- **Chronological chunk files:** ${chunks.length} × up to ${chunkSize} reviews`,

@@ -50,8 +50,9 @@ const listPath = 'server/api/admin/wonderlab/review-drafts/index.get.ts'
 const createPath = 'server/api/admin/wonderlab/review-drafts/index.post.ts'
 const detailPath = 'server/api/admin/wonderlab/review-drafts/[id].get.ts'
 const patchPath = 'server/api/admin/wonderlab/review-drafts/[id].patch.ts'
+const statsPath = 'server/api/admin/wonderlab/review-drafts/stats.get.ts'
 const reactionGuardPath = 'server/api/admin/wonderlab/reactions/[id].get.ts'
-const paths = [listPath, createPath, detailPath, patchPath, reactionGuardPath]
+const paths = [listPath, createPath, detailPath, patchPath, statsPath, reactionGuardPath]
 
 for (const path of paths) {
   const source = await readFile(path, 'utf8')
@@ -66,6 +67,12 @@ assert.doesNotMatch(createSource, /status\??:/)
 const patchSource = await readFile(patchPath, 'utf8')
 assert.match(patchSource, /controlled publication service/i)
 
+const statsSource = await readFile(statsPath, 'utf8')
+assert.match(statsSource, /SELECT MAX\(id\) AS highestDraftId, COUNT\(\*\) AS reviewDrafts/)
+assert.match(statsSource, /WHERE \(\? IS NULL OR status = \?\)/)
+assert.match(statsSource, /normalizeReviewDraftStatus/)
+assert.doesNotMatch(statsSource, /ORDER BY|LIMIT|\$executeRaw|INSERT\s+INTO|UPDATE\s+|DELETE\s+FROM/i)
+
 const reactionGuardSource = await readFile(reactionGuardPath, 'utf8')
 assert.match(reactionGuardSource, /WHERE r\.id = \$\{reactionId\}/)
 assert.match(reactionGuardSource, /LIMIT 1/)
@@ -74,6 +81,12 @@ assert.doesNotMatch(reactionGuardSource, /WHERE r\.componentId/)
 const applySource = await readFile('scripts/apply-wonderlab-voice-polish-batch.mjs', 'utf8')
 assert.match(applySource, /\/api\/admin\/wonderlab\/reactions\/\$\{revision\.reactionId\}/)
 assert.doesNotMatch(applySource, /\/api\/reactions\/component\//)
+
+const inventorySource = await readFile('scripts/wonderlab-definitive-inventory.mjs', 'utf8')
+assert.match(inventorySource, /\/api\/admin\/wonderlab\/review-drafts\/stats\?status=PUBLISHED/)
+assert.match(inventorySource, /expectedPublishedReviews/)
+assert.match(inventorySource, /Published ReviewDraft scan was incomplete/)
+assert.doesNotMatch(inventorySource, /review-drafts\?status=PUBLISHED&limit=200/)
 
 const repositorySource = await readFile('server/utils/reviewDraftRepository.ts', 'utf8')
 assert.match(repositorySource, /INSERT IGNORE INTO ReviewDraft/)

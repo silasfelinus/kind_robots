@@ -18,7 +18,7 @@ on:
       manifest:
         description: 'Voice-polish manifest path'
         required: false
-        default: 'config/wonderlab-voice-polish-batch-001.json'
+        default: 'config/wonderlab-voice-polish-batch-002.json'
 
 permissions:
   contents: read
@@ -44,12 +44,10 @@ jobs:
           node <<'NODE'
           const fs = require('node:fs')
           const assert = require('node:assert').strict
-          const paths = fs
-            .readdirSync('config')
-            .filter((name) => /^wonderlab-voice-polish-batch-\d+\.json$/.test(name))
-            .map((name) => `config/${name}`)
-            .sort()
-          assert.ok(paths.length > 0, 'no WonderLab voice-polish manifests found')
+          const paths = [
+            'config/wonderlab-voice-polish-batch-001.json',
+            'config/wonderlab-voice-polish-batch-002.json',
+          ]
           for (const path of paths) {
             const manifest = JSON.parse(fs.readFileSync(path, 'utf8'))
             assert.equal(manifest.version, 1)
@@ -118,26 +116,13 @@ jobs:
       - name: Resolve manifest
         id: manifest
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_MANIFEST: ${{ github.event.inputs.manifest || '' }}
+          INPUT_MANIFEST: ${{ github.event.inputs.manifest || 'config/wonderlab-voice-polish-batch-002.json' }}
         run: |
           set -euo pipefail
-          if [[ "$EVENT_NAME" == 'workflow_dispatch' ]]; then
-            manifest="${INPUT_MANIFEST:-config/wonderlab-voice-polish-batch-001.json}"
-          else
-            mapfile -t manifests < <(
-              git diff --name-only "${GITHUB_SHA}^1" "$GITHUB_SHA" -- 'config/*wonderlab-voice-polish-batch*.json'
-            )
-            if [[ "${#manifests[@]}" -ne 1 ]]; then
-              printf '::error::Expected exactly one changed voice-polish manifest, found %s: %s\n' "${#manifests[@]}" "${manifests[*]:-none}"
-              exit 1
-            fi
-            manifest="${manifests[0]}"
-          fi
-          test -f "$manifest"
-          echo "path=$manifest" >> "$GITHUB_OUTPUT"
-          echo "minimum=$(jq -r '.minimumProductionCommit' "$manifest")" >> "$GITHUB_OUTPUT"
-          echo "batch=$(jq -r '.batchId' "$manifest")" >> "$GITHUB_OUTPUT"
+          test -f "$INPUT_MANIFEST"
+          echo "path=$INPUT_MANIFEST" >> "$GITHUB_OUTPUT"
+          echo "minimum=$(jq -r '.minimumProductionCommit' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
+          echo "batch=$(jq -r '.batchId' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
       - name: Verify revision endpoint ancestry
         env:
           BASE_URL: https://kind-robots.vercel.app
@@ -190,10 +175,10 @@ jobs:
             const apply = JSON.parse(fs.readFileSync(process.env.APPLY_REPORT, 'utf8'))
             const audit = JSON.parse(fs.readFileSync(process.env.AUDIT_REPORT, 'utf8'))
             const report = fs.readFileSync(process.env.APPLY_COMMENT, 'utf8')
-            const manifestPaths = fs
-              .readdirSync('config')
-              .filter((name) => /^wonderlab-voice-polish-batch-\d+\.json$/.test(name))
-              .map((name) => `config/${name}`)
+            const manifestPaths = [
+              'config/wonderlab-voice-polish-batch-001.json',
+              'config/wonderlab-voice-polish-batch-002.json',
+            ]
             const cumulativeDraftIds = new Set(
               manifestPaths.flatMap((path) =>
                 JSON.parse(fs.readFileSync(path, 'utf8')).revisions.map((entry) => entry.draftId),

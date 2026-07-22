@@ -302,12 +302,7 @@ const footerVars = computed<CSSProperties>(() => {
   } as CSSProperties
 })
 
-const BOTTOM_MODES: BottomMode[] = [
-  'closed',
-  'hand',
-  'narrator-compact',
-  'narrator-open',
-]
+const BOTTOM_MODES: BottomMode[] = ['closed', 'hand', 'narrator-open']
 
 const bottomFabIcon = computed(() => {
   switch (bottomMode.value) {
@@ -402,8 +397,6 @@ onMounted(async () => {
 
   mdMedia.addEventListener('change', syncBreakpoints)
   xlMedia.addEventListener('change', syncBreakpoints)
-
-  if (isXl.value) bottomMode.value = 'hand'
 
   failsafeTimeoutId = setTimeout(() => {
     showLoader.value = false

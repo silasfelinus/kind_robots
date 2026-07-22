@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useNavStore } from '@/stores/navStore'
@@ -68,6 +69,8 @@ const characterStore = useCharacterStore()
 const choiceStore = useChoiceStore()
 const navStore = useNavStore()
 const rewardStore = useRewardStore()
+const route = useRoute()
+const router = useRouter()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 
@@ -165,6 +168,19 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+
+  // Deep-link support: a caller (e.g. the storymaker front page's "Start a
+  // new scenario" CTA) can land here with ?scenario=new to jump straight to
+  // the add tab. This must run *after* loadManagerData, since the page's
+  // own content frontmatter (dashboardTab: scenarios) already resolved the
+  // tab to 'scenarios' before this component mounted -- setting it here is
+  // what actually overrides that default.
+  if (route.query.scenario === 'new') {
+    navStore.setDashboardTab(dashboardKey.value, 'add')
+    const { scenario: _drop, ...restQuery } = route.query
+    router.replace({ query: restQuery })
+    return
+  }
 
   if (activeTab.value === 'add') {
     prepareAddForm()

@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/wonderlab-voice-polish-apply.yml'
       - 'scripts/apply-wonderlab-voice-polish-batch.mjs'
+      - 'scripts/preflight-wonderlab-voice-polish-batch.mjs'
       - 'scripts/wonderlab-definitive-inventory.mjs'
       - 'config/*wonderlab-voice-polish-batch*.json'
   push:
@@ -13,6 +14,7 @@ on:
     paths:
       - '.github/workflows/wonderlab-voice-polish-apply.yml'
       - 'scripts/apply-wonderlab-voice-polish-batch.mjs'
+      - 'scripts/preflight-wonderlab-voice-polish-batch.mjs'
       - 'scripts/wonderlab-definitive-inventory.mjs'
       - 'config/*wonderlab-voice-polish-batch*.json'
   workflow_dispatch:
@@ -23,7 +25,7 @@ on:
         default: ''
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: wonderlab-voice-polish-apply
@@ -42,6 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           node --check scripts/apply-wonderlab-voice-polish-batch.mjs
+          node --check scripts/preflight-wonderlab-voice-polish-batch.mjs
           node --check scripts/wonderlab-definitive-inventory.mjs
           node <<'NODE'
           const fs = require('node:fs')
@@ -80,6 +83,7 @@ jobs:
             }
           }
           const runner = fs.readFileSync('scripts/apply-wonderlab-voice-polish-batch.mjs', 'utf8')
+          const preflight = fs.readFileSync('scripts/preflight-wonderlab-voice-polish-batch.mjs', 'utf8')
           for (const required of [
             '/review-drafts/${revision.draftId}/revise',
             'expectedCurrentCommentHash',
@@ -89,6 +93,17 @@ jobs:
             'publisherUserId',
             'flavorLength',
           ]) assert.ok(runner.includes(required), `missing guarded apply boundary: ${required}`)
+          for (const required of [
+            'publicationState',
+            'componentAssignment',
+            'reactionAssignment',
+            'reviewerAssignment',
+            'sourceLock',
+            'ratingLock',
+            'reactionTypeLock',
+            'publicReactionIdentity',
+            'draftProjectionAgreement',
+          ]) assert.ok(preflight.includes(required), `missing guarded preflight boundary: ${required}`)
           for (const forbidden of [
             '/publish',
             '/generate',
@@ -96,7 +111,10 @@ jobs:
             '/reject',
             'DATABASE_URL',
             'prisma.',
-          ]) assert.ok(!runner.includes(forbidden), `voice-polish runner crossed boundary: ${forbidden}`)
+          ]) {
+            assert.ok(!runner.includes(forbidden), `voice-polish runner crossed boundary: ${forbidden}`)
+            assert.ok(!preflight.includes(forbidden), `voice-polish preflight crossed boundary: ${forbidden}`)
+          }
           console.log(`WonderLab guarded flavor manifests passed: ${paths.length}.`)
           NODE
 
@@ -176,6 +194,48 @@ jobs:
           done
           echo "::error::Direct Reaction guard route did not become ready for Reaction #$REACTION_ID."
           exit 1
+      - name: Inspect exact publication locks
+        id: preflight
+        continue-on-error: true
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_VOICE_POLISH_MANIFEST: ${{ steps.manifest.outputs.path }}
+          WONDERLAB_VOICE_POLISH_PREFLIGHT_OUTPUT: wonderlab-voice-polish-preflight-artifacts
+        run: node scripts/preflight-wonderlab-voice-polish-batch.mjs
+      - name: Publish preflight evidence
+        if: always() && steps.preflight.outcome != 'skipped'
+        env:
+          PREFLIGHT_BRANCH: wonderlab-voice-polish-preflight
+          PREFLIGHT_DIR: wonderlab-voice-polish-preflight-artifacts
+        run: |
+          set -euo pipefail
+          snapshot_tmp="$(mktemp -d)"
+          publish_tmp="$(mktemp -d)"
+          cp -R "$PREFLIGHT_DIR"/. "$snapshot_tmp"/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git worktree add --detach "$publish_tmp" HEAD
+          cd "$publish_tmp"
+          git switch --orphan "$PREFLIGHT_BRANCH"
+          git rm -rf .
+          mkdir -p preflight
+          cp -R "$snapshot_tmp"/. preflight/
+          cat > README.md <<EOF
+          # WonderLab voice-polish preflight
+
+          Generated from the authenticated production API by workflow run ${GITHUB_RUN_ID}.
+
+          This branch is machine-generated and force-updated. It records IDs, hashes and invariant comparisons only; it contains no credentials or full commentary text.
+          EOF
+          git add README.md preflight
+          git commit -m "[skip ci] WonderLab voice-polish preflight (run ${GITHUB_RUN_ID})"
+          git push --force origin "HEAD:${PREFLIGHT_BRANCH}"
+      - name: Enforce preflight result
+        if: steps.preflight.outcome != 'success'
+        run: |
+          echo "::error::Guarded voice-polish preflight found a lock mismatch or read failure."
+          exit 1
       - name: Apply exact voice-polish revisions
         env:
           WONDERLAB_BASE_URL: https://kind-robots.vercel.app
@@ -194,16 +254,19 @@ jobs:
         with:
           name: wonderlab-voice-polish-${{ steps.manifest.outputs.batch }}-${{ github.run_id }}
           path: |
+            wonderlab-voice-polish-preflight-artifacts
             wonderlab-voice-polish-apply-artifacts
             wonderlab-voice-polish-post-audit
           retention-days: 30
       - name: Write workflow summary
         env:
+          PREFLIGHT_COMMENT: wonderlab-voice-polish-preflight-artifacts/wonderlab-voice-polish-preflight.md
           APPLY_REPORT: wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.json
           APPLY_COMMENT: wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.md
           AUDIT_REPORT: wonderlab-voice-polish-post-audit/wonderlab-definitive-inventory.json
         run: |
           set -euo pipefail
+          cat "$PREFLIGHT_COMMENT" >> "$GITHUB_STEP_SUMMARY"
           cat "$APPLY_COMMENT" >> "$GITHUB_STEP_SUMMARY"
           printf '\n## Full-corpus post-audit\n\n' >> "$GITHUB_STEP_SUMMARY"
           published="$(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")"

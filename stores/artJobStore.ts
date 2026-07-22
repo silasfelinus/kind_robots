@@ -460,7 +460,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
   async function reenqueueJob(
     id: number,
     mode: ArtJobRetryMode = 'NEW_OUTPUT',
-    options?: { refreshSeed?: boolean; overrides?: ArtJobOverrides | null },
+    options?: {
+      refreshSeed?: boolean
+      preset?: string | null
+      overrides?: ArtJobOverrides | null
+    },
   ): Promise<number | null> {
     if (state.retryingJobIds.includes(id)) return null
     state.retryingJobIds = [...state.retryingJobIds, id]
@@ -475,6 +479,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         body: JSON.stringify({
           mode,
           refreshSeed: options?.refreshSeed ?? true,
+          ...(options?.preset ? { preset: options.preset } : {}),
           ...(options?.overrides ? { overrides: options.overrides } : {}),
         }),
       })

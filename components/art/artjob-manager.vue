@@ -713,9 +713,30 @@
           Adjust settings &amp; retry job #{{ tuneJob.id }}
         </h3>
         <p class="mt-1 text-xs text-base-content/60">
-          Blank fields keep the original spec. A blank seed uses a fresh random
-          seed; fill it to reproduce an exact render.
+          Pick an engine preset to re-render the same prompt on a different
+          model, or keep the engine and just change the fields. Blank fields
+          keep the original spec; a blank seed uses a fresh random seed.
         </p>
+        <label class="mt-4 flex flex-col gap-1 text-xs">
+          <span class="font-semibold">Engine preset</span>
+          <select
+            v-model="tunePreset"
+            class="select select-bordered select-sm rounded-xl"
+          >
+            <option
+              v-for="preset in enginePresets"
+              :key="preset.value"
+              :value="preset.value"
+            >
+              {{ preset.label }}
+            </option>
+          </select>
+          <span class="text-[11px] opacity-60">
+            {{
+              enginePresets.find((preset) => preset.value === tunePreset)?.hint
+            }}
+          </span>
+        </label>
         <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
           <label class="flex flex-col gap-1">
             <span class="font-semibold">Steps</span>
@@ -1282,6 +1303,18 @@ async function retryJob(job: ArtJob, mode: ArtJobRetryMode): Promise<void> {
 // seed", a filled seed pins it exactly.
 const tuneJob = ref<ArtJob | null>(null)
 const tuneMode = ref<ArtJobRetryMode>('NEW_OUTPUT')
+
+// Engine presets: re-render the same prompt on a different engine. 'custom'
+// keeps the source engine and just applies the manual field overrides below.
+const enginePresets: { value: string; label: string; hint: string }[] = [
+  { value: 'custom', label: 'Keep engine (custom)', hint: 'Same engine; apply the fields below.' },
+  { value: 'krea2', label: 'Krea 2 Turbo', hint: '8-step, illustration/creative.' },
+  { value: 'flux2', label: 'Flux.2 Klein', hint: '4-step, Apache-2.0, structured.' },
+  { value: 'sdxl', label: 'SDXL', hint: 'Fast, biggest LoRA ecosystem.' },
+  { value: 'flux', label: 'Flux dev', hint: '30-step, the old default.' },
+]
+const tunePreset = ref('custom')
+
 const tuneForm = reactive({
   steps: '',
   cfg: '',
@@ -1295,6 +1328,7 @@ const tuneForm = reactive({
 function openTune(job: ArtJob, mode: ArtJobRetryMode = 'NEW_OUTPUT'): void {
   tuneJob.value = job
   tuneMode.value = mode
+  tunePreset.value = 'custom'
   tuneForm.steps = payloadScalar(job, ['steps'])
   tuneForm.cfg = payloadScalar(job, ['cfg'])
   tuneForm.seed = ''
@@ -1335,6 +1369,7 @@ async function confirmTune(): Promise<void> {
 
   const queued = await artJobStore.reenqueueJob(job.id, tuneMode.value, {
     refreshSeed: !hasSeed,
+    preset: tunePreset.value === 'custom' ? null : tunePreset.value,
     overrides,
   })
   if (queued) tuneJob.value = null

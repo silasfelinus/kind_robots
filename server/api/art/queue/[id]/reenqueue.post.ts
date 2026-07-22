@@ -32,10 +32,19 @@ import {
   type ArtJobOverrides,
   type ArtJobRetryMode,
 } from '../../../../utils/artJobRetry'
+import {
+  buildWorkflowForEngine,
+  extractRenderRequest,
+  resolvePresetEngine,
+} from '../../../comfy/utils/engineWorkflow'
 
 type ReenqueueBody = {
   mode?: string | null
   refreshSeed?: boolean
+  // Optional engine preset — re-render the same prompt on a different engine
+  // (krea2 | flux2/klein | sdxl | flux). Rebuilds the workflow graph, carrying
+  // over prompt / negative / size / seed. Omit or "custom" to keep the engine.
+  preset?: string | null
   // Optional per-render setting changes for this retry (steps, checkpoint,
   // seed, cfg, sampler, negative prompt). Absent keys keep the source spec.
   overrides?: ArtJobOverrides | null
@@ -104,20 +113,30 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const payload = applyArtJobOverrides(
-      prepareArtJobRetryPayload(
-        source.payload,
-        source.id,
-        source.artImageId,
-        mode,
-        refreshSeed,
-      ),
-      body?.overrides,
+    const prepared = prepareArtJobRetryPayload(
+      source.payload,
+      source.id,
+      source.artImageId,
+      mode,
+      refreshSeed,
     )
+
+    // Engine preset: rebuild the graph for the requested engine, carrying over
+    // the prompt / negative / size / seed. Only image engines are presetable;
+    // an unknown preset name is ignored (keeps the source engine).
+    const presetEngine = resolvePresetEngine(body?.preset)
+    if (presetEngine) {
+      const req = extractRenderRequest(prepared)
+      prepared.workflow = buildWorkflowForEngine(presetEngine, req)
+      prepared.promptString = req.prompt
+    }
+
+    const payload = applyArtJobOverrides(prepared, body?.overrides)
+    const jobEngine = presetEngine ? 'COMFY' : source.engine
 
     const job = await prisma.artJob.create({
       data: {
-        engine: source.engine,
+        engine: jobEngine,
         payload: serializeArtJobPayload(payload),
         priority: source.priority,
         projectSlug: source.projectSlug,

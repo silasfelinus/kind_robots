@@ -132,7 +132,7 @@
       </section>
 
       <div
-        class="pointer-events-auto fixed bottom-3 right-3 z-60 flex items-end gap-2"
+        class="pointer-events-auto fixed bottom-3 right-3 z-40 flex items-end gap-2"
       >
         <Transition name="kr-dock-message">
           <article

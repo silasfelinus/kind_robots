@@ -231,11 +231,39 @@ const databaseOnlyReport = {
   rows: databaseOnlyRows,
 }
 await writeJson('database-only-components.json', databaseOnlyReport)
+
+const databaseOnlyById = new Map(
+  databaseOnlyRows.map((record) => [Number(record?.id), record]),
+)
+const retirementActions = Array.isArray(dryRun.data.plan?.updates)
+  ? dryRun.data.plan.updates.filter(
+      (action) => action?.changes?.isDiscovered === false,
+    )
+  : []
+const retirementReport = {
+  count: retirementActions.length,
+  rows: retirementActions.map((action) => {
+    const record = databaseOnlyById.get(Number(action?.existingId))
+    return {
+      id: Number(action?.existingId),
+      componentName: action?.componentName || record?.componentName || null,
+      folderName: record?.folderName || null,
+      sourceKey: record?.sourceKey || null,
+      action: 'mark isDiscovered=false',
+    }
+  }),
+}
+await writeJson('discovered-component-retirements.json', retirementReport)
+
 console.log('[wonderlab-rollout] Dry-run summary:', drySummary)
 console.log('[wonderlab-rollout] Database-only rows:', {
   total: databaseOnlyReport.total,
   likelyFixtures: databaseOnlyReport.likelyFixtureCount,
   preservedHistorical: databaseOnlyReport.preservedHistoricalCount,
+})
+console.log('[wonderlab-rollout] Discovered rows scheduled for retirement:', {
+  count: retirementReport.count,
+  ids: retirementReport.rows.map((row) => row.id),
 })
 if (Number(drySummary.conflicts || 0) !== 0) {
   throw new Error(
@@ -335,6 +363,7 @@ const result = {
   manifestCount: manifest.count,
   reconciliation: drySummary,
   databaseOnly: databaseOnlyReport,
+  retiredDiscovered: retirementReport,
   cleanup: cleanupReport,
   canonicalVerification: verification,
   auditReady: auditResponse.data.ready,

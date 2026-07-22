@@ -58,7 +58,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch --orphan "$SNAPSHOT_BRANCH"
-          git rm -rf .
+          git clean -fdx
           mkdir -p corpus
           cp -R "$snapshot_tmp"/. corpus/
           cat > README.md <<EOF

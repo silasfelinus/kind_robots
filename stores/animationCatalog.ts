@@ -166,6 +166,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'stained-glass-rain',
+    label: 'Stained Glass Rain',
+    reveal: 'Leaded light',
+    icon: 'kind-icon:gem',
+    tooltip: 'Leaded panes drift and merge as rain sheens trace the seams; click for a rose window 🌈',
+    color: '#7c6fd8',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'gravity-garden',
     label: 'Gravity Garden',
     reveal: 'The garden noticed you',

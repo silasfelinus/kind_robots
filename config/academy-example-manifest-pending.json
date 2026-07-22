@@ -1,0 +1,44 @@
+[
+  {
+    "movement": "expressionism",
+    "file": "public/images/academy/examples/the-yellow-cow-49-1210.jpg",
+    "workTitle": "The Yellow Cow",
+    "artist": "Franz Marc",
+    "artistDied": 1916,
+    "year": "1911",
+    "collection": "Solomon R. Guggenheim Museum",
+    "accessionId": "49.1210",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Franz_Marc-The_Yellow_Cow-1911.jpg",
+    "license": "PD-Mark",
+    "licenseTermsUrl": "https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia",
+    "retrievedDate": "2026-07-21"
+  },
+  {
+    "movement": "cubism",
+    "file": "public/images/academy/examples/fantomas-1976-59-1.jpg",
+    "workTitle": "Fantômas",
+    "artist": "Juan Gris",
+    "artistDied": 1927,
+    "year": "1915",
+    "collection": "National Gallery of Art, Washington",
+    "accessionId": "1976.59.1",
+    "sourceUrl": "https://www.nga.gov/artworks/56101-fantomas",
+    "license": "CC0",
+    "licenseTermsUrl": "https://www.nga.gov/artworks/free-images-and-open-access",
+    "retrievedDate": "2026-07-21"
+  },
+  {
+    "movement": "bauhaus",
+    "file": "public/images/academy/examples/composition-8-37-262.jpg",
+    "workTitle": "Composition 8 (Komposition 8)",
+    "artist": "Wassily Kandinsky",
+    "artistDied": 1944,
+    "year": "July 1923",
+    "collection": "Solomon R. Guggenheim Museum",
+    "accessionId": "37.262",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kandinsky_-_Composition_8,_1923.jpg",
+    "license": "PD-Mark",
+    "licenseTermsUrl": "https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia",
+    "retrievedDate": "2026-07-21"
+  }
+]

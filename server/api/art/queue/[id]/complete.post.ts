@@ -15,6 +15,7 @@ import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import {
   decodeArtJobPayload,
+  extractWorkflowSeed,
   parseArtJobPayload,
   serializeArtJobPayload,
   type ArtJobPayloadRecord,
@@ -146,10 +147,23 @@ function snapshotData(image: ArtImage): Prisma.ArtImageUncheckedCreateInput {
   }
 }
 
+// Prefer the concrete seed baked into the workflow graph over a missing/-1
+// relay echo, so the canonical ArtImage records the real seed used.
+function resolveImageSeed(
+  imageSeed: number | null,
+  workflowSeed: number | null,
+): number | null {
+  if (workflowSeed !== null && (imageSeed == null || imageSeed < 0)) {
+    return workflowSeed
+  }
+  return imageSeed
+}
+
 function replacementData(
   staged: ArtImage,
   userId: number,
   savePolicy: ReturnType<typeof readSavePolicy>,
+  workflowSeed: number | null,
 ): Prisma.ArtImageUncheckedUpdateInput {
   return {
     imageData: staged.imageData,
@@ -164,7 +178,7 @@ function replacementData(
     negativePrompt: staged.negativePrompt,
     promptString: staged.promptString,
     sampler: staged.sampler,
-    seed: staged.seed,
+    seed: resolveImageSeed(staged.seed, workflowSeed),
     serverId: staged.serverId,
     serverName: staged.serverName,
     serverUrl: staged.serverUrl,
@@ -265,6 +279,10 @@ export default defineEventHandler(async (event) => {
       )
       const retry = readRetry(job.payload)
       const savePolicy = readSavePolicy(job.payload)
+      // The real seed the graph render used (randomized at build time and baked
+      // into the workflow). Used to backfill ArtImage.seed when the relay's echo
+      // is missing/-1, so accepted renders are reproducible.
+      const workflowSeed = extractWorkflowSeed(job.payload)
 
       if (retry?.mode === 'OVERWRITE') {
         const targetArtImageId = retry.targetArtImageId
@@ -323,7 +341,7 @@ export default defineEventHandler(async (event) => {
 
           await tx.artImage.update({
             where: { id: targetArtImageId },
-            data: replacementData(staged, job.userId, savePolicy),
+            data: replacementData(staged, job.userId, savePolicy, workflowSeed),
           })
 
           const completed = await tx.artJob.update({
@@ -374,11 +392,16 @@ export default defineEventHandler(async (event) => {
           },
         })
 
+        const backfilledSeed = resolveImageSeed(uploaded.seed, workflowSeed)
+
         await prisma.artImage.update({
           where: { id: uploadedArtImageId },
           data: {
             userId: job.userId,
             ...savePolicy,
+            ...(backfilledSeed !== uploaded.seed
+              ? { seed: backfilledSeed }
+              : {}),
           },
         })
       }

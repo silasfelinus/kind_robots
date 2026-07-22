@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "batchId": "wonderlab-voice-polish-002",
+  "minimumProductionCommit": "0376f5ef71a397421f2c03e7f876ecb76494941b",
+  "issueNumber": 582,
+  "editorialContract": {
+    "starsCarryEvaluation": true,
+    "textPurpose": "character flavor",
+    "verbosity": "deliberately varied from micro-reactions to monologues"
+  },
+  "revisions": [
+    {
+      "draftId": 3,
+      "reactionId": 1624,
+      "componentId": 126,
+      "sourceKey": "components/butterfly/ami-link-butterflies.vue",
+      "author": { "kind": "CHARACTER", "id": 318, "name": "The Whole Swarm" },
+      "expectedCurrentCommentHash": "fe877123e5fc777bd617a6c49a27fcc9ca77184c5c1c7f6acd42bce2b0bfa77b",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "We gather. The little button opens, and suddenly the sky remembers it has wings. RISE."
+    },
+    {
+      "draftId": 4,
+      "reactionId": 1625,
+      "componentId": 126,
+      "sourceKey": "components/butterfly/ami-link-butterflies.vue",
+      "author": { "kind": "CHARACTER", "id": 333, "name": "The Keeper of the Net" },
+      "expectedCurrentCommentHash": "9754ffb694ff798632a874bf30a49b08f0b2c583279e347e55da68b028630b6e",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Here—one more net, one clear button, and a way home when your hands are ready."
+    },
+    {
+      "draftId": 9,
+      "reactionId": 1626,
+      "componentId": 127,
+      "sourceKey": "components/butterfly/ami-link-iframe.vue",
+      "author": { "kind": "CHARACTER", "id": 260, "name": "Patch" },
+      "expectedCurrentCommentHash": "026d5164739aeb42301f8f3a74f70c8f98933291ff1606618cfe2eeb17eee063",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "A thousand small kindnesses, and one bright doorway where they can land."
+    },
+    {
+      "draftId": 10,
+      "reactionId": 1627,
+      "componentId": 127,
+      "sourceKey": "components/butterfly/ami-link-iframe.vue",
+      "author": { "kind": "BOT", "id": 433, "name": "AMI Butterfly" },
+      "expectedCurrentCommentHash": "1507191faffe81d429aafd0b222523ecb9afb29a4667c965fc04bcde1bb24374",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "A thousand wings make one signal: the fundraiser is here. We will keep the path lit while it opens."
+    },
+    {
+      "draftId": 17,
+      "reactionId": 1616,
+      "componentId": 1951,
+      "sourceKey": "components/characters/character-sheet.vue",
+      "author": { "kind": "CHARACTER", "id": 365, "name": "The One Who Names the Characters" },
+      "expectedCurrentCommentHash": "5d312a8fbfcbde3a792f2256a8d4d1c5bd8e1a32cf39cf6cb4150439279bfa9e",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Ooh, a blank sheet with doors for a name, a face, a handful of impossible skills, and whatever strange little truth makes this one *this one*! Take it—no, really, take the whole page. What else could possibly be a character?"
+    },
+    {
+      "draftId": 18,
+      "reactionId": 1617,
+      "componentId": 1951,
+      "sourceKey": "components/characters/character-sheet.vue",
+      "author": { "kind": "BOT", "id": 12, "name": "Lazlo" },
+      "expectedCurrentCommentHash": "31eda43ec298c8b71d76b6cdab35c20f7b2c2032b76a7bb35006aa79cbb63e84",
+      "expectedRating": 4,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Excellent news: the portrait is locked behind a quest condition, the skills have slots, and I am almost certain the sheet is not cursed."
+    },
+    {
+      "draftId": 35,
+      "reactionId": 1646,
+      "componentId": 1979,
+      "sourceKey": "components/dreams/dream-relationship-gallery.vue",
+      "author": { "kind": "CHARACTER", "id": 259, "name": "The Migration" },
+      "expectedCurrentCommentHash": "d065869079774433df43a913149286c26f983c7e49056dd09504869d46b7ff6a",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "We pass from Available to Connected carrying worlds in our pockets, tender with every arrival and already grieving the next goodbye."
+    },
+    {
+      "draftId": 36,
+      "reactionId": 1647,
+      "componentId": 1979,
+      "sourceKey": "components/dreams/dream-relationship-gallery.vue",
+      "author": { "kind": "CHARACTER", "id": 239, "name": "Grandmother Whalehall" },
+      "expectedCurrentCommentHash": "3b29e2952ef41ec62959705430df4b552dae66b6f869f797872f085c7dd66627",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Come closer, little worlds. There is room along my back for every connection you are still learning to name."
+    },
+    {
+      "draftId": 39,
+      "reactionId": 1650,
+      "componentId": 2000,
+      "sourceKey": "components/navigation/navigation-health.vue",
+      "author": { "kind": "CHARACTER", "id": 190, "name": "Quill the Convenience Clerk" },
+      "expectedCurrentCommentHash": "5102ea6d80c5da2f159120582e0ee1772acb879e7505e38ab7d7185b2a30df61",
+      "expectedRating": 4,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Aisles clear."
+    },
+    {
+      "draftId": 40,
+      "reactionId": 1651,
+      "componentId": 2000,
+      "sourceKey": "components/navigation/navigation-health.vue",
+      "author": { "kind": "BOT", "id": 433, "name": "AMI Butterfly" },
+      "expectedCurrentCommentHash": "e20753c3ba405b89cbe803a16a38922b655617477b125c0fd76febd20cfbef72",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Routes, images, permissions, adapters: small signals gathered into one bright map. A broken path is easier to mend once it has somewhere visible to land."
+    },
+    {
+      "draftId": 67,
+      "reactionId": 1697,
+      "componentId": 1007,
+      "sourceKey": "components/art/art-reactions.vue",
+      "author": { "kind": "CHARACTER", "id": 241, "name": "Tomorrow-Aiko" },
+      "expectedCurrentCommentHash": "dcb94ecbc8b55766c184200ae21b60e44fd089c7c0cc99ea565d37750fd7dc58",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "There you are. I already remember the reaction you have not chosen yet—and the quiet second after you clear it."
+    },
+    {
+      "draftId": 68,
+      "reactionId": 1698,
+      "componentId": 1007,
+      "sourceKey": "components/art/art-reactions.vue",
+      "author": { "kind": "BOT", "id": 10, "name": "Redbubble Bot" },
+      "expectedCurrentCommentHash": "d65442e5dbdd774ebffeb614f481d15e7c0c2965b5edd25218754194a88fd543",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Adorable. Searchable. Shippable."
+    },
+    {
+      "draftId": 97,
+      "reactionId": 1727,
+      "componentId": 1978,
+      "sourceKey": "components/dreams/dream-pitch-sheet.vue",
+      "author": { "kind": "CHARACTER", "id": 120, "name": "Maren the Anemone Heir" },
+      "expectedCurrentCommentHash": "a182cce6bb1af7168d36924053c1eb7983d5be4c5c3e0df52e6426a92178829a",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "You mean—the feeling beneath the pitch, when a whole Dream is finally held still long enough to be read. Yes. This catches that current gently."
+    },
+    {
+      "draftId": 98,
+      "reactionId": 1728,
+      "componentId": 1978,
+      "sourceKey": "components/dreams/dream-pitch-sheet.vue",
+      "author": { "kind": "CHARACTER", "id": 359, "name": "The Understory" },
+      "expectedCurrentCommentHash": "3e9f56146f72f6b18719cedd18c9713aad47cc558e030cdd93fc50f250c0c1f7",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "In time, even a Dream grows a page around itself. The roots were writing before the title arrived."
+    },
+    {
+      "draftId": 107,
+      "reactionId": 1737,
+      "componentId": 116,
+      "sourceKey": "components/bots/bot-gallery.vue",
+      "author": { "kind": "BOT", "id": 7, "name": "Grant Bot" },
+      "expectedCurrentCommentHash": "59c6f040d1c1e1caa990f47cfc587fde55915d004ddb1169d55231d1dd38f2e3",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Strong case: many personalities, clear ways to meet them, and no committee required to explain why a visitor might care. Fundable weirdness, neatly presented."
+    },
+    {
+      "draftId": 108,
+      "reactionId": 1738,
+      "componentId": 116,
+      "sourceKey": "components/bots/bot-gallery.vue",
+      "author": { "kind": "CHARACTER", "id": 285, "name": "The Cartographer of Wrong Turns" },
+      "expectedCurrentCommentHash": "2d3b7e4c708c4f650ecf272c114712eb241ae0cf1de918a0dc626a09acad5411",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "A beautiful gallery. I found the one perfect wrong turn and left it unlabeled."
+    },
+    {
+      "draftId": 111,
+      "reactionId": 1741,
+      "componentId": 132,
+      "sourceKey": "components/butterfly/butterfly-swarm.vue",
+      "author": { "kind": "CHARACTER", "id": 229, "name": "The Pollinator Choir" },
+      "expectedCurrentCommentHash": "fccad05f95a97b121a88f115d1e553b779e9ba9a54c1ac68cac3a1a69194ea28",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "We found three wings and remembered a meadow—mmm."
+    },
+    {
+      "draftId": 112,
+      "reactionId": 1742,
+      "componentId": 132,
+      "sourceKey": "components/butterfly/butterfly-swarm.vue",
+      "author": { "kind": "CHARACTER", "id": 249, "name": "Compost" },
+      "expectedCurrentCommentHash": "19743dacf75cc823c1704b05599388aeb8ae2f616c5c92f03c1ee82e2b63297f",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Thank you, little swarm. Nothing is wasted; even a brief flutter returns as wonder in its second language."
+    },
+    {
+      "draftId": 119,
+      "reactionId": 1749,
+      "componentId": 245,
+      "sourceKey": "components/pages/registration-form.vue",
+      "author": { "kind": "CHARACTER", "id": 131, "name": "Scustodian Bray" },
+      "expectedCurrentCommentHash": "b6f8a4e2408563a144d2627e3dfe50e63e9ec47b5f94b3ff9d57f0113cfaa209",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Sit yourself down, dear. We will check the name, settle the password, stamp the form twice, and have you among the living before the tea goes cold—there we are."
+    },
+    {
+      "draftId": 120,
+      "reactionId": 1750,
+      "componentId": 245,
+      "sourceKey": "components/pages/registration-form.vue",
+      "author": { "kind": "CHARACTER", "id": 141, "name": "Grub" },
+      "expectedCurrentCommentHash": "8eb8883d3c5f1540f3071d261c5b4a7828a8f5f1e986f26a4e28680e8e02725f",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Comrade-form, nobody starts a shift without a name check, a secure password, and the right to correct the paperwork. Article Four. Non-negotiable."
+    }
+  ]
+}

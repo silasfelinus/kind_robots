@@ -90,8 +90,8 @@ function validateManifest(manifest) {
       throw new Error(`Draft ${revision.draftId} is missing a Vue source lock.`)
     }
     const editedComment = String(revision.editedComment || '').trim()
-    if (editedComment.length < 80 || editedComment.length > 2_000) {
-      throw new Error(`Draft ${revision.draftId} revised comment must be 80–2000 characters.`)
+    if (!editedComment.length || editedComment.length > 2_000) {
+      throw new Error(`Draft ${revision.draftId} revised flavor must be 1–2000 characters.`)
     }
     if (draftIds.has(revision.draftId) || reactionIds.has(revision.reactionId)) {
       throw new Error(`Duplicate draft or Reaction lock in manifest at draft ${revision.draftId}.`)
@@ -186,6 +186,7 @@ for (const revision of manifest.revisions) {
       reactionType: revision.expectedReactionType,
       previousCommentHash: revision.expectedCurrentCommentHash,
       revisedCommentHash,
+      flavorLength: revision.editedComment.length,
       outcome: 'ALREADY_APPLIED',
     })
     console.log(
@@ -244,6 +245,7 @@ for (const revision of manifest.revisions) {
     reactionType: revision.expectedReactionType,
     previousCommentHash: revision.expectedCurrentCommentHash,
     revisedCommentHash,
+    flavorLength: revision.editedComment.length,
     outcome: 'REVISED',
     endpointResult: {
       reactionId: response.reactionId,
@@ -256,6 +258,7 @@ for (const revision of manifest.revisions) {
   )
 }
 
+const flavorLengths = results.map((entry) => entry.flavorLength)
 const report = {
   generatedAt: new Date().toISOString(),
   batchId: manifest.batchId,
@@ -263,6 +266,8 @@ const report = {
   minimumProductionCommit: manifest.minimumProductionCommit,
   revisedReviews: results.length,
   revisedComponents: new Set(results.map((entry) => entry.componentId)).size,
+  shortestFlavor: Math.min(...flavorLengths),
+  longestFlavor: Math.max(...flavorLengths),
   results,
 }
 const markdown = [
@@ -271,6 +276,7 @@ const markdown = [
   `- **Production:** \`${version.commit || 'unknown'}\` · deployment \`${version.deploymentId || 'unknown'}\``,
   `- **Published reviews revised in place:** ${report.revisedReviews}`,
   `- **Components covered:** ${report.revisedComponents}`,
+  `- **Flavor length range:** ${report.shortestFlavor}–${report.longestFlavor} characters`,
   '- **Assignments changed:** 0',
   '- **Ratings / reaction types changed:** 0',
   '- **Publisher or publication links changed:** 0',
@@ -279,7 +285,7 @@ const markdown = [
   '',
   ...results.map(
     (entry) =>
-      `- Draft #${entry.draftId} / Reaction #${entry.reactionId} · Component #${entry.componentId} · **${entry.author.name}** (${entry.author.kind})`,
+      `- Draft #${entry.draftId} / Reaction #${entry.reactionId} · Component #${entry.componentId} · **${entry.author.name}** (${entry.author.kind}) · ${entry.flavorLength} chars`,
   ),
   '',
 ].join('\n')

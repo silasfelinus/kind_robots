@@ -14,8 +14,9 @@ import {
   type ComfyWorkflow,
 } from '../../utils/simpleCheckpointWorkflow'
 
-export const KREA2_UNET_LOADER: 'UNETLoader' | 'UnetLoaderGGUF' = 'UNETLoader'
-export const KREA2_MODEL = 'krea2_turbo_fp8_scaled.safetensors'
+export const KREA2_UNET_LOADER: 'UNETLoader' | 'UnetLoaderGGUF' =
+  'UnetLoaderGGUF'
+export const KREA2_MODEL = 'Krea-2-Turbo-Q5_K_S.gguf'
 export const KREA2_CLIP = 'qwen3vl_4b_fp8_scaled.safetensors'
 export const KREA2_CLIP_TYPE = 'krea2'
 export const KREA2_VAE = 'qwen_image_vae.safetensors'

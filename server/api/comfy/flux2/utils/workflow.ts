@@ -15,7 +15,7 @@ import {
 
 export const FLUX2_KLEIN_UNET_LOADER: 'UNETLoader' | 'UnetLoaderGGUF' =
   'UnetLoaderGGUF'
-export const FLUX2_KLEIN_MODEL = 'flux2-klein-4b-Q5_K_M.gguf'
+export const FLUX2_KLEIN_MODEL = 'flux-2-klein-4b-Q4_K_M.gguf'
 export const FLUX2_KLEIN_CLIP = 'flux2_klein_text_encoder_fp8_scaled.safetensors'
 export const FLUX2_KLEIN_CLIP_TYPE = 'flux2'
 export const FLUX2_KLEIN_VAE = 'flux2-vae.safetensors'

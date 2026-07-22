@@ -118,14 +118,15 @@ jobs:
           retention-days: 30
       - name: Write recovery summary
         if: success()
+        env:
+          AUDIT_REPORT: wonderlab-voice-polish-post-audit/wonderlab-definitive-inventory.json
         run: |
           set -euo pipefail
           cat wonderlab-voice-polish-preflight-artifacts/wonderlab-voice-polish-preflight.md >> "$GITHUB_STEP_SUMMARY"
           cat wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.md >> "$GITHUB_STEP_SUMMARY"
-          audit=wonderlab-voice-polish-post-audit/wonderlab-definitive-inventory.json
           printf '\n## Full-corpus recovery audit\n\n' >> "$GITHUB_STEP_SUMMARY"
           printf '%s\n' \
-            "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$audit")" \
-            "- **Draft range:** #$(jq -r '.scan.firstDraftId' "$audit")–#$(jq -r '.scan.lastDraftId' "$audit")" \
-            "- **Highest draft ID scanned:** #$(jq -r '.scan.highestDraftId' "$audit")" \
+            "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")" \
+            "- **Draft range:** #$(jq -r '.scan.firstDraftId' "$AUDIT_REPORT")–#$(jq -r '.scan.lastDraftId' "$AUDIT_REPORT")" \
+            "- **Highest draft ID scanned:** #$(jq -r '.scan.highestDraftId' "$AUDIT_REPORT")" \
             >> "$GITHUB_STEP_SUMMARY"

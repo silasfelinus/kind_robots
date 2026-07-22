@@ -25,6 +25,8 @@ import { errorHandler } from '../../utils/error'
 import { authAndGate } from '../../utils/comfyGate'
 import { buildDefaultComfyWorkflow } from '../comfy/sdxl/utils/workflow'
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
+import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
+import { buildFlux2KleinWorkflowFromRequest } from '../comfy/flux2/utils/workflow'
 import {
   buildKontextWorkflow,
   getKontextImageExtension,
@@ -48,7 +50,25 @@ import {
 
 // The queueable engines. `openai` is handled synchronously elsewhere.
 // `ltx` and `wan` are image-to-video engines (media: 'video').
-type EnqueueEngine = 'a1111' | 'comfy' | 'flux' | 'kontext' | 'ltx' | 'wan'
+type EnqueueEngine =
+  | 'a1111'
+  | 'comfy'
+  | 'flux'
+  | 'krea2'
+  | 'flux2'
+  | 'kontext'
+  | 'ltx'
+  | 'wan'
+
+// Aliases so callers can say "krea"/"klein"/"flux2-klein" etc.
+const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
+  krea: 'krea2',
+  'krea-2': 'krea2',
+  'krea2-turbo': 'krea2',
+  klein: 'flux2',
+  'flux2-klein': 'flux2',
+  'flux-2': 'flux2',
+}
 
 const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])
 
@@ -76,6 +96,11 @@ type ArtEnqueueRequest = {
   width?: number | null
   height?: number | null
   variant?: 'dev' | 'schnell' | null
+  // Flux.2 Klein structured prompt (bound compositions), and an optional
+  // model-only style LoRA (comic/ink) shared by krea2 / flux2.
+  jsonPrompt?: Record<string, unknown> | unknown[] | null
+  loraName?: string | null
+  loraStrength?: number | null
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
@@ -104,6 +129,10 @@ const GATE_ENGINE: Record<
   a1111: 'comfy',
   comfy: 'comfy',
   flux: 'flux',
+  // Krea 2 Turbo (8-step) and Flux.2 Klein (4-step) are cheap 2D renders — bill
+  // them at the base comfy 2D tier until they get their own cost tiers.
+  krea2: 'comfy',
+  flux2: 'comfy',
   kontext: 'kontext',
   ltx: 'ltx',
   wan: 'wan',
@@ -112,12 +141,15 @@ const GATE_ENGINE: Record<
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
 
 function normalizeEngine(value: unknown): EnqueueEngine {
-  const engine = String(value || 'a1111').toLowerCase()
+  const raw = String(value || 'a1111').toLowerCase()
+  const engine = ENGINE_ALIASES[raw] ?? raw
 
   if (
     engine === 'a1111' ||
     engine === 'comfy' ||
     engine === 'flux' ||
+    engine === 'krea2' ||
+    engine === 'flux2' ||
     engine === 'kontext' ||
     engine === 'ltx' ||
     engine === 'wan'
@@ -130,7 +162,7 @@ function normalizeEngine(value: unknown): EnqueueEngine {
     message:
       engine === 'openai'
         ? 'OpenAI generation is synchronous; call /api/chats/openai/images/generate instead of enqueuing.'
-        : `Unsupported enqueue engine "${engine}". Use a1111, comfy, flux, kontext, ltx, or wan.`,
+        : `Unsupported enqueue engine "${engine}". Use a1111, comfy, flux, krea2, flux2, kontext, ltx, or wan.`,
   })
 }
 
@@ -280,6 +312,51 @@ function buildJobPayload(
       sampler: body.sampler ?? null,
       scheduler: body.scheduler ?? null,
       denoise: body.denoise ?? null,
+    })
+
+    return {
+      jobEngine: 'COMFY',
+      payload: { workflow, promptString, save },
+    }
+  }
+
+  if (engine === 'krea2') {
+    const { workflow } = buildKrea2WorkflowFromRequest({
+      prompt: promptString,
+      negativePrompt: body.negativePrompt ?? null,
+      width: body.width ?? null,
+      height: body.height ?? null,
+      steps: body.steps ?? null,
+      cfg: body.cfg ?? null,
+      seed: body.seed ?? null,
+      sampler: body.sampler ?? null,
+      scheduler: body.scheduler ?? null,
+      denoise: body.denoise ?? null,
+      loraName: body.loraName ?? null,
+      loraStrength: body.loraStrength ?? null,
+    })
+
+    return {
+      jobEngine: 'COMFY',
+      payload: { workflow, promptString, save },
+    }
+  }
+
+  if (engine === 'flux2') {
+    const { workflow } = buildFlux2KleinWorkflowFromRequest({
+      prompt: promptString,
+      jsonPrompt: body.jsonPrompt ?? null,
+      negativePrompt: body.negativePrompt ?? null,
+      width: body.width ?? null,
+      height: body.height ?? null,
+      steps: body.steps ?? null,
+      cfg: body.cfg ?? null,
+      seed: body.seed ?? null,
+      sampler: body.sampler ?? null,
+      scheduler: body.scheduler ?? null,
+      denoise: body.denoise ?? null,
+      loraName: body.loraName ?? null,
+      loraStrength: body.loraStrength ?? null,
     })
 
     return {

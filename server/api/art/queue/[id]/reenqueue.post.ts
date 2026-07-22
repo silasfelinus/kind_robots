@@ -26,14 +26,19 @@ import {
   serializeArtJobPayload,
 } from '../../../../utils/artJobPayload'
 import {
+  applyArtJobOverrides,
   ART_JOB_RETRY_MODES,
   prepareArtJobRetryPayload,
+  type ArtJobOverrides,
   type ArtJobRetryMode,
 } from '../../../../utils/artJobRetry'
 
 type ReenqueueBody = {
   mode?: string | null
   refreshSeed?: boolean
+  // Optional per-render setting changes for this retry (steps, checkpoint,
+  // seed, cfg, sampler, negative prompt). Absent keys keep the source spec.
+  overrides?: ArtJobOverrides | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -57,7 +62,12 @@ export default defineEventHandler(async (event) => {
     const mode = String(
       body?.mode || 'NEW_OUTPUT',
     ).toUpperCase() as ArtJobRetryMode
-    const refreshSeed = body?.refreshSeed !== false
+    // An explicit seed override implies "use exactly this seed", so it wins over
+    // the default seed refresh.
+    const hasSeedOverride =
+      typeof body?.overrides?.seed === 'number' &&
+      Number.isFinite(body.overrides.seed)
+    const refreshSeed = body?.refreshSeed !== false && !hasSeedOverride
 
     if (!ART_JOB_RETRY_MODES.has(mode)) {
       throw createError({
@@ -94,12 +104,15 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const payload = prepareArtJobRetryPayload(
-      source.payload,
-      source.id,
-      source.artImageId,
-      mode,
-      refreshSeed,
+    const payload = applyArtJobOverrides(
+      prepareArtJobRetryPayload(
+        source.payload,
+        source.id,
+        source.artImageId,
+        mode,
+        refreshSeed,
+      ),
+      body?.overrides,
     )
 
     const job = await prisma.artJob.create({

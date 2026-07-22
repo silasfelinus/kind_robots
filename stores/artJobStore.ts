@@ -18,6 +18,19 @@ export type ArtJobStatus =
   | 'CANCELLED'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
+
+// Per-render settings a human can change on a retry (steps, checkpoint, seed,
+// cfg, sampler, negative prompt). Mirrors the server ArtJobOverrides.
+export type ArtJobOverrides = {
+  steps?: number | null
+  cfg?: number | null
+  seed?: number | null
+  sampler?: string | null
+  scheduler?: string | null
+  checkpoint?: string | null
+  negativePrompt?: string | null
+}
+
 export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'
 export type ArtFeedbackVerdict = 'PROMOTE' | 'REVISE' | 'REJECT'
 
@@ -447,6 +460,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
   async function reenqueueJob(
     id: number,
     mode: ArtJobRetryMode = 'NEW_OUTPUT',
+    options?: { refreshSeed?: boolean; overrides?: ArtJobOverrides | null },
   ): Promise<number | null> {
     if (state.retryingJobIds.includes(id)) return null
     state.retryingJobIds = [...state.retryingJobIds, id]
@@ -458,7 +472,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         targetArtImageId: number | null
       }>(`/api/art/queue/${id}/reenqueue`, {
         method: 'POST',
-        body: JSON.stringify({ mode, refreshSeed: true }),
+        body: JSON.stringify({
+          mode,
+          refreshSeed: options?.refreshSeed ?? true,
+          ...(options?.overrides ? { overrides: options.overrides } : {}),
+        }),
       })
 
       if (res.success && res.data?.job) {

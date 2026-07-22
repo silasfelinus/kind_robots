@@ -553,6 +553,21 @@
                         </span>
                       </button>
                     </li>
+                    <li>
+                      <button
+                        type="button"
+                        :disabled="isRetrying(job.id)"
+                        @click="openTune(job, 'NEW_OUTPUT')"
+                      >
+                        <span>
+                          <strong>Adjust settings &amp; retry</strong>
+                          <span class="block text-[11px] opacity-60">
+                            Change steps, checkpoint, seed, cfg, sampler before
+                            re-running.
+                          </span>
+                        </span>
+                      </button>
+                    </li>
                     <li v-if="job.status === 'DONE' && job.artImageId">
                       <button
                         type="button"
@@ -682,14 +697,124 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="tuneJob"
+      class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tune-art-title"
+      @click.self="tuneJob = null"
+    >
+      <div
+        class="w-full max-w-lg rounded-3xl border border-base-300 bg-base-100 p-5 shadow-2xl"
+      >
+        <h3 id="tune-art-title" class="text-lg font-semibold">
+          Adjust settings &amp; retry job #{{ tuneJob.id }}
+        </h3>
+        <p class="mt-1 text-xs text-base-content/60">
+          Blank fields keep the original spec. A blank seed uses a fresh random
+          seed; fill it to reproduce an exact render.
+        </p>
+        <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+          <label class="flex flex-col gap-1">
+            <span class="font-semibold">Steps</span>
+            <input
+              v-model="tuneForm.steps"
+              type="number"
+              min="1"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="keep"
+            />
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-semibold">CFG</span>
+            <input
+              v-model="tuneForm.cfg"
+              type="number"
+              step="0.1"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="keep"
+            />
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-semibold">Seed</span>
+            <input
+              v-model="tuneForm.seed"
+              type="number"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="random"
+            />
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-semibold">Sampler</span>
+            <input
+              v-model="tuneForm.sampler"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="keep"
+            />
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-semibold">Scheduler</span>
+            <input
+              v-model="tuneForm.scheduler"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="keep"
+            />
+          </label>
+          <label class="flex flex-col gap-1">
+            <span class="font-semibold">Checkpoint / model</span>
+            <input
+              v-model="tuneForm.checkpoint"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="keep"
+            />
+          </label>
+          <label class="col-span-2 flex flex-col gap-1">
+            <span class="font-semibold">Negative prompt</span>
+            <textarea
+              v-model="tuneForm.negativePrompt"
+              rows="2"
+              class="textarea textarea-bordered textarea-sm rounded-xl"
+              placeholder="keep"
+            />
+          </label>
+        </div>
+        <div class="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-2xl"
+            @click="tuneJob = null"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm rounded-2xl"
+            :disabled="isRetrying(tuneJob.id)"
+            @click="confirmTune"
+          >
+            <span
+              v-if="isRetrying(tuneJob.id)"
+              class="loading loading-spinner loading-xs"
+            />
+            Queue with these settings
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import type { ArtJob } from '~/prisma/generated/prisma/client'
 import {
   useArtJobStore,
+  type ArtJobOverrides,
   type ArtJobRetryMode,
   type ArtJobStatus,
 } from '@/stores/artJobStore'
@@ -1150,6 +1275,69 @@ function isRetrying(jobId: number): boolean {
 
 async function retryJob(job: ArtJob, mode: ArtJobRetryMode): Promise<void> {
   await artJobStore.reenqueueJob(job.id, mode)
+}
+
+// "Tune & retry": re-run a job with changed settings instead of the frozen
+// payload. Blank fields keep the source spec; a blank seed still means "fresh
+// seed", a filled seed pins it exactly.
+const tuneJob = ref<ArtJob | null>(null)
+const tuneMode = ref<ArtJobRetryMode>('NEW_OUTPUT')
+const tuneForm = reactive({
+  steps: '',
+  cfg: '',
+  seed: '',
+  sampler: '',
+  scheduler: '',
+  checkpoint: '',
+  negativePrompt: '',
+})
+
+function openTune(job: ArtJob, mode: ArtJobRetryMode = 'NEW_OUTPUT'): void {
+  tuneJob.value = job
+  tuneMode.value = mode
+  tuneForm.steps = payloadScalar(job, ['steps'])
+  tuneForm.cfg = payloadScalar(job, ['cfg'])
+  tuneForm.seed = ''
+  tuneForm.sampler = payloadScalar(job, ['sampler', 'sampler_name'])
+  tuneForm.scheduler = payloadScalar(job, ['scheduler'])
+  tuneForm.checkpoint = payloadScalar(job, [
+    'checkpoint',
+    'ckpt_name',
+    'unet_name',
+    'model_name',
+  ])
+  tuneForm.negativePrompt =
+    workflowPrompt(job, 'negative') || payloadScalar(job, ['negativePrompt'])
+}
+
+async function confirmTune(): Promise<void> {
+  const job = tuneJob.value
+  if (!job) return
+
+  const overrides: ArtJobOverrides = {}
+  const stepsNum = Number(tuneForm.steps)
+  if (tuneForm.steps.trim() && Number.isFinite(stepsNum)) {
+    overrides.steps = stepsNum
+  }
+  const cfgNum = Number(tuneForm.cfg)
+  if (tuneForm.cfg.trim() && Number.isFinite(cfgNum)) overrides.cfg = cfgNum
+  const seedNum = Number(tuneForm.seed)
+  const hasSeed = tuneForm.seed.trim() !== '' && Number.isFinite(seedNum)
+  if (hasSeed) overrides.seed = seedNum
+  if (tuneForm.sampler.trim()) overrides.sampler = tuneForm.sampler.trim()
+  if (tuneForm.scheduler.trim()) overrides.scheduler = tuneForm.scheduler.trim()
+  if (tuneForm.checkpoint.trim()) {
+    overrides.checkpoint = tuneForm.checkpoint.trim()
+  }
+  if (tuneForm.negativePrompt.trim()) {
+    overrides.negativePrompt = tuneForm.negativePrompt.trim()
+  }
+
+  const queued = await artJobStore.reenqueueJob(job.id, tuneMode.value, {
+    refreshSeed: !hasSeed,
+    overrides,
+  })
+  if (queued) tuneJob.value = null
 }
 
 // Only finished jobs with a generated ArtImage can be curated (the curator scores

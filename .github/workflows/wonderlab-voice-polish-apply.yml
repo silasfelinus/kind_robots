@@ -30,39 +30,53 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate guarded voice-polish manifest
+    name: Validate guarded voice-polish manifests
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate scripts and manifest
+      - name: Validate scripts and manifests
         run: |
           set -euo pipefail
           node --check scripts/apply-wonderlab-voice-polish-batch.mjs
           node <<'NODE'
           const fs = require('node:fs')
           const assert = require('node:assert').strict
-          const path = 'config/wonderlab-voice-polish-batch-001.json'
-          const manifest = JSON.parse(fs.readFileSync(path, 'utf8'))
-          assert.equal(manifest.version, 1)
-          assert.match(manifest.minimumProductionCommit, /^[0-9a-f]{40}$/)
-          assert.ok(Array.isArray(manifest.revisions))
-          assert.ok(manifest.revisions.length > 0 && manifest.revisions.length <= 20)
-          assert.ok(new Set(manifest.revisions.map((entry) => entry.componentId)).size <= 10)
-          assert.equal(new Set(manifest.revisions.map((entry) => entry.draftId)).size, manifest.revisions.length)
-          assert.equal(new Set(manifest.revisions.map((entry) => entry.reactionId)).size, manifest.revisions.length)
-          for (const entry of manifest.revisions) {
-            assert.ok(Number.isInteger(entry.draftId) && entry.draftId > 0)
-            assert.ok(Number.isInteger(entry.reactionId) && entry.reactionId > 0)
-            assert.ok(Number.isInteger(entry.componentId) && entry.componentId > 0)
-            assert.ok(['BOT', 'CHARACTER'].includes(entry.author?.kind))
-            assert.ok(Number.isInteger(entry.author?.id) && entry.author.id > 0)
-            assert.match(entry.expectedCurrentCommentHash, /^[0-9a-f]{64}$/)
-            assert.ok(entry.sourceKey.endsWith('.vue') && fs.existsSync(entry.sourceKey))
-            assert.ok(entry.editedComment.trim().length >= 80)
-            assert.ok(entry.editedComment.length <= 2000)
+          const paths = fs
+            .readdirSync('config')
+            .filter((name) => /^wonderlab-voice-polish-batch-\d+\.json$/.test(name))
+            .map((name) => `config/${name}`)
+            .sort()
+          assert.ok(paths.length > 0, 'no WonderLab voice-polish manifests found')
+          for (const path of paths) {
+            const manifest = JSON.parse(fs.readFileSync(path, 'utf8'))
+            assert.equal(manifest.version, 1)
+            assert.match(manifest.minimumProductionCommit, /^[0-9a-f]{40}$/)
+            assert.ok(Array.isArray(manifest.revisions))
+            assert.ok(manifest.revisions.length > 0 && manifest.revisions.length <= 20)
+            assert.ok(new Set(manifest.revisions.map((entry) => entry.componentId)).size <= 10)
+            assert.equal(new Set(manifest.revisions.map((entry) => entry.draftId)).size, manifest.revisions.length)
+            assert.equal(new Set(manifest.revisions.map((entry) => entry.reactionId)).size, manifest.revisions.length)
+            const lengths = []
+            for (const entry of manifest.revisions) {
+              assert.ok(Number.isInteger(entry.draftId) && entry.draftId > 0)
+              assert.ok(Number.isInteger(entry.reactionId) && entry.reactionId > 0)
+              assert.ok(Number.isInteger(entry.componentId) && entry.componentId > 0)
+              assert.ok(['BOT', 'CHARACTER'].includes(entry.author?.kind))
+              assert.ok(Number.isInteger(entry.author?.id) && entry.author.id > 0)
+              assert.match(entry.expectedCurrentCommentHash, /^[0-9a-f]{64}$/)
+              assert.ok(entry.sourceKey.endsWith('.vue') && fs.existsSync(entry.sourceKey))
+              const length = entry.editedComment.trim().length
+              assert.ok(length >= 1)
+              assert.ok(entry.editedComment.length <= 2000)
+              lengths.push(length)
+            }
+            if (manifest.editorialContract?.verbosity) {
+              assert.ok(Math.min(...lengths) < 80, `${path} must prove micro-flavor is permitted`)
+              assert.ok(Math.max(...lengths) >= Math.min(...lengths) * 4, `${path} lacks deliberate verbosity range`)
+            }
           }
           const runner = fs.readFileSync('scripts/apply-wonderlab-voice-polish-batch.mjs', 'utf8')
           for (const required of [
@@ -72,6 +86,7 @@ jobs:
             'beforeDraft.status',
             'afterDraft.status',
             'publisherUserId',
+            'flavorLength',
           ]) assert.ok(runner.includes(required), `missing guarded apply boundary: ${required}`)
           for (const forbidden of [
             '/publish',
@@ -81,11 +96,11 @@ jobs:
             'DATABASE_URL',
             'prisma.',
           ]) assert.ok(!runner.includes(forbidden), `voice-polish runner crossed boundary: ${forbidden}`)
-          console.log('WonderLab guarded voice-polish manifest passed.')
+          console.log(`WonderLab guarded flavor manifests passed: ${paths.length}.`)
           NODE
 
   apply:
-    name: Revise published reviews in place
+    name: Revise published flavor in place
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-voice-polish-apply]'))
@@ -103,13 +118,26 @@ jobs:
       - name: Resolve manifest
         id: manifest
         env:
-          INPUT_MANIFEST: ${{ github.event.inputs.manifest || 'config/wonderlab-voice-polish-batch-001.json' }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MANIFEST: ${{ github.event.inputs.manifest || '' }}
         run: |
           set -euo pipefail
-          test -f "$INPUT_MANIFEST"
-          echo "path=$INPUT_MANIFEST" >> "$GITHUB_OUTPUT"
-          echo "minimum=$(jq -r '.minimumProductionCommit' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
-          echo "batch=$(jq -r '.batchId' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
+          if [[ "$EVENT_NAME" == 'workflow_dispatch' ]]; then
+            manifest="${INPUT_MANIFEST:-config/wonderlab-voice-polish-batch-001.json}"
+          else
+            mapfile -t manifests < <(
+              git diff --name-only "${GITHUB_SHA}^1" "$GITHUB_SHA" -- 'config/*wonderlab-voice-polish-batch*.json'
+            )
+            if [[ "${#manifests[@]}" -ne 1 ]]; then
+              printf '::error::Expected exactly one changed voice-polish manifest, found %s: %s\n' "${#manifests[@]}" "${manifests[*]:-none}"
+              exit 1
+            fi
+            manifest="${manifests[0]}"
+          fi
+          test -f "$manifest"
+          echo "path=$manifest" >> "$GITHUB_OUTPUT"
+          echo "minimum=$(jq -r '.minimumProductionCommit' "$manifest")" >> "$GITHUB_OUTPUT"
+          echo "batch=$(jq -r '.batchId' "$manifest")" >> "$GITHUB_OUTPUT"
       - name: Verify revision endpoint ancestry
         env:
           BASE_URL: https://kind-robots.vercel.app
@@ -162,11 +190,21 @@ jobs:
             const apply = JSON.parse(fs.readFileSync(process.env.APPLY_REPORT, 'utf8'))
             const audit = JSON.parse(fs.readFileSync(process.env.AUDIT_REPORT, 'utf8'))
             const report = fs.readFileSync(process.env.APPLY_COMMENT, 'utf8')
+            const manifestPaths = fs
+              .readdirSync('config')
+              .filter((name) => /^wonderlab-voice-polish-batch-\d+\.json$/.test(name))
+              .map((name) => `config/${name}`)
+            const cumulativeDraftIds = new Set(
+              manifestPaths.flatMap((path) =>
+                JSON.parse(fs.readFileSync(path, 'utf8')).revisions.map((entry) => entry.draftId),
+              ),
+            )
             const marker = `<!-- WONDERLAB_VOICE_POLISH_BATCH:${apply.batchId} -->`
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const body = [
               marker,
               report.trim(),
+              `- **Cumulative published flavor revisions:** ${cumulativeDraftIds.size}`,
               `- **Technical/template-heavy candidates after batch:** ${audit.scan.flaggedTechnicalReviews}`,
               `- **Workflow:** [run ${context.runId}](${runUrl})`,
             ].join('\n')
@@ -210,11 +248,12 @@ jobs:
               `- Production: \`${audit.production.commit || 'unknown'}\` · deployment \`${audit.production.deploymentId || 'unknown'}\``,
               `- Oldest published reviews inventoried: **${audit.scan.requestedPublishedReviews}**`,
               `- Draft range: **#${audit.scan.firstDraftId}–#${audit.scan.lastDraftId}**`,
-              `- Published reviews revised in place: **${apply.revisedReviews} / ${audit.scan.requestedPublishedReviews}**`,
-              `- Components polished in this batch: **${apply.revisedComponents}**`,
+              `- Published comments revised in place: **${cumulativeDraftIds.size} / ${audit.scan.requestedPublishedReviews}**`,
+              `- Latest batch: **${apply.revisedReviews} comments across ${apply.revisedComponents} Components**`,
+              `- Latest flavor length range: **${apply.shortestFlavor}–${apply.longestFlavor} characters**`,
               `- Technical/template-heavy candidates remaining: **${audit.scan.flaggedTechnicalReviews}**`,
               `- Latest apply workflow: [run ${context.runId}](${runUrl})`,
-              '- Revision state: **first guarded batch complete; additional personality passes pending**',
+              '- Revision state: **personality calibration continues; stars are evaluation and text is character flavor**',
               '',
               end,
             ].join('\n')

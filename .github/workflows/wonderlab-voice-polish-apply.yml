@@ -20,7 +20,7 @@ on:
       manifest:
         description: 'Voice-polish manifest path'
         required: false
-        default: 'config/wonderlab-voice-polish-batch-004.json'
+        default: ''
 
 permissions:
   contents: read
@@ -119,13 +119,18 @@ jobs:
       - name: Resolve manifest
         id: manifest
         env:
-          INPUT_MANIFEST: ${{ github.event.inputs.manifest || 'config/wonderlab-voice-polish-batch-004.json' }}
+          INPUT_MANIFEST: ${{ github.event.inputs.manifest || '' }}
         run: |
           set -euo pipefail
-          test -f "$INPUT_MANIFEST"
-          echo "path=$INPUT_MANIFEST" >> "$GITHUB_OUTPUT"
-          echo "minimum=$(jq -r '.minimumProductionCommit' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
-          echo "batch=$(jq -r '.batchId' "$INPUT_MANIFEST")" >> "$GITHUB_OUTPUT"
+          manifest="$INPUT_MANIFEST"
+          if [ -z "$manifest" ]; then
+            manifest="$(find config -maxdepth 1 -type f -name 'wonderlab-voice-polish-batch-*.json' | sort -V | tail -n 1)"
+          fi
+          test -n "$manifest"
+          test -f "$manifest"
+          echo "path=$manifest" >> "$GITHUB_OUTPUT"
+          echo "minimum=$(jq -r '.minimumProductionCommit' "$manifest")" >> "$GITHUB_OUTPUT"
+          echo "batch=$(jq -r '.batchId' "$manifest")" >> "$GITHUB_OUTPUT"
       - name: Verify revision endpoint ancestry
         env:
           BASE_URL: https://kind-robots.vercel.app

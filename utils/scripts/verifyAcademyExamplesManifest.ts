@@ -13,6 +13,7 @@
 //
 // Run: npm run test:academy-examples-manifest
 
+import { readFile } from 'node:fs/promises'
 import { academyStyles } from '../../stores/seeds/academyStyles'
 import { validateProvenanceRecord } from './academyProvenanceSchema'
 import {
@@ -24,6 +25,10 @@ import {
 } from './mediaContractSource'
 
 const manifestRelativePath = 'academy/examples/examples.manifest.json'
+const pendingManifestUrl = new URL(
+  '../../config/academy-example-manifest-pending.json',
+  import.meta.url,
+)
 const manifestSource = mediaSourceDescription(manifestRelativePath)
 const verifyAssets =
   Boolean(process.env.MEDIA_ROOT?.trim()) ||
@@ -54,6 +59,29 @@ async function main(): Promise<void> {
     process.exitCode = 1
     return
   }
+
+  let pendingEntries: unknown
+  try {
+    pendingEntries = JSON.parse(await readFile(pendingManifestUrl, 'utf8'))
+  } catch (error) {
+    console.error(
+      `Academy examples manifest contract failed: pending media supplement is not valid JSON — ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    )
+    process.exitCode = 1
+    return
+  }
+
+  if (!Array.isArray(pendingEntries)) {
+    console.error(
+      `Academy examples manifest contract failed: pending media supplement must be a JSON array, got ${typeof pendingEntries}`,
+    )
+    process.exitCode = 1
+    return
+  }
+
+  entries = [...entries, ...pendingEntries]
 
   const errors: string[] = []
   const manifestImageSrcByMovement = new Map<string, string>()
@@ -89,7 +117,13 @@ async function main(): Promise<void> {
         )
       }
       if (typeof record.movement === 'string') {
-        manifestImageSrcByMovement.set(record.movement, `/images/${mediaPath}`)
+        if (manifestImageSrcByMovement.has(record.movement)) {
+          errors.push(
+            `${record.movement}: appears in both the media manifest and pending supplement; remove the pending entry after media sync`,
+          )
+        } else {
+          manifestImageSrcByMovement.set(record.movement, `/images/${mediaPath}`)
+        }
       }
     } catch (error) {
       errors.push(
@@ -162,7 +196,7 @@ async function main(): Promise<void> {
     ? ' with media availability verified'
     : ' (media availability check skipped; set MEDIA_VERIFY_ASSETS=1 to enable)'
   console.log(
-    `Academy examples manifest contract passed: ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} validated from ${manifestSource} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
+    `Academy examples manifest contract passed: ${entries.length} entries validated from ${manifestSource} plus ${pendingEntries.length} pending media entr${pendingEntries.length === 1 ? 'y' : 'ies'} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
   )
 }
 

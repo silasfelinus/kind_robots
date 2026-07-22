@@ -37,6 +37,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Wait for exact corpus stats route
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 36); do
+            body="$(
+              curl -sS --max-time 20 \
+                -H 'accept: application'/'json' \
+                -H "x-beta-admin-token: $WONDERLAB_ADMIN_TOKEN" \
+                -H "x-admin-token: $WONDERLAB_ADMIN_TOKEN" \
+                -H "x-api-key: $WONDERLAB_ADMIN_TOKEN" \
+                "$WONDERLAB_BASE_URL/api/admin/wonderlab/review-drafts/stats?status=PUBLISHED" \
+                || true
+            )"
+            highest="$(printf '%s' "$body" | jq -r '.data.highestDraftId // 0' 2>/dev/null || true)"
+            published="$(printf '%s' "$body" | jq -r '.data.reviewDrafts // 0' 2>/dev/null || true)"
+            if [ "$highest" -gt 0 ] 2>/dev/null && [ "$published" -gt 0 ] 2>/dev/null; then
+              echo "Exact corpus stats route is ready: $published published drafts through #$highest."
+              exit 0
+            fi
+            echo "Exact corpus stats route not ready (attempt $attempt of 36); retrying in 10 seconds."
+            sleep 10
+          done
+          echo "::error::Exact corpus stats route did not become ready."
+          exit 1
       - name: Capture canonical production corpus
         env:
           WONDERLAB_BASE_URL: https://kind-robots.vercel.app

@@ -173,6 +173,10 @@ type ArtJobState = {
   // verdict lands in payload.curation.curator).
   curationRequestingIds: number[]
   curationRequestedIds: number[]
+  // Queue pause control: when true, relays are handed no work (queue preserved).
+  queuePaused: boolean
+  queuePausedBy: string | null
+  togglingQueuePause: boolean
   error: string | null
   windowHours: number
 }
@@ -196,9 +200,43 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     reenqueueingFailedJobs: false,
     curationRequestingIds: [],
     curationRequestedIds: [],
+    queuePaused: false,
+    queuePausedBy: null,
+    togglingQueuePause: false,
     error: null,
     windowHours: 24,
   })
+
+  async function fetchQueueControl(): Promise<void> {
+    const res = await performFetch<{ paused: boolean; pausedBy: string | null }>(
+      '/api/art/queue/control',
+      { method: 'GET' },
+    )
+    if (res.success && res.data) {
+      state.queuePaused = res.data.paused
+      state.queuePausedBy = res.data.pausedBy ?? null
+    }
+  }
+
+  async function setQueuePaused(paused: boolean): Promise<boolean> {
+    if (state.togglingQueuePause) return false
+    state.togglingQueuePause = true
+    try {
+      const res = await performFetch<{ paused: boolean; pausedBy: string | null }>(
+        '/api/art/queue/control',
+        { method: 'POST', body: JSON.stringify({ paused }) },
+      )
+      if (res.success && res.data) {
+        state.queuePaused = res.data.paused
+        state.queuePausedBy = res.data.pausedBy ?? null
+        return true
+      }
+      state.error = res.message || 'Failed to update queue pause state.'
+      return false
+    } finally {
+      state.togglingQueuePause = false
+    }
+  }
 
   async function fetchStats(): Promise<void> {
     state.loadingStats = true
@@ -531,6 +569,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       fetchUptime(),
       fetchJobs(),
       fetchTrainerJobs(),
+      fetchQueueControl(),
     ])
   }
 
@@ -551,6 +590,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     cancelJob,
     reenqueueJob,
     reenqueueFailedJobs,
+    fetchQueueControl,
+    setQueuePaused,
     refreshAll,
     setWindow,
   }

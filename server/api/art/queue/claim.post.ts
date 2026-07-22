@@ -29,6 +29,7 @@ import {
   selectSmartQueueCandidate,
 } from '../../../utils/artJobQueueAffinity'
 import { recordRelayClaimAttempt } from '../../../utils/relayAgentRegistry'
+import { isQueuePaused } from '../../../utils/queueControl'
 
 const STALE_CLAIM_MINUTES = 15
 const MAX_ATTEMPTS = 3
@@ -81,6 +82,22 @@ export default defineEventHandler(async (event) => {
 
     if (!engines.length) {
       throw createError({ statusCode: 400, message: 'No valid engines given.' })
+    }
+
+    // Queue paused (admin toggle): hand out no work so the queue is preserved
+    // but not drained. Graceful — defaults to not-paused if the control table
+    // is not migrated yet, so this can never wedge the pipeline.
+    if (await isQueuePaused()) {
+      return {
+        success: true,
+        message: 'Queue processing is paused.',
+        data: {
+          job: null,
+          paused: true,
+          scheduling: { mode: smartQueue ? 'SMART' : 'FIFO' },
+        },
+        statusCode: 200,
+      }
     }
 
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)

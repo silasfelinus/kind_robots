@@ -173,6 +173,24 @@
               {{ stats?.imagesCreatedInWindow ?? 0 }} imgs / {{ windowHours }}h
             </span>
             <button
+              type="button"
+              class="btn btn-xs rounded-2xl"
+              :class="artJobStore.queuePaused ? 'btn-success' : 'btn-warning btn-outline'"
+              :disabled="artJobStore.togglingQueuePause"
+              :title="
+                artJobStore.queuePaused
+                  ? 'Queue is PAUSED — relays are handed no work. Jobs stay queued. Click to resume.'
+                  : 'Pause queue processing — relays stop claiming new jobs, the queue is preserved until you resume.'
+              "
+              @click="artJobStore.setQueuePaused(!artJobStore.queuePaused)"
+            >
+              <span
+                v-if="artJobStore.togglingQueuePause"
+                class="loading loading-spinner loading-xs"
+              />
+              {{ artJobStore.queuePaused ? '▶ Resume queue' : '⏸ Pause queue' }}
+            </button>
+            <button
               v-if="failedJobCount > 0"
               type="button"
               class="btn btn-error btn-xs rounded-2xl"

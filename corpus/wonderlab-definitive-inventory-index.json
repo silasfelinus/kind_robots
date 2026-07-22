@@ -1,0 +1,379 @@
+{
+  "generatedAt": "2026-07-22T11:30:40.315Z",
+  "production": {
+    "commit": "1c2cf2dd1b9b86197b373be7a9d6395234d7e0a0",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_Ey9raY9L5osZwktZ1gZ7pUPojfLb"
+  },
+  "scan": {
+    "highestDraftId": 714,
+    "expectedPublishedReviews": 706,
+    "publishedReviews": 706,
+    "firstDraftId": 1,
+    "lastDraftId": 714
+  },
+  "chunkSize": 20,
+  "chunks": [
+    {
+      "index": 1,
+      "fileName": "wonderlab-definitive-inventory-chunk-001.json",
+      "chunkSize": 20,
+      "canonicalStart": 1,
+      "canonicalEnd": 20,
+      "publishedReviews": 20,
+      "firstDraftId": 1,
+      "lastDraftId": 28
+    },
+    {
+      "index": 2,
+      "fileName": "wonderlab-definitive-inventory-chunk-002.json",
+      "chunkSize": 20,
+      "canonicalStart": 21,
+      "canonicalEnd": 40,
+      "publishedReviews": 20,
+      "firstDraftId": 29,
+      "lastDraftId": 48
+    },
+    {
+      "index": 3,
+      "fileName": "wonderlab-definitive-inventory-chunk-003.json",
+      "chunkSize": 20,
+      "canonicalStart": 41,
+      "canonicalEnd": 60,
+      "publishedReviews": 20,
+      "firstDraftId": 49,
+      "lastDraftId": 68
+    },
+    {
+      "index": 4,
+      "fileName": "wonderlab-definitive-inventory-chunk-004.json",
+      "chunkSize": 20,
+      "canonicalStart": 61,
+      "canonicalEnd": 80,
+      "publishedReviews": 20,
+      "firstDraftId": 69,
+      "lastDraftId": 88
+    },
+    {
+      "index": 5,
+      "fileName": "wonderlab-definitive-inventory-chunk-005.json",
+      "chunkSize": 20,
+      "canonicalStart": 81,
+      "canonicalEnd": 100,
+      "publishedReviews": 20,
+      "firstDraftId": 89,
+      "lastDraftId": 108
+    },
+    {
+      "index": 6,
+      "fileName": "wonderlab-definitive-inventory-chunk-006.json",
+      "chunkSize": 20,
+      "canonicalStart": 101,
+      "canonicalEnd": 120,
+      "publishedReviews": 20,
+      "firstDraftId": 109,
+      "lastDraftId": 128
+    },
+    {
+      "index": 7,
+      "fileName": "wonderlab-definitive-inventory-chunk-007.json",
+      "chunkSize": 20,
+      "canonicalStart": 121,
+      "canonicalEnd": 140,
+      "publishedReviews": 20,
+      "firstDraftId": 129,
+      "lastDraftId": 148
+    },
+    {
+      "index": 8,
+      "fileName": "wonderlab-definitive-inventory-chunk-008.json",
+      "chunkSize": 20,
+      "canonicalStart": 141,
+      "canonicalEnd": 160,
+      "publishedReviews": 20,
+      "firstDraftId": 149,
+      "lastDraftId": 168
+    },
+    {
+      "index": 9,
+      "fileName": "wonderlab-definitive-inventory-chunk-009.json",
+      "chunkSize": 20,
+      "canonicalStart": 161,
+      "canonicalEnd": 180,
+      "publishedReviews": 20,
+      "firstDraftId": 169,
+      "lastDraftId": 188
+    },
+    {
+      "index": 10,
+      "fileName": "wonderlab-definitive-inventory-chunk-010.json",
+      "chunkSize": 20,
+      "canonicalStart": 181,
+      "canonicalEnd": 200,
+      "publishedReviews": 20,
+      "firstDraftId": 189,
+      "lastDraftId": 208
+    },
+    {
+      "index": 11,
+      "fileName": "wonderlab-definitive-inventory-chunk-011.json",
+      "chunkSize": 20,
+      "canonicalStart": 201,
+      "canonicalEnd": 220,
+      "publishedReviews": 20,
+      "firstDraftId": 209,
+      "lastDraftId": 228
+    },
+    {
+      "index": 12,
+      "fileName": "wonderlab-definitive-inventory-chunk-012.json",
+      "chunkSize": 20,
+      "canonicalStart": 221,
+      "canonicalEnd": 240,
+      "publishedReviews": 20,
+      "firstDraftId": 229,
+      "lastDraftId": 248
+    },
+    {
+      "index": 13,
+      "fileName": "wonderlab-definitive-inventory-chunk-013.json",
+      "chunkSize": 20,
+      "canonicalStart": 241,
+      "canonicalEnd": 260,
+      "publishedReviews": 20,
+      "firstDraftId": 249,
+      "lastDraftId": 268
+    },
+    {
+      "index": 14,
+      "fileName": "wonderlab-definitive-inventory-chunk-014.json",
+      "chunkSize": 20,
+      "canonicalStart": 261,
+      "canonicalEnd": 280,
+      "publishedReviews": 20,
+      "firstDraftId": 269,
+      "lastDraftId": 288
+    },
+    {
+      "index": 15,
+      "fileName": "wonderlab-definitive-inventory-chunk-015.json",
+      "chunkSize": 20,
+      "canonicalStart": 281,
+      "canonicalEnd": 300,
+      "publishedReviews": 20,
+      "firstDraftId": 289,
+      "lastDraftId": 308
+    },
+    {
+      "index": 16,
+      "fileName": "wonderlab-definitive-inventory-chunk-016.json",
+      "chunkSize": 20,
+      "canonicalStart": 301,
+      "canonicalEnd": 320,
+      "publishedReviews": 20,
+      "firstDraftId": 309,
+      "lastDraftId": 328
+    },
+    {
+      "index": 17,
+      "fileName": "wonderlab-definitive-inventory-chunk-017.json",
+      "chunkSize": 20,
+      "canonicalStart": 321,
+      "canonicalEnd": 340,
+      "publishedReviews": 20,
+      "firstDraftId": 329,
+      "lastDraftId": 348
+    },
+    {
+      "index": 18,
+      "fileName": "wonderlab-definitive-inventory-chunk-018.json",
+      "chunkSize": 20,
+      "canonicalStart": 341,
+      "canonicalEnd": 360,
+      "publishedReviews": 20,
+      "firstDraftId": 349,
+      "lastDraftId": 368
+    },
+    {
+      "index": 19,
+      "fileName": "wonderlab-definitive-inventory-chunk-019.json",
+      "chunkSize": 20,
+      "canonicalStart": 361,
+      "canonicalEnd": 380,
+      "publishedReviews": 20,
+      "firstDraftId": 369,
+      "lastDraftId": 388
+    },
+    {
+      "index": 20,
+      "fileName": "wonderlab-definitive-inventory-chunk-020.json",
+      "chunkSize": 20,
+      "canonicalStart": 381,
+      "canonicalEnd": 400,
+      "publishedReviews": 20,
+      "firstDraftId": 389,
+      "lastDraftId": 408
+    },
+    {
+      "index": 21,
+      "fileName": "wonderlab-definitive-inventory-chunk-021.json",
+      "chunkSize": 20,
+      "canonicalStart": 401,
+      "canonicalEnd": 420,
+      "publishedReviews": 20,
+      "firstDraftId": 409,
+      "lastDraftId": 428
+    },
+    {
+      "index": 22,
+      "fileName": "wonderlab-definitive-inventory-chunk-022.json",
+      "chunkSize": 20,
+      "canonicalStart": 421,
+      "canonicalEnd": 440,
+      "publishedReviews": 20,
+      "firstDraftId": 429,
+      "lastDraftId": 448
+    },
+    {
+      "index": 23,
+      "fileName": "wonderlab-definitive-inventory-chunk-023.json",
+      "chunkSize": 20,
+      "canonicalStart": 441,
+      "canonicalEnd": 460,
+      "publishedReviews": 20,
+      "firstDraftId": 449,
+      "lastDraftId": 468
+    },
+    {
+      "index": 24,
+      "fileName": "wonderlab-definitive-inventory-chunk-024.json",
+      "chunkSize": 20,
+      "canonicalStart": 461,
+      "canonicalEnd": 480,
+      "publishedReviews": 20,
+      "firstDraftId": 469,
+      "lastDraftId": 488
+    },
+    {
+      "index": 25,
+      "fileName": "wonderlab-definitive-inventory-chunk-025.json",
+      "chunkSize": 20,
+      "canonicalStart": 481,
+      "canonicalEnd": 500,
+      "publishedReviews": 20,
+      "firstDraftId": 489,
+      "lastDraftId": 508
+    },
+    {
+      "index": 26,
+      "fileName": "wonderlab-definitive-inventory-chunk-026.json",
+      "chunkSize": 20,
+      "canonicalStart": 501,
+      "canonicalEnd": 520,
+      "publishedReviews": 20,
+      "firstDraftId": 509,
+      "lastDraftId": 528
+    },
+    {
+      "index": 27,
+      "fileName": "wonderlab-definitive-inventory-chunk-027.json",
+      "chunkSize": 20,
+      "canonicalStart": 521,
+      "canonicalEnd": 540,
+      "publishedReviews": 20,
+      "firstDraftId": 529,
+      "lastDraftId": 548
+    },
+    {
+      "index": 28,
+      "fileName": "wonderlab-definitive-inventory-chunk-028.json",
+      "chunkSize": 20,
+      "canonicalStart": 541,
+      "canonicalEnd": 560,
+      "publishedReviews": 20,
+      "firstDraftId": 549,
+      "lastDraftId": 568
+    },
+    {
+      "index": 29,
+      "fileName": "wonderlab-definitive-inventory-chunk-029.json",
+      "chunkSize": 20,
+      "canonicalStart": 561,
+      "canonicalEnd": 580,
+      "publishedReviews": 20,
+      "firstDraftId": 569,
+      "lastDraftId": 588
+    },
+    {
+      "index": 30,
+      "fileName": "wonderlab-definitive-inventory-chunk-030.json",
+      "chunkSize": 20,
+      "canonicalStart": 581,
+      "canonicalEnd": 600,
+      "publishedReviews": 20,
+      "firstDraftId": 589,
+      "lastDraftId": 608
+    },
+    {
+      "index": 31,
+      "fileName": "wonderlab-definitive-inventory-chunk-031.json",
+      "chunkSize": 20,
+      "canonicalStart": 601,
+      "canonicalEnd": 620,
+      "publishedReviews": 20,
+      "firstDraftId": 609,
+      "lastDraftId": 628
+    },
+    {
+      "index": 32,
+      "fileName": "wonderlab-definitive-inventory-chunk-032.json",
+      "chunkSize": 20,
+      "canonicalStart": 621,
+      "canonicalEnd": 640,
+      "publishedReviews": 20,
+      "firstDraftId": 629,
+      "lastDraftId": 648
+    },
+    {
+      "index": 33,
+      "fileName": "wonderlab-definitive-inventory-chunk-033.json",
+      "chunkSize": 20,
+      "canonicalStart": 641,
+      "canonicalEnd": 660,
+      "publishedReviews": 20,
+      "firstDraftId": 649,
+      "lastDraftId": 668
+    },
+    {
+      "index": 34,
+      "fileName": "wonderlab-definitive-inventory-chunk-034.json",
+      "chunkSize": 20,
+      "canonicalStart": 661,
+      "canonicalEnd": 680,
+      "publishedReviews": 20,
+      "firstDraftId": 669,
+      "lastDraftId": 688
+    },
+    {
+      "index": 35,
+      "fileName": "wonderlab-definitive-inventory-chunk-035.json",
+      "chunkSize": 20,
+      "canonicalStart": 681,
+      "canonicalEnd": 700,
+      "publishedReviews": 20,
+      "firstDraftId": 689,
+      "lastDraftId": 708
+    },
+    {
+      "index": 36,
+      "fileName": "wonderlab-definitive-inventory-chunk-036.json",
+      "chunkSize": 20,
+      "canonicalStart": 701,
+      "canonicalEnd": 706,
+      "publishedReviews": 6,
+      "firstDraftId": 709,
+      "lastDraftId": 714
+    }
+  ]
+}

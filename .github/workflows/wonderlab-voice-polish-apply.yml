@@ -131,6 +131,7 @@ jobs:
           echo "path=$manifest" >> "$GITHUB_OUTPUT"
           echo "minimum=$(jq -r '.minimumProductionCommit' "$manifest")" >> "$GITHUB_OUTPUT"
           echo "batch=$(jq -r '.batchId' "$manifest")" >> "$GITHUB_OUTPUT"
+          echo "probe_reaction=$(jq -r '.revisions[0].reactionId' "$manifest")" >> "$GITHUB_OUTPUT"
       - name: Verify revision endpoint ancestry
         env:
           BASE_URL: https://kind-robots.vercel.app
@@ -148,6 +149,33 @@ jobs:
             exit 1
           fi
           echo "Production $live contains the guarded revision endpoint."
+      - name: Wait for direct Reaction guard route
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          REACTION_ID: ${{ steps.manifest.outputs.probe_reaction }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 36); do
+            body="$(
+              curl -sS --max-time 20 \
+                -H 'accept: application'/'json' \
+                -H "x-beta-admin-token: $ADMIN_TOKEN" \
+                -H "x-admin-token: $ADMIN_TOKEN" \
+                -H "x-api-key: $ADMIN_TOKEN" \
+                "$BASE_URL/api/admin/wonderlab/reactions/$REACTION_ID" \
+                || true
+            )"
+            projected="$(printf '%s' "$body" | jq -r '.data.id // empty' 2>/dev/null || true)"
+            if [ "$projected" = "$REACTION_ID" ]; then
+              echo "Direct Reaction guard is ready for Reaction #$REACTION_ID."
+              exit 0
+            fi
+            echo "Direct Reaction guard not ready (attempt $attempt of 36); retrying in 10 seconds."
+            sleep 10
+          done
+          echo "::error::Direct Reaction guard route did not become ready for Reaction #$REACTION_ID."
+          exit 1
       - name: Apply exact voice-polish revisions
         env:
           WONDERLAB_BASE_URL: https://kind-robots.vercel.app

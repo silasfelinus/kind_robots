@@ -211,7 +211,8 @@ jobs:
         run: |
           set -euo pipefail
           snapshot_tmp="$(mktemp -d)"
-          publish_tmp="$(mktemp -d)"
+          publish_root="$(mktemp -d)"
+          publish_tmp="$publish_root/worktree"
           cp -R "$PREFLIGHT_DIR"/. "$snapshot_tmp"/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

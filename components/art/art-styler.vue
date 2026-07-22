@@ -860,7 +860,12 @@ const isDragging = ref(false)
 const gallerySearch = ref('')
 const galleryThumbs = ref<Record<number, string>>({})
 const isLoadingGallery = ref(false)
-let gallerySelectionToken = 0
+// Shared across all three source tabs (upload/gallery/starters), not just
+// gallery-to-gallery: an in-flight starter or upload read can otherwise
+// resolve after a later selection on a different tab and silently overwrite
+// it, since each tab's own async load has no way to know a newer pick
+// happened elsewhere in the meantime.
+let sourceSelectionToken = 0
 
 const starterEntries = ref<StarterEntry[]>([])
 const isLoadingStarters = ref(false)
@@ -1059,9 +1064,12 @@ function buildSyntheticSourceImage(
 }
 
 function processUploadedFile(file: File) {
+  const token = ++sourceSelectionToken
   const reader = new FileReader()
 
   reader.onload = (event) => {
+    if (token !== sourceSelectionToken) return
+
     const dataUrl = event.target?.result as string
 
     uploadedImageData.value = dataUrl
@@ -1123,6 +1131,7 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
   // painted a frame -- clicking a starter gave no visual feedback beyond
   // the (identical-looking) disabled state on every thumbnail.
   selectedStarterFile.value = entry.file
+  const token = ++sourceSelectionToken
 
   try {
     const response = await fetch(starterImageSrc(entry))
@@ -1134,6 +1143,11 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
       reader.readAsDataURL(blob)
     })
 
+    // A later selection on any tab (upload, gallery, or another starter)
+    // may have already claimed a newer token while this fetch was in
+    // flight -- don't let a slow-but-successful load clobber it.
+    if (token !== sourceSelectionToken) return
+
     uploadedImageData.value = dataUrl
     selectedSourceImage.value = buildSyntheticSourceImage(
       dataUrl,
@@ -1141,6 +1155,8 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
       blob.type || 'image/jpeg',
     )
   } catch (error) {
+    if (token !== sourceSelectionToken) return
+
     errorMessage.value =
       error instanceof Error ? error.message : 'Could not load starter image.'
     // Roll back the optimistic selection so a failed load doesn't leave a
@@ -1149,6 +1165,10 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
       selectedStarterFile.value = null
     }
   } finally {
+    // Always clear the loading flag regardless of token: it gates every
+    // starter thumbnail's disabled state (see template), and nothing else
+    // resets it once this fetch settles -- leaving it true after a stale
+    // race would strand every starter thumbnail disabled.
     isLoadingStarterImage.value = false
   }
 }
@@ -1160,7 +1180,7 @@ async function selectGalleryImage(image: ArtImage) {
   successMessage.value = ''
   selectedStarterFile.value = null
 
-  const token = ++gallerySelectionToken
+  const token = ++sourceSelectionToken
 
   if (galleryThumbs.value[image.id]) {
     selectedSourceImage.value = image
@@ -1173,7 +1193,7 @@ async function selectGalleryImage(image: ArtImage) {
       includeThumbnailData: true,
     })
 
-    if (token !== gallerySelectionToken) return
+    if (token !== sourceSelectionToken) return
 
     if (fetched) {
       const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
@@ -1190,7 +1210,7 @@ async function selectGalleryImage(image: ArtImage) {
       selectedSourceImage.value = image
     }
   } catch {
-    if (token === gallerySelectionToken) {
+    if (token === sourceSelectionToken) {
       selectedSourceImage.value = image
     }
   }

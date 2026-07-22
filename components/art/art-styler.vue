@@ -1114,6 +1114,15 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
   successMessage.value = ''
   resultImage.value = null
   isLoadingStarterImage.value = true
+  // Mark this entry selected immediately, not after the fetch resolves --
+  // the template's overlay (spinner while loading, checkmark once done) is
+  // gated on `selectedStarterFile === entry.file`. Setting it only on
+  // success meant it flipped true in the same synchronous tick as
+  // isLoadingStarterImage flipping back to false, so Vue only ever
+  // rendered the "done" state and the loading spinner branch never
+  // painted a frame -- clicking a starter gave no visual feedback beyond
+  // the (identical-looking) disabled state on every thumbnail.
+  selectedStarterFile.value = entry.file
 
   try {
     const response = await fetch(starterImageSrc(entry))
@@ -1131,10 +1140,14 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
       `${entry.workTitle} — ${entry.artist}`,
       blob.type || 'image/jpeg',
     )
-    selectedStarterFile.value = entry.file
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Could not load starter image.'
+    // Roll back the optimistic selection so a failed load doesn't leave a
+    // checkmark on a thumbnail that was never actually applied as source.
+    if (selectedStarterFile.value === entry.file) {
+      selectedStarterFile.value = null
+    }
   } finally {
     isLoadingStarterImage.value = false
   }

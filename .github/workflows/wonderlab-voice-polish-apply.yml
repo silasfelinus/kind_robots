@@ -159,7 +159,7 @@ jobs:
           for attempt in $(seq 1 36); do
             body="$(
               curl -sS --max-time 20 \
-                -H 'accept: application/json' \
+                -H 'accept: application'/'json' \
                 -H "x-beta-admin-token: $ADMIN_TOKEN" \
                 -H "x-admin-token: $ADMIN_TOKEN" \
                 -H "x-api-key: $ADMIN_TOKEN" \

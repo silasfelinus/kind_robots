@@ -31,13 +31,23 @@
             </NuxtLink>
           </li>
         </ul>
-        <NuxtLink
-          to="/stories"
-          class="btn btn-primary btn-sm gap-1.5 rounded-2xl"
-        >
-          <Icon name="kind-icon:story" class="size-4" />
-          Open the Stories studio
-        </NuxtLink>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm gap-1.5 rounded-2xl"
+            @click="startNewScenario"
+          >
+            <Icon name="kind-icon:sparkles" class="size-4" />
+            Start a new scenario
+          </button>
+          <NuxtLink
+            to="/stories"
+            class="btn btn-ghost btn-sm gap-1.5 rounded-2xl"
+          >
+            <Icon name="kind-icon:story" class="size-4" />
+            Open the Stories studio
+          </NuxtLink>
+        </div>
       </section>
     </template>
   </ProjectFrontPage>
@@ -56,6 +66,18 @@ onMounted(() => {
 
 const totalScenarios = computed(() => scenarioStore.totalScenarios)
 const recentScenarios = computed(() => scenarioStore.scenarios.slice(0, 3))
+
+/**
+ * The Stories manager resolves its dashboard tab from content frontmatter
+ * (dashboardTab: scenarios) on every load, so presetting navStore's tab
+ * before navigating here gets clobbered the instant /stories mounts.
+ * ?scenario=new is scenario-manager.vue's own deep-link query, read and
+ * applied in its onMounted (after that frontmatter resolution), same
+ * pattern as giftshop-manager.vue's ?manaTopup/?subscription flags.
+ */
+function startNewScenario() {
+  navigateTo('/stories?scenario=new')
+}
 
 const config: ProjectFrontConfig = {
   slug: 'storymaker',

@@ -211,27 +211,24 @@ jobs:
         run: |
           set -euo pipefail
           snapshot_tmp="$(mktemp -d)"
-          publish_root="$(mktemp -d)"
-          publish_tmp="$publish_root"'/'"worktree"
           cp -R "$PREFLIGHT_DIR"/. "$snapshot_tmp"/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git worktree add --detach "$publish_tmp" HEAD
-          cd "$publish_tmp"
-          git switch --orphan "$PREFLIGHT_BRANCH"
-          git rm -rf .
+          git switch -C "$PREFLIGHT_BRANCH"
+          rm -rf preflight
           mkdir -p preflight
           cp -R "$snapshot_tmp"/. preflight/
-          cat > README.md <<EOF
+          cat > preflight/README.md <<EOF
           # WonderLab voice-polish preflight
 
           Generated from the authenticated production API by workflow run ${GITHUB_RUN_ID}.
 
           This branch is machine-generated and force-updated. It records IDs, hashes and invariant comparisons only; it contains no credentials or full commentary text.
           EOF
-          git add README.md preflight
-          git commit -m "[skip ci] WonderLab voice-polish preflight (run ${GITHUB_RUN_ID})"
+          git add preflight
+          git commit --allow-empty -m "[skip ci] WonderLab voice-polish preflight (run ${GITHUB_RUN_ID})"
           git push --force origin "HEAD:${PREFLIGHT_BRANCH}"
+          git switch --detach "$GITHUB_SHA"
       - name: Enforce preflight result
         if: steps.preflight.outcome != 'success'
         run: |

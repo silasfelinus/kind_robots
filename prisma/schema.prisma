@@ -1395,6 +1395,18 @@ model ArtJob {
   @@index([projectId])
 }
 
+/// Singleton control row for the ArtJob queue. When `paused` is true the claim
+/// endpoint stops handing jobs to relays, so the queue is preserved but not
+/// drained until resumed. Always id = 1 (one row).
+model QueueControl {
+  id        Int      @id @default(1)
+  paused    Boolean  @default(false)
+  pausedBy  String?  @db.VarChar(255)
+  pausedAt  DateTime?
+  note      String?  @db.VarChar(500)
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 /// Economy: karma ledger — separate from mana, tracks community contribution score
 model KarmaTransaction {
   id           Int         @id @default(autoincrement())

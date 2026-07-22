@@ -7,6 +7,7 @@ const baseUrl = String(process.env.WONDERLAB_BASE_URL || 'https://kind-robots.ve
 const token = String(process.env.WONDERLAB_ADMIN_TOKEN || '').trim()
 const outputDir = resolve(process.env.WONDERLAB_DEFINITIVE_OUTPUT || 'wonderlab-definitive-artifacts')
 const concurrency = Math.min(20, Math.max(1, Number(process.env.WONDERLAB_DEFINITIVE_CONCURRENCY || 12)))
+const chunkSize = Math.min(100, Math.max(1, Number(process.env.WONDERLAB_DEFINITIVE_CHUNK_SIZE || 20)))
 
 if (!token) throw new Error('WONDERLAB_ADMIN_TOKEN is required.')
 
@@ -94,8 +95,9 @@ const inventory = publishedDrafts.map((draft) => {
   }
 })
 
+const generatedAt = new Date().toISOString()
 const report = {
-  generatedAt: new Date().toISOString(),
+  generatedAt,
   production: version,
   scan: {
     highestDraftId,
@@ -106,6 +108,34 @@ const report = {
   inventory,
 }
 
+const chunks = Array.from({ length: Math.ceil(inventory.length / chunkSize) }, (_, index) => {
+  const start = index * chunkSize
+  const entries = inventory.slice(start, start + chunkSize)
+  return {
+    generatedAt,
+    production: version,
+    chunk: {
+      index: index + 1,
+      fileName: `wonderlab-definitive-inventory-chunk-${String(index + 1).padStart(3, '0')}.json`,
+      chunkSize,
+      canonicalStart: start + 1,
+      canonicalEnd: start + entries.length,
+      publishedReviews: entries.length,
+      firstDraftId: entries[0]?.draftId ?? null,
+      lastDraftId: entries.at(-1)?.draftId ?? null,
+    },
+    inventory: entries,
+  }
+})
+
+const chunkIndex = {
+  generatedAt,
+  production: version,
+  scan: report.scan,
+  chunkSize,
+  chunks: chunks.map(({ chunk }) => chunk),
+}
+
 const markdown = [
   '## WonderLab definitive commentary inventory',
   '',
@@ -113,15 +143,21 @@ const markdown = [
   `- **Published reviews captured:** ${inventory.length}`,
   `- **Draft range:** #${report.scan.firstDraftId ?? '?'}–#${report.scan.lastDraftId ?? '?'}`,
   `- **Highest draft ID scanned:** #${highestDraftId}`,
+  `- **Chronological chunk files:** ${chunks.length} × up to ${chunkSize} reviews`,
   '- **Boundary:** read-only; no ReviewDraft or Reaction was edited',
   '',
-  'The JSON artifact contains the exact current comments and hashes, stars, reaction IDs, reviewer assignments and voice profiles required for guarded in-place rewrite batches.',
+  'The full JSON artifact contains the exact current comments and hashes, stars, reaction IDs, reviewer assignments and voice profiles required for guarded in-place rewrite batches.',
+  'The index and chronological chunk files expose the same data in reviewable 20-entry slices.',
   '',
 ].join('\n')
 
 await mkdir(outputDir, { recursive: true })
 await Promise.all([
   writeFile(resolve(outputDir, 'wonderlab-definitive-inventory.json'), `${JSON.stringify(report, null, 2)}\n`),
+  writeFile(resolve(outputDir, 'wonderlab-definitive-inventory-index.json'), `${JSON.stringify(chunkIndex, null, 2)}\n`),
   writeFile(resolve(outputDir, 'wonderlab-definitive-inventory.md'), markdown),
+  ...chunks.map((chunk) =>
+    writeFile(resolve(outputDir, chunk.chunk.fileName), `${JSON.stringify(chunk, null, 2)}\n`),
+  ),
 ])
 console.log(markdown)

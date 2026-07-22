@@ -50,6 +50,11 @@ assert.match(revisionEndpoint, /requireAdminApiUser\(event\)/)
 assert.match(revisionEndpoint, /expectedCurrentCommentHash/)
 assert.match(revisionEndpoint, /revisePublishedReview/)
 assert.match(revisionService, /prisma\.\$transaction/)
+assert.match(
+  revisionService,
+  /maxWait:\s*10_000,[\s\S]*timeout:\s*20_000/,
+  'Published review revision must declare a transaction budget above Prisma\'s 5-second default.',
+)
 assert.match(revisionService, /FROM ReviewDraft[\s\S]*FOR UPDATE/)
 assert.match(revisionService, /FROM Reaction[\s\S]*FOR UPDATE/)
 assert.match(revisionService, /draft\.status !== 'PUBLISHED'/)

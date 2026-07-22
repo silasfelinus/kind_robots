@@ -157,6 +157,9 @@ export async function revisePublishedReview(
       previousCommentHash,
       revisedCommentHash: publishedReviewCommentHash(revisedComment),
     }
+  }, {
+    maxWait: 10_000,
+    timeout: 20_000,
   })
 
   const draft = await getReviewDraftById(input.draftId)

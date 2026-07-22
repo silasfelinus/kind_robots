@@ -7,11 +7,13 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
 
+const CLIENT_PHOTO_PREFIX = 'stylist-client:'
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireApiUser(event)
 
-    const [clients, appointments] = await Promise.all([
+    const [clients, appointments, photos] = await Promise.all([
       prisma.stylistClient.findMany({
         where: { userId: auth.user.id },
         orderBy: { name: 'asc' },
@@ -20,13 +22,50 @@ export default defineEventHandler(async (event) => {
         where: { userId: auth.user.id },
         orderBy: [{ date: 'desc' }, { id: 'desc' }],
       }),
+      prisma.artImage.findMany({
+        where: {
+          userId: auth.user.id,
+          isPublic: false,
+          path: { startsWith: CLIENT_PHOTO_PREFIX },
+        },
+        select: { id: true, path: true, updatedAt: true, createdAt: true },
+        orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+      }),
     ])
+
+    const photoByClientId = new Map<number, { id: number; version: string }>()
+
+    for (const photo of photos) {
+      const match = photo.path?.match(/^stylist-client:(\d+):profile$/)
+      if (!match) continue
+
+      const clientId = Number(match[1])
+      if (!Number.isInteger(clientId) || photoByClientId.has(clientId)) continue
+
+      photoByClientId.set(clientId, {
+        id: photo.id,
+        version: (photo.updatedAt ?? photo.createdAt).toISOString(),
+      })
+    }
+
+    const clientsWithPhotos = clients.map((client) => {
+      const photo = photoByClientId.get(client.id)
+
+      return {
+        ...client,
+        hasPhoto: Boolean(photo),
+        photoId: photo?.id ?? null,
+        photoUrl: photo
+          ? `/api/stylist/client/${client.id}/photo?v=${encodeURIComponent(photo.version)}`
+          : null,
+      }
+    })
 
     return {
       success: true,
       message: `${clients.length} client(s), ${appointments.length} appointment(s).`,
       statusCode: 200,
-      data: { clients, appointments },
+      data: { clients: clientsWithPhotos, appointments },
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)

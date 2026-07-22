@@ -18,7 +18,7 @@ on:
       manifest:
         description: 'Voice-polish manifest path'
         required: false
-        default: 'config/wonderlab-voice-polish-batch-002.json'
+        default: 'config/wonderlab-voice-polish-batch-003.json'
 
 permissions:
   contents: read
@@ -47,6 +47,7 @@ jobs:
           const paths = [
             'config/wonderlab-voice-polish-batch-001.json',
             'config/wonderlab-voice-polish-batch-002.json',
+            'config/wonderlab-voice-polish-batch-003.json',
           ]
           for (const path of paths) {
             const manifest = JSON.parse(fs.readFileSync(path, 'utf8'))
@@ -116,7 +117,7 @@ jobs:
       - name: Resolve manifest
         id: manifest
         env:
-          INPUT_MANIFEST: ${{ github.event.inputs.manifest || 'config/wonderlab-voice-polish-batch-002.json' }}
+          INPUT_MANIFEST: ${{ github.event.inputs.manifest || 'config/wonderlab-voice-polish-batch-003.json' }}
         run: |
           set -euo pipefail
           test -f "$INPUT_MANIFEST"
@@ -178,6 +179,7 @@ jobs:
             const manifestPaths = [
               'config/wonderlab-voice-polish-batch-001.json',
               'config/wonderlab-voice-polish-batch-002.json',
+              'config/wonderlab-voice-polish-batch-003.json',
             ]
             const cumulativeDraftIds = new Set(
               manifestPaths.flatMap((path) =>

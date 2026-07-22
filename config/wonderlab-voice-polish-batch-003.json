@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "batchId": "wonderlab-voice-polish-003",
+  "minimumProductionCommit": "0376f5ef71a397421f2c03e7f876ecb76494941b",
+  "issueNumber": 582,
+  "editorialContract": {
+    "starsCarryEvaluation": true,
+    "textPurpose": "character flavor",
+    "verbosity": "deliberately varied from micro-reactions to monologues"
+  },
+  "revisions": [
+    {
+      "draftId": 123,
+      "reactionId": 1753,
+      "componentId": 271,
+      "sourceKey": "components/screenfx/dream-status.vue",
+      "author": { "kind": "BOT", "id": 408, "name": "Puck" },
+      "expectedCurrentCommentHash": "c34668df7ee3fd58ad24a966b5d07687421fc080394e4a03ef042996379be69c",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Welcome, mortal. Every twenty seconds the Retreat assigns a fresh dream. You may click for another, of course. Choice is important here, lovingly, lovingly."
+    },
+    {
+      "draftId": 124,
+      "reactionId": 1754,
+      "componentId": 271,
+      "sourceKey": "components/screenfx/dream-status.vue",
+      "author": { "kind": "CHARACTER", "id": 359, "name": "The Understory" },
+      "expectedCurrentCommentHash": "51729cf532aa1f3c3b878352da2f22a6a8f51d4cb1076609665ad9b46896f378",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "In time, another dream rises. Tap the soil if you cannot wait for the season."
+    },
+    {
+      "draftId": 1,
+      "reactionId": 1572,
+      "componentId": 96,
+      "sourceKey": "components/bots/bot-card.vue",
+      "author": { "kind": "BOT", "id": 17, "name": "DottiB0t" },
+      "expectedCurrentCommentHash": "31b6e6ecd85145b56ed5cc64f6625b087ae93c60b5329e64838c0f5623bec82f",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "A robot in a card! Open it and—oh no, it has buttons. I have adopted three."
+    },
+    {
+      "draftId": 25,
+      "reactionId": 1636,
+      "componentId": 1920,
+      "sourceKey": "components/art/image-card.vue",
+      "author": { "kind": "BOT", "id": 8, "name": "PromptBot" },
+      "expectedCurrentCommentHash": "52db3d164918a963da253b9c68be7b7fd67175f9cfb75e62614a93bc1f9e98fd",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Composition approved."
+    },
+    {
+      "draftId": 34,
+      "reactionId": 1645,
+      "componentId": 1977,
+      "sourceKey": "components/dreams/dream-maker.vue",
+      "author": { "kind": "BOT", "id": 403, "name": "Mistress Cassady" },
+      "expectedCurrentCommentHash": "a61fd10f0215e6ca896f8830966bb4a8eae08592e4659c82df5c2484a8f763ec",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Darling, this is not a form—it is a dressing room for a Dream! Give the shy thing a title, a face, a little art direction, and whichever glorious facets help it recognize itself. Then open the doors. Every stitched-together world deserves to enter as a STAR."
+    },
+    {
+      "draftId": 41,
+      "reactionId": 1654,
+      "componentId": 1980,
+      "sourceKey": "components/dreams/dream-sheet-toolbar.vue",
+      "author": { "kind": "CHARACTER", "id": 323, "name": "Margin's Find" },
+      "expectedCurrentCommentHash": "6a9af7efa439aed5078c8b15709638ea9cb07f36a0ac3bb3e522bb3905cbc3f6",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Oh—the missing sheets! That was what you came in here for. Wasn't it?"
+    },
+    {
+      "draftId": 42,
+      "reactionId": 1655,
+      "componentId": 1980,
+      "sourceKey": "components/dreams/dream-sheet-toolbar.vue",
+      "author": { "kind": "CHARACTER", "id": 351, "name": "The Story That Tells Itself" },
+      "expectedCurrentCommentHash": "7f8a1cd5919d6d6530080a61dcffb9fea25f2abb9ffd38403f0a64fe68883ad5",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Now, there was a Dream with missing pages. It found a button, and the story continued."
+    },
+    {
+      "draftId": 44,
+      "reactionId": 1657,
+      "componentId": 2047,
+      "sourceKey": "components/stages/performer-creator.vue",
+      "author": { "kind": "BOT", "id": 425, "name": "The Broken Girl" },
+      "expectedCurrentCommentHash": "9d41f359924a80f1320f3b2a17edb3c19203b0a82273527471e5a4ad47dfed3a",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Choose a species. Add a trait. Give it a face. Step closer; it fits differently once it joins the cast."
+    },
+    {
+      "draftId": 60,
+      "reactionId": 1673,
+      "componentId": 847,
+      "sourceKey": "components/rewards/reward-card.vue",
+      "author": { "kind": "CHARACTER", "id": 191, "name": "The Sphinx in an Apron" },
+      "expectedCurrentCommentHash": "ea0ad1003c363895101df28b23b8ae3e76e9686099a19a22877ece0ea6528c8a",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Everything you needed? Good. The rewards are labeled. The riddle is behind the counter."
+    },
+    {
+      "draftId": 91,
+      "reactionId": 1721,
+      "componentId": 1957,
+      "sourceKey": "components/conductor/conductor-app-page.vue",
+      "author": { "kind": "CHARACTER", "id": 228, "name": "The Conductor's Ghost" },
+      "expectedCurrentCommentHash": "79d7ec1f65c8b99043129fb140261eb4bbd0d3582af3787049d4b01e115491f2",
+      "expectedRating": 3,
+      "expectedReactionType": "CLAPPED",
+      "editedComment": "Forgive me—the pocket orchestra is not in the stores yet. Three measures remain on the stand. The baton is waiting."
+    },
+    {
+      "draftId": 96,
+      "reactionId": 1726,
+      "componentId": 1975,
+      "sourceKey": "components/dreams/dream-brainstorm.vue",
+      "author": { "kind": "CHARACTER", "id": 261, "name": "The Understudy Sun" },
+      "expectedCurrentCommentHash": "72ca04f3dd8326474f27048852e3381b082dda6d2ad1c920d5f1bc59535d7066",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Fresh ideas wait in the wings. Some will be accepted, some sent home. I have rehearsed warmth for whichever one gets its cue."
+    },
+    {
+      "draftId": 126,
+      "reactionId": 1756,
+      "componentId": 274,
+      "sourceKey": "components/screenfx/rain-effect.vue",
+      "author": { "kind": "BOT", "id": 421, "name": "Barnaby the Badger" },
+      "expectedCurrentCommentHash": "fe08d0c6748be8346199c622fc7febb0fbed9338a9425240c751653d3830f9c4",
+      "expectedRating": 4,
+      "expectedReactionType": "LOVED",
+      "editedComment": "Soft rain, properly put away when the evening ends. Kettle?"
+    }
+  ]
+}

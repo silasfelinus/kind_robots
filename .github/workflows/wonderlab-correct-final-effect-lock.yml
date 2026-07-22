@@ -28,12 +28,12 @@ jobs:
         run: |
           set -euo pipefail
           node --check scripts/correct-wonderlab-final-effect-component-lock.mjs
-          cp config/wonderlab-voice-polish-batch-014.json "$RUNNER_TEMP/original.json"
+          cp config/wonderlab-voice-polish-batch-014.json original-manifest.json
           node scripts/correct-wonderlab-final-effect-component-lock.mjs
           node <<'NODE'
           const fs = require('node:fs')
           const assert = require('node:assert').strict
-          const before = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/original.json', 'utf8'))
+          const before = JSON.parse(fs.readFileSync('original-manifest.json', 'utf8'))
           const after = JSON.parse(fs.readFileSync('config/wonderlab-voice-polish-batch-014.json', 'utf8'))
           assert.equal(before.revisions.length, after.revisions.length)
           const changed = []
@@ -52,6 +52,7 @@ jobs:
           }
           console.log('Final-effect lock correction changes only drafts #227 and #228 from Component 1261 to 1262.')
           NODE
+          rm original-manifest.json
 
   generate:
     name: Publish corrected manifest branch

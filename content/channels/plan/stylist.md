@@ -2,15 +2,15 @@
 contentType: tab
 channelKey: plan
 tabKey: stylist
-dashboardKey: art
-dashboardTab: stylist
-label: Hair Studio
-title: Hair Studio
-subtitle: Build private hairstyle previews and salon tools
-description: Restyle client photos, calculate appointments, manage clients, and prepare friendly receipts.
-icon: kind-icon:magic
-route: /projects/build/stylist
+dashboardKey: conductor
+dashboardTab: conductor
+label: Superkate Services
+title: Superkate Services
+subtitle: Run the Hair by Superkate service desk
+description: Price appointments, manage clients, review history, and prepare friendly receipts.
+icon: kind-icon:sparkles
+route: /stylist
 sort: 50
 ---
 
-The Hair by Superkate creation suite, with client photos kept private.
+The private calculator and client book for Hair by Superkate.

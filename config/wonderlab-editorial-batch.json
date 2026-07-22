@@ -1,13 +1,26 @@
 {
   "version": 1,
   "batchId": "wonderlab-flavor-rollout-042",
-  "execute": false,
-  "minimumProductionCommit": "cc0b0ebf0067495b8746dcb29b4892bfc6718935",
+  "execute": true,
+  "minimumProductionCommit": "a52a0be2469c86c848202fe284e5e1bd56be1518",
   "componentIds": [2177, 2178, 2179, 2180, 2181, 2182],
   "limit": 6,
   "reviewersPerComponent": 2,
   "minimumScore": 0,
   "model": "gpt-4o-mini",
   "regenerate": false,
-  "expectedTargets": []
+  "expectedTargets": [
+    { "componentId": 2177, "kind": "CHARACTER", "id": 324 },
+    { "componentId": 2177, "kind": "BOT", "id": 406 },
+    { "componentId": 2178, "kind": "CHARACTER", "id": 167 },
+    { "componentId": 2178, "kind": "CHARACTER", "id": 145 },
+    { "componentId": 2179, "kind": "CHARACTER", "id": 216 },
+    { "componentId": 2179, "kind": "CHARACTER", "id": 982 },
+    { "componentId": 2180, "kind": "CHARACTER", "id": 149 },
+    { "componentId": 2180, "kind": "CHARACTER", "id": 263 },
+    { "componentId": 2181, "kind": "CHARACTER", "id": 362 },
+    { "componentId": 2181, "kind": "BOT", "id": 402 },
+    { "componentId": 2182, "kind": "CHARACTER", "id": 217 },
+    { "componentId": 2182, "kind": "BOT", "id": 306 }
+  ]
 }

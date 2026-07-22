@@ -1,0 +1,131 @@
+name: WonderLab Voice Polish Recovery
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-recovery.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-recovery.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wonderlab-voice-polish-recovery
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate one-shot recovery workflow
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate fixed recovery inputs
+        run: |
+          set -euo pipefail
+          node --check scripts/preflight-wonderlab-voice-polish-batch.mjs
+          node --check scripts/apply-wonderlab-voice-polish-batch.mjs
+          node --check scripts/wonderlab-definitive-inventory.mjs
+          test -f config/wonderlab-voice-polish-batch-014.json
+
+  recover:
+    name: Recover definitive commentary batch 011
+    if: >-
+      github.event_name == 'push' &&
+      contains(github.event.head_commit.message, '[wonderlab-voice-polish-recovery]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify production ancestry and direct guard
+        env:
+          BASE_URL: https://kind-robots.vercel.app
+          ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          MANIFEST: config/wonderlab-voice-polish-batch-014.json
+        run: |
+          set -euo pipefail
+          minimum="$(jq -r '.minimumProductionCommit' "$MANIFEST")"
+          reaction_id="$(jq -r '.revisions[0].reactionId' "$MANIFEST")"
+          version="$(curl -sf --max-time 20 "$BASE_URL/api/version")"
+          live="$(printf '%s' "$version" | jq -r '.data.commit // empty')"
+          test -n "$live"
+          if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
+            git fetch --quiet origin main
+          fi
+          git merge-base --is-ancestor "$minimum" "$live"
+          for attempt in $(seq 1 36); do
+            body="$(
+              curl -sS --max-time 20 \
+                -H 'accept: application'/'json' \
+                -H "x-beta-admin-token: $ADMIN_TOKEN" \
+                -H "x-admin-token: $ADMIN_TOKEN" \
+                -H "x-api-key: $ADMIN_TOKEN" \
+                "$BASE_URL/api/admin/wonderlab/reactions/$reaction_id" \
+                || true
+            )"
+            projected="$(printf '%s' "$body" | jq -r '.data.id // empty' 2>/dev/null || true)"
+            if [ "$projected" = "$reaction_id" ]; then
+              echo "Production $live and direct Reaction guard are ready."
+              exit 0
+            fi
+            echo "Direct Reaction guard not ready (attempt $attempt of 36); retrying."
+            sleep 10
+          done
+          exit 1
+      - name: Preflight exact publication locks
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_VOICE_POLISH_MANIFEST: config/wonderlab-voice-polish-batch-014.json
+          WONDERLAB_VOICE_POLISH_PREFLIGHT_OUTPUT: wonderlab-voice-polish-preflight-artifacts
+        run: node scripts/preflight-wonderlab-voice-polish-batch.mjs
+      - name: Apply exact revisions
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_VOICE_POLISH_MANIFEST: config/wonderlab-voice-polish-batch-014.json
+          WONDERLAB_VOICE_POLISH_OUTPUT: wonderlab-voice-polish-apply-artifacts
+        run: node scripts/apply-wonderlab-voice-polish-batch.mjs
+      - name: Re-audit full published corpus
+        env:
+          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
+          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+          WONDERLAB_DEFINITIVE_OUTPUT: wonderlab-voice-polish-post-audit
+        run: node scripts/wonderlab-definitive-inventory.mjs
+      - name: Upload recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-voice-polish-recovery-${{ github.run_id }}
+          path: |
+            wonderlab-voice-polish-preflight-artifacts
+            wonderlab-voice-polish-apply-artifacts
+            wonderlab-voice-polish-post-audit
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Write recovery summary
+        if: success()
+        run: |
+          set -euo pipefail
+          cat wonderlab-voice-polish-preflight-artifacts/wonderlab-voice-polish-preflight.md >> "$GITHUB_STEP_SUMMARY"
+          cat wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.md >> "$GITHUB_STEP_SUMMARY"
+          audit=wonderlab-voice-polish-post-audit/wonderlab-definitive-inventory.json
+          printf '\n## Full-corpus recovery audit\n\n' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' \
+            "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$audit")" \
+            "- **Draft range:** #$(jq -r '.scan.firstDraftId' "$audit")–#$(jq -r '.scan.lastDraftId' "$audit")" \
+            "- **Highest draft ID scanned:** #$(jq -r '.scan.highestDraftId' "$audit")" \
+            >> "$GITHUB_STEP_SUMMARY"

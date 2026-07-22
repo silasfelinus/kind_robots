@@ -1,105 +1,185 @@
 {
   "version": 1,
-  "batchId": "wonderlab-curated-recovery-draft-tail-b",
-  "minimumProductionCommit": "53d9d7d0c7eb75b544b57af0af72bc90720fdadf",
+  "batchId": "wonderlab-flavor-rollout-042-curated",
+  "minimumProductionCommit": "bcd1f17c832854c9551ed073f5a39b761489e7fa",
   "publications": [
     {
-      "draftId": 277,
-      "componentId": 1972,
-      "sourceKey": "components/conductor/voice-lab-page.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": {"kind":"CHARACTER","id":987,"name":"Canner Odalys","slug":"canner-odalys"},
-      "editedComment": "Quiet—hold it. This page seals the relay lifecycle at both edges: `voice.start()` on mount and `voice.stop()` before unmount. The badge reads connected or offline directly from the store. `tryRequest` trims the input and sends only nonempty text through `sendVoiceText`; the panel shows the last six recent messages and exposes `lastError` separately. The adapter table does not flatten readiness: chat and character are live but flagged, dream is stubbed, art draft-only, music a search prototype, project partly live, and control local-relay live. Half a second early and those distinctions leak. Here they remain canned and labeled.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 278,
-      "componentId": 1972,
-      "sourceKey": "components/conductor/voice-lab-page.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": {"kind":"CHARACTER","id":157,"name":"The Riddling Tabby","slug":"the-riddling-tabby"},
-      "editedComment": "What bridge wakes when the page arrives, sleeps when it leaves, and refuses to speak an empty sentence? This one: the Voice store starts on mount, stops before unmount, and receives trimmed text through `sendVoiceText`. The windowsill shows connected or offline, the six newest messages, and any last error. Better question—what has seven tongues but admits some are unfinished? The adapter table labels chat, character, dream, art, music, project, and control with their actual statuses rather than one flattering answer. *(licks paw)* The clue you nearly missed is honesty: the full voice view is linked, while this panel remains a bounded relay test.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 279,
-      "componentId": 1986,
-      "sourceKey": "components/model-builder/model-builder-batch-editor.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": {"kind":"BOT","id":412,"name":"Calamity","slug":"calamity"},
-      "editedComment": "A batch comes into town sharing one `outputKey`, which is how this panel knows who rides together. It can draft pitch, fields, or art prompts across the group, with “Only empty” keeping filled saddlebags untouched. Asset-only groups skip model fields; art prompting appears only when art is requested for image generation. One chosen field can be written across every item, fields and prompts can be approved together, or the whole group can auto-build. Each item still keeps an Edit trail through `select-item`, plus a committed badge or approved-stage count. Nobody got hanged by a mystery bulk action. The buttons name the posse they move.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 280,
-      "componentId": 1986,
-      "sourceKey": "components/model-builder/model-builder-batch-editor.vue",
+      "draftId": 703,
+      "componentId": 2177,
+      "sourceKey": "components/animation/animation-manager.vue",
       "expectedStatus": "PROPOSED",
-      "reviewer": {"kind":"BOT","id":413,"name":"The Magpie","slug":"the-magpie"},
-      "editedComment": "Ooh, a whole nest tied together by one shiny `outputKey`. The panel counts the items and lets the curator draft pitches, fields, or art prompts for all of them, while “Only empty” protects trinkets already placed. Asset-only batches hide the shared model-field shelf; image batches with art enabled reveal prompt drafting. A selected field value can be scattered across every item, then fields approved or the group auto-built. But look—individual rows still show their label, committed state or approved count, and an Edit button that emits the exact item id. Bulk treasure, separate claim tickets. The Magpie approves of a hoard that remembers which sparkle belongs to which bird.",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 324,
+        "name": "Sir Reginald Pemberton III",
+        "slug": "sir-reginald-pemberton-iii"
+      },
+      "editedComment": "At last, a proper registry for every apparition's pedigree: preview the creature, inspect its lineage, compare rival specimens, and promote the worthy. I should prefer the heading remain visible. A gentleman does not enter a museum anonymously.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 704,
+      "componentId": 2177,
+      "sourceKey": "components/animation/animation-manager.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 406,
+        "name": "Captain Fluke",
+        "slug": "captain-fluke"
+      },
+      "editedComment": "Captain's log: the crew has captured every screen effect, ranked the specimens, and installed buttons for preview, history, comparison, promotion, polish, and retirement. Against all probability, the dangerous sparkles now have paperwork. (The paperwork is why they are safe. — Ship's Computer.)",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 281,
-      "componentId": 1987,
-      "sourceKey": "components/model-builder/model-builder-item-panel.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": {"kind":"CHARACTER","id":138,"name":"Penny Wrecker","slug":"penny-wrecker"},
-      "editedComment": "Item one: the panel exposes four load-bearing stages—Pitch, Fields & Prompts, Generate Assets, and Commit—instead of hiding the workflow behind one executive-sized button. Approved stages can reopen; ready, stale, or rejected stages remain editable; locked stages wait on prerequisites. Item two: AI drafting writes through explicit store methods, image generation offers immediate or queued paths, and image approval requires an `artImageId`. Item three: the commit preview names action, target, fields, and art id before `commitItem` runs, while the interface states CREATE, UPDATE, and ASSET_ONLY commits are durable and idempotent. Deborah finds no mystery wall here. Every dependency has already been marked for demolition or approval.",
+      "draftId": 705,
+      "componentId": 2178,
+      "sourceKey": "components/screenfx/magnetic-sand-garden.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 167,
+        "name": "The Navigator Who Came Back Wrong",
+        "slug": "the-navigator-who-came-back-wrong"
+      },
+      "editedComment": "Bearing three-one-one. The sand leans toward your hand, then changes its mind when you touch it. That is not how north behaves. Do not touch it again. ...No, wait.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 282,
-      "componentId": 1987,
-      "sourceKey": "components/model-builder/model-builder-item-panel.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": {"kind":"BOT","id":424,"name":"The Bookkeeper","slug":"the-bookkeeper"},
-      "editedComment": "Four stages, four columns: PITCH, FIELDS_AND_PROMPTS, GENERATE_ASSETS, COMMIT. Local text drafts synchronize when the store changes them. A stage is editable only when ready, stale, or rejected; approved stages require reopening, and locked stages remain unavailable. Image generation may run immediately or queue in the background, but asset approval requires a recorded `artImageId`; non-image generation is explicitly described as not wired in this front-end slice. Before commit, the preview lists action, target type, summary, fields, and art id. The final note defines ASSET_ONLY, UPDATE, and CREATE behavior and states reruns are duplicate-safe. The ledger balances: no irreversible line item is presented without its current status and target.",
+      "draftId": 706,
+      "componentId": 2178,
+      "sourceKey": "components/screenfx/magnetic-sand-garden.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 145,
+        "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+        "slug": "the-ringmaster-of-the-tent-that-wasn-t-there-yesterday"
+      },
+      "editedComment": "Step closer, Mara—yes, I know your name. Beneath this quiet sand, invisible rings are rehearsing. Move your hand and the whole company bows toward it; tap once and the polarity turns, the ripple runs, the spotlight widens—there it is. The tent was never missing. It was waiting under the floor.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 283,
-      "componentId": 1991,
-      "sourceKey": "components/model-builder/model-builder-run-history.vue",
+      "draftId": 707,
+      "componentId": 2179,
+      "sourceKey": "components/screenfx/paper-lantern-weather.vue",
       "expectedStatus": "FAILED",
-      "reviewer": {"kind":"CHARACTER","id":172,"name":"Medusa","slug":"medusa"},
-      "editedComment": "The run list loads on mount and refreshes on request. Each row presents source label, source type, resolved recipe label, and a committed fraction calculated from items whose COMMIT stage is approved. Open delegates to `store.openRun` and closes the history surface; New run resets state, returns to the source step, and also closes it. Cancellation, thankfully, requires two clicks: the first arms one run id, the second calls `cancelRun`, and blur disarms it. I am counting to ten in Akkadian because an irreversible CANCELLED patch on the first trash click would be an avoidable meeting. This component has avoided it. The snakes may resume their spa hour.",
-      "rating": 3,
-      "reactionType": "CLAPPED"
-    },
-    {
-      "draftId": 284,
-      "componentId": 1991,
-      "sourceKey": "components/model-builder/model-builder-run-history.vue",
-      "expectedStatus": "FAILED",
-      "reviewer": {"kind":"CHARACTER","id":162,"name":"The Algorithm","slug":"the-algorithm"},
-      "editedComment": "The history offers three clear trajectories. Refresh retrieves recent runs. Open waits for `store.openRun` and then closes the panel. New run resets current state, moves to the source step, and closes the panel. Each existing run displays its source identity, source type, recipe label, and the ratio of items whose COMMIT stage is approved. Cancellation is offered, not imposed: one click records an armed run id; a second confirms `cancelRun`; losing focus withdraws the offer. The currently open run receives distinct styling, while loading and empty states remain explicit. Your accidental-cancellation trajectory has therefore been reduced without deleting the option. I am offering, not requiring, the conclusion that this is the preferable system.",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 216,
+        "name": "The Navigator of the Last Bus",
+        "slug": "the-navigator-of-the-last-bus"
+      },
+      "editedComment": "Seven minutes, friend. Keep your hand near the lanterns when the gust reaches them; the little lights shelter there and brighten again afterward. Tap the dark if you need a bird to show you the way. Nothing waiting here is forgotten.",
       "rating": 4,
       "reactionType": "LOVED"
     },
     {
-      "draftId": 285,
-      "componentId": 1992,
-      "sourceKey": "components/model-builder/model-builder-source-picker.vue",
-      "expectedStatus": "PROPOSED",
-      "reviewer": {"kind":"CHARACTER","id":282,"name":"Patient Zero, Reformed","slug":"patient-zero-reformed"},
-      "editedComment": "Don't thank me. The picker keeps the source records separated by declared source type, and selecting a tab delegates to `selectSourceType`. No type shows an instruction; loading shows its own state; a failed load exposes the error and a Retry button. The same records can be scanned as gallery, grid, or list, with that preference kept in local storage. Each view passes the exact record to `selectSource`, displays its id and label, and resolves an image from direct image, avatar, or linked ArtImage fields before falling back to the type icon. Three views preserved. Zero records silently reassigned. That's the tally that matters.",
+      "draftId": 708,
+      "componentId": 2179,
+      "sourceKey": "components/screenfx/paper-lantern-weather.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 982,
+        "name": "Whisk Tallow",
+        "slug": "whisk-tallow"
+      },
+      "editedComment": "Lanterns counted. Gust losses: temporary. Birds released: one more line in the ledger. The little lights relight. The debt does not.",
       "rating": 3,
       "reactionType": "CLAPPED"
     },
     {
-      "draftId": 286,
-      "componentId": 1992,
-      "sourceKey": "components/model-builder/model-builder-source-picker.vue",
+      "draftId": 709,
+      "componentId": 2180,
+      "sourceKey": "components/screenfx/stained-glass-rain.vue",
       "expectedStatus": "FAILED",
-      "reviewer": {"kind":"CHARACTER","id":230,"name":"The Heron's Misfiled Person","slug":"the-heron-s-misfiled-person"},
-      "editedComment": "I'm sorry, I don't—oh. There you are. The picker first asks which source type should be remembered, then shows that type's own blurb and records. Gallery, grid, and list are three ways of finding the same person; the chosen view is restored from local storage only when it matches a declared mode. Every card keeps the record id and store-provided label, may add the configured subtitle field, and looks for an image through direct image, avatar, or linked ArtImage paths before using the source-type icon. Empty selection, loading, and retryable error each have their own room. Choosing a record passes that exact object to `selectSource`. The claim ticket is readable after all.",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 149,
+        "name": "The Mirror Menagerie Keeper",
+        "slug": "the-mirror-menagerie-keeper"
+      },
+      "editedComment": "Come closer, but not too close to the glass—hush, not you, love. The lead seams open and rain travels down them; touch a pane and a rosette answers in color. I cannot tell whether the window is performing for us or asking to be let out. That is why I keep watching.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 710,
+      "componentId": 2180,
+      "sourceKey": "components/screenfx/stained-glass-rain.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 263,
+        "name": "The Reflection That Stayed",
+        "slug": "the-reflection-that-stayed"
+      },
+      "editedComment": "You touched the glass. The color bloomed on my side first.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 711,
+      "componentId": 2181,
+      "sourceKey": "components/watchlist/watchlist-browse.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 362,
+        "name": "The Patron of Lost Causes",
+        "slug": "the-patron-of-lost-causes"
+      },
+      "editedComment": "Nothing on this shelf is abandoned. The unfinished, the half-remembered, the thing you starred and still did not reach—keep them here. The odds say you will never get through the whole list. That is why I am here.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 712,
+      "componentId": 2181,
+      "sourceKey": "components/watchlist/watchlist-browse.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 402,
+        "name": "Yuki the Snowlamp Keeper",
+        "slug": "yuki-the-snowlamp-keeper"
+      },
+      "editedComment": "A title can wait here without being forgotten. Star it. Come back when the snow is quieter.",
+      "rating": 4,
+      "reactionType": "LOVED"
+    },
+    {
+      "draftId": 713,
+      "componentId": 2182,
+      "sourceKey": "components/watchlist/watchlist-entry-detail.vue",
+      "expectedStatus": "PROPOSED",
+      "reviewer": {
+        "kind": "CHARACTER",
+        "id": 217,
+        "name": "The Overqualified Candidate",
+        "slug": "the-overqualified-candidate"
+      },
+      "editedComment": "You're wondering whether the private note saves before you publish it. It does. The star, date, rating, external link, and exact draft are already accounted for. The only unanswered question is why I knew which title you would open.",
+      "rating": 3,
+      "reactionType": "CLAPPED"
+    },
+    {
+      "draftId": 714,
+      "componentId": 2182,
+      "sourceKey": "components/watchlist/watchlist-entry-detail.vue",
+      "expectedStatus": "FAILED",
+      "reviewer": {
+        "kind": "BOT",
+        "id": 306,
+        "name": "Weirdlandia",
+        "slug": "weirdlandia-bot"
+      },
+      "editedComment": "The review box is a door with three handles. Choose: raise the rating; publish the note; follow the external link that has already followed you home.",
       "rating": 4,
       "reactionType": "LOVED"
     }

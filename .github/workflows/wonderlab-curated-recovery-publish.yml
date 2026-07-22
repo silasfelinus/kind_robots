@@ -69,6 +69,8 @@ jobs:
             'duplicateFirstPartyReviews',
             'unsafeFirstPartyReviews',
             'publishedDraftMismatches',
+            'MAX_FLAVOR_WORDS',
+            'words <= MAX_FLAVOR_WORDS',
           ]) {
             assert.ok(source.includes(required), `missing curated recovery boundary: ${required}`)
           }
@@ -79,6 +81,7 @@ jobs:
             'DATABASE_URL',
             'prisma.',
             'OPENAI_API_KEY',
+            'words >= 20',
           ]) {
             assert.ok(!source.includes(forbidden), `curated recovery crossed forbidden boundary: ${forbidden}`)
           }
@@ -90,7 +93,10 @@ jobs:
           assert.equal(new Set(config.publications.map((entry) => entry.draftId)).size, config.publications.length)
           assert.ok(config.publications.every((entry) => ['PROPOSED', 'FAILED', 'REJECTED', 'APPROVED'].includes(entry.expectedStatus)))
           assert.ok(config.publications.every((entry) => entry.sourceKey.startsWith('components/') && entry.sourceKey.endsWith('.vue')))
-          console.log('WonderLab curated recovery editorial boundary passed.')
+          const wordCounts = config.publications.map((entry) => entry.editedComment.trim().split(/\s+/).filter(Boolean).length)
+          assert.ok(Math.min(...wordCounts) < 20, 'manifest must prove micro-flavor is publishable')
+          assert.ok(Math.max(...wordCounts) >= Math.min(...wordCounts) * 4, 'manifest lacks deliberate verbosity range')
+          console.log('WonderLab curated personality-flavor boundary passed.')
           NODE
 
   publish:

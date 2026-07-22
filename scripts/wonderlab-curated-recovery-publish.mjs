@@ -20,6 +20,7 @@ const outputDir =
 const validateOnly = process.env.WONDERLAB_CURATED_RECOVERY_VALIDATE_ONLY === '1'
 
 const MAX_PUBLICATIONS = 20
+const MAX_FLAVOR_WORDS = 160
 const allowedExpectedStatuses = new Set([
   'PROPOSED',
   'FAILED',
@@ -100,8 +101,8 @@ function validatePublication(value, index) {
   )
   const words = wordCount(editedComment)
   assertCondition(
-    words >= 20 && words <= 160,
-    `${label}.editedComment must contain 20-160 words.`,
+    words <= MAX_FLAVOR_WORDS,
+    `${label}.editedComment must contain at most ${MAX_FLAVOR_WORDS} words.`,
   )
   const rating = Number(value.rating)
   assertCondition(
@@ -211,13 +212,13 @@ async function requestJson(path, options = {}) {
   return body
 }
 
-async function publicRequest(path) {
+function publicRequest(path) {
   return requestJson(path, {
-    headers: { accept: 'application/json' },
+    headers: { accept: 'application/json', 'cache-control': 'no-store' },
   })
 }
 
-async function adminRequest(path, options = {}) {
+function adminRequest(path, options = {}) {
   assertCondition(
     adminToken,
     'WONDERLAB_ADMIN_TOKEN (or the existing Cypress admin secret) is required.',
@@ -227,6 +228,7 @@ async function adminRequest(path, options = {}) {
     headers: {
       accept: 'application/json',
       'content-type': 'application/json',
+      'cache-control': 'no-store',
       'x-beta-admin-token': adminToken,
       'x-admin-token': adminToken,
       'x-api-key': adminToken,
@@ -434,14 +436,22 @@ async function run() {
   await writeJson('validated-config.json', config)
 
   if (validateOnly) {
+    const lengths = config.publications.map((entry) => ({
+      draftId: entry.draftId,
+      characters: entry.editedComment.length,
+      words: wordCount(entry.editedComment),
+    }))
     const summary = {
       valid: true,
       batchId: config.batchId,
       publicationCount: config.publications.length,
       draftIds: config.publications.map((entry) => entry.draftId),
+      shortestWords: Math.min(...lengths.map((entry) => entry.words)),
+      longestWords: Math.max(...lengths.map((entry) => entry.words)),
+      lengths,
     }
     await writeJson('validation-summary.json', summary)
-    console.log(`Curated WonderLab recovery config is valid: ${config.batchId}.`)
+    console.log(`Curated WonderLab flavor config is valid: ${config.batchId}.`)
     return summary
   }
 

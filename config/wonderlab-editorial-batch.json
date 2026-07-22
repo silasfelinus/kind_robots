@@ -1,20 +1,13 @@
 {
   "version": 1,
-  "batchId": "wonderlab-source-grounded-rollout-041",
-  "execute": true,
-  "minimumProductionCommit": "78dab9d3669f6a4e44dd497b08e15bdf89a0d389",
-  "componentIds": [2067, 2068, 2070],
-  "limit": 3,
+  "batchId": "wonderlab-flavor-rollout-042",
+  "execute": false,
+  "minimumProductionCommit": "cc0b0ebf0067495b8746dcb29b4892bfc6718935",
+  "componentIds": [2177, 2178, 2179, 2180, 2181, 2182],
+  "limit": 6,
   "reviewersPerComponent": 2,
   "minimumScore": 0,
   "model": "gpt-4o-mini",
   "regenerate": false,
-  "expectedTargets": [
-    { "componentId": 2067, "kind": "CHARACTER", "id": 176 },
-    { "componentId": 2067, "kind": "BOT", "id": 428 },
-    { "componentId": 2068, "kind": "CHARACTER", "id": 1025 },
-    { "componentId": 2068, "kind": "BOT", "id": 420 },
-    { "componentId": 2070, "kind": "CHARACTER", "id": 204 },
-    { "componentId": 2070, "kind": "BOT", "id": 404 }
-  ]
+  "expectedTargets": []
 }

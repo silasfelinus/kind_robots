@@ -60,7 +60,7 @@ type EnqueueEngine =
   | 'ltx'
   | 'wan'
 
-// Aliases so callers can say "krea"/"klein"/"flux2-klein" etc.
+// Aliases so callers can say "krea"/"klein"/"flux2-klein"/"sdxl" etc.
 const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   krea: 'krea2',
   'krea-2': 'krea2',
@@ -68,6 +68,8 @@ const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   klein: 'flux2',
   'flux2-klein': 'flux2',
   'flux-2': 'flux2',
+  // The SDXL/SD graph is the default "comfy" engine; let callers name it 'sdxl'.
+  sdxl: 'comfy',
 }
 
 const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])

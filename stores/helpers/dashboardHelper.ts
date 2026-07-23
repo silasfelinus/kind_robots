@@ -198,6 +198,20 @@ export const dashboardConfigs = {
         route: '/artjob',
         requiredRole: 'ADMIN',
       },
+      {
+        key: 'build-bench',
+        label: 'Build Bench',
+        icon: 'kind-icon:server',
+        title: 'Build Bench',
+        summary: 'Pit two generation builds head-to-head and pick the winner.',
+        image: tabImage('art', 'artjob'),
+        flourish: '⚗',
+        tagline: 'Two builds enter. You decide.',
+        narrative:
+          'A/B test image-generation builds: configure two full builds (engine, steps, cfg, seed, LoRA, prompt), clone one onto the other, render both side by side, and pick the winner. Reuses the ArtJob pipeline and every engine (Krea2, Flux.2, SDXL, Flux).',
+        route: '/build-bench',
+        requiredRole: 'ADMIN',
+      },
     ],
   },
 

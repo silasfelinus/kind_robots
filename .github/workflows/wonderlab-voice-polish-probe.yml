@@ -14,11 +14,12 @@ jobs:
   probe:
     name: Classify final commentary production state
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       BASE_URL: https://kind-robots.vercel.app
       ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
       OUTPUT_DIR: wonderlab-voice-polish-probe-evidence
+      AUDIT_REPORT: wonderlab-voice-polish-probe-evidence/post-audit/wonderlab-definitive-inventory.json
       MANIFESTS: >-
         config/wonderlab-voice-polish-batch-035.json
         config/wonderlab-voice-polish-batch-036.json
@@ -75,8 +76,36 @@ jobs:
             '- Mutation boundary: read-only; no ReviewDraft or Reaction was edited' \
             >> "$GITHUB_STEP_SUMMARY"
           test "$total" -eq 86
-          test $((applied + pending + blockers)) -eq "$total"
+          test "$applied" -eq 86
+          test "$pending" -eq 0
           test "$blockers" -eq 0
+      - name: Re-audit complete published corpus
+        run: |
+          set -euo pipefail
+          WONDERLAB_BASE_URL="$BASE_URL" \
+          WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
+          WONDERLAB_DEFINITIVE_OUTPUT="$OUTPUT_DIR/post-audit" \
+            node scripts/wonderlab-definitive-inventory.mjs
+      - name: Validate complete corpus audit
+        run: |
+          set -euo pipefail
+          published="$(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")"
+          expected="$(jq -r '.scan.expectedPublishedReviews' "$AUDIT_REPORT")"
+          first="$(jq -r '.scan.firstDraftId' "$AUDIT_REPORT")"
+          last="$(jq -r '.scan.lastDraftId' "$AUDIT_REPORT")"
+          highest="$(jq -r '.scan.highestDraftId' "$AUDIT_REPORT")"
+          printf '%s\n' \
+            '## Complete WonderLab corpus audit' \
+            '' \
+            "- Published reviews captured: $published / $expected" \
+            "- Draft range: #$first–#$last" \
+            "- Highest draft ID scanned: #$highest" \
+            '- Boundary: read-only; no ReviewDraft or Reaction was edited' \
+            >> "$GITHUB_STEP_SUMMARY"
+          test "$published" -eq 706
+          test "$expected" -eq 706
+          test "$last" -eq 714
+          test "$highest" -eq 714
       - name: Upload probe evidence
         if: always()
         uses: actions/upload-artifact@v4

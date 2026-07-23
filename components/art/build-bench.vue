@@ -10,6 +10,17 @@
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
+        <select
+          class="select select-bordered select-sm rounded-2xl"
+          :disabled="running"
+          title="Load a starter matchup"
+          @change="onPreset($event)"
+        >
+          <option value="">Starter matchups…</option>
+          <option v-for="p in store.BENCH_PRESETS" :key="p.key" :value="p.key">
+            {{ p.label }} — {{ p.hint }}
+          </option>
+        </select>
         <button class="btn btn-primary btn-sm rounded-2xl" :disabled="running" @click="runBoth">
           <span v-if="running" class="loading loading-spinner loading-xs" />
           Run both
@@ -229,6 +240,11 @@ function onSeed(side: BenchSide, event: Event): void {
   const raw = (event.target as HTMLInputElement).value.trim()
   cfg(side).seed = raw === '' ? null : Number(raw)
   store.persist()
+}
+function onPreset(event: Event): void {
+  const select = event.target as HTMLSelectElement
+  if (select.value) store.loadPreset(select.value)
+  select.value = ''
 }
 
 const running = computed(

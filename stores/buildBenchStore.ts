@@ -122,10 +122,67 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value))
 }
 
+function presetBuild(engine: BenchEngineKey, overrides: Partial<BuildConfig>): BuildConfig {
+  return { ...freshConfig(engine), ...overrides, engine }
+}
+
+// A creative, in-house-style prompt that shows off the inked-comic coloring
+// look — a good stress test for "which engine renders the weird concept best".
+const SHOOTOUT_PROMPT =
+  'A twisted-fairy-tale portrait: a former mermaid passing as human at a ' +
+  'moonlit fish market, damp glamorous gown, pained smile hiding sharp teeth, ' +
+  'gulls and tangled seaweed following her like a curse. Bold inked-comic ' +
+  'coloring-book style: thick clean black contours, flat cel-shaded color, one ' +
+  'strong silhouette, dense organized storybook detail. Portrait 2:3.'
+
+export interface BenchPreset {
+  key: string
+  label: string
+  hint: string
+  a: BuildConfig
+  b: BuildConfig
+}
+
+// Starter matchups so the bench opens on a useful comparison, not blank panels.
+// A locked seed on both sides makes each a controlled test (change one knob and
+// the composition stays comparable).
+export const BENCH_PRESETS: BenchPreset[] = [
+  {
+    key: 'krea-vs-klein',
+    label: 'Krea 2 vs Flux.2 Klein',
+    hint: 'engine shootout — same prompt + seed',
+    a: presetBuild('krea2', { prompt: SHOOTOUT_PROMPT, seed: 840020 }),
+    b: presetBuild('flux2', { prompt: SHOOTOUT_PROMPT, seed: 840020 }),
+  },
+  {
+    key: 'steps-8-vs-16',
+    label: 'Krea 2: 8 vs 16 steps',
+    hint: 'does doubling steps help? same engine + seed',
+    a: presetBuild('krea2', { prompt: SHOOTOUT_PROMPT, seed: 840020, steps: 8 }),
+    b: presetBuild('krea2', { prompt: SHOOTOUT_PROMPT, seed: 840020, steps: 16 }),
+  },
+  {
+    key: 'krea-vs-sdxl',
+    label: 'Krea 2 vs SDXL',
+    hint: 'creativity vs the big LoRA ecosystem',
+    a: presetBuild('krea2', { prompt: SHOOTOUT_PROMPT, seed: 840020 }),
+    b: presetBuild('sdxl', { prompt: SHOOTOUT_PROMPT, seed: 840020, cfg: 6 }),
+  },
+  {
+    key: 'two-seeds',
+    label: 'Krea 2: same build, two seeds',
+    hint: 'variety check — how much does the seed swing it?',
+    a: presetBuild('krea2', { prompt: SHOOTOUT_PROMPT, seed: 111 }),
+    b: presetBuild('krea2', { prompt: SHOOTOUT_PROMPT, seed: 222 }),
+  },
+]
+
 export const useBuildBenchStore = defineStore('buildBenchStore', () => {
   const state = reactive<BuildBenchState>({
-    buildA: freshConfig('krea2'),
-    buildB: freshConfig('flux2'),
+    // open on the first starter matchup instead of blank panels (localStorage
+    // overrides this on hydrate if the user has edited before)
+    buildA: clone(BENCH_PRESETS[0].a),
+    buildB: clone(BENCH_PRESETS[0].b),
     resultA: freshResult(),
     resultB: freshResult(),
     winner: null,
@@ -202,6 +259,16 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
   function newMatchup(): void {
     state.buildA = freshConfig('krea2')
     state.buildB = freshConfig('flux2')
+    resetResults()
+    persist()
+  }
+
+  // Load a starter matchup (both sides) — a quick way to open a controlled test.
+  function loadPreset(key: string): void {
+    const preset = BENCH_PRESETS.find((p) => p.key === key)
+    if (!preset) return
+    state.buildA = clone(preset.a)
+    state.buildB = clone(preset.b)
     resetResults()
     persist()
   }
@@ -345,11 +412,13 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
   return {
     state,
     BENCH_ENGINES,
+    BENCH_PRESETS,
     hydrate,
     setEngine,
     cloneTo,
     resetResults,
     newMatchup,
+    loadPreset,
     runSide,
     runBoth,
     pickWinner,

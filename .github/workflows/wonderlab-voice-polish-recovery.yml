@@ -86,7 +86,7 @@ jobs:
             for attempt in $(seq 1 36); do
               body="$(
                 curl -sS --max-time 20 \
-                  -H 'accept: application/json' \
+                  -H 'accept: application'/'json' \
                   -H "x-beta-admin-token: $ADMIN_TOKEN" \
                   -H "x-admin-token: $ADMIN_TOKEN" \
                   -H "x-api-key: $ADMIN_TOKEN" \
@@ -168,6 +168,8 @@ jobs:
           retention-days: 30
       - name: Write recovery summary
         if: success()
+        env:
+          AUDIT_REPORT: wonderlab-voice-polish-recovery-evidence/post-audit/wonderlab-definitive-inventory.json
         run: |
           set -euo pipefail
           for manifest in $MANIFESTS; do
@@ -175,11 +177,10 @@ jobs:
             cat "$EVIDENCE_DIR/${batch}-preflight/wonderlab-voice-polish-preflight.md" >> "$GITHUB_STEP_SUMMARY"
             cat "$EVIDENCE_DIR/${batch}-apply/wonderlab-voice-polish-apply.md" >> "$GITHUB_STEP_SUMMARY"
           done
-          report="$EVIDENCE_DIR/post-audit/wonderlab-definitive-inventory.json"
           printf '\n## Full-corpus recovery audit\n\n' >> "$GITHUB_STEP_SUMMARY"
           printf '%s\n' \
-            "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$report")" \
-            "- **Draft range:** #$(jq -r '.scan.firstDraftId' "$report")–#$(jq -r '.scan.lastDraftId' "$report")" \
-            "- **Highest draft ID scanned:** #$(jq -r '.scan.highestDraftId' "$report")" \
-            "- **Production commit:** $(jq -r '.production.commit // "unknown"' "$report")" \
+            "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")" \
+            "- **Draft range:** #$(jq -r '.scan.firstDraftId' "$AUDIT_REPORT")–#$(jq -r '.scan.lastDraftId' "$AUDIT_REPORT")" \
+            "- **Highest draft ID scanned:** #$(jq -r '.scan.highestDraftId' "$AUDIT_REPORT")" \
+            "- **Production commit:** $(jq -r '.production.commit // "unknown"' "$AUDIT_REPORT")" \
             >> "$GITHUB_STEP_SUMMARY"

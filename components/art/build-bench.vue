@@ -10,7 +10,7 @@
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <button class="btn btn-primary btn-sm rounded-2xl" :disabled="running" @click="runBoth">
+        <button class="btn btn-primary btn-sm rounded-2xl" :disabled="running" @click="store.runBoth">
           <span v-if="running" class="loading loading-spinner loading-xs" />
           Run both
         </button>

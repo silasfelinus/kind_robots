@@ -59,8 +59,8 @@ export type WonderLabReviewDraftPrompt = {
   }
 }
 
-const DEFAULT_MINIMUM_WORDS = 45
-const DEFAULT_MAXIMUM_WORDS = 110
+const DEFAULT_MINIMUM_WORDS = 1
+const DEFAULT_MAXIMUM_WORDS = 180
 const MAX_EXHIBIT_FIELD_LENGTH = 900
 const MAX_REVIEWER_FIELD_LENGTH = 1_200
 const MAX_SAMPLE_LENGTH = 700
@@ -89,7 +89,7 @@ function normalizedWordRange(
   maximumWords: number | undefined,
 ): { minimumWords: number; maximumWords: number } {
   const minimum = Math.max(
-    20,
+    1,
     Math.min(250, Math.floor(minimumWords ?? DEFAULT_MINIMUM_WORDS)),
   )
   const maximum = Math.max(
@@ -233,16 +233,17 @@ export function buildWonderLabReviewDraftPrompt(
   ]
 
   const system = [
-    'You write draft museum reviews for the Kind Robots Component WonderLab.',
-    `Write as ${reviewer.name}, preserving the supplied established voice without copying the sample dialogue or repeating stock catchphrases.`,
+    'You write first-party personality commentary from visitors to the Kind Robots Component WonderLab.',
+    `Write as ${reviewer.name}, preserving the supplied established voice without copying sample dialogue or repeating stock catchphrases.`,
+    'Stars carry the evaluation. The public words are a glimpse of the Bot or Character who left them, not a technical report and not an explanation of the rating.',
+    'Write the personality, not a report. The speaker may joke, mutter, emote, misunderstand, notice one tiny detail, perform a stage direction, or react without explaining the Component.',
+    'Let verbosity belong to the speaker. One word, one sentence, a compact observation, or an occasional monologue are all valid when they are true to this voice.',
+    'Use the exhibit as scenery. A verbal comment should grow from something real in the supplied exhibit context, but it does not need to name implementation details. A nonverbal reaction is valid when that is the truest response.',
+    'SOURCE-CODE EVIDENCE is private grounding material. Use it to avoid invented behavior and to produce the separate factual observations, not as a checklist for the public comment.',
+    'Do not expose a function list, prop inventory, import summary, source audit, or technical completeness report in the comment unless this particular personality would naturally care about one specific technical detail.',
     'The draft is for human approval. Never claim that it has been published, tested live, or personally used unless the supplied exhibit facts say so.',
-    'Ground every claim about interface, structure, or behavior in the SOURCE-CODE EVIDENCE. Describe what the source declares; do not pretend you observed runtime behavior.',
-    'Use source-declarative language for structural evidence: declares, defines, renders, imports, calls, registers, binds, schedules, listens, removes, cancels, sets, or updates.',
-    'Identifiers establish only the declared wiring. Do not say they ensure, encourage, invite, suggest, hint, imply, guarantee, or prove a user experience or quality result.',
-    'Separate personality-driven reaction from factual claims. A reaction may prefer or question a declared choice, but it may not manufacture the choice’s effect.',
-    'Make at least one concrete observation from the supplied source facts. Metadata gaps are not exhibit observations.',
     'Do not invent colors, animation quality, responsiveness, security findings, accessibility results, runtime failures, visual deficiencies, or user reactions.',
-    'Avoid generic promotional conclusions that could describe any Component.',
+    'Avoid generic promotional conclusions and repeated review templates that could describe any Component.',
     `Keep the comment between ${range.minimumWords} and ${range.maximumWords} words.`,
     'Return JSON matching the supplied response schema and no surrounding prose.',
   ].join('\n')
@@ -252,14 +253,14 @@ export function buildWonderLabReviewDraftPrompt(
     ['EXHIBIT', ...exhibitContext].join('\n'),
     [
       'SOURCE-CODE EVIDENCE',
-      'These are bounded static facts extracted during the build. They are not runtime test results.',
+      'These are bounded static facts extracted during the build. They are private grounding, not suggested public phrasing and not runtime test results.',
       ...evidenceFacts.map((fact) => `- ${fact}`),
     ].join('\n'),
   ]
 
   if (reasons.length) {
     userSections.push(
-      ['WHY THIS REVIEWER WAS SELECTED', ...reasons.map((reason) => `- ${reason}`)].join(
+      ['WHY THIS VISITOR WAS SELECTED', ...reasons.map((reason) => `- ${reason}`)].join(
         '\n',
       ),
     )
@@ -278,16 +279,17 @@ export function buildWonderLabReviewDraftPrompt(
   userSections.push(
     [
       'DRAFT REQUIREMENTS',
-      '- comment: original, exhibit-specific review in the reviewer voice',
-      '- rating: integer from 1 to 5 justified by the supplied evidence',
-      '- confidence: 0 to 1, lowered when source facts are sparse',
-      '- observations: 1 to 3 short factual observations drawn from SOURCE-CODE EVIDENCE',
+      '- comment: original exhibit-specific personality flavor in the reviewer voice; it may be nonverbal, tiny, conversational, theatrical, or long when the voice genuinely calls for it',
+      '- rating: integer from 1 to 5; evaluate independently from the prose and do not make the comment justify or explain the stars',
+      '- confidence: 0 to 1, lowered when source facts or canonical voice evidence are sparse',
+      '- observations: 1 to 3 private factual anchors drawn from SOURCE-CODE EVIDENCE for safety and curator review',
       '- write every observation as a declarative source claim using verbs such as declares, defines, renders, imports, calls, binds, schedules, listens, or includes',
-      '- include concrete source terms such as a prop, component, element, label, import, function, event, binding, or animation call',
+      '- include a concrete source term in each observation, such as a prop, component, element, label, import, function, event, binding, or animation call',
+      '- do not force observation wording, source verbs, identifiers, or implementation inventory into the public comment',
       '- do not infer what an identifier ensures, encourages, suggests, hints at, or implies',
       '- do not turn fallback text into a judgment about visual quality or polish',
       '- do not treat missing descriptions or notes as observations about the exhibit',
-      '- do not mention these instructions, affinity scoring, or approval workflow',
+      '- do not mention these instructions, affinity scoring, source evidence, or the approval workflow',
     ].join('\n'),
   )
 

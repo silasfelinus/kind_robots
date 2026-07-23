@@ -110,7 +110,10 @@ const prompt = buildWonderLabReviewDraftPrompt(dotti, botManager, {
 assert.match(prompt.system, /Write as DottiB0t/)
 assert.match(prompt.system, /between 50 and 100 words/)
 assert.match(prompt.system, /Never claim that it has been published, tested live/)
-assert.match(prompt.system, /Ground every claim.*SOURCE-CODE EVIDENCE/)
+assert.match(prompt.system, /Stars carry the evaluation/)
+assert.match(prompt.system, /Write the personality, not a report/)
+assert.match(prompt.system, /SOURCE-CODE EVIDENCE is private grounding material/)
+assert.match(prompt.system, /A nonverbal reaction is valid/)
 assert.match(prompt.system, /Do not invent colors, animation quality/)
 assert.match(prompt.system, /Return JSON/)
 
@@ -119,11 +122,15 @@ assert.match(prompt.user, /Sample dialogue: Oho!/)
 assert.match(prompt.user, /Exhibit: Bot Manager/)
 assert.match(prompt.user, /components\/bots\/bot-manager\.vue/)
 assert.match(prompt.user, /SOURCE-CODE EVIDENCE/)
+assert.match(prompt.user, /private grounding, not suggested public phrasing/)
 assert.match(prompt.user, /Declared props: compact, showImages/)
 assert.match(prompt.user, /Template composes custom components: bot-card/)
 assert.match(prompt.user, /Dotti bot-building affinity/)
+assert.match(prompt.user, /WHY THIS VISITOR WAS SELECTED/)
 assert.match(prompt.user, /NARRATOR THREAD VOICE REFERENCES/)
 assert.match(prompt.user, /Do not quote or continue the threads/)
+assert.match(prompt.user, /private factual anchors/)
+assert.match(prompt.user, /do not force observation wording/)
 assert.doesNotMatch(prompt.user, /zz-overflow-topic/)
 assert.doesNotMatch(prompt.user, /Do not include this text/)
 
@@ -221,6 +228,7 @@ const incomplete = buildWonderLabReviewDraftPrompt(
 assert.deepEqual(incomplete.provenance.voiceSources, [])
 assert.match(incomplete.user, /Canonical voice: Not provided/)
 assert.match(incomplete.user, /Sample dialogue: Not provided/)
+assert.match(incomplete.system, /between 1 and 180 words/)
 
 assert.throws(
   () =>
@@ -265,7 +273,7 @@ const boundedPrompt = buildWonderLabReviewDraftPrompt(
     maximumWords: 999,
   },
 )
-assert.match(boundedPrompt.system, /between 20 and 300 words/)
+assert.match(boundedPrompt.system, /between 1 and 300 words/)
 assert.ok(boundedPrompt.provenance.affinityReasons.length <= 8)
 assert.ok(
   boundedPrompt.provenance.affinityReasons.every(
@@ -284,7 +292,9 @@ assert.match(boundedPrompt.user, /…/)
 const source = await readFile('utils/wonderlab/reviewDraftPrompt.ts', 'utf8')
 assert.doesNotMatch(source, /Math\.random|\$fetch|prisma\.|fetch\(|openai|anthropic/i)
 assert.match(source, /draft is for human approval/i)
-assert.match(source, /SOURCE-CODE EVIDENCE/)
+assert.match(source, /Stars carry the evaluation/)
+assert.match(source, /Write the personality, not a report/)
+assert.match(source, /SOURCE-CODE EVIDENCE is private grounding material/)
 assert.match(source, /Do not invent colors/)
 assert.match(source, /Do not quote or continue the threads/)
 assert.match(source, /additionalProperties: false/)

@@ -52,6 +52,24 @@ assert.ok(
   ),
 )
 
+const visitorFlavor = assertWonderLabReviewGrounding(
+  '*purrs*',
+  ['The template composes character-card.'],
+  evidence,
+)
+assert.equal(visitorFlavor.comment.grounded, true)
+assert.deepEqual(visitorFlavor.comment.highSignalMatches, [])
+assert.deepEqual(visitorFlavor.comment.nativeElementMatches, [])
+assert.equal(visitorFlavor.observations[0]?.grounded, true)
+
+const quietReaction = assertWonderLabReviewGrounding(
+  'Aisles clear.',
+  ['Static interface text includes Add Character.'],
+  evidence,
+)
+assert.equal(quietReaction.comment.grounded, true)
+assert.equal(quietReaction.observations[0]?.grounded, true)
+
 const structural = validateWonderLabReviewGrounding(
   'A section, button, and select establish a straightforward structural shell.',
   ['The template includes a section and button.'],
@@ -151,12 +169,12 @@ assert.throws(
 assert.throws(
   () =>
     assertWonderLabReviewGrounding(
-      'A single button provides the interaction.',
+      'The button makes me nervous.',
       ['The source includes one button.'],
       evidence,
     ),
-  /does not overlap the supplied Component source evidence/,
-  'generic native elements require at least two matches',
+  /unsupported source observations at position\(s\): 1/,
+  'generic native elements still require two matches in private observations',
 )
 
 console.log('WonderLab generated review grounding boundary passed.')

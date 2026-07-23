@@ -176,12 +176,14 @@ function groundingMatch(
   text: string,
   highSignalTerms: string[],
   nativeElementTerms: string[],
-  requireDeclarativeSourceClaim = false,
+  requireGroundedSourceObservation = false,
 ): WonderLabReviewGroundingMatch {
   const highSignalMatches = matchedTerms(text, highSignalTerms)
   const nativeElementMatches = matchedTerms(text, nativeElementTerms)
   const claims = unsupportedClaims(text)
   const declarativeSourceClaim = isDeclarativeSourceClaim(text)
+  const evidenceOverlap =
+    highSignalMatches.length >= 1 || nativeElementMatches.length >= 2
   return {
     text,
     highSignalMatches,
@@ -190,8 +192,8 @@ function groundingMatch(
     declarativeSourceClaim,
     grounded:
       claims.length === 0 &&
-      (!requireDeclarativeSourceClaim || declarativeSourceClaim) &&
-      (highSignalMatches.length >= 1 || nativeElementMatches.length >= 2),
+      (!requireGroundedSourceObservation ||
+        (declarativeSourceClaim && evidenceOverlap)),
   }
 }
 
@@ -247,9 +249,7 @@ export function assertWonderLabReviewGrounding(
     )
   }
   if (!result.comment.grounded) {
-    throw new Error(
-      'Generated review comment does not overlap the supplied Component source evidence.',
-    )
+    throw new Error('Generated review comment failed grounding safety checks.')
   }
 
   const unsupported = result.observations

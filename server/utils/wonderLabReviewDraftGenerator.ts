@@ -18,10 +18,10 @@ import {
 } from '@/utils/wonderlab/reviewerAffinity'
 import type { ReviewDraftAuthorRef } from '@/utils/wonderlab/reviewDraft'
 
-const PROMPT_VERSION = 'wonderlab-personality-review-v1'
+const PROMPT_VERSION = 'wonderlab-museum-visitor-commentary-v2'
 const MINIMUM_CONFIDENCE = 0.45
-const MINIMUM_COMMENT_WORDS = 20
-const MAXIMUM_COMMENT_WORDS = 160
+const MINIMUM_COMMENT_WORDS = 1
+const MAXIMUM_COMMENT_WORDS = 180
 const REVIEW_GENERATION_TIMEOUT_MS = 30_000
 
 export type GenerateWonderLabReviewDraftInput = {

@@ -1,0 +1,87 @@
+name: WonderLab Voice Polish Probe
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/wonderlab-voice-polish-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Classify final commentary production state
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: https://kind-robots.vercel.app
+      ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+      OUTPUT_DIR: wonderlab-voice-polish-probe-evidence
+      MANIFESTS: >-
+        config/wonderlab-voice-polish-batch-035.json
+        config/wonderlab-voice-polish-batch-036.json
+        config/wonderlab-voice-polish-batch-037.json
+        config/wonderlab-voice-polish-batch-038.json
+        config/wonderlab-voice-polish-batch-039.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Probe exact live hashes without mutation
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUTPUT_DIR"
+          total=0
+          applied=0
+          pending=0
+          blockers=0
+          for manifest in $MANIFESTS; do
+            batch="$(jq -r '.batchId' "$manifest")"
+            batch_dir="$OUTPUT_DIR/$batch"
+            WONDERLAB_BASE_URL="$BASE_URL" \
+            WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
+            WONDERLAB_VOICE_POLISH_MANIFEST="$manifest" \
+            WONDERLAB_VOICE_POLISH_PREFLIGHT_OUTPUT="$batch_dir" \
+              node scripts/preflight-wonderlab-voice-polish-batch.mjs
+            report="$batch_dir/wonderlab-voice-polish-preflight.json"
+            batch_total="$(jq '.revisions' "$report")"
+            batch_applied="$(jq '[.results[] | select(.checks.alreadyApplied == true)] | length' "$report")"
+            batch_pending="$(jq '[.results[] | select(.checks.expectedCurrentHash == true and .checks.alreadyApplied != true)] | length' "$report")"
+            batch_blockers="$(jq '.blockers' "$report")"
+            total=$((total + batch_total))
+            applied=$((applied + batch_applied))
+            pending=$((pending + batch_pending))
+            blockers=$((blockers + batch_blockers))
+            printf '%s\n' \
+              "### $batch" \
+              "- Rows: $batch_total" \
+              "- Applied: $batch_applied" \
+              "- Pending on expected old hash: $batch_pending" \
+              "- Unexpected mismatches/read errors: $batch_blockers" \
+              '' >> "$GITHUB_STEP_SUMMARY"
+          done
+          printf '%s\n' \
+            '## Final WonderLab commentary production probe' \
+            '' \
+            "- Total rows inspected: $total" \
+            "- Revised text live: $applied" \
+            "- Still on guarded old text: $pending" \
+            "- Unexpected mismatches or read errors: $blockers" \
+            '- Mutation boundary: read-only; no ReviewDraft or Reaction was edited' \
+            >> "$GITHUB_STEP_SUMMARY"
+          test "$total" -eq 86
+          test $((applied + pending + blockers)) -eq "$total"
+          test "$blockers" -eq 0
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlab-voice-polish-probe-${{ github.run_id }}
+          path: wonderlab-voice-polish-probe-evidence
+          if-no-files-found: warn
+          retention-days: 14

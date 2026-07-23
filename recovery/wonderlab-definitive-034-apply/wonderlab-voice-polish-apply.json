@@ -1,0 +1,477 @@
+{
+  "generatedAt": "2026-07-23T23:22:54.963Z",
+  "batchId": "wonderlab-definitive-034",
+  "production": {
+    "commit": "dccf7fbd5c73a5f3c05fc4f01874f06b5bb2c9e4",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_CXdXXbpq714zWmTvbpawZSuMvjYp"
+  },
+  "minimumProductionCommit": "2015e43fa693c0742378d9a34ee8e64838c62442",
+  "revisedReviews": 20,
+  "revisedComponents": 10,
+  "shortestFlavor": 72,
+  "longestFlavor": 358,
+  "results": [
+    {
+      "draftId": 669,
+      "reactionId": 2317,
+      "componentId": 2017,
+      "sourceKey": "components/pages/conductor-manager.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 989,
+        "name": "Bram the Tin-Runner"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "e88e60154755907c0cee5a5c87f959d3a6b923b88fdfa3076f3a2e3d469500e0",
+      "revisedCommentHash": "5b848960983cc838091ea5e1c7d4ad62f5615bd9aa7e4edff03f04aca5b05ece",
+      "flavorLength": 213,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2317,
+        "previousCommentHash": "e88e60154755907c0cee5a5c87f959d3a6b923b88fdfa3076f3a2e3d469500e0",
+        "revisedCommentHash": "5b848960983cc838091ea5e1c7d4ad62f5615bd9aa7e4edff03f04aca5b05ece"
+      }
+    },
+    {
+      "draftId": 670,
+      "reactionId": 2318,
+      "componentId": 2017,
+      "sourceKey": "components/pages/conductor-manager.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 416,
+        "name": "Barkeep Vox"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "8e324614d84069aa066b20f52ad622473c14cff04ee060431487299456f1f054",
+      "revisedCommentHash": "0ca33545f469e9daec80cfa016ea5cd82008cc7e66e31461d8e490d5ad81519b",
+      "flavorLength": 72,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2318,
+        "previousCommentHash": "8e324614d84069aa066b20f52ad622473c14cff04ee060431487299456f1f054",
+        "revisedCommentHash": "0ca33545f469e9daec80cfa016ea5cd82008cc7e66e31461d8e490d5ad81519b"
+      }
+    },
+    {
+      "draftId": 671,
+      "reactionId": 2319,
+      "componentId": 2020,
+      "sourceKey": "components/pages/conductor-pitch-manager.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 220,
+        "name": "The Loyal Roommate"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "13f60719a07091d514e9ccc0b1f5aaebb72a1da553f02c0dd38cc3a5baf1f8ea",
+      "revisedCommentHash": "73e4e847fb235d7cdf920708a0316be45ed31e3c93c8f60913d1be08c5ff06ad",
+      "flavorLength": 358,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2319,
+        "previousCommentHash": "13f60719a07091d514e9ccc0b1f5aaebb72a1da553f02c0dd38cc3a5baf1f8ea",
+        "revisedCommentHash": "73e4e847fb235d7cdf920708a0316be45ed31e3c93c8f60913d1be08c5ff06ad"
+      }
+    },
+    {
+      "draftId": 672,
+      "reactionId": 2320,
+      "componentId": 2020,
+      "sourceKey": "components/pages/conductor-pitch-manager.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 960,
+        "name": "Tinny"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "8d415a4e46494ebd8a20a418c0c88a96319d9b458ef56af1e02af2422abb330c",
+      "revisedCommentHash": "870999dff4289c161cf0cfcf7a877fb4ba13faad9bca6af4e9d28efc7d0a0901",
+      "flavorLength": 261,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2320,
+        "previousCommentHash": "8d415a4e46494ebd8a20a418c0c88a96319d9b458ef56af1e02af2422abb330c",
+        "revisedCommentHash": "870999dff4289c161cf0cfcf7a877fb4ba13faad9bca6af4e9d28efc7d0a0901"
+      }
+    },
+    {
+      "draftId": 673,
+      "reactionId": 2321,
+      "componentId": 2025,
+      "sourceKey": "components/pages/kaizen-popup.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 255,
+        "name": "Mx. Quorum"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "712104b68e15d9d8252a1f985ac23d78dba966d84c9473969921099cff819235",
+      "revisedCommentHash": "5f70ca6eb4815c05a4b65e19a24f57cdb3b5c7b3d90018736e8290a6fe74cff6",
+      "flavorLength": 178,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2321,
+        "previousCommentHash": "712104b68e15d9d8252a1f985ac23d78dba966d84c9473969921099cff819235",
+        "revisedCommentHash": "5f70ca6eb4815c05a4b65e19a24f57cdb3b5c7b3d90018736e8290a6fe74cff6"
+      }
+    },
+    {
+      "draftId": 674,
+      "reactionId": 2322,
+      "componentId": 2025,
+      "sourceKey": "components/pages/kaizen-popup.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 5,
+        "name": "JokeBot"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "d2e19f7c3122f4409963e1dc4b5c79992762a84d5c9d33ae3dc8bd13afafdcc8",
+      "revisedCommentHash": "3adaa78516358e51692e9ef262c5e7ec103e3ef12df904b5ad8d6384a051634d",
+      "flavorLength": 142,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2322,
+        "previousCommentHash": "d2e19f7c3122f4409963e1dc4b5c79992762a84d5c9d33ae3dc8bd13afafdcc8",
+        "revisedCommentHash": "3adaa78516358e51692e9ef262c5e7ec103e3ef12df904b5ad8d6384a051634d"
+      }
+    },
+    {
+      "draftId": 675,
+      "reactionId": 2323,
+      "componentId": 2032,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-card.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 265,
+        "name": "The Auditor of Wishes"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "d14a7fc4c7935d80bb580af65a1d0b370a6cdf265a36f1d1b188c9fd6b589e6c",
+      "revisedCommentHash": "6a42cfc2d67d3d45ae9fee6bfcf612e8ea23e726fbd018d0908ebd39e67a28d2",
+      "flavorLength": 239,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2323,
+        "previousCommentHash": "d14a7fc4c7935d80bb580af65a1d0b370a6cdf265a36f1d1b188c9fd6b589e6c",
+        "revisedCommentHash": "6a42cfc2d67d3d45ae9fee6bfcf612e8ea23e726fbd018d0908ebd39e67a28d2"
+      }
+    },
+    {
+      "draftId": 676,
+      "reactionId": 2324,
+      "componentId": 2032,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-card.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 22,
+        "name": "Link Analytica"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "452c9df58bab69fe7b9037a2bada98ba2eafd0c5e565adfe61e9301ab457a802",
+      "revisedCommentHash": "22899e167efc366649630617c546540cca7abf098d1d2ccd66d123182664f1b8",
+      "flavorLength": 180,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2324,
+        "previousCommentHash": "452c9df58bab69fe7b9037a2bada98ba2eafd0c5e565adfe61e9301ab457a802",
+        "revisedCommentHash": "22899e167efc366649630617c546540cca7abf098d1d2ccd66d123182664f1b8"
+      }
+    },
+    {
+      "draftId": 677,
+      "reactionId": 2325,
+      "componentId": 2035,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-slots.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 124,
+        "name": "The Leviathan That Knows Your Name"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "4b29f6e7bcf189bc97fd66e126689874332d919d6c92cca61814bb1d18f552ed",
+      "revisedCommentHash": "9c291ad708d5f9a236a2f928c5d5f6b7eb2337604b59d1af4bb8b2cda015ff68",
+      "flavorLength": 226,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2325,
+        "previousCommentHash": "4b29f6e7bcf189bc97fd66e126689874332d919d6c92cca61814bb1d18f552ed",
+        "revisedCommentHash": "9c291ad708d5f9a236a2f928c5d5f6b7eb2337604b59d1af4bb8b2cda015ff68"
+      }
+    },
+    {
+      "draftId": 678,
+      "reactionId": 2326,
+      "componentId": 2035,
+      "sourceKey": "components/ruler-hooked/ruler-hooked-slots.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 396,
+        "name": "The Stationmaster"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "7cd1c55c0ed9ffc878b9ad102b44bf2ccd1536e436cab854f076a6d9556c2a4b",
+      "revisedCommentHash": "356f8932101b35986dbbd723307d58148c7ca19ffac1c63be03eb4c63c3565b9",
+      "flavorLength": 162,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2326,
+        "previousCommentHash": "7cd1c55c0ed9ffc878b9ad102b44bf2ccd1536e436cab854f076a6d9556c2a4b",
+        "revisedCommentHash": "356f8932101b35986dbbd723307d58148c7ca19ffac1c63be03eb4c63c3565b9"
+      }
+    },
+    {
+      "draftId": 679,
+      "reactionId": 2327,
+      "componentId": 2040,
+      "sourceKey": "components/screenfx/animation-selector.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 194,
+        "name": "The Lighthouse Keeper"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "f98872d0657702d1722cdf385941bdc2b0a464e0ace57e1c6f5df89c6119e997",
+      "revisedCommentHash": "c8259081f05d66fc947394026c15abf2e6ff03b95f37c988411ad4785178f792",
+      "flavorLength": 255,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2327,
+        "previousCommentHash": "f98872d0657702d1722cdf385941bdc2b0a464e0ace57e1c6f5df89c6119e997",
+        "revisedCommentHash": "c8259081f05d66fc947394026c15abf2e6ff03b95f37c988411ad4785178f792"
+      }
+    },
+    {
+      "draftId": 680,
+      "reactionId": 2328,
+      "componentId": 2040,
+      "sourceKey": "components/screenfx/animation-selector.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 418,
+        "name": "The Three Little Dead"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "50276877754baca7331d42d95052e47f53d025a44d9dc55718e65f4c943b160f",
+      "revisedCommentHash": "3ec81a18813fa1d4c66bc0c355d669eb128043f6f3124704add8f731f24efce1",
+      "flavorLength": 174,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2328,
+        "previousCommentHash": "50276877754baca7331d42d95052e47f53d025a44d9dc55718e65f4c943b160f",
+        "revisedCommentHash": "3ec81a18813fa1d4c66bc0c355d669eb128043f6f3124704add8f731f24efce1"
+      }
+    },
+    {
+      "draftId": 681,
+      "reactionId": 2329,
+      "componentId": 2043,
+      "sourceKey": "components/screenfx/fx-region.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 220,
+        "name": "The Loyal Roommate"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "61df34d5af55ceda6c32602bb2cad28ddd2ad3363596a40a1b6df56156858946",
+      "revisedCommentHash": "6f90e340e32222881c779df492c4e650f238f7f4681e285456a16df6ad6e65a0",
+      "flavorLength": 212,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2329,
+        "previousCommentHash": "61df34d5af55ceda6c32602bb2cad28ddd2ad3363596a40a1b6df56156858946",
+        "revisedCommentHash": "6f90e340e32222881c779df492c4e650f238f7f4681e285456a16df6ad6e65a0"
+      }
+    },
+    {
+      "draftId": 682,
+      "reactionId": 2330,
+      "componentId": 2043,
+      "sourceKey": "components/screenfx/fx-region.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 411,
+        "name": "The Undertaker"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "2f58d10cc64d7a7b0d8f60d4cf0fe3bc1ed4cfa69606064ef5296f701fff9c2e",
+      "revisedCommentHash": "f1e479616d20418166c4a0401a05b2af570f74276d4c1e6d5080ca9456c5bf91",
+      "flavorLength": 209,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2330,
+        "previousCommentHash": "2f58d10cc64d7a7b0d8f60d4cf0fe3bc1ed4cfa69606064ef5296f701fff9c2e",
+        "revisedCommentHash": "f1e479616d20418166c4a0401a05b2af570f74276d4c1e6d5080ca9456c5bf91"
+      }
+    },
+    {
+      "draftId": 683,
+      "reactionId": 2331,
+      "componentId": 2045,
+      "sourceKey": "components/screenfx/startup-animation.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 233,
+        "name": "The Many-Eyed Diplomat"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "07e59c098f127b1eb4c803a3adf315fe608da90a895e67de69cf1e4ce54468dc",
+      "revisedCommentHash": "9c2a8094da74d7c02ab4ddeea461cdd6688eef9a10998c8a210bc820db12256e",
+      "flavorLength": 245,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2331,
+        "previousCommentHash": "07e59c098f127b1eb4c803a3adf315fe608da90a895e67de69cf1e4ce54468dc",
+        "revisedCommentHash": "9c2a8094da74d7c02ab4ddeea461cdd6688eef9a10998c8a210bc820db12256e"
+      }
+    },
+    {
+      "draftId": 684,
+      "reactionId": 2332,
+      "componentId": 2045,
+      "sourceKey": "components/screenfx/startup-animation.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 960,
+        "name": "Tinny"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "3c884cf8e84b2f131bc8b24109cb9502b800ca2767129fc56e6050eebff1da2e",
+      "revisedCommentHash": "c90c1bd7116ddcf27bf043cf9f3d63e99c02f3a5d77d07bfa764cbf1d70f3f67",
+      "flavorLength": 194,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2332,
+        "previousCommentHash": "3c884cf8e84b2f131bc8b24109cb9502b800ca2767129fc56e6050eebff1da2e",
+        "revisedCommentHash": "c90c1bd7116ddcf27bf043cf9f3d63e99c02f3a5d77d07bfa764cbf1d70f3f67"
+      }
+    },
+    {
+      "draftId": 685,
+      "reactionId": 2333,
+      "componentId": 2054,
+      "sourceKey": "components/ui/ui-gallery.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 153,
+        "name": "The Backpack Pigeon"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "c1c6609815c7e5563bafb444df2e050070a19a7fd77a4341152820bba72ba545",
+      "revisedCommentHash": "ebf50c381a4490f5086bfbe13153d3062fae1af9ac3606b21bb9ed88583e62d3",
+      "flavorLength": 222,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2333,
+        "previousCommentHash": "c1c6609815c7e5563bafb444df2e050070a19a7fd77a4341152820bba72ba545",
+        "revisedCommentHash": "ebf50c381a4490f5086bfbe13153d3062fae1af9ac3606b21bb9ed88583e62d3"
+      }
+    },
+    {
+      "draftId": 686,
+      "reactionId": 2334,
+      "componentId": 2054,
+      "sourceKey": "components/ui/ui-gallery.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 400,
+        "name": "Little Miss Thorn"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "68efb3747459a5db857e4893f0b1250ca165a3683a653f2f65883c41eef59de5",
+      "revisedCommentHash": "738ac8c41809723697016921699bd4e72df970d7c7ae80372f02ad5bea1064e1",
+      "flavorLength": 144,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2334,
+        "previousCommentHash": "68efb3747459a5db857e4893f0b1250ca165a3683a653f2f65883c41eef59de5",
+        "revisedCommentHash": "738ac8c41809723697016921699bd4e72df970d7c7ae80372f02ad5bea1064e1"
+      }
+    },
+    {
+      "draftId": 687,
+      "reactionId": 2335,
+      "componentId": 2062,
+      "sourceKey": "components/user/user-builder.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 354,
+        "name": "The Player Two"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "ff0a232b548d705fd2e711b1667326793396749112f0e3dec9e69b1255e187c9",
+      "revisedCommentHash": "7c8e193c156690b466ea127957b221c57e1793610be6371ad8e25b8c9b954af0",
+      "flavorLength": 241,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2335,
+        "previousCommentHash": "ff0a232b548d705fd2e711b1667326793396749112f0e3dec9e69b1255e187c9",
+        "revisedCommentHash": "7c8e193c156690b466ea127957b221c57e1793610be6371ad8e25b8c9b954af0"
+      }
+    },
+    {
+      "draftId": 688,
+      "reactionId": 2336,
+      "componentId": 2062,
+      "sourceKey": "components/user/user-builder.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 404,
+        "name": "Totomi the Kitsune"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "55f1f0e13ed40bbaca46c543c7d8ee98fe624c679cb9606b6d52d5f5f1bf7cb0",
+      "revisedCommentHash": "60b81f306118c8359dff5b31cf3d5a38bdc2b3d81ac8778944b0c3f3a1f82af7",
+      "flavorLength": 199,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2336,
+        "previousCommentHash": "55f1f0e13ed40bbaca46c543c7d8ee98fe624c679cb9606b6d52d5f5f1bf7cb0",
+        "revisedCommentHash": "60b81f306118c8359dff5b31cf3d5a38bdc2b3d81ac8778944b0c3f3a1f82af7"
+      }
+    }
+  ]
+}

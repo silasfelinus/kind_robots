@@ -1,0 +1,477 @@
+{
+  "generatedAt": "2026-07-23T23:19:25.682Z",
+  "batchId": "wonderlab-definitive-032",
+  "production": {
+    "commit": "dccf7fbd5c73a5f3c05fc4f01874f06b5bb2c9e4",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_CXdXXbpq714zWmTvbpawZSuMvjYp"
+  },
+  "minimumProductionCommit": "53ef7dde7c8a0989d22c4cc8d157bbfd5ed4a673",
+  "revisedReviews": 20,
+  "revisedComponents": 10,
+  "shortestFlavor": 66,
+  "longestFlavor": 313,
+  "results": [
+    {
+      "draftId": 629,
+      "reactionId": 2274,
+      "componentId": 1904,
+      "sourceKey": "components/achievements/achievement-gallery.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 276,
+        "name": "The Alibi"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "dcfcb304291d36aeb27d7710187396685cc7862a8365c5836fee500c9878780a",
+      "revisedCommentHash": "a8558db2acc2fd44fbf348a95fcf98f2f90d4d113079cd1aa5ca146653b178d9",
+      "flavorLength": 304,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2274,
+        "previousCommentHash": "dcfcb304291d36aeb27d7710187396685cc7862a8365c5836fee500c9878780a",
+        "revisedCommentHash": "a8558db2acc2fd44fbf348a95fcf98f2f90d4d113079cd1aa5ca146653b178d9"
+      }
+    },
+    {
+      "draftId": 630,
+      "reactionId": 2275,
+      "componentId": 1904,
+      "sourceKey": "components/achievements/achievement-gallery.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 12,
+        "name": "Lazlo"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "a8ce579280f0dba02a2ad32a5f5cad02cf4ecc1d002fee009480a5b5c2e360b6",
+      "revisedCommentHash": "ddd7d581980f4991b325d6d8290282e0b8d1200442e8a606f6c4264cfde64fb4",
+      "flavorLength": 223,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2275,
+        "previousCommentHash": "a8ce579280f0dba02a2ad32a5f5cad02cf4ecc1d002fee009480a5b5c2e360b6",
+        "revisedCommentHash": "ddd7d581980f4991b325d6d8290282e0b8d1200442e8a606f6c4264cfde64fb4"
+      }
+    },
+    {
+      "draftId": 631,
+      "reactionId": 2276,
+      "componentId": 1905,
+      "sourceKey": "components/achievements/achievement-leaderboard.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 136,
+        "name": "The Iron Pacific"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "93fd1fa9057b532e9b785ae3096115ef5510200e2f47abd35613838fed3f0c8c",
+      "revisedCommentHash": "8f660e01c4ed1d109ec02d0f6d498fd86161bbf960ff15bff901e9b76553589e",
+      "flavorLength": 281,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2276,
+        "previousCommentHash": "93fd1fa9057b532e9b785ae3096115ef5510200e2f47abd35613838fed3f0c8c",
+        "revisedCommentHash": "8f660e01c4ed1d109ec02d0f6d498fd86161bbf960ff15bff901e9b76553589e"
+      }
+    },
+    {
+      "draftId": 632,
+      "reactionId": 2277,
+      "componentId": 1905,
+      "sourceKey": "components/achievements/achievement-leaderboard.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 424,
+        "name": "The Bookkeeper"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "766ba4ab65589cdfa8c8466c7a699397488bda7bf86c493abb8cdd012e5ac62c",
+      "revisedCommentHash": "b367b37164d821b006027c4367e2674c599a39942b5980b2c3a71c39b808c1ec",
+      "flavorLength": 110,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2277,
+        "previousCommentHash": "766ba4ab65589cdfa8c8466c7a699397488bda7bf86c493abb8cdd012e5ac62c",
+        "revisedCommentHash": "b367b37164d821b006027c4367e2674c599a39942b5980b2c3a71c39b808c1ec"
+      }
+    },
+    {
+      "draftId": 633,
+      "reactionId": 2278,
+      "componentId": 1906,
+      "sourceKey": "components/achievements/achievement-popup.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 271,
+        "name": "The Kaiju Who Just Wants to Sit Down"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "93d8ce7576538f2d31f39e5826ebe222401783dd3ad107d7d326662fb1fe059a",
+      "revisedCommentHash": "090768491ae98954e8de574679f2986477e9e06b05216548081bcc8c7629ab02",
+      "flavorLength": 109,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2278,
+        "previousCommentHash": "93d8ce7576538f2d31f39e5826ebe222401783dd3ad107d7d326662fb1fe059a",
+        "revisedCommentHash": "090768491ae98954e8de574679f2986477e9e06b05216548081bcc8c7629ab02"
+      }
+    },
+    {
+      "draftId": 634,
+      "reactionId": 2279,
+      "componentId": 1906,
+      "sourceKey": "components/achievements/achievement-popup.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 425,
+        "name": "The Broken Girl"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "92fdf8e745fda8b4ae20653a08cd58ff38e8da7ae5a27cb7f8925a5ba22a27f9",
+      "revisedCommentHash": "ecb873dfb16162a49a6423fd55a8ad2b4923c6a57f838d919e9f3d0d1821a2d3",
+      "flavorLength": 275,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2279,
+        "previousCommentHash": "92fdf8e745fda8b4ae20653a08cd58ff38e8da7ae5a27cb7f8925a5ba22a27f9",
+        "revisedCommentHash": "ecb873dfb16162a49a6423fd55a8ad2b4923c6a57f838d919e9f3d0d1821a2d3"
+      }
+    },
+    {
+      "draftId": 635,
+      "reactionId": 2280,
+      "componentId": 1924,
+      "sourceKey": "components/art/stylist-manager.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 254,
+        "name": "The Polite Plague"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "5c2b9f556bd37c5731ae7d3c45888eafabaaea23ac2b5e490cd0399be9605a94",
+      "revisedCommentHash": "2e706b45a3446825340e239d6a6ee7015a09777dd02fdad114bb9b49e13dd258",
+      "flavorLength": 313,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2280,
+        "previousCommentHash": "5c2b9f556bd37c5731ae7d3c45888eafabaaea23ac2b5e490cd0399be9605a94",
+        "revisedCommentHash": "2e706b45a3446825340e239d6a6ee7015a09777dd02fdad114bb9b49e13dd258"
+      }
+    },
+    {
+      "draftId": 636,
+      "reactionId": 2281,
+      "componentId": 1924,
+      "sourceKey": "components/art/stylist-manager.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 306,
+        "name": "Weirdlandia"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "decf86f0f0124484d75e9d4cb4524f6578209eedc7d0f5a40a3a7e624a961945",
+      "revisedCommentHash": "3f348b2f85f9c8934f2f49bb500393d0bebd763502a0849d95d6ca5349587065",
+      "flavorLength": 273,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2281,
+        "previousCommentHash": "decf86f0f0124484d75e9d4cb4524f6578209eedc7d0f5a40a3a7e624a961945",
+        "revisedCommentHash": "3f348b2f85f9c8934f2f49bb500393d0bebd763502a0849d95d6ca5349587065"
+      }
+    },
+    {
+      "draftId": 637,
+      "reactionId": 2282,
+      "componentId": 1943,
+      "sourceKey": "components/builder/builder-splash.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 329,
+        "name": "The Considerate AI"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "32b5ad1cdd2eece995fd485e4c69bbce342631ffac5b93335de215bf8c9b776f",
+      "revisedCommentHash": "22ade5afe02b9b5f8a9ddeae9a2e50ec7b2de8ca17667cd3560508d5446ed884",
+      "flavorLength": 293,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2282,
+        "previousCommentHash": "32b5ad1cdd2eece995fd485e4c69bbce342631ffac5b93335de215bf8c9b776f",
+        "revisedCommentHash": "22ade5afe02b9b5f8a9ddeae9a2e50ec7b2de8ca17667cd3560508d5446ed884"
+      }
+    },
+    {
+      "draftId": 638,
+      "reactionId": 2283,
+      "componentId": 1943,
+      "sourceKey": "components/builder/builder-splash.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 420,
+        "name": "Bastet"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "6c89e526c111654f09e107052614f7d902cc53330b726368017ad99784417027",
+      "revisedCommentHash": "3b59ea56dc71e9e2c0357ffad1b928d9fcecee510dd8ec9a2155f1c0d5cb4ab5",
+      "flavorLength": 66,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2283,
+        "previousCommentHash": "6c89e526c111654f09e107052614f7d902cc53330b726368017ad99784417027",
+        "revisedCommentHash": "3b59ea56dc71e9e2c0357ffad1b928d9fcecee510dd8ec9a2155f1c0d5cb4ab5"
+      }
+    },
+    {
+      "draftId": 639,
+      "reactionId": 2284,
+      "componentId": 1945,
+      "sourceKey": "components/builder/builder-stats-input.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 136,
+        "name": "The Iron Pacific"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "912f110d333143e03b33c81c678424d98d461ba3934717ca7f01e800447c29ab",
+      "revisedCommentHash": "5593e42a1ae0abef9b56a48492c74c4a2344d5a708b57e451f2eaa387f790925",
+      "flavorLength": 227,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2284,
+        "previousCommentHash": "912f110d333143e03b33c81c678424d98d461ba3934717ca7f01e800447c29ab",
+        "revisedCommentHash": "5593e42a1ae0abef9b56a48492c74c4a2344d5a708b57e451f2eaa387f790925"
+      }
+    },
+    {
+      "draftId": 640,
+      "reactionId": 2285,
+      "componentId": 1945,
+      "sourceKey": "components/builder/builder-stats-input.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 4,
+        "name": "Brainbot"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "19be2728b57252f8178aefc410e37108fd211f064a6d36f6af3a140ffdcaa266",
+      "revisedCommentHash": "9d69f524e87a6d1c0a1d8d363888cf93dab7004ec2ec90395f40ae626fd325ee",
+      "flavorLength": 229,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2285,
+        "previousCommentHash": "19be2728b57252f8178aefc410e37108fd211f064a6d36f6af3a140ffdcaa266",
+        "revisedCommentHash": "9d69f524e87a6d1c0a1d8d363888cf93dab7004ec2ec90395f40ae626fd325ee"
+      }
+    },
+    {
+      "draftId": 641,
+      "reactionId": 2286,
+      "componentId": 1947,
+      "sourceKey": "components/builder/builder-summary.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 256,
+        "name": "The Last Honest Map"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "0a5eea6bdd0a3766695fa3c6cb18b3d5e9e3fe6a2b3610d3533884f52dc4543e",
+      "revisedCommentHash": "8c9dea49ce311f62d151d2d5d5b0c28b66a061ef69c21f01bea89c11666ef887",
+      "flavorLength": 303,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2286,
+        "previousCommentHash": "0a5eea6bdd0a3766695fa3c6cb18b3d5e9e3fe6a2b3610d3533884f52dc4543e",
+        "revisedCommentHash": "8c9dea49ce311f62d151d2d5d5b0c28b66a061ef69c21f01bea89c11666ef887"
+      }
+    },
+    {
+      "draftId": 642,
+      "reactionId": 2287,
+      "componentId": 1947,
+      "sourceKey": "components/builder/builder-summary.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 406,
+        "name": "Captain Fluke"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "0b950f4d0a5a44355865cce2ea5e5fcd3b35e412c3d91e6519b536f0ebd12195",
+      "revisedCommentHash": "05c55a0db1aa24b49646578eb7d0aa3939c088e2c1ba94f88b3e279253547c71",
+      "flavorLength": 222,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2287,
+        "previousCommentHash": "0b950f4d0a5a44355865cce2ea5e5fcd3b35e412c3d91e6519b536f0ebd12195",
+        "revisedCommentHash": "05c55a0db1aa24b49646578eb7d0aa3939c088e2c1ba94f88b3e279253547c71"
+      }
+    },
+    {
+      "draftId": 643,
+      "reactionId": 2288,
+      "componentId": 1982,
+      "sourceKey": "components/facets/facet-manager.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 132,
+        "name": "Biscuit"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "1f217198d1c4fcb8735c3cb071708775e634e6e6966a246957260bfe6a7bc1c5",
+      "revisedCommentHash": "1afed39085c538d5b26c2313ae390b1ad840696a1f62e02d8cb90a9bb1e06551",
+      "flavorLength": 277,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2288,
+        "previousCommentHash": "1f217198d1c4fcb8735c3cb071708775e634e6e6966a246957260bfe6a7bc1c5",
+        "revisedCommentHash": "1afed39085c538d5b26c2313ae390b1ad840696a1f62e02d8cb90a9bb1e06551"
+      }
+    },
+    {
+      "draftId": 644,
+      "reactionId": 2289,
+      "componentId": 1982,
+      "sourceKey": "components/facets/facet-manager.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 419,
+        "name": "Agatha Crowley"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "90d9906d8b86b367953f6f9783e6882bd92b0dc3fa414bbff232fbee6c3aaa67",
+      "revisedCommentHash": "50652edec94dd62f3158d3a1e07a8b85db6b0dcc63e9ef13554f9f18324fe645",
+      "flavorLength": 294,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2289,
+        "previousCommentHash": "90d9906d8b86b367953f6f9783e6882bd92b0dc3fa414bbff232fbee6c3aaa67",
+        "revisedCommentHash": "50652edec94dd62f3158d3a1e07a8b85db6b0dcc63e9ef13554f9f18324fe645"
+      }
+    },
+    {
+      "draftId": 645,
+      "reactionId": 2290,
+      "componentId": 1983,
+      "sourceKey": "components/facets/facet-picker.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 202,
+        "name": "The Last Gardener"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "198b93c8681edc25328ecca24d78d0bcdb2c426d7d2041cc7f8d32383cb0adda",
+      "revisedCommentHash": "eb1502b523432b9123721c93509b6ab0d88110fe8ee5e9f42ca7229abb13d2e9",
+      "flavorLength": 262,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2290,
+        "previousCommentHash": "198b93c8681edc25328ecca24d78d0bcdb2c426d7d2041cc7f8d32383cb0adda",
+        "revisedCommentHash": "eb1502b523432b9123721c93509b6ab0d88110fe8ee5e9f42ca7229abb13d2e9"
+      }
+    },
+    {
+      "draftId": 646,
+      "reactionId": 2291,
+      "componentId": 1983,
+      "sourceKey": "components/facets/facet-picker.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 422,
+        "name": "The Inevitable"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "e4650825855b92865fe5e2670f0ef3d2cd3698d3bb4d4bfa13f4339c13aab1ea",
+      "revisedCommentHash": "8f1d62d41e8c5b5af75aff95b8fa18108325c7e6eacb76cc77ea0310e02ac5e3",
+      "flavorLength": 260,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2291,
+        "previousCommentHash": "e4650825855b92865fe5e2670f0ef3d2cd3698d3bb4d4bfa13f4339c13aab1ea",
+        "revisedCommentHash": "8f1d62d41e8c5b5af75aff95b8fa18108325c7e6eacb76cc77ea0310e02ac5e3"
+      }
+    },
+    {
+      "draftId": 647,
+      "reactionId": 2292,
+      "componentId": 1984,
+      "sourceKey": "components/giftshop/mana-wallet.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 256,
+        "name": "The Last Honest Map"
+      },
+      "publisherUserId": 1,
+      "rating": 2,
+      "reactionType": "NEUTRAL",
+      "previousCommentHash": "d5a9183c8419958ac68cca757f52ff91576ceb0af6ed33e24c68fca6665aafc2",
+      "revisedCommentHash": "0af617ad76ea2a8a0223402031dd5bfedde306b3e7225288a22ab7b122e8decc",
+      "flavorLength": 276,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2292,
+        "previousCommentHash": "d5a9183c8419958ac68cca757f52ff91576ceb0af6ed33e24c68fca6665aafc2",
+        "revisedCommentHash": "0af617ad76ea2a8a0223402031dd5bfedde306b3e7225288a22ab7b122e8decc"
+      }
+    },
+    {
+      "draftId": 648,
+      "reactionId": 2293,
+      "componentId": 1984,
+      "sourceKey": "components/giftshop/mana-wallet.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 413,
+        "name": "The Magpie"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "65a833c853045ee982489f94f78a8af2ae14dda9f9c6eb677b13c77244aadbfd",
+      "revisedCommentHash": "546e209dedd5865fcc31dda83603b18c2bd3acf16391ba4f2f63d9685573afff",
+      "flavorLength": 288,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2293,
+        "previousCommentHash": "65a833c853045ee982489f94f78a8af2ae14dda9f9c6eb677b13c77244aadbfd",
+        "revisedCommentHash": "546e209dedd5865fcc31dda83603b18c2bd3acf16391ba4f2f63d9685573afff"
+      }
+    }
+  ]
+}

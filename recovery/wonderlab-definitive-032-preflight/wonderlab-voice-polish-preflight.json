@@ -1,0 +1,1215 @@
+{
+  "generatedAt": "2026-07-23T23:18:05.015Z",
+  "batchId": "wonderlab-definitive-032",
+  "manifestPath": "/home/runner/work/kind_robots/kind_robots/config/wonderlab-voice-polish-batch-035.json",
+  "production": {
+    "commit": "dccf7fbd5c73a5f3c05fc4f01874f06b5bb2c9e4",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_CXdXXbpq714zWmTvbpawZSuMvjYp"
+  },
+  "revisions": 20,
+  "blockers": 0,
+  "results": [
+    {
+      "canonicalOrder": 621,
+      "draftId": 629,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1904,
+        "reactionId": 2274,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 276
+        },
+        "sourceKey": "components/achievements/achievement-gallery.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "dcfcb304291d36aeb27d7710187396685cc7862a8365c5836fee500c9878780a"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1904,
+        "reactionId": 2274,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 276
+        },
+        "sourceKey": "components/achievements/achievement-gallery.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "dcfcb304291d36aeb27d7710187396685cc7862a8365c5836fee500c9878780a",
+        "publicReactionId": 2274,
+        "publicComponentId": 1904,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 276
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "dcfcb304291d36aeb27d7710187396685cc7862a8365c5836fee500c9878780a"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 622,
+      "draftId": 630,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1904,
+        "reactionId": 2275,
+        "author": {
+          "kind": "BOT",
+          "id": 12
+        },
+        "sourceKey": "components/achievements/achievement-gallery.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "a8ce579280f0dba02a2ad32a5f5cad02cf4ecc1d002fee009480a5b5c2e360b6"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1904,
+        "reactionId": 2275,
+        "author": {
+          "kind": "BOT",
+          "id": 12
+        },
+        "sourceKey": "components/achievements/achievement-gallery.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "a8ce579280f0dba02a2ad32a5f5cad02cf4ecc1d002fee009480a5b5c2e360b6",
+        "publicReactionId": 2275,
+        "publicComponentId": 1904,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 12
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "a8ce579280f0dba02a2ad32a5f5cad02cf4ecc1d002fee009480a5b5c2e360b6"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 623,
+      "draftId": 631,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1905,
+        "reactionId": 2276,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 136
+        },
+        "sourceKey": "components/achievements/achievement-leaderboard.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "93fd1fa9057b532e9b785ae3096115ef5510200e2f47abd35613838fed3f0c8c"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1905,
+        "reactionId": 2276,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 136
+        },
+        "sourceKey": "components/achievements/achievement-leaderboard.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "93fd1fa9057b532e9b785ae3096115ef5510200e2f47abd35613838fed3f0c8c",
+        "publicReactionId": 2276,
+        "publicComponentId": 1905,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 136
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "93fd1fa9057b532e9b785ae3096115ef5510200e2f47abd35613838fed3f0c8c"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 624,
+      "draftId": 632,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1905,
+        "reactionId": 2277,
+        "author": {
+          "kind": "BOT",
+          "id": 424
+        },
+        "sourceKey": "components/achievements/achievement-leaderboard.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "766ba4ab65589cdfa8c8466c7a699397488bda7bf86c493abb8cdd012e5ac62c"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1905,
+        "reactionId": 2277,
+        "author": {
+          "kind": "BOT",
+          "id": 424
+        },
+        "sourceKey": "components/achievements/achievement-leaderboard.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "766ba4ab65589cdfa8c8466c7a699397488bda7bf86c493abb8cdd012e5ac62c",
+        "publicReactionId": 2277,
+        "publicComponentId": 1905,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 424
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "766ba4ab65589cdfa8c8466c7a699397488bda7bf86c493abb8cdd012e5ac62c"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 625,
+      "draftId": 633,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1906,
+        "reactionId": 2278,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 271
+        },
+        "sourceKey": "components/achievements/achievement-popup.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "93d8ce7576538f2d31f39e5826ebe222401783dd3ad107d7d326662fb1fe059a"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1906,
+        "reactionId": 2278,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 271
+        },
+        "sourceKey": "components/achievements/achievement-popup.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "93d8ce7576538f2d31f39e5826ebe222401783dd3ad107d7d326662fb1fe059a",
+        "publicReactionId": 2278,
+        "publicComponentId": 1906,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 271
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "93d8ce7576538f2d31f39e5826ebe222401783dd3ad107d7d326662fb1fe059a"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 626,
+      "draftId": 634,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1906,
+        "reactionId": 2279,
+        "author": {
+          "kind": "BOT",
+          "id": 425
+        },
+        "sourceKey": "components/achievements/achievement-popup.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "currentCommentHash": "92fdf8e745fda8b4ae20653a08cd58ff38e8da7ae5a27cb7f8925a5ba22a27f9"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1906,
+        "reactionId": 2279,
+        "author": {
+          "kind": "BOT",
+          "id": 425
+        },
+        "sourceKey": "components/achievements/achievement-popup.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "publisherUserId": 1,
+        "draftCommentHash": "92fdf8e745fda8b4ae20653a08cd58ff38e8da7ae5a27cb7f8925a5ba22a27f9",
+        "publicReactionId": 2279,
+        "publicComponentId": 1906,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 425
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 4,
+        "publicReactionType": "LOVED",
+        "publicCommentHash": "92fdf8e745fda8b4ae20653a08cd58ff38e8da7ae5a27cb7f8925a5ba22a27f9"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 627,
+      "draftId": 635,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1924,
+        "reactionId": 2280,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 254
+        },
+        "sourceKey": "components/art/stylist-manager.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "5c2b9f556bd37c5731ae7d3c45888eafabaaea23ac2b5e490cd0399be9605a94"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1924,
+        "reactionId": 2280,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 254
+        },
+        "sourceKey": "components/art/stylist-manager.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "5c2b9f556bd37c5731ae7d3c45888eafabaaea23ac2b5e490cd0399be9605a94",
+        "publicReactionId": 2280,
+        "publicComponentId": 1924,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 254
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "5c2b9f556bd37c5731ae7d3c45888eafabaaea23ac2b5e490cd0399be9605a94"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 628,
+      "draftId": 636,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1924,
+        "reactionId": 2281,
+        "author": {
+          "kind": "BOT",
+          "id": 306
+        },
+        "sourceKey": "components/art/stylist-manager.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "decf86f0f0124484d75e9d4cb4524f6578209eedc7d0f5a40a3a7e624a961945"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1924,
+        "reactionId": 2281,
+        "author": {
+          "kind": "BOT",
+          "id": 306
+        },
+        "sourceKey": "components/art/stylist-manager.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "decf86f0f0124484d75e9d4cb4524f6578209eedc7d0f5a40a3a7e624a961945",
+        "publicReactionId": 2281,
+        "publicComponentId": 1924,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 306
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "decf86f0f0124484d75e9d4cb4524f6578209eedc7d0f5a40a3a7e624a961945"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 629,
+      "draftId": 637,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1943,
+        "reactionId": 2282,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 329
+        },
+        "sourceKey": "components/builder/builder-splash.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "32b5ad1cdd2eece995fd485e4c69bbce342631ffac5b93335de215bf8c9b776f"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1943,
+        "reactionId": 2282,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 329
+        },
+        "sourceKey": "components/builder/builder-splash.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "32b5ad1cdd2eece995fd485e4c69bbce342631ffac5b93335de215bf8c9b776f",
+        "publicReactionId": 2282,
+        "publicComponentId": 1943,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 329
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "32b5ad1cdd2eece995fd485e4c69bbce342631ffac5b93335de215bf8c9b776f"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 630,
+      "draftId": 638,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1943,
+        "reactionId": 2283,
+        "author": {
+          "kind": "BOT",
+          "id": 420
+        },
+        "sourceKey": "components/builder/builder-splash.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "6c89e526c111654f09e107052614f7d902cc53330b726368017ad99784417027"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1943,
+        "reactionId": 2283,
+        "author": {
+          "kind": "BOT",
+          "id": 420
+        },
+        "sourceKey": "components/builder/builder-splash.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "6c89e526c111654f09e107052614f7d902cc53330b726368017ad99784417027",
+        "publicReactionId": 2283,
+        "publicComponentId": 1943,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 420
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "6c89e526c111654f09e107052614f7d902cc53330b726368017ad99784417027"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 631,
+      "draftId": 639,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1945,
+        "reactionId": 2284,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 136
+        },
+        "sourceKey": "components/builder/builder-stats-input.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "912f110d333143e03b33c81c678424d98d461ba3934717ca7f01e800447c29ab"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1945,
+        "reactionId": 2284,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 136
+        },
+        "sourceKey": "components/builder/builder-stats-input.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "912f110d333143e03b33c81c678424d98d461ba3934717ca7f01e800447c29ab",
+        "publicReactionId": 2284,
+        "publicComponentId": 1945,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 136
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "912f110d333143e03b33c81c678424d98d461ba3934717ca7f01e800447c29ab"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 632,
+      "draftId": 640,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1945,
+        "reactionId": 2285,
+        "author": {
+          "kind": "BOT",
+          "id": 4
+        },
+        "sourceKey": "components/builder/builder-stats-input.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "19be2728b57252f8178aefc410e37108fd211f064a6d36f6af3a140ffdcaa266"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1945,
+        "reactionId": 2285,
+        "author": {
+          "kind": "BOT",
+          "id": 4
+        },
+        "sourceKey": "components/builder/builder-stats-input.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "19be2728b57252f8178aefc410e37108fd211f064a6d36f6af3a140ffdcaa266",
+        "publicReactionId": 2285,
+        "publicComponentId": 1945,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 4
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "19be2728b57252f8178aefc410e37108fd211f064a6d36f6af3a140ffdcaa266"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 633,
+      "draftId": 641,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1947,
+        "reactionId": 2286,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 256
+        },
+        "sourceKey": "components/builder/builder-summary.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "0a5eea6bdd0a3766695fa3c6cb18b3d5e9e3fe6a2b3610d3533884f52dc4543e"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1947,
+        "reactionId": 2286,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 256
+        },
+        "sourceKey": "components/builder/builder-summary.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "0a5eea6bdd0a3766695fa3c6cb18b3d5e9e3fe6a2b3610d3533884f52dc4543e",
+        "publicReactionId": 2286,
+        "publicComponentId": 1947,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 256
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "0a5eea6bdd0a3766695fa3c6cb18b3d5e9e3fe6a2b3610d3533884f52dc4543e"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 634,
+      "draftId": 642,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1947,
+        "reactionId": 2287,
+        "author": {
+          "kind": "BOT",
+          "id": 406
+        },
+        "sourceKey": "components/builder/builder-summary.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "0b950f4d0a5a44355865cce2ea5e5fcd3b35e412c3d91e6519b536f0ebd12195"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1947,
+        "reactionId": 2287,
+        "author": {
+          "kind": "BOT",
+          "id": 406
+        },
+        "sourceKey": "components/builder/builder-summary.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "0b950f4d0a5a44355865cce2ea5e5fcd3b35e412c3d91e6519b536f0ebd12195",
+        "publicReactionId": 2287,
+        "publicComponentId": 1947,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 406
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "0b950f4d0a5a44355865cce2ea5e5fcd3b35e412c3d91e6519b536f0ebd12195"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 635,
+      "draftId": 643,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1982,
+        "reactionId": 2288,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 132
+        },
+        "sourceKey": "components/facets/facet-manager.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "currentCommentHash": "1f217198d1c4fcb8735c3cb071708775e634e6e6966a246957260bfe6a7bc1c5"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1982,
+        "reactionId": 2288,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 132
+        },
+        "sourceKey": "components/facets/facet-manager.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "publisherUserId": 1,
+        "draftCommentHash": "1f217198d1c4fcb8735c3cb071708775e634e6e6966a246957260bfe6a7bc1c5",
+        "publicReactionId": 2288,
+        "publicComponentId": 1982,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 132
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 4,
+        "publicReactionType": "LOVED",
+        "publicCommentHash": "1f217198d1c4fcb8735c3cb071708775e634e6e6966a246957260bfe6a7bc1c5"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 636,
+      "draftId": 644,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1982,
+        "reactionId": 2289,
+        "author": {
+          "kind": "BOT",
+          "id": 419
+        },
+        "sourceKey": "components/facets/facet-manager.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "currentCommentHash": "90d9906d8b86b367953f6f9783e6882bd92b0dc3fa414bbff232fbee6c3aaa67"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1982,
+        "reactionId": 2289,
+        "author": {
+          "kind": "BOT",
+          "id": 419
+        },
+        "sourceKey": "components/facets/facet-manager.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "publisherUserId": 1,
+        "draftCommentHash": "90d9906d8b86b367953f6f9783e6882bd92b0dc3fa414bbff232fbee6c3aaa67",
+        "publicReactionId": 2289,
+        "publicComponentId": 1982,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 419
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 4,
+        "publicReactionType": "LOVED",
+        "publicCommentHash": "90d9906d8b86b367953f6f9783e6882bd92b0dc3fa414bbff232fbee6c3aaa67"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 637,
+      "draftId": 645,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1983,
+        "reactionId": 2290,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 202
+        },
+        "sourceKey": "components/facets/facet-picker.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "198b93c8681edc25328ecca24d78d0bcdb2c426d7d2041cc7f8d32383cb0adda"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1983,
+        "reactionId": 2290,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 202
+        },
+        "sourceKey": "components/facets/facet-picker.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "198b93c8681edc25328ecca24d78d0bcdb2c426d7d2041cc7f8d32383cb0adda",
+        "publicReactionId": 2290,
+        "publicComponentId": 1983,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 202
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "198b93c8681edc25328ecca24d78d0bcdb2c426d7d2041cc7f8d32383cb0adda"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 638,
+      "draftId": 646,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1983,
+        "reactionId": 2291,
+        "author": {
+          "kind": "BOT",
+          "id": 422
+        },
+        "sourceKey": "components/facets/facet-picker.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "currentCommentHash": "e4650825855b92865fe5e2670f0ef3d2cd3698d3bb4d4bfa13f4339c13aab1ea"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1983,
+        "reactionId": 2291,
+        "author": {
+          "kind": "BOT",
+          "id": 422
+        },
+        "sourceKey": "components/facets/facet-picker.vue",
+        "rating": 4,
+        "reactionType": "LOVED",
+        "publisherUserId": 1,
+        "draftCommentHash": "e4650825855b92865fe5e2670f0ef3d2cd3698d3bb4d4bfa13f4339c13aab1ea",
+        "publicReactionId": 2291,
+        "publicComponentId": 1983,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 422
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 4,
+        "publicReactionType": "LOVED",
+        "publicCommentHash": "e4650825855b92865fe5e2670f0ef3d2cd3698d3bb4d4bfa13f4339c13aab1ea"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 639,
+      "draftId": 647,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1984,
+        "reactionId": 2292,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 256
+        },
+        "sourceKey": "components/giftshop/mana-wallet.vue",
+        "rating": 2,
+        "reactionType": "NEUTRAL",
+        "currentCommentHash": "d5a9183c8419958ac68cca757f52ff91576ceb0af6ed33e24c68fca6665aafc2"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1984,
+        "reactionId": 2292,
+        "author": {
+          "kind": "CHARACTER",
+          "id": 256
+        },
+        "sourceKey": "components/giftshop/mana-wallet.vue",
+        "rating": 2,
+        "reactionType": "NEUTRAL",
+        "publisherUserId": 1,
+        "draftCommentHash": "d5a9183c8419958ac68cca757f52ff91576ceb0af6ed33e24c68fca6665aafc2",
+        "publicReactionId": 2292,
+        "publicComponentId": 1984,
+        "publicAuthor": {
+          "kind": "CHARACTER",
+          "id": 256
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 2,
+        "publicReactionType": "NEUTRAL",
+        "publicCommentHash": "d5a9183c8419958ac68cca757f52ff91576ceb0af6ed33e24c68fca6665aafc2"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    },
+    {
+      "canonicalOrder": 640,
+      "draftId": 648,
+      "expected": {
+        "status": "PUBLISHED",
+        "componentId": 1984,
+        "reactionId": 2293,
+        "author": {
+          "kind": "BOT",
+          "id": 413
+        },
+        "sourceKey": "components/giftshop/mana-wallet.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "currentCommentHash": "65a833c853045ee982489f94f78a8af2ae14dda9f9c6eb677b13c77244aadbfd"
+      },
+      "actual": {
+        "status": "PUBLISHED",
+        "componentId": 1984,
+        "reactionId": 2293,
+        "author": {
+          "kind": "BOT",
+          "id": 413
+        },
+        "sourceKey": "components/giftshop/mana-wallet.vue",
+        "rating": 3,
+        "reactionType": "CLAPPED",
+        "publisherUserId": 1,
+        "draftCommentHash": "65a833c853045ee982489f94f78a8af2ae14dda9f9c6eb677b13c77244aadbfd",
+        "publicReactionId": 2293,
+        "publicComponentId": 1984,
+        "publicAuthor": {
+          "kind": "BOT",
+          "id": 413
+        },
+        "publicPublisherUserId": 1,
+        "publicRating": 3,
+        "publicReactionType": "CLAPPED",
+        "publicCommentHash": "65a833c853045ee982489f94f78a8af2ae14dda9f9c6eb677b13c77244aadbfd"
+      },
+      "checks": {
+        "publicationState": true,
+        "componentAssignment": true,
+        "reactionAssignment": true,
+        "reviewerAssignment": true,
+        "sourceLock": true,
+        "ratingLock": true,
+        "reactionTypeLock": true,
+        "publicReactionIdentity": true,
+        "publicComponentLock": true,
+        "publicReviewerLock": true,
+        "publicPublisherLock": true,
+        "publicRatingLock": true,
+        "publicReactionTypeLock": true,
+        "draftProjectionAgreement": true,
+        "expectedCurrentHash": true,
+        "alreadyApplied": false
+      },
+      "error": null
+    }
+  ]
+}

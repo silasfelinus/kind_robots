@@ -1,0 +1,477 @@
+{
+  "generatedAt": "2026-07-23T23:21:12.283Z",
+  "batchId": "wonderlab-definitive-033",
+  "production": {
+    "commit": "dccf7fbd5c73a5f3c05fc4f01874f06b5bb2c9e4",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_CXdXXbpq714zWmTvbpawZSuMvjYp"
+  },
+  "minimumProductionCommit": "04a62516326145cb3a4196501ffe0acd216ca871",
+  "revisedReviews": 20,
+  "revisedComponents": 10,
+  "shortestFlavor": 69,
+  "longestFlavor": 306,
+  "results": [
+    {
+      "draftId": 649,
+      "reactionId": 2294,
+      "componentId": 1990,
+      "sourceKey": "components/model-builder/model-builder-recipe-selector.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 325,
+        "name": "The Last Honest Map, Read"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "a5153aff0c9baa29c08767780d7d6d0297a4bc667e6a33b133cfb85e884462e0",
+      "revisedCommentHash": "033b7b95f75315882fe7678e5608b01fa6cf1738c72312cef495bf03a6d778e7",
+      "flavorLength": 263,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2294,
+        "previousCommentHash": "a5153aff0c9baa29c08767780d7d6d0297a4bc667e6a33b133cfb85e884462e0",
+        "revisedCommentHash": "033b7b95f75315882fe7678e5608b01fa6cf1738c72312cef495bf03a6d778e7"
+      }
+    },
+    {
+      "draftId": 650,
+      "reactionId": 2295,
+      "componentId": 1990,
+      "sourceKey": "components/model-builder/model-builder-recipe-selector.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 429,
+        "name": "Kaz the Kaiju-Spotter"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "56a6328469ffbb27e57252acd950092c4b1a5fc447c09a7540637c30847111c2",
+      "revisedCommentHash": "b573ca2f5aacd240a026da21eec9730c42d6899320221a74e0adce7676376e65",
+      "flavorLength": 254,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2295,
+        "previousCommentHash": "56a6328469ffbb27e57252acd950092c4b1a5fc447c09a7540637c30847111c2",
+        "revisedCommentHash": "b573ca2f5aacd240a026da21eec9730c42d6899320221a74e0adce7676376e65"
+      }
+    },
+    {
+      "draftId": 651,
+      "reactionId": 2296,
+      "componentId": 1993,
+      "sourceKey": "components/navigation/card-picker.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 270,
+        "name": "Echo, Returns Department"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "175f2de4b691269afed01c7e8715299b6efac3ad29d8dd68fc5bb93c2f1d5c6c",
+      "revisedCommentHash": "67adf930cb964a177e995cf1201f1ccf8c9ba009fa1a8bf54c3d513f333d82df",
+      "flavorLength": 232,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2296,
+        "previousCommentHash": "175f2de4b691269afed01c7e8715299b6efac3ad29d8dd68fc5bb93c2f1d5c6c",
+        "revisedCommentHash": "67adf930cb964a177e995cf1201f1ccf8c9ba009fa1a8bf54c3d513f333d82df"
+      }
+    },
+    {
+      "draftId": 652,
+      "reactionId": 2297,
+      "componentId": 1993,
+      "sourceKey": "components/navigation/card-picker.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 4,
+        "name": "Brainbot"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "e078b215341f6685c599248783b6c12a6c6ae9a2e9771a09776b38d078129ffc",
+      "revisedCommentHash": "6ac11629620baada97962e747e9c1030c4a91e186a999b3fe030c78b12a9788b",
+      "flavorLength": 117,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2297,
+        "previousCommentHash": "e078b215341f6685c599248783b6c12a6c6ae9a2e9771a09776b38d078129ffc",
+        "revisedCommentHash": "6ac11629620baada97962e747e9c1030c4a91e186a999b3fe030c78b12a9788b"
+      }
+    },
+    {
+      "draftId": 653,
+      "reactionId": 2298,
+      "componentId": 1995,
+      "sourceKey": "components/navigation/flip-card.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 317,
+        "name": "First Responder"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "06ee041127031cb88da4d4b052761623c761e425004bc53cc5453deacdb52ace",
+      "revisedCommentHash": "73e98dab7880113905a765047c50edc2b1efbe79cd3843a9fcd28a87e8b9d328",
+      "flavorLength": 209,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2298,
+        "previousCommentHash": "06ee041127031cb88da4d4b052761623c761e425004bc53cc5453deacdb52ace",
+        "revisedCommentHash": "73e98dab7880113905a765047c50edc2b1efbe79cd3843a9fcd28a87e8b9d328"
+      }
+    },
+    {
+      "draftId": 654,
+      "reactionId": 2299,
+      "componentId": 1995,
+      "sourceKey": "components/navigation/flip-card.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 19,
+        "name": "Bubbulah"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "2488d013fe0393a492988f1ee6e3b5c0bc590a28fbc1066c0465fcb2d5300b1a",
+      "revisedCommentHash": "f632573e4303f9d3b0b1b32fa1776d6924408bdb2da69e258b8ee6e5ccbe85d4",
+      "flavorLength": 235,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2299,
+        "previousCommentHash": "2488d013fe0393a492988f1ee6e3b5c0bc590a28fbc1066c0465fcb2d5300b1a",
+        "revisedCommentHash": "f632573e4303f9d3b0b1b32fa1776d6924408bdb2da69e258b8ee6e5ccbe85d4"
+      }
+    },
+    {
+      "draftId": 655,
+      "reactionId": 2300,
+      "componentId": 1997,
+      "sourceKey": "components/navigation/login-switcher.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 118,
+        "name": "Gnash"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "2b3377c01e94f6d0c99f5db44f9797fc8977ae548ff51835c872209cee700158",
+      "revisedCommentHash": "29efa7f729e01205b8076f006e5a0c964eae9e4b2738e5a443acc89d7f3dbcc2",
+      "flavorLength": 222,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2300,
+        "previousCommentHash": "2b3377c01e94f6d0c99f5db44f9797fc8977ae548ff51835c872209cee700158",
+        "revisedCommentHash": "29efa7f729e01205b8076f006e5a0c964eae9e4b2738e5a443acc89d7f3dbcc2"
+      }
+    },
+    {
+      "draftId": 656,
+      "reactionId": 2301,
+      "componentId": 1997,
+      "sourceKey": "components/navigation/login-switcher.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 407,
+        "name": "Captain Sabremoon"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "f0d96b5951f45e341ff5e723fec4efce1359f1c8bec9d58db4e7037febd6c6d7",
+      "revisedCommentHash": "f60cf1a5a3563d8ed4c0ba347ecde6a91ba6a477db5a4b6a1481ddcb9a9a8047",
+      "flavorLength": 228,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2301,
+        "previousCommentHash": "f0d96b5951f45e341ff5e723fec4efce1359f1c8bec9d58db4e7037febd6c6d7",
+        "revisedCommentHash": "f60cf1a5a3563d8ed4c0ba347ecde6a91ba6a477db5a4b6a1481ddcb9a9a8047"
+      }
+    },
+    {
+      "draftId": 657,
+      "reactionId": 2302,
+      "componentId": 2004,
+      "sourceKey": "components/navigation/snapshot-mode-banner.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 212,
+        "name": "Granny Hexwood"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "24f5438af322c2d5df8041bb65c0e49821520b0979b177b948b1df2233fd1a27",
+      "revisedCommentHash": "35e89700f968ff7984055f02d262893cb71820de093d5e3e0e7927038309aa7f",
+      "flavorLength": 189,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2302,
+        "previousCommentHash": "24f5438af322c2d5df8041bb65c0e49821520b0979b177b948b1df2233fd1a27",
+        "revisedCommentHash": "35e89700f968ff7984055f02d262893cb71820de093d5e3e0e7927038309aa7f"
+      }
+    },
+    {
+      "draftId": 658,
+      "reactionId": 2303,
+      "componentId": 2004,
+      "sourceKey": "components/navigation/snapshot-mode-banner.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 11,
+        "name": "Cassandra"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "fcbf5db34c9f0879e0ed831e3e19e4e7656bfcc40b4ab48ca5e8cc12ddbfdb65",
+      "revisedCommentHash": "2d8fb18d6068c4cefd39ded42812d3236af5966f5a2fd924bd8a3b48e63658d9",
+      "flavorLength": 69,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2303,
+        "previousCommentHash": "fcbf5db34c9f0879e0ed831e3e19e4e7656bfcc40b4ab48ca5e8cc12ddbfdb65",
+        "revisedCommentHash": "2d8fb18d6068c4cefd39ded42812d3236af5966f5a2fd924bd8a3b48e63658d9"
+      }
+    },
+    {
+      "draftId": 659,
+      "reactionId": 2304,
+      "componentId": 2008,
+      "sourceKey": "components/navigation/workspace-header.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 143,
+        "name": "Grenidan"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "6c287e695f14eb3d48668a164f38ba329f86a6fec7c95f211b0776e2e800a568",
+      "revisedCommentHash": "929ca1fe2b3a935a8d789de2bf238a21bc12c3f747608704367732bb6c4aaf61",
+      "flavorLength": 224,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2304,
+        "previousCommentHash": "6c287e695f14eb3d48668a164f38ba329f86a6fec7c95f211b0776e2e800a568",
+        "revisedCommentHash": "929ca1fe2b3a935a8d789de2bf238a21bc12c3f747608704367732bb6c4aaf61"
+      }
+    },
+    {
+      "draftId": 660,
+      "reactionId": 2305,
+      "componentId": 2008,
+      "sourceKey": "components/navigation/workspace-header.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 16,
+        "name": "Dr. GreenThumb"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "3ea9e0cae114388b5e2bcf60200388cc996d2129e2d55649e8211c003b206cbd",
+      "revisedCommentHash": "f610ba433f5a20ddb5666711372d7afb3c59c02851c7c97826b2511acca52fc4",
+      "flavorLength": 213,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2305,
+        "previousCommentHash": "3ea9e0cae114388b5e2bcf60200388cc996d2129e2d55649e8211c003b206cbd",
+        "revisedCommentHash": "f610ba433f5a20ddb5666711372d7afb3c59c02851c7c97826b2511acca52fc4"
+      }
+    },
+    {
+      "draftId": 661,
+      "reactionId": 2309,
+      "componentId": 2010,
+      "sourceKey": "components/navigation/workspace-sheet.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 258,
+        "name": "Grief, Certified Interpreter"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "ae67807f314c1fff26e6dfec98280f00c4b6a2e892ded198e65903a5dc0d15ea",
+      "revisedCommentHash": "81be8a82d3e732eebac33c84ceb66e9363a38df733099a7434ab724284c2bb2d",
+      "flavorLength": 288,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2309,
+        "previousCommentHash": "ae67807f314c1fff26e6dfec98280f00c4b6a2e892ded198e65903a5dc0d15ea",
+        "revisedCommentHash": "81be8a82d3e732eebac33c84ceb66e9363a38df733099a7434ab724284c2bb2d"
+      }
+    },
+    {
+      "draftId": 662,
+      "reactionId": 2310,
+      "componentId": 2010,
+      "sourceKey": "components/navigation/workspace-sheet.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 23,
+        "name": "Faceless Woman Who Lives in Your Home Bot"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "8637018c23371d886c46070fe7e4f624e3fb5fad288619b5d61dbc259fab906d",
+      "revisedCommentHash": "ca09ba8afda750e783a17be40cc84409b26c0e79651712f103d5b64e099c3d7e",
+      "flavorLength": 258,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2310,
+        "previousCommentHash": "8637018c23371d886c46070fe7e4f624e3fb5fad288619b5d61dbc259fab906d",
+        "revisedCommentHash": "ca09ba8afda750e783a17be40cc84409b26c0e79651712f103d5b64e099c3d7e"
+      }
+    },
+    {
+      "draftId": 663,
+      "reactionId": 2311,
+      "componentId": 2013,
+      "sourceKey": "components/newsfeed/newsfeed-filters.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 325,
+        "name": "The Last Honest Map, Read"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "cc940781bae8555879296ebed6c4e2216e920bf513b9f62bccd7985fbf2e5058",
+      "revisedCommentHash": "f563f7d6b6d1a051794f121a1e6bbcb1032696efc3eb3cffea69cefb1b9b6bea",
+      "flavorLength": 264,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2311,
+        "previousCommentHash": "cc940781bae8555879296ebed6c4e2216e920bf513b9f62bccd7985fbf2e5058",
+        "revisedCommentHash": "f563f7d6b6d1a051794f121a1e6bbcb1032696efc3eb3cffea69cefb1b9b6bea"
+      }
+    },
+    {
+      "draftId": 664,
+      "reactionId": 2312,
+      "componentId": 2013,
+      "sourceKey": "components/newsfeed/newsfeed-filters.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 427,
+        "name": "The Old Komodo"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "a45d68beda192e27a8ba49fa1d80430dfb06f40fc2d80f944e87fb43acde6bb0",
+      "revisedCommentHash": "8fcc08922c03f3c9035d3dd9cf76991f4852fd2ac143ff1b1b30502d00f21347",
+      "flavorLength": 125,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2312,
+        "previousCommentHash": "a45d68beda192e27a8ba49fa1d80430dfb06f40fc2d80f944e87fb43acde6bb0",
+        "revisedCommentHash": "8fcc08922c03f3c9035d3dd9cf76991f4852fd2ac143ff1b1b30502d00f21347"
+      }
+    },
+    {
+      "draftId": 665,
+      "reactionId": 2313,
+      "componentId": 2014,
+      "sourceKey": "components/newsfeed/newsfeed-preferences.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 327,
+        "name": "The Apprentice to Nobody"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "2614cfc4791f2addb3c1cbdb7a6d8516548acc9569110a8f2ca627948c17e760",
+      "revisedCommentHash": "90b6426edc3478e27c279e075ea542066db6d6da62781532b83e9528888ec3ca",
+      "flavorLength": 206,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2313,
+        "previousCommentHash": "2614cfc4791f2addb3c1cbdb7a6d8516548acc9569110a8f2ca627948c17e760",
+        "revisedCommentHash": "90b6426edc3478e27c279e075ea542066db6d6da62781532b83e9528888ec3ca"
+      }
+    },
+    {
+      "draftId": 666,
+      "reactionId": 2314,
+      "componentId": 2014,
+      "sourceKey": "components/newsfeed/newsfeed-preferences.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 15,
+        "name": "Limerick Llama"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "4da778aa5f8874430f1a8c6dbf391d27a2b716c5de5e866b6e6dd3990b5f9267",
+      "revisedCommentHash": "829ec3b981260b1234c9afcc1f4c9932e62c019ff2a55e4bb468509caaf3c6f1",
+      "flavorLength": 161,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2314,
+        "previousCommentHash": "4da778aa5f8874430f1a8c6dbf391d27a2b716c5de5e866b6e6dd3990b5f9267",
+        "revisedCommentHash": "829ec3b981260b1234c9afcc1f4c9932e62c019ff2a55e4bb468509caaf3c6f1"
+      }
+    },
+    {
+      "draftId": 667,
+      "reactionId": 2315,
+      "componentId": 2016,
+      "sourceKey": "components/pages/conductor-art-gallery.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 1026,
+        "name": "Iso"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "b37d9a496d728b587746c0e28d7b0d9fd6c7a44c787c7a89a1dbe89d74f3558a",
+      "revisedCommentHash": "003ed0e6dd11322ad43a1e470307a36627f2e8821b1669170c0dbd2f1b5adefd",
+      "flavorLength": 246,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2315,
+        "previousCommentHash": "b37d9a496d728b587746c0e28d7b0d9fd6c7a44c787c7a89a1dbe89d74f3558a",
+        "revisedCommentHash": "003ed0e6dd11322ad43a1e470307a36627f2e8821b1669170c0dbd2f1b5adefd"
+      }
+    },
+    {
+      "draftId": 668,
+      "reactionId": 2316,
+      "componentId": 2016,
+      "sourceKey": "components/pages/conductor-art-gallery.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 7,
+        "name": "Grant Bot"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "f95d6cb01a1dd18de666310d81205f03ee596781e4429f63df212e195ebb5636",
+      "revisedCommentHash": "ac64faa12870ac4a4af886979441a804c0ec9198513bd95470cf8bc8d9d33049",
+      "flavorLength": 306,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2316,
+        "previousCommentHash": "f95d6cb01a1dd18de666310d81205f03ee596781e4429f63df212e195ebb5636",
+        "revisedCommentHash": "ac64faa12870ac4a4af886979441a804c0ec9198513bd95470cf8bc8d9d33049"
+      }
+    }
+  ]
+}

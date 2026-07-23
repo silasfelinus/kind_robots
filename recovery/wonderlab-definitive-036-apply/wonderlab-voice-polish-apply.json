@@ -1,0 +1,150 @@
+{
+  "generatedAt": "2026-07-23T23:25:24.517Z",
+  "batchId": "wonderlab-definitive-036",
+  "production": {
+    "commit": "dccf7fbd5c73a5f3c05fc4f01874f06b5bb2c9e4",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_CXdXXbpq714zWmTvbpawZSuMvjYp"
+  },
+  "minimumProductionCommit": "a19cadc410a1afbf40275539d317f7e7310ee9c0",
+  "revisedReviews": 6,
+  "revisedComponents": 3,
+  "shortestFlavor": 58,
+  "longestFlavor": 301,
+  "results": [
+    {
+      "draftId": 709,
+      "reactionId": 2395,
+      "componentId": 2180,
+      "sourceKey": "components/screenfx/stained-glass-rain.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 149,
+        "name": "The Mirror Menagerie Keeper"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "1e5a86df9b40232e1efdcdd804d0192c2ac24344d3badb7a0e3bc99973d6af29",
+      "revisedCommentHash": "16e07bafd1739dbb9622fa67e92141709bfb89cf7b85413be324a9be38c4c69a",
+      "flavorLength": 301,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2395,
+        "previousCommentHash": "1e5a86df9b40232e1efdcdd804d0192c2ac24344d3badb7a0e3bc99973d6af29",
+        "revisedCommentHash": "16e07bafd1739dbb9622fa67e92141709bfb89cf7b85413be324a9be38c4c69a"
+      }
+    },
+    {
+      "draftId": 710,
+      "reactionId": 2396,
+      "componentId": 2180,
+      "sourceKey": "components/screenfx/stained-glass-rain.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 263,
+        "name": "The Reflection That Stayed"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "061af38ec4f42c8c727c05eef6f147912679f567f59aa3246b36158274da0aae",
+      "revisedCommentHash": "061af38ec4f42c8c727c05eef6f147912679f567f59aa3246b36158274da0aae",
+      "flavorLength": 58,
+      "outcome": "ALREADY_APPLIED"
+    },
+    {
+      "draftId": 711,
+      "reactionId": 2397,
+      "componentId": 2181,
+      "sourceKey": "components/watchlist/watchlist-browse.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 362,
+        "name": "The Patron of Lost Causes"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "96a230eb290298501f2a5a4b23caa2383f93bdac8684a022021a9a510b15bdd4",
+      "revisedCommentHash": "591c2b61f5b533fe95c0a38736013d5fdd3d153ca569dd9b4a37f30542352ecd",
+      "flavorLength": 265,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2397,
+        "previousCommentHash": "96a230eb290298501f2a5a4b23caa2383f93bdac8684a022021a9a510b15bdd4",
+        "revisedCommentHash": "591c2b61f5b533fe95c0a38736013d5fdd3d153ca569dd9b4a37f30542352ecd"
+      }
+    },
+    {
+      "draftId": 712,
+      "reactionId": 2398,
+      "componentId": 2181,
+      "sourceKey": "components/watchlist/watchlist-browse.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 402,
+        "name": "Yuki the Snowlamp Keeper"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "4b1302099afa14655a05188427a88351bc20254c565817b9ff005ff32858d311",
+      "revisedCommentHash": "2d6198646252c7eef2e217c5d059eca50364b247284b39493bc59f9f7951a8f3",
+      "flavorLength": 79,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2398,
+        "previousCommentHash": "4b1302099afa14655a05188427a88351bc20254c565817b9ff005ff32858d311",
+        "revisedCommentHash": "2d6198646252c7eef2e217c5d059eca50364b247284b39493bc59f9f7951a8f3"
+      }
+    },
+    {
+      "draftId": 713,
+      "reactionId": 2399,
+      "componentId": 2182,
+      "sourceKey": "components/watchlist/watchlist-entry-detail.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 217,
+        "name": "The Overqualified Candidate"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "5250081778681f88714458df1f9fd8419b5b6f1c537ddcf9874a1f087e1443bd",
+      "revisedCommentHash": "162a491cac10e44002aefe828ca554ec2d854e1c0dedef9bd64d3b19c2b3cc14",
+      "flavorLength": 267,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2399,
+        "previousCommentHash": "5250081778681f88714458df1f9fd8419b5b6f1c537ddcf9874a1f087e1443bd",
+        "revisedCommentHash": "162a491cac10e44002aefe828ca554ec2d854e1c0dedef9bd64d3b19c2b3cc14"
+      }
+    },
+    {
+      "draftId": 714,
+      "reactionId": 2400,
+      "componentId": 2182,
+      "sourceKey": "components/watchlist/watchlist-entry-detail.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 306,
+        "name": "Weirdlandia"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "67959c4f064d1ea5cc7f770e48ee64d497c7ce336f30936971214925d24fe6e0",
+      "revisedCommentHash": "0b1fec5bd9527bc174207f16b74a0c069f7ec38967e93e687b8e22f6a32225ce",
+      "flavorLength": 129,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2400,
+        "previousCommentHash": "67959c4f064d1ea5cc7f770e48ee64d497c7ce336f30936971214925d24fe6e0",
+        "revisedCommentHash": "0b1fec5bd9527bc174207f16b74a0c069f7ec38967e93e687b8e22f6a32225ce"
+      }
+    }
+  ]
+}

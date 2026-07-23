@@ -1,0 +1,477 @@
+{
+  "generatedAt": "2026-07-23T23:24:53.061Z",
+  "batchId": "wonderlab-definitive-035",
+  "production": {
+    "commit": "dccf7fbd5c73a5f3c05fc4f01874f06b5bb2c9e4",
+    "ref": "main",
+    "environment": "production",
+    "deploymentId": "dpl_CXdXXbpq714zWmTvbpawZSuMvjYp"
+  },
+  "minimumProductionCommit": "cf23aa508d50429f5ce897fafa2c0e1d3e78c6f9",
+  "revisedReviews": 20,
+  "revisedComponents": 10,
+  "shortestFlavor": 63,
+  "longestFlavor": 393,
+  "results": [
+    {
+      "draftId": 689,
+      "reactionId": 2337,
+      "componentId": 2063,
+      "sourceKey": "components/user/user-galleries.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 164,
+        "name": "Pixel"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "b1af12b07b56a562f5cf95ea12a2ce70b0e35ce43f0b41817d4239779231eae5",
+      "revisedCommentHash": "bbf4b7f047cd607a3f4e0f481ba07e40ee0430eb6ffaa3de60a2362aa61bbaf5",
+      "flavorLength": 282,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2337,
+        "previousCommentHash": "b1af12b07b56a562f5cf95ea12a2ce70b0e35ce43f0b41817d4239779231eae5",
+        "revisedCommentHash": "bbf4b7f047cd607a3f4e0f481ba07e40ee0430eb6ffaa3de60a2362aa61bbaf5"
+      }
+    },
+    {
+      "draftId": 690,
+      "reactionId": 2338,
+      "componentId": 2063,
+      "sourceKey": "components/user/user-galleries.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 429,
+        "name": "Kaz the Kaiju-Spotter"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "f18a81c996bf3ab8b2749e3fc18cf3f6d27b172f02f700e96c3ab208ab3737d8",
+      "revisedCommentHash": "242f10d9e64e7c623e39e0e9f2e5522ab807e3052bc4b87944753706f2888d99",
+      "flavorLength": 236,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2338,
+        "previousCommentHash": "f18a81c996bf3ab8b2749e3fc18cf3f6d27b172f02f700e96c3ab208ab3737d8",
+        "revisedCommentHash": "242f10d9e64e7c623e39e0e9f2e5522ab807e3052bc4b87944753706f2888d99"
+      }
+    },
+    {
+      "draftId": 691,
+      "reactionId": 2339,
+      "componentId": 2064,
+      "sourceKey": "components/user/user-manager-directory.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 987,
+        "name": "Canner Odalys"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "fabb61457a3cf7cf30efa592892ff8caa8379fca35b03b7e3879e9a75066fce7",
+      "revisedCommentHash": "535ed9d1389bf9dda4ef233c6ba5e8140841b0b2920021abef05d4411da1c1da",
+      "flavorLength": 264,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2339,
+        "previousCommentHash": "fabb61457a3cf7cf30efa592892ff8caa8379fca35b03b7e3879e9a75066fce7",
+        "revisedCommentHash": "535ed9d1389bf9dda4ef233c6ba5e8140841b0b2920021abef05d4411da1c1da"
+      }
+    },
+    {
+      "draftId": 692,
+      "reactionId": 2340,
+      "componentId": 2064,
+      "sourceKey": "components/user/user-manager-directory.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 421,
+        "name": "Barnaby the Badger"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "3679854d6c4681da4ab31fabd8a20de39b03862f13c15ce0a3152067720fe9ae",
+      "revisedCommentHash": "4ed36f5e2363a010b2b00213ea52c3b2944c0a5d136a68cfcafe357587edaf2b",
+      "flavorLength": 238,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2340,
+        "previousCommentHash": "3679854d6c4681da4ab31fabd8a20de39b03862f13c15ce0a3152067720fe9ae",
+        "revisedCommentHash": "4ed36f5e2363a010b2b00213ea52c3b2944c0a5d136a68cfcafe357587edaf2b"
+      }
+    },
+    {
+      "draftId": 693,
+      "reactionId": 2341,
+      "componentId": 2065,
+      "sourceKey": "components/wonderlab/component-registry-health.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 152,
+        "name": "The Cardigan Heron"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "6794bb246805494da7389802ea3b7d627a164426e2a0729650b6efe9f51575c8",
+      "revisedCommentHash": "f17c02404a707512a53bfce352243ddf7dda5b7dddc130ad3beae895ae98705a",
+      "flavorLength": 393,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2341,
+        "previousCommentHash": "6794bb246805494da7389802ea3b7d627a164426e2a0729650b6efe9f51575c8",
+        "revisedCommentHash": "f17c02404a707512a53bfce352243ddf7dda5b7dddc130ad3beae895ae98705a"
+      }
+    },
+    {
+      "draftId": 694,
+      "reactionId": 2342,
+      "componentId": 2065,
+      "sourceKey": "components/wonderlab/component-registry-health.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 410,
+        "name": "Miss Tuesday"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "de41669fb190376248ef6ec28a3a014204a376306bd28c69c424bdd4385cee76",
+      "revisedCommentHash": "a0df8aaf0921a1062977e3b67b6d8108d036e63904430e50ea937e52d43e2f41",
+      "flavorLength": 146,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2342,
+        "previousCommentHash": "de41669fb190376248ef6ec28a3a014204a376306bd28c69c424bdd4385cee76",
+        "revisedCommentHash": "a0df8aaf0921a1062977e3b67b6d8108d036e63904430e50ea937e52d43e2f41"
+      }
+    },
+    {
+      "draftId": 695,
+      "reactionId": 2343,
+      "componentId": 2066,
+      "sourceKey": "components/wonderlab/component-review-feed.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 329,
+        "name": "The Considerate AI"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "4b628de1a262d1226c15996c5005e7dd75b70d7186bf7e3e03b40dca526db648",
+      "revisedCommentHash": "bcf5298b5f684e172203f69fe7bbca1efd31fc1dda2c1382cc28dc5d0ac346fb",
+      "flavorLength": 277,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2343,
+        "previousCommentHash": "4b628de1a262d1226c15996c5005e7dd75b70d7186bf7e3e03b40dca526db648",
+        "revisedCommentHash": "bcf5298b5f684e172203f69fe7bbca1efd31fc1dda2c1382cc28dc5d0ac346fb"
+      }
+    },
+    {
+      "draftId": 696,
+      "reactionId": 2344,
+      "componentId": 2066,
+      "sourceKey": "components/wonderlab/component-review-feed.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 112,
+        "name": "Slangbot"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "c7515bde27795847405f928f2424b93565454c53bd813c25aa3cc2edaf0681cd",
+      "revisedCommentHash": "d0fe08d4e69ce4a235f060e772ad23eec8106549c121b17a392a370e17e76408",
+      "flavorLength": 210,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2344,
+        "previousCommentHash": "c7515bde27795847405f928f2424b93565454c53bd813c25aa3cc2edaf0681cd",
+        "revisedCommentHash": "d0fe08d4e69ce4a235f060e772ad23eec8106549c121b17a392a370e17e76408"
+      }
+    },
+    {
+      "draftId": 697,
+      "reactionId": 2345,
+      "componentId": 2067,
+      "sourceKey": "components/wonderlab/component-test-fixture-cleanup.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 176,
+        "name": "The God of Lost Keys"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "39855f4b087fff559542bacee926b6a2a829fd7063b5b5d9b8d5469634cbb324",
+      "revisedCommentHash": "cbf1d91d927ceef46ba0989a1ffca5827c51c820c53abedb8c979414998b0d61",
+      "flavorLength": 223,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2345,
+        "previousCommentHash": "39855f4b087fff559542bacee926b6a2a829fd7063b5b5d9b8d5469634cbb324",
+        "revisedCommentHash": "cbf1d91d927ceef46ba0989a1ffca5827c51c820c53abedb8c979414998b0d61"
+      }
+    },
+    {
+      "draftId": 698,
+      "reactionId": 2346,
+      "componentId": 2067,
+      "sourceKey": "components/wonderlab/component-test-fixture-cleanup.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 428,
+        "name": "Thalassa the Atlantean"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "f1f31580241f869980728affb3af221ed96b74b80a7a6f70e58c2210dbd9d44c",
+      "revisedCommentHash": "548f7ce69889af3d7b94b46d8261dbc5ccd49c3c4eb971b4b64e49eeb0fafefd",
+      "flavorLength": 204,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2346,
+        "previousCommentHash": "f1f31580241f869980728affb3af221ed96b74b80a7a6f70e58c2210dbd9d44c",
+        "revisedCommentHash": "548f7ce69889af3d7b94b46d8261dbc5ccd49c3c4eb971b4b64e49eeb0fafefd"
+      }
+    },
+    {
+      "draftId": 699,
+      "reactionId": 2347,
+      "componentId": 2068,
+      "sourceKey": "components/wonderlab/mural-manager.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 1025,
+        "name": "Corvin Pell"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "accfb296cc8cf903ab70a5e66f534897d427afc4a6997ac0960792f503f5a4fe",
+      "revisedCommentHash": "877c924be5a81758e854fea21e182f7abb2ab64ccb56e278a33ba3cf17ac14af",
+      "flavorLength": 268,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2347,
+        "previousCommentHash": "accfb296cc8cf903ab70a5e66f534897d427afc4a6997ac0960792f503f5a4fe",
+        "revisedCommentHash": "877c924be5a81758e854fea21e182f7abb2ab64ccb56e278a33ba3cf17ac14af"
+      }
+    },
+    {
+      "draftId": 700,
+      "reactionId": 2348,
+      "componentId": 2068,
+      "sourceKey": "components/wonderlab/mural-manager.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 420,
+        "name": "Bastet"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "3cc377455b3fcd4ffa2d4590e1f182f24db7ed3e5863c783fd15c9491ee2e5ac",
+      "revisedCommentHash": "d1d5e0ace724e90fbd1202772076141306c690207696891f5be8e6aa5e1a52f4",
+      "flavorLength": 185,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2348,
+        "previousCommentHash": "3cc377455b3fcd4ffa2d4590e1f182f24db7ed3e5863c783fd15c9491ee2e5ac",
+        "revisedCommentHash": "d1d5e0ace724e90fbd1202772076141306c690207696891f5be8e6aa5e1a52f4"
+      }
+    },
+    {
+      "draftId": 701,
+      "reactionId": 2349,
+      "componentId": 2070,
+      "sourceKey": "components/wonderlab/wonderlab-selection-router.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 204,
+        "name": "The Mirror Dorothy You Trust"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "9b81a64d70b3ad5f5e2714b9d286dc2bc2886c464afb2308af6b5f4196cfbbd8",
+      "revisedCommentHash": "efe75796705a77185dc47c62f229bc50464b012f2c2593b923676ffa447062f6",
+      "flavorLength": 261,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2349,
+        "previousCommentHash": "9b81a64d70b3ad5f5e2714b9d286dc2bc2886c464afb2308af6b5f4196cfbbd8",
+        "revisedCommentHash": "efe75796705a77185dc47c62f229bc50464b012f2c2593b923676ffa447062f6"
+      }
+    },
+    {
+      "draftId": 702,
+      "reactionId": 2350,
+      "componentId": 2070,
+      "sourceKey": "components/wonderlab/wonderlab-selection-router.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 404,
+        "name": "Totomi the Kitsune"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "50aa26cd9de8ae91dba0dca324ac33d29eb4e7a738b6067c8e5f430f95ce0c12",
+      "revisedCommentHash": "2cae46cc5606f5dbf189c88d68c467423653f6bf74da1e5c48c8510436effd04",
+      "flavorLength": 199,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2350,
+        "previousCommentHash": "50aa26cd9de8ae91dba0dca324ac33d29eb4e7a738b6067c8e5f430f95ce0c12",
+        "revisedCommentHash": "2cae46cc5606f5dbf189c88d68c467423653f6bf74da1e5c48c8510436effd04"
+      }
+    },
+    {
+      "draftId": 703,
+      "reactionId": 2389,
+      "componentId": 2177,
+      "sourceKey": "components/animation/animation-manager.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 324,
+        "name": "Sir Reginald Pemberton III"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "5be9b6286577609ecc4bc9ae45322918c8315297df8b69e7f2dec3329f5ce1fb",
+      "revisedCommentHash": "f20d9aaed864346979ba71462ebf1d8290986c1a787191b738114ee56ec7aa0d",
+      "flavorLength": 226,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2389,
+        "previousCommentHash": "5be9b6286577609ecc4bc9ae45322918c8315297df8b69e7f2dec3329f5ce1fb",
+        "revisedCommentHash": "f20d9aaed864346979ba71462ebf1d8290986c1a787191b738114ee56ec7aa0d"
+      }
+    },
+    {
+      "draftId": 704,
+      "reactionId": 2390,
+      "componentId": 2177,
+      "sourceKey": "components/animation/animation-manager.vue",
+      "author": {
+        "kind": "BOT",
+        "id": 406,
+        "name": "Captain Fluke"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "a61905345f9b93d3624ed0473f5f852fffa23561d2f631317a01db71e4abe7b6",
+      "revisedCommentHash": "9bffdad65e9f6c610767663367750cb1c2d9e5bca59b1754a1c74ad02d45b9d4",
+      "flavorLength": 152,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2390,
+        "previousCommentHash": "a61905345f9b93d3624ed0473f5f852fffa23561d2f631317a01db71e4abe7b6",
+        "revisedCommentHash": "9bffdad65e9f6c610767663367750cb1c2d9e5bca59b1754a1c74ad02d45b9d4"
+      }
+    },
+    {
+      "draftId": 705,
+      "reactionId": 2391,
+      "componentId": 2178,
+      "sourceKey": "components/screenfx/magnetic-sand-garden.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 167,
+        "name": "The Navigator Who Came Back Wrong"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "e74ce85d26099b5f42234393024cb18525f6a1dc3b2a98338d24bc1668cb954a",
+      "revisedCommentHash": "e91e111f6426ca1edcbf481b68dcd815ae840e0ed8cd81432cc8e44fd3f18e8c",
+      "flavorLength": 235,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2391,
+        "previousCommentHash": "e74ce85d26099b5f42234393024cb18525f6a1dc3b2a98338d24bc1668cb954a",
+        "revisedCommentHash": "e91e111f6426ca1edcbf481b68dcd815ae840e0ed8cd81432cc8e44fd3f18e8c"
+      }
+    },
+    {
+      "draftId": 706,
+      "reactionId": 2392,
+      "componentId": 2178,
+      "sourceKey": "components/screenfx/magnetic-sand-garden.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 145,
+        "name": "The Ringmaster of the Tent That Wasn't There Yesterday"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "3f9964ab41f72cba5c2fc660cb51d3c42a79f4ff15975d8a5f5f278b89e8a731",
+      "revisedCommentHash": "e254d5e91278e1290e7026197a8f04e7fc410698aee94522c6f4252e1d22acad",
+      "flavorLength": 211,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2392,
+        "previousCommentHash": "3f9964ab41f72cba5c2fc660cb51d3c42a79f4ff15975d8a5f5f278b89e8a731",
+        "revisedCommentHash": "e254d5e91278e1290e7026197a8f04e7fc410698aee94522c6f4252e1d22acad"
+      }
+    },
+    {
+      "draftId": 707,
+      "reactionId": 2393,
+      "componentId": 2179,
+      "sourceKey": "components/screenfx/paper-lantern-weather.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 216,
+        "name": "The Navigator of the Last Bus"
+      },
+      "publisherUserId": 1,
+      "rating": 4,
+      "reactionType": "LOVED",
+      "previousCommentHash": "01275df5e5fd499c12da5bec12b2b8337c8286ddcca56e2671d7b11a459a058c",
+      "revisedCommentHash": "3d0605e2b6440037052d093a6ffadcaf9812d11a6173fa1a46e188a5a49f0a90",
+      "flavorLength": 218,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2393,
+        "previousCommentHash": "01275df5e5fd499c12da5bec12b2b8337c8286ddcca56e2671d7b11a459a058c",
+        "revisedCommentHash": "3d0605e2b6440037052d093a6ffadcaf9812d11a6173fa1a46e188a5a49f0a90"
+      }
+    },
+    {
+      "draftId": 708,
+      "reactionId": 2394,
+      "componentId": 2179,
+      "sourceKey": "components/screenfx/paper-lantern-weather.vue",
+      "author": {
+        "kind": "CHARACTER",
+        "id": 982,
+        "name": "Whisk Tallow"
+      },
+      "publisherUserId": 1,
+      "rating": 3,
+      "reactionType": "CLAPPED",
+      "previousCommentHash": "bba2c822c7a25b41a4ec28171bc7e73648eb67a9241bf6ae7ea1af97d165656e",
+      "revisedCommentHash": "b025e9864f237c51380e754eee6263956dfbd01f8521cf4aa1db9ac922922c73",
+      "flavorLength": 63,
+      "outcome": "REVISED",
+      "endpointResult": {
+        "reactionId": 2394,
+        "previousCommentHash": "bba2c822c7a25b41a4ec28171bc7e73648eb67a9241bf6ae7ea1af97d165656e",
+        "revisedCommentHash": "b025e9864f237c51380e754eee6263956dfbd01f8521cf4aa1db9ac922922c73"
+      }
+    }
+  ]
+}

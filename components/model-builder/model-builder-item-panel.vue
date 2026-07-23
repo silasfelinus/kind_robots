@@ -372,6 +372,9 @@ const preview = computed(() => store.previewCommit(props.itemId))
 const canApproveAssets = computed(() => {
   if (!item.value) return false
   if (isLocked('GENERATE_ASSETS')) return false
+  // A regenerate in flight means the current artImageId is about to be
+  // replaced — approving now would commit a candidate the user never saw.
+  if (isGenerating.value || isQueued.value) return false
   // For image outputs, require a generated candidate first.
   if (item.value.generation === 'image') return Boolean(item.value.artImageId)
   return true

@@ -53,6 +53,7 @@ jobs:
     env:
       BASE_URL: https://kind-robots.vercel.app
       ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+      EVIDENCE_DIR: wonderlab-voice-polish-recovery-evidence
       MANIFESTS: >-
         config/wonderlab-voice-polish-batch-035.json
         config/wonderlab-voice-polish-batch-036.json
@@ -106,11 +107,11 @@ jobs:
       - name: Preflight and apply exact batches in order
         run: |
           set -euo pipefail
-          mkdir -p wonderlab-voice-polish-recovery-evidence
+          mkdir -p "$EVIDENCE_DIR"
           for manifest in $MANIFESTS; do
             batch="$(jq -r '.batchId' "$manifest")"
-            preflight_dir="wonderlab-voice-polish-recovery-evidence/${batch}-preflight"
-            apply_dir="wonderlab-voice-polish-recovery-evidence/${batch}-apply"
+            preflight_dir="$EVIDENCE_DIR/${batch}-preflight"
+            apply_dir="$EVIDENCE_DIR/${batch}-apply"
             echo "Preflighting $batch from $manifest"
             WONDERLAB_BASE_URL="$BASE_URL" \
             WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
@@ -129,12 +130,11 @@ jobs:
           set -euo pipefail
           WONDERLAB_BASE_URL="$BASE_URL" \
           WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
-          WONDERLAB_DEFINITIVE_OUTPUT="wonderlab-voice-polish-recovery-evidence/post-audit" \
+          WONDERLAB_DEFINITIVE_OUTPUT="$EVIDENCE_DIR/post-audit" \
             node scripts/wonderlab-definitive-inventory.mjs
       - name: Publish recovery evidence branch
         env:
           EVIDENCE_BRANCH: wonderlab-voice-polish-recovery-evidence
-          EVIDENCE_DIR: wonderlab-voice-polish-recovery-evidence
         run: |
           set -euo pipefail
           snapshot_tmp="$(mktemp -d)"
@@ -172,10 +172,10 @@ jobs:
           set -euo pipefail
           for manifest in $MANIFESTS; do
             batch="$(jq -r '.batchId' "$manifest")"
-            cat "wonderlab-voice-polish-recovery-evidence/${batch}-preflight/wonderlab-voice-polish-preflight.md" >> "$GITHUB_STEP_SUMMARY"
-            cat "wonderlab-voice-polish-recovery-evidence/${batch}-apply/wonderlab-voice-polish-apply.md" >> "$GITHUB_STEP_SUMMARY"
+            cat "$EVIDENCE_DIR/${batch}-preflight/wonderlab-voice-polish-preflight.md" >> "$GITHUB_STEP_SUMMARY"
+            cat "$EVIDENCE_DIR/${batch}-apply/wonderlab-voice-polish-apply.md" >> "$GITHUB_STEP_SUMMARY"
           done
-          report="wonderlab-voice-polish-recovery-evidence/post-audit/wonderlab-definitive-inventory.json"
+          report="$EVIDENCE_DIR/post-audit/wonderlab-definitive-inventory.json"
           printf '\n## Full-corpus recovery audit\n\n' >> "$GITHUB_STEP_SUMMARY"
           printf '%s\n' \
             "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$report")" \

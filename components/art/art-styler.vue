@@ -1217,6 +1217,10 @@ async function selectGalleryImage(image: ArtImage) {
 }
 
 function clearSourceImage() {
+  // Invalidate any in-flight source-selection fetch (upload, starter, gallery,
+  // or a slow deep-link applySourceImageId) so it can't silently repopulate
+  // the source after the user has explicitly cleared it.
+  ++sourceSelectionToken
   selectedSourceImage.value = null
   uploadedImageData.value = null
   selectedStarterFile.value = null
@@ -1539,12 +1543,15 @@ async function applySourceImageId(
   selectedStarterFile.value = null
   resultImage.value = null
 
+  const token = ++sourceSelectionToken
+
   try {
     const fetched = await artStore.getArtImageById(id, {
       includeImageData: false,
       includeThumbnailData: true,
     })
 
+    if (token !== sourceSelectionToken) return
     if (!fetched) return
 
     const hydrated = fetched as ArtImage & { thumbnailData?: string | null }

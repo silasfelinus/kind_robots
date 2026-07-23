@@ -92,7 +92,8 @@ const POLL_TIMEOUT_MS = 20 * 60_000 // krea first-load on a small box is slow
 const BENCH_PRIORITY = 100 // jump the shared queue so bench renders come fast
 
 function engineDef(key: BenchEngineKey): BenchEngineDef {
-  return BENCH_ENGINES.find((e) => e.key === key) ?? BENCH_ENGINES[0]
+  // BENCH_ENGINES is a fixed, non-empty module-level literal.
+  return BENCH_ENGINES.find((e) => e.key === key) ?? BENCH_ENGINES[0]!
 }
 
 function freshConfig(engine: BenchEngineKey): BuildConfig {

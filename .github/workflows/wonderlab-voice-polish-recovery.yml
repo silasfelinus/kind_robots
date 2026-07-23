@@ -11,7 +11,7 @@ on:
       - '.github/workflows/wonderlab-voice-polish-recovery.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: wonderlab-voice-polish-recovery
@@ -26,21 +26,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate fixed recovery inputs
+      - name: Validate recovery inputs
         run: |
           set -euo pipefail
           node --check scripts/preflight-wonderlab-voice-polish-batch.mjs
           node --check scripts/apply-wonderlab-voice-polish-batch.mjs
           node --check scripts/wonderlab-definitive-inventory.mjs
-          test -f config/wonderlab-voice-polish-batch-014.json
+          for manifest in \
+            config/wonderlab-voice-polish-batch-035.json \
+            config/wonderlab-voice-polish-batch-036.json \
+            config/wonderlab-voice-polish-batch-037.json \
+            config/wonderlab-voice-polish-batch-038.json \
+            config/wonderlab-voice-polish-batch-039.json
+          do
+            test -f "$manifest"
+            jq -e '.version == 1 and (.revisions | length > 0 and length <= 20)' "$manifest" >/dev/null
+          done
 
   recover:
-    name: Recover definitive commentary batch 011
+    name: Recover definitive commentary batches 032–036
     if: >-
       github.event_name == 'push' &&
       contains(github.event.head_commit.message, '[wonderlab-voice-polish-recovery]')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      BASE_URL: https://kind-robots.vercel.app
+      ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
+      EVIDENCE_DIR: wonderlab-voice-polish-recovery-evidence
+      MANIFESTS: >-
+        config/wonderlab-voice-polish-batch-035.json
+        config/wonderlab-voice-polish-batch-036.json
+        config/wonderlab-voice-polish-batch-037.json
+        config/wonderlab-voice-polish-batch-038.json
+        config/wonderlab-voice-polish-batch-039.json
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,83 +69,118 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Verify production ancestry and direct guard
-        env:
-          BASE_URL: https://kind-robots.vercel.app
-          ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          MANIFEST: config/wonderlab-voice-polish-batch-014.json
+      - name: Verify production ancestry and direct guards
         run: |
           set -euo pipefail
-          minimum="$(jq -r '.minimumProductionCommit' "$MANIFEST")"
-          reaction_id="$(jq -r '.revisions[0].reactionId' "$MANIFEST")"
           version="$(curl -sf --max-time 20 "$BASE_URL/api/version")"
           live="$(printf '%s' "$version" | jq -r '.data.commit // empty')"
           test -n "$live"
           if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
             git fetch --quiet origin main
           fi
-          git merge-base --is-ancestor "$minimum" "$live"
-          for attempt in $(seq 1 36); do
-            body="$(
-              curl -sS --max-time 20 \
-                -H 'accept: application'/'json' \
-                -H "x-beta-admin-token: $ADMIN_TOKEN" \
-                -H "x-admin-token: $ADMIN_TOKEN" \
-                -H "x-api-key: $ADMIN_TOKEN" \
-                "$BASE_URL/api/admin/wonderlab/reactions/$reaction_id" \
-                || true
-            )"
-            projected="$(printf '%s' "$body" | jq -r '.data.id // empty' 2>/dev/null || true)"
-            if [ "$projected" = "$reaction_id" ]; then
-              echo "Production $live and direct Reaction guard are ready."
-              exit 0
-            fi
-            echo "Direct Reaction guard not ready (attempt $attempt of 36); retrying."
-            sleep 10
+          for manifest in $MANIFESTS; do
+            minimum="$(jq -r '.minimumProductionCommit' "$manifest")"
+            reaction_id="$(jq -r '.revisions[0].reactionId' "$manifest")"
+            git merge-base --is-ancestor "$minimum" "$live"
+            ready=''
+            for attempt in $(seq 1 36); do
+              body="$(
+                curl -sS --max-time 20 \
+                  -H 'accept: application'/'json' \
+                  -H "x-beta-admin-token: $ADMIN_TOKEN" \
+                  -H "x-admin-token: $ADMIN_TOKEN" \
+                  -H "x-api-key: $ADMIN_TOKEN" \
+                  "$BASE_URL/api/admin/wonderlab/reactions/$reaction_id" \
+                  || true
+              )"
+              projected="$(printf '%s' "$body" | jq -r '.data.id // empty' 2>/dev/null || true)"
+              if [ "$projected" = "$reaction_id" ]; then
+                ready='yes'
+                break
+              fi
+              echo "Direct guard for Reaction #$reaction_id not ready (attempt $attempt of 36)."
+              sleep 10
+            done
+            test "$ready" = 'yes'
+            echo "Production $live contains $(basename "$manifest") and its direct guard is ready."
           done
-          exit 1
-      - name: Preflight exact publication locks
-        env:
-          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
-          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          WONDERLAB_VOICE_POLISH_MANIFEST: config/wonderlab-voice-polish-batch-014.json
-          WONDERLAB_VOICE_POLISH_PREFLIGHT_OUTPUT: wonderlab-voice-polish-preflight-artifacts
-        run: node scripts/preflight-wonderlab-voice-polish-batch.mjs
-      - name: Apply exact revisions
-        env:
-          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
-          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          WONDERLAB_VOICE_POLISH_MANIFEST: config/wonderlab-voice-polish-batch-014.json
-          WONDERLAB_VOICE_POLISH_OUTPUT: wonderlab-voice-polish-apply-artifacts
-        run: node scripts/apply-wonderlab-voice-polish-batch.mjs
+      - name: Preflight and apply exact batches in order
+        run: |
+          set -euo pipefail
+          mkdir -p "$EVIDENCE_DIR"
+          for manifest in $MANIFESTS; do
+            batch="$(jq -r '.batchId' "$manifest")"
+            preflight_dir="$EVIDENCE_DIR/${batch}-preflight"
+            apply_dir="$EVIDENCE_DIR/${batch}-apply"
+            echo "Preflighting $batch from $manifest"
+            WONDERLAB_BASE_URL="$BASE_URL" \
+            WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
+            WONDERLAB_VOICE_POLISH_MANIFEST="$manifest" \
+            WONDERLAB_VOICE_POLISH_PREFLIGHT_OUTPUT="$preflight_dir" \
+              node scripts/preflight-wonderlab-voice-polish-batch.mjs
+            echo "Applying $batch"
+            WONDERLAB_BASE_URL="$BASE_URL" \
+            WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
+            WONDERLAB_VOICE_POLISH_MANIFEST="$manifest" \
+            WONDERLAB_VOICE_POLISH_OUTPUT="$apply_dir" \
+              node scripts/apply-wonderlab-voice-polish-batch.mjs
+          done
       - name: Re-audit full published corpus
+        run: |
+          set -euo pipefail
+          WONDERLAB_BASE_URL="$BASE_URL" \
+          WONDERLAB_ADMIN_TOKEN="$ADMIN_TOKEN" \
+          WONDERLAB_DEFINITIVE_OUTPUT="$EVIDENCE_DIR/post-audit" \
+            node scripts/wonderlab-definitive-inventory.mjs
+      - name: Publish recovery evidence branch
         env:
-          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
-          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          WONDERLAB_DEFINITIVE_OUTPUT: wonderlab-voice-polish-post-audit
-        run: node scripts/wonderlab-definitive-inventory.mjs
+          EVIDENCE_BRANCH: wonderlab-voice-polish-recovery-evidence
+        run: |
+          set -euo pipefail
+          snapshot_tmp="$(mktemp -d)"
+          cp -R "$EVIDENCE_DIR"/. "$snapshot_tmp"/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$EVIDENCE_BRANCH"
+          rm -rf recovery
+          mkdir -p recovery
+          cp -R "$snapshot_tmp"/. recovery/
+          cat > recovery/README.md <<EOF
+          # WonderLab voice-polish recovery evidence
+
+          Generated from the authenticated production API by workflow run ${GITHUB_RUN_ID}.
+
+          Source commit: ${GITHUB_SHA}
+
+          This branch is machine-generated and force-updated. It contains guarded preflight comparisons, apply reports, and the complete post-apply inventory; it contains no credentials.
+          EOF
+          git add recovery
+          git commit --allow-empty -m "[skip ci] WonderLab voice-polish recovery evidence (run ${GITHUB_RUN_ID})"
+          git push --force origin "HEAD:${EVIDENCE_BRANCH}"
+          git switch --detach "$GITHUB_SHA"
       - name: Upload recovery evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: wonderlab-voice-polish-recovery-${{ github.run_id }}
-          path: |
-            wonderlab-voice-polish-preflight-artifacts
-            wonderlab-voice-polish-apply-artifacts
-            wonderlab-voice-polish-post-audit
+          path: wonderlab-voice-polish-recovery-evidence
           if-no-files-found: warn
           retention-days: 30
       - name: Write recovery summary
         if: success()
         env:
-          AUDIT_REPORT: wonderlab-voice-polish-post-audit/wonderlab-definitive-inventory.json
+          AUDIT_REPORT: wonderlab-voice-polish-recovery-evidence/post-audit/wonderlab-definitive-inventory.json
         run: |
           set -euo pipefail
-          cat wonderlab-voice-polish-preflight-artifacts/wonderlab-voice-polish-preflight.md >> "$GITHUB_STEP_SUMMARY"
-          cat wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.md >> "$GITHUB_STEP_SUMMARY"
+          for manifest in $MANIFESTS; do
+            batch="$(jq -r '.batchId' "$manifest")"
+            cat "$EVIDENCE_DIR/${batch}-preflight/wonderlab-voice-polish-preflight.md" >> "$GITHUB_STEP_SUMMARY"
+            cat "$EVIDENCE_DIR/${batch}-apply/wonderlab-voice-polish-apply.md" >> "$GITHUB_STEP_SUMMARY"
+          done
           printf '\n## Full-corpus recovery audit\n\n' >> "$GITHUB_STEP_SUMMARY"
           printf '%s\n' \
             "- **Published reviews captured:** $(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")" \
             "- **Draft range:** #$(jq -r '.scan.firstDraftId' "$AUDIT_REPORT")–#$(jq -r '.scan.lastDraftId' "$AUDIT_REPORT")" \
             "- **Highest draft ID scanned:** #$(jq -r '.scan.highestDraftId' "$AUDIT_REPORT")" \
+            "- **Production commit:** $(jq -r '.production.commit // "unknown"' "$AUDIT_REPORT")" \
             >> "$GITHUB_STEP_SUMMARY"

@@ -28,6 +28,7 @@ import {
   validateArtJobCompletionProof,
   type ArtJobCompletionProof,
 } from '../../../../utils/artJobProvenance'
+import { resolvePersistedArtImageSeed } from '../../../../utils/artImageSeed'
 
 const MAX_ATTEMPTS = 3
 
@@ -147,18 +148,6 @@ function snapshotData(image: ArtImage): Prisma.ArtImageUncheckedCreateInput {
   }
 }
 
-// Prefer the concrete seed baked into the workflow graph over a missing/-1
-// relay echo, so the canonical ArtImage records the real seed used.
-function resolveImageSeed(
-  imageSeed: number | null,
-  workflowSeed: number | null,
-): number | null {
-  if (workflowSeed !== null && (imageSeed == null || imageSeed < 0)) {
-    return workflowSeed
-  }
-  return imageSeed
-}
-
 function replacementData(
   staged: ArtImage,
   userId: number,
@@ -178,7 +167,7 @@ function replacementData(
     negativePrompt: staged.negativePrompt,
     promptString: staged.promptString,
     sampler: staged.sampler,
-    seed: resolveImageSeed(staged.seed, workflowSeed),
+    seed: resolvePersistedArtImageSeed(staged.seed, workflowSeed),
     serverId: staged.serverId,
     serverName: staged.serverName,
     serverUrl: staged.serverUrl,
@@ -279,9 +268,6 @@ export default defineEventHandler(async (event) => {
       )
       const retry = readRetry(job.payload)
       const savePolicy = readSavePolicy(job.payload)
-      // The real seed the graph render used (randomized at build time and baked
-      // into the workflow). Used to backfill ArtImage.seed when the relay's echo
-      // is missing/-1, so accepted renders are reproducible.
       const workflowSeed = extractWorkflowSeed(job.payload)
 
       if (retry?.mode === 'OVERWRITE') {
@@ -365,45 +351,54 @@ export default defineEventHandler(async (event) => {
         archivedArtImageId = result.archivedId
         replacedArtImageId = targetArtImageId
       } else {
-        const uploaded = await prisma.artImage.findUnique({
-          where: { id: uploadedArtImageId },
-        })
-
-        if (!uploaded) {
-          throw createError({
-            statusCode: 409,
-            message: `Uploaded ArtImage ${uploadedArtImageId} no longer exists.`,
+        const normalResult = await prisma.$transaction(async (tx) => {
+          const uploaded = await tx.artImage.findUnique({
+            where: { id: uploadedArtImageId },
           })
-        }
 
-        assertUploadedPrompt(job.payload, uploaded)
-        assertArtImageMatchesCompletion(
-          validatedCompletionTrace,
-          uploaded.imageData,
-        )
+          if (!uploaded) {
+            throw createError({
+              statusCode: 409,
+              message: `Uploaded ArtImage ${uploadedArtImageId} no longer exists.`,
+            })
+          }
 
-        updated = await prisma.artJob.update({
-          where: { id },
-          data: {
-            status: 'DONE',
-            artImageId: uploadedArtImageId,
-            error: null,
-            payload: serializeArtJobPayload(tracedPayload),
-          },
+          assertUploadedPrompt(job.payload, uploaded)
+          assertArtImageMatchesCompletion(
+            validatedCompletionTrace,
+            uploaded.imageData,
+          )
+
+          const persistedSeed = resolvePersistedArtImageSeed(
+            uploaded.seed,
+            workflowSeed,
+          )
+
+          await tx.artImage.update({
+            where: { id: uploadedArtImageId },
+            data: {
+              userId: job.userId,
+              ...savePolicy,
+              ...(persistedSeed !== uploaded.seed
+                ? { seed: persistedSeed }
+                : {}),
+            },
+          })
+
+          const completed = await tx.artJob.update({
+            where: { id },
+            data: {
+              status: 'DONE',
+              artImageId: uploadedArtImageId,
+              error: null,
+              payload: serializeArtJobPayload(tracedPayload),
+            },
+          })
+
+          return { completed }
         })
 
-        const backfilledSeed = resolveImageSeed(uploaded.seed, workflowSeed)
-
-        await prisma.artImage.update({
-          where: { id: uploadedArtImageId },
-          data: {
-            userId: job.userId,
-            ...savePolicy,
-            ...(backfilledSeed !== uploaded.seed
-              ? { seed: backfilledSeed }
-              : {}),
-          },
-        })
+        updated = normalResult.completed
       }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)

@@ -28,7 +28,11 @@
     <p
       v-if="message"
       class="mt-3 rounded-xl border p-2 text-xs"
-      :class="hasFailures ? 'border-warning/40 bg-warning/10' : 'border-success/40 bg-success/10'"
+      :class="
+        hasFailures
+          ? 'border-warning/40 bg-warning/10'
+          : 'border-success/40 bg-success/10'
+      "
     >
       {{ message }}
     </p>
@@ -40,7 +44,7 @@ import { computed, ref } from 'vue'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { performFetch } from '@/stores/utils'
 
- type SelectedFailedRequeueResult = {
+type SelectedFailedRequeueResult = {
   selectedCount: number
   requestedCount: number
   queuedCount: number

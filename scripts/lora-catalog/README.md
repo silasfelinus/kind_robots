@@ -82,7 +82,8 @@ python3 scan_loras.py "Z:/ai/models/Lora" --out ./catalog --overrides ./catalog/
 | `--civitai-token TOK` | `$CIVITAI_TOKEN` | Your Civitai API token. |
 | `--no-civitai` | off | Skip Civitai lookups. |
 | `--no-archive` | off | Skip the CivArchive fallback. |
-| `--workers N` | 6 | Concurrent hash lookups. |
+| `--workers N` | 6 | Concurrent hash lookups (Civitai/CivArchive). |
+| `--hash-workers N` | 8 | Concurrent file hashers. **Raise to 16–24 for a network share (SMB/NAS)** — reads are latency-bound, so concurrency is the main speedup. |
 | `--overrides FILE` | — | CSV of manual corrections (keyed by `sha256`). |
 | `--organize MODE` | `none` | `plan` (preview), `copy`, or `move`. |
 | `--dest DIR` | scanned folder | Destination root for `--organize`. |
@@ -90,6 +91,19 @@ python3 scan_loras.py "Z:/ai/models/Lora" --out ./catalog --overrides ./catalog/
 
 Fully offline run (no network at all): `--no-civitai --no-archive`. Base model
 is still detected from metadata/architecture; maturity stays `REVIEW`.
+
+### Speed & resuming
+
+- **The bottleneck is hashing** — matching a file requires a full-file SHA256,
+  so every byte gets read. On a **network share (SMB/NAS)** that means reading
+  everything over the network. Bump `--hash-workers` (16–24) so reads run
+  concurrently instead of one-at-a-time; this is the biggest win.
+- **Fastest of all:** run the script *on the machine that physically holds the
+  drive*, so reads are local instead of over the network.
+- **Interrupt-safe / resumable:** every hash and every API result is cached to
+  `<out>/.lora-cache.sqlite` immediately. Press Ctrl+C anytime and re-run the
+  same command — already-processed files are skipped, so it resumes where it
+  left off. Nothing is lost.
 
 ## The overrides workflow
 
@@ -138,3 +152,88 @@ Each `resource` object lines up with the `Resource` model / the
 columns (`triggerWords`, `defaultTrigger`) added in the import phase of this
 project — see the project plan. Until then, `defaultTrigger` is also carried in
 the existing `artPrompt` field so nothing is lost.
+
+---
+
+# scan_models.py — the non-LoRA companion
+
+`scan_models.py` handles **everything that isn't a LoRA** — checkpoints, VAEs,
+text encoders, diffusion models (UNet), controlnets, upscalers, etc. — and
+sorts them into the folders **ComfyUI expects**, so one clean library serves
+both ComfyUI and A1111. It reuses `scan_loras.py`'s detection core, so **keep
+both files together** (copy the whole `lora-catalog/` folder, not one file).
+
+### How it classifies
+
+1. **Current folder** — your tree already encodes type (`unet/`, `vae/`,
+   `text_encoders/`, `controlnet/` …). Most reliable signal; works even for
+   files no hash database knows (text encoders, VAEs).
+2. **Civitai / CivArchive by hash** — enriches checkpoints with canonical name,
+   base model, NSFW flag, trigger words.
+3. **safetensors metadata / architecture** — fallback base-model guess.
+
+### Target layout it sorts into
+
+| Your current folder(s) | ComfyUI target |
+|---|---|
+| `Stable-diffusion/*`, `checkpoints` | `checkpoints/<BaseModel>/` (SDXL, Flux, Pony, SD15, ZImage…) |
+| `Stable-diffusion/svd`, `svd`, `ltx` | `checkpoints/Video/` |
+| `Stable-diffusion/audio` | `checkpoints/Audio/` |
+| `unet` **and** `diffusion_models` | `diffusion_models/` (merged) |
+| `text_encoders`, `clip` | `text_encoders/` |
+| `ESRGAN`, `RealESRGAN`, `SwinIR`, `LDSR`, `latent_upscale_models` | `upscale_models/` (merged) |
+| `GFPGAN`, `Codeformer` | `facerestore_models/` |
+| `vae`, `clip_vision`, `controlnet`, `hypernetworks`, `embeddings`, `ipadapter`, `gligen`, `sams`, `ultralytics`, `animatediff_models` | same name (already correct) |
+
+Pure tool models (BLIP, RAFT, LLMs, TTS, captioners, deepdanbooru,
+liveportrait) are **left in place** — never sorted, never cataloged.
+
+### Usage
+
+```bash
+export CIVITAI_TOKEN=xxxx
+# Fast preview: classify by folder + write the move plan in SECONDS (no hashing,
+# reads no file contents). Best first look at a large (multi-TB) tree.
+python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog --no-hash
+
+# Full dry-run: hashes + Civitai enrichment for the catalog. MOVES NOTHING.
+python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog
+
+# Review ./catalog/models-move-plan.csv, then execute the sort:
+python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog --organize move
+```
+
+`--organize` defaults to `plan` here (not `none`) — the whole point is to
+preview the reorg. Outputs: `models-catalog.json` / `.csv`,
+`models-move-plan.csv`, and (after a real move) `models-move-log.csv` for undo.
+Same flags as `scan_loras.py` (`--no-civitai`, `--no-archive`, `--overrides`,
+`--hash-workers`, `--dest`).
+
+### Which files become Resources
+
+Only **checkpoints + components** (`diffusion_models`, `text_encoders`, `vae`)
+get Resource records — that's the chosen scope. Infrastructure (upscalers, face
+restore, clip_vision, controlnet unless you widen scope) is sorted into the
+right folder but not cataloged. Video/audio checkpoints are sorted into
+`checkpoints/Video|Audio/` but not cataloged by default.
+
+> **Schema note:** the component kinds map to `resourceType` values
+> `DIFFUSION_MODEL`, `TEXT_ENCODER`, `VAE` that **do not exist in the
+> `ResourceType` enum yet**. The phase-2 Prisma migration must add them (or the
+> importer falls back to `CHECKPOINT` + `generation`). This is flagged in the
+> catalog so nothing imports with an invalid enum by surprise.
+
+### After the sort: point A1111 at the Comfy library
+
+Once everything is under ComfyUI's `models/`, tell A1111 to read the same
+folders instead of duplicating files. Launch A1111 with, e.g.:
+
+```
+--ckpt-dir     /mnt/user/pc/ai/models/checkpoints
+--lora-dir     /mnt/user/pc/ai/models/loras
+--vae-dir      /mnt/user/pc/ai/models/vae
+--embeddings-dir /mnt/user/pc/ai/models/embeddings
+```
+
+(or set them in `webui-user.sh`). That way both engines share one canonical,
+sorted library.

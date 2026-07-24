@@ -720,6 +720,9 @@ def main() -> int:
     ap.add_argument("--civitai-token", default=os.environ.get("CIVITAI_TOKEN", ""),
                     help="Civitai API token (or set CIVITAI_TOKEN)")
     ap.add_argument("--workers", type=int, default=6, help="Concurrent lookups (default: 6)")
+    ap.add_argument("--hash-workers", type=int, default=8,
+                    help="Concurrent file hashers (default: 8). Raise for network "
+                         "shares (SMB/NAS), where reads are latency-bound; try 16-24.")
     ap.add_argument("--overrides", type=Path, default=None,
                     help="CSV of manual corrections to apply (keyed by sha256)")
     ap.add_argument("--organize", choices=["none", "plan", "copy", "move"], default="none",
@@ -745,18 +748,25 @@ def main() -> int:
     if not files:
         return 0
 
-    # Phase 1: hash + read metadata.
+    # Phase 1: hash + read metadata (parallel — big win on network shares).
     entries: list[LoraEntry] = []
     meta_by_id: dict[int, tuple[dict, list]] = {}
-    for i, path in enumerate(files, 1):
-        try:
-            e, meta, names = build_entry(path, root, cache)
-            entries.append(e)
-            meta_by_id[id(e)] = (meta, names)
-        except OSError as ex:
-            print(f"\n  ! skipping {path}: {ex}", file=sys.stderr)
-        if i % 10 == 0 or i == len(files):
-            print(f"\r  hashed/read {i}/{len(files)}", end="", flush=True)
+    hw = max(1, args.hash_workers)
+    print(f"Hashing + reading headers ({hw} workers)"
+          f"{' — network share detected, reads run concurrently' if str(root).startswith(chr(92)*2) else ''} ...")
+    done, total = 0, len(files)
+    with ThreadPoolExecutor(max_workers=hw) as ex:
+        futures = [(ex.submit(build_entry, p, root, cache), p) for p in files]
+        for fut, path in futures:  # submission order == stable output order
+            try:
+                e, meta, names = fut.result()
+                entries.append(e)
+                meta_by_id[id(e)] = (meta, names)
+            except OSError as exc:
+                print(f"\n  ! skipping {path}: {exc}", file=sys.stderr)
+            done += 1
+            if done % 10 == 0 or done == total:
+                print(f"\r  hashed/read {done}/{total}", end="", flush=True)
     print()
 
     # Phase 2: hash lookups (threaded): Civitai -> CivArchive fallback.

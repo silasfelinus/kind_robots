@@ -6,6 +6,7 @@ on:
     paths:
       - "server/api/art/queue/**"
       - "server/utils/artJobProvenance.ts"
+      - "server/utils/artImageSeed.ts"
       - "utils/scripts/verifyArtJobProvenance.ts"
       - ".github/workflows/artjob-provenance-contract.yml"
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - "server/api/art/queue/**"
       - "server/utils/artJobProvenance.ts"
+      - "server/utils/artImageSeed.ts"
       - "utils/scripts/verifyArtJobProvenance.ts"
       - ".github/workflows/artjob-provenance-contract.yml"
   workflow_dispatch:
@@ -20,7 +22,9 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
 
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +37,9 @@ jobs:
       - run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: "0"
+
+      - name: Generate Prisma client
+        run: npx prisma generate
 
       - name: Verify prompt and output provenance
         run: npx tsx utils/scripts/verifyArtJobProvenance.ts

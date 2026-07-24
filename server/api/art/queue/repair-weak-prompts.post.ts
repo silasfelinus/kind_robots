@@ -19,9 +19,19 @@ import {
 } from '../../../utils/artPromptQuality'
 import { extractRenderRequest } from '../../comfy/utils/engineWorkflow'
 
+const REPAIRABLE_STATUSES = ['PENDING', 'FAILED', 'DONE'] as const
+const DEFAULT_SCAN_LIMIT = 5000
+const MAX_SCAN_LIMIT = 20000
+const DEFAULT_BATCH_SIZE = 20
+const MAX_BATCH_SIZE = 50
+
 type RepairBody = {
   dryRun?: boolean
   limit?: number
+  batchSize?: number
+  cursor?: number
+  snapshotMaxId?: number
+  processedCount?: number
 }
 
 type RepairResult = {
@@ -43,9 +53,31 @@ type UnresolvedResult = {
 
 type JsonRecord = Record<string, unknown>
 
+type RepairCandidate = {
+  id: number
+  status: string
+  engine: string
+  payload: string
+  priority: number
+  projectSlug: string | null
+  projectId: number | null
+  userId: number | null
+  artImageId: number | null
+}
+
 function asRecord(value: unknown): JsonRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
   return value as JsonRecord
+}
+
+function positiveInteger(
+  value: unknown,
+  fallback: number,
+  maximum: number,
+): number {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return fallback
+  return Math.min(Math.max(Math.floor(parsed), 0), maximum)
 }
 
 function renderPrompt(payload: unknown): string {
@@ -153,6 +185,118 @@ function correctedPayload(
   return next
 }
 
+async function repairCandidate(
+  job: RepairCandidate,
+  dryRun: boolean,
+): Promise<{ repaired?: RepairResult; unresolved?: UnresolvedResult }> {
+  const weakPrompt = renderPrompt(job.payload)
+  const assessment = assessArtPrompt(weakPrompt)
+  if (assessment.useful || alreadyRepairQueued(job.payload)) return {}
+
+  const recovered = await recoverPrompt(job)
+  if (!recovered.prompt) {
+    return {
+      unresolved: {
+        jobId: job.id,
+        status: job.status,
+        weakPrompt,
+        reasons: assessment.reasons,
+        referencedArtImageId: recovered.referencedArtImageId,
+      },
+    }
+  }
+
+  if (job.status === 'PENDING' || job.status === 'FAILED') {
+    const repaired: RepairResult = {
+      jobId: job.id,
+      status: job.status,
+      prompt: recovered.prompt,
+      referencedArtImageId: recovered.referencedArtImageId,
+      action: 'REQUEUE_IN_PLACE',
+    }
+
+    if (!dryRun) {
+      const payload = correctedPayload(job.payload, recovered.prompt, {
+        correctedPrompt: recovered.prompt,
+        repairedAt: new Date().toISOString(),
+        repairMode: 'REQUEUE_IN_PLACE',
+      })
+
+      await prisma.artJob.update({
+        where: { id: job.id },
+        data: {
+          payload: serializeArtJobPayload(payload),
+          status: 'PENDING',
+          attempts: 0,
+          claimedAt: null,
+          claimedBy: null,
+          error: null,
+        },
+      })
+    }
+
+    return { repaired }
+  }
+
+  const mode = job.artImageId ? 'OVERWRITE' : 'NEW_OUTPUT'
+  const action = job.artImageId ? 'OVERWRITE_RETRY' : 'NEW_OUTPUT_RETRY'
+  const prepared = prepareArtJobRetryPayload(
+    job.payload,
+    job.id,
+    job.artImageId,
+    mode,
+    true,
+  )
+  const replacementPayload = correctedPayload(prepared, recovered.prompt, {
+    correctedPrompt: recovered.prompt,
+    repairedAt: new Date().toISOString(),
+    repairMode: action,
+    sourceJobId: job.id,
+  })
+
+  const repaired: RepairResult = {
+    jobId: job.id,
+    status: job.status,
+    prompt: recovered.prompt,
+    referencedArtImageId: recovered.referencedArtImageId,
+    action,
+  }
+
+  if (!dryRun) {
+    const replacement = await prisma.$transaction(async (tx) => {
+      const created = await tx.artJob.create({
+        data: {
+          engine: job.engine,
+          payload: serializeArtJobPayload(replacementPayload),
+          priority: job.priority,
+          projectSlug: job.projectSlug,
+          projectId: job.projectId,
+          userId: job.userId,
+        },
+      })
+
+      const sourcePayload = structuredClone(parseArtJobPayload(job.payload))
+      sourcePayload.promptRepair = {
+        correctedPrompt: recovered.prompt,
+        repairedAt: new Date().toISOString(),
+        repairMode: action,
+        replacementJobId: created.id,
+      }
+
+      await tx.artJob.update({
+        where: { id: job.id },
+        data: { payload: serializeArtJobPayload(sourcePayload) },
+      })
+
+      return created
+    })
+
+    repaired.replacementJobId = replacement.id
+  }
+
+  return { repaired }
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
@@ -165,137 +309,104 @@ export default defineEventHandler(async (event) => {
 
     const body = (await readBody(event).catch(() => null)) as RepairBody | null
     const dryRun = body?.dryRun === true
-    const limit = Math.min(Math.max(Number(body?.limit) || 2000, 1), 5000)
+    const limit = Math.max(
+      positiveInteger(body?.limit, DEFAULT_SCAN_LIMIT, MAX_SCAN_LIMIT),
+      1,
+    )
+    const batchSize = Math.max(
+      positiveInteger(body?.batchSize, DEFAULT_BATCH_SIZE, MAX_BATCH_SIZE),
+      1,
+    )
+    const cursor = positiveInteger(body?.cursor, 0, Number.MAX_SAFE_INTEGER)
+    const processedCount = positiveInteger(
+      body?.processedCount,
+      0,
+      MAX_SCAN_LIMIT,
+    )
 
-    const candidates = await prisma.artJob.findMany({
-      where: { status: { in: ['PENDING', 'FAILED', 'DONE'] } },
-      orderBy: { id: 'asc' },
-      take: limit,
-      select: {
-        id: true,
-        status: true,
-        engine: true,
-        payload: true,
-        priority: true,
-        projectSlug: true,
-        projectId: true,
-        userId: true,
-        artImageId: true,
-      },
-    })
+    let snapshotMaxId = positiveInteger(
+      body?.snapshotMaxId,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    )
+
+    if (!snapshotMaxId) {
+      const newest = await prisma.artJob.findFirst({
+        where: { status: { in: [...REPAIRABLE_STATUSES] } },
+        orderBy: { id: 'desc' },
+        select: { id: true },
+      })
+      snapshotMaxId = newest?.id ?? 0
+    }
+
+    const candidateWhere = {
+      status: { in: [...REPAIRABLE_STATUSES] },
+      id: { lte: snapshotMaxId },
+    }
+
+    const totalCandidateCount = snapshotMaxId
+      ? await prisma.artJob.count({ where: candidateWhere })
+      : 0
+    const scanTargetCount = Math.min(totalCandidateCount, limit)
+    const remainingCount = Math.max(scanTargetCount - processedCount, 0)
+    const take = Math.min(batchSize, remainingCount)
+
+    const candidates = take
+      ? await prisma.artJob.findMany({
+          where: {
+            ...candidateWhere,
+            id: { gt: cursor, lte: snapshotMaxId },
+          },
+          orderBy: { id: 'asc' },
+          take,
+          select: {
+            id: true,
+            status: true,
+            engine: true,
+            payload: true,
+            priority: true,
+            projectSlug: true,
+            projectId: true,
+            userId: true,
+            artImageId: true,
+          },
+        })
+      : []
 
     const repaired: RepairResult[] = []
     const unresolved: UnresolvedResult[] = []
 
     for (const job of candidates) {
-      const weakPrompt = renderPrompt(job.payload)
-      const assessment = assessArtPrompt(weakPrompt)
-      if (assessment.useful || alreadyRepairQueued(job.payload)) continue
-
-      const recovered = await recoverPrompt(job)
-      if (!recovered.prompt) {
-        unresolved.push({
-          jobId: job.id,
-          status: job.status,
-          weakPrompt,
-          reasons: assessment.reasons,
-          referencedArtImageId: recovered.referencedArtImageId,
-        })
-        continue
-      }
-
-      if (job.status === 'PENDING' || job.status === 'FAILED') {
-        repaired.push({
-          jobId: job.id,
-          status: job.status,
-          prompt: recovered.prompt,
-          referencedArtImageId: recovered.referencedArtImageId,
-          action: 'REQUEUE_IN_PLACE',
-        })
-
-        if (!dryRun) {
-          const payload = correctedPayload(job.payload, recovered.prompt, {
-            correctedPrompt: recovered.prompt,
-            repairedAt: new Date().toISOString(),
-            repairMode: 'REQUEUE_IN_PLACE',
-          })
-
-          await prisma.artJob.update({
-            where: { id: job.id },
-            data: {
-              payload: serializeArtJobPayload(payload),
-              status: 'PENDING',
-              attempts: 0,
-              claimedAt: null,
-              claimedBy: null,
-              error: null,
-            },
-          })
-        }
-        continue
-      }
-
-      const mode = job.artImageId ? 'OVERWRITE' : 'NEW_OUTPUT'
-      const action = job.artImageId ? 'OVERWRITE_RETRY' : 'NEW_OUTPUT_RETRY'
-      const prepared = prepareArtJobRetryPayload(
-        job.payload,
-        job.id,
-        job.artImageId,
-        mode,
-        true,
-      )
-      const replacementPayload = correctedPayload(prepared, recovered.prompt, {
-        correctedPrompt: recovered.prompt,
-        repairedAt: new Date().toISOString(),
-        repairMode: action,
-        sourceJobId: job.id,
-      })
-
-      const result: RepairResult = {
-        jobId: job.id,
-        status: job.status,
-        prompt: recovered.prompt,
-        referencedArtImageId: recovered.referencedArtImageId,
-        action,
-      }
-
-      if (!dryRun) {
-        const replacement = await prisma.artJob.create({
-          data: {
-            engine: job.engine,
-            payload: serializeArtJobPayload(replacementPayload),
-            priority: job.priority,
-            projectSlug: job.projectSlug,
-            projectId: job.projectId,
-            userId: job.userId,
-          },
-        })
-        result.replacementJobId = replacement.id
-
-        const sourcePayload = structuredClone(parseArtJobPayload(job.payload))
-        sourcePayload.promptRepair = {
-          correctedPrompt: recovered.prompt,
-          repairedAt: new Date().toISOString(),
-          repairMode: action,
-          replacementJobId: replacement.id,
-        }
-        await prisma.artJob.update({
-          where: { id: job.id },
-          data: { payload: serializeArtJobPayload(sourcePayload) },
-        })
-      }
-
-      repaired.push(result)
+      const result = await repairCandidate(job, dryRun)
+      if (result.repaired) repaired.push(result.repaired)
+      if (result.unresolved) unresolved.push(result.unresolved)
     }
+
+    const scannedCount = processedCount + candidates.length
+    const nextCursor = candidates.at(-1)?.id ?? cursor
+    const complete =
+      remainingCount === 0 ||
+      scannedCount >= scanTargetCount ||
+      candidates.length < take
 
     return {
       success: true,
-      message: dryRun
-        ? `Found ${repaired.length} recoverable and ${unresolved.length} unresolved weak-prompt jobs.`
-        : `Repaired ${repaired.length} weak-prompt jobs; ${unresolved.length} remain unresolved.`,
+      message: complete
+        ? dryRun
+          ? `Finished scanning ${scannedCount} ArtJobs in the snapshot.`
+          : `Finished repairing the ${scannedCount} scanned ArtJobs.`
+        : `Scanned ${scannedCount} of ${scanTargetCount} ArtJobs in the snapshot.`,
       data: {
         dryRun,
-        scannedCount: candidates.length,
+        snapshotMaxId,
+        cursor,
+        nextCursor,
+        complete,
+        totalCandidateCount,
+        scanTargetCount,
+        limited: totalCandidateCount > scanTargetCount,
+        batchScannedCount: candidates.length,
+        scannedCount,
         repairedCount: repaired.length,
         unresolvedCount: unresolved.length,
         repaired,

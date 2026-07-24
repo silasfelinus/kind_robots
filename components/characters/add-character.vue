@@ -1,135 +1,322 @@
-<!-- /components/content/brainstorm/add-prompt.vue -->
+<!-- /components/characters/add-character.vue -->
 <template>
   <section
-    class="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl border border-base-300 bg-base-200 p-4"
+    class="mx-auto flex w-full max-w-7xl flex-col gap-6 rounded-2xl border border-base-300 bg-base-200 p-4"
   >
     <header class="text-center">
-      <h1 class="text-3xl font-bold text-primary md:text-4xl">
+      <h1 class="text-3xl font-black text-primary md:text-4xl">
         {{ title }}
       </h1>
-
       <p class="mt-2 text-sm text-base-content/70">
         {{ subtitle }}
       </p>
     </header>
 
     <div
-      v-if="mode === 'edit' && !promptStore.selectedPrompt"
+      v-if="mode === 'edit' && !characterStore.selectedCharacter"
       class="kr-note kr-note-warning"
     >
-      Select a prompt before editing.
+      Select a character before editing.
     </div>
 
     <template v-else>
       <section
-        class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"
+        class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px]"
       >
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <div
             class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <h2 class="text-xl font-bold text-base-content">Prompt Text</h2>
-
+              <h2 class="text-xl font-bold text-base-content">
+                Character Identity
+              </h2>
               <p class="text-sm text-base-content/70">
-                A single phrase, instruction, or image/text generation seed.
+                Give this person a name, place in the world, and recognizable silhouette.
               </p>
             </div>
 
             <button
               class="btn btn-sm btn-secondary rounded-xl"
               type="button"
-              @click="seedPrompt"
+              @click="seedCharacter"
             >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Seed
             </button>
           </div>
 
-          <label class="form-control">
-            <span class="label">
-              <span class="label-text font-bold">Prompt</span>
-            </span>
-
-            <textarea
-              v-model="promptStore.promptForm.prompt"
-              class="textarea textarea-bordered min-h-56 w-full bg-base-200 text-base leading-relaxed"
-              placeholder="lavender armadillo in a raincoat, cinematic lighting, mischievous expression"
-              :disabled="isKept('prompt')"
-            />
-          </label>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <button
-              class="btn btn-primary rounded-xl text-white"
-              type="button"
-              :disabled="!promptStore.promptForm.prompt?.trim()"
-              @click="useInPromptField"
-            >
-              <Icon name="kind-icon:wand" class="h-4 w-4" />
-              Use Now
-            </button>
-
-            <button
-              class="btn btn-accent rounded-xl"
-              type="button"
-              :disabled="isGeneratingVariation || !basePromptText"
-              @click="generateVariation"
-            >
-              <span
-                v-if="isGeneratingVariation"
-                class="loading loading-spinner loading-sm"
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label class="form-control">
+              <span class="label-text font-bold">Name</span>
+              <input
+                v-model="characterStore.characterForm.name"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="Moss Lantern"
+                :disabled="isKept('name')"
               />
-              <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
-              Variation
-            </button>
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Honorific</span>
+              <input
+                v-model="characterStore.characterForm.honorific"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="the Unreasonably Prepared"
+                :disabled="isKept('honorific')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Role</span>
+              <input
+                v-model="characterStore.characterForm.role"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="guide, rival, archivist..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Title</span>
+              <input
+                v-model="characterStore.characterForm.title"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="Keeper of the Last Teacup"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Class</span>
+              <input
+                v-model="characterStore.characterForm.class"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="storm librarian"
+                :disabled="isKept('class')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Species</span>
+              <input
+                v-model="characterStore.characterForm.species"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="human, robot, mothfolk..."
+                :disabled="isKept('species')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Genre</span>
+              <input
+                v-model="characterStore.characterForm.genre"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="cozy fantasy"
+                :disabled="isKept('genre')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Gender</span>
+              <input
+                v-model="characterStore.characterForm.gender"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="Optional"
+              />
+            </label>
+
+            <label class="form-control md:col-span-2">
+              <span class="label-text font-bold">Presentation</span>
+              <input
+                v-model="characterStore.characterForm.presentation"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="How they present visually and socially"
+              />
+            </label>
           </div>
         </div>
 
         <aside class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <div class="mb-4 flex items-center justify-between gap-2">
             <div>
-              <h2 class="text-xl font-bold text-base-content">Links</h2>
-
+              <h2 class="text-xl font-bold text-base-content">Portrait</h2>
               <p class="text-sm text-base-content/70">
-                Optional model relationships, including an uploaded reference
-                image.
+                Upload, borrow, or generate character art.
               </p>
             </div>
-
-            <Icon name="kind-icon:link" class="h-8 w-8 text-primary" />
+            <Icon name="kind-icon:person" class="h-8 w-8 text-primary" />
           </div>
 
-          <div class="grid gap-3">
-            <image-upload />
+          <img
+            :src="characterImage"
+            :alt="characterStore.characterForm.name || 'Character portrait'"
+            class="h-72 w-full rounded-2xl border border-base-300 bg-base-300 object-cover"
+          />
 
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Bot ID</span>
-              </span>
+          <image-upload class="mt-4" />
 
-              <input
-                v-model.number="botIdModel"
-                type="number"
-                class="input input-bordered w-full bg-base-200"
-                placeholder="Optional"
+          <label class="form-control mt-4">
+            <span class="label-text font-bold">Art prompt</span>
+            <textarea
+              v-model="characterStore.characterForm.artPrompt"
+              class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+              placeholder="Describe the portrait you want..."
+              :disabled="isKept('artPrompt')"
+            />
+          </label>
+
+          <div class="mt-4 grid gap-2">
+            <button
+              class="btn btn-accent rounded-xl"
+              type="button"
+              :disabled="characterStore.isGeneratingArt"
+              @click="generatePortrait"
+            >
+              <span
+                v-if="characterStore.isGeneratingArt"
+                class="loading loading-spinner loading-sm"
               />
-            </label>
+              <Icon v-else name="kind-icon:magic" class="h-4 w-4" />
+              Generate portrait
+            </button>
 
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Art Image ID</span>
-              </span>
-
-              <input
-                v-model.number="artImageIdModel"
-                type="number"
-                class="input input-bordered w-full bg-base-200"
-                placeholder="Optional"
-              />
-            </label>
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="useRandomArtImage"
+            >
+              <Icon name="kind-icon:dice" class="h-4 w-4" />
+              Random gallery image
+            </button>
           </div>
         </aside>
+      </section>
+
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <h2 class="mb-3 text-xl font-bold text-base-content">
+            Personality and Voice
+          </h2>
+
+          <div class="grid gap-4">
+            <label class="form-control">
+              <span class="label-text font-bold">Personality</span>
+              <textarea
+                v-model="characterStore.characterForm.personality"
+                class="textarea textarea-bordered mt-1 min-h-32 w-full bg-base-200"
+                placeholder="Temperament, habits, contradictions..."
+                :disabled="isKept('personality')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Voice</span>
+              <textarea
+                v-model="characterStore.characterForm.voice"
+                class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+                placeholder="How this character sounds"
+                :disabled="isKept('voice')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Sample response</span>
+              <textarea
+                v-model="characterStore.characterForm.sampleResponse"
+                class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+                placeholder="A line that sounds unmistakably like them"
+                :disabled="isKept('sampleResponse')"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <h2 class="mb-3 text-xl font-bold text-base-content">
+            Story and Motivation
+          </h2>
+
+          <div class="grid gap-4">
+            <label class="form-control">
+              <span class="label-text font-bold">Backstory</span>
+              <textarea
+                v-model="characterStore.characterForm.backstory"
+                class="textarea textarea-bordered mt-1 min-h-36 w-full bg-base-200"
+                placeholder="Where they came from and what still follows them"
+                :disabled="isKept('backstory')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Drive</span>
+              <input
+                v-model="characterStore.characterForm.drive"
+                type="text"
+                class="input input-bordered mt-1 w-full bg-base-200"
+                placeholder="What they want badly enough to act"
+                :disabled="isKept('drive')"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-bold">Quirks</span>
+              <textarea
+                v-model="characterStore.characterForm.quirks"
+                class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+                placeholder="Odd rules, tells, comforts, and tiny disasters"
+                :disabled="isKept('quirks')"
+              />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div
+          class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h2 class="text-xl font-bold text-base-content">Character Stats</h2>
+            <p class="text-sm text-base-content/70">
+              Rarity-style strengths for adventures and rewards.
+            </p>
+          </div>
+
+          <button
+            class="btn btn-sm btn-secondary rounded-xl"
+            type="button"
+            @click="characterStore.rerollCharacterStats"
+          >
+            <Icon name="kind-icon:dice" class="h-4 w-4" />
+            Reroll stats
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <label
+            v-for="stat in statFields"
+            :key="stat.key"
+            class="form-control"
+          >
+            <span class="label-text font-bold">{{ stat.label }}</span>
+            <select
+              v-model="characterStore.characterForm[stat.key]"
+              class="select select-bordered mt-1 w-full bg-base-200"
+            >
+              <option v-for="rarity in rarities" :key="rarity" :value="rarity">
+                {{ rarity }}
+              </option>
+            </select>
+          </label>
+        </div>
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
@@ -140,10 +327,8 @@
             <h2 class="text-xl font-bold text-base-content">
               AI Update Controls
             </h2>
-
             <p class="text-sm text-base-content/70">
-              Prompts only really have one soul, but we can still protect or
-              refresh it.
+              Choose fields to refresh while protecting the parts already working.
             </p>
           </div>
 
@@ -158,11 +343,11 @@
               class="loading loading-spinner loading-xs"
             />
             <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
-            Update Selected
+            Update selected
           </button>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <div
             v-for="field in aiFields"
             :key="field.key"
@@ -170,15 +355,11 @@
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <p class="font-bold text-base-content">
-                  {{ field.label }}
-                </p>
-
+                <p class="font-bold text-base-content">{{ field.label }}</p>
                 <p class="text-xs text-base-content/60">
                   {{ field.description }}
                 </p>
               </div>
-
               <Icon :name="field.icon" class="h-5 w-5 shrink-0 text-primary" />
             </div>
 
@@ -187,9 +368,8 @@
                 class="flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-base-100 px-3 py-2 text-sm"
               >
                 <span>AI update</span>
-
                 <input
-                  v-model="useGenerated[field.key]"
+                  v-model="characterStore.useGenerated[field.key]"
                   type="checkbox"
                   class="checkbox checkbox-sm checkbox-secondary"
                   :disabled="isKept(field.key)"
@@ -200,9 +380,8 @@
                 class="flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-base-100 px-3 py-2 text-sm"
               >
                 <span>Keep</span>
-
                 <input
-                  v-model="keepField[field.key]"
+                  v-model="characterStore.keepField[field.key]"
                   type="checkbox"
                   class="checkbox checkbox-sm checkbox-primary"
                   @change="handleKeepFieldChange(field.key)"
@@ -214,54 +393,64 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-        <h2 class="mb-3 text-xl font-bold text-base-content">Metadata</h2>
+        <h2 class="mb-3 text-xl font-bold text-base-content">Record Settings</h2>
 
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <label class="form-control">
-            <span class="label">
-              <span class="label-text font-bold">Creation Source</span>
-            </span>
-
-            <select
-              v-model="promptStore.promptForm.creationSource"
-              class="select select-bordered w-full bg-base-200"
-            >
-              <option value="HUMAN">HUMAN</option>
-              <option value="AI">AI</option>
-              <option value="HYBRID">HYBRID</option>
-              <option value="UPLOAD">UPLOAD</option>
-              <option value="UNKNOWN">UNKNOWN</option>
-            </select>
-          </label>
-
-          <label class="form-control">
-            <span class="label">
-              <span class="label-text font-bold">User ID</span>
-            </span>
-
+            <span class="label-text font-bold">Level</span>
             <input
-              v-model.number="promptStore.promptForm.userId"
+              v-model.number="characterStore.characterForm.level"
               type="number"
-              class="input input-bordered w-full bg-base-200"
+              min="1"
+              class="input input-bordered mt-1 w-full bg-base-200"
             />
           </label>
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <p
-              class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-            >
-              Current Prompt Field
-            </p>
+          <label class="form-control">
+            <span class="label-text font-bold">Experience</span>
+            <input
+              v-model.number="characterStore.characterForm.experience"
+              type="number"
+              min="0"
+              class="input input-bordered mt-1 w-full bg-base-200"
+            />
+          </label>
 
-            <p class="mt-2 line-clamp-3 text-sm text-base-content/70">
-              {{ promptStore.promptField || 'No prompt field yet.' }}
-            </p>
-          </div>
+          <label class="form-control">
+            <span class="label-text font-bold">Designer</span>
+            <input
+              v-model="characterStore.characterForm.designer"
+              type="text"
+              class="input input-bordered mt-1 w-full bg-base-200"
+            />
+          </label>
+
+          <label
+            class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <span class="font-bold">Public</span>
+            <input
+              v-model="characterStore.characterForm.isPublic"
+              type="checkbox"
+              class="toggle toggle-primary"
+            />
+          </label>
+
+          <label
+            class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <span class="font-bold">Mature</span>
+            <input
+              v-model="characterStore.characterForm.isMature"
+              type="checkbox"
+              class="toggle toggle-warning"
+            />
+          </label>
         </div>
       </section>
 
-      <div v-if="promptStore.lastError" class="kr-note kr-note-error">
-        {{ promptStore.lastError }}
+      <div v-if="characterStore.lastError" class="kr-note kr-note-error">
+        {{ characterStore.lastError }}
       </div>
 
       <div
@@ -282,41 +471,21 @@
         </button>
 
         <button
-          v-if="mode === 'edit'"
           class="btn btn-secondary rounded-xl"
           type="button"
-          @click="resetFromSelected"
+          @click="mode === 'edit' ? resetFromSelected() : resetForAdd()"
         >
-          Revert
-        </button>
-
-        <button
-          v-else
-          class="btn btn-secondary rounded-xl"
-          type="button"
-          @click="resetForAdd"
-        >
-          Reset
-        </button>
-
-        <button
-          class="btn btn-info rounded-xl"
-          type="button"
-          :disabled="!promptStore.selectedPrompt"
-          @click="promotePrompt"
-        >
-          <Icon name="kind-icon:idea" class="h-4 w-4" />
-          Promote to Dream
+          {{ mode === 'edit' ? 'Revert' : 'Reset' }}
         </button>
 
         <button
           class="btn btn-primary rounded-xl"
           type="button"
-          :disabled="promptStore.isSaving || !canSave"
-          @click="savePrompt"
+          :disabled="characterStore.isSaving || !canSave"
+          @click="saveCharacter"
         >
           <span
-            v-if="promptStore.isSaving"
+            v-if="characterStore.isSaving"
             class="loading loading-spinner loading-sm"
           />
           {{ saveLabel }}
@@ -327,12 +496,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { usePromptStore, type PromptForm } from '@/stores/promptStore'
+import { computed, onMounted, ref, watch } from 'vue'
+import type { Rarity } from '~/prisma/generated/prisma/client'
+import { useArtStore } from '@/stores/artStore'
+import { useCharacterStore, type Character } from '@/stores/characterStore'
 import { useUploadStore } from '@/stores/uploadStore'
-import { useUserStore } from '@/stores/userStore'
 
-type PromptFieldKey = keyof PromptForm & string
+type CharacterFieldKey = keyof Character & string
+type CharacterStatKey =
+  | 'luck'
+  | 'might'
+  | 'wits'
+  | 'grace'
+  | 'charm'
+  | 'empathy'
 
 const props = withDefaults(
   defineProps<{
@@ -344,84 +521,128 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (event: 'saved'): void
-  (event: 'cancel'): void
+  saved: []
+  cancel: []
 }>()
 
-const promptStore = usePromptStore()
+const characterStore = useCharacterStore()
+const artStore = useArtStore()
 const uploadStore = useUploadStore()
-const userStore = useUserStore()
-
-const keepField = reactive<Record<string, boolean>>({})
-const useGenerated = reactive<Record<string, boolean>>({})
-
 const isGeneratingFields = ref(false)
-const isGeneratingVariation = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 
 const mode = computed(() => props.mode)
-
-const title = computed(() => {
-  return mode.value === 'edit' ? 'Edit Prompt' : 'Create Prompt'
-})
-
-const subtitle = computed(() => {
-  return mode.value === 'edit'
-    ? 'Tune this small but potent generation phrase.'
-    : 'Create a text string that can generate art, text, chaos, or suspiciously marketable nonsense.'
-})
-
-const saveLabel = computed(() => {
-  return mode.value === 'edit' ? 'Save Prompt' : 'Create Prompt'
-})
-
-const canSave = computed(() => {
-  return Boolean(promptStore.promptForm.prompt?.trim())
-})
-
-const basePromptText = computed(() => {
+const title = computed(() =>
+  mode.value === 'edit' ? 'Edit Character' : 'Create Character',
+)
+const subtitle = computed(() =>
+  mode.value === 'edit'
+    ? 'Tune this character without sanding off the weird little edges.'
+    : 'Build someone who can walk into a story and immediately make it more interesting.',
+)
+const saveLabel = computed(() =>
+  mode.value === 'edit' ? 'Save Character' : 'Create Character',
+)
+const canSave = computed(() =>
+  Boolean(characterStore.characterForm.name?.trim()),
+)
+const characterImage = computed(() => {
   return (
-    promptStore.promptForm.prompt?.trim() ||
-    promptStore.currentPrompt.trim() ||
-    promptStore.promptField.trim()
+    characterStore.artImagePath ||
+    characterStore.characterForm.imagePath ||
+    '/images/character-placeholder.webp'
   )
 })
 
-const botIdModel = computed({
-  get: () => promptStore.promptForm.botId ?? null,
-  set: (value: number | null) => {
-    promptStore.setPromptForm({
-      botId: typeof value === 'number' && value > 0 ? value : null,
-    })
-  },
-})
+const rarities: Rarity[] = [
+  'COMMON',
+  'UNCOMMON',
+  'RARE',
+  'EPIC',
+  'LEGENDARY',
+  'MYTHIC',
+]
 
-const artImageIdModel = computed({
-  get: () => promptStore.promptForm.artImageId ?? null,
-  set: (value: number | null) => {
-    promptStore.setPromptForm({
-      artImageId: typeof value === 'number' && value > 0 ? value : null,
-    })
-  },
-})
+const statFields: Array<{ key: CharacterStatKey; label: string }> = [
+  { key: 'luck', label: 'Luck' },
+  { key: 'might', label: 'Might' },
+  { key: 'wits', label: 'Wits' },
+  { key: 'grace', label: 'Grace' },
+  { key: 'charm', label: 'Charm' },
+  { key: 'empathy', label: 'Empathy' },
+]
 
 const aiFields: Array<{
-  key: PromptFieldKey
+  key: CharacterFieldKey
   label: string
   description: string
   icon: string
 }> = [
   {
-    key: 'prompt',
-    label: 'Prompt',
-    description: 'Refresh the core generation phrase.',
+    key: 'name',
+    label: 'Name',
+    description: 'Refresh the character name.',
+    icon: 'kind-icon:person',
+  },
+  {
+    key: 'honorific',
+    label: 'Honorific',
+    description: 'Refresh their memorable epithet.',
+    icon: 'kind-icon:crown',
+  },
+  {
+    key: 'class',
+    label: 'Class',
+    description: 'Refresh their role or vocation.',
+    icon: 'kind-icon:skills',
+  },
+  {
+    key: 'species',
+    label: 'Species',
+    description: 'Refresh what kind of being they are.',
+    icon: 'kind-icon:butterfly',
+  },
+  {
+    key: 'personality',
+    label: 'Personality',
+    description: 'Refresh temperament and behavior.',
+    icon: 'kind-icon:stars',
+  },
+  {
+    key: 'backstory',
+    label: 'Backstory',
+    description: 'Refresh their history and context.',
+    icon: 'kind-icon:book',
+  },
+  {
+    key: 'drive',
+    label: 'Drive',
+    description: 'Refresh what pushes them forward.',
+    icon: 'kind-icon:heart',
+  },
+  {
+    key: 'quirks',
+    label: 'Quirks',
+    description: 'Refresh their odd little details.',
+    icon: 'kind-icon:sparkles',
+  },
+  {
+    key: 'voice',
+    label: 'Voice',
+    description: 'Refresh how they speak.',
+    icon: 'kind-icon:chat',
+  },
+  {
+    key: 'sampleResponse',
+    label: 'Sample Response',
+    description: 'Refresh an example line.',
     icon: 'kind-icon:quote',
   },
   {
-    key: 'artImageId',
-    label: 'Art Image Link',
-    description: 'Protect or revise the attached image link.',
+    key: 'artPrompt',
+    label: 'Art Prompt',
+    description: 'Refresh their portrait prompt.',
     icon: 'kind-icon:image',
   },
 ]
@@ -429,39 +650,46 @@ const aiFields: Array<{
 const fieldsToUpgrade = computed(() => {
   return aiFields
     .filter((field) => {
-      return Boolean(useGenerated[field.key]) && !Boolean(keepField[field.key])
+      return (
+        Boolean(characterStore.useGenerated[field.key]) &&
+        !Boolean(characterStore.keepField[field.key])
+      )
     })
     .map((field) => field.key)
 })
 
 onMounted(async () => {
   await Promise.all([
-    promptStore.initialize({
+    characterStore.initialize({
       fetchRemote: true,
-      createBlankForm: true,
+      createDefaultForm: true,
+    }),
+    artStore.initialize({
+      fetchRemote: true,
+      hydrateImages: true,
     }),
   ])
 
   await prepareForm()
-  configurePromptImageUpload()
+  configureCharacterImageUpload()
 })
 
 watch(
   () => props.mode,
   async () => {
     await prepareForm()
-    configurePromptImageUpload()
+    configureCharacterImageUpload()
   },
 )
 
 watch(
-  () => promptStore.selectedPrompt?.id,
+  () => characterStore.selectedCharacter?.id,
   () => {
-    configurePromptImageUpload()
+    configureCharacterImageUpload()
   },
 )
 
-async function prepareForm() {
+async function prepareForm(): Promise<void> {
   statusMessage.value = ''
 
   if (mode.value === 'edit') {
@@ -469,136 +697,126 @@ async function prepareForm() {
     return
   }
 
-  const hasFormData = Object.keys(promptStore.promptForm || {}).length > 0
-
-  if (!hasFormData) {
+  if (Object.keys(characterStore.characterForm || {}).length === 0) {
     resetForAdd()
   }
 }
 
-function configurePromptImageUpload() {
+function configureCharacterImageUpload(): void {
   uploadStore.setTarget({
-    model: 'Prompt',
+    model: 'Character',
     modelId:
-      promptStore.selectedPrompt?.id ?? promptStore.promptForm.id ?? null,
-    galleryName: 'promptUploads',
-    collectionLabel: 'prompts',
-    promptString: promptStore.promptForm.prompt || '[PromptImage]',
-    path: '[PromptImage]',
-    buttonLabel: 'Upload prompt image',
-    icon: 'kind-icon:image',
+      characterStore.selectedCharacter?.id ??
+      characterStore.characterForm.id ??
+      null,
+    galleryName: 'characterUploads',
+    collectionLabel: 'characters',
+    promptString:
+      characterStore.characterForm.artPrompt || '[CharacterImage]',
+    path: '[CharacterImage]',
+    buttonLabel: 'Upload character portrait',
+    icon: 'kind-icon:person',
     showPreview: false,
     applyImage: async ({ artImageId }) => {
-      promptStore.setPromptForm({
-        artImageId,
-        creationSource: promptStore.promptForm.creationSource ?? 'UPLOAD',
-      })
+      characterStore.setArtImageId(artImageId)
 
-      if (mode.value === 'edit' && promptStore.selectedPrompt?.id) {
-        const result = await promptStore.savePrompt()
+      if (mode.value === 'edit' && characterStore.selectedCharacter?.id) {
+        const result = await characterStore.saveCharacter()
 
         if (!result.success) {
           statusTone.value = 'error'
           statusMessage.value =
-            result.message || 'Image uploaded, but prompt update failed.'
+            result.message || 'Image uploaded, but character update failed.'
           return
         }
 
         statusTone.value = 'success'
-        statusMessage.value = 'Prompt image updated.'
+        statusMessage.value = 'Character portrait updated.'
         return
       }
 
       statusTone.value = 'success'
-      statusMessage.value = 'Prompt image added to form.'
+      statusMessage.value = 'Character portrait added to the form.'
     },
   })
 }
 
-function resetForAdd() {
-  promptStore.startAddingPrompt()
-
-  promptStore.setPromptForm({
-    userId: userStore.authenticatedUserId,
-    creationSource: 'HUMAN',
-  })
-
+function resetForAdd(): void {
+  characterStore.startAddingCharacter()
   statusMessage.value = ''
 }
 
-async function resetFromSelected() {
-  await promptStore.startEditingPrompt()
+async function resetFromSelected(): Promise<void> {
+  await characterStore.startEditingCharacter()
   statusMessage.value = ''
 }
 
-function isKept(field: string) {
-  return Boolean(keepField[field])
+function isKept(field: string): boolean {
+  return Boolean(characterStore.keepField[field])
 }
 
-function handleKeepFieldChange(field: string) {
-  if (keepField[field]) {
-    useGenerated[field] = false
+function handleKeepFieldChange(field: string): void {
+  if (characterStore.keepField[field]) {
+    characterStore.useGenerated[field] = false
   }
 }
 
-function seedPrompt() {
-  promptStore.setPromptForm({
-    prompt:
-      promptStore.promptForm.prompt ||
-      'a cheerful robot archivist cataloging impossible butterflies, cozy studio lighting, whimsical sci-fi',
-    creationSource: promptStore.promptForm.creationSource || 'HUMAN',
+function seedCharacter(): void {
+  const generated = characterStore.generateDefaultCharacter()
+  const current = characterStore.characterForm
+
+  characterStore.setCharacterForm({
+    ...generated,
+    name: current.name || generated.name,
+    honorific: current.honorific || generated.honorific,
+    class: current.class || generated.class,
+    species: current.species || generated.species,
+    genre: current.genre || generated.genre,
+    personality: current.personality || generated.personality,
+    backstory: current.backstory || generated.backstory,
+    quirks: current.quirks || generated.quirks,
   })
 
   statusTone.value = 'success'
-  statusMessage.value = 'Prompt seed applied.'
+  statusMessage.value = 'Character seed applied.'
 }
 
-function useInPromptField() {
-  const prompt = promptStore.promptForm.prompt?.trim()
+async function useRandomArtImage(): Promise<void> {
+  const images = artStore.safeArtImages.length
+    ? artStore.safeArtImages
+    : artStore.artImages
+  const image = images[Math.floor(Math.random() * images.length)]
 
-  if (!prompt) {
+  if (!image) {
     statusTone.value = 'error'
-    statusMessage.value = 'Write a prompt first.'
+    statusMessage.value = 'No gallery image was available.'
     return
   }
 
-  promptStore.promptField = prompt
-  promptStore.currentPrompt = prompt
-  promptStore.syncToLocalStorage()
+  characterStore.setCharacterForm({
+    artImageId: image.id,
+    imagePath: image.imagePath || image.path || null,
+  })
+  await characterStore.updateArtImagePath()
+  statusTone.value = 'success'
+  statusMessage.value = 'Random portrait applied.'
+}
+
+async function generatePortrait(): Promise<void> {
+  statusMessage.value = ''
+  await characterStore.generateArtImage()
+
+  if (characterStore.lastError) {
+    statusTone.value = 'error'
+    statusMessage.value = characterStore.lastError
+    return
+  }
 
   statusTone.value = 'success'
-  statusMessage.value = 'Prompt sent to the active prompt field.'
+  statusMessage.value = 'Character portrait generated.'
 }
 
-async function generateVariation() {
-  if (!basePromptText.value) {
-    statusTone.value = 'error'
-    statusMessage.value = 'No prompt available to vary.'
-    return
-  }
-
-  isGeneratingVariation.value = true
-  statusMessage.value = ''
-
-  try {
-    const result = await promptStore.generateVariation()
-
-    if (!result.success) {
-      throw new Error(result.message)
-    }
-
-    statusTone.value = 'success'
-    statusMessage.value = result.message
-  } catch (error) {
-    statusTone.value = 'error'
-    statusMessage.value =
-      error instanceof Error ? error.message : 'Failed to generate variation.'
-  } finally {
-    isGeneratingVariation.value = false
-  }
-}
-
-async function generateSelectedFields() {
+async function generateSelectedFields(): Promise<void> {
   if (fieldsToUpgrade.value.length === 0) {
     statusTone.value = 'error'
     statusMessage.value = 'Select at least one AI field to update.'
@@ -609,40 +827,27 @@ async function generateSelectedFields() {
   statusMessage.value = ''
 
   try {
-    const result = await promptStore.generateFields(fieldsToUpgrade.value)
+    await characterStore.generateFields(fieldsToUpgrade.value)
 
-    if (!result.success) {
-      throw new Error(result.message)
+    if (characterStore.lastError) {
+      throw new Error(characterStore.lastError)
     }
 
     statusTone.value = 'success'
-    statusMessage.value = result.message
+    statusMessage.value = 'Selected character fields updated.'
   } catch (error) {
     statusTone.value = 'error'
     statusMessage.value =
       error instanceof Error
         ? error.message
-        : 'Failed to generate prompt fields.'
+        : 'Failed to generate character fields.'
   } finally {
     isGeneratingFields.value = false
   }
 }
 
-async function promotePrompt() {
-  const result = await promptStore.promoteToDream()
-
-  if (!result.success) {
-    statusTone.value = 'error'
-    statusMessage.value = result.message || 'Failed to promote prompt to Dream.'
-    return
-  }
-
-  statusTone.value = 'success'
-  statusMessage.value = 'Prompt promoted to a Dream pitch.'
-}
-
-async function savePrompt() {
-  const result = await promptStore.savePrompt()
+async function saveCharacter(): Promise<void> {
+  const result = await characterStore.saveCharacter()
 
   if (!result.success) {
     statusTone.value = 'error'

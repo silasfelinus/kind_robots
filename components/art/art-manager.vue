@@ -112,8 +112,9 @@
       @click.capture="handleArtJobImageClick"
     >
       <div
-        class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:overflow-hidden"
+        class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:grid-rows-[auto_minmax(0,1fr)] 2xl:overflow-hidden"
       >
+        <artjob-failed-page-requeue class="2xl:col-span-2" />
         <artjob-queue-browser
           class="min-h-[720px] overflow-hidden 2xl:min-h-0"
         />

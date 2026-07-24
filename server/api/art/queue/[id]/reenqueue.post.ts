@@ -32,6 +32,7 @@ import {
   type ArtJobOverrides,
   type ArtJobRetryMode,
 } from '../../../../utils/artJobRetry'
+import { assessArtPrompt, cleanArtPrompt } from '../../../../utils/artPromptQuality'
 import {
   buildWorkflowForEngine,
   extractRenderRequest,
@@ -41,12 +42,7 @@ import {
 type ReenqueueBody = {
   mode?: string | null
   refreshSeed?: boolean
-  // Optional engine preset — re-render the same prompt on a different engine
-  // (krea2 | flux2/klein | sdxl | flux). Rebuilds the workflow graph, carrying
-  // over prompt / negative / size / seed. Omit or "custom" to keep the engine.
   preset?: string | null
-  // Optional per-render setting changes for this retry (steps, checkpoint,
-  // seed, cfg, sampler, negative prompt). Absent keys keep the source spec.
   overrides?: ArtJobOverrides | null
 }
 
@@ -71,8 +67,6 @@ export default defineEventHandler(async (event) => {
     const mode = String(
       body?.mode || 'NEW_OUTPUT',
     ).toUpperCase() as ArtJobRetryMode
-    // An explicit seed override implies "use exactly this seed", so it wins over
-    // the default seed refresh.
     const hasSeedOverride =
       typeof body?.overrides?.seed === 'number' &&
       Number.isFinite(body.overrides.seed)
@@ -121,17 +115,40 @@ export default defineEventHandler(async (event) => {
       refreshSeed,
     )
 
-    // Engine preset: rebuild the graph for the requested engine, carrying over
-    // the prompt / negative / size / seed. Only image engines are presetable;
-    // an unknown preset name is ignored (keeps the source engine).
+    const requestedPrompt = cleanArtPrompt(body?.overrides?.promptString)
+    if (requestedPrompt && !assessArtPrompt(requestedPrompt).useful) {
+      throw createError({
+        statusCode: 422,
+        message:
+          'The replacement prompt is still too vague. Describe the visible subject, action, setting, composition, and concrete art direction.',
+      })
+    }
+
+    const sourceRequest = extractRenderRequest(prepared)
+    const effectivePrompt = requestedPrompt || sourceRequest.prompt
+    const promptAssessment = assessArtPrompt(effectivePrompt)
+
+    if (!promptAssessment.useful) {
+      throw createError({
+        statusCode: 422,
+        message: `Retry blocked because the source prompt is not usable (${promptAssessment.reasons.join(', ')}). Supply a specific prompt override instead of reusing it.`,
+      })
+    }
+
     const presetEngine = resolvePresetEngine(body?.preset)
     if (presetEngine) {
-      const req = extractRenderRequest(prepared)
+      const req = {
+        ...sourceRequest,
+        prompt: effectivePrompt,
+      }
       prepared.workflow = buildWorkflowForEngine(presetEngine, req)
       prepared.promptString = req.prompt
     }
 
-    const payload = applyArtJobOverrides(prepared, body?.overrides)
+    const payload = applyArtJobOverrides(prepared, {
+      ...body?.overrides,
+      ...(requestedPrompt ? { promptString: requestedPrompt } : {}),
+    })
     const jobEngine = presetEngine ? 'COMFY' : source.engine
 
     const job = await prisma.artJob.create({

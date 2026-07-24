@@ -1,3 +1,10 @@
+import { createError } from 'h3'
+import {
+  assessArtPrompt,
+  cleanArtPrompt,
+  isGenericArtLabel,
+} from './artPromptQuality'
+
 type ArtPromptTarget = {
   sourceUrl: string
   targetRepo: string
@@ -36,10 +43,6 @@ type OpenAIResponse = {
   output?: OpenAIOutputItem[]
 }
 
-function cleanString(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : ''
-}
-
 function compact(value: string, maxLength = 1200): string {
   const clean = value.replace(/\s+/g, ' ').trim()
   if (clean.length <= maxLength) return clean
@@ -59,13 +62,13 @@ function openAiModel(): string {
 }
 
 function responseText(data: OpenAIResponse): string {
-  const direct = cleanString(data.output_text)
+  const direct = cleanArtPrompt(data.output_text)
   if (direct) return direct
 
   for (const item of data.output ?? []) {
     for (const part of item.content ?? []) {
       if (part.type === 'output_text' || part.text) {
-        const text = cleanString(part.text)
+        const text = cleanArtPrompt(part.text)
         if (text) return text
       }
     }
@@ -85,6 +88,11 @@ function sanitizePrompt(value: string): string {
   )
 }
 
+function meaningfulLabel(body: ArtPromptRequestBody): string {
+  const label = cleanArtPrompt(body.alt || body.label)
+  return isGenericArtLabel(label) ? '' : label
+}
+
 function promptContext(body: ArtPromptRequestBody, target: ArtPromptTarget): string {
   const context = {
     requestedAsset: {
@@ -97,20 +105,85 @@ function promptContext(body: ArtPromptRequestBody, target: ArtPromptTarget): str
       slug: target.slug,
     },
     pageContext: {
-      pageUrl: cleanString(body.pageUrl),
-      pageTitle: cleanString(body.pageTitle),
-      pageDescription: cleanString(body.pageDescription),
-      nearestHeading: cleanString(body.nearestHeading),
-      nearbyText: cleanString(body.nearbyText),
+      pageUrl: cleanArtPrompt(body.pageUrl),
+      pageTitle: cleanArtPrompt(body.pageTitle),
+      pageDescription: cleanArtPrompt(body.pageDescription),
+      nearestHeading: cleanArtPrompt(body.nearestHeading),
+      nearbyText: cleanArtPrompt(body.nearbyText),
     },
     imageContext: {
-      alt: cleanString(body.alt),
-      label: cleanString(body.label),
-      className: cleanString(body.imageClass),
+      alt: meaningfulLabel(body),
+      label: meaningfulLabel(body),
+      className: cleanArtPrompt(body.imageClass),
     },
   }
 
   return JSON.stringify(context, null, 2)
+}
+
+function titleFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function compositionFor(target: ArtPromptTarget): string {
+  if (target.variant === 'icon') {
+    return 'square premium app-icon composition with one bold, instantly readable silhouette'
+  }
+  if (target.variant === 'card') {
+    return '2:3 portrait key-art composition with a clear foreground subject and layered depth'
+  }
+  if (target.variant === 'hero') {
+    return '16:9 cinematic landscape composition with strong left-to-right visual flow'
+  }
+  return 'balanced website illustration with a clear focal subject and uncluttered background'
+}
+
+function contextualFallback(
+  body: ArtPromptRequestBody,
+  target: ArtPromptTarget,
+  legacyFallback: string,
+): string {
+  const legacy = sanitizePrompt(legacyFallback)
+  if (assessArtPrompt(legacy).useful) return legacy
+
+  const label = meaningfulLabel(body)
+  const slugTitle = titleFromSlug(target.slug)
+  const subject = label || (!isGenericArtLabel(slugTitle) ? slugTitle : '')
+  const context = compact(
+    [
+      cleanArtPrompt(body.nearestHeading),
+      cleanArtPrompt(body.pageDescription),
+      cleanArtPrompt(body.nearbyText),
+      cleanArtPrompt(body.pageTitle),
+    ]
+      .filter(Boolean)
+      .join('. '),
+    420,
+  )
+
+  if (!subject || !context) return ''
+
+  const prompt = [
+    `Create artwork for ${subject}.`,
+    `Visible subject and scene context: ${context}.`,
+    compositionFor(target),
+    'modern western animation for young adults, crisp expressive linework, saturated but balanced color, readable silhouettes, tactile environmental detail, intentional cinematic lighting',
+    'no readable text, no logos, no watermark, no collage',
+  ].join(' ')
+
+  return assessArtPrompt(prompt).useful ? compact(prompt, 900) : ''
+}
+
+function insufficientContext(): never {
+  throw createError({
+    statusCode: 422,
+    message:
+      'Missing image was not queued because its subject could not be identified. Add a meaningful alt/label or explicit prompt instead of an image id.',
+  })
 }
 
 export async function buildContextualArtPrompt(
@@ -118,14 +191,18 @@ export async function buildContextualArtPrompt(
   target: ArtPromptTarget,
   fallbackPrompt: string,
 ): Promise<string> {
-  const explicit = cleanString(body.prompt)
-  if (explicit) return explicit
+  const explicit = sanitizePrompt(cleanArtPrompt(body.prompt))
+  if (explicit) {
+    return assessArtPrompt(explicit).useful ? explicit : insufficientContext()
+  }
 
+  const fallback = contextualFallback(body, target, fallbackPrompt)
   const token = openAiKey()
-  if (!token) return fallbackPrompt
+  if (!token) return fallback || insufficientContext()
 
+  let res: Response
   try {
-    const res = await fetch('https://api.openai.com/v1/responses', {
+    res = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -135,11 +212,15 @@ export async function buildContextualArtPrompt(
         model: openAiModel(),
         instructions: [
           'You write production-ready image generation prompts for the Kind Robots website.',
-          'Infer what missing web artwork should be from the asset path, page URL, image label, and page context.',
+          'Infer the actual visible subject from the asset path, page URL, meaningful image label, and surrounding page context.',
+          'Never treat a database id, filename number, or phrases such as “Image 529” as a subject.',
+          'Never say “Kind Robots style” or “cohesive visual style”; those phrases give an image model no visual information.',
+          'Use concrete art direction instead: modern western animation for young adults, crisp expressive linework, saturated color, readable silhouettes, and intentional cinematic lighting when suitable.',
           'Return one vivid prompt only. No markdown, no JSON, no quotes.',
-          'Always include the intended composition, mood, subject matter, style direction, and "no text".',
+          'Always describe the visible subject, action or pose, setting, composition, mood, and concrete rendering style, ending with no readable text.',
           'Respect the requested variant: icon is square and simple, card is 2:3 portrait, hero is 16:9 landscape.',
-          'Avoid copyrighted characters, logos, brands, text in the image, and vague filler.',
+          'Avoid copyrighted characters, logos, brands, text in the image, collages, and vague filler.',
+          'If the supplied context does not identify a real subject, return exactly INSUFFICIENT_CONTEXT.',
         ].join(' '),
         input: [
           {
@@ -152,17 +233,22 @@ export async function buildContextualArtPrompt(
             ],
           },
         ],
-        max_output_tokens: 260,
+        max_output_tokens: 300,
       }),
     })
-
-    if (!res.ok) return fallbackPrompt
-
-    const data = (await res.json()) as OpenAIResponse
-    const generated = sanitizePrompt(responseText(data))
-
-    return generated || fallbackPrompt
   } catch {
-    return fallbackPrompt
+    return fallback || insufficientContext()
   }
+
+  if (!res.ok) return fallback || insufficientContext()
+
+  const data = (await res.json()) as OpenAIResponse
+  const generated = sanitizePrompt(responseText(data))
+  if (!generated || generated === 'INSUFFICIENT_CONTEXT') {
+    return fallback || insufficientContext()
+  }
+
+  return assessArtPrompt(generated).useful
+    ? generated
+    : fallback || insufficientContext()
 }

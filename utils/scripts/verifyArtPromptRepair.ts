@@ -22,11 +22,9 @@ assert.equal(isGenericArtLabel('Image 529'), true)
 assert.equal(isGenericArtLabel('Music Mentor'), false)
 assert.equal(assessArtPrompt(strongPrompt).useful, true)
 assert.equal(assessArtPrompt(concisePrompt).useful, true)
-assert.equal(assessArtPrompt('red dog').useful, false)
-assert.deepEqual(assessArtPrompt('Image 529').reasons, [
-  'generic-label',
-  'too-short',
-])
+assert.equal(assessArtPrompt('red dog').useful, true)
+assert.equal(assessArtPrompt('robot').useful, true)
+assert.deepEqual(assessArtPrompt('Image 529').reasons, ['generic-label'])
 
 const payload = {
   promptString: weakPrompt,

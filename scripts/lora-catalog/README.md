@@ -82,7 +82,8 @@ python3 scan_loras.py "Z:/ai/models/Lora" --out ./catalog --overrides ./catalog/
 | `--civitai-token TOK` | `$CIVITAI_TOKEN` | Your Civitai API token. |
 | `--no-civitai` | off | Skip Civitai lookups. |
 | `--no-archive` | off | Skip the CivArchive fallback. |
-| `--workers N` | 6 | Concurrent hash lookups. |
+| `--workers N` | 6 | Concurrent hash lookups (Civitai/CivArchive). |
+| `--hash-workers N` | 8 | Concurrent file hashers. **Raise to 16–24 for a network share (SMB/NAS)** — reads are latency-bound, so concurrency is the main speedup. |
 | `--overrides FILE` | — | CSV of manual corrections (keyed by `sha256`). |
 | `--organize MODE` | `none` | `plan` (preview), `copy`, or `move`. |
 | `--dest DIR` | scanned folder | Destination root for `--organize`. |
@@ -90,6 +91,19 @@ python3 scan_loras.py "Z:/ai/models/Lora" --out ./catalog --overrides ./catalog/
 
 Fully offline run (no network at all): `--no-civitai --no-archive`. Base model
 is still detected from metadata/architecture; maturity stays `REVIEW`.
+
+### Speed & resuming
+
+- **The bottleneck is hashing** — matching a file requires a full-file SHA256,
+  so every byte gets read. On a **network share (SMB/NAS)** that means reading
+  everything over the network. Bump `--hash-workers` (16–24) so reads run
+  concurrently instead of one-at-a-time; this is the biggest win.
+- **Fastest of all:** run the script *on the machine that physically holds the
+  drive*, so reads are local instead of over the network.
+- **Interrupt-safe / resumable:** every hash and every API result is cached to
+  `<out>/.lora-cache.sqlite` immediately. Press Ctrl+C anytime and re-run the
+  same command — already-processed files are skipped, so it resumes where it
+  left off. Nothing is lost.
 
 ## The overrides workflow
 

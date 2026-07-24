@@ -62,14 +62,18 @@ import scan_loras as core  # shared detection engine (same directory)
 # `kind` drives the Resource type; `comfy_folder` is where ComfyUI wants it.
 # Matching is done on any path segment (case-insensitive), most specific first.
 
-# kinds we emit Resource records for (per the "checkpoints + components" scope)
-RESOURCE_KINDS = {"checkpoint", "diffusion_model", "text_encoder", "vae"}
+# kinds we emit Resource records for. Video/audio checkpoints ARE in scope
+# (kind_robots has video support: GIFs, effects, animation roadmap).
+RESOURCE_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
+                  "diffusion_model", "text_encoder", "vae"}
 
 # kind -> kind_robots ResourceType. Components need enum members that don't
 # exist yet (VAE / TEXT_ENCODER / DIFFUSION_MODEL) — the phase-2 migration must
 # add them; until then the importer can fall back to CHECKPOINT+generation.
 KIND_RESOURCE_TYPE = {
     "checkpoint": "CHECKPOINT",
+    "video_checkpoint": "CHECKPOINT",       # generation carries LTX/Wan/SVD
+    "audio_checkpoint": "CHECKPOINT",
     "diffusion_model": "DIFFUSION_MODEL",   # NEW enum member (see migration)
     "text_encoder": "TEXT_ENCODER",         # NEW enum member
     "vae": "VAE",                           # NEW enum member
@@ -77,6 +81,34 @@ KIND_RESOURCE_TYPE = {
     "hypernetwork": "HYPERNETWORK",
     "embedding": "EMBEDDING",
 }
+
+# Filename-based component refinement. Video model folders (LTX, SVD, Wan) are
+# mixed bundles — the main model sits next to its VAE, text encoder, and
+# upscaler. ComfyUI's video nodes expect each of those in its OWN folder, so we
+# split them out by filename. Applied only to checkpoint/video/audio kinds, and
+# `vae` is boundary-anchored so a checkpoint merely named "...vaemix" is safe.
+COMPONENT_REFINE = [
+    (re.compile(r"(text[_\-. ]?encoder|text[_\-. ]?projection|t5xxl|umt5|byt5|"
+                r"(^|[_\-. ])clip[_\-. ]?[lg]([_\-. ]|$))", re.I),
+     "text_encoder", "text_encoders"),
+    (re.compile(r"((^|[_\-. ])vae([_\-. ]|$)|image[_\-. ]?decoder)", re.I),
+     "vae", "vae"),
+    (re.compile(r"(spatial[_\-. ]?upscaler|(^|[_\-. ])upscal|esrgan|swinir)", re.I),
+     "upscaler", "upscale_models"),
+]
+
+
+def video_arch(generation: str, relpath: str) -> str:
+    g, low = (generation or "").lower(), relpath.replace("\\", "/").lower()
+    if "ltx" in g or "ltx" in low:
+        return "LTX"
+    if "wan" in g or re.search(r"wan2[._-]", low):
+        return "Wan"
+    if "svd" in g or "svd" in low:
+        return "SVD"
+    if "hunyuan" in g or "hunyuan" in low:
+        return "Hunyuan"
+    return "Other"
 
 # Ordered (segment-substring, kind, comfy_folder). First match wins, so put the
 # more specific / video-audio cases before the generic "stable-diffusion".
@@ -222,10 +254,18 @@ def classify(relpath: str) -> tuple[str, str, bool]:
     if segments & TOOL_SEGMENTS:
         top = relpath.replace("\\", "/").split("/")[0]
         return "tool", top, True
-    for needle, kind, folder in FOLDER_RULES:
+    kind, folder = "unknown", "checkpoints"  # default: treat as checkpoint, flag
+    for needle, k, f in FOLDER_RULES:
         if needle in p:
-            return kind, folder, False
-    return "unknown", "checkpoints", False  # default: treat as a checkpoint, flag
+            kind, folder = k, f
+            break
+    # split a component (VAE/text-encoder/upscaler) out of a bundle folder by name
+    if kind in ("checkpoint", "video_checkpoint", "audio_checkpoint", "unknown"):
+        fname = relpath.replace("\\", "/").split("/")[-1]
+        for rx, ck, cf in COMPONENT_REFINE:
+            if rx.search(fname):
+                return ck, cf, False
+    return kind, folder, False
 
 
 def folder_base_hint(relpath: str) -> tuple[str, str]:
@@ -349,12 +389,12 @@ def finalize(e: ModelEntry, meta: dict) -> None:
 
     # compute Comfy target (checkpoints get a base-model sub-bucket)
     if e.kind == "video_checkpoint":
-        bucket = "checkpoints/Video"
+        bucket = f"checkpoints/Video/{video_arch(e.generation, e.relpath)}"
     elif e.kind == "audio_checkpoint":
         bucket = "checkpoints/Audio"
     elif e.kind in ("checkpoint", "unknown"):
         grp = checkpoint_group(e.generation, e.supportedServer, e.relpath)
-        bucket = f"checkpoints/{grp}"
+        bucket = "checkpoints/Video/Wan" if grp == "Wan" else f"checkpoints/{grp}"
     else:
         bucket = e.comfy_folder
     e.comfy_folder = bucket

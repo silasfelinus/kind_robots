@@ -207,7 +207,16 @@ python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog --organize move
 preview the reorg. Outputs: `models-catalog.json` / `.csv`,
 `models-move-plan.csv`, and (after a real move) `models-move-log.csv` for undo.
 Same flags as `scan_loras.py` (`--no-civitai`, `--no-archive`, `--overrides`,
-`--hash-workers`, `--dest`).
+`--hash-workers`, `--dest`), plus:
+- `--no-hash` — fast folder-only classification (see above).
+- `--skip-video` — leave video/audio models (SVD, LTX, Wan, Stable-Audio) in
+  place instead of sorting them. Use when they live in mixed bundle folders or
+  drive video workflows you don't want disturbed.
+
+Offline base-model detection knows the current architectures (SD15, SDXL, Pony,
+Illustrious, NoobAI, Flux, Kontext, ZImage, Qwen, Wan, Hunyuan/3D). Anything it
+can't place from folder/filename lands in `checkpoints/Unknown` and is resolved
+by the hashed Civitai/CivArchive pass (drop `--no-hash`).
 
 ### Which files become Resources
 

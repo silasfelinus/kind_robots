@@ -135,23 +135,48 @@ TOOL_SEGMENTS = {
     "deepbooru", "torch", "sam2",
 }
 
-# base-model hints from a folder name (for checkpoint sub-bucketing offline)
+# base-model hints matched against the whole relpath (folder + filename),
+# for offline checkpoint sub-bucketing. ORDER MATTERS — specific / unambiguous
+# architecture names come FIRST so a filename signal beats a misleading parent
+# folder (e.g. a ZImage model mistakenly filed under Stable-diffusion/Flux/).
 FOLDER_BASE_HINTS = [
+    ("kontext", "KONTEXT", "Flux.1 Kontext"),
     ("illustrious", "SDXL", "Illustrious"),
     ("noobai", "SDXL", "NoobAI"),
     ("pony", "SDXL", "Pony"),
+    ("z-image", "GENERIC", "ZImage"),
+    ("zimage", "GENERIC", "ZImage"),
+    ("qwen", "GENERIC", "Qwen"),
+    ("wan2", "GENERIC", "Wan Video"),
+    ("wan_", "GENERIC", "Wan Video"),
+    ("wan-", "GENERIC", "Wan Video"),
+    ("hunyuan", "GENERIC", "Hunyuan"),
+    ("flux", "FLUX", "Flux.1"),
     ("sdxl", "SDXL", "SDXL 1.0"),
     ("xl", "SDXL", "SDXL 1.0"),
-    ("kontext", "KONTEXT", "Flux.1 Kontext"),
-    ("flux", "FLUX", "Flux.1"),
-    ("zimage", "GENERIC", "ZImage"),
-    ("1.5", "SD15", "SD 1.5"),
     ("sd15", "SD15", "SD 1.5"),
-    ("3d", "SDXL", "3D"),
+    ("1.5", "SD15", "SD 1.5"),
     ("svd", "GENERIC", "SVD Video"),
     ("ltx", "GENERIC", "LTX Video"),
     ("audio", "GENERIC", "Audio"),
+    ("3d", "GENERIC", "3D"),
 ]
+
+
+def checkpoint_group(generation: str, server: str, relpath: str) -> str:
+    """Sort-folder for a checkpoint, aware of newer architectures that the
+    generic base->group map (in scan_loras) doesn't cover yet."""
+    g = (generation or "").lower()
+    low = relpath.replace("\\", "/").lower()
+    if "zimage" in g or "z-image" in g or "zimage" in low:
+        return "ZImage"
+    if "qwen" in g or "qwen" in low:
+        return "Qwen"
+    if "wan" in g or re.search(r"wan2[._-]", low):
+        return "Wan"
+    if "hunyuan" in g or "hunyuan" in low or g == "3d":
+        return "3D"
+    return core.folder_group(generation, server)
 
 
 @dataclass
@@ -328,7 +353,7 @@ def finalize(e: ModelEntry, meta: dict) -> None:
     elif e.kind == "audio_checkpoint":
         bucket = "checkpoints/Audio"
     elif e.kind in ("checkpoint", "unknown"):
-        grp = core.folder_group(e.generation, e.supportedServer)
+        grp = checkpoint_group(e.generation, e.supportedServer, e.relpath)
         bucket = f"checkpoints/{grp}"
     else:
         bucket = e.comfy_folder
@@ -437,6 +462,10 @@ def main() -> int:
     ap.add_argument("--civitai-token", default=os.environ.get("CIVITAI_TOKEN", ""))
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--hash-workers", type=int, default=8)
+    ap.add_argument("--skip-video", action="store_true",
+                    help="Leave video/audio models (SVD, LTX, Wan, Stable-Audio) "
+                         "in place instead of sorting them. Recommended if those "
+                         "live in mixed bundle folders or drive video workflows.")
     ap.add_argument("--no-hash", action="store_true",
                     help="Fast preview: skip hashing + hash lookups entirely. "
                          "Classify by folder and produce the move plan in seconds "
@@ -533,6 +562,9 @@ def main() -> int:
         print()
 
     for e in entries:
+        if args.skip_video and e.kind in ("video_checkpoint", "audio_checkpoint"):
+            e.is_tool = True
+            e.notes.append("video/audio — left in place (--skip-video)")
         finalize(e, meta_by_id.get(id(e), {}))
         core.apply_overrides(e, overrides)  # sha256/filename-keyed; sets fields it recognizes
 

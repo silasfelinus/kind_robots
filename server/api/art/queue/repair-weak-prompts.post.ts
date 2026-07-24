@@ -1,5 +1,6 @@
 // /server/api/art/queue/repair-weak-prompts.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import type { Prisma } from '../../../../prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
@@ -56,12 +57,12 @@ type JsonRecord = Record<string, unknown>
 type RepairCandidate = {
   id: number
   status: string
-  engine: 'CUSTOM' | 'A1111' | 'COMFY' | 'OPENAI' | 'ANTHROPIC' | 'OLLAMA'
+  engine: Prisma.ArtJobUncheckedCreateInput['engine']
   payload: string
   priority: number
   projectSlug: string | null
   projectId: number | null
-  userId: number | null
+  userId: number
   artImageId: number | null
 }
 
@@ -264,16 +265,15 @@ async function repairCandidate(
 
   if (!dryRun) {
     const replacement = await prisma.$transaction(async (tx) => {
-      const created = await tx.artJob.create({
-        data: {
-          engine: job.engine,
-          payload: serializeArtJobPayload(replacementPayload),
-          priority: job.priority,
-          projectSlug: job.projectSlug,
-          projectId: job.projectId ?? undefined,
-          userId: job.userId ?? undefined,
-        },
-      })
+      const createData: Prisma.ArtJobUncheckedCreateInput = {
+        engine: job.engine,
+        payload: serializeArtJobPayload(replacementPayload),
+        priority: job.priority,
+        projectSlug: job.projectSlug,
+        projectId: job.projectId,
+        userId: job.userId,
+      }
+      const created = await tx.artJob.create({ data: createData })
 
       const sourcePayload = structuredClone(parseArtJobPayload(job.payload))
       sourcePayload.promptRepair = {

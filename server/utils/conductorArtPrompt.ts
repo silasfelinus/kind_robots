@@ -1,3 +1,4 @@
+import { createError } from 'h3'
 import {
   assessArtPrompt,
   cleanArtPrompt,
@@ -125,20 +126,31 @@ function safeFallback(fallbackPrompt: string): string {
   return assessArtPrompt(fallback).useful ? fallback : ''
 }
 
+function insufficientContext(): never {
+  throw createError({
+    statusCode: 422,
+    message:
+      'Missing image was not queued because its subject could not be identified. Add a meaningful alt/label or explicit prompt instead of an image id.',
+  })
+}
+
 export async function buildContextualArtPrompt(
   body: ArtPromptRequestBody,
   target: ArtPromptTarget,
   fallbackPrompt: string,
 ): Promise<string> {
   const explicit = sanitizePrompt(cleanArtPrompt(body.prompt))
-  if (explicit) return assessArtPrompt(explicit).useful ? explicit : ''
+  if (explicit) {
+    return assessArtPrompt(explicit).useful ? explicit : insufficientContext()
+  }
 
   const fallback = safeFallback(fallbackPrompt)
   const token = openAiKey()
-  if (!token) return fallback
+  if (!token) return fallback || insufficientContext()
 
+  let res: Response
   try {
-    const res = await fetch('https://api.openai.com/v1/responses', {
+    res = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -172,15 +184,19 @@ export async function buildContextualArtPrompt(
         max_output_tokens: 300,
       }),
     })
-
-    if (!res.ok) return fallback
-
-    const data = (await res.json()) as OpenAIResponse
-    const generated = sanitizePrompt(responseText(data))
-    if (!generated || generated === 'INSUFFICIENT_CONTEXT') return fallback
-
-    return assessArtPrompt(generated).useful ? generated : fallback
   } catch {
-    return fallback
+    return fallback || insufficientContext()
   }
+
+  if (!res.ok) return fallback || insufficientContext()
+
+  const data = (await res.json()) as OpenAIResponse
+  const generated = sanitizePrompt(responseText(data))
+  if (!generated || generated === 'INSUFFICIENT_CONTEXT') {
+    return fallback || insufficientContext()
+  }
+
+  return assessArtPrompt(generated).useful
+    ? generated
+    : fallback || insufficientContext()
 }

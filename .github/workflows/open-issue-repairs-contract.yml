@@ -1,22 +1,28 @@
-name: ArtJob Provenance Contract
+name: Open Issue Repair Contracts
 
 on:
   push:
     branches: [main]
     paths:
+      - "components/characters/add-character.vue"
+      - "components/pages/super-form.vue"
+      - "stores/superkateReceiptStore.ts"
+      - "server/api/stylist/receipt-email.post.ts"
       - "server/api/art/queue/**"
-      - "server/utils/artJobProvenance.ts"
       - "server/utils/artImageSeed.ts"
-      - "utils/scripts/verifyArtJobProvenance.ts"
-      - ".github/workflows/artjob-provenance-contract.yml"
+      - "utils/scripts/verifyOpenIssueRepairs.ts"
+      - ".github/workflows/open-issue-repairs-contract.yml"
   pull_request:
     branches: [main]
     paths:
+      - "components/characters/add-character.vue"
+      - "components/pages/super-form.vue"
+      - "stores/superkateReceiptStore.ts"
+      - "server/api/stylist/receipt-email.post.ts"
       - "server/api/art/queue/**"
-      - "server/utils/artJobProvenance.ts"
       - "server/utils/artImageSeed.ts"
-      - "utils/scripts/verifyArtJobProvenance.ts"
-      - ".github/workflows/artjob-provenance-contract.yml"
+      - "utils/scripts/verifyOpenIssueRepairs.ts"
+      - ".github/workflows/open-issue-repairs-contract.yml"
   workflow_dispatch:
 
 jobs:
@@ -41,8 +47,8 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Verify prompt and output provenance
-        run: npx tsx utils/scripts/verifyArtJobProvenance.ts
+      - name: Verify repaired issue contracts
+        run: npx tsx utils/scripts/verifyOpenIssueRepairs.ts
 
       - name: TypeScript check
         run: npm run test

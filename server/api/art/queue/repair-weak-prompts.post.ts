@@ -271,7 +271,7 @@ async function repairCandidate(
           priority: job.priority,
           projectSlug: job.projectSlug,
           projectId: job.projectId ?? undefined,
-          userId: job.userId,
+          userId: job.userId ?? undefined,
         },
       })
 

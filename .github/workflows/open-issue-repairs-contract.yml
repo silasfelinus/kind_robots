@@ -1,0 +1,49 @@
+name: Open Issue Repair Contracts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "components/characters/add-character.vue"
+      - "components/pages/super-form.vue"
+      - "stores/superkateReceiptStore.ts"
+      - "server/api/stylist/receipt-email.post.ts"
+      - "server/api/art/queue/\[id\]/complete.post.ts"
+      - "server/utils/artImageSeed.ts"
+      - "utils/scripts/verifyOpenIssueRepairs.ts"
+      - ".github/workflows/open-issue-repairs-contract.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "components/characters/add-character.vue"
+      - "components/pages/super-form.vue"
+      - "stores/superkateReceiptStore.ts"
+      - "server/api/stylist/receipt-email.post.ts"
+      - "server/api/art/queue/\[id\]/complete.post.ts"
+      - "server/utils/artImageSeed.ts"
+      - "utils/scripts/verifyOpenIssueRepairs.ts"
+      - ".github/workflows/open-issue-repairs-contract.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+
+      - name: Verify repaired issue contracts
+        run: npx tsx utils/scripts/verifyOpenIssueRepairs.ts
+
+      - name: TypeScript check
+        run: npm run test

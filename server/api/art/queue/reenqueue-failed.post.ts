@@ -1,13 +1,14 @@
 // /server/api/art/queue/reenqueue-failed.post.ts
 //
-// Admin action: return every FAILED ArtJob to the queue in place. A failed job
-// is an exhausted work item, not a template for a replacement row. Requeueing
-// resets its attempt cycle, clears the terminal error and claim, and changes the
-// same job back to PENDING so the FAILED list remains an actionable worklist.
-import { createError, defineEventHandler } from 'h3'
+// Admin action: return explicitly selected FAILED ArtJobs to the queue in place.
+// This endpoint intentionally has no global default. Callers must send the exact
+// IDs they reviewed, capped to one dashboard page, so a stale button or script
+// cannot restart every historical failure in the database.
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
+import { normalizeFailedArtJobIds } from '../../../utils/failedArtJobScope'
 
 const REQUEUE_CONCURRENCY = 10
 
@@ -44,11 +45,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const sources = await prisma.artJob.findMany({
-      where: { status: 'FAILED' },
-      orderBy: { id: 'asc' },
+    const body = await readBody<{ jobIds?: unknown }>(event)
+    const scope = normalizeFailedArtJobIds(body?.jobIds)
+
+    if (!scope.ok) {
+      throw createError({
+        statusCode: 400,
+        message: scope.message,
+      })
+    }
+
+    const selectedJobIds = scope.ids
+    const matchingRows = await prisma.artJob.findMany({
+      where: {
+        id: { in: selectedJobIds },
+        status: 'FAILED',
+      },
       select: { id: true },
     })
+    const matchingIds = new Set(matchingRows.map((row) => row.id))
+    const sources = selectedJobIds
+      .filter((id) => matchingIds.has(id))
+      .map((id) => ({ id }))
+    const skippedJobIds = selectedJobIds.filter((id) => !matchingIds.has(id))
 
     const requeuedJobIds: number[] = []
     const failedSourceJobIds: number[] = []
@@ -71,23 +90,31 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const selectedCount = selectedJobIds.length
+    const requestedCount = sources.length
     const queuedCount = requeuedJobIds.length
     const failedCount = failedSourceJobIds.length
-    const requestedCount = sources.length
+    const skippedCount = skippedJobIds.length
 
     return {
       success: true,
       message:
         requestedCount === 0
-          ? 'No failed art jobs were found.'
+          ? 'None of the selected ArtJobs are still failed.'
           : failedCount > 0
-            ? `Requeued ${queuedCount} of ${requestedCount} failed art jobs in place. ${failedCount} could not be requeued.`
-            : `Requeued all ${queuedCount} failed art jobs in place.`,
+            ? `Requeued ${queuedCount} of ${requestedCount} selected failed ArtJobs. ${failedCount} could not be requeued.`
+            : skippedCount > 0
+              ? `Requeued ${queuedCount} selected failed ArtJobs. ${skippedCount} selected jobs were skipped because they were missing or no longer failed.`
+              : `Requeued ${queuedCount} selected failed ArtJobs in place.`,
       data: {
+        selectedCount,
         requestedCount,
         queuedCount,
         failedCount,
+        skippedCount,
+        selectedJobIds,
         sourceJobIds: sources.map((source) => source.id),
+        skippedJobIds,
         queuedSourceJobIds: requeuedJobIds,
         failedSourceJobIds,
         createdJobIds: [],
@@ -104,7 +131,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || 'Failed to requeue failed art jobs.',
+      message: handled.message || 'Failed to requeue selected failed ArtJobs.',
       statusCode,
     }
   }

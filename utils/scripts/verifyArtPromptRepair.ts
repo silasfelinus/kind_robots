@@ -6,6 +6,10 @@ import {
 } from '../../server/utils/artPromptQuality'
 import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
 
+type WorkflowNode = {
+  inputs: Record<string, unknown>
+}
+
 const weakPrompt =
   'polished web illustration for Image 529, clear subject, cohesive Kind Robots visual style, no text'
 const strongPrompt =
@@ -37,15 +41,9 @@ const payload = {
 const repaired = applyArtJobOverrides(structuredClone(payload), {
   promptString: strongPrompt,
 })
+const workflow = repaired.workflow as Record<string, WorkflowNode>
 
-assert.equal(repaired.promptString, strongPrompt)
-assert.equal(
-  (repaired.workflow as Record<string, any>).positive.inputs.text,
-  strongPrompt,
-)
-assert.equal(
-  (repaired.workflow as Record<string, any>).negative.inputs.text,
-  'blurry, text',
-)
+assert.equal(workflow.positive?.inputs.text, strongPrompt)
+assert.equal(workflow.negative?.inputs.text, 'blurry, text')
 
 console.log('Art prompt quality and workflow repair checks passed.')

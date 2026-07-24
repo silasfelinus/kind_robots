@@ -325,7 +325,7 @@ def enrich_civitai(e: ModelEntry, data) -> bool:
         e.triggerWords = ", ".join(str(w) for w in words if w)
     base = (data.get("baseModel") or "").strip()
     if base:
-        e.supportedServer, e.generation = core.BASEMODEL_MAP.get(base.lower(), ("GENERIC", base))
+        e.supportedServer, e.generation = core.map_base(base)
         e.base_source = "civitai"
     if model.get("nsfw") is not None:
         e.isMature = bool(model["nsfw"])
@@ -355,7 +355,7 @@ def enrich_archive(e: ModelEntry, data) -> bool:
         e.triggerWords = ", ".join(str(w) for w in trig if w)
     base = (version.get("baseModel") or "").strip()
     if base and not e.base_source:
-        e.supportedServer, e.generation = core.BASEMODEL_MAP.get(base.lower(), ("GENERIC", base))
+        e.supportedServer, e.generation = core.map_base(base)
         e.base_source = "civarchive"
     if e.maturity_source != "civitai":
         lvl = model.get("nsfw_level") or 0

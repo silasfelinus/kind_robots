@@ -52,10 +52,39 @@ function refreshConcreteSeeds(value: unknown, key = ''): unknown {
   )
 }
 
+function replaceExactPrompt(
+  value: unknown,
+  oldPrompt: string,
+  nextPrompt: string,
+): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => replaceExactPrompt(item, oldPrompt, nextPrompt))
+  }
+
+  if (!value || typeof value !== 'object') {
+    if (
+      typeof value === 'string' &&
+      oldPrompt &&
+      value.replace(/\s+/g, ' ').trim() === oldPrompt
+    ) {
+      return nextPrompt
+    }
+    return value
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as ArtJobPayloadRecord).map(([key, child]) => [
+      key,
+      replaceExactPrompt(child, oldPrompt, nextPrompt),
+    ]),
+  )
+}
+
 // Settings a human can change when re-queuing a failed or completed job from
 // the ArtJobs UI, instead of blindly re-running the frozen payload. Only the
 // keys present are applied; the rest of the render spec is preserved.
 export type ArtJobOverrides = {
+  promptString?: string | null
   steps?: number | null
   cfg?: number | null
   seed?: number | null
@@ -77,7 +106,7 @@ function num(value: unknown): number | null {
 }
 
 // Apply overrides in place to a cloned generation payload. Handles both the
-// graph engines (patches KSampler / loader / negative-encode nodes inside
+// graph engines (patches KSampler / loader / prompt nodes inside
 // payload.workflow) and the raw A1111 path (top-level keys).
 export function applyArtJobOverrides(
   payload: ArtJobPayloadRecord,
@@ -85,6 +114,7 @@ export function applyArtJobOverrides(
 ): ArtJobPayloadRecord {
   if (!overrides) return payload
 
+  const promptString = overrides.promptString?.replace(/\s+/g, ' ').trim() || null
   const steps = num(overrides.steps)
   const cfg = num(overrides.cfg)
   const seed = num(overrides.seed)
@@ -95,6 +125,15 @@ export function applyArtJobOverrides(
     typeof overrides.negativePrompt === 'string'
       ? overrides.negativePrompt
       : null
+
+  if (promptString) {
+    const oldPrompt = String(payload.promptString || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    const replaced = replaceExactPrompt(payload, oldPrompt, promptString)
+    Object.assign(payload, asRecord(replaced))
+    payload.promptString = promptString
+  }
 
   const workflow = asRecord(payload.workflow)
   const hasWorkflow = Object.keys(workflow).length > 0
@@ -113,9 +152,9 @@ export function applyArtJobOverrides(
         if (sampler && 'sampler_name' in inputs) inputs.sampler_name = sampler
         if (scheduler && 'scheduler' in inputs) inputs.scheduler = scheduler
       }
-      // Advanced-sampler graphs split these across dedicated nodes.
-      if (steps !== null && 'steps' in inputs && classType === 'BasicScheduler')
+      if (steps !== null && 'steps' in inputs && classType === 'BasicScheduler') {
         inputs.steps = steps
+      }
       if (seed !== null && 'noise_seed' in inputs) inputs.noise_seed = seed
       if (checkpoint) {
         for (const key of CHECKPOINT_KEYS) {
@@ -136,7 +175,6 @@ export function applyArtJobOverrides(
     payload.workflow = workflow
   }
 
-  // Raw A1111 path (and a convenience mirror for graph jobs).
   if (steps !== null) payload.steps = steps
   if (cfg !== null) payload.cfg = cfg
   if (seed !== null) payload.seed = seed

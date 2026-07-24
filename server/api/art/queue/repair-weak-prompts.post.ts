@@ -56,7 +56,7 @@ type JsonRecord = Record<string, unknown>
 type RepairCandidate = {
   id: number
   status: string
-  engine: string
+  engine: 'CUSTOM' | 'A1111' | 'COMFY' | 'OPENAI' | 'ANTHROPIC' | 'OLLAMA'
   payload: string
   priority: number
   projectSlug: string | null
@@ -270,7 +270,7 @@ async function repairCandidate(
           payload: serializeArtJobPayload(replacementPayload),
           priority: job.priority,
           projectSlug: job.projectSlug,
-          projectId: job.projectId,
+          projectId: job.projectId ?? undefined,
           userId: job.userId,
         },
       })

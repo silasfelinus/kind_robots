@@ -19,9 +19,8 @@ export type ArtJobStatus =
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
-// Per-render settings a human can change on a retry (steps, checkpoint, seed,
-// cfg, sampler, negative prompt). Mirrors the server ArtJobOverrides.
 export type ArtJobOverrides = {
+  promptString?: string | null
   steps?: number | null
   cfg?: number | null
   seed?: number | null
@@ -68,9 +67,6 @@ export type ArtJobPayload = Prisma.JsonObject & {
   retry?: ArtJobRetry
 }
 
-// The database column is string-backed, while queue API responses decode that
-// JSON for consumers. Intersect with the Prisma model so transport records stay
-// assignable anywhere that only needs the regular ArtJob scalar fields.
 export type ArtJobRecord = ArtJob & {
   payload: ArtJobPayload
 }
@@ -152,28 +148,37 @@ export type ServerUptime = {
   samples: UptimeSample[]
 }
 
+export type ArtJobPagination = {
+  page: number
+  pageSize: number
+  totalCount: number
+  pageCount: number
+  hasPreviousPage: boolean
+  hasNextPage: boolean
+}
+
 type ArtJobState = {
   stats: QueueStats | null
   uptime: ServerUptime[]
   jobs: ArtJobRecord[]
   trainerJobs: ArtJobRecord[]
   imageSrcById: Record<number, string>
-  // Full resolver result per id: src + kind ('image'|'video'|'none') + a
-  // human-readable `reason` and `diag` block so a blank tile can explain itself.
   imageInfoById: Record<number, ArtImageSource>
   jobStatusFilter: ArtJobStatus | 'ALL'
+  jobPage: number
+  jobPageSize: number
+  jobTotalCount: number
+  jobPageCount: number
+  jobHasPreviousPage: boolean
+  jobHasNextPage: boolean
   loadingStats: boolean
   loadingUptime: boolean
   loadingJobs: boolean
   loadingTrainerJobs: boolean
   retryingJobIds: number[]
   reenqueueingFailedJobs: boolean
-  // Jobs with a curate-request POST in flight, and jobs a request has been queued
-  // for this session (so the UI can show "Curation requested" before Conductor's
-  // verdict lands in payload.curation.curator).
   curationRequestingIds: number[]
   curationRequestedIds: number[]
-  // Queue pause control: when true, relays are handed no work (queue preserved).
   queuePaused: boolean
   queuePausedBy: string | null
   togglingQueuePause: boolean
@@ -182,6 +187,13 @@ type ArtJobState = {
 }
 
 const MAX_JOB_IMAGES = 240
+const DEFAULT_JOB_PAGE_SIZE = 20
+const MAX_JOB_PAGE_SIZE = 100
+
+function normalizePageSize(value: number): number {
+  if (!Number.isFinite(value)) return DEFAULT_JOB_PAGE_SIZE
+  return Math.min(Math.max(Math.floor(value), 1), MAX_JOB_PAGE_SIZE)
+}
 
 export const useArtJobStore = defineStore('artJobStore', () => {
   const state = reactive<ArtJobState>({
@@ -192,6 +204,12 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     imageSrcById: {},
     imageInfoById: {},
     jobStatusFilter: 'PENDING',
+    jobPage: 1,
+    jobPageSize: DEFAULT_JOB_PAGE_SIZE,
+    jobTotalCount: 0,
+    jobPageCount: 1,
+    jobHasPreviousPage: false,
+    jobHasNextPage: false,
     loadingStats: false,
     loadingUptime: false,
     loadingJobs: false,
@@ -282,9 +300,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       .map((job) => job.artImageId as number)
       .filter((id, index, all) => all.indexOf(id) === index)
 
-    // Stable ids are the point of overwrite, but that means an existing data URL
-    // is no longer proof that the current bytes are hydrated. Force these ids to
-    // reload whenever a completed overwrite is observed.
     for (const id of ids) {
       delete state.imageSrcById[id]
       delete state.imageInfoById[id]
@@ -292,19 +307,42 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return ids
   }
 
+  function applyPagination(pagination: ArtJobPagination): void {
+    state.jobPage = pagination.page
+    state.jobPageSize = pagination.pageSize
+    state.jobTotalCount = pagination.totalCount
+    state.jobPageCount = pagination.pageCount
+    state.jobHasPreviousPage = pagination.hasPreviousPage
+    state.jobHasNextPage = pagination.hasNextPage
+  }
+
   async function fetchJobs(
     status: ArtJobStatus | 'ALL' = state.jobStatusFilter,
+    page?: number,
   ): Promise<void> {
+    const statusChanged = status !== state.jobStatusFilter
     state.jobStatusFilter = status
+    state.jobPage = statusChanged
+      ? 1
+      : Math.max(Math.floor(page ?? state.jobPage), 1)
     state.loadingJobs = true
+
     try {
-      const query = status === 'ALL' ? '' : `?status=${status}`
-      const res = await performFetch<{ jobs: ArtJobRecord[] }>(
-        `/api/art/queue${query}${status === 'ALL' ? '?' : '&'}limit=100`,
-      )
+      const params = new URLSearchParams({
+        page: String(state.jobPage),
+        pageSize: String(state.jobPageSize),
+      })
+      if (status !== 'ALL') params.set('status', status)
+
+      const res = await performFetch<{
+        jobs: ArtJobRecord[]
+        pagination: ArtJobPagination
+      }>(`/api/art/queue?${params.toString()}`)
+
       if (res.success && res.data) {
         const forceImageIds = completedOverwriteIds(res.data.jobs)
         state.jobs = res.data.jobs
+        applyPagination(res.data.pagination)
         void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load jobs.'
@@ -312,6 +350,18 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     } finally {
       state.loadingJobs = false
     }
+  }
+
+  async function setJobPage(page: number): Promise<void> {
+    const next = Math.min(Math.max(Math.floor(page), 1), state.jobPageCount)
+    if (next === state.jobPage && state.jobs.length) return
+    await fetchJobs(state.jobStatusFilter, next)
+  }
+
+  async function setJobPageSize(pageSize: number): Promise<void> {
+    state.jobPageSize = normalizePageSize(pageSize)
+    state.jobPage = 1
+    await fetchJobs(state.jobStatusFilter, 1)
   }
 
   async function fetchTrainerJobs(): Promise<void> {
@@ -334,9 +384,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  // Delegates to the shared resolver (utils/artImageSource) so the ArtJob cards
-  // use the same robust, video-aware, path-normalizing logic as the main gallery
-  // instead of the old narrow rule that dropped any path not under /images/.
   function artImageToSrc(image: ArtImage | null | undefined): string {
     return resolveArtImageSource(image).src
   }
@@ -404,10 +451,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return false
   }
 
-  // Ask Conductor to curate finished ArtJob(s). Accepts one id or a batch; the
-  // bridge (POST /api/conductor/curate-request) queues them in conductor's
-  // projects/curation/requests.yaml. Conductor's sweep then POSTs source=CURATOR
-  // feedback back, which surfaces in the trainer panel.
   async function requestCuration(
     jobIds: number | number[],
     note?: string,
@@ -447,9 +490,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  // Trainer empty-state CTA: ask Conductor to curate every uncurated finished job
-  // in the current window (the bridge selects them server-side). Returns how many
-  // were newly queued.
   async function requestWindowCuration(
     windowHours: number = state.windowHours,
     note?: string,
@@ -582,6 +622,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     fetchStats,
     fetchUptime,
     fetchJobs,
+    setJobPage,
+    setJobPageSize,
     fetchTrainerJobs,
     submitFeedback,
     requestCuration,

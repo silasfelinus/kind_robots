@@ -14,12 +14,19 @@ const weakPrompt =
   'polished web illustration for Image 529, clear subject, cohesive Kind Robots visual style, no text'
 const strongPrompt =
   'A weathered red panda museum visitor leans over a glowing kinetic sculpture, curious expression, layered gallery depth, crisp modern western animation linework, saturated teal and amber light, no readable text'
+const concisePrompt = 'Clockwork fox guards neon greenhouse'
 
 assert.equal(assessArtPrompt(weakPrompt).useful, false)
 assert.equal(extractReferencedArtImageId(weakPrompt), 529)
 assert.equal(isGenericArtLabel('Image 529'), true)
 assert.equal(isGenericArtLabel('Music Mentor'), false)
 assert.equal(assessArtPrompt(strongPrompt).useful, true)
+assert.equal(assessArtPrompt(concisePrompt).useful, true)
+assert.equal(assessArtPrompt('red dog').useful, false)
+assert.deepEqual(assessArtPrompt('Image 529').reasons, [
+  'generic-label',
+  'too-short',
+])
 
 const payload = {
   promptString: weakPrompt,

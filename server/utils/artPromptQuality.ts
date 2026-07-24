@@ -22,8 +22,6 @@ const GENERIC_LABEL_PATTERNS = [
   /^untitled$/i,
 ]
 
-const MIN_DESCRIPTIVE_WORDS = 4
-
 export function cleanArtPrompt(value: unknown): string {
   return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : ''
 }
@@ -44,11 +42,9 @@ export function extractReferencedArtImageId(value: unknown): number | null {
 export function assessArtPrompt(value: unknown): ArtPromptAssessment {
   const prompt = cleanArtPrompt(value)
   const reasons: string[] = []
-  const wordCount = prompt ? prompt.split(/\s+/).length : 0
 
   if (!prompt) reasons.push('empty')
   if (prompt && isGenericArtLabel(prompt)) reasons.push('generic-label')
-  if (prompt && wordCount < MIN_DESCRIPTIVE_WORDS) reasons.push('too-short')
   if (LEGACY_FALLBACK_PATTERNS.some((pattern) => pattern.test(prompt))) {
     reasons.push('legacy-generic-fallback')
   }

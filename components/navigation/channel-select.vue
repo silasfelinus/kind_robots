@@ -39,14 +39,13 @@
       <ul
         ref="channelMenu"
         class="menu max-h-[calc(100dvh-5rem)] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
-        @scroll="closeChannelTabs"
+        @scroll="handleChannelMenuScroll"
       >
         <li
           v-for="channel in visibleChannels"
           :key="channel.channelKey"
           class="channel-menu-item"
-          @mouseenter="showChannelTabs(channel, $event)"
-          @focusin="showChannelTabs(channel, $event)"
+          @mouseenter="previewChannelTabs(channel, $event)"
         >
           <div
             class="flex min-h-12 w-full items-stretch overflow-hidden rounded-xl"
@@ -100,13 +99,68 @@
               />
             </button>
           </div>
+
+          <ul
+            v-if="
+              submenuMode === 'inline' &&
+              expandedChannelKey === channel.channelKey
+            "
+            class="menu mt-1 gap-1 rounded-xl border border-base-300/70 bg-base-200/60 p-1"
+            :aria-label="channel.label + ' tabs'"
+          >
+            <li v-for="tab in channel.tabs" :key="tab.tabKey">
+              <button
+                type="button"
+                class="flex min-h-11 items-center gap-2 rounded-xl"
+                :class="
+                  isActiveTab(channel, tab)
+                    ? 'active bg-secondary text-secondary-content'
+                    : ''
+                "
+                @click="selectTab(channel, tab)"
+              >
+                <span
+                  class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200"
+                >
+                  <img
+                    v-if="tab.image"
+                    :src="tab.image"
+                    :alt="tab.title || tab.label"
+                    class="h-full w-full object-cover"
+                  />
+                  <span
+                    class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+                  >
+                    <Icon
+                      :name="tab.icon || channel.icon"
+                      class="h-4 w-4 text-base-100 drop-shadow"
+                    />
+                  </span>
+                </span>
+
+                <span
+                  class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+                >
+                  <span class="max-w-full truncate text-sm font-black">
+                    {{ tab.label }}
+                  </span>
+                  <span
+                    v-if="tab.summary || tab.description"
+                    class="line-clamp-1 text-xs font-medium opacity-65"
+                  >
+                    {{ tab.summary || tab.description }}
+                  </span>
+                </span>
+              </button>
+            </li>
+          </ul>
         </li>
       </ul>
 
       <ul
-        v-if="expandedChannel"
+        v-if="expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
-        class="channel-submenu menu absolute left-full z-120 ml-2 max-h-[calc(100dvh-5rem)] w-[min(22rem,calc(100vw-1rem))] overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl md:w-80"
+        class="channel-submenu menu absolute left-full z-120 ml-2 max-h-[calc(100dvh-5rem)] w-80 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         :style="{ top: `${channelFlyoutTop}px` }"
         :aria-label="expandedChannel.label + ' tabs'"
       >
@@ -170,6 +224,8 @@ import type {
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { usePageStore } from '@/stores/pageStore'
 
+type SubmenuMode = 'flyout' | 'inline'
+
 const route = useRoute()
 const router = useRouter()
 const pageStore = usePageStore()
@@ -178,6 +234,7 @@ const expandedChannelKey = ref('')
 const channelMenu = ref<HTMLElement | null>(null)
 const channelFlyout = ref<HTMLElement | null>(null)
 const channelFlyoutTop = ref(0)
+const submenuMode = ref<SubmenuMode>('inline')
 
 await channelContentStore.initialize()
 
@@ -270,6 +327,23 @@ function closeChannelTabs(): void {
   expandedChannelKey.value = ''
 }
 
+function expectedFlyoutWidth(): number {
+  if (typeof window === 'undefined') return 320
+  return window.innerWidth >= 768
+    ? 320
+    : Math.min(352, Math.max(0, window.innerWidth - 16))
+}
+
+function canShowFlyout(): boolean {
+  const menu = channelMenu.value
+  if (!menu || typeof window === 'undefined') return false
+
+  const menuRect = menu.getBoundingClientRect()
+  const flyoutRight = menuRect.right + 8 + expectedFlyoutWidth()
+
+  return flyoutRight <= window.innerWidth - 8
+}
+
 function positionChannelTabs(event: Event): void {
   const menu = channelMenu.value
   const target = (event.currentTarget as HTMLElement | null)?.closest(
@@ -292,14 +366,29 @@ function positionChannelTabs(event: Event): void {
   })
 }
 
-function showChannelTabs(channel: ResolvedChannel, event: Event): void {
+function openChannelTabs(
+  channel: ResolvedChannel,
+  event: Event,
+  allowInline: boolean,
+): void {
   if (channel.tabs.length <= 1) {
     closeChannelTabs()
     return
   }
 
+  const nextMode: SubmenuMode = canShowFlyout() ? 'flyout' : 'inline'
+  if (nextMode === 'inline' && !allowInline) return
+
+  submenuMode.value = nextMode
   expandedChannelKey.value = channel.channelKey
-  positionChannelTabs(event)
+
+  if (nextMode === 'flyout') {
+    positionChannelTabs(event)
+  }
+}
+
+function previewChannelTabs(channel: ResolvedChannel, event: Event): void {
+  openChannelTabs(channel, event, false)
 }
 
 function toggleChannel(channel: ResolvedChannel, event: Event): void {
@@ -308,7 +397,13 @@ function toggleChannel(channel: ResolvedChannel, event: Event): void {
     return
   }
 
-  showChannelTabs(channel, event)
+  openChannelTabs(channel, event, true)
+}
+
+function handleChannelMenuScroll(): void {
+  if (submenuMode.value === 'flyout') {
+    closeChannelTabs()
+  }
 }
 
 function tabSharesRoute(channel: ResolvedChannel, tab: ResolvedTab): boolean {
@@ -362,4 +457,3 @@ function closeDropdown(): void {
   element?.blur()
 }
 </script>
-

@@ -374,7 +374,7 @@ function buildKombineWorkflow(input: {
     },
     '196': {
       inputs: {
-        clip_name1: 'umt5_xxl_fp8_e4m3fn_scaled.safetensors',
+        clip_name1: 't5xxl_fp8_e4m3fn_scaled.safetensors',
         clip_name2: 'clip_l.safetensors',
         type: 'flux',
       },

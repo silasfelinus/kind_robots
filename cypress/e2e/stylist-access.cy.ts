@@ -19,9 +19,13 @@ describe('Superkate services and Hair Studio access', () => {
   })
 
   it('removes the obsolete combined project route', () => {
-    cy.request({
-      url: '/projects/build/stylist',
-      failOnStatusCode: false,
-    }).its('status').should('eq', 404)
+    cy.visit('/projects/build/stylist', { failOnStatusCode: false })
+
+    cy.location('pathname', { timeout: 15000 }).should(
+      'eq',
+      '/projects/build/stylist',
+    )
+    cy.contains('Page not found').should('exist')
+    cy.contains('The whole salon in one tab').should('not.exist')
   })
 })

@@ -28,7 +28,9 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +43,9 @@ jobs:
       - run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: "0"
+
+      - name: Generate Prisma client
+        run: npx prisma generate
 
       - name: Verify repaired issue contracts
         run: npx tsx utils/scripts/verifyOpenIssueRepairs.ts

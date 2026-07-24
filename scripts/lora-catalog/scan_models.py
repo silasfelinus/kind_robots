@@ -220,7 +220,8 @@ def civitai_type_to_kind(mtype: str) -> str:
     }.get(m, "")
 
 
-def build_entry(path: Path, root: Path, cache: core.Cache) -> tuple[ModelEntry, dict]:
+def build_entry(path: Path, root: Path, cache: core.Cache,
+                no_hash: bool = False) -> tuple[ModelEntry, dict]:
     st = path.stat()
     e = ModelEntry()
     e.abspath = str(path.resolve())
@@ -228,11 +229,12 @@ def build_entry(path: Path, root: Path, cache: core.Cache) -> tuple[ModelEntry, 
     e.filename = path.name
     e.name = path.stem
     e.size_bytes = st.st_size
-    key = core.cache_key(path, st)
-    cached = cache.get_hash(key)
-    e.sha256 = cached or core.sha256_file(path)
-    if not cached:
-        cache.put_hash(key, e.sha256)
+    if not no_hash:
+        key = core.cache_key(path, st)
+        cached = cache.get_hash(key)
+        e.sha256 = cached or core.sha256_file(path)
+        if not cached:
+            cache.put_hash(key, e.sha256)
     e.kind, e.comfy_folder, e.is_tool = classify(e.relpath)
     meta = {}
     if path.suffix.lower() == ".safetensors":
@@ -383,7 +385,7 @@ def organize(entries: list[ModelEntry], mode: str, dest: Path, out_dir: Path) ->
         action = mode
         if target.exists() and target.resolve() != src.resolve():
             try:
-                if target.stat().st_size == e.size_bytes and core.sha256_file(target) == e.sha256:
+                if e.sha256 and target.stat().st_size == e.size_bytes and core.sha256_file(target) == e.sha256:
                     action = "skip (already there, identical)"
                 else:
                     stem, ext = os.path.splitext(e.filename)
@@ -435,6 +437,11 @@ def main() -> int:
     ap.add_argument("--civitai-token", default=os.environ.get("CIVITAI_TOKEN", ""))
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--hash-workers", type=int, default=8)
+    ap.add_argument("--no-hash", action="store_true",
+                    help="Fast preview: skip hashing + hash lookups entirely. "
+                         "Classify by folder and produce the move plan in seconds "
+                         "(no reading file contents). Use for the first look at a "
+                         "large tree; drop it for the enriched catalog + dedupe.")
     ap.add_argument("--organize", choices=["none", "plan", "copy", "move"], default="plan")
     ap.add_argument("--dest", type=Path, default=None, help="Comfy models root (default: scanned folder)")
     ap.add_argument("--overrides", type=Path, default=None)
@@ -463,9 +470,10 @@ def main() -> int:
     meta_by_id: dict[int, dict] = {}
     done, total = 0, len(files)
     hw = max(1, args.hash_workers)
-    print(f"Hashing + reading headers ({hw} workers) ...")
-    with ThreadPoolExecutor(max_workers=hw) as ex:
-        futures = [(ex.submit(build_entry, p, root, cache), p) for p in files]
+    print("Classifying by folder (no hashing) ..." if args.no_hash
+          else f"Hashing + reading headers ({hw} workers) ...")
+    with ThreadPoolExecutor(max_workers=1 if args.no_hash else hw) as ex:
+        futures = [(ex.submit(build_entry, p, root, cache, args.no_hash), p) for p in files]
         for fut, path in futures:
             try:
                 e, meta = fut.result()
@@ -484,7 +492,7 @@ def main() -> int:
                                      "audio_checkpoint", "unknown"}
     targets = [e for e in entries if e.kind in lookup_kinds and not e.is_tool]
     civ = arc = 0
-    if targets and not (args.no_civitai and args.no_archive):
+    if targets and not args.no_hash and not (args.no_civitai and args.no_archive):
         print(f"Identifying {len(targets)} by hash ({args.workers} workers) ...")
 
         def identify(e: ModelEntry) -> str:

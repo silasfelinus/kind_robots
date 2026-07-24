@@ -192,7 +192,11 @@ liveportrait) are **left in place** — never sorted, never cataloged.
 
 ```bash
 export CIVITAI_TOKEN=xxxx
-# Dry-run: writes the move plan + catalog, MOVES NOTHING (default)
+# Fast preview: classify by folder + write the move plan in SECONDS (no hashing,
+# reads no file contents). Best first look at a large (multi-TB) tree.
+python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog --no-hash
+
+# Full dry-run: hashes + Civitai enrichment for the catalog. MOVES NOTHING.
 python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog
 
 # Review ./catalog/models-move-plan.csv, then execute the sort:

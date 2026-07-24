@@ -62,14 +62,18 @@ import scan_loras as core  # shared detection engine (same directory)
 # `kind` drives the Resource type; `comfy_folder` is where ComfyUI wants it.
 # Matching is done on any path segment (case-insensitive), most specific first.
 
-# kinds we emit Resource records for (per the "checkpoints + components" scope)
-RESOURCE_KINDS = {"checkpoint", "diffusion_model", "text_encoder", "vae"}
+# kinds we emit Resource records for. Video/audio checkpoints ARE in scope
+# (kind_robots has video support: GIFs, effects, animation roadmap).
+RESOURCE_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
+                  "diffusion_model", "text_encoder", "vae"}
 
 # kind -> kind_robots ResourceType. Components need enum members that don't
 # exist yet (VAE / TEXT_ENCODER / DIFFUSION_MODEL) — the phase-2 migration must
 # add them; until then the importer can fall back to CHECKPOINT+generation.
 KIND_RESOURCE_TYPE = {
     "checkpoint": "CHECKPOINT",
+    "video_checkpoint": "CHECKPOINT",       # generation carries LTX/Wan/SVD
+    "audio_checkpoint": "CHECKPOINT",
     "diffusion_model": "DIFFUSION_MODEL",   # NEW enum member (see migration)
     "text_encoder": "TEXT_ENCODER",         # NEW enum member
     "vae": "VAE",                           # NEW enum member
@@ -77,6 +81,34 @@ KIND_RESOURCE_TYPE = {
     "hypernetwork": "HYPERNETWORK",
     "embedding": "EMBEDDING",
 }
+
+# Filename-based component refinement. Video model folders (LTX, SVD, Wan) are
+# mixed bundles — the main model sits next to its VAE, text encoder, and
+# upscaler. ComfyUI's video nodes expect each of those in its OWN folder, so we
+# split them out by filename. Applied only to checkpoint/video/audio kinds, and
+# `vae` is boundary-anchored so a checkpoint merely named "...vaemix" is safe.
+COMPONENT_REFINE = [
+    (re.compile(r"(text[_\-. ]?encoder|text[_\-. ]?projection|t5xxl|umt5|byt5|"
+                r"(^|[_\-. ])clip[_\-. ]?[lg]([_\-. ]|$))", re.I),
+     "text_encoder", "text_encoders"),
+    (re.compile(r"((^|[_\-. ])vae([_\-. ]|$)|image[_\-. ]?decoder)", re.I),
+     "vae", "vae"),
+    (re.compile(r"(spatial[_\-. ]?upscaler|(^|[_\-. ])upscal|esrgan|swinir)", re.I),
+     "upscaler", "upscale_models"),
+]
+
+
+def video_arch(generation: str, relpath: str) -> str:
+    g, low = (generation or "").lower(), relpath.replace("\\", "/").lower()
+    if "ltx" in g or "ltx" in low:
+        return "LTX"
+    if "wan" in g or re.search(r"wan2[._-]", low):
+        return "Wan"
+    if "svd" in g or "svd" in low:
+        return "SVD"
+    if "hunyuan" in g or "hunyuan" in low:
+        return "Hunyuan"
+    return "Other"
 
 # Ordered (segment-substring, kind, comfy_folder). First match wins, so put the
 # more specific / video-audio cases before the generic "stable-diffusion".
@@ -135,23 +167,48 @@ TOOL_SEGMENTS = {
     "deepbooru", "torch", "sam2",
 }
 
-# base-model hints from a folder name (for checkpoint sub-bucketing offline)
+# base-model hints matched against the whole relpath (folder + filename),
+# for offline checkpoint sub-bucketing. ORDER MATTERS — specific / unambiguous
+# architecture names come FIRST so a filename signal beats a misleading parent
+# folder (e.g. a ZImage model mistakenly filed under Stable-diffusion/Flux/).
 FOLDER_BASE_HINTS = [
+    ("kontext", "KONTEXT", "Flux.1 Kontext"),
     ("illustrious", "SDXL", "Illustrious"),
     ("noobai", "SDXL", "NoobAI"),
     ("pony", "SDXL", "Pony"),
+    ("z-image", "GENERIC", "ZImage"),
+    ("zimage", "GENERIC", "ZImage"),
+    ("qwen", "GENERIC", "Qwen"),
+    ("wan2", "GENERIC", "Wan Video"),
+    ("wan_", "GENERIC", "Wan Video"),
+    ("wan-", "GENERIC", "Wan Video"),
+    ("hunyuan", "GENERIC", "Hunyuan"),
+    ("flux", "FLUX", "Flux.1"),
     ("sdxl", "SDXL", "SDXL 1.0"),
     ("xl", "SDXL", "SDXL 1.0"),
-    ("kontext", "KONTEXT", "Flux.1 Kontext"),
-    ("flux", "FLUX", "Flux.1"),
-    ("zimage", "GENERIC", "ZImage"),
-    ("1.5", "SD15", "SD 1.5"),
     ("sd15", "SD15", "SD 1.5"),
-    ("3d", "SDXL", "3D"),
+    ("1.5", "SD15", "SD 1.5"),
     ("svd", "GENERIC", "SVD Video"),
     ("ltx", "GENERIC", "LTX Video"),
     ("audio", "GENERIC", "Audio"),
+    ("3d", "GENERIC", "3D"),
 ]
+
+
+def checkpoint_group(generation: str, server: str, relpath: str) -> str:
+    """Sort-folder for a checkpoint, aware of newer architectures that the
+    generic base->group map (in scan_loras) doesn't cover yet."""
+    g = (generation or "").lower()
+    low = relpath.replace("\\", "/").lower()
+    if "zimage" in g or "z-image" in g or "zimage" in low:
+        return "ZImage"
+    if "qwen" in g or "qwen" in low:
+        return "Qwen"
+    if "wan" in g or re.search(r"wan2[._-]", low):
+        return "Wan"
+    if "hunyuan" in g or "hunyuan" in low or g == "3d":
+        return "3D"
+    return core.folder_group(generation, server)
 
 
 @dataclass
@@ -197,10 +254,18 @@ def classify(relpath: str) -> tuple[str, str, bool]:
     if segments & TOOL_SEGMENTS:
         top = relpath.replace("\\", "/").split("/")[0]
         return "tool", top, True
-    for needle, kind, folder in FOLDER_RULES:
+    kind, folder = "unknown", "checkpoints"  # default: treat as checkpoint, flag
+    for needle, k, f in FOLDER_RULES:
         if needle in p:
-            return kind, folder, False
-    return "unknown", "checkpoints", False  # default: treat as a checkpoint, flag
+            kind, folder = k, f
+            break
+    # split a component (VAE/text-encoder/upscaler) out of a bundle folder by name
+    if kind in ("checkpoint", "video_checkpoint", "audio_checkpoint", "unknown"):
+        fname = relpath.replace("\\", "/").split("/")[-1]
+        for rx, ck, cf in COMPONENT_REFINE:
+            if rx.search(fname):
+                return ck, cf, False
+    return kind, folder, False
 
 
 def folder_base_hint(relpath: str) -> tuple[str, str]:
@@ -324,12 +389,12 @@ def finalize(e: ModelEntry, meta: dict) -> None:
 
     # compute Comfy target (checkpoints get a base-model sub-bucket)
     if e.kind == "video_checkpoint":
-        bucket = "checkpoints/Video"
+        bucket = f"checkpoints/Video/{video_arch(e.generation, e.relpath)}"
     elif e.kind == "audio_checkpoint":
         bucket = "checkpoints/Audio"
     elif e.kind in ("checkpoint", "unknown"):
-        grp = core.folder_group(e.generation, e.supportedServer)
-        bucket = f"checkpoints/{grp}"
+        grp = checkpoint_group(e.generation, e.supportedServer, e.relpath)
+        bucket = "checkpoints/Video/Wan" if grp == "Wan" else f"checkpoints/{grp}"
     else:
         bucket = e.comfy_folder
     e.comfy_folder = bucket
@@ -437,6 +502,10 @@ def main() -> int:
     ap.add_argument("--civitai-token", default=os.environ.get("CIVITAI_TOKEN", ""))
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--hash-workers", type=int, default=8)
+    ap.add_argument("--skip-video", action="store_true",
+                    help="Leave video/audio models (SVD, LTX, Wan, Stable-Audio) "
+                         "in place instead of sorting them. Recommended if those "
+                         "live in mixed bundle folders or drive video workflows.")
     ap.add_argument("--no-hash", action="store_true",
                     help="Fast preview: skip hashing + hash lookups entirely. "
                          "Classify by folder and produce the move plan in seconds "
@@ -533,6 +602,9 @@ def main() -> int:
         print()
 
     for e in entries:
+        if args.skip_video and e.kind in ("video_checkpoint", "audio_checkpoint"):
+            e.is_tool = True
+            e.notes.append("video/audio — left in place (--skip-video)")
         finalize(e, meta_by_id.get(id(e), {}))
         core.apply_overrides(e, overrides)  # sha256/filename-keyed; sets fields it recognizes
 

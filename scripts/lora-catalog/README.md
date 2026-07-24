@@ -176,9 +176,10 @@ both files together** (copy the whole `lora-catalog/` folder, not one file).
 
 | Your current folder(s) | ComfyUI target |
 |---|---|
-| `Stable-diffusion/*`, `checkpoints` | `checkpoints/<BaseModel>/` (SDXL, Flux, Pony, SD15, ZImage…) |
-| `Stable-diffusion/svd`, `svd`, `ltx` | `checkpoints/Video/` |
-| `Stable-diffusion/audio` | `checkpoints/Audio/` |
+| `Stable-diffusion/*`, `checkpoints` | `checkpoints/<BaseModel>/` (SDXL, Flux, Pony, Illustrious, SD15, ZImage, Qwen…) |
+| video models (SVD, LTX, Wan) | `checkpoints/Video/<Arch>/` (LTX, SVD, Wan, Hunyuan) |
+| audio models (Stable-Audio, ACE) | `checkpoints/Audio/` |
+| a VAE / text-encoder / upscaler sitting **inside** a video bundle folder | split out to `vae/` · `text_encoders/` · `upscale_models/` (so Comfy's video nodes find them) |
 | `unet` **and** `diffusion_models` | `diffusion_models/` (merged) |
 | `text_encoders`, `clip` | `text_encoders/` |
 | `ESRGAN`, `RealESRGAN`, `SwinIR`, `LDSR`, `latent_upscale_models` | `upscale_models/` (merged) |
@@ -207,15 +208,25 @@ python3 scan_models.py /mnt/user/pc/ai/models --out ./catalog --organize move
 preview the reorg. Outputs: `models-catalog.json` / `.csv`,
 `models-move-plan.csv`, and (after a real move) `models-move-log.csv` for undo.
 Same flags as `scan_loras.py` (`--no-civitai`, `--no-archive`, `--overrides`,
-`--hash-workers`, `--dest`).
+`--hash-workers`, `--dest`), plus:
+- `--no-hash` — fast folder-only classification (see above).
+- `--skip-video` — leave video/audio models (SVD, LTX, Wan, Stable-Audio) in
+  place instead of sorting them. Use when they live in mixed bundle folders or
+  drive video workflows you don't want disturbed.
+
+Offline base-model detection knows the current architectures (SD15, SDXL, Pony,
+Illustrious, NoobAI, Flux, Kontext, ZImage, Qwen, Wan, Hunyuan/3D). Anything it
+can't place from folder/filename lands in `checkpoints/Unknown` and is resolved
+by the hashed Civitai/CivArchive pass (drop `--no-hash`).
 
 ### Which files become Resources
 
-Only **checkpoints + components** (`diffusion_models`, `text_encoders`, `vae`)
-get Resource records — that's the chosen scope. Infrastructure (upscalers, face
-restore, clip_vision, controlnet unless you widen scope) is sorted into the
-right folder but not cataloged. Video/audio checkpoints are sorted into
-`checkpoints/Video|Audio/` but not cataloged by default.
+**Checkpoints + components** (`diffusion_models`, `text_encoders`, `vae`) get
+Resource records — including **video and audio** models (SVD/LTX/Wan/Stable-Audio),
+which are in scope for kind_robots' video features (GIFs, effects, animation).
+Infrastructure (upscalers, face restore, clip_vision, controlnet unless you
+widen scope) is sorted into the right folder but not cataloged. `--skip-video`
+leaves the whole video/audio set in place if you'd rather not touch it.
 
 > **Schema note:** the component kinds map to `resourceType` values
 > `DIFFUSION_MODEL`, `TEXT_ENCODER`, `VAE` that **do not exist in the

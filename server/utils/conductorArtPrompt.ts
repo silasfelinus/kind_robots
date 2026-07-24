@@ -121,9 +121,61 @@ function promptContext(body: ArtPromptRequestBody, target: ArtPromptTarget): str
   return JSON.stringify(context, null, 2)
 }
 
-function safeFallback(fallbackPrompt: string): string {
-  const fallback = sanitizePrompt(fallbackPrompt)
-  return assessArtPrompt(fallback).useful ? fallback : ''
+function titleFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function compositionFor(target: ArtPromptTarget): string {
+  if (target.variant === 'icon') {
+    return 'square premium app-icon composition with one bold, instantly readable silhouette'
+  }
+  if (target.variant === 'card') {
+    return '2:3 portrait key-art composition with a clear foreground subject and layered depth'
+  }
+  if (target.variant === 'hero') {
+    return '16:9 cinematic landscape composition with strong left-to-right visual flow'
+  }
+  return 'balanced website illustration with a clear focal subject and uncluttered background'
+}
+
+function contextualFallback(
+  body: ArtPromptRequestBody,
+  target: ArtPromptTarget,
+  legacyFallback: string,
+): string {
+  const legacy = sanitizePrompt(legacyFallback)
+  if (assessArtPrompt(legacy).useful) return legacy
+
+  const label = meaningfulLabel(body)
+  const slugTitle = titleFromSlug(target.slug)
+  const subject = label || (!isGenericArtLabel(slugTitle) ? slugTitle : '')
+  const context = compact(
+    [
+      cleanArtPrompt(body.nearestHeading),
+      cleanArtPrompt(body.pageDescription),
+      cleanArtPrompt(body.nearbyText),
+      cleanArtPrompt(body.pageTitle),
+    ]
+      .filter(Boolean)
+      .join('. '),
+    420,
+  )
+
+  if (!subject || !context) return ''
+
+  const prompt = [
+    `Create artwork for ${subject}.`,
+    `Visible subject and scene context: ${context}.`,
+    compositionFor(target),
+    'modern western animation for young adults, crisp expressive linework, saturated but balanced color, readable silhouettes, tactile environmental detail, intentional cinematic lighting',
+    'no readable text, no logos, no watermark, no collage',
+  ].join(' ')
+
+  return assessArtPrompt(prompt).useful ? compact(prompt, 900) : ''
 }
 
 function insufficientContext(): never {
@@ -144,7 +196,7 @@ export async function buildContextualArtPrompt(
     return assessArtPrompt(explicit).useful ? explicit : insufficientContext()
   }
 
-  const fallback = safeFallback(fallbackPrompt)
+  const fallback = contextualFallback(body, target, fallbackPrompt)
   const token = openAiKey()
   if (!token) return fallback || insufficientContext()
 

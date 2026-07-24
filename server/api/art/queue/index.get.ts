@@ -2,7 +2,8 @@
 //
 // List queued jobs. Regular users see their own; admin/server credentials
 // see everything. Filterable by status and projectSlug for dashboards and
-// the conductor consumer's batch bookkeeping.
+// the conductor consumer's batch bookkeeping. Dashboard callers can page
+// through the complete result set instead of silently losing older jobs.
 import { createError, defineEventHandler, getQuery } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
@@ -11,6 +12,13 @@ import { requireMachineUser } from '../../../utils/authGuard'
 import { decodeArtJobPayload } from '../../../utils/artJobPayload'
 
 const STATUSES = new Set(['PENDING', 'RUNNING', 'DONE', 'FAILED', 'CANCELLED'])
+const DEFAULT_PAGE_SIZE = 20
+const MAX_PAGE_SIZE = 200
+
+function positiveInteger(value: unknown, fallback: number): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -38,19 +46,38 @@ export default defineEventHandler(async (event) => {
       where.projectSlug = projectSlug
     }
 
-    const take = Math.min(Math.max(Number(query.limit) || 50, 1), 200)
+    const requestedPageSize = positiveInteger(
+      query.pageSize ?? query.limit,
+      DEFAULT_PAGE_SIZE,
+    )
+    const pageSize = Math.min(requestedPageSize, MAX_PAGE_SIZE)
+    const requestedPage = positiveInteger(query.page, 1)
+    const totalCount = await prisma.artJob.count({ where })
+    const pageCount = Math.max(1, Math.ceil(totalCount / pageSize))
+    const page = Math.min(requestedPage, pageCount)
 
     const storedJobs = await prisma.artJob.findMany({
       where,
       orderBy: [{ id: 'desc' }],
-      take,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     })
     const jobs = storedJobs.map(decodeArtJobPayload)
 
     return {
       success: true,
-      message: `${jobs.length} job(s).`,
-      data: { jobs },
+      message: `${jobs.length} of ${totalCount} job(s).`,
+      data: {
+        jobs,
+        pagination: {
+          page,
+          pageSize,
+          totalCount,
+          pageCount,
+          hasPreviousPage: page > 1,
+          hasNextPage: page < pageCount,
+        },
+      },
       statusCode: 200,
     }
   } catch (error: unknown) {

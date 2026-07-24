@@ -21,13 +21,17 @@ export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
 export type ArtJobOverrides = {
   promptString?: string | null
+  negativePrompt?: string | null
+  width?: number | null
+  height?: number | null
   steps?: number | null
   cfg?: number | null
+  guidance?: number | null
+  denoise?: number | null
   seed?: number | null
   sampler?: string | null
   scheduler?: string | null
   checkpoint?: string | null
-  negativePrompt?: string | null
 }
 
 export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'
@@ -97,6 +101,28 @@ export type BulkReenqueueResult = {
   failedSourceJobIds: number[]
   createdJobIds: number[]
   refreshSeed: boolean
+}
+
+export type WeakPromptRepairResult = {
+  dryRun: boolean
+  scannedCount: number
+  repairedCount: number
+  unresolvedCount: number
+  repaired: Array<{
+    jobId: number
+    status: string
+    prompt: string
+    referencedArtImageId: number | null
+    action: string
+    replacementJobId?: number
+  }>
+  unresolved: Array<{
+    jobId: number
+    status: string
+    weakPrompt: string
+    reasons: string[]
+    referencedArtImageId: number | null
+  }>
 }
 
 export type QueueStats = {
@@ -176,7 +202,9 @@ type ArtJobState = {
   loadingJobs: boolean
   loadingTrainerJobs: boolean
   retryingJobIds: number[]
+  editingJobIds: number[]
   reenqueueingFailedJobs: boolean
+  repairingWeakPrompts: boolean
   curationRequestingIds: number[]
   curationRequestedIds: number[]
   queuePaused: boolean
@@ -215,7 +243,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingJobs: false,
     loadingTrainerJobs: false,
     retryingJobIds: [],
+    editingJobIds: [],
     reenqueueingFailedJobs: false,
+    repairingWeakPrompts: false,
     curationRequestingIds: [],
     curationRequestedIds: [],
     queuePaused: false,
@@ -384,10 +414,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  function artImageToSrc(image: ArtImage | null | undefined): string {
-    return resolveArtImageSource(image).src
-  }
-
   async function loadJobImages(forceIds: number[] = []): Promise<void> {
     const ids = [
       ...forceIds,
@@ -535,6 +561,38 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     return false
   }
 
+  async function editJob(
+    id: number,
+    options: {
+      refreshSeed?: boolean
+      preset?: string | null
+      overrides?: ArtJobOverrides | null
+    },
+  ): Promise<boolean> {
+    if (state.editingJobIds.includes(id)) return false
+    state.editingJobIds = [...state.editingJobIds, id]
+
+    try {
+      const res = await performFetch<{ job: ArtJobRecord }>(
+        `/api/art/queue/${id}/edit`,
+        {
+          method: 'POST',
+          body: JSON.stringify(options),
+        },
+      )
+
+      if (res.success && res.data?.job) {
+        await Promise.all([fetchJobs(), fetchStats()])
+        return true
+      }
+
+      state.error = res.message || `Failed to edit job ${id}.`
+      return false
+    } finally {
+      state.editingJobIds = state.editingJobIds.filter((jobId) => jobId !== id)
+    }
+  }
+
   async function reenqueueJob(
     id: number,
     mode: ArtJobRetryMode = 'NEW_OUTPUT',
@@ -602,6 +660,39 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
+  async function repairWeakPrompts(
+    dryRun = false,
+    limit = 5000,
+  ): Promise<WeakPromptRepairResult | null> {
+    if (state.repairingWeakPrompts) return null
+    state.repairingWeakPrompts = true
+    state.error = null
+
+    try {
+      const res = await performFetch<WeakPromptRepairResult>(
+        '/api/art/queue/repair-weak-prompts',
+        {
+          method: 'POST',
+          body: JSON.stringify({ dryRun, limit }),
+        },
+        0,
+        120_000,
+      )
+
+      if (res.success && res.data) {
+        if (!dryRun) {
+          await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+        }
+        return res.data
+      }
+
+      state.error = res.message || 'Failed to repair weak ArtJob prompts.'
+      return null
+    } finally {
+      state.repairingWeakPrompts = false
+    }
+  }
+
   async function refreshAll(): Promise<void> {
     state.error = null
     await Promise.all([
@@ -630,8 +721,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     requestWindowCuration,
     requeueJob,
     cancelJob,
+    editJob,
     reenqueueJob,
     reenqueueFailedJobs,
+    repairWeakPrompts,
     fetchQueueControl,
     setQueuePaused,
     refreshAll,

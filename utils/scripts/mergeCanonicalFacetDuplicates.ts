@@ -16,6 +16,8 @@ type MergeDefinition = {
   aliases: string[]
 }
 
+type JsonObject = Record<string, unknown>
+
 const MERGES: MergeDefinition[] = [
   {
     canonicalSlug: 'tardigrade',
@@ -23,6 +25,41 @@ const MERGES: MergeDefinition[] = [
     aliases: ['Water Bear'],
   },
 ]
+
+function parseMetadata(value: string | null | undefined): JsonObject {
+  if (!value) return {}
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as JsonObject)
+      : {}
+  } catch {
+    return {}
+  }
+}
+
+function mergedProfileMetadata(options: {
+  canonicalMetadata?: string | null
+  duplicateMetadata?: string | null
+  canonicalId: number
+  duplicateId: number
+  duplicateSlug: string
+}): string {
+  return JSON.stringify({
+    ...parseMetadata(options.duplicateMetadata),
+    ...parseMetadata(options.canonicalMetadata),
+    mergedDuplicateFacetId: options.duplicateId,
+    mergedDuplicateSlug: options.duplicateSlug,
+    canonicalFacetId: options.canonicalId,
+  })
+}
+
+function bestSourceRank(...values: Array<number | null | undefined>): number {
+  const ranks = values.filter(
+    (value): value is number => Number.isInteger(value) && Number(value) >= 0,
+  )
+  return ranks.length ? Math.min(...ranks) : 100
+}
 
 async function mergeDefinition(definition: MergeDefinition): Promise<object> {
   const canonical = await prisma.facet.findUnique({
@@ -84,6 +121,8 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
   }
 
   const [
+    canonicalProfile,
+    duplicateProfile,
     characterLinks,
     dreamLinks,
     scenarioLinks,
@@ -92,6 +131,8 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     relations,
     reactionCount,
   ] = await Promise.all([
+    prisma.facetProfile.findUnique({ where: { facetId: canonical.id } }),
+    prisma.facetProfile.findUnique({ where: { facetId: duplicate.id } }),
     prisma.characterFacet.findMany({
       where: { facetId: duplicate.id },
       select: {
@@ -143,6 +184,18 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     relations: relations.length,
     reactions: reactionCount,
     aliases: aliases.map((alias) => alias.alias),
+    preservedFacetFields: [
+      'description',
+      'flavorText',
+      'examples',
+      'artPrompt',
+      'imagePath',
+      'cardPath',
+      'heroPath',
+      'icon',
+      'artImageId',
+      'artCollectionId',
+    ],
     action: apply ? 'merged' : 'would-merge',
   }
 
@@ -223,6 +276,8 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     prisma.facetAlias.deleteMany({ where: { facetId: duplicate.id } }),
   ])
 
+  // Never discard curated content when collapsing a duplicate. Canonical data wins;
+  // the duplicate only fills fields that are still empty on the canonical record.
   await prisma.facet.update({
     where: { id: canonical.id },
     data: {
@@ -230,7 +285,12 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       slug: 'tardigrade',
       kind: 'ANIMAL',
       description: canonical.description || duplicate.description,
+      flavorText: canonical.flavorText || duplicate.flavorText,
+      examples: canonical.examples || duplicate.examples,
+      artPrompt: canonical.artPrompt || duplicate.artPrompt,
       imagePath: canonical.imagePath || duplicate.imagePath,
+      cardPath: canonical.cardPath || duplicate.cardPath,
+      heroPath: canonical.heroPath || duplicate.heroPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
       artCollectionId:
@@ -239,14 +299,52 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     },
   })
 
-  await prisma.facetProfile.updateMany({
+  await prisma.facetProfile.upsert({
     where: { facetId: canonical.id },
-    data: {
+    create: {
+      facetId: canonical.id,
       taxonomy: 'ANIMAL',
       canonicalValue: 'Tardigrade',
+      groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null,
+      groupLabel:
+        canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? null,
+      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
       isRandomizable: true,
       randomWeight: 1,
       artRequired: true,
+      sourceRank: bestSourceRank(
+        canonicalProfile?.sourceRank,
+        duplicateProfile?.sourceRank,
+      ),
+      metadata: mergedProfileMetadata({
+        canonicalMetadata: canonicalProfile?.metadata,
+        duplicateMetadata: duplicateProfile?.metadata,
+        canonicalId: canonical.id,
+        duplicateId: duplicate.id,
+        duplicateSlug: definition.duplicateSlug,
+      }),
+    },
+    update: {
+      taxonomy: 'ANIMAL',
+      canonicalValue: 'Tardigrade',
+      groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null,
+      groupLabel:
+        canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? null,
+      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+      isRandomizable: true,
+      randomWeight: 1,
+      artRequired: true,
+      sourceRank: bestSourceRank(
+        canonicalProfile?.sourceRank,
+        duplicateProfile?.sourceRank,
+      ),
+      metadata: mergedProfileMetadata({
+        canonicalMetadata: canonicalProfile?.metadata,
+        duplicateMetadata: duplicateProfile?.metadata,
+        canonicalId: canonical.id,
+        duplicateId: duplicate.id,
+        duplicateSlug: definition.duplicateSlug,
+      }),
     },
   })
 
@@ -285,6 +383,7 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       randomWeight: 0,
       artRequired: false,
       metadata: JSON.stringify({
+        ...parseMetadata(duplicateProfile?.metadata),
         mergedIntoFacetId: canonical.id,
         canonicalSlug: definition.canonicalSlug,
       }),
@@ -299,7 +398,9 @@ async function main(): Promise<void> {
   for (const definition of MERGES) {
     results.push(await mergeDefinition(definition))
   }
-  process.stdout.write(`${JSON.stringify({ mode: apply ? 'apply' : 'dry-run', results }, null, 2)}\n`)
+  process.stdout.write(
+    `${JSON.stringify({ mode: apply ? 'apply' : 'dry-run', results }, null, 2)}\n`,
+  )
 }
 
 main()

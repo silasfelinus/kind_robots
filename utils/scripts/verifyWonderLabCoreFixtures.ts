@@ -1,6 +1,6 @@
 // /utils/scripts/verifyWonderLabCoreFixtures.ts
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   getWonderLabPreviewFixture,
   listWonderLabPreviewFixtureKeys,
@@ -68,10 +68,6 @@ const commentaryGuide = readFileSync(
   'pages/wonderlab/commentary-guide.vue',
   'utf8',
 )
-const commentaryNavigation = readFileSync(
-  'content/channels/lab/commentary-guide.md',
-  'utf8',
-)
 
 for (const principle of [
   'Stars carry the evaluation',
@@ -101,9 +97,11 @@ for (const antiPattern of [
   )
 }
 
-assert.ok(commentaryNavigation.includes('route: /wonderlab/commentary-guide'))
-assert.ok(commentaryNavigation.includes('label: Voice Guide'))
-assert.ok(commentaryNavigation.includes('requiredRole: GUEST'))
+assert.equal(
+  existsSync('content/channels/lab/commentary-guide.md'),
+  false,
+  'The commentary guide route must remain intentionally unlisted from the public Lab directory.',
+)
 
 const keys = listWonderLabPreviewFixtureKeys()
 assert.equal(keys.length, new Set(keys).size)

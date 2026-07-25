@@ -3,6 +3,10 @@ import { createError } from 'h3'
 import type { Facet, FacetKind, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
+import {
+  FACET_TAXONOMIES,
+  type FacetTaxonomy,
+} from '~/server/utils/facetCatalog'
 
 export type FacetSummary = Pick<
   Facet,
@@ -20,6 +24,16 @@ export type FacetSummary = Pick<
   | 'isActive'
 > & {
   aliases: string[]
+  taxonomy: FacetTaxonomy
+  canonicalValue: string
+  groupKey: string | null
+  groupLabel: string | null
+  sortOrder: number
+  isRandomizable: boolean
+  randomWeight: number
+  artRequired: boolean
+  sourceRank: number
+  metadata: Record<string, unknown> | null
 }
 
 export const facetKinds: FacetKind[] = [
@@ -78,22 +92,47 @@ function normalizeKeys(value: unknown): string[] {
   )
 }
 
+function taxonomyFromKind(kind: FacetKind): FacetTaxonomy {
+  return FACET_TAXONOMIES.includes(kind as FacetTaxonomy)
+    ? (kind as FacetTaxonomy)
+    : 'OTHER'
+}
+
+function parseMetadata(value: string | null): Record<string, unknown> | null {
+  if (!value) return null
+
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null
+  } catch {
+    return null
+  }
+}
+
 export async function hydrateFacetSummaries(
   facets: RawFacetSummary[],
 ): Promise<FacetSummary[]> {
   if (!facets.length) return []
 
-  const aliases = await prisma.facetAlias.findMany({
-    where: {
-      facetId: { in: facets.map((facet) => facet.id) },
-      isActive: true,
-    },
-    orderBy: [{ isCanonical: 'desc' }, { alias: 'asc' }],
-    select: {
-      facetId: true,
-      alias: true,
-    },
-  })
+  const facetIds = facets.map((facet) => facet.id)
+  const [aliases, profiles] = await Promise.all([
+    prisma.facetAlias.findMany({
+      where: {
+        facetId: { in: facetIds },
+        isActive: true,
+      },
+      orderBy: [{ isCanonical: 'desc' }, { alias: 'asc' }],
+      select: {
+        facetId: true,
+        alias: true,
+      },
+    }),
+    prisma.facetProfile.findMany({
+      where: { facetId: { in: facetIds } },
+    }),
+  ])
 
   const aliasesByFacet = new Map<number, string[]>()
   for (const alias of aliases) {
@@ -101,11 +140,33 @@ export async function hydrateFacetSummaries(
     entries.push(alias.alias)
     aliasesByFacet.set(alias.facetId, entries)
   }
+  const profilesByFacet = new Map(
+    profiles.map((profile) => [profile.facetId, profile]),
+  )
 
-  return facets.map((facet) => ({
-    ...facet,
-    aliases: aliasesByFacet.get(facet.id) ?? (facet.slug ? [facet.slug] : []),
-  }))
+  return facets.map((facet) => {
+    const profile = profilesByFacet.get(facet.id)
+    const taxonomy = profile?.taxonomy
+      ? FACET_TAXONOMIES.includes(profile.taxonomy as FacetTaxonomy)
+        ? (profile.taxonomy as FacetTaxonomy)
+        : 'OTHER'
+      : taxonomyFromKind(facet.kind)
+
+    return {
+      ...facet,
+      aliases: aliasesByFacet.get(facet.id) ?? (facet.slug ? [facet.slug] : []),
+      taxonomy,
+      canonicalValue: profile?.canonicalValue || facet.title,
+      groupKey: profile?.groupKey ?? null,
+      groupLabel: profile?.groupLabel ?? null,
+      sortOrder: profile?.sortOrder ?? 0,
+      isRandomizable: profile?.isRandomizable ?? true,
+      randomWeight: profile?.randomWeight ?? 1,
+      artRequired: profile?.artRequired ?? taxonomy !== 'COLOR',
+      sourceRank: profile?.sourceRank ?? 5,
+      metadata: parseMetadata(profile?.metadata ?? null),
+    }
+  })
 }
 
 export async function loadFacetSummaries(

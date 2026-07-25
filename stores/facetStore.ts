@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import type { Facet, FacetKind } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import type { FacetTaxonomy } from '@/stores/facetCatalogStore'
 
 export type FacetWithAliases = Pick<
   Facet,
@@ -21,6 +22,16 @@ export type FacetWithAliases = Pick<
   | 'isActive'
 > & {
   aliases: string[]
+  taxonomy: FacetTaxonomy
+  canonicalValue: string
+  groupKey: string | null
+  groupLabel: string | null
+  sortOrder: number
+  isRandomizable: boolean
+  randomWeight: number
+  artRequired: boolean
+  sourceRank: number
+  metadata: Record<string, unknown> | null
 }
 
 export type FacetListOptions = {
@@ -29,6 +40,7 @@ export type FacetListOptions = {
   includeInactive?: boolean
   includeMature?: boolean
   mine?: boolean
+  /** Page size. The store continues until all matching pages are loaded. */
   take?: number
   skip?: number
 }
@@ -37,6 +49,16 @@ export type FacetCreateInput = {
   title: string
   slug?: string
   kind?: FacetKind
+  taxonomy?: FacetTaxonomy
+  canonicalValue?: string | null
+  groupKey?: string | null
+  groupLabel?: string | null
+  sortOrder?: number
+  isRandomizable?: boolean
+  randomWeight?: number
+  artRequired?: boolean
+  sourceRank?: number
+  metadata?: Record<string, unknown> | null
   description?: string | null
   flavorText?: string | null
   imagePath?: string | null
@@ -52,6 +74,8 @@ export type FacetUpdateInput = Partial<FacetCreateInput> & {
 
 export type FacetOwnerType = 'dream' | 'scenario' | 'artImage'
 
+const FACET_LIBRARY_PAGE_SIZE = 250
+
 function toQuery(options: FacetListOptions): string {
   const query = new URLSearchParams()
   for (const [key, value] of Object.entries(options)) {
@@ -60,6 +84,16 @@ function toQuery(options: FacetListOptions): string {
   }
   const result = query.toString()
   return result ? `?${result}` : ''
+}
+
+function sortFacets(entries: FacetWithAliases[]): FacetWithAliases[] {
+  return entries.sort((a, b) =>
+    a.taxonomy === b.taxonomy
+      ? a.sortOrder === b.sortOrder
+        ? a.title.localeCompare(b.title)
+        : a.sortOrder - b.sortOrder
+      : a.taxonomy.localeCompare(b.taxonomy),
+  )
 }
 
 export const useFacetStore = defineStore('facetStore', () => {
@@ -79,7 +113,12 @@ export const useFacetStore = defineStore('facetStore', () => {
   const facetsByLookupKey = computed(() => {
     const index = new Map<string, FacetWithAliases>()
     for (const facet of facets.value) {
-      const keys = [facet.slug, facet.title, ...facet.aliases]
+      const keys = [
+        facet.slug,
+        facet.title,
+        facet.canonicalValue,
+        ...facet.aliases,
+      ]
       for (const key of keys) {
         const lookupKey = normalizeFacetLookupKey(key || '')
         if (lookupKey) index.set(lookupKey, facet)
@@ -97,11 +136,7 @@ export const useFacetStore = defineStore('facetStore', () => {
     const index = facets.value.findIndex((entry) => entry.id === facet.id)
     if (index >= 0) facets.value[index] = facet
     else facets.value.push(facet)
-    facets.value.sort((a, b) =>
-      a.kind === b.kind
-        ? a.title.localeCompare(b.title)
-        : a.kind.localeCompare(b.kind),
-    )
+    facets.value = sortFacets([...facets.value])
     return facet
   }
 
@@ -111,13 +146,28 @@ export const useFacetStore = defineStore('facetStore', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await performFetch<FacetWithAliases[]>(
-        `/api/facets${toQuery(options)}`,
+      const pageSize = Math.min(
+        FACET_LIBRARY_PAGE_SIZE,
+        Math.max(1, options.take ?? FACET_LIBRARY_PAGE_SIZE),
       )
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch Facets.')
+      let skip = Math.max(0, options.skip ?? 0)
+      const byId = new Map<number, FacetWithAliases>()
+
+      while (true) {
+        const response = await performFetch<FacetWithAliases[]>(
+          `/api/facets${toQuery({ ...options, take: pageSize, skip })}`,
+        )
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch Facets.')
+        }
+
+        const page = response.data ?? []
+        for (const facet of page) byId.set(facet.id, facet)
+        if (page.length < pageSize) break
+        skip += page.length
       }
-      facets.value = response.data ?? []
+
+      facets.value = sortFacets(Array.from(byId.values()))
       loaded.value = true
       return facets.value
     } catch (cause) {

@@ -1,6 +1,6 @@
 <!-- /components/facets/facet-manager.vue -->
 <template>
-  <section class="mx-auto w-full max-w-6xl space-y-4 p-4">
+  <section class="mx-auto w-full max-w-7xl space-y-4 p-4">
     <header
       class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
     >
@@ -8,8 +8,8 @@
       <div class="min-w-0 flex-1">
         <h1 class="text-xl font-black">Facet Library</h1>
         <p class="text-sm text-base-content/60">
-          The reusable flavor shared by Dreams, Scenarios, and Art. Aliases
-          resolve to one canonical Facet.
+          Canonical reusable concepts for Characters, Dreams, Scenarios, Art,
+          and random generation. Aliases resolve to one record.
         </p>
       </div>
       <span
@@ -24,29 +24,21 @@
         v-model="search"
         type="search"
         class="input input-bordered input-sm w-full max-w-xs rounded-xl bg-base-200"
-        placeholder="Search title, slug, or alias..."
+        placeholder="Search title, alias, taxonomy, or group..."
       />
-      <div class="flex flex-wrap gap-1">
-        <button
-          type="button"
-          class="btn btn-xs rounded-xl"
-          :class="kindFilter === null ? 'btn-secondary' : 'btn-ghost'"
-          @click="kindFilter = null"
+      <select
+        v-model="taxonomyFilter"
+        class="select select-bordered select-sm rounded-xl"
+      >
+        <option :value="null">All taxonomies</option>
+        <option
+          v-for="taxonomy in facetTaxonomies"
+          :key="taxonomy"
+          :value="taxonomy"
         >
-          All
-        </button>
-        <button
-          v-for="kind in facetKinds"
-          :key="kind"
-          type="button"
-          class="btn btn-xs rounded-xl"
-          :class="kindFilter === kind ? 'btn-secondary' : 'btn-ghost'"
-          @click="kindFilter = kindFilter === kind ? null : kind"
-        >
-          {{ kindLabel(kind) }}
-          <span class="opacity-50">{{ kindCounts[kind] || 0 }}</span>
-        </button>
-      </div>
+          {{ taxonomyLabel(taxonomy) }} ({{ taxonomyCounts[taxonomy] || 0 }})
+        </option>
+      </select>
       <label
         class="ml-auto flex items-center gap-2 text-xs text-base-content/60"
       >
@@ -67,37 +59,107 @@
         class="cursor-pointer px-4 py-3 text-sm font-bold text-base-content/70"
         @click.prevent="createOpen = !createOpen"
       >
-        + Create a new Facet
+        + Create a canonical Facet
       </summary>
-      <div class="grid gap-2 border-t border-base-300 p-4 sm:grid-cols-2">
-        <input
-          v-model="newTitle"
-          type="text"
-          class="input input-bordered input-sm rounded-xl"
-          placeholder="Canonical title, e.g. CowCore"
-        />
-        <select
-          v-model="newKind"
-          class="select select-bordered select-sm rounded-xl"
-        >
-          <option v-for="kind in facetKinds" :key="kind" :value="kind">
-            {{ kindLabel(kind) }}
-          </option>
-        </select>
-        <input
-          v-model="newAliases"
-          type="text"
-          class="input input-bordered input-sm rounded-xl sm:col-span-2"
-          placeholder="Aliases separated by commas, e.g. cow, cows"
-        />
-        <textarea
-          v-model="newDescription"
-          class="textarea textarea-bordered min-h-16 rounded-xl sm:col-span-2"
-          placeholder="What this facet means (optional)..."
-        />
+      <div class="grid gap-3 border-t border-base-300 p-4 sm:grid-cols-2 xl:grid-cols-4">
+        <label class="form-control xl:col-span-2">
+          <span class="label-text text-xs">Canonical title</span>
+          <input
+            v-model="newTitle"
+            type="text"
+            class="input input-bordered input-sm rounded-xl"
+            placeholder="CowCore"
+          />
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">Taxonomy</span>
+          <select
+            v-model="newTaxonomy"
+            class="select select-bordered select-sm rounded-xl"
+          >
+            <option
+              v-for="taxonomy in facetTaxonomies"
+              :key="taxonomy"
+              :value="taxonomy"
+            >
+              {{ taxonomyLabel(taxonomy) }}
+            </option>
+          </select>
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">Random weight</span>
+          <input
+            v-model.number="newRandomWeight"
+            type="number"
+            min="0"
+            step="0.1"
+            class="input input-bordered input-sm rounded-xl"
+          />
+        </label>
+        <label class="form-control sm:col-span-2 xl:col-span-4">
+          <span class="label-text text-xs">Aliases</span>
+          <input
+            v-model="newAliases"
+            type="text"
+            class="input input-bordered input-sm rounded-xl"
+            placeholder="Aliases separated by commas"
+          />
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">Group key</span>
+          <input
+            v-model="newGroupKey"
+            type="text"
+            class="input input-bordered input-sm rounded-xl"
+            placeholder="cosmic-species"
+          />
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">Group label</span>
+          <input
+            v-model="newGroupLabel"
+            type="text"
+            class="input input-bordered input-sm rounded-xl"
+            placeholder="Cosmic Species"
+          />
+        </label>
+        <label class="form-control sm:col-span-2">
+          <span class="label-text text-xs">Description</span>
+          <textarea
+            v-model="newDescription"
+            class="textarea textarea-bordered min-h-20 rounded-xl"
+            placeholder="What this reusable concept means..."
+          />
+        </label>
+        <div class="flex flex-wrap items-center gap-5 text-xs sm:col-span-2 xl:col-span-4">
+          <label class="flex items-center gap-2">
+            <input
+              v-model="newIsRandomizable"
+              type="checkbox"
+              class="toggle toggle-secondary toggle-xs"
+            />
+            Available to randomizers
+          </label>
+          <label class="flex items-center gap-2">
+            <input
+              v-model="newArtRequired"
+              type="checkbox"
+              class="toggle toggle-accent toggle-xs"
+            />
+            Artwork expected
+          </label>
+          <label class="flex items-center gap-2">
+            <input
+              v-model="newIsPublic"
+              type="checkbox"
+              class="toggle toggle-primary toggle-xs"
+            />
+            Public
+          </label>
+        </div>
         <button
           type="button"
-          class="btn btn-secondary btn-sm rounded-xl sm:col-span-2"
+          class="btn btn-secondary btn-sm rounded-xl sm:col-span-2 xl:col-span-4"
           :disabled="!newTitle.trim() || facetStore.saving"
           @click="createFacet"
         >
@@ -106,7 +168,7 @@
             class="loading loading-spinner loading-xs"
           />
           <Icon v-else name="kind-icon:plus" class="size-3.5" />
-          Create Facet
+          Create canonical Facet
         </button>
       </div>
     </details>
@@ -125,9 +187,12 @@
       >
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="badge badge-outline badge-xs shrink-0">
-                {{ kindLabel(facet.kind) }}
+            <div class="flex flex-wrap items-center gap-1">
+              <span class="badge badge-secondary badge-xs">
+                {{ taxonomyLabel(facet.taxonomy) }}
+              </span>
+              <span v-if="facet.groupLabel" class="badge badge-outline badge-xs">
+                {{ facet.groupLabel }}
               </span>
               <span v-if="!facet.isActive" class="badge badge-error badge-xs">
                 archived
@@ -144,12 +209,11 @@
           <button
             type="button"
             class="btn btn-ghost btn-xs rounded-xl"
+            :aria-label="editingId === facet.id ? 'Close editor' : `Edit ${facet.title}`"
             @click="toggleEdit(facet)"
           >
             <Icon
-              :name="
-                editingId === facet.id ? 'kind-icon:x' : 'kind-icon:pencil'
-              "
+              :name="editingId === facet.id ? 'kind-icon:x' : 'kind-icon:pencil'"
               class="size-4"
             />
           </button>
@@ -162,33 +226,88 @@
           {{ facet.description }}
         </p>
 
-        <div v-if="editingId === facet.id" class="mt-3 space-y-2">
+        <div
+          v-if="editingId !== facet.id"
+          class="mt-3 flex flex-wrap gap-1 text-[11px]"
+        >
+          <span class="badge badge-ghost badge-xs">
+            weight {{ facet.randomWeight }}
+          </span>
+          <span class="badge badge-ghost badge-xs">
+            {{ facet.isRandomizable ? 'randomizable' : 'manual only' }}
+          </span>
+          <span class="badge badge-ghost badge-xs">
+            {{ facet.artRequired ? 'art expected' : 'art optional' }}
+          </span>
+        </div>
+
+        <div v-if="editingId === facet.id" class="mt-3 grid gap-2 sm:grid-cols-2">
           <input
             v-model="editForm.title"
             type="text"
-            class="input input-bordered input-sm w-full rounded-xl"
+            class="input input-bordered input-sm rounded-xl sm:col-span-2"
             placeholder="Title"
           />
           <select
-            v-model="editForm.kind"
-            class="select select-bordered select-sm w-full rounded-xl"
+            v-model="editForm.taxonomy"
+            class="select select-bordered select-sm rounded-xl"
           >
-            <option v-for="kind in facetKinds" :key="kind" :value="kind">
-              {{ kindLabel(kind) }}
+            <option
+              v-for="taxonomy in facetTaxonomies"
+              :key="taxonomy"
+              :value="taxonomy"
+            >
+              {{ taxonomyLabel(taxonomy) }}
             </option>
           </select>
           <input
+            v-model.number="editForm.randomWeight"
+            type="number"
+            min="0"
+            step="0.1"
+            class="input input-bordered input-sm rounded-xl"
+            aria-label="Random weight"
+          />
+          <input
             v-model="editForm.aliases"
             type="text"
-            class="input input-bordered input-sm w-full rounded-xl"
+            class="input input-bordered input-sm rounded-xl sm:col-span-2"
             placeholder="Aliases, comma separated"
+          />
+          <input
+            v-model="editForm.groupKey"
+            type="text"
+            class="input input-bordered input-sm rounded-xl"
+            placeholder="Group key"
+          />
+          <input
+            v-model="editForm.groupLabel"
+            type="text"
+            class="input input-bordered input-sm rounded-xl"
+            placeholder="Group label"
           />
           <textarea
             v-model="editForm.description"
-            class="textarea textarea-bordered min-h-16 w-full rounded-xl"
+            class="textarea textarea-bordered min-h-20 rounded-xl sm:col-span-2"
             placeholder="Description"
           />
-          <div class="flex items-center gap-3 text-xs">
+          <div class="flex flex-wrap gap-4 text-xs sm:col-span-2">
+            <label class="flex items-center gap-1">
+              <input
+                v-model="editForm.isRandomizable"
+                type="checkbox"
+                class="toggle toggle-secondary toggle-xs"
+              />
+              Randomizable
+            </label>
+            <label class="flex items-center gap-1">
+              <input
+                v-model="editForm.artRequired"
+                type="checkbox"
+                class="toggle toggle-accent toggle-xs"
+              />
+              Art expected
+            </label>
             <label class="flex items-center gap-1">
               <input
                 v-model="editForm.isPublic"
@@ -206,7 +325,7 @@
               Mature
             </label>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 sm:col-span-2">
             <button
               type="button"
               class="btn btn-secondary btn-sm flex-1 rounded-xl"
@@ -217,7 +336,7 @@
                 v-if="facetStore.saving"
                 class="loading loading-spinner loading-xs"
               />
-              Save
+              Save canonical profile
             </button>
             <button
               v-if="facet.isActive"
@@ -246,41 +365,57 @@
       v-if="!facetStore.loading && !filteredFacets.length"
       class="rounded-2xl border border-dashed border-base-300 p-8 text-center text-sm text-base-content/50"
     >
-      No facets match. Create one above to start the library.
+      No Facets match these filters.
     </p>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { FacetKind } from '~/prisma/generated/prisma/client'
 import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
+import {
+  FACET_TAXONOMIES,
+  type FacetTaxonomy,
+} from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 
 const facetStore = useFacetStore()
+const facetTaxonomies = [...FACET_TAXONOMIES]
 
 const search = ref('')
-const kindFilter = ref<FacetKind | null>(null)
+const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const showArchived = ref(false)
 const errorMessage = ref('')
 const editingId = ref<number | null>(null)
 const createOpen = ref(false)
 
 const newTitle = ref('')
-const newKind = ref<FacetKind>('OTHER')
+const newTaxonomy = ref<FacetTaxonomy>('OTHER')
 const newAliases = ref('')
 const newDescription = ref('')
+const newGroupKey = ref('')
+const newGroupLabel = ref('')
+const newRandomWeight = ref(1)
+const newIsRandomizable = ref(true)
+const newArtRequired = ref(true)
+const newIsPublic = ref(true)
 
 const editForm = reactive({
   title: '',
-  kind: 'OTHER' as FacetKind,
+  taxonomy: 'OTHER' as FacetTaxonomy,
   aliases: '',
   description: '',
+  groupKey: '',
+  groupLabel: '',
+  randomWeight: 1,
+  isRandomizable: true,
+  artRequired: true,
   isPublic: true,
   isMature: false,
 })
 
-const facetKinds: FacetKind[] = [
+const broadKinds = new Set<FacetTaxonomy>([
   'GENRE',
   'ANIMAL',
   'COLOR',
@@ -291,16 +426,25 @@ const facetKinds: FacetKind[] = [
   'SETTING',
   'ART_DIRECTION',
   'OTHER',
-]
+])
+
+function kindForTaxonomy(taxonomy: FacetTaxonomy): FacetKind {
+  if (taxonomy === 'PROMPT_ENHANCEMENT') return 'ART_DIRECTION'
+  return broadKinds.has(taxonomy) ? (taxonomy as FacetKind) : 'OTHER'
+}
+
+watch(newTaxonomy, (taxonomy) => {
+  newArtRequired.value = taxonomy !== 'COLOR'
+})
 
 const visibleFacets = computed(() =>
   showArchived.value ? facetStore.facets : facetStore.activeFacets,
 )
 
-const kindCounts = computed(() => {
-  const counts: Partial<Record<FacetKind, number>> = {}
+const taxonomyCounts = computed(() => {
+  const counts: Partial<Record<FacetTaxonomy, number>> = {}
   for (const facet of visibleFacets.value) {
-    counts[facet.kind] = (counts[facet.kind] || 0) + 1
+    counts[facet.taxonomy] = (counts[facet.taxonomy] || 0) + 1
   }
   return counts
 })
@@ -308,9 +452,19 @@ const kindCounts = computed(() => {
 const filteredFacets = computed(() => {
   const needle = normalizeFacetLookupKey(search.value)
   return visibleFacets.value.filter((facet) => {
-    if (kindFilter.value && facet.kind !== kindFilter.value) return false
+    if (taxonomyFilter.value && facet.taxonomy !== taxonomyFilter.value) {
+      return false
+    }
     if (!needle) return true
-    const values = [facet.title, facet.slug, ...facet.aliases]
+    const values = [
+      facet.title,
+      facet.canonicalValue,
+      facet.slug,
+      facet.taxonomy,
+      facet.groupKey,
+      facet.groupLabel,
+      ...facet.aliases,
+    ]
     return values.some((value) =>
       normalizeFacetLookupKey(value || '').includes(needle),
     )
@@ -319,15 +473,15 @@ const filteredFacets = computed(() => {
 
 onMounted(async () => {
   try {
-    await facetStore.fetchFacets({ includeInactive: true })
+    await facetStore.fetchFacets({ includeInactive: true, includeMature: true })
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Facets could not be loaded.'
   }
 })
 
-function kindLabel(kind: FacetKind): string {
-  return kind
+function taxonomyLabel(taxonomy: FacetTaxonomy): string {
+  return taxonomy
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
@@ -347,12 +501,16 @@ function toggleEdit(facet: FacetWithAliases) {
   }
   editingId.value = facet.id
   editForm.title = facet.title
-  editForm.kind = facet.kind
-  // The canonical slug leads the alias list; only the extra aliases are editable.
+  editForm.taxonomy = facet.taxonomy
   editForm.aliases = facet.aliases
     .filter((alias) => alias !== facet.slug)
     .join(', ')
   editForm.description = facet.description || ''
+  editForm.groupKey = facet.groupKey || ''
+  editForm.groupLabel = facet.groupLabel || ''
+  editForm.randomWeight = facet.randomWeight
+  editForm.isRandomizable = facet.isRandomizable
+  editForm.artRequired = facet.artRequired
   editForm.isPublic = facet.isPublic
   editForm.isMature = facet.isMature
 }
@@ -362,15 +520,22 @@ async function createFacet() {
   try {
     await facetStore.createFacet({
       title: newTitle.value.trim(),
-      kind: newKind.value,
+      kind: kindForTaxonomy(newTaxonomy.value),
+      taxonomy: newTaxonomy.value,
       aliases: splitAliases(newAliases.value),
       description: newDescription.value.trim() || null,
-      isPublic: true,
+      groupKey: newGroupKey.value.trim() || null,
+      groupLabel: newGroupLabel.value.trim() || null,
+      randomWeight: Math.max(0, Number(newRandomWeight.value) || 0),
+      isRandomizable: newIsRandomizable.value,
+      artRequired: newArtRequired.value,
+      isPublic: newIsPublic.value,
     })
     newTitle.value = ''
     newAliases.value = ''
     newDescription.value = ''
-    newKind.value = 'OTHER'
+    newGroupKey.value = ''
+    newGroupLabel.value = ''
     createOpen.value = false
   } catch (error) {
     errorMessage.value =
@@ -383,9 +548,15 @@ async function saveEdit(id: number) {
   try {
     await facetStore.updateFacet(id, {
       title: editForm.title.trim(),
-      kind: editForm.kind,
+      kind: kindForTaxonomy(editForm.taxonomy),
+      taxonomy: editForm.taxonomy,
       aliases: splitAliases(editForm.aliases),
       description: editForm.description.trim() || null,
+      groupKey: editForm.groupKey.trim() || null,
+      groupLabel: editForm.groupLabel.trim() || null,
+      randomWeight: Math.max(0, Number(editForm.randomWeight) || 0),
+      isRandomizable: editForm.isRandomizable,
+      artRequired: editForm.artRequired,
       isPublic: editForm.isPublic,
       isMature: editForm.isMature,
     })

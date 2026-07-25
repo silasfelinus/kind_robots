@@ -14,8 +14,14 @@ export type FacetWithAliases = Pick<
   | 'kind'
   | 'description'
   | 'flavorText'
+  | 'examples'
+  | 'artPrompt'
   | 'imagePath'
+  | 'cardPath'
+  | 'heroPath'
   | 'icon'
+  | 'artImageId'
+  | 'artCollectionId'
   | 'userId'
   | 'isPublic'
   | 'isMature'
@@ -61,8 +67,14 @@ export type FacetCreateInput = {
   metadata?: Record<string, unknown> | null
   description?: string | null
   flavorText?: string | null
+  examples?: string | null
+  artPrompt?: string | null
   imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
   icon?: string | null
+  artImageId?: number | null
+  artCollectionId?: number | null
   aliases?: string[]
   isPublic?: boolean
   isMature?: boolean

@@ -38,3 +38,15 @@ jobs:
           node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
           node utils/scripts/verifyFacetLegacySeedSnapshots.mjs
           node utils/scripts/verifyRetiredRewardRandomizers.mjs
+
+      - name: Verify curated Facet artwork
+        id: artwork
+        run: npx tsx utils/scripts/verifyFacetArtworkMigration.ts 2>&1 | tee facet-artwork-report.txt
+
+      - name: Upload Facet artwork diagnostics
+        if: failure() && steps.artwork.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: facet-artwork-diagnostics
+          path: facet-artwork-report.txt
+          if-no-files-found: error

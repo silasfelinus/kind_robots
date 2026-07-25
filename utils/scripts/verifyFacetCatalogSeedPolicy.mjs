@@ -8,6 +8,10 @@ import {
 assert.equal(isFacetCatalogSourcePath('stores/helpers/adventureCards.ts'), true)
 assert.equal(isFacetCatalogSourcePath('stores/utils/animalData.ts'), true)
 assert.equal(
+  isFacetCatalogSourcePath('utils/seeds/facetLegacyCharacterLists.ts'),
+  true,
+)
+assert.equal(
   isFacetCatalogSourcePath(
     'prisma/migrations/20260725113000_facet_catalog_cutover/migration.sql',
   ),
@@ -48,6 +52,15 @@ assert.deepEqual(
     isVercelBuild: true,
     isProductionDeployment: true,
     changedFiles: ['stores/helpers/adventureCards.ts'],
+  }).run,
+  true,
+)
+
+assert.deepEqual(
+  decideFacetCatalogSeed({
+    isVercelBuild: true,
+    isProductionDeployment: true,
+    changedFiles: ['utils/seeds/facetLegacyCharacterLists.ts'],
   }).run,
   true,
 )

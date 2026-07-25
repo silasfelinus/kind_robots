@@ -12,6 +12,10 @@ assert.equal(
   true,
 )
 assert.equal(
+  isFacetCatalogSourcePath('utils/seeds/facetLegacyCreativeLists.ts'),
+  true,
+)
+assert.equal(
   isFacetCatalogSourcePath(
     'prisma/migrations/20260725113000_facet_catalog_cutover/migration.sql',
   ),
@@ -56,14 +60,19 @@ assert.deepEqual(
   true,
 )
 
-assert.deepEqual(
-  decideFacetCatalogSeed({
-    isVercelBuild: true,
-    isProductionDeployment: true,
-    changedFiles: ['utils/seeds/facetLegacyCharacterLists.ts'],
-  }).run,
-  true,
-)
+for (const snapshot of [
+  'utils/seeds/facetLegacyCharacterLists.ts',
+  'utils/seeds/facetLegacyCreativeLists.ts',
+]) {
+  assert.deepEqual(
+    decideFacetCatalogSeed({
+      isVercelBuild: true,
+      isProductionDeployment: true,
+      changedFiles: [snapshot],
+    }).run,
+    true,
+  )
+}
 
 assert.deepEqual(
   decideFacetCatalogSeed({

@@ -22,7 +22,7 @@ export function resolveComfySeed(seed?: number | null): number {
   if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
     return Math.floor(seed)
   }
-  return Math.floor(Math.random() * 1_000_000_000_000_000)
+  return Math.floor(Math.random() * 2_147_483_647)
 }
 
 export type SimpleCheckpointInput = {

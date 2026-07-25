@@ -71,7 +71,7 @@
         />
 
         <button
-          v-if="!isUploading"
+          v-if="!isUploading && !isFinalizingUpload"
           type="button"
           class="btn btn-circle btn-error btn-xs absolute right-1 top-1 opacity-0 shadow transition-opacity group-hover:opacity-100"
           :title="`Remove ${item.file.name}`"
@@ -458,13 +458,16 @@
         v-if="queuedFiles.length"
         type="button"
         class="btn btn-primary flex-1 rounded-2xl font-black shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0"
-        :disabled="isUploading"
+        :disabled="isUploading || isFinalizingUpload"
         @click="handleBatchUpload"
       >
-        <span v-if="isUploading" class="loading loading-spinner loading-sm" />
+        <span
+          v-if="isUploading || isFinalizingUpload"
+          class="loading loading-spinner loading-sm"
+        />
         <Icon v-else name="kind-icon:camera" class="h-5 w-5" />
         {{
-          isUploading
+          isUploading || isFinalizingUpload
             ? 'Uploading…'
             : `Upload ${queuedFiles.length} image${queuedFiles.length !== 1 ? 's' : ''}`
         }}
@@ -482,7 +485,7 @@
       </button>
 
       <button
-        v-if="queuedFiles.length && !isUploading"
+        v-if="queuedFiles.length && !isUploading && !isFinalizingUpload"
         type="button"
         class="btn btn-ghost rounded-2xl"
         @click="clearQueue"
@@ -576,6 +579,19 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 const message = ref('')
 const error = ref('')
+// uploadStore flips isUploading back to false the instant the network work
+// settles, but handleBatchUpload keeps running after that -- holding the
+// success checkmarks on screen (nextTick + a 700ms pause, see PR #515) and
+// then filtering already-succeeded files out of the queue. isUploading
+// alone left the Upload/Remove/Clear buttons re-enabled for that whole
+// window, so a second click on "Upload N images" during the pause slipped
+// past the `isUploading.value` guard, re-read the still-unfiltered
+// queuedFiles (including files the first call already uploaded), and fired
+// a second uploadBatchForActiveTarget() -- duplicate ArtImage rows for
+// every file that had already succeeded, plus both calls racing on the
+// same succeededFiles/failedFiles/queuedFiles refs. This flag stays true
+// for the whole handleBatchUpload run, not just the network portion.
+const isFinalizingUpload = ref(false)
 const connectedModelType = ref<ConnectableModel | ''>('')
 const queuedFiles = ref<QueuedFile[]>([])
 const succeededFiles = ref<Set<File>>(new Set())
@@ -741,68 +757,85 @@ function buildMetadata(): UploadMetadata {
 }
 
 async function handleBatchUpload() {
-  if (!queuedFiles.value.length || isUploading.value) return
+  if (
+    !queuedFiles.value.length ||
+    isUploading.value ||
+    isFinalizingUpload.value
+  ) {
+    return
+  }
 
   if (!uploadStore.hasActiveTarget) {
     error.value = 'No upload target configured.'
     return
   }
 
-  succeededFiles.value = new Set()
-  failedFiles.value = new Set()
-  message.value = ''
-  error.value = ''
+  // Held true for this whole function, not just the network request --
+  // uploadStore flips isUploading back to false as soon as the batch
+  // settles, but the post-processing below (checkmark pause + queue
+  // filtering) still needs the queue frozen so a second click can't
+  // re-upload files this run already succeeded on.
+  isFinalizingUpload.value = true
 
-  const files = queuedFiles.value.map((item) => item.file)
+  try {
+    succeededFiles.value = new Set()
+    failedFiles.value = new Set()
+    message.value = ''
+    error.value = ''
 
-  const result = await uploadStore.uploadBatchForActiveTarget(files, {
-    connectedModelType: connectedModelType.value || null,
-    connectedModelId: connectedModelId.value,
-    metadata: buildMetadata(),
-  })
+    const files = queuedFiles.value.map((item) => item.file)
 
-  succeededFiles.value = new Set(
-    result.succeeded.map((r) => r.file).filter(Boolean) as File[],
-  )
-  failedFiles.value = new Set(
-    result.failed.map((r) => r.file).filter(Boolean) as File[],
-  )
+    const result = await uploadStore.uploadBatchForActiveTarget(files, {
+      connectedModelType: connectedModelType.value || null,
+      connectedModelId: connectedModelId.value,
+      metadata: buildMetadata(),
+    })
 
-  // Give the per-thumbnail success checkmark a frame to actually render
-  // before its item is spliced out of the queue (or the whole queue is
-  // cleared) below — both used to happen in this same synchronous tick,
-  // so `succeededFiles` was populated and then immediately made
-  // unobservable before Vue ever flushed a DOM update showing it.
-  if (succeededFiles.value.size) {
-    await nextTick()
-    await new Promise((resolve) => setTimeout(resolve, 700))
-  }
-
-  // Drop already-uploaded files from the queue so a retry click only
-  // resubmits the ones that actually failed — otherwise a second click
-  // re-uploads the whole batch, including files that already succeeded,
-  // creating duplicate ArtImage rows.
-  if (succeededFiles.value.size) {
-    queuedFiles.value
-      .filter((item) => succeededFiles.value.has(item.file))
-      .forEach((item) => URL.revokeObjectURL(item.preview))
-    queuedFiles.value = queuedFiles.value.filter(
-      (item) => !succeededFiles.value.has(item.file),
+    succeededFiles.value = new Set(
+      result.succeeded.map((r) => r.file).filter(Boolean) as File[],
     )
-  }
+    failedFiles.value = new Set(
+      result.failed.map((r) => r.file).filter(Boolean) as File[],
+    )
 
-  // Clear the queue only on a clean run. Must happen before the message
-  // assignment below — clearQueue() resets message/error, and doing it
-  // first would wipe the success banner we're about to set.
-  if (result.succeeded.length && !result.failed.length) {
-    clearQueue()
-  }
+    // Give the per-thumbnail success checkmark a frame to actually render
+    // before its item is spliced out of the queue (or the whole queue is
+    // cleared) below — both used to happen in this same synchronous tick,
+    // so `succeededFiles` was populated and then immediately made
+    // unobservable before Vue ever flushed a DOM update showing it.
+    if (succeededFiles.value.size) {
+      await nextTick()
+      await new Promise((resolve) => setTimeout(resolve, 700))
+    }
 
-  // Mirror store messaging locally so the component owns its own banners.
-  message.value = uploadStore.message ?? ''
-  error.value = result.failed.length
-    ? `${result.failed.length} image${result.failed.length === 1 ? '' : 's'} failed.`
-    : ''
+    // Drop already-uploaded files from the queue so a retry click only
+    // resubmits the ones that actually failed — otherwise a second click
+    // re-uploads the whole batch, including files that already succeeded,
+    // creating duplicate ArtImage rows.
+    if (succeededFiles.value.size) {
+      queuedFiles.value
+        .filter((item) => succeededFiles.value.has(item.file))
+        .forEach((item) => URL.revokeObjectURL(item.preview))
+      queuedFiles.value = queuedFiles.value.filter(
+        (item) => !succeededFiles.value.has(item.file),
+      )
+    }
+
+    // Clear the queue only on a clean run. Must happen before the message
+    // assignment below — clearQueue() resets message/error, and doing it
+    // first would wipe the success banner we're about to set.
+    if (result.succeeded.length && !result.failed.length) {
+      clearQueue()
+    }
+
+    // Mirror store messaging locally so the component owns its own banners.
+    message.value = uploadStore.message ?? ''
+    error.value = result.failed.length
+      ? `${result.failed.length} image${result.failed.length === 1 ? '' : 's'} failed.`
+      : ''
+  } finally {
+    isFinalizingUpload.value = false
+  }
 }
 
 onUnmounted(() => {

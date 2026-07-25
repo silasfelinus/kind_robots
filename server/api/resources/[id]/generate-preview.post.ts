@@ -3,14 +3,16 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import {
   ResourceType,
   SupportedServer,
+  type Resource,
 } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireMachineUser } from '~/server/utils/authGuard'
-import { authAndGate } from '~/server/utils/comfyGate'
+import { manaGate } from '~/server/utils/manaGate'
+import { estimateArtCostUsd } from '~/server/utils/manaCost'
 import { resourceGallerySelect, resourceGalleryWhere } from '../gallery'
 
-const A1111_RESOURCE_FAMILIES = [
+const A1111_RESOURCE_FAMILIES: SupportedServer[] = [
   SupportedServer.SD15,
   SupportedServer.SDXL,
   SupportedServer.GENERIC,
@@ -50,6 +52,23 @@ function buildPreviewPrompt(resource: {
   return `${subject}, polished showcase image, clear subject, balanced composition, detailed, clean background`
 }
 
+function checkpointScore(checkpoint: Resource, target: Resource): number {
+  let score = 0
+
+  if (
+    target.generation &&
+    checkpoint.generation?.toLowerCase() === target.generation.toLowerCase()
+  ) {
+    score += 100
+  }
+
+  if (checkpoint.supportedServer === target.supportedServer) score += 30
+  if (checkpoint.supportedServer === SupportedServer.SDXL) score += 10
+  if (checkpoint.isPublic) score += 2
+
+  return score
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const resourceId = Number(getRouterParam(event, 'id'))
@@ -85,7 +104,8 @@ export default defineEventHandler(async (event) => {
     if (!isCheckpoint && !isLora) {
       throw createError({
         statusCode: 400,
-        message: 'Automatic previews currently support checkpoints, LoRAs, and LyCORIS resources.',
+        message:
+          'Automatic previews currently support checkpoints, LoRAs, and LyCORIS resources.',
       })
     }
 
@@ -96,9 +116,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const checkpoint = isCheckpoint
-      ? resource
-      : await prisma.resource.findFirst({
+    const checkpointCandidates = isCheckpoint
+      ? []
+      : await prisma.resource.findMany({
           where: {
             AND: [
               {
@@ -114,28 +134,22 @@ export default defineEventHandler(async (event) => {
                       { userId: auth.user.id },
                     ],
                   },
-              {
-                OR: [
-                  ...(resource.generation
-                    ? [{ generation: resource.generation }]
-                    : []),
-                  { supportedServer: resource.supportedServer },
-                  { supportedServer: SupportedServer.SDXL },
-                  { supportedServer: SupportedServer.SD15 },
-                ],
-              },
             ],
           },
-          orderBy: [
-            { generation: resource.generation ? 'asc' : 'desc' },
-            { id: 'asc' },
-          ],
         })
+    const checkpoint = isCheckpoint
+      ? resource
+      : [...checkpointCandidates].sort((a, b) => {
+          const scoreDifference =
+            checkpointScore(b, resource) - checkpointScore(a, resource)
+          return scoreDifference || a.id - b.id
+        })[0]
 
     if (!checkpoint) {
       throw createError({
         statusCode: 409,
-        message: 'No accessible A1111-compatible checkpoint is available for this Resource.',
+        message:
+          'No accessible A1111-compatible checkpoint is available for this Resource.',
       })
     }
 
@@ -145,16 +159,21 @@ export default defineEventHandler(async (event) => {
     if (!checkpointName) {
       throw createError({
         statusCode: 409,
-        message: 'The compatible checkpoint does not have an engine filename or name.',
+        message:
+          'The compatible checkpoint does not have an engine filename or name.',
       })
     }
 
     const promptString = buildPreviewPrompt(resource)
-    const gate = await authAndGate(event, {
-      engine: 'comfy',
+    const estimatedCostUsd = estimateArtCostUsd({
+      engine: 'a1111',
       steps: 24,
       width: 768,
       height: 768,
+    })
+    const gate = await manaGate(event, {
+      kind: 'art',
+      estCostUsd: estimatedCostUsd,
     })
 
     const payload = {
@@ -174,7 +193,9 @@ export default defineEventHandler(async (event) => {
         isPublic: resource.isPublic,
         isMature: resource.isMature,
         designer:
-          auth.user.designerName || auth.user.username || `User ${auth.user.id}`,
+          auth.user.designerName ||
+          auth.user.username ||
+          `User ${auth.user.id}`,
       },
       resources: {
         checkpointResourceId: checkpoint.id,

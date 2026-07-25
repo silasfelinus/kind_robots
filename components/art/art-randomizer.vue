@@ -195,7 +195,7 @@ watchEffect(() => {
   transition: all 0.3s ease;
 }
 .slide-fade-enter-from,
-.slide-fade-leave-active {
+.slide-fade-leave-to {
   max-height: 0;
   opacity: 0;
 }

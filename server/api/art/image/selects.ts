@@ -17,6 +17,15 @@ export const artImageMutationSelect = {
   negativePrompt: true,
   checkpoint: true,
   checkpointResourceId: true,
+  LoraResources: {
+    select: {
+      id: true,
+      name: true,
+      customLabel: true,
+      resourceType: true,
+    },
+    orderBy: { id: 'asc' },
+  },
   sampler: true,
   seed: true,
   steps: true,

@@ -16,7 +16,7 @@
           :disabled="store.loadingRuns"
           @click="store.fetchRuns()"
         >
-          <Icon name="kind-icon:refresh" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:refresh" class="h-3.5 w-3.5" aria-hidden="true" />
           Refresh
         </button>
         <button
@@ -24,7 +24,7 @@
           class="btn btn-xs btn-primary rounded-xl"
           @click="startNew"
         >
-          <Icon name="kind-icon:add" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:add" class="h-3.5 w-3.5" aria-hidden="true" />
           New run
         </button>
       </div>
@@ -34,8 +34,11 @@
       <div
         v-if="store.loadingRuns"
         class="flex h-full min-h-32 items-center justify-center gap-2 text-sm text-base-content/60"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
       >
-        <span class="loading loading-dots loading-md" />
+        <span class="loading loading-dots loading-md" aria-hidden="true" />
         Loading runs…
       </div>
 
@@ -43,7 +46,11 @@
         v-else-if="!store.runs.length"
         class="flex h-full min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/50"
       >
-        <Icon name="kind-icon:blueprint" class="h-8 w-8 text-primary/50" />
+        <Icon
+          name="kind-icon:blueprint"
+          class="h-8 w-8 text-primary/50"
+          aria-hidden="true"
+        />
         No runs yet — start one from a source model.
       </div>
 
@@ -56,7 +63,11 @@
             run.id === store.run?.id ? 'border-primary/60 bg-primary/5' : ''
           "
         >
-          <Icon :name="sourceIcon(run)" class="h-5 w-5 shrink-0 text-primary" />
+          <Icon
+            :name="sourceIcon(run)"
+            class="h-5 w-5 shrink-0 text-primary"
+            aria-hidden="true"
+          />
 
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
@@ -79,9 +90,10 @@
             type="button"
             class="btn btn-xs btn-ghost shrink-0 rounded-lg text-error/70 hover:text-error"
             title="Cancel run"
+            :aria-label="`Cancel run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="armedRunId = run.id"
           >
-            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" aria-hidden="true" />
           </button>
           <button
             v-else
@@ -90,7 +102,7 @@
             @click="confirmCancel(run.id)"
             @blur="armedRunId = null"
           >
-            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" aria-hidden="true" />
             Confirm?
           </button>
           <button

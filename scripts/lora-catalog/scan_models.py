@@ -409,8 +409,10 @@ def finalize(e: ModelEntry, meta: dict) -> None:
     e.resourceType = KIND_RESOURCE_TYPE.get(e.kind, "")
     if not e.customLabel:
         e.customLabel = e.name
-    if e.triggerWords and not e.defaultTrigger:
-        e.defaultTrigger = e.triggerWords
+    # Never leave triggers empty — fall back to the label/name.
+    label_fallback = e.customLabel or e.name
+    e.triggerWords = e.triggerWords or label_fallback
+    e.defaultTrigger = e.defaultTrigger or e.triggerWords or label_fallback
     e.slug = core.slugify(e.customLabel or e.name)
 
     # compute Comfy target (checkpoints get a base-model sub-bucket)
@@ -479,7 +481,7 @@ def organize(entries: list[ModelEntry], mode: str, dest: Path, out_dir: Path) ->
         if target.exists() and target.resolve() != src.resolve():
             try:
                 if e.sha256 and target.stat().st_size == e.size_bytes and core.sha256_file(target) == e.sha256:
-                    action = "skip (already there, identical)"
+                    action = "skip (already there - identical)"
                 else:
                     stem, ext = os.path.splitext(e.filename)
                     target = target.parent / f"{stem}__{e.sha256[:8]}{ext}"

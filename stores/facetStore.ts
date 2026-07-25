@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import type { Facet, FacetKind } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import type { FacetTaxonomy } from '@/stores/facetCatalogStore'
 
 export type FacetWithAliases = Pick<
   Facet,
@@ -21,6 +22,16 @@ export type FacetWithAliases = Pick<
   | 'isActive'
 > & {
   aliases: string[]
+  taxonomy: FacetTaxonomy
+  canonicalValue: string
+  groupKey: string | null
+  groupLabel: string | null
+  sortOrder: number
+  isRandomizable: boolean
+  randomWeight: number
+  artRequired: boolean
+  sourceRank: number
+  metadata: Record<string, unknown> | null
 }
 
 export type FacetListOptions = {
@@ -37,6 +48,16 @@ export type FacetCreateInput = {
   title: string
   slug?: string
   kind?: FacetKind
+  taxonomy?: FacetTaxonomy
+  canonicalValue?: string | null
+  groupKey?: string | null
+  groupLabel?: string | null
+  sortOrder?: number
+  isRandomizable?: boolean
+  randomWeight?: number
+  artRequired?: boolean
+  sourceRank?: number
+  metadata?: Record<string, unknown> | null
   description?: string | null
   flavorText?: string | null
   imagePath?: string | null
@@ -79,7 +100,12 @@ export const useFacetStore = defineStore('facetStore', () => {
   const facetsByLookupKey = computed(() => {
     const index = new Map<string, FacetWithAliases>()
     for (const facet of facets.value) {
-      const keys = [facet.slug, facet.title, ...facet.aliases]
+      const keys = [
+        facet.slug,
+        facet.title,
+        facet.canonicalValue,
+        ...facet.aliases,
+      ]
       for (const key of keys) {
         const lookupKey = normalizeFacetLookupKey(key || '')
         if (lookupKey) index.set(lookupKey, facet)
@@ -98,9 +124,11 @@ export const useFacetStore = defineStore('facetStore', () => {
     if (index >= 0) facets.value[index] = facet
     else facets.value.push(facet)
     facets.value.sort((a, b) =>
-      a.kind === b.kind
-        ? a.title.localeCompare(b.title)
-        : a.kind.localeCompare(b.kind),
+      a.taxonomy === b.taxonomy
+        ? a.sortOrder === b.sortOrder
+          ? a.title.localeCompare(b.title)
+          : a.sortOrder - b.sortOrder
+        : a.taxonomy.localeCompare(b.taxonomy),
     )
     return facet
   }

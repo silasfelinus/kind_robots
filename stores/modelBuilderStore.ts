@@ -394,11 +394,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const config = state.sourceType ? getSourceType(state.sourceType) : undefined
     if (!config) return
 
+    // state.sourceType can change while this fetch is in flight (rapid
+    // clicks between source-type tabs). Capture the type this call is
+    // loading for so a slower, now-stale response can't overwrite the
+    // sources for whichever tab is actually selected by the time it lands.
+    const requestedType = state.sourceType
+
     state.loadingSources = true
     state.sourcesError = ''
 
     try {
       const response = await performFetch<SourceRecord[]>(config.endpoint)
+      if (state.sourceType !== requestedType) return
       if (!response.success || !Array.isArray(response.data)) {
         throw new Error(response.message || `Failed to load ${config.plural}.`)
       }
@@ -407,12 +414,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         state.sourcesError = `No ${config.plural.toLowerCase()} available to build from.`
       }
     } catch (error) {
+      if (state.sourceType !== requestedType) return
       handleError(error, `loading ${config.plural.toLowerCase()}`)
       state.sourcesError =
         error instanceof Error ? error.message : `Failed to load ${config.plural}.`
       state.sources = []
     } finally {
-      state.loadingSources = false
+      if (state.sourceType === requestedType) state.loadingSources = false
     }
   }
 
@@ -708,7 +716,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           ? item.fieldsDraft
           : item.promptDraft
 
-    draftingField.value = { itemId, field }
+    const draftKey = { itemId, field }
+    draftingField.value = draftKey
     clearStatus()
 
     try {
@@ -753,6 +762,26 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }
 
       const value = result.data.value.trim()
+
+      // The textarea stays editable while a draft is in flight, so the user
+      // may have already typed and committed their own edit via @change
+      // before this response landed. Only apply the AI draft if the field
+      // still holds the exact value it held when the draft was requested --
+      // otherwise it would silently clobber a newer manual edit.
+      const liveValue =
+        field === 'pitch'
+          ? item.pitch
+          : field === 'fields'
+            ? item.fieldsDraft
+            : item.promptDraft
+      if (liveValue !== current) {
+        setStatus(
+          'error',
+          `${item.label} was edited while drafting — draft discarded to avoid overwriting your changes.`,
+        )
+        return false
+      }
+
       // Route through the manual-edit setters so downstream stages stale and the
       // draft persists exactly as on a hand edit.
       if (field === 'pitch') updatePitch(itemId, value)
@@ -771,7 +800,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       setStatus('error', message)
       return false
     } finally {
-      draftingField.value = null
+      // draftingField is a store-wide singleton, same shape as
+      // generatingItemId/autoBuildingItemId above: starting a second draft
+      // (a different field or item) while this one is still in flight
+      // overwrites draftingField, and this call's finally would then null it
+      // out from under the still-running draft the moment this call
+      // resolves. Only clear if it's still ours.
+      if (draftingField.value === draftKey) draftingField.value = null
     }
   }
 
@@ -1155,7 +1190,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }
       return true
     } finally {
-      state.autoBuildingItemId = null
+      // state.autoBuildingItemId is a store-wide singleton, same shape as
+      // generatingItemId above: clicking "Auto" on a different row while this
+      // item's auto-build is still awaiting its own draft/generate/commit
+      // calls overwrites autoBuildingItemId to that row's id, and this call's
+      // finally would then null it out from under the still-running
+      // auto-build the moment this call resolves. Only clear if it's still
+      // ours.
+      if (state.autoBuildingItemId === item.id) state.autoBuildingItemId = null
     }
   }
 

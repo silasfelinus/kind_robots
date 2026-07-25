@@ -54,6 +54,15 @@ function normalizeFileType(raw: string | null | undefined): string | null {
   return ALLOWED_FILE_TYPES.has(token) ? token : null
 }
 
+// ArtImage.seed is a 32-bit MySQL INT. Job builders already generate seeds
+// within that range, but clamp here too so an oversized value from any
+// caller can never blow up this write (see coloring-book/t-030).
+const MAX_INT32_SEED = 2_147_483_647
+function clampArtImageSeed(raw: number | null | undefined): number {
+  if (typeof raw !== 'number' || !Number.isFinite(raw)) return -1
+  return Math.min(Math.trunc(raw), MAX_INT32_SEED)
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const requestData: SaveGeneratedRequestData = await readBody(event)
@@ -162,7 +171,7 @@ export default defineEventHandler(async (event) => {
         checkpoint: resolvedCheckpoint.checkpoint,
         checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
         sampler: requestData.sampler ?? null,
-        seed: requestData.seed ?? -1,
+        seed: clampArtImageSeed(requestData.seed),
         steps: requestData.steps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),

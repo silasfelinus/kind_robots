@@ -75,7 +75,7 @@ function resolveSeed(seed?: number | null): number {
     return Math.floor(seed)
   }
 
-  return Math.floor(Math.random() * 1_000_000_000_000_000)
+  return Math.floor(Math.random() * 2_147_483_647)
 }
 
 // WAN wants a 4n+1 frame count. Round the requested seconds to the nearest

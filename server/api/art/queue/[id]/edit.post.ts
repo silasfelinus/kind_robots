@@ -31,7 +31,7 @@ type EditBody = {
 }
 
 function randomSeed(): number {
-  return Math.floor(Math.random() * 1_000_000_000_000_000)
+  return Math.floor(Math.random() * 2_147_483_647)
 }
 
 export default defineEventHandler(async (event) => {

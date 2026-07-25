@@ -1,7 +1,10 @@
 // /utils/scripts/seedFacetCatalog.ts
 import 'dotenv/config'
-import { PrismaClient, type FacetKind } from './../../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  PrismaClient,
+  type FacetKind,
+} from './../../prisma/generated/prisma/client'
+import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 import { ADVENTURE_CARDS } from './../../stores/helpers/adventureCards'
 import { animalDataList } from './../../stores/utils/animalData'
 import { artListPresets } from './../../stores/seeds/artList'
@@ -20,7 +23,12 @@ import {
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
-const prisma = new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+// Standalone scripts must share the application's ProxySQL/TLS configuration.
+// A bare PrismaMariaDb(DATABASE_URL) is rejected by production because SSL is
+// required and also misses the app's no-pipelining protocol setting.
+const prisma = new PrismaClient({
+  adapter: createDatabaseAdapter(databaseUrl),
+})
 const apply = process.argv.includes('--apply')
 
 type Taxonomy =
@@ -81,18 +89,19 @@ function slugify(value: string): string {
 }
 
 function legacyKind(taxonomy: Taxonomy): FacetKind {
-  if (taxonomy === 'GENRE') return 'GENRE'
-  if (taxonomy === 'ANIMAL') return 'ANIMAL'
-  if (taxonomy === 'COLOR') return 'COLOR'
-  if (taxonomy === 'THEME') return 'THEME'
-  if (taxonomy === 'CORE') return 'CORE'
-  if (taxonomy === 'MOOD') return 'MOOD'
-  if (taxonomy === 'STYLE') return 'STYLE'
-  if (taxonomy === 'SETTING') return 'SETTING'
-  if (taxonomy === 'ART_DIRECTION' || taxonomy === 'PROMPT_ENHANCEMENT') {
-    return 'ART_DIRECTION'
+  const direct: Partial<Record<Taxonomy, FacetKind>> = {
+    GENRE: 'GENRE',
+    ANIMAL: 'ANIMAL',
+    COLOR: 'COLOR',
+    THEME: 'THEME',
+    CORE: 'CORE',
+    MOOD: 'MOOD',
+    STYLE: 'STYLE',
+    SETTING: 'SETTING',
+    ART_DIRECTION: 'ART_DIRECTION',
+    PROMPT_ENHANCEMENT: 'ART_DIRECTION',
   }
-  return 'OTHER'
+  return direct[taxonomy] ?? 'OTHER'
 }
 
 function classTaxonomy(value: string): Taxonomy {
@@ -165,16 +174,16 @@ function taxonomyForField(fieldKey: string, value: string): Taxonomy | null {
   return null
 }
 
-function addCandidate(input: Omit<Candidate, 'aliases' | 'metadata'> & {
-  aliases?: Iterable<string>
-  metadata?: Record<string, unknown>
-}): void {
+function addCandidate(
+  input: Omit<Candidate, 'aliases' | 'metadata'> & {
+    aliases?: Iterable<string>
+    metadata?: Record<string, unknown>
+  },
+): void {
   const title = clean(input.title)
   const canonicalValue = clean(input.canonicalValue) || title
-  if (!title || !canonicalValue) return
-
   const key = normalizeFacetLookupKey(title)
-  if (!key) return
+  if (!title || !canonicalValue || !key) return
 
   const incoming: Candidate = {
     ...input,
@@ -184,7 +193,6 @@ function addCandidate(input: Omit<Candidate, 'aliases' | 'metadata'> & {
     metadata: { ...(input.metadata ?? {}) },
   }
   const existing = candidates.get(key)
-
   if (!existing) {
     candidates.set(key, incoming)
     return
@@ -245,7 +253,6 @@ function collectAdventureBuilder(): void {
           imagePath: clean(choice.image) || undefined,
           icon: clean(choice.icon) || undefined,
         })
-
         for (const option of choice.listOptions ?? []) {
           const cleaned = clean(option)
           if (cleaned) values.push({ value: cleaned, label: cleaned })
@@ -321,7 +328,6 @@ function collectArtPresets(): void {
   for (const preset of artListPresets) {
     const taxonomy = taxonomyByPreset[preset.id]
     if (!taxonomy) continue // negative prompts remain generation configuration
-
     for (const [index, value] of preset.content.entries()) {
       const title = clean(value)
       if (!title) continue
@@ -346,13 +352,48 @@ function collectLegacyLists(): void {
     groupKey: string
     groupLabel: string
   }> = [
-    { values: genreList, taxonomy: 'GENRE', groupKey: 'genre', groupLabel: 'Genres' },
-    { values: classList, taxonomy: classTaxonomy, groupKey: 'class', groupLabel: 'Classes and Roles' },
-    { values: personalityList, taxonomy: 'PERSONALITY', groupKey: 'personality', groupLabel: 'Personalities' },
-    { values: backstoryList, taxonomy: 'BACKSTORY', groupKey: 'backstory', groupLabel: 'Backstories' },
-    { values: quirkList, taxonomy: 'QUIRK', groupKey: 'quirks', groupLabel: 'Quirks' },
-    { values: materialList, taxonomy: 'MATERIAL', groupKey: 'material', groupLabel: 'Materials' },
-    { values: legacyColorList, taxonomy: 'COLOR', groupKey: 'color', groupLabel: 'Colors' },
+    {
+      values: genreList,
+      taxonomy: 'GENRE',
+      groupKey: 'genre',
+      groupLabel: 'Genres',
+    },
+    {
+      values: classList,
+      taxonomy: classTaxonomy,
+      groupKey: 'class',
+      groupLabel: 'Classes and Roles',
+    },
+    {
+      values: personalityList,
+      taxonomy: 'PERSONALITY',
+      groupKey: 'personality',
+      groupLabel: 'Personalities',
+    },
+    {
+      values: backstoryList,
+      taxonomy: 'BACKSTORY',
+      groupKey: 'backstory',
+      groupLabel: 'Backstories',
+    },
+    {
+      values: quirkList,
+      taxonomy: 'QUIRK',
+      groupKey: 'quirks',
+      groupLabel: 'Quirks',
+    },
+    {
+      values: materialList,
+      taxonomy: 'MATERIAL',
+      groupKey: 'material',
+      groupLabel: 'Materials',
+    },
+    {
+      values: legacyColorList,
+      taxonomy: 'COLOR',
+      groupKey: 'color',
+      groupLabel: 'Colors',
+    },
   ]
 
   for (const list of lists) {
@@ -376,7 +417,7 @@ function collectLegacyLists(): void {
   }
 }
 
-async function saveCandidate(candidate: Candidate): Promise<number> {
+async function saveCandidate(candidate: Candidate): Promise<void> {
   const slug = slugify(candidate.title)
   const lookupKey = normalizeFacetLookupKey(slug)
   const existingAlias = lookupKey
@@ -445,13 +486,11 @@ async function saveCandidate(candidate: Candidate): Promise<number> {
     },
   })
 
-  const aliases = prepareUniqueFacetAliases([slug, ...candidate.aliases])
-  for (const alias of aliases) {
+  for (const alias of prepareUniqueFacetAliases([slug, ...candidate.aliases])) {
     const existing = await prisma.facetAlias.findUnique({
       where: { lookupKey: alias.lookupKey },
     })
     if (existing && existing.facetId !== facet.id) continue
-
     await prisma.facetAlias.upsert({
       where: { lookupKey: alias.lookupKey },
       create: {
@@ -468,8 +507,6 @@ async function saveCandidate(candidate: Candidate): Promise<number> {
       },
     })
   }
-
-  return facet.id
 }
 
 function splitLegacyValues(fieldKey: string, value: string): string[] {
@@ -510,12 +547,12 @@ async function backfillCharacterLinks(): Promise<number> {
 
     for (const [fieldKey, rawValue] of fields) {
       if (!rawValue) continue
-      for (const [sortOrder, value] of splitLegacyValues(fieldKey, rawValue).entries()) {
+      const values = splitLegacyValues(fieldKey, rawValue)
+      for (const [sortOrder, value] of values.entries()) {
         const lookupKey = normalizeFacetLookupKey(value)
         if (!lookupKey) continue
         const alias = await prisma.facetAlias.findUnique({ where: { lookupKey } })
-        if (!alias) continue // custom prose stays on the legacy field, not in the reusable catalog
-
+        if (!alias) continue
         await prisma.characterFacet.upsert({
           where: {
             characterId_facetId_fieldKey: {
@@ -554,11 +591,13 @@ async function main(): Promise<void> {
         : a.sortOrder - b.sortOrder
       : a.taxonomy.localeCompare(b.taxonomy),
   )
-
-  const byTaxonomy = catalog.reduce<Record<string, number>>((counts, candidate) => {
-    counts[candidate.taxonomy] = (counts[candidate.taxonomy] ?? 0) + 1
-    return counts
-  }, {})
+  const byTaxonomy = catalog.reduce<Record<string, number>>(
+    (counts, candidate) => {
+      counts[candidate.taxonomy] = (counts[candidate.taxonomy] ?? 0) + 1
+      return counts
+    },
+    {},
+  )
 
   if (!apply) {
     process.stdout.write(
@@ -579,16 +618,18 @@ async function main(): Promise<void> {
     return
   }
 
-  let saved = 0
-  for (const candidate of catalog) {
-    await saveCandidate(candidate)
-    saved++
-  }
+  for (const candidate of catalog) await saveCandidate(candidate)
   const characterLinks = await backfillCharacterLinks()
 
   process.stdout.write(
     `${JSON.stringify(
-      { mode: 'apply', candidates: catalog.length, saved, characterLinks, byTaxonomy },
+      {
+        mode: 'apply',
+        candidates: catalog.length,
+        saved: catalog.length,
+        characterLinks,
+        byTaxonomy,
+      },
       null,
       2,
     )}\n`,

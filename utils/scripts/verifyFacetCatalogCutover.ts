@@ -38,9 +38,12 @@ async function main(): Promise<void> {
       'prisma/migrations/20260725113000_facet_catalog_cutover/migration.sql',
     catalog: 'server/utils/facetCatalog.ts',
     catalogRoute: 'server/api/facets/catalog.get.ts',
+    facetAssignments: 'server/utils/facetAssignments.ts',
     facetCreate: 'server/api/facets/index.post.ts',
     facetPatch: 'server/api/facets/[id].patch.ts',
     profileInput: 'server/utils/facetProfileInput.ts',
+    facetStore: 'stores/facetStore.ts',
+    facetManager: 'components/facets/facet-manager.vue',
     characterGet: 'server/api/characters/[id]/facets.get.ts',
     characterPut: 'server/api/characters/[id]/facets.put.ts',
     seed: 'utils/scripts/seedFacetCatalog.ts',
@@ -105,6 +108,18 @@ async function main(): Promise<void> {
   requireText(files.facetPatch, text.facetPatch, 'buildFacetProfileUpdateData')
   requireText(files.facetPatch, text.facetPatch, 'tx.facetProfile.upsert')
   requireText(files.facetPatch, text.facetPatch, 'where: { facetId: id }')
+
+  requireText(files.facetAssignments, text.facetAssignments, 'prisma.facetProfile.findMany')
+  requireText(files.facetAssignments, text.facetAssignments, 'randomWeight: profile?.randomWeight')
+  requireText(files.facetAssignments, text.facetAssignments, 'metadata: parseMetadata')
+  requireText(files.facetStore, text.facetStore, 'FACET_LIBRARY_PAGE_SIZE')
+  requireText(files.facetStore, text.facetStore, 'while (true)')
+  requireText(files.facetStore, text.facetStore, 'skip += page.length')
+  requireText(files.facetStore, text.facetStore, 'taxonomy: FacetTaxonomy')
+  requireText(files.facetManager, text.facetManager, 'Create canonical Facet')
+  requireText(files.facetManager, text.facetManager, 'newRandomWeight')
+  requireText(files.facetManager, text.facetManager, 'editForm.isRandomizable')
+  requireText(files.facetManager, text.facetManager, 'kindForTaxonomy')
 
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')

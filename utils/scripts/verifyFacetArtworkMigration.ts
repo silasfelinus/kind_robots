@@ -97,11 +97,14 @@ async function main(): Promise<void> {
     )
   }
 
-  const [seed, catalogApi, catalogStore] = await Promise.all([
-    readFile(resolve(root, 'utils/scripts/seedFacetCatalog.ts'), 'utf8'),
-    readFile(resolve(root, 'server/utils/facetCatalog.ts'), 'utf8'),
-    readFile(resolve(root, 'stores/facetCatalogStore.ts'), 'utf8'),
-  ])
+  const [seed, catalogApi, catalogStore, facetSummaries, facetStore] =
+    await Promise.all([
+      readFile(resolve(root, 'utils/scripts/seedFacetCatalog.ts'), 'utf8'),
+      readFile(resolve(root, 'server/utils/facetCatalog.ts'), 'utf8'),
+      readFile(resolve(root, 'stores/facetCatalogStore.ts'), 'utf8'),
+      readFile(resolve(root, 'server/utils/facetAssignments.ts'), 'utf8'),
+      readFile(resolve(root, 'stores/facetStore.ts'), 'utf8'),
+    ])
 
   // Source -> candidate.
   requireText(
@@ -144,6 +147,31 @@ async function main(): Promise<void> {
     catalogStore,
     'image: entry.cardPath || entry.imagePath || entry.heroPath || undefined',
   )
+
+  // General Facet CRUD and assignment summaries must not downgrade richer artwork.
+  // These surfaces feed the Facet Library and owner assignment stores, so omitting
+  // card/hero paths here would make curated media disappear after a normal refresh.
+  for (const field of [
+    "| 'artPrompt'",
+    "| 'imagePath'",
+    "| 'cardPath'",
+    "| 'heroPath'",
+    "| 'artImageId'",
+    "| 'artCollectionId'",
+  ]) {
+    requireText('server/utils/facetAssignments.ts', facetSummaries, field)
+    requireText('stores/facetStore.ts', facetStore, field)
+  }
+  for (const field of [
+    'artPrompt: true',
+    'imagePath: true',
+    'cardPath: true',
+    'heroPath: true',
+    'artImageId: true',
+    'artCollectionId: true',
+  ]) {
+    requireText('server/utils/facetAssignments.ts', facetSummaries, field)
+  }
 
   if (failures.length) {
     throw new Error(`Facet artwork migration contract failed:\n- ${failures.join('\n- ')}`)

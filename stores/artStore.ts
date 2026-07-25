@@ -2268,6 +2268,13 @@ export const useArtStore = defineStore('artStore', () => {
         state.artForm.checkpoint ||
         checkpointStore.selectedCheckpoint?.name ||
         '',
+      // Resource-backed selection carried through for provenance (#937). Pulled
+      // straight from the caller so the finished ArtImage links to the exact
+      // checkpoint + LoRA Resources it used.
+      checkpointResourceId: artData?.checkpointResourceId ?? null,
+      loraName: artData?.loraName ?? null,
+      loraStrength: artData?.loraStrength ?? null,
+      loraResourceIds: artData?.loraResourceIds ?? null,
       sampler:
         artData?.sampler ||
         state.artForm.sampler ||

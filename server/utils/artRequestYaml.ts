@@ -1,16 +1,22 @@
 // /server/utils/artRequestYaml.ts
 //
-// Pure, dependency-free rendering of Conductor art-queue entries into the
-// exact YAML list style that conductor's projects/art-prompts.yaml uses.
+// Rendering of Conductor art-queue entries into the exact YAML list style that
+// conductor's projects/art-prompts.yaml uses.
 //
 // This lives in its own module (extracted from api/conductor/art-request.post.ts)
-// so the indentation contract can be unit-tested without pulling in h3, prisma,
-// or the rest of the Nuxt server runtime. See utils/scripts/verifyArtRequestYaml.ts.
+// so the indentation and normalization contracts can be unit-tested without
+// pulling in prisma or the Nuxt server runtime. See
+// utils/scripts/verifyArtRequestYaml.ts.
 //
 // THE CONTRACT (art-generator-connect/t-008): every request is a block-sequence
 // item whose `- ` marker sits at COLUMN 0 and whose continuation keys are indented
 // exactly 2 spaces. conductor's PyYAML parser rejects mixed indentation, which is
 // the silent-stall bug this module's test guards against (kind_robots PR #84).
+import {
+  KIND_ROBOTS_REPO,
+  normalizeKindRobotsImagePath,
+  replaceVagueArtDirection,
+} from './artJobNormalization'
 
 export type ArtVariant = 'icon' | 'card' | 'hero' | 'image'
 
@@ -38,35 +44,55 @@ export function yamlFolded(key: string, value: string, indent = '    '): string 
   return `${key}: >\n${indent}${clean}`
 }
 
+export function normalizeArtQueueEntry(entry: ArtQueueEntry): ArtQueueEntry {
+  if (entry.target_repo !== KIND_ROBOTS_REPO) {
+    return {
+      ...entry,
+      prompt: replaceVagueArtDirection(entry.prompt),
+    }
+  }
+
+  return {
+    ...entry,
+    image_path: normalizeKindRobotsImagePath(entry.image_path),
+    prompt: replaceVagueArtDirection(entry.prompt),
+  }
+}
+
 // Entries must sit at column 0 to match the existing `requests:` list style in
 // conductor's art-prompts.yaml — mixed indentation breaks the YAML parser there.
 export function renderRequestEntry(entry: ArtQueueEntry): string {
+  const normalized = normalizeArtQueueEntry(entry)
   const lines = [
-    `- id: ${yamlQuoted(entry.id)}`,
-    `  source: ${yamlQuoted(entry.source)}`,
-    `  status: ${yamlQuoted(entry.status)}`,
-    `  target_repo: ${yamlQuoted(entry.target_repo)}`,
-    `  image_path: ${yamlQuoted(entry.image_path)}`,
-    `  source_url: ${yamlQuoted(entry.source_url)}`,
+    `- id: ${yamlQuoted(normalized.id)}`,
+    `  source: ${yamlQuoted(normalized.source)}`,
+    `  status: ${yamlQuoted(normalized.status)}`,
+    `  target_repo: ${yamlQuoted(normalized.target_repo)}`,
+    `  image_path: ${yamlQuoted(normalized.image_path)}`,
+    `  source_url: ${yamlQuoted(normalized.source_url)}`,
   ]
 
-  if (entry.page_url) lines.push(`  page_url: ${yamlQuoted(entry.page_url)}`)
-  lines.push(`  variant: ${yamlQuoted(entry.variant)}`)
-  if (entry.size) lines.push(`  size: ${yamlQuoted(entry.size)}`)
-  if (entry.label) lines.push(`  label: ${yamlQuoted(entry.label)}`)
-  lines.push(`  ${yamlFolded('prompt', entry.prompt, '    ')}`)
+  if (normalized.page_url) {
+    lines.push(`  page_url: ${yamlQuoted(normalized.page_url)}`)
+  }
+  lines.push(`  variant: ${yamlQuoted(normalized.variant)}`)
+  if (normalized.size) lines.push(`  size: ${yamlQuoted(normalized.size)}`)
+  if (normalized.label) lines.push(`  label: ${yamlQuoted(normalized.label)}`)
+  lines.push(`  ${yamlFolded('prompt', normalized.prompt, '    ')}`)
 
   return lines.join('\n')
 }
 
 export function requestAlreadyQueued(content: string, entry: ArtQueueEntry): boolean {
-  return content.includes(entry.id) || content.includes(entry.image_path)
+  const normalized = normalizeArtQueueEntry(entry)
+  return content.includes(normalized.id) || content.includes(normalized.image_path)
 }
 
 export function appendRequest(content: string, entry: ArtQueueEntry): string {
-  if (requestAlreadyQueued(content, entry)) return content
+  const normalized = normalizeArtQueueEntry(entry)
+  if (requestAlreadyQueued(content, normalized)) return content
 
-  const serialized = renderRequestEntry(entry)
+  const serialized = renderRequestEntry(normalized)
   const trimmed = content.trimEnd()
 
   if (/^requests:\s*\[\]\s*$/m.test(trimmed)) {

@@ -214,6 +214,14 @@ Same flags as `scan_loras.py` (`--no-civitai`, `--no-archive`, `--overrides`,
   place instead of sorting them. Use when they live in mixed bundle folders or
   drive video workflows you don't want disturbed.
 
+**Big-file hashing:** these models are large (multi-GB). scan_models only
+hashes kinds a by-hash lookup can identify (checkpoints, video, diffusion
+models) — text encoders, VAEs, clip-vision, and upscalers skip hashing (no hash
+DB indexes them anyway; they're cataloged from their folder). Keep
+`--hash-workers` **low (2–3, the default is 3)** on a spinning array/NAS:
+concurrent multi-GB reads seek-thrash the disks and throughput collapses. The
+hash cache makes interrupted runs resumable, so a stalled run loses nothing.
+
 Offline base-model detection knows the current architectures (SD15, SDXL, Pony,
 Illustrious, NoobAI, Flux, Kontext, ZImage, Qwen, Wan, Hunyuan/3D). Anything it
 can't place from folder/filename lands in `checkpoints/Unknown` and is resolved

@@ -10,6 +10,10 @@ import {
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
+import {
+  buildFacetProfileCreateData,
+  buildFacetProfileUpdateData,
+} from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'
 
 type FacetPatchBody = Record<string, unknown>
@@ -62,7 +66,7 @@ export default defineEventHandler(async (event) => {
     const auth = await requireApiUser(event)
     const existing = await prisma.facet.findUnique({
       where: { id },
-      select: { id: true, userId: true, slug: true },
+      select: { id: true, userId: true, slug: true, title: true, kind: true },
     })
 
     if (!existing) {
@@ -78,6 +82,8 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<FacetPatchBody>(event)
     const data: Prisma.FacetUncheckedUpdateInput = {}
+    let nextTitle = existing.title
+    let nextKind = existing.kind
 
     if (body.title !== undefined) {
       const title = optionalText(body.title)
@@ -88,6 +94,7 @@ export default defineEventHandler(async (event) => {
         })
       }
       data.title = title
+      nextTitle = title
     }
     if (body.kind !== undefined) {
       if (!facetKinds.includes(body.kind as FacetKind)) {
@@ -97,6 +104,7 @@ export default defineEventHandler(async (event) => {
         })
       }
       data.kind = body.kind as FacetKind
+      nextKind = body.kind as FacetKind
     }
     if (body.description !== undefined)
       data.description = optionalText(body.description)
@@ -141,6 +149,14 @@ export default defineEventHandler(async (event) => {
 
     const nextAliases =
       body.aliases !== undefined ? normalizeAliases(body.aliases) : null
+    const profileCreateData = buildFacetProfileCreateData(body, {
+      title: nextTitle,
+      kind: nextKind,
+    })
+    const profileUpdateData = buildFacetProfileUpdateData(body, {
+      title: nextTitle,
+      kind: nextKind,
+    })
 
     const updated = await prisma.$transaction(async (tx) => {
       // Restoring an archived Facet must also revive its aliases — archive
@@ -225,11 +241,22 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      return tx.facet.update({
+      const facet = await tx.facet.update({
         where: { id },
         data,
         select: facetSummarySelect,
       })
+
+      await tx.facetProfile.upsert({
+        where: { facetId: id },
+        create: {
+          facetId: id,
+          ...profileCreateData,
+        },
+        update: profileUpdateData,
+      })
+
+      return facet
     })
 
     const [facet] = await hydrateFacetSummaries([updated])

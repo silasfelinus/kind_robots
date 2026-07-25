@@ -1,13 +1,18 @@
 <!-- /components/resources/resource-gallery.vue -->
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ResourceType } from '~/prisma/generated/prisma/client'
 import {
   useResourceGalleryStore,
   type ResourceGalleryRecord,
 } from '@/stores/resourceGalleryStore'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
+
+const RESOURCE_TYPE = {
+  CHECKPOINT: 'CHECKPOINT',
+  LORA: 'LORA',
+  LYCORIS: 'LYCORIS',
+} as const
 
 const resourceGalleryStore = useResourceGalleryStore()
 const artStore = useArtStore()
@@ -102,14 +107,14 @@ function appendPrompt(base: string, addition: string): string {
 function addToGeneration(resource: ResourceGalleryRecord): void {
   const engineName = resourceEngineName(resource)
 
-  if (resource.resourceType === ResourceType.CHECKPOINT) {
+  if (resource.resourceType === RESOURCE_TYPE.CHECKPOINT) {
     artStore.setArtForm({
       checkpoint: engineName,
       checkpointResourceId: resource.id,
     })
   } else if (
-    resource.resourceType === ResourceType.LORA ||
-    resource.resourceType === ResourceType.LYCORIS
+    resource.resourceType === RESOURCE_TYPE.LORA ||
+    resource.resourceType === RESOURCE_TYPE.LYCORIS
   ) {
     const currentIds = artStore.artForm.loraResourceIds ?? []
     const loraResourceIds = currentIds.includes(resource.id)
@@ -138,10 +143,10 @@ function addToGeneration(resource: ResourceGalleryRecord): void {
 }
 
 function startGeneration(resource: ResourceGalleryRecord): void {
-  const isCheckpoint = resource.resourceType === ResourceType.CHECKPOINT
+  const isCheckpoint = resource.resourceType === RESOURCE_TYPE.CHECKPOINT
   const isLora =
-    resource.resourceType === ResourceType.LORA ||
-    resource.resourceType === ResourceType.LYCORIS
+    resource.resourceType === RESOURCE_TYPE.LORA ||
+    resource.resourceType === RESOURCE_TYPE.LYCORIS
 
   artStore.setArtForm({
     promptString: triggerText(resource) || resourceLabel(resource),

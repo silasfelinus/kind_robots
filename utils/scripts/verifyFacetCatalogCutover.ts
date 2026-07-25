@@ -20,6 +20,17 @@ function forbidText(path: string, text: string, value: string): void {
   }
 }
 
+async function requireMissingPath(path: string, reason: string): Promise<void> {
+  try {
+    await access(resolve(root, path))
+    throw new Error(`${path} must stay removed; ${reason}`)
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('must stay removed')) {
+      throw error
+    }
+  }
+}
+
 async function main(): Promise<void> {
   const files = {
     schema: 'prisma/facet-catalog.prisma',
@@ -148,16 +159,14 @@ async function main(): Promise<void> {
   requireText(files.vercelBuild, text.vercelBuild, 'seedFacetCatalog.ts')
   requireText(files.vercelBuild, text.vercelBuild, 'Applying production migrations')
 
-  try {
-    await access(resolve(root, 'components/art/list-manager.vue'))
-    throw new Error(
-      'components/art/list-manager.vue must stay removed; random content is managed through Facets.',
-    )
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('must stay removed')) {
-      throw error
-    }
-  }
+  await requireMissingPath(
+    'components/art/list-manager.vue',
+    'random content is managed through Facets.',
+  )
+  await requireMissingPath(
+    'stores/utils/randomCharacter.ts',
+    'the canonical catalog and Reward system own reusable Character generation pools.',
+  )
 
   process.stdout.write('Facet catalog cutover contract verified.\n')
 }

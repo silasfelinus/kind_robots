@@ -8,6 +8,7 @@ import {
   getCharacterNameKey,
   getUniqueCharacterSlug,
 } from '../../utils/characterSlug'
+import { syncCharacterFacetsInTransaction } from '../../utils/characterFacetSync'
 import {
   assertCharacterMutationInput,
   assertCharacterRelationsAttachable,
@@ -41,12 +42,9 @@ export default defineEventHandler(async (event) => {
     assertCharacterCreateCompatibility(rawBody)
 
     const body = stripCharacterCompatibilityFields(rawBody)
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
 
-    await assertCharacterRelationsAttachable(
-      body,
-      user.id,
-      user.Role === 'ADMIN' || user.id === 1,
-    )
+    await assertCharacterRelationsAttachable(body, user.id, isAdmin)
 
     const name = normalizeCharacterName(body.name)
     const nameKey = getCharacterNameKey(name)
@@ -81,9 +79,19 @@ export default defineEventHandler(async (event) => {
       slug,
     })
 
-    const data = await prisma.character.create({
-      data: createInput,
-      select: characterMutationSelect,
+    const data = await prisma.$transaction(async (tx) => {
+      const character = await tx.character.create({
+        data: createInput,
+        select: characterMutationSelect,
+      })
+
+      await syncCharacterFacetsInTransaction(
+        tx,
+        character as unknown as Record<string, unknown> & { id: number },
+        { userId: user.id, isAdmin },
+      )
+
+      return character
     })
 
     event.node.res.statusCode = 201

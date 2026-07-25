@@ -479,7 +479,7 @@ def organize(entries: list[ModelEntry], mode: str, dest: Path, out_dir: Path) ->
         if target.exists() and target.resolve() != src.resolve():
             try:
                 if e.sha256 and target.stat().st_size == e.size_bytes and core.sha256_file(target) == e.sha256:
-                    action = "skip (already there, identical)"
+                    action = "skip (already there - identical)"
                 else:
                     stem, ext = os.path.splitext(e.filename)
                     target = target.parent / f"{stem}__{e.sha256[:8]}{ext}"

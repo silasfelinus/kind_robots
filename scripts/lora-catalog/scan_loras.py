@@ -644,7 +644,7 @@ def organize(entries: list[LoraEntry], mode: str, dest: Path, out_dir: Path) -> 
             # same content already there? treat as done.
             try:
                 if target.stat().st_size == e.size_bytes and sha256_file(target) == e.sha256:
-                    action = "skip (already sorted, identical)"
+                    action = "skip (already sorted - identical)"
                 else:
                     stem, ext = os.path.splitext(e.filename)
                     target = target_dir / f"{stem}__{e.sha256[:8]}{ext}"

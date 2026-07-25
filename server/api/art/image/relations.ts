@@ -1,18 +1,52 @@
 // /server/api/art/image/relations.ts
 import { createError } from 'h3'
+import { ResourceType } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 
-type OwnableRow = { id: number; userId: number | null; isPublic: boolean | null }
+type OwnableRow = {
+  id: number
+  userId: number | null
+  isPublic: boolean | null
+}
+
+type LoraRow = OwnableRow & {
+  resourceType: ResourceType
+}
 
 export type ArtImageRelationAttachInput = {
   serverId?: number | null
   checkpointResourceId?: number | null
+  loraResourceIds?: number[]
 }
 
-// Verifies existence (404 for missing) and permission (403 for a private target
-// owned by someone else) for the Server / checkpoint Resource an ArtImage patch
-// connects. A non-admin may only attach public or self-owned rows; admins skip
-// the permission check but keep existence. Disconnects (null) are not checked.
+function normalizeIds(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+
+  return [
+    ...new Set(
+      value
+        .map((entry) => Number(entry))
+        .filter((entry) => Number.isInteger(entry) && entry > 0),
+    ),
+  ]
+}
+
+function assertOwnedOrPublic(
+  row: OwnableRow,
+  label: string,
+  userId: number,
+  isAdmin: boolean,
+): void {
+  if (isAdmin) return
+
+  if (row.userId !== userId && row.isPublic !== true) {
+    throw createError({
+      statusCode: 403,
+      message: `You do not have permission to attach this ${label} to an ArtImage.`,
+    })
+  }
+}
+
 async function assertRelationAccessible(
   id: number | null | undefined,
   find: (id: number) => Promise<OwnableRow | null>,
@@ -31,14 +65,43 @@ async function assertRelationAccessible(
     })
   }
 
-  if (isAdmin) return
+  assertOwnedOrPublic(row, label, userId, isAdmin)
+}
 
-  if (row.userId !== userId && row.isPublic !== true) {
+async function assertLoraResourcesAccessible(
+  ids: number[],
+  userId: number,
+  isAdmin: boolean,
+): Promise<void> {
+  const loraResourceIds = normalizeIds(ids)
+  if (!loraResourceIds.length) return
+
+  const rows: LoraRow[] = await prisma.resource.findMany({
+    where: {
+      id: { in: loraResourceIds },
+      resourceType: { in: [ResourceType.LORA, ResourceType.LYCORIS] },
+    },
+    select: {
+      id: true,
+      userId: true,
+      isPublic: true,
+      resourceType: true,
+    },
+  })
+
+  const foundIds = new Set(rows.map((row) => row.id))
+  const missingIds = loraResourceIds.filter((id) => !foundIds.has(id))
+
+  if (missingIds.length) {
     throw createError({
-      statusCode: 403,
-      message: `You do not have permission to attach this ${label} to an ArtImage.`,
+      statusCode: 404,
+      message: `LoRA Resources not found or incompatible: ${missingIds.join(', ')}.`,
     })
   }
+
+  rows.forEach((row) =>
+    assertOwnedOrPublic(row, 'LoRA Resource', userId, isAdmin),
+  )
 }
 
 export async function assertArtImageRelationsAttachable(
@@ -63,11 +126,16 @@ export async function assertArtImageRelationsAttachable(
         ? input.checkpointResourceId
         : undefined,
       (id) =>
-        prisma.resource.findUnique({
-          where: { id },
+        prisma.resource.findFirst({
+          where: { id, resourceType: ResourceType.CHECKPOINT },
           select: { id: true, userId: true, isPublic: true },
         }),
       'checkpoint Resource',
+      userId,
+      isAdmin,
+    ),
+    assertLoraResourcesAccessible(
+      input.loraResourceIds ?? [],
       userId,
       isAdmin,
     ),

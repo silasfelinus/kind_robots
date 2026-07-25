@@ -13,10 +13,12 @@ type PatchUser = {
   isServerKey: boolean
 }
 
-// Owner transfer is intentionally NOT part of the general patch contract: a
-// dedicated administrative endpoint should own reassignment. `userId` is
-// therefore absent from this allowlist, so neither an owner nor an admin can
-// change an ArtImage's owner through the ordinary PATCH route (audit F-1).
+type LoraRelationPatch = {
+  loraResourceIds: number[]
+  disconnectLoraResourceIds: number[]
+  clearLoraResources: boolean
+}
+
 const ART_IMAGE_PATCH_FIELDS = new Set<
   keyof Prisma.ArtImageUncheckedUpdateInput
 >([
@@ -54,14 +56,62 @@ const ART_IMAGE_PATCH_FIELDS = new Set<
 ])
 
 async function requirePatchUser(event: H3Event): Promise<PatchUser> {
-  // Same machine auth as the rest of the art API (JWT / user apiKey /
-  // beta-admin token) so a token that can READ can also WRITE. Throws 401.
   const auth = await requireMachineUser(event)
 
   return {
     id: auth.user.id,
     isAdmin: auth.isAdmin,
     isServerKey: auth.isServerKey,
+  }
+}
+
+function normalizeIdArray(value: unknown, fieldName: string): number[] {
+  if (typeof value === 'undefined' || value === null) return []
+
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be an array of positive integers.`,
+    })
+  }
+
+  const ids = value.map((entry) => Number(entry))
+
+  if (ids.some((id) => !Number.isInteger(id) || id <= 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must contain only positive integers.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
+function readLoraRelationPatch(body: Record<string, unknown>): LoraRelationPatch {
+  const loraResourceIds = normalizeIdArray(
+    body.loraResourceIds,
+    'loraResourceIds',
+  )
+  const connectIds = new Set(loraResourceIds)
+  const disconnectLoraResourceIds = normalizeIdArray(
+    body.disconnectLoraResourceIds,
+    'disconnectLoraResourceIds',
+  ).filter((id) => !connectIds.has(id))
+
+  if (
+    typeof body.clearLoraResources !== 'undefined' &&
+    typeof body.clearLoraResources !== 'boolean'
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: 'clearLoraResources must be a boolean.',
+    })
+  }
+
+  return {
+    loraResourceIds,
+    disconnectLoraResourceIds,
+    clearLoraResources: body.clearLoraResources === true,
   }
 }
 
@@ -88,6 +138,36 @@ function sanitizeArtImagePatch(
   }
 
   return updateData
+}
+
+function buildLoraRelationData(
+  patch: LoraRelationPatch,
+): Prisma.ArtImageUpdateInput {
+  if (patch.clearLoraResources) {
+    return { LoraResources: { set: [] } }
+  }
+
+  if (
+    !patch.loraResourceIds.length &&
+    !patch.disconnectLoraResourceIds.length
+  ) {
+    return {}
+  }
+
+  return {
+    LoraResources: {
+      ...(patch.loraResourceIds.length
+        ? {
+            connect: patch.loraResourceIds.map((id) => ({ id })),
+          }
+        : {}),
+      ...(patch.disconnectLoraResourceIds.length
+        ? {
+            disconnect: patch.disconnectLoraResourceIds.map((id) => ({ id })),
+          }
+        : {}),
+    },
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -135,17 +215,19 @@ export default defineEventHandler(async (event) => {
     }
 
     const updateData = sanitizeArtImagePatch(body)
+    const loraPatch = readLoraRelationPatch(body)
+    const hasLoraPatch =
+      loraPatch.clearLoraResources ||
+      loraPatch.loraResourceIds.length > 0 ||
+      loraPatch.disconnectLoraResourceIds.length > 0
 
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(updateData).length === 0 && !hasLoraPatch) {
       throw createError({
         statusCode: 400,
         message: 'No valid ArtImage fields provided for update.',
       })
     }
 
-    // A connected Server / checkpoint Resource must exist and be public or owned
-    // by the caller (admins bypass the permission check). Raw scalar FK writes
-    // were previously unchecked (audit F-2 residual).
     await assertArtImageRelationsAttachable(
       {
         serverId:
@@ -154,14 +236,21 @@ export default defineEventHandler(async (event) => {
           typeof updateData.checkpointResourceId === 'number'
             ? updateData.checkpointResourceId
             : null,
+        loraResourceIds: loraPatch.loraResourceIds,
       },
       user.id,
       user.isAdmin || user.isServerKey,
     )
 
-    const data = await prisma.artImage.update({
+    const relationData = buildLoraRelationData(loraPatch)
+    const data = {
+      ...updateData,
+      ...relationData,
+    } as Prisma.ArtImageUpdateInput
+
+    const updated = await prisma.artImage.update({
       where: { id },
-      data: updateData,
+      data,
       select: artImageMutationSelect,
     })
 
@@ -170,7 +259,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `ArtImage #${id} updated successfully.`,
-      data,
+      data: updated,
       statusCode: 200,
     }
   } catch (error: unknown) {

@@ -40,6 +40,7 @@ export type FacetListOptions = {
   includeInactive?: boolean
   includeMature?: boolean
   mine?: boolean
+  /** Page size. The store continues until all matching pages are loaded. */
   take?: number
   skip?: number
 }
@@ -73,6 +74,8 @@ export type FacetUpdateInput = Partial<FacetCreateInput> & {
 
 export type FacetOwnerType = 'dream' | 'scenario' | 'artImage'
 
+const FACET_LIBRARY_PAGE_SIZE = 250
+
 function toQuery(options: FacetListOptions): string {
   const query = new URLSearchParams()
   for (const [key, value] of Object.entries(options)) {
@@ -81,6 +84,16 @@ function toQuery(options: FacetListOptions): string {
   }
   const result = query.toString()
   return result ? `?${result}` : ''
+}
+
+function sortFacets(entries: FacetWithAliases[]): FacetWithAliases[] {
+  return entries.sort((a, b) =>
+    a.taxonomy === b.taxonomy
+      ? a.sortOrder === b.sortOrder
+        ? a.title.localeCompare(b.title)
+        : a.sortOrder - b.sortOrder
+      : a.taxonomy.localeCompare(b.taxonomy),
+  )
 }
 
 export const useFacetStore = defineStore('facetStore', () => {
@@ -123,13 +136,7 @@ export const useFacetStore = defineStore('facetStore', () => {
     const index = facets.value.findIndex((entry) => entry.id === facet.id)
     if (index >= 0) facets.value[index] = facet
     else facets.value.push(facet)
-    facets.value.sort((a, b) =>
-      a.taxonomy === b.taxonomy
-        ? a.sortOrder === b.sortOrder
-          ? a.title.localeCompare(b.title)
-          : a.sortOrder - b.sortOrder
-        : a.taxonomy.localeCompare(b.taxonomy),
-    )
+    facets.value = sortFacets([...facets.value])
     return facet
   }
 
@@ -139,13 +146,28 @@ export const useFacetStore = defineStore('facetStore', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await performFetch<FacetWithAliases[]>(
-        `/api/facets${toQuery(options)}`,
+      const pageSize = Math.min(
+        FACET_LIBRARY_PAGE_SIZE,
+        Math.max(1, options.take ?? FACET_LIBRARY_PAGE_SIZE),
       )
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch Facets.')
+      let skip = Math.max(0, options.skip ?? 0)
+      const byId = new Map<number, FacetWithAliases>()
+
+      while (true) {
+        const response = await performFetch<FacetWithAliases[]>(
+          `/api/facets${toQuery({ ...options, take: pageSize, skip })}`,
+        )
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch Facets.')
+        }
+
+        const page = response.data ?? []
+        for (const facet of page) byId.set(facet.id, facet)
+        if (page.length < pageSize) break
+        skip += page.length
       }
-      facets.value = response.data ?? []
+
+      facets.value = sortFacets(Array.from(byId.values()))
       loaded.value = true
       return facets.value
     } catch (cause) {

@@ -14,12 +14,23 @@ import {
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
+import { buildFacetProfileCreateData } from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'
 
 type FacetCreateBody = {
   title?: unknown
   slug?: unknown
   kind?: unknown
+  taxonomy?: unknown
+  canonicalValue?: unknown
+  groupKey?: unknown
+  groupLabel?: unknown
+  sortOrder?: unknown
+  isRandomizable?: unknown
+  randomWeight?: unknown
+  artRequired?: unknown
+  sourceRank?: unknown
+  metadata?: unknown
   description?: unknown
   flavorText?: unknown
   examples?: unknown
@@ -105,6 +116,7 @@ export default defineEventHandler(async (event) => {
     )
       ? (body.creationSource as CreationSource)
       : 'HUMAN'
+    const profileData = buildFacetProfileCreateData(body, { title, kind })
 
     const artImageId = positiveId(body.artImageId)
     const artCollectionId = positiveId(body.artCollectionId)
@@ -151,6 +163,13 @@ export default defineEventHandler(async (event) => {
       const facet = await tx.facet.create({
         data,
         select: facetSummarySelect,
+      })
+
+      await tx.facetProfile.create({
+        data: {
+          facetId: facet.id,
+          ...profileData,
+        },
       })
 
       await tx.facetAlias.createMany({

@@ -240,6 +240,7 @@ class ModelEntry:
     isMature: bool = False
     civitaiUrl: str = ""
     customUrl: str = ""
+    previewImageUrl: str = ""
     triggerWords: str = ""
     defaultTrigger: str = ""
     description: str = ""
@@ -333,6 +334,11 @@ def enrich_civitai(e: ModelEntry, data) -> bool:
     words = data.get("trainedWords") or []
     if isinstance(words, list) and words:
         e.triggerWords = ", ".join(str(w) for w in words if w)
+    imgs = data.get("images") or []
+    if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict):
+        url = imgs[0].get("url")
+        if url:
+            e.previewImageUrl = str(url)
     base = (data.get("baseModel") or "").strip()
     if base:
         e.supportedServer, e.generation = core.map_base(base)
@@ -363,6 +369,11 @@ def enrich_archive(e: ModelEntry, data) -> bool:
     trig = version.get("trigger") or []
     if isinstance(trig, list) and trig and not e.triggerWords:
         e.triggerWords = ", ".join(str(w) for w in trig if w)
+    imgs = version.get("images") or []
+    if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict) and not e.previewImageUrl:
+        url = imgs[0].get("url")
+        if url:
+            e.previewImageUrl = str(url)
     base = (version.get("baseModel") or "").strip()
     if base and not e.base_source:
         e.supportedServer, e.generation = core.map_base(base)
@@ -436,7 +447,9 @@ def to_resource(e: ModelEntry) -> Optional[dict]:
         "isMature": e.isMature,
         "civitaiUrl": e.civitaiUrl or None,
         "customUrl": e.customUrl or None,
+        "previewImageUrl": e.previewImageUrl or None,
         "localPath": e.target_rel,
+        "hash": e.sha256 or None,
         "triggerWords": e.triggerWords or None,
         "defaultTrigger": e.defaultTrigger or None,
         "description": e.description or None,

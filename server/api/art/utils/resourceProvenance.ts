@@ -12,10 +12,22 @@
 //
 // This is intentionally BEST-EFFORT: any failure resolves to "no links" rather
 // than throwing, because provenance must never break a successful render.
-import { ResourceType, type PrismaClient } from '~/prisma/generated/prisma/client'
+import {
+  ResourceType,
+  type Prisma,
+} from '~/prisma/generated/prisma/client'
 import { parseArtJobPayload } from '../../../utils/artJobPayload'
 
-type ResourceClient = { resource: PrismaClient['resource'] }
+type ResourceDelegate = {
+  findFirst: (
+    args: Prisma.ResourceFindFirstArgs,
+  ) => PromiseLike<{ id: number } | null>
+  findMany: (
+    args: Prisma.ResourceFindManyArgs,
+  ) => PromiseLike<Array<{ id: number }>>
+}
+
+type ResourceClient = { resource: unknown }
 
 export type ArtImageResourceLinks = {
   checkpointResourceId: number | null
@@ -45,11 +57,11 @@ function cleanName(value: unknown): string | null {
 // Resolve a free-text checkpoint/LoRA name to a Resource id. A model is stored
 // under several names (file stem, pretty label, on-disk path), so we match any.
 async function resolveByName(
-  client: ResourceClient,
+  resource: ResourceDelegate,
   name: string,
   types: ResourceType[],
 ): Promise<number | null> {
-  const row = await client.resource.findFirst({
+  const row = await resource.findFirst({
     where: {
       resourceType: { in: types },
       OR: [{ localPath: name }, { name }, { customLabel: name }],
@@ -65,6 +77,11 @@ export async function resolveArtImageResourceLinks(
   client: ResourceClient,
 ): Promise<ArtImageResourceLinks> {
   try {
+    // Prisma 7's root client and transaction client expose different generic
+    // delegate wrappers even though the two methods used here share the same
+    // runtime contract. Narrow only at the call site instead of requiring a
+    // full PrismaClient delegate type.
+    const resource = client.resource as ResourceDelegate
     const record = parseArtJobPayload(payload) as Record<string, unknown>
     const block =
       record.resources && typeof record.resources === 'object'
@@ -82,7 +99,7 @@ export async function resolveArtImageResourceLinks(
     if (claimed.length) {
       const found = new Set(
         (
-          await client.resource.findMany({
+          await resource.findMany({
             where: { id: { in: claimed } },
             select: { id: true },
           })
@@ -98,7 +115,7 @@ export async function resolveArtImageResourceLinks(
     if (!checkpointResourceId) {
       const name = cleanName(block.checkpointName)
       if (name) {
-        checkpointResourceId = await resolveByName(client, name, [
+        checkpointResourceId = await resolveByName(resource, name, [
           ResourceType.CHECKPOINT,
         ])
       }
@@ -108,7 +125,7 @@ export async function resolveArtImageResourceLinks(
         .map(cleanName)
         .filter((s): s is string => s !== null)
       const resolved = await Promise.all(
-        names.map((n) => resolveByName(client, n, LORA_TYPES)),
+        names.map((n) => resolveByName(resource, n, LORA_TYPES)),
       )
       loraResourceIds = [
         ...new Set(resolved.filter((n): n is number => n !== null)),

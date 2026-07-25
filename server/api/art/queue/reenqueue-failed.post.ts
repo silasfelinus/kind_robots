@@ -9,16 +9,56 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { normalizeFailedArtJobIds } from '../../../utils/failedArtJobScope'
+import {
+  serializeArtJobPayload,
+} from '../../../utils/artJobPayload'
+import {
+  enrichArtJobPayload,
+  readArtJobProvenance,
+} from '../../../utils/artJobProvenance'
+import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
 
 const REQUEUE_CONCURRENCY = 10
 
-async function requeueFailedJob(id: number): Promise<number> {
+type FailedJobSource = {
+  id: number
+  engine: 'A1111' | 'COMFY'
+  projectSlug: string | null
+  payload: string
+}
+
+type RequeueResult = {
+  id: number
+  imagePathChanged: boolean
+  promptChanged: boolean
+}
+
+async function requeueFailedJob(source: FailedJobSource): Promise<RequeueResult> {
+  const normalization = normalizeQueuedArtJobPayload(source.payload)
+  const priorProvenance = readArtJobProvenance(source.payload)
+  const { payload } = enrichArtJobPayload(
+    source.engine,
+    normalization.payload,
+    {
+      projectSlug: source.projectSlug,
+      idempotencyKey: priorProvenance?.idempotencyKey,
+      requireCompletionProof: priorProvenance?.requireCompletionProof,
+    },
+  )
+
+  payload.queueRepair = {
+    repairedAt: new Date().toISOString(),
+    imagePathChanged: normalization.imagePathChanged,
+    promptChanged: normalization.promptChanged,
+  }
+
   const updated = await prisma.artJob.updateMany({
     where: {
-      id,
+      id: source.id,
       status: 'FAILED',
     },
     data: {
+      payload: serializeArtJobPayload(payload),
       status: 'PENDING',
       claimedAt: null,
       claimedBy: null,
@@ -28,10 +68,14 @@ async function requeueFailedJob(id: number): Promise<number> {
   })
 
   if (updated.count !== 1) {
-    throw new Error(`ArtJob ${id} was no longer FAILED.`)
+    throw new Error(`ArtJob ${source.id} was no longer FAILED.`)
   }
 
-  return id
+  return {
+    id: source.id,
+    imagePathChanged: normalization.imagePathChanged,
+    promptChanged: normalization.promptChanged,
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -61,21 +105,30 @@ export default defineEventHandler(async (event) => {
         id: { in: selectedJobIds },
         status: 'FAILED',
       },
-      select: { id: true },
+      select: {
+        id: true,
+        engine: true,
+        projectSlug: true,
+        payload: true,
+      },
     })
-    const matchingIds = new Set(matchingRows.map((row) => row.id))
+    const sourcesById = new Map(
+      matchingRows.map((row) => [row.id, row as FailedJobSource]),
+    )
     const sources = selectedJobIds
-      .filter((id) => matchingIds.has(id))
-      .map((id) => ({ id }))
-    const skippedJobIds = selectedJobIds.filter((id) => !matchingIds.has(id))
+      .map((id) => sourcesById.get(id))
+      .filter((source): source is FailedJobSource => Boolean(source))
+    const skippedJobIds = selectedJobIds.filter((id) => !sourcesById.has(id))
 
     const requeuedJobIds: number[] = []
     const failedSourceJobIds: number[] = []
+    let repairedImagePathCount = 0
+    let repairedPromptCount = 0
 
     for (let index = 0; index < sources.length; index += REQUEUE_CONCURRENCY) {
       const batch = sources.slice(index, index + REQUEUE_CONCURRENCY)
       const results = await Promise.allSettled(
-        batch.map((source) => requeueFailedJob(source.id)),
+        batch.map((source) => requeueFailedJob(source)),
       )
 
       results.forEach((result, resultIndex) => {
@@ -83,7 +136,9 @@ export default defineEventHandler(async (event) => {
         if (!source) return
 
         if (result.status === 'fulfilled') {
-          requeuedJobIds.push(result.value)
+          requeuedJobIds.push(result.value.id)
+          if (result.value.imagePathChanged) repairedImagePathCount += 1
+          if (result.value.promptChanged) repairedPromptCount += 1
         } else {
           failedSourceJobIds.push(source.id)
         }
@@ -102,16 +157,18 @@ export default defineEventHandler(async (event) => {
         requestedCount === 0
           ? 'None of the selected ArtJobs are still failed.'
           : failedCount > 0
-            ? `Requeued ${queuedCount} of ${requestedCount} selected failed ArtJobs. ${failedCount} could not be requeued.`
+            ? `Repaired and requeued ${queuedCount} of ${requestedCount} selected failed ArtJobs. ${failedCount} could not be requeued.`
             : skippedCount > 0
-              ? `Requeued ${queuedCount} selected failed ArtJobs. ${skippedCount} selected jobs were skipped because they were missing or no longer failed.`
-              : `Requeued ${queuedCount} selected failed ArtJobs in place.`,
+              ? `Repaired and requeued ${queuedCount} selected failed ArtJobs. ${skippedCount} selected jobs were skipped because they were missing or no longer failed.`
+              : `Repaired and requeued ${queuedCount} selected failed ArtJobs in place.`,
       data: {
         selectedCount,
         requestedCount,
         queuedCount,
         failedCount,
         skippedCount,
+        repairedImagePathCount,
+        repairedPromptCount,
         selectedJobIds,
         sourceJobIds: sources.map((source) => source.id),
         skippedJobIds,

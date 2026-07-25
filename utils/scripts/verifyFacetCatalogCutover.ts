@@ -27,6 +27,9 @@ async function main(): Promise<void> {
       'prisma/migrations/20260725113000_facet_catalog_cutover/migration.sql',
     catalog: 'server/utils/facetCatalog.ts',
     catalogRoute: 'server/api/facets/catalog.get.ts',
+    facetCreate: 'server/api/facets/index.post.ts',
+    facetPatch: 'server/api/facets/[id].patch.ts',
+    profileInput: 'server/utils/facetProfileInput.ts',
     characterGet: 'server/api/characters/[id]/facets.get.ts',
     characterPut: 'server/api/characters/[id]/facets.put.ts',
     seed: 'utils/scripts/seedFacetCatalog.ts',
@@ -76,6 +79,22 @@ async function main(): Promise<void> {
   requireText(files.catalog, text.catalog, 'id: { in: aliasFacetIds }')
   requireText(files.catalog, text.catalog, 'if (options.take == null)')
 
+  requireText(files.profileInput, text.profileInput, 'normalizeFacetTaxonomy')
+  requireText(files.profileInput, text.profileInput, 'buildFacetProfileCreateData')
+  requireText(files.profileInput, text.profileInput, 'buildFacetProfileUpdateData')
+  requireText(files.profileInput, text.profileInput, "taxonomy !== 'COLOR'")
+  requireText(
+    files.profileInput,
+    text.profileInput,
+    'Facet metadata must be a valid JSON object.',
+  )
+  requireText(files.facetCreate, text.facetCreate, 'buildFacetProfileCreateData')
+  requireText(files.facetCreate, text.facetCreate, 'tx.facetProfile.create')
+  requireText(files.facetCreate, text.facetCreate, 'facetId: facet.id')
+  requireText(files.facetPatch, text.facetPatch, 'buildFacetProfileUpdateData')
+  requireText(files.facetPatch, text.facetPatch, 'tx.facetProfile.upsert')
+  requireText(files.facetPatch, text.facetPatch, 'where: { facetId: id }')
+
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')
   requireText(files.characterPut, text.characterPut, 'resolveFacetSelection')
@@ -87,7 +106,11 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'artListPresets')
   requireText(files.seed, text.seed, "title = isWaterBear ? 'Tardigrade'")
   requireText(files.seed, text.seed, "taxonomy !== 'COLOR'")
-  requireText(files.seed, text.seed, 'negative prompts remain generation configuration')
+  requireText(
+    files.seed,
+    text.seed,
+    'negative prompts remain generation configuration',
+  )
   requireText(files.seed, text.seed, 'backfillCharacterLinks')
   requireText(files.seed, text.seed, 'createDatabaseAdapter')
   forbidText(files.seed, text.seed, 'new PrismaMariaDb(')

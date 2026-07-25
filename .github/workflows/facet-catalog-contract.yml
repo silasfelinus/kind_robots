@@ -15,6 +15,8 @@ jobs:
   facet-catalog:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      DATABASE_URL: mysql://facet_contract:facet_contract@127.0.0.1:3306/facet_contract
     steps:
       - name: Checkout
         uses: actions/checkout@v4

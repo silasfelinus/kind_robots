@@ -1,6 +1,7 @@
 // /scripts/vercel-build.mjs
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
+import { resolveFacetCatalogSeedDecision } from './lib/facetCatalogSeedPolicy.mjs'
 
 const binExtension = process.platform === 'win32' ? '.cmd' : ''
 const prismaBinary = path.resolve(`node_modules/.bin/prisma${binExtension}`)
@@ -15,10 +16,7 @@ function run(command, args, label) {
     stdio: 'inherit',
   })
 
-  if (result.error) {
-    throw result.error
-  }
-
+  if (result.error) throw result.error
   if (result.status !== 0) {
     throw new Error(`${label} exited with code ${result.status ?? 'unknown'}`)
   }
@@ -35,13 +33,24 @@ if (!isVercelBuild || isProductionDeployment) {
     ['scripts/prisma-migrate-deploy.mjs'],
     'Applying production migrations',
   )
-  // runFacetCatalogSeed.ts normalizes source synonyms before importing
-  // seedFacetCatalog.ts; the latter remains the canonical catalog writer.
-  run(
-    tsxBinary,
-    ['utils/scripts/runFacetCatalogSeed.ts', '--apply'],
-    'Seeding canonical Facet catalog and Character assignments',
-  )
+
+  const facetSeedDecision = resolveFacetCatalogSeedDecision()
+  if (facetSeedDecision.run) {
+    // runFacetCatalogSeed.ts normalizes source synonyms before importing
+    // seedFacetCatalog.ts; the latter remains the canonical catalog writer.
+    run(
+      tsxBinary,
+      ['utils/scripts/runFacetCatalogSeed.ts', '--apply'],
+      `Seeding canonical Facet catalog and Character assignments (${facetSeedDecision.reason})`,
+    )
+  } else {
+    console.log(
+      `[vercel-build] Skipping unchanged canonical Facet catalog seed: ${facetSeedDecision.reason}`,
+    )
+  }
+
+  // Cheap and idempotent: retain this on every production build so any partial
+  // historical cleanup converges even when the 1,300-record catalog seed is skipped.
   run(
     tsxBinary,
     ['utils/scripts/mergeCanonicalFacetDuplicates.ts', '--apply'],

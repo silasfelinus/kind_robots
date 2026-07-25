@@ -68,6 +68,19 @@ export type CharacterFacetAssignment = {
   source?: string
 }
 
+type FacetCatalogQuery = {
+  taxonomies?: FacetTaxonomy[]
+  includeInactive?: boolean
+  includeMature?: boolean
+  randomizableOnly?: boolean
+  search?: string
+  /** Page size. The store continues requesting pages until the result is complete. */
+  take?: number
+  skip?: number
+}
+
+const FACET_CATALOG_PAGE_SIZE = 1000
+
 export const CHARACTER_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   genre: ['GENRE'],
   species: ['ANIMAL', 'SPECIES'],
@@ -79,15 +92,7 @@ export const CHARACTER_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   role: ['ROLE'],
 }
 
-function toQuery(options: {
-  taxonomies?: FacetTaxonomy[]
-  includeInactive?: boolean
-  includeMature?: boolean
-  randomizableOnly?: boolean
-  search?: string
-  take?: number
-  skip?: number
-}): string {
+function toQuery(options: FacetCatalogQuery): string {
   const query = new URLSearchParams()
   if (options.taxonomies?.length) {
     query.set('taxonomy', options.taxonomies.join(','))
@@ -100,6 +105,34 @@ function toQuery(options: {
   if (options.skip != null) query.set('skip', String(options.skip))
   const value = query.toString()
   return value ? `?${value}` : ''
+}
+
+async function fetchAllCatalogPages(
+  options: FacetCatalogQuery,
+): Promise<FacetCatalogEntry[]> {
+  const pageSize = Math.min(
+    FACET_CATALOG_PAGE_SIZE,
+    Math.max(1, options.take ?? FACET_CATALOG_PAGE_SIZE),
+  )
+  let skip = Math.max(0, options.skip ?? 0)
+  const entriesById = new Map<number, FacetCatalogEntry>()
+
+  while (true) {
+    const response = await performFetch<FacetCatalogEntry[]>(
+      `/api/facets/catalog${toQuery({ ...options, take: pageSize, skip })}`,
+    )
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to load canonical Facets.')
+    }
+
+    const page = response.data ?? []
+    for (const entry of page) entriesById.set(entry.id, entry)
+
+    if (page.length < pageSize) break
+    skip += page.length
+  }
+
+  return Array.from(entriesById.values())
 }
 
 function splitCharacterField(fieldKey: string, value: unknown): string[] {
@@ -165,7 +198,7 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
   })
 
   async function fetchCatalog(
-    options: Parameters<typeof toQuery>[0] = {},
+    options: FacetCatalogQuery = {},
     force = false,
   ): Promise<FacetCatalogEntry[]> {
     if (loaded.value && !force && !Object.keys(options).length) {
@@ -175,13 +208,7 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await performFetch<FacetCatalogEntry[]>(
-        `/api/facets/catalog${toQuery({ take: 1000, ...options })}`,
-      )
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to load canonical Facets.')
-      }
-      entries.value = response.data ?? []
+      entries.value = await fetchAllCatalogPages(options)
       loaded.value = true
       return entries.value
     } catch (cause) {

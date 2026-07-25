@@ -74,6 +74,7 @@ async function main(): Promise<void> {
   requireText(files.catalog, text.catalog, 'aliasFacetIds')
   requireText(files.catalog, text.catalog, 'lookupKey: { contains: normalizedSearch }')
   requireText(files.catalog, text.catalog, 'id: { in: aliasFacetIds }')
+  requireText(files.catalog, text.catalog, 'if (options.take == null)')
 
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')
@@ -94,6 +95,10 @@ async function main(): Promise<void> {
 
   requireText(files.catalogStore, text.catalogStore, 'CHARACTER_FIELD_TAXONOMIES')
   requireText(files.catalogStore, text.catalogStore, 'syncCharacterFacets')
+  requireText(files.catalogStore, text.catalogStore, 'fetchAllCatalogPages')
+  requireText(files.catalogStore, text.catalogStore, 'while (true)')
+  requireText(files.catalogStore, text.catalogStore, 'skip += page.length')
+  requireText(files.catalogStore, text.catalogStore, 'entriesById.set(entry.id, entry)')
   requireText(files.builderPlugin, text.builderPlugin, 'hydrateAdventureBuilder')
   requireText(files.builderPlugin, text.builderPlugin, 'patchGenerator')
   requireText(files.builderPlugin, text.builderPlugin, 'patchCharacterSave')
@@ -113,6 +118,7 @@ async function main(): Promise<void> {
 
   requireText(files.variants, text.variants, 'loadFacetCatalogEntries')
   requireText(files.variants, text.variants, 'prisma.reward.findMany')
+  forbidText(files.variants, text.variants, 'take: 1000')
   forbidText(files.variants, text.variants, 'prisma.dream.findMany')
   forbidText(files.variants, text.variants, 'dreamToRandomListItem')
 

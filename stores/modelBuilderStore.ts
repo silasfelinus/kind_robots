@@ -328,6 +328,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Per-button spinner state for AI drafting: which item/field is in flight.
   const draftingField = ref<{ itemId: string; field: DraftField } | null>(null)
 
+  // Run ids cancelled via cancelRun, so a synchronous generateItemAsset call
+  // still in flight when the user cancels its run can tell "my run was
+  // cancelled" apart from "the user merely navigated to a different run"
+  // (findItem(itemId) alone can't distinguish those — both leave the item
+  // unreachable from the now-different state.run). See generateItemAsset.
+  const cancelledRunIds = new Set<string>()
+
   // --- display helpers ------------------------------------------------------
 
   function sourceLabel(record: SourceRecord | null): string {
@@ -842,6 +849,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function generateItemAsset(itemId: string): Promise<boolean> {
     const item = findItem(itemId)
     if (!item || !state.run) return false
+    const runId = state.run.id
 
     if (item.generation !== 'image') {
       // Non-image generation kinds (text, plan, video, 3d) are catalogued but
@@ -883,6 +891,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       if (!result.success || !result.data) {
         throw new Error(result.message || 'Generation failed.')
       }
+
+      // artStore.generateCurrentArt can take long enough for the user to
+      // cancel this exact run while it's rendering. Unlike draftText (which
+      // routes its result through updatePitch/Fields/Prompt's own fresh
+      // findItem lookup), this function has held only the original item
+      // reference since the top of the call, so it would otherwise persist a
+      // candidate — and pop a "Generated a candidate" success toast — for an
+      // item whose run the user just told us to abandon. Checking cancelledRunIds
+      // (rather than just re-resolving via findItem) also avoids the false
+      // positive of the user having merely switched to a different, still-active
+      // run, where the candidate should still be saved.
+      if (cancelledRunIds.has(runId)) return false
 
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
@@ -1475,6 +1495,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         setStatus('error', response.message || 'Failed to cancel run.')
         return
       }
+      // Record the cancellation so a synchronous generateItemAsset call still
+      // in flight for one of this run's items can tell it was cancelled (see
+      // generateItemAsset / cancelledRunIds above).
+      cancelledRunIds.add(runId)
       // Stop any in-flight async art-generation polls (generateItemAssetAsync)
       // for this run's items. pollAsyncArtJob's while loop keys off
       // item.artJobId === jobId, so clearing it makes the loop exit at its

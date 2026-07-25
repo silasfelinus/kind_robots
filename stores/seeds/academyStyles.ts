@@ -1425,6 +1425,105 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image as a Mughal miniature: naturalistic, individualized faces with fine stippled modeling, atmospheric landscape recession, gold used sparingly for thrones/halos/ornament only, dense precise brushwork on brocade and jewelry, and a wide floral or scrollwork decorative border, distinct from flatter Persian miniature color fields',
     },
   },
+  {
+    slug: 'fayum-mummy-portraits',
+    name: 'Fayum Mummy Portraits',
+    era: 'c. A.D. 50–250',
+    sortYear: 50,
+    region: 'Roman Egypt (Fayum oasis, Antinoopolis, Memphis)',
+    keyIdeas:
+      "In Roman-era Egypt, funerary practice fused Egyptian mummification with imported Greco-Roman portrait painting: a lifelike panel portrait of the deceased, painted in encaustic (pigmented hot wax, occasionally tempera) on a thin wood panel, was wrapped directly into the mummy's linen bandaging over the face. Named for the Fayum oasis where the largest number survive, these are among the only large surviving body of painted portraiture from the ancient Mediterranean world. The style is strikingly naturalistic for its era: modeled flesh tones, individualized features, and direct psychological presence, sitting at the meeting point of Egyptian funerary tradition and Roman portrait convention. Almost nothing is known of the individual painters — no signed Fayum portrait survives.",
+    recognitionCues: [
+      'Large, dark, almond-shaped eyes with heavy brows, gazing directly at (or just past) the viewer — the single most distinctive trait of the style',
+      'Warm, honey-toned modeled skin built up in visible ridges of thick encaustic wax, not smooth glazed paint',
+      'A plain, flat, dark or muted background with no setting, landscape, or architecture',
+      'Simple Roman-style hairstyles and drapery, occasionally with modest gold-leaf jewelry, a wreath, or a diadem',
+      'Three-quarter or fully frontal head-and-shoulders framing, cropped close, no hands or body beyond the chest',
+      'No cast shadow or single light source modeling — illumination reads as even and frontal rather than dramatic',
+    ],
+    artists: [
+      {
+        name: 'Anonymous Fayum painters',
+        years: 'c. A.D. 50–250',
+        note: "No Fayum portrait carries a painter's signature or attribution, and no ancient text names an individual practitioner — the tradition is credited to its anonymous makers.",
+      },
+    ],
+    failureMode:
+      'The most photorealistic style in the curriculum, so the likeliest failure is a generic "vintage photo" filter that skips the actual signature; lean on the oversized almond eyes, visible encaustic ridge texture, flat dark background, and absence of cast shadow to keep it distinct from realism/renaissance portraiture',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Fayum mummy portrait: a direct frontal or slightly turned gaze with large dark almond-shaped eyes and heavy dark brows, warm honey-toned skin built from thick encaustic wax brushstrokes with visible ridge texture, simple Roman-style hair and dress, a plain flat dark background, and a thin gold-leaf wreath or jewelry accent',
+    },
+  },
+  {
+    slug: 'vienna-secession',
+    name: 'Vienna Secession',
+    era: 'c. 1897–1918',
+    sortYear: 1897,
+    region: 'Vienna, Austria',
+    keyIdeas:
+      'Founded in 1897 when Gustav Klimt and a group of Viennese artists broke from the conservative Künstlerhaus academy under the motto "Der Zeit ihre Kunst, der Kunst ihre Freiheit" ("To every age its art, to art its freedom"), the Vienna Secession fused Art Nouveau\'s organic decorative line with a new, almost proto-abstract flatness: whole passages of a picture dissolve into pure ornamental pattern — gold-leaf spirals, eyes, rectangles, checkerboards — while the figures\' faces and hands remain rendered with sharp, almost photographic naturalism. The effect sits deliberately between two-dimensional pattern and three-dimensional portraiture in the same canvas, applied to symbolic and allegorical subjects (love, mortality, myth) rather than everyday scenes. Klimt\'s late "Golden Phase" (c. 1899-1910) is the movement\'s best-known and most visually distinctive output.',
+    recognitionCues: [
+      'Large flat fields of gold leaf or gold-toned metallic paint applied as ornamental pattern (spirals, concentric eyes, rectangles), not as illumination or light',
+      'A jarring contrast between finely modeled, naturalistic faces/hands and the totally flat, non-representational ornament surrounding them',
+      'Elongated, stylized figures with little or no anatomical volume below the head and hands',
+      'Rich, saturated jewel-toned color "islands" (deep reds, greens, blues) set within or against the gold field',
+      'Symbolic or mythic subject matter — lovers, femme fatale figures, allegorical women — rather than portraiture of daily life',
+      'No cast shadow, no realistic perspective or setting; a strong decorative border or framing device',
+    ],
+    artists: [
+      {
+        name: 'Gustav Klimt',
+        years: '1862–1918',
+        note: 'Founding president of the Vienna Secession, best known for the gold-leaf "Golden Phase" works that define the movement in the popular imagination.',
+      },
+    ],
+    failureMode:
+      'Model may gild everything uniformly and lose the defining contrast between flat ornament and naturalistic face/hands; lean on fine naturalistic detail in the face and hands set against the abstract gold pattern to keep the face legible rather than dissolved into pattern',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Vienna Secession painting in the style of Gustav Klimt: flat ornamental fields of gold leaf and gold-toned metallic pattern (spirals, eyes, rectangles) replacing background depth, an elongated figure rendered with fine naturalistic detail in face and hands set against the abstract gold pattern, rich jewel-toned color islands within the gold, no cast shadow or realistic perspective, a strong decorative border',
+    },
+  },
+  {
+    slug: 'joseon-genre-painting',
+    name: 'Joseon Dynasty Korean Genre Painting',
+    era: 'c. 1750–1820',
+    sortYear: 1750,
+    region: 'Late Joseon Dynasty, Korea',
+    keyIdeas:
+      'For most of the Joseon Dynasty, Korean painting followed Chinese scholarly convention: monochrome ink landscapes and disciplined calligraphic brushwork, made by and for the yangban aristocracy. In the late 18th century a handful of court painters turned that same economical brush toward something almost nobody had painted seriously before: ordinary people doing ordinary things — wrestling matches, village schoolrooms, courting couples, market stalls. This genre-painting tradition (pungsokhwa, "pictures of customs") is candid and often funny, with a light touch that assumes the viewer already knows the joke. There is no dense border, no gold, and often barely any background at all — figures float on plain paper, caught mid-gesture, the whole scene carried by a few confident, economical lines.',
+    recognitionCues: [
+      'Thin, quick, calligraphic brush lines describing figures with very few strokes — closer to gesture drawing than to finished modeling',
+      'Light, translucent color washes (pale ochre, dull red, indigo, soft gray) over ink outline, never opaque or richly layered paint',
+      'Little or no background: figures are placed on bare paper with at most a single horizon line or a suggested patch of ground',
+      'Candid, often humorous everyday subject matter — commoners at work, play, or courtship — rather than court portraiture, myth, or religious subjects',
+      'Figures grouped in loose circular or diagonal clusters (a wrestling ring, a classroom of scattered students) rather than a formal frontal arrangement',
+      'A small red seal (dojang) stamped in one corner',
+      'No cast shadow, no linear perspective — space is implied by placement on the page, not by a horizon or vanishing point',
+    ],
+    artists: [
+      {
+        name: 'Kim Hong-do',
+        years: '1745 – c. 1806',
+        note: "Pen name Danwon. Court painter to King Jeongjo and the movement's central figure, best known for his Album of Genre Paintings (Danwon pungsokdo cheop, South Korea's National Treasure 527).",
+      },
+      {
+        name: 'Sin Yun-bok',
+        years: '1758 – after 1813',
+        note: 'Pen name Hyewon. A generation younger than Kim Hong-do; specialized in scenes of courtship and leisure among ordinary townspeople, painted with the same light, economical brush.',
+      },
+    ],
+    failureMode:
+      'Likely fails toward a generic "sumi-e"/ink-wash filter that keeps the photo\'s real background instead of emptying the frame; lean on "almost no background detail beyond a single ground line" and "plain paper" to distinguish it from Song Dynasty landscape\'s ink-wash family',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a late-Joseon Korean genre painting (pungsokhwa) in the style of Kim Hong-do: loose, economical brush-line figures with light, translucent color wash on plain paper, a candid or gently humorous everyday moment, almost no background detail beyond a single ground line, muted earthy palette of pale ochre, indigo, and dull red, a small red seal stamp in one corner, no cast shadow or linear perspective',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> =

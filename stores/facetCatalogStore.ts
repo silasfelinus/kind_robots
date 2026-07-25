@@ -60,14 +60,6 @@ export type FacetCatalogEntry = {
   isActive: boolean
 }
 
-export type CharacterFacetAssignment = {
-  facetId: number
-  fieldKey: string
-  sortOrder?: number
-  weight?: number
-  source?: string
-}
-
 type FacetCatalogQuery = {
   taxonomies?: FacetTaxonomy[]
   includeInactive?: boolean
@@ -133,21 +125,6 @@ async function fetchAllCatalogPages(
   }
 
   return Array.from(entriesById.values())
-}
-
-function splitCharacterField(fieldKey: string, value: unknown): string[] {
-  if (typeof value !== 'string') return []
-  const trimmed = value.trim()
-  if (!trimmed) return []
-
-  if (fieldKey === 'quirks' || fieldKey === 'personality') {
-    return trimmed
-      .split(/\n---\n|\||\n|;|,/)
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-  }
-
-  return [trimmed]
 }
 
 function weightedPick(entries: FacetCatalogEntry[]): FacetCatalogEntry | null {
@@ -256,47 +233,6 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     }))
   }
 
-  function characterAssignments(
-    character: Record<string, unknown>,
-  ): CharacterFacetAssignment[] {
-    const assignments: CharacterFacetAssignment[] = []
-    const seen = new Set<string>()
-
-    for (const fieldKey of Object.keys(CHARACTER_FIELD_TAXONOMIES)) {
-      const values = splitCharacterField(fieldKey, character[fieldKey])
-      for (const [sortOrder, value] of values.entries()) {
-        const facet = facetForValue(value)
-        if (!facet) continue
-        const key = `${fieldKey}:${facet.id}`
-        if (seen.has(key)) continue
-        seen.add(key)
-        assignments.push({
-          facetId: facet.id,
-          fieldKey,
-          sortOrder,
-          source: 'BUILDER',
-        })
-      }
-    }
-
-    return assignments
-  }
-
-  async function syncCharacterFacets(
-    characterId: number,
-    character: Record<string, unknown>,
-  ): Promise<void> {
-    const assignments = characterAssignments(character)
-    const response = await performFetch(`/api/characters/${characterId}/facets`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assignments }),
-    })
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to save Character Facets.')
-    }
-  }
-
   return {
     entries,
     loading,
@@ -310,7 +246,5 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     facetForValue,
     randomFacetForField,
     builderChoicesForField,
-    characterAssignments,
-    syncCharacterFacets,
   }
 })

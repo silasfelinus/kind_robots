@@ -214,6 +214,14 @@ Same flags as `scan_loras.py` (`--no-civitai`, `--no-archive`, `--overrides`,
   place instead of sorting them. Use when they live in mixed bundle folders or
   drive video workflows you don't want disturbed.
 
+**Big-file hashing:** these models are large (multi-GB). scan_models only
+hashes kinds a by-hash lookup can identify (checkpoints, video, diffusion
+models) — text encoders, VAEs, clip-vision, and upscalers skip hashing (no hash
+DB indexes them anyway; they're cataloged from their folder). Keep
+`--hash-workers` **low (2–3, the default is 3)** on a spinning array/NAS:
+concurrent multi-GB reads seek-thrash the disks and throughput collapses. The
+hash cache makes interrupted runs resumable, so a stalled run loses nothing.
+
 Offline base-model detection knows the current architectures (SD15, SDXL, Pony,
 Illustrious, NoobAI, Flux, Kontext, ZImage, Qwen, Wan, Hunyuan/3D). Anything it
 can't place from folder/filename lands in `checkpoints/Unknown` and is resolved
@@ -233,6 +241,51 @@ leaves the whole video/audio set in place if you'd rather not touch it.
 > `ResourceType` enum yet**. The phase-2 Prisma migration must add them (or the
 > importer falls back to `CHECKPOINT` + `generation`). This is flagged in the
 > catalog so nothing imports with an invalid enum by surprise.
+
+---
+
+# import_catalog.py — load a catalog into kind_robots Resources
+
+Once a catalog looks right, push it into the `Resource` table via the batch
+endpoint (`POST /api/resources/batch`). Duplicate names are skipped server-side,
+so re-running is safe and incremental.
+
+**Requires the phase-2 schema migration** (`prisma/migrations/*_lora_catalog_fields`),
+which adds `triggerWords` + `defaultTrigger` columns to `Resource` and the
+`VAE` / `TEXT_ENCODER` / `DIFFUSION_MODEL` (ResourceType) and `LTX` / `WAN`
+(SupportedServer) enum values. Run `prisma migrate deploy` before importing.
+
+Auth is a **kind_robots API key** (a user API key or admin token) sent as
+`x-api-key` — NOT your Civitai token.
+
+```bash
+# Always dry-run first — writes the payload, sends nothing:
+python3 import_catalog.py catalog/lora-catalog.json --url https://kindrobots.org --dry-run
+
+# Real import (skip rows still flagged needs_review):
+python3 import_catalog.py catalog/lora-catalog.json \
+    --url https://kindrobots.org --api-key YOUR_KR_KEY --skip-review
+
+# Both catalogs, and a test run capped at 20 first:
+python3 import_catalog.py catalog/lora-catalog.json catalog/models-catalog.json \
+    --url https://kindrobots.org --api-key YOUR_KR_KEY --limit 20
+```
+
+| Flag | Meaning |
+|------|---------|
+| `--url` | kind_robots base URL (required). |
+| `--api-key` | kind_robots API key, or set `KR_API_KEY`. Sent as `x-api-key`. |
+| `--dry-run` | Build + write the payload (`import-payload.json`), POST nothing. |
+| `--skip-review` | Skip rows the catalog flagged `needs_review`. |
+| `--mature only\|none\|all` | Import only mature, only SFW, or everything (default). |
+| `--limit N` | Import at most N (handy for a first test). |
+| `--batch-size N` | Records per POST (default 50). |
+
+Infra rows (a model with no Resource record — tool models, uncataloged
+video components) are skipped automatically. Names over the 191-char server
+limit are truncated, with the full name preserved in `customLabel`.
+
+---
 
 ### After the sort: point A1111 at the Comfy library
 

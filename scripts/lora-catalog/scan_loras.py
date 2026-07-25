@@ -115,14 +115,36 @@ BASEMODEL_MAP: dict[str, tuple[str, str]] = {
     "sd 3.5 large": ("GENERIC", "SD 3.5 Large"),
     "hunyuan video": ("GENERIC", "Hunyuan Video"),
     "hunyuan 1": ("GENERIC", "Hunyuan"),
-    "wan video": ("GENERIC", "Wan Video"),
-    "wan video 14b i2v 480p": ("GENERIC", "Wan Video 14B i2v 480p"),
-    "ltxv": ("GENERIC", "LTXV"),
+    "wan video": ("WAN", "Wan Video"),
+    "wan video 14b i2v 480p": ("WAN", "Wan Video 14B i2v 480p"),
+    "ltxv": ("LTX", "LTXV"),
     "kolors": ("GENERIC", "Kolors"),
     "pixart a": ("GENERIC", "PixArt A"),
     "pixart e": ("GENERIC", "PixArt E"),
     "aura flow": ("GENERIC", "AuraFlow"),
 }
+
+
+def map_base(base: str) -> tuple[str, str]:
+    """Map a raw baseModel string to (supportedServer, generation). Falls back
+    to substring detection so video/newer families still get a real server
+    (WAN, LTX, KONTEXT, FLUX, SDXL) instead of GENERIC."""
+    key = (base or "").strip().lower()
+    if key in BASEMODEL_MAP:
+        return BASEMODEL_MAP[key]
+    if "wan" in key:
+        return ("WAN", base)
+    if "ltx" in key:
+        return ("LTX", base)
+    if "kontext" in key:
+        return ("KONTEXT", base)
+    if "flux" in key:
+        return ("FLUX", base)
+    if "pony" in key or "illustrious" in key or "noobai" in key or "xl" in key:
+        return ("SDXL", base)
+    if "sd 1" in key or "sd1" in key or "1.5" in key:
+        return ("SD15", base)
+    return ("GENERIC", base or "")
 
 
 def folder_group(generation: str, supported_server: str) -> str:
@@ -383,8 +405,7 @@ def apply_civitai(entry: LoraEntry, data: Any) -> bool:
     base = (data.get("baseModel") or "").strip()
     if base:
         entry.baseModel_raw = base
-        entry.supportedServer, entry.generation = BASEMODEL_MAP.get(
-            base.lower(), ("GENERIC", base))
+        entry.supportedServer, entry.generation = map_base(base)
         entry.base_source = "civitai"
     mtype = (model.get("type") or "").lower()
     if mtype == "locon" or "lycoris" in mtype:
@@ -425,8 +446,7 @@ def apply_civarchive(entry: LoraEntry, data: Any) -> bool:
     base = (version.get("baseModel") or "").strip()
     if base and not entry.base_source:
         entry.baseModel_raw = base
-        entry.supportedServer, entry.generation = BASEMODEL_MAP.get(
-            base.lower(), ("GENERIC", base))
+        entry.supportedServer, entry.generation = map_base(base)
         entry.base_source = "civarchive"
     mtype = (model.get("type") or "").lower()
     if mtype == "locon" or "lycoris" in mtype:

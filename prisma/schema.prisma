@@ -1010,6 +1010,8 @@ model Resource {
   isPublic        Boolean         @default(false)
   isActive        Boolean         @default(true)
   artPrompt       String?         @db.Text
+  triggerWords    String?         @db.Text
+  defaultTrigger  String?         @db.Text
   imagePath       String?
   slug            String?         @unique @db.VarChar(255)
   ArtImages       ArtImage[]      @relation("ArtImageCheckpointResource")
@@ -1905,6 +1907,9 @@ enum ResourceType {
   CONTROLNET
   URL
   API
+  VAE
+  TEXT_ENCODER
+  DIFFUSION_MODEL
 }
 
 enum RewardType {
@@ -2107,6 +2112,8 @@ enum SupportedServer {
   GENERIC
   UNKNOWN
   OPENAI
+  LTX
+  WAN
 }
 
 enum TodoStatus {

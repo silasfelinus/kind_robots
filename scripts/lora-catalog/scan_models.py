@@ -67,6 +67,14 @@ import scan_loras as core  # shared detection engine (same directory)
 RESOURCE_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
                   "diffusion_model", "text_encoder", "vae"}
 
+# kinds worth hashing — a by-hash lookup only helps for models that exist on
+# Civitai/CivArchive. Text encoders, VAEs, clip-vision, upscalers, etc. are
+# standard files no hash DB indexes, so hashing their multi-GB bulk is pure
+# cost. They're still cataloged from their folder; they just skip the SHA256.
+HASH_KINDS = {"checkpoint", "video_checkpoint", "audio_checkpoint",
+              "diffusion_model", "unknown", "lora", "controlnet",
+              "hypernetwork", "embedding"}
+
 # kind -> kind_robots ResourceType. Components need enum members that don't
 # exist yet (VAE / TEXT_ENCODER / DIFFUSION_MODEL) — the phase-2 migration must
 # add them; until then the importer can fall back to CHECKPOINT+generation.
@@ -294,13 +302,15 @@ def build_entry(path: Path, root: Path, cache: core.Cache,
     e.filename = path.name
     e.name = path.stem
     e.size_bytes = st.st_size
-    if not no_hash:
+    e.kind, e.comfy_folder, e.is_tool = classify(e.relpath)
+    # Hash only kinds a by-hash lookup can identify — skips the multi-GB bulk of
+    # text encoders / VAEs / upscalers that no hash DB indexes anyway.
+    if not no_hash and e.kind in HASH_KINDS:
         key = core.cache_key(path, st)
         cached = cache.get_hash(key)
         e.sha256 = cached or core.sha256_file(path)
         if not cached:
             cache.put_hash(key, e.sha256)
-    e.kind, e.comfy_folder, e.is_tool = classify(e.relpath)
     meta = {}
     if path.suffix.lower() == ".safetensors":
         meta, _names = core.read_safetensors_header(path)
@@ -325,7 +335,7 @@ def enrich_civitai(e: ModelEntry, data) -> bool:
         e.triggerWords = ", ".join(str(w) for w in words if w)
     base = (data.get("baseModel") or "").strip()
     if base:
-        e.supportedServer, e.generation = core.BASEMODEL_MAP.get(base.lower(), ("GENERIC", base))
+        e.supportedServer, e.generation = core.map_base(base)
         e.base_source = "civitai"
     if model.get("nsfw") is not None:
         e.isMature = bool(model["nsfw"])
@@ -355,7 +365,7 @@ def enrich_archive(e: ModelEntry, data) -> bool:
         e.triggerWords = ", ".join(str(w) for w in trig if w)
     base = (version.get("baseModel") or "").strip()
     if base and not e.base_source:
-        e.supportedServer, e.generation = core.BASEMODEL_MAP.get(base.lower(), ("GENERIC", base))
+        e.supportedServer, e.generation = core.map_base(base)
         e.base_source = "civarchive"
     if e.maturity_source != "civitai":
         lvl = model.get("nsfw_level") or 0
@@ -501,7 +511,10 @@ def main() -> int:
     ap.add_argument("--no-archive", action="store_true")
     ap.add_argument("--civitai-token", default=os.environ.get("CIVITAI_TOKEN", ""))
     ap.add_argument("--workers", type=int, default=6)
-    ap.add_argument("--hash-workers", type=int, default=8)
+    ap.add_argument("--hash-workers", type=int, default=3,
+                    help="Concurrent hashers (default: 3). These models are big "
+                         "(multi-GB); on a spinning array/NAS keep this LOW (2-3) "
+                         "so concurrent giant reads don't seek-thrash the disks.")
     ap.add_argument("--skip-video", action="store_true",
                     help="Leave video/audio models (SVD, LTX, Wan, Stable-Audio) "
                          "in place instead of sorting them. Recommended if those "
@@ -559,7 +572,7 @@ def main() -> int:
     lookup_kinds = RESOURCE_KINDS | {"lora", "controlnet", "hypernetwork",
                                      "embedding", "upscaler", "video_checkpoint",
                                      "audio_checkpoint", "unknown"}
-    targets = [e for e in entries if e.kind in lookup_kinds and not e.is_tool]
+    targets = [e for e in entries if e.kind in lookup_kinds and not e.is_tool and e.sha256]
     civ = arc = 0
     if targets and not args.no_hash and not (args.no_civitai and args.no_archive):
         print(f"Identifying {len(targets)} by hash ({args.workers} workers) ...")

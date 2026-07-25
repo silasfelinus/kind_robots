@@ -1,5 +1,5 @@
 // /server/api/resources/batch.post.ts
-import { createError, defineEventHandler, readBody } from 'h3'
+import { createError, defineEventHandler, getQuery, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
@@ -37,6 +37,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // ?mode=upsert enriches an existing Resource (matched by its unique name)
+    // with the incoming catalog fields instead of skipping it. `slug` is left
+    // out of the write so its own @unique constraint can't block a distinct
+    // model, and owner-managed flags (isPublic/isActive) + relations are
+    // preserved on existing rows.
+    const upsert = String(getQuery(event).mode ?? '') === 'upsert'
+
     const created: ResourceMutationResult[] = []
     const skipped: ResourceBatchSkip[] = []
     const failed: ResourceBatchFailure[] = []
@@ -49,6 +56,36 @@ export default defineEventHandler(async (event) => {
           entry,
           authenticatedUserId: user.id,
         })
+
+        if (upsert) {
+          const resource = await prisma.resource.upsert({
+            where: { name: data.name },
+            create: { ...data, slug: undefined },
+            update: {
+              customLabel: data.customLabel,
+              MediaPath: data.MediaPath,
+              customUrl: data.customUrl,
+              civitaiUrl: data.civitaiUrl,
+              huggingUrl: data.huggingUrl,
+              localPath: data.localPath,
+              imagePath: data.imagePath,
+              description: data.description,
+              generation: data.generation,
+              artPrompt: data.artPrompt,
+              triggerWords: data.triggerWords,
+              defaultTrigger: data.defaultTrigger,
+              hash: data.hash,
+              previewImageUrl: data.previewImageUrl,
+              isMature: data.isMature,
+              resourceType: data.resourceType,
+              supportedServer: data.supportedServer,
+            },
+            select: resourceMutationSelect,
+          })
+
+          created.push(resource)
+          continue
+        }
 
         try {
           const resource = await prisma.resource.create({

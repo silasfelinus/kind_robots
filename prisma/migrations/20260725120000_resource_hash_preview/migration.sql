@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Resource` ADD COLUMN IF NOT EXISTS `hash` VARCHAR(64) NULL,
+    ADD COLUMN IF NOT EXISTS `previewImageUrl` TEXT NULL;

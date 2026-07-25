@@ -53,6 +53,37 @@ async function main(): Promise<void> {
   requireText(files.merge, text.merge, 'isActive: false')
   requireText(files.merge, text.merge, 'facetAlias.upsert')
 
+  // Canonical data wins; duplicate data fills missing curated content and media.
+  for (const field of [
+    'description: canonical.description || duplicate.description',
+    'flavorText: canonical.flavorText || duplicate.flavorText',
+    'examples: canonical.examples || duplicate.examples',
+    'artPrompt: canonical.artPrompt || duplicate.artPrompt',
+    'imagePath: canonical.imagePath || duplicate.imagePath',
+    'cardPath: canonical.cardPath || duplicate.cardPath',
+    'heroPath: canonical.heroPath || duplicate.heroPath',
+    'icon: canonical.icon || duplicate.icon',
+    'artImageId: canonical.artImageId ?? duplicate.artImageId',
+    'canonical.artCollectionId ?? duplicate.artCollectionId',
+  ]) {
+    requireText(files.merge, text.merge, field)
+  }
+
+  requireText(files.merge, text.merge, 'prisma.facetProfile.findUnique')
+  requireText(files.merge, text.merge, 'prisma.facetProfile.upsert')
+  requireText(files.merge, text.merge, 'mergedProfileMetadata')
+  requireText(files.merge, text.merge, 'bestSourceRank')
+  requireText(
+    files.merge,
+    text.merge,
+    'canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null',
+  )
+  requireText(
+    files.merge,
+    text.merge,
+    'canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? null',
+  )
+
   requireText(files.build, text.build, 'runFacetCatalogSeed.ts')
   requireText(files.build, text.build, 'mergeCanonicalFacetDuplicates.ts')
   forbidText(

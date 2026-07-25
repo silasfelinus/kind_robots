@@ -1,0 +1,42 @@
+// Canonical Facet catalog extensions.
+//
+// Facet remains the reusable creative concept. FacetProfile carries the richer
+// taxonomy and randomization metadata without duplicating the concept row.
+// CharacterFacet records how a Facet is used by a Character; fieldKey is usage
+// metadata, so an ANIMAL Facet such as Octopus can fill the species slot without
+// creating a duplicate SPECIES Facet.
+
+model FacetProfile {
+  facetId          Int      @id
+  taxonomy         String   @default("OTHER") @db.VarChar(64)
+  canonicalValue   String?  @db.VarChar(255)
+  groupKey         String?  @db.VarChar(128)
+  groupLabel       String?  @db.VarChar(255)
+  sortOrder        Int      @default(0)
+  isRandomizable   Boolean  @default(true)
+  randomWeight     Float    @default(1)
+  artRequired      Boolean  @default(true)
+  sourceRank       Int      @default(100)
+  metadata         String?  @db.LongText
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+
+  @@index([taxonomy, groupKey, sortOrder])
+  @@index([isRandomizable, taxonomy])
+}
+
+model CharacterFacet {
+  id          Int      @id @default(autoincrement())
+  characterId Int
+  facetId     Int
+  fieldKey    String   @db.VarChar(64)
+  sortOrder   Int      @default(0)
+  weight      Float    @default(1)
+  source      String   @default("CURATED") @db.VarChar(64)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@unique([characterId, facetId, fieldKey])
+  @@index([characterId, fieldKey, sortOrder])
+  @@index([facetId])
+}

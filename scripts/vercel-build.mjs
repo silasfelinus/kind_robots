@@ -33,11 +33,16 @@ if (!isVercelBuild || isProductionDeployment) {
   run(process.execPath, ['scripts/prisma-migrate-deploy.mjs'], 'Applying production migrations')
   run(
     tsxBinary,
+    ['utils/scripts/seedFacetCatalog.ts', '--apply'],
+    'Seeding canonical Facet catalog and Character assignments',
+  )
+  run(
+    tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],
     'Seeding Challenge Center contenders',
   )
 } else {
-  console.log(`[vercel-build] Skipping migrations for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`)
+  console.log(`[vercel-build] Skipping migrations and database seeds for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`)
 }
 
 run(

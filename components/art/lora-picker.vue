@@ -78,13 +78,14 @@ function emitChange(ids: number[]) {
   const chosen = ids
     .map((id) => resourceStore.resources.find((r) => r.id === id))
     .filter((r): r is Resource => Boolean(r))
+  const primary = chosen.at(0)
   const triggers = chosen
     .map((r) => r.defaultTrigger || r.triggerWords || '')
     .filter(Boolean)
     .join(', ')
   emit('change', {
     loraResourceIds: ids,
-    loraName: chosen.length ? engineName(chosen[0]) : null,
+    loraName: primary ? engineName(primary) : null,
     triggers,
   })
 }

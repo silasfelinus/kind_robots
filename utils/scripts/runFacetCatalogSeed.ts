@@ -1,8 +1,9 @@
 // /utils/scripts/runFacetCatalogSeed.ts
 //
-// Normalize known source synonyms before the canonical Facet seed imports its
-// source arrays. This keeps one concept row per idea while preserving the
-// original animal metadata for the canonical record.
+// Normalize source data before the canonical Facet seed imports its arrays.
+// This keeps one concept row per idea and makes compact Builder controls expose
+// their complete underlying option lists to the catalog importer.
+import { ADVENTURE_CARDS } from './../../stores/helpers/adventureCards'
 import { animalDataList } from './../../stores/utils/animalData'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
@@ -20,6 +21,31 @@ if (waterBear) {
     '[facet-catalog] Water Bear source entry was not found; continuing without source normalization.',
   )
 }
+
+let promotedBuilderOptions = 0
+for (const card of ADVENTURE_CARDS) {
+  for (const step of card.steps) {
+    const completeList = new Set(step.listOptions ?? [])
+
+    for (const choice of step.choices ?? []) {
+      if (!choice.opensList) continue
+      for (const option of choice.listOptions ?? []) {
+        const value = option.trim()
+        if (!value || completeList.has(value)) continue
+        completeList.add(value)
+        promotedBuilderOptions++
+      }
+    }
+
+    if (completeList.size !== (step.listOptions?.length ?? 0)) {
+      step.listOptions = Array.from(completeList)
+    }
+  }
+}
+
+console.log(
+  `[facet-catalog] Promoted ${promotedBuilderOptions} Builder “More options” entries into canonical seed input.`,
+)
 
 // seedFacetCatalog reads process.argv itself, so --apply passes through.
 await import('./seedFacetCatalog')

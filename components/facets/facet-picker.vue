@@ -24,11 +24,21 @@
         v-for="facet in selectedFacets"
         :key="facet.id"
         type="button"
-        class="badge badge-secondary badge-lg gap-1 rounded-xl"
+        class="badge badge-secondary badge-lg h-auto min-h-8 gap-1 rounded-xl py-1 pl-1"
         :title="facetTitle(facet)"
         :disabled="saving"
         @click="removeFacet(facet.id)"
       >
+        <span
+          v-if="facetArtwork(facet)"
+          class="size-6 shrink-0 overflow-hidden rounded-lg bg-base-200"
+        >
+          <img
+            :src="facetArtwork(facet) || ''"
+            :alt="`${facet.title} artwork`"
+            class="size-full object-cover"
+          />
+        </span>
         <span>{{ facet.title }}</span>
         <span class="text-secondary-content/60">×</span>
       </button>
@@ -51,10 +61,25 @@
           v-for="facet in searchResults"
           :key="facet.id"
           type="button"
-          class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-base-200 disabled:opacity-40"
+          class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-base-200 disabled:opacity-40"
           :disabled="selectedIds.has(facet.id) || saving"
           @click="addFacet(facet.id)"
         >
+          <span
+            class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+          >
+            <img
+              v-if="facetArtwork(facet)"
+              :src="facetArtwork(facet) || ''"
+              :alt="`${facet.title} artwork`"
+              class="size-full object-cover"
+            />
+            <Icon
+              v-else
+              :name="facet.icon || 'kind-icon:tag'"
+              class="size-5 text-base-content/40"
+            />
+          </span>
           <span class="badge badge-outline badge-xs shrink-0">{{
             kindLabel(facet.kind)
           }}</span>
@@ -234,6 +259,10 @@ function kindLabel(kind: FacetKind): string {
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+function facetArtwork(facet: FacetWithAliases): string | null {
+  return facet.cardPath || facet.imagePath || facet.heroPath || null
 }
 
 function facetTitle(facet: FacetWithAliases): string {

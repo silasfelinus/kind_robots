@@ -207,6 +207,10 @@ async function main(): Promise<void> {
     'stores/utils/randomCharacter.ts',
     'the canonical catalog and Reward system own reusable Character generation pools.',
   )
+  await requireMissingPath(
+    'stores/utils/randomSpecies.ts',
+    'species selection is canonical Facet data rather than a nondeterministic module-level generator.',
+  )
 
   process.stdout.write('Facet catalog cutover contract verified.\n')
 }

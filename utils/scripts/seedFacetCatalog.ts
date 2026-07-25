@@ -417,15 +417,101 @@ function collectLegacyLists(): void {
   }
 }
 
-async function saveCandidate(candidate: Candidate): Promise<void> {
+// ProxySQL rejects command pipelining on a single connection (see
+// createDatabaseAdapter's header comment), so a serial "read, then write,
+// per record" loop can't be sped up by batching statements into one
+// transaction. It CAN be sped up by spreading independent records across the
+// connection pool (DEFAULT_CONNECTION_LIMIT, see databasePoolDefaults.ts) so
+// several single-statement round trips are in flight at once. Keep this at
+// or below that pool size minus a little headroom.
+const WRITE_CONCURRENCY = 8
+
+async function runWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<void>,
+): Promise<void> {
+  let cursor = 0
+  async function lane(): Promise<void> {
+    while (cursor < items.length) {
+      const item = items[cursor]
+      cursor++
+      if (item !== undefined) await worker(item)
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, () => lane()),
+  )
+}
+
+type ExistingFacetRow = {
+  id: number
+  slug: string | null
+  description: string | null
+  imagePath: string | null
+  icon: string | null
+  designer: string | null
+}
+
+type CatalogState = {
+  facetsBySlug: Map<string, ExistingFacetRow>
+  facetsById: Map<number, ExistingFacetRow>
+  // lookupKey -> owning facet id. Updated as aliases are written this run so
+  // later candidates in the same run see earlier ones, matching the
+  // read-your-own-writes behavior the old per-candidate findUnique had.
+  aliasOwner: Map<string, number>
+}
+
+// The seed previously re-read the DB per candidate/alias/character (a
+// couple thousand serial round trips against a remote ProxySQL host with
+// pipelining disabled), which is what pushed production builds past
+// Vercel's max build time (see facet-catalog production incident,
+// 2026-07-25 -- every build since the Facet catalog cutover landed timed
+// out with BUILD_EXCEEDED_MAXIMUM_TIME). Loading the full existing state
+// once up front turns those reads into two queries total.
+async function loadCatalogState(): Promise<CatalogState> {
+  const [facets, aliases] = await Promise.all([
+    prisma.facet.findMany({
+      select: {
+        id: true,
+        slug: true,
+        description: true,
+        imagePath: true,
+        icon: true,
+        designer: true,
+      },
+    }),
+    prisma.facetAlias.findMany({ select: { lookupKey: true, facetId: true } }),
+  ])
+
+  return {
+    facetsBySlug: new Map(
+      facets
+        .filter((facet): facet is ExistingFacetRow & { slug: string } =>
+          Boolean(facet.slug),
+        )
+        .map((facet) => [facet.slug, facet]),
+    ),
+    facetsById: new Map(facets.map((facet) => [facet.id, facet])),
+    aliasOwner: new Map(
+      aliases.map((alias) => [alias.lookupKey, alias.facetId]),
+    ),
+  }
+}
+
+async function saveCandidate(
+  candidate: Candidate,
+  state: CatalogState,
+): Promise<void> {
   const slug = slugify(candidate.title)
   const lookupKey = normalizeFacetLookupKey(slug)
-  const existingAlias = lookupKey
-    ? await prisma.facetAlias.findUnique({ where: { lookupKey } })
-    : null
-  const existingFacet = existingAlias
-    ? await prisma.facet.findUnique({ where: { id: existingAlias.facetId } })
-    : await prisma.facet.findUnique({ where: { slug } })
+  const existingFacetId = lookupKey
+    ? state.aliasOwner.get(lookupKey)
+    : undefined
+  const existingFacet =
+    (existingFacetId !== undefined
+      ? state.facetsById.get(existingFacetId)
+      : undefined) ?? state.facetsBySlug.get(slug)
 
   const facet = existingFacet
     ? await prisma.facet.update({
@@ -458,6 +544,9 @@ async function saveCandidate(candidate: Candidate): Promise<void> {
         },
       })
 
+  state.facetsBySlug.set(slug, facet)
+  state.facetsById.set(facet.id, facet)
+
   await prisma.facetProfile.upsert({
     where: { facetId: facet.id },
     create: {
@@ -487,10 +576,8 @@ async function saveCandidate(candidate: Candidate): Promise<void> {
   })
 
   for (const alias of prepareUniqueFacetAliases([slug, ...candidate.aliases])) {
-    const existing = await prisma.facetAlias.findUnique({
-      where: { lookupKey: alias.lookupKey },
-    })
-    if (existing && existing.facetId !== facet.id) continue
+    const ownerId = state.aliasOwner.get(alias.lookupKey)
+    if (ownerId !== undefined && ownerId !== facet.id) continue
     await prisma.facetAlias.upsert({
       where: { lookupKey: alias.lookupKey },
       create: {
@@ -506,6 +593,7 @@ async function saveCandidate(candidate: Candidate): Promise<void> {
         isActive: true,
       },
     })
+    state.aliasOwner.set(alias.lookupKey, facet.id)
   }
 }
 
@@ -517,21 +605,47 @@ function splitLegacyValues(fieldKey: string, value: string): string[] {
     .filter(Boolean)
 }
 
-async function backfillCharacterLinks(): Promise<number> {
-  const characters = await prisma.character.findMany({
-    select: {
-      id: true,
-      species: true,
-      class: true,
-      alignment: true,
-      personality: true,
-      backstory: true,
-      quirks: true,
-      genre: true,
-      role: true,
-    },
-  })
-  let linked = 0
+type CharacterFacetJob = {
+  characterId: number
+  facetId: number
+  fieldKey: string
+  sortOrder: number
+}
+
+async function backfillCharacterLinks(state: CatalogState): Promise<number> {
+  const [characters, existingLinks] = await Promise.all([
+    prisma.character.findMany({
+      select: {
+        id: true,
+        species: true,
+        class: true,
+        alignment: true,
+        personality: true,
+        backstory: true,
+        quirks: true,
+        genre: true,
+        role: true,
+      },
+    }),
+    prisma.characterFacet.findMany({
+      select: {
+        characterId: true,
+        facetId: true,
+        fieldKey: true,
+        sortOrder: true,
+        source: true,
+      },
+    }),
+  ])
+
+  const existingLinkMap = new Map(
+    existingLinks.map((link) => [
+      `${link.characterId}:${link.facetId}:${link.fieldKey}`,
+      link,
+    ]),
+  )
+
+  const jobs: CharacterFacetJob[] = []
 
   for (const character of characters) {
     const fields: Array<[string, string | null]> = [
@@ -551,29 +665,47 @@ async function backfillCharacterLinks(): Promise<number> {
       for (const [sortOrder, value] of values.entries()) {
         const lookupKey = normalizeFacetLookupKey(value)
         if (!lookupKey) continue
-        const alias = await prisma.facetAlias.findUnique({ where: { lookupKey } })
-        if (!alias) continue
-        await prisma.characterFacet.upsert({
-          where: {
-            characterId_facetId_fieldKey: {
-              characterId: character.id,
-              facetId: alias.facetId,
-              fieldKey,
-            },
-          },
-          create: {
-            characterId: character.id,
-            facetId: alias.facetId,
-            fieldKey,
-            sortOrder,
-            source: 'MIGRATED',
-          },
-          update: { sortOrder, source: 'MIGRATED' },
-        })
-        linked++
+        const facetId = state.aliasOwner.get(lookupKey)
+        if (facetId === undefined) continue
+        jobs.push({ characterId: character.id, facetId, fieldKey, sortOrder })
       }
     }
   }
+
+  let linked = 0
+
+  await runWithConcurrency(jobs, WRITE_CONCURRENCY, async (job) => {
+    const key = `${job.characterId}:${job.facetId}:${job.fieldKey}`
+    const existing = existingLinkMap.get(key)
+    // Already correct from a prior run -- skip the redundant round trip.
+    if (
+      existing &&
+      existing.sortOrder === job.sortOrder &&
+      existing.source === 'MIGRATED'
+    ) {
+      linked++
+      return
+    }
+
+    await prisma.characterFacet.upsert({
+      where: {
+        characterId_facetId_fieldKey: {
+          characterId: job.characterId,
+          facetId: job.facetId,
+          fieldKey: job.fieldKey,
+        },
+      },
+      create: {
+        characterId: job.characterId,
+        facetId: job.facetId,
+        fieldKey: job.fieldKey,
+        sortOrder: job.sortOrder,
+        source: 'MIGRATED',
+      },
+      update: { sortOrder: job.sortOrder, source: 'MIGRATED' },
+    })
+    linked++
+  })
 
   return linked
 }
@@ -607,7 +739,8 @@ async function main(): Promise<void> {
           candidates: catalog.length,
           byTaxonomy,
           missingRequiredArt: catalog.filter(
-            (candidate) => candidate.taxonomy !== 'COLOR' && !candidate.imagePath,
+            (candidate) =>
+              candidate.taxonomy !== 'COLOR' && !candidate.imagePath,
           ).length,
           note: 'Run with --apply after prisma migrate deploy.',
         },
@@ -618,8 +751,11 @@ async function main(): Promise<void> {
     return
   }
 
-  for (const candidate of catalog) await saveCandidate(candidate)
-  const characterLinks = await backfillCharacterLinks()
+  const state = await loadCatalogState()
+  await runWithConcurrency(catalog, WRITE_CONCURRENCY, (candidate) =>
+    saveCandidate(candidate, state),
+  )
+  const characterLinks = await backfillCharacterLinks(state)
 
   process.stdout.write(
     `${JSON.stringify(

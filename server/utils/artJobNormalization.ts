@@ -17,14 +17,32 @@ function asRecord(value: unknown): ArtJobPayloadRecord {
   return value as ArtJobPayloadRecord
 }
 
+function unsafePath(value: string): boolean {
+  return value
+    .replace(/\\/g, '/')
+    .split(/[?#]/, 1)[0]!
+    .split('/')
+    .some((part) => part === '..')
+}
+
 function cleanPath(value: unknown): string {
   let path = String(value || '').trim().replace(/\\/g, '/')
   if (!path) return ''
 
-  try {
-    const parsed = new URL(path, 'https://kindrobots.org')
-    path = decodeURIComponent(parsed.pathname)
-  } catch {
+  if (unsafePath(path)) {
+    throw createError({
+      statusCode: 400,
+      message: `Unsafe Kind Robots imagePath "${path}".`,
+    })
+  }
+
+  if (/^https?:\/\//i.test(path)) {
+    try {
+      path = decodeURIComponent(new URL(path).pathname)
+    } catch {
+      path = path.split('?', 1)[0]!.split('#', 1)[0]!
+    }
+  } else {
     path = path.split('?', 1)[0]!.split('#', 1)[0]!
   }
 

@@ -39,7 +39,9 @@ async function main(): Promise<void> {
   } as const
 
   const entries = await Promise.all(
-    Object.entries(files).map(async ([key, path]) => [key, await source(path)] as const),
+    Object.entries(files).map(
+      async ([key, path]) => [key, await source(path)] as const,
+    ),
   )
   const text = Object.fromEntries(entries) as Record<keyof typeof files, string>
 
@@ -66,6 +68,12 @@ async function main(): Promise<void> {
   ]) {
     requireText(files.catalog, text.catalog, `'${taxonomy}'`)
   }
+
+  requireText(files.catalog, text.catalog, 'normalizeFacetLookupKey')
+  requireText(files.catalog, text.catalog, 'prisma.facetAlias.findMany')
+  requireText(files.catalog, text.catalog, 'aliasFacetIds')
+  requireText(files.catalog, text.catalog, 'lookupKey: { contains: normalizedSearch }')
+  requireText(files.catalog, text.catalog, 'id: { in: aliasFacetIds }')
 
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')

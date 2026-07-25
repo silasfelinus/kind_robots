@@ -95,8 +95,16 @@
             :class="item.id === selectedItemId ? 'bg-primary/10' : 'hover:bg-base-200'"
             @click="selectedItemId = item.id"
           >
-            <td class="max-w-[10rem] truncate text-xs font-semibold">
-              {{ item.label }}
+            <td class="max-w-[10rem] p-0 text-xs font-semibold">
+              <button
+                type="button"
+                class="w-full truncate rounded-lg px-3 py-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
+                :aria-pressed="item.id === selectedItemId"
+                :aria-label="`Select ${item.label}`"
+                @click.stop="selectedItemId = item.id"
+              >
+                {{ item.label }}
+              </button>
             </td>
             <td
               v-for="stage in stages"

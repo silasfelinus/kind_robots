@@ -160,6 +160,9 @@ jobs:
       - name: Animation attempt Component conventions contract
         run: npm run test:animation-component-attempts
 
+      - name: Animation catalog contract
+        run: npm run test:animation-catalog
+
       - name: WonderLab learning and control fixtures contract
         run: npx tsx utils/scripts/verifyWonderLabLearningControlFixtures.ts
 

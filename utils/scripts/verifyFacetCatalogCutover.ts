@@ -46,6 +46,7 @@ async function main(): Promise<void> {
     facetManager: 'components/facets/facet-manager.vue',
     characterGet: 'server/api/characters/[id]/facets.get.ts',
     characterPut: 'server/api/characters/[id]/facets.put.ts',
+    seedWrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     seed: 'utils/scripts/seedFacetCatalog.ts',
     catalogStore: 'stores/facetCatalogStore.ts',
     randomStore: 'stores/randomStore.ts',
@@ -126,6 +127,12 @@ async function main(): Promise<void> {
   requireText(files.characterPut, text.characterPut, 'resolveFacetSelection')
   requireText(files.characterPut, text.characterPut, 'characterFacet.deleteMany')
   requireText(files.characterPut, text.characterPut, 'characterFacet.createMany')
+
+  requireText(files.seedWrapper, text.seedWrapper, 'ADVENTURE_CARDS')
+  requireText(files.seedWrapper, text.seedWrapper, 'if (!choice.opensList) continue')
+  requireText(files.seedWrapper, text.seedWrapper, 'choice.listOptions')
+  requireText(files.seedWrapper, text.seedWrapper, 'step.listOptions = Array.from(completeList)')
+  requireText(files.seedWrapper, text.seedWrapper, 'promotedBuilderOptions')
 
   requireText(files.seed, text.seed, 'ADVENTURE_CARDS')
   requireText(files.seed, text.seed, 'animalDataList')

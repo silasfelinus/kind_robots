@@ -866,6 +866,17 @@ const isLoadingGallery = ref(false)
 // it, since each tab's own async load has no way to know a newer pick
 // happened elsewhere in the meantime.
 let sourceSelectionToken = 0
+// Nothing in the template disables style/source selection while a Kontext
+// generation is in flight (only the extra-prompt textarea and the style
+// "Clear" button are isGenerating-gated) -- a user can pick a different
+// style or source image mid-generation. Without this, runStyleTransfer's
+// success/error handlers unconditionally overwrite resultImage/successMessage
+// /errorMessage once the request settles, silently reattaching a stale
+// result (or reviving a result the user already cleared) to whatever
+// selection is on screen by then. Bumped by every selection-changing action
+// below; runStyleTransfer captures it at the start and only applies its
+// outcome to visible state if it's unchanged when the request settles.
+let generationToken = 0
 
 const starterEntries = ref<StarterEntry[]>([])
 const isLoadingStarters = ref(false)
@@ -1064,6 +1075,7 @@ function buildSyntheticSourceImage(
 }
 
 function processUploadedFile(file: File) {
+  ++generationToken
   const token = ++sourceSelectionToken
   const reader = new FileReader()
 
@@ -1118,6 +1130,7 @@ async function loadStarterEntries(): Promise<void> {
 }
 
 async function selectStarterEntry(entry: StarterEntry): Promise<void> {
+  ++generationToken
   errorMessage.value = ''
   successMessage.value = ''
   resultImage.value = null
@@ -1174,6 +1187,7 @@ async function selectStarterEntry(entry: StarterEntry): Promise<void> {
 }
 
 async function selectGalleryImage(image: ArtImage) {
+  ++generationToken
   uploadedImageData.value = null
   resultImage.value = null
   errorMessage.value = ''
@@ -1221,6 +1235,9 @@ function clearSourceImage() {
   // or a slow deep-link applySourceImageId) so it can't silently repopulate
   // the source after the user has explicitly cleared it.
   ++sourceSelectionToken
+  // Also invalidate an in-flight generation so its result can't reappear
+  // here after the user has explicitly cleared the source.
+  ++generationToken
   selectedSourceImage.value = null
   uploadedImageData.value = null
   selectedStarterFile.value = null
@@ -1283,6 +1300,7 @@ function isSelectedStyle(style: StyleEntry): boolean {
 }
 
 function selectStyle(style: StyleEntry) {
+  ++generationToken
   selectedStyle.value = isSelectedStyle(style) ? null : { ...style }
   errorMessage.value = ''
   successMessage.value = ''
@@ -1291,6 +1309,7 @@ function selectStyle(style: StyleEntry) {
 }
 
 function clearSelection() {
+  ++generationToken
   selectedStyle.value = null
   extraPrompt.value = ''
   errorMessage.value = ''
@@ -1380,6 +1399,7 @@ async function hydrateFromResourceStore(): Promise<void> {
 async function runStyleTransfer(): Promise<void> {
   if (!selectedStyle.value || !selectedSourceImage.value) return
 
+  const token = ++generationToken
   errorMessage.value = ''
   successMessage.value = ''
   isGenerating.value = true
@@ -1457,12 +1477,21 @@ async function runStyleTransfer(): Promise<void> {
       throw new Error(result.message || 'Generation failed.')
     }
 
-    resultImage.value = result.data
-    successMessage.value = `Style applied! Image #${result.data.id} created.`
+    // The image was created either way, so still notify listeners (e.g.
+    // academy-remix.vue marking the style remixed) -- but only reattach the
+    // result to this component's own preview/banner if the user hasn't
+    // since picked a different style/source or cleared the selection out
+    // from under this still-in-flight request.
+    if (token === generationToken) {
+      resultImage.value = result.data
+      successMessage.value = `Style applied! Image #${result.data.id} created.`
+    }
     emit('generated', result.data, style)
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Generation failed.'
+    if (token === generationToken) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Generation failed.'
+    }
   } finally {
     isGenerating.value = false
   }
@@ -1542,6 +1571,7 @@ async function applySourceImageId(
 ): Promise<void> {
   if (!id || id <= 0) return
 
+  ++generationToken
   uploadedImageData.value = null
   selectedStarterFile.value = null
   resultImage.value = null

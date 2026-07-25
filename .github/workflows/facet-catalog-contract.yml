@@ -36,3 +36,4 @@ jobs:
         run: |
           npm run test:facet-catalog
           node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
+          node utils/scripts/verifyFacetLegacySeedSnapshots.mjs

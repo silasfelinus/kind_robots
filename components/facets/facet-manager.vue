@@ -9,7 +9,8 @@
         <h1 class="text-xl font-black">Facet Library</h1>
         <p class="text-sm text-base-content/60">
           Canonical reusable concepts for Characters, Dreams, Scenarios, Art,
-          and random generation. Aliases resolve to one record.
+          and random generation. Aliases and curated artwork resolve to one
+          record.
         </p>
       </div>
       <span
@@ -24,7 +25,7 @@
         v-model="search"
         type="search"
         class="input input-bordered input-sm w-full max-w-xs rounded-xl bg-base-200"
-        placeholder="Search title, alias, taxonomy, or group..."
+        placeholder="Search title, alias, taxonomy, group, or art path..."
       />
       <select
         v-model="taxonomyFilter"
@@ -61,7 +62,9 @@
       >
         + Create a canonical Facet
       </summary>
-      <div class="grid gap-3 border-t border-base-300 p-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div
+        class="grid gap-3 border-t border-base-300 p-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
         <label class="form-control xl:col-span-2">
           <span class="label-text text-xs">Canonical title</span>
           <input
@@ -131,7 +134,79 @@
             placeholder="What this reusable concept means..."
           />
         </label>
-        <div class="flex flex-wrap items-center gap-5 text-xs sm:col-span-2 xl:col-span-4">
+
+        <div
+          class="rounded-2xl border border-base-300 bg-base-200/60 p-3 sm:col-span-2 xl:col-span-4"
+        >
+          <div class="mb-3 flex items-center gap-2">
+            <Icon name="kind-icon:palette" class="size-4 text-accent" />
+            <div>
+              <h3 class="text-sm font-bold">Curated artwork</h3>
+              <p class="text-xs text-base-content/50">
+                Preserve the primary, card, and hero roles separately.
+              </p>
+            </div>
+          </div>
+          <div class="grid gap-3 lg:grid-cols-[12rem_1fr]">
+            <div
+              class="flex h-40 items-center justify-center overflow-hidden rounded-xl bg-base-300/50"
+            >
+              <img
+                v-if="newArtworkPreview"
+                :src="newArtworkPreview"
+                :alt="`${newTitle || 'New Facet'} artwork preview`"
+                class="size-full object-contain"
+                loading="lazy"
+              />
+              <Icon
+                v-else
+                name="kind-icon:image"
+                class="size-10 text-base-content/20"
+              />
+            </div>
+            <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              <label class="form-control">
+                <span class="label-text text-xs">Primary image path</span>
+                <input
+                  v-model="newImagePath"
+                  type="text"
+                  class="input input-bordered input-sm rounded-xl"
+                  placeholder="/images/facets/example.webp"
+                />
+              </label>
+              <label class="form-control">
+                <span class="label-text text-xs">Card / portrait path</span>
+                <input
+                  v-model="newCardPath"
+                  type="text"
+                  class="input input-bordered input-sm rounded-xl"
+                  placeholder="/images/facets/cards/example.webp"
+                />
+              </label>
+              <label class="form-control">
+                <span class="label-text text-xs">Hero / wide path</span>
+                <input
+                  v-model="newHeroPath"
+                  type="text"
+                  class="input input-bordered input-sm rounded-xl"
+                  placeholder="/images/facets/heroes/example.webp"
+                />
+              </label>
+              <label class="form-control sm:col-span-2 xl:col-span-3">
+                <span class="label-text text-xs">Art prompt</span>
+                <textarea
+                  v-model="newArtPrompt"
+                  class="textarea textarea-bordered min-h-20 rounded-xl"
+                  placeholder="Prompt for generating or regenerating this Facet's artwork..."
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-wrap items-center gap-5 text-xs sm:col-span-2 xl:col-span-4"
+        >
           <label class="flex items-center gap-2">
             <input
               v-model="newIsRandomizable"
@@ -179,183 +254,276 @@
       <article
         v-for="facet in filteredFacets"
         :key="facet.id"
-        class="rounded-2xl border bg-base-100 p-4 transition-all"
+        class="overflow-hidden rounded-2xl border bg-base-100 transition-all"
         :class="[
           facet.isActive ? 'border-base-300' : 'border-error/40 opacity-60',
           editingId === facet.id ? 'ring-2 ring-secondary/60' : '',
         ]"
       >
-        <div class="flex items-start justify-between gap-2">
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-1">
-              <span class="badge badge-secondary badge-xs">
-                {{ taxonomyLabel(facet.taxonomy) }}
-              </span>
-              <span v-if="facet.groupLabel" class="badge badge-outline badge-xs">
-                {{ facet.groupLabel }}
-              </span>
-              <span v-if="!facet.isActive" class="badge badge-error badge-xs">
-                archived
-              </span>
-              <span v-if="!facet.isPublic" class="badge badge-ghost badge-xs">
-                private
-              </span>
-            </div>
-            <h2 class="mt-1 truncate text-base font-bold">{{ facet.title }}</h2>
-            <p class="truncate text-xs text-base-content/40">
-              {{ facet.aliases.join(' · ') }}
-            </p>
-          </div>
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs rounded-xl"
-            :aria-label="editingId === facet.id ? 'Close editor' : `Edit ${facet.title}`"
-            @click="toggleEdit(facet)"
-          >
-            <Icon
-              :name="editingId === facet.id ? 'kind-icon:x' : 'kind-icon:pencil'"
-              class="size-4"
-            />
-          </button>
-        </div>
-
-        <p
-          v-if="facet.description && editingId !== facet.id"
-          class="mt-2 line-clamp-3 text-xs text-base-content/60"
-        >
-          {{ facet.description }}
-        </p>
-
         <div
-          v-if="editingId !== facet.id"
-          class="mt-3 flex flex-wrap gap-1 text-[11px]"
+          v-if="facetArtwork(facet)"
+          class="flex h-44 items-center justify-center bg-base-200"
         >
-          <span class="badge badge-ghost badge-xs">
-            weight {{ facet.randomWeight }}
-          </span>
-          <span class="badge badge-ghost badge-xs">
-            {{ facet.isRandomizable ? 'randomizable' : 'manual only' }}
-          </span>
-          <span class="badge badge-ghost badge-xs">
-            {{ facet.artRequired ? 'art expected' : 'art optional' }}
-          </span>
+          <img
+            :src="facetArtwork(facet) || ''"
+            :alt="`${facet.title} curated artwork`"
+            class="size-full object-contain"
+            loading="lazy"
+          />
         </div>
 
-        <div v-if="editingId === facet.id" class="mt-3 grid gap-2 sm:grid-cols-2">
-          <input
-            v-model="editForm.title"
-            type="text"
-            class="input input-bordered input-sm rounded-xl sm:col-span-2"
-            placeholder="Title"
-          />
-          <select
-            v-model="editForm.taxonomy"
-            class="select select-bordered select-sm rounded-xl"
-          >
-            <option
-              v-for="taxonomy in facetTaxonomies"
-              :key="taxonomy"
-              :value="taxonomy"
+        <div class="p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-1">
+                <span class="badge badge-secondary badge-xs">
+                  {{ taxonomyLabel(facet.taxonomy) }}
+                </span>
+                <span
+                  v-if="facet.groupLabel"
+                  class="badge badge-outline badge-xs"
+                >
+                  {{ facet.groupLabel }}
+                </span>
+                <span v-if="!facet.isActive" class="badge badge-error badge-xs">
+                  archived
+                </span>
+                <span v-if="!facet.isPublic" class="badge badge-ghost badge-xs">
+                  private
+                </span>
+              </div>
+              <h2 class="mt-1 truncate text-base font-bold">{{ facet.title }}</h2>
+              <p class="truncate text-xs text-base-content/40">
+                {{ facet.aliases.join(' · ') }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs rounded-xl"
+              :aria-label="
+                editingId === facet.id ? 'Close editor' : `Edit ${facet.title}`
+              "
+              @click="toggleEdit(facet)"
             >
-              {{ taxonomyLabel(taxonomy) }}
-            </option>
-          </select>
-          <input
-            v-model.number="editForm.randomWeight"
-            type="number"
-            min="0"
-            step="0.1"
-            class="input input-bordered input-sm rounded-xl"
-            aria-label="Random weight"
-          />
-          <input
-            v-model="editForm.aliases"
-            type="text"
-            class="input input-bordered input-sm rounded-xl sm:col-span-2"
-            placeholder="Aliases, comma separated"
-          />
-          <input
-            v-model="editForm.groupKey"
-            type="text"
-            class="input input-bordered input-sm rounded-xl"
-            placeholder="Group key"
-          />
-          <input
-            v-model="editForm.groupLabel"
-            type="text"
-            class="input input-bordered input-sm rounded-xl"
-            placeholder="Group label"
-          />
-          <textarea
-            v-model="editForm.description"
-            class="textarea textarea-bordered min-h-20 rounded-xl sm:col-span-2"
-            placeholder="Description"
-          />
-          <div class="flex flex-wrap gap-4 text-xs sm:col-span-2">
-            <label class="flex items-center gap-1">
-              <input
-                v-model="editForm.isRandomizable"
-                type="checkbox"
-                class="toggle toggle-secondary toggle-xs"
+              <Icon
+                :name="
+                  editingId === facet.id ? 'kind-icon:x' : 'kind-icon:pencil'
+                "
+                class="size-4"
               />
-              Randomizable
-            </label>
-            <label class="flex items-center gap-1">
-              <input
-                v-model="editForm.artRequired"
-                type="checkbox"
-                class="toggle toggle-accent toggle-xs"
-              />
-              Art expected
-            </label>
-            <label class="flex items-center gap-1">
-              <input
-                v-model="editForm.isPublic"
-                type="checkbox"
-                class="toggle toggle-secondary toggle-xs"
-              />
-              Public
-            </label>
-            <label class="flex items-center gap-1">
-              <input
-                v-model="editForm.isMature"
-                type="checkbox"
-                class="toggle toggle-warning toggle-xs"
-              />
-              Mature
-            </label>
+            </button>
           </div>
-          <div class="flex gap-2 sm:col-span-2">
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm flex-1 rounded-xl"
-              :disabled="!editForm.title.trim() || facetStore.saving"
-              @click="saveEdit(facet.id)"
+
+          <p
+            v-if="facet.description && editingId !== facet.id"
+            class="mt-2 line-clamp-3 text-xs text-base-content/60"
+          >
+            {{ facet.description }}
+          </p>
+
+          <p
+            v-if="facet.artPrompt && editingId !== facet.id"
+            class="mt-2 line-clamp-2 text-[11px] italic text-base-content/45"
+          >
+            {{ facet.artPrompt }}
+          </p>
+
+          <div
+            v-if="editingId !== facet.id"
+            class="mt-3 flex flex-wrap gap-1 text-[11px]"
+          >
+            <span class="badge badge-ghost badge-xs">
+              weight {{ facet.randomWeight }}
+            </span>
+            <span class="badge badge-ghost badge-xs">
+              {{ facet.isRandomizable ? 'randomizable' : 'manual only' }}
+            </span>
+            <span class="badge badge-ghost badge-xs">
+              {{ facet.artRequired ? 'art expected' : 'art optional' }}
+            </span>
+            <span v-if="facet.imagePath" class="badge badge-ghost badge-xs">
+              primary art
+            </span>
+            <span v-if="facet.cardPath" class="badge badge-ghost badge-xs">
+              card art
+            </span>
+            <span v-if="facet.heroPath" class="badge badge-ghost badge-xs">
+              hero art
+            </span>
+          </div>
+
+          <div
+            v-if="editingId === facet.id"
+            class="mt-3 grid gap-2 sm:grid-cols-2"
+          >
+            <input
+              v-model="editForm.title"
+              type="text"
+              class="input input-bordered input-sm rounded-xl sm:col-span-2"
+              placeholder="Title"
+            />
+            <select
+              v-model="editForm.taxonomy"
+              class="select select-bordered select-sm rounded-xl"
             >
-              <span
-                v-if="facetStore.saving"
-                class="loading loading-spinner loading-xs"
+              <option
+                v-for="taxonomy in facetTaxonomies"
+                :key="taxonomy"
+                :value="taxonomy"
+              >
+                {{ taxonomyLabel(taxonomy) }}
+              </option>
+            </select>
+            <input
+              v-model.number="editForm.randomWeight"
+              type="number"
+              min="0"
+              step="0.1"
+              class="input input-bordered input-sm rounded-xl"
+              aria-label="Random weight"
+            />
+            <input
+              v-model="editForm.aliases"
+              type="text"
+              class="input input-bordered input-sm rounded-xl sm:col-span-2"
+              placeholder="Aliases, comma separated"
+            />
+            <input
+              v-model="editForm.groupKey"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="Group key"
+            />
+            <input
+              v-model="editForm.groupLabel"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="Group label"
+            />
+            <textarea
+              v-model="editForm.description"
+              class="textarea textarea-bordered min-h-20 rounded-xl sm:col-span-2"
+              placeholder="Description"
+            />
+
+            <div
+              class="flex h-36 items-center justify-center overflow-hidden rounded-xl bg-base-200 sm:col-span-2"
+            >
+              <img
+                v-if="editArtworkPreview"
+                :src="editArtworkPreview"
+                :alt="`${editForm.title || facet.title} artwork preview`"
+                class="size-full object-contain"
+                loading="lazy"
               />
-              Save canonical profile
-            </button>
-            <button
-              v-if="facet.isActive"
-              type="button"
-              class="btn btn-outline btn-error btn-sm rounded-xl"
-              :disabled="facetStore.saving"
-              @click="archive(facet.id)"
-            >
-              Archive
-            </button>
-            <button
-              v-else
-              type="button"
-              class="btn btn-outline btn-sm rounded-xl"
-              :disabled="facetStore.saving"
-              @click="restore(facet.id)"
-            >
-              Restore
-            </button>
+              <Icon
+                v-else
+                name="kind-icon:image"
+                class="size-9 text-base-content/20"
+              />
+            </div>
+            <label class="form-control sm:col-span-2">
+              <span class="label-text text-xs">Primary image path</span>
+              <input
+                v-model="editForm.imagePath"
+                type="text"
+                class="input input-bordered input-sm rounded-xl"
+                placeholder="/images/facets/example.webp"
+              />
+            </label>
+            <label class="form-control">
+              <span class="label-text text-xs">Card / portrait path</span>
+              <input
+                v-model="editForm.cardPath"
+                type="text"
+                class="input input-bordered input-sm rounded-xl"
+                placeholder="/images/facets/cards/example.webp"
+              />
+            </label>
+            <label class="form-control">
+              <span class="label-text text-xs">Hero / wide path</span>
+              <input
+                v-model="editForm.heroPath"
+                type="text"
+                class="input input-bordered input-sm rounded-xl"
+                placeholder="/images/facets/heroes/example.webp"
+              />
+            </label>
+            <label class="form-control sm:col-span-2">
+              <span class="label-text text-xs">Art prompt</span>
+              <textarea
+                v-model="editForm.artPrompt"
+                class="textarea textarea-bordered min-h-20 rounded-xl"
+                placeholder="Prompt for generating or regenerating this Facet's artwork..."
+              />
+            </label>
+
+            <div class="flex flex-wrap gap-4 text-xs sm:col-span-2">
+              <label class="flex items-center gap-1">
+                <input
+                  v-model="editForm.isRandomizable"
+                  type="checkbox"
+                  class="toggle toggle-secondary toggle-xs"
+                />
+                Randomizable
+              </label>
+              <label class="flex items-center gap-1">
+                <input
+                  v-model="editForm.artRequired"
+                  type="checkbox"
+                  class="toggle toggle-accent toggle-xs"
+                />
+                Art expected
+              </label>
+              <label class="flex items-center gap-1">
+                <input
+                  v-model="editForm.isPublic"
+                  type="checkbox"
+                  class="toggle toggle-secondary toggle-xs"
+                />
+                Public
+              </label>
+              <label class="flex items-center gap-1">
+                <input
+                  v-model="editForm.isMature"
+                  type="checkbox"
+                  class="toggle toggle-warning toggle-xs"
+                />
+                Mature
+              </label>
+            </div>
+            <div class="flex gap-2 sm:col-span-2">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm flex-1 rounded-xl"
+                :disabled="!editForm.title.trim() || facetStore.saving"
+                @click="saveEdit(facet.id)"
+              >
+                <span
+                  v-if="facetStore.saving"
+                  class="loading loading-spinner loading-xs"
+                />
+                Save canonical profile
+              </button>
+              <button
+                v-if="facet.isActive"
+                type="button"
+                class="btn btn-outline btn-error btn-sm rounded-xl"
+                :disabled="facetStore.saving"
+                @click="archive(facet.id)"
+              >
+                Archive
+              </button>
+              <button
+                v-else
+                type="button"
+                class="btn btn-outline btn-sm rounded-xl"
+                :disabled="facetStore.saving"
+                @click="restore(facet.id)"
+              >
+                Restore
+              </button>
+            </div>
           </div>
         </div>
       </article>
@@ -396,6 +564,10 @@ const newAliases = ref('')
 const newDescription = ref('')
 const newGroupKey = ref('')
 const newGroupLabel = ref('')
+const newImagePath = ref('')
+const newCardPath = ref('')
+const newHeroPath = ref('')
+const newArtPrompt = ref('')
 const newRandomWeight = ref(1)
 const newIsRandomizable = ref(true)
 const newArtRequired = ref(true)
@@ -408,6 +580,10 @@ const editForm = reactive({
   description: '',
   groupKey: '',
   groupLabel: '',
+  imagePath: '',
+  cardPath: '',
+  heroPath: '',
+  artPrompt: '',
   randomWeight: 1,
   isRandomizable: true,
   artRequired: true,
@@ -437,6 +613,22 @@ watch(newTaxonomy, (taxonomy) => {
   newArtRequired.value = taxonomy !== 'COLOR'
 })
 
+const newArtworkPreview = computed(
+  () =>
+    newCardPath.value.trim() ||
+    newImagePath.value.trim() ||
+    newHeroPath.value.trim() ||
+    null,
+)
+
+const editArtworkPreview = computed(
+  () =>
+    editForm.cardPath.trim() ||
+    editForm.imagePath.trim() ||
+    editForm.heroPath.trim() ||
+    null,
+)
+
 const visibleFacets = computed(() =>
   showArchived.value ? facetStore.facets : facetStore.activeFacets,
 )
@@ -463,6 +655,10 @@ const filteredFacets = computed(() => {
       facet.taxonomy,
       facet.groupKey,
       facet.groupLabel,
+      facet.imagePath,
+      facet.cardPath,
+      facet.heroPath,
+      facet.artPrompt,
       ...facet.aliases,
     ]
     return values.some((value) =>
@@ -494,6 +690,10 @@ function splitAliases(value: string): string[] {
     .filter(Boolean)
 }
 
+function facetArtwork(facet: FacetWithAliases): string | null {
+  return facet.cardPath || facet.imagePath || facet.heroPath || null
+}
+
 function toggleEdit(facet: FacetWithAliases) {
   if (editingId.value === facet.id) {
     editingId.value = null
@@ -508,6 +708,10 @@ function toggleEdit(facet: FacetWithAliases) {
   editForm.description = facet.description || ''
   editForm.groupKey = facet.groupKey || ''
   editForm.groupLabel = facet.groupLabel || ''
+  editForm.imagePath = facet.imagePath || ''
+  editForm.cardPath = facet.cardPath || ''
+  editForm.heroPath = facet.heroPath || ''
+  editForm.artPrompt = facet.artPrompt || ''
   editForm.randomWeight = facet.randomWeight
   editForm.isRandomizable = facet.isRandomizable
   editForm.artRequired = facet.artRequired
@@ -526,6 +730,10 @@ async function createFacet() {
       description: newDescription.value.trim() || null,
       groupKey: newGroupKey.value.trim() || null,
       groupLabel: newGroupLabel.value.trim() || null,
+      imagePath: newImagePath.value.trim() || null,
+      cardPath: newCardPath.value.trim() || null,
+      heroPath: newHeroPath.value.trim() || null,
+      artPrompt: newArtPrompt.value.trim() || null,
       randomWeight: Math.max(0, Number(newRandomWeight.value) || 0),
       isRandomizable: newIsRandomizable.value,
       artRequired: newArtRequired.value,
@@ -536,6 +744,10 @@ async function createFacet() {
     newDescription.value = ''
     newGroupKey.value = ''
     newGroupLabel.value = ''
+    newImagePath.value = ''
+    newCardPath.value = ''
+    newHeroPath.value = ''
+    newArtPrompt.value = ''
     createOpen.value = false
   } catch (error) {
     errorMessage.value =
@@ -554,6 +766,10 @@ async function saveEdit(id: number) {
       description: editForm.description.trim() || null,
       groupKey: editForm.groupKey.trim() || null,
       groupLabel: editForm.groupLabel.trim() || null,
+      imagePath: editForm.imagePath.trim() || null,
+      cardPath: editForm.cardPath.trim() || null,
+      heroPath: editForm.heroPath.trim() || null,
+      artPrompt: editForm.artPrompt.trim() || null,
       randomWeight: Math.max(0, Number(editForm.randomWeight) || 0),
       isRandomizable: editForm.isRandomizable,
       artRequired: editForm.artRequired,

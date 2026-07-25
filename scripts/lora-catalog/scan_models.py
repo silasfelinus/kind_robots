@@ -409,8 +409,10 @@ def finalize(e: ModelEntry, meta: dict) -> None:
     e.resourceType = KIND_RESOURCE_TYPE.get(e.kind, "")
     if not e.customLabel:
         e.customLabel = e.name
-    if e.triggerWords and not e.defaultTrigger:
-        e.defaultTrigger = e.triggerWords
+    # Never leave triggers empty — fall back to the label/name.
+    label_fallback = e.customLabel or e.name
+    e.triggerWords = e.triggerWords or label_fallback
+    e.defaultTrigger = e.defaultTrigger or e.triggerWords or label_fallback
     e.slug = core.slugify(e.customLabel or e.name)
 
     # compute Comfy target (checkpoints get a base-model sub-bucket)

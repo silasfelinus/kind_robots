@@ -556,11 +556,13 @@ def resolve_base_offline(e: LoraEntry, meta: dict, names: list[str]) -> None:
 
 
 def finalize(entry: LoraEntry) -> None:
-    # trigger fields (seed defaultTrigger == triggerWords; user curates later)
-    if entry.trigger_words:
-        joined = ", ".join(entry.trigger_words)
-        entry.triggerWords = entry.triggerWords or joined
-        entry.defaultTrigger = entry.defaultTrigger or joined
+    # trigger fields (seed defaultTrigger == triggerWords; user curates later).
+    # Fall back to the label/name so neither is ever empty — a LoRA with no
+    # Civitai trigger words is still addressable by its name.
+    label_fallback = entry.customLabel or entry.name
+    joined = ", ".join(entry.trigger_words) if entry.trigger_words else ""
+    entry.triggerWords = entry.triggerWords or joined or label_fallback
+    entry.defaultTrigger = entry.defaultTrigger or joined or label_fallback
 
     # confidence + review
     if entry.base_source in ("civitai", "civarchive"):

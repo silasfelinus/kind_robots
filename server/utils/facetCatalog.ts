@@ -1,6 +1,7 @@
 // /server/utils/facetCatalog.ts
 import type { FacetKind, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
+import { normalizeFacetLookupKey } from '~/utils/facetAliases'
 
 export const FACET_TAXONOMIES = [
   'GENRE',
@@ -130,6 +131,24 @@ export async function loadFacetCatalogEntries(options: {
   )
   const requestedFacetIds = profiles.map((profile) => profile.facetId)
   const search = options.search?.trim()
+  const normalizedSearch = search ? normalizeFacetLookupKey(search) : ''
+  const aliasFacetIds = search
+    ? (
+        await prisma.facetAlias.findMany({
+          where: {
+            isActive: true,
+            OR: [
+              { alias: { contains: search } },
+              ...(normalizedSearch
+                ? [{ lookupKey: { contains: normalizedSearch } }]
+                : []),
+            ],
+          },
+          select: { facetId: true },
+          distinct: ['facetId'],
+        })
+      ).map((alias) => alias.facetId)
+    : []
 
   const facets = await prisma.facet.findMany({
     where: {
@@ -146,10 +165,17 @@ export async function loadFacetCatalogEntries(options: {
           }),
       ...(search
         ? {
-            OR: [
-              { title: { contains: search } },
-              { slug: { contains: search } },
-              { description: { contains: search } },
+            AND: [
+              {
+                OR: [
+                  { title: { contains: search } },
+                  { slug: { contains: search } },
+                  { description: { contains: search } },
+                  ...(aliasFacetIds.length
+                    ? [{ id: { in: aliasFacetIds } }]
+                    : []),
+                ],
+              },
             ],
           }
         : {}),
@@ -192,7 +218,8 @@ export async function loadFacetCatalogEntries(options: {
         artRequired: profile.artRequired,
         sourceRank: profile.sourceRank,
         metadata: parseMetadata(profile.metadata),
-        aliases: aliasesByFacetId.get(facet.id) ?? (facet.slug ? [facet.slug] : []),
+        aliases:
+          aliasesByFacetId.get(facet.id) ?? (facet.slug ? [facet.slug] : []),
       }
     })
     .filter((entry): entry is FacetCatalogEntry => Boolean(entry))

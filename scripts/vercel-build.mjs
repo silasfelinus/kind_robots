@@ -30,11 +30,20 @@ const isProductionDeployment = process.env.VERCEL_ENV === 'production'
 run(prismaBinary, ['generate'], 'Generating Prisma client')
 
 if (!isVercelBuild || isProductionDeployment) {
-  run(process.execPath, ['scripts/prisma-migrate-deploy.mjs'], 'Applying production migrations')
+  run(
+    process.execPath,
+    ['scripts/prisma-migrate-deploy.mjs'],
+    'Applying production migrations',
+  )
   run(
     tsxBinary,
-    ['utils/scripts/seedFacetCatalog.ts', '--apply'],
+    ['utils/scripts/runFacetCatalogSeed.ts', '--apply'],
     'Seeding canonical Facet catalog and Character assignments',
+  )
+  run(
+    tsxBinary,
+    ['utils/scripts/mergeCanonicalFacetDuplicates.ts', '--apply'],
+    'Merging legacy duplicate Facets into canonical records',
   )
   run(
     tsxBinary,
@@ -42,7 +51,9 @@ if (!isVercelBuild || isProductionDeployment) {
     'Seeding Challenge Center contenders',
   )
 } else {
-  console.log(`[vercel-build] Skipping migrations and database seeds for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`)
+  console.log(
+    `[vercel-build] Skipping migrations and database seeds for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`,
+  )
 }
 
 run(

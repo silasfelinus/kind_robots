@@ -2,12 +2,25 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import type { Resource } from '~/prisma/generated/prisma/client'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import {
+  resourceGallerySelect,
+  resourceGalleryWhere,
+  type ResourceGalleryRecord,
+} from './gallery'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
-    // Fetch all resources from the database
-    const data = await prisma.resource.findMany()
+    const auth = await getOptionalApiUser(event)
+    const data = await prisma.resource.findMany({
+      where: resourceGalleryWhere({
+        userId: auth?.user.id ?? null,
+        isAdmin: auth?.isAdmin ?? false,
+        showMature: Boolean(auth?.user.showMature),
+      }),
+      select: resourceGallerySelect,
+      orderBy: [{ customLabel: 'asc' }, { name: 'asc' }],
+    })
 
     return {
       success: true,
@@ -16,7 +29,6 @@ export default defineEventHandler(async () => {
       statusCode: 200,
     }
   } catch (error: unknown) {
-    // Handle error using the centralized error handler
     const { success, message, statusCode } = errorHandler(error)
     return {
       success,
@@ -27,7 +39,10 @@ export default defineEventHandler(async () => {
   }
 })
 
-// Function to fetch all Resources, to be used elsewhere if needed
-export async function fetchAllResources(): Promise<Resource[]> {
-  return await prisma.resource.findMany()
+export async function fetchAllResources(): Promise<ResourceGalleryRecord[]> {
+  return await prisma.resource.findMany({
+    where: { isActive: true },
+    select: resourceGallerySelect,
+    orderBy: [{ customLabel: 'asc' }, { name: 'asc' }],
+  })
 }

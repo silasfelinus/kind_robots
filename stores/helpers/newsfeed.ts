@@ -293,7 +293,16 @@ export const FEED_DEFINITIONS: FeedDefinition[] = [
       'Movements, campaigns, and organizing making a real difference.',
     icon: 'kind-icon:megaphone',
     defaultEnabled: true,
-    sourceIds: ['globalcitizen', 'devex-news'],
+    // devex-news swapped out 2026-07-25 (newsfeed/t-021): devex.com is
+    // domain-wide bot-blocked (403 on every path tried, not just /rss/news),
+    // so it never renders. who-news is already verified:true, already
+    // correctly unrated (WHO is an international health body, not a
+    // politically-rated outlet), and thematically close enough to
+    // global-development activism to pair with globalcitizen (rated) for a
+    // real rated+unrated tooltip contrast. Swap devex-news back in if it
+    // ever gets a working feed again -- its FeedSourceDefinition is left in
+    // place below, just unreferenced here.
+    sourceIds: ['globalcitizen', 'who-news'],
     defaultSort: 'recent',
     topicPolitical: true,
   },

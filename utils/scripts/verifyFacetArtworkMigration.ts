@@ -97,14 +97,21 @@ async function main(): Promise<void> {
     )
   }
 
-  const [seed, catalogApi, catalogStore, facetSummaries, facetStore] =
-    await Promise.all([
-      readFile(resolve(root, 'utils/scripts/seedFacetCatalog.ts'), 'utf8'),
-      readFile(resolve(root, 'server/utils/facetCatalog.ts'), 'utf8'),
-      readFile(resolve(root, 'stores/facetCatalogStore.ts'), 'utf8'),
-      readFile(resolve(root, 'server/utils/facetAssignments.ts'), 'utf8'),
-      readFile(resolve(root, 'stores/facetStore.ts'), 'utf8'),
-    ])
+  const [
+    seed,
+    catalogApi,
+    catalogStore,
+    facetSummaries,
+    facetStore,
+    facetManager,
+  ] = await Promise.all([
+    readFile(resolve(root, 'utils/scripts/seedFacetCatalog.ts'), 'utf8'),
+    readFile(resolve(root, 'server/utils/facetCatalog.ts'), 'utf8'),
+    readFile(resolve(root, 'stores/facetCatalogStore.ts'), 'utf8'),
+    readFile(resolve(root, 'server/utils/facetAssignments.ts'), 'utf8'),
+    readFile(resolve(root, 'stores/facetStore.ts'), 'utf8'),
+    readFile(resolve(root, 'components/facets/facet-manager.vue'), 'utf8'),
+  ])
 
   // Source -> candidate.
   requireText(
@@ -171,6 +178,26 @@ async function main(): Promise<void> {
     'artCollectionId: true',
   ]) {
     requireText('server/utils/facetAssignments.ts', facetSummaries, field)
+  }
+
+  // Curators must be able to inspect and repair all three path roles. The manager
+  // uses the same precedence as Builder cards so its preview matches runtime use.
+  for (const field of [
+    'v-model="newImagePath"',
+    'v-model="newCardPath"',
+    'v-model="newHeroPath"',
+    'v-model="newArtPrompt"',
+    'v-model="editForm.imagePath"',
+    'v-model="editForm.cardPath"',
+    'v-model="editForm.heroPath"',
+    'v-model="editForm.artPrompt"',
+    'imagePath: editForm.imagePath.trim() || null',
+    'cardPath: editForm.cardPath.trim() || null',
+    'heroPath: editForm.heroPath.trim() || null',
+    'artPrompt: editForm.artPrompt.trim() || null',
+    'return facet.cardPath || facet.imagePath || facet.heroPath || null',
+  ]) {
+    requireText('components/facets/facet-manager.vue', facetManager, field)
   }
 
   if (failures.length) {

@@ -2,59 +2,65 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import { resourceGallerySelect, resourceGalleryWhere } from './gallery'
 
 export default defineEventHandler(async (event) => {
-  let response
   const resourceId = Number(event.context.params?.id)
 
   try {
-    // Validate ID format
-    if (isNaN(resourceId) || resourceId <= 0) {
-      response = {
+    if (!Number.isInteger(resourceId) || resourceId <= 0) {
+      event.node.res.statusCode = 400
+      return {
         success: false,
         message: 'Invalid ID format. ID must be a positive integer.',
         data: null,
         statusCode: 400,
       }
-      event.node.res.statusCode = 400
-      return response
     }
 
-    // Fetch resource
-    const resource = await prisma.resource.findUnique({
-      where: { id: resourceId },
+    const auth = await getOptionalApiUser(event)
+    const resource = await prisma.resource.findFirst({
+      where: {
+        AND: [
+          { id: resourceId },
+          resourceGalleryWhere({
+            userId: auth?.user.id ?? null,
+            isAdmin: auth?.isAdmin ?? false,
+            showMature: Boolean(auth?.user.showMature),
+          }),
+        ],
+      },
+      select: resourceGallerySelect,
     })
 
-    // Resource not found
     if (!resource) {
-      response = {
+      event.node.res.statusCode = 404
+      return {
         success: false,
         message: 'Resource not found.',
         data: null,
         statusCode: 404,
       }
-      event.node.res.statusCode = 404
-      return response
     }
 
-    // Successful retrieval
-    response = {
+    event.node.res.statusCode = 200
+    return {
       success: true,
       message: 'Resource retrieved successfully.',
       data: resource,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    response = {
+    const statusCode = handledError.statusCode || 500
+    event.node.res.statusCode = statusCode
+
+    return {
       success: false,
       message: handledError.message || 'Failed to retrieve resource.',
       data: null,
-      statusCode: handledError.statusCode || 500,
+      statusCode,
     }
-    event.node.res.statusCode = response.statusCode
   }
-
-  return response
 })

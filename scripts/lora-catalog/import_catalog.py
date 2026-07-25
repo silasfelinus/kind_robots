@@ -77,8 +77,10 @@ def load_resources(paths: list[Path], skip_review: bool,
 
 
 def post_batch(url: str, api_key: str, batch: list[dict],
-               timeout: int = 60, retries: int = 3) -> dict:
+               timeout: int = 60, retries: int = 3, upsert: bool = False) -> dict:
     endpoint = url.rstrip("/") + "/api/resources/batch"
+    if upsert:
+        endpoint += "?mode=upsert"
     payload = json.dumps(batch).encode("utf-8")
     headers = {"x-api-key": api_key, "content-type": "application/json",
                "user-agent": "kind-robots-catalog-importer/1.0"}
@@ -129,6 +131,11 @@ def main() -> int:
     ap.add_argument("--mature", choices=["all", "only", "none"], default="all",
                     help="Import all rows, only mature, or only SFW (default: all).")
     ap.add_argument("--limit", type=int, default=0, help="Import at most N (0 = no limit; handy for a test run).")
+    ap.add_argument("--upsert", action="store_true",
+                    help="Enrich existing resources (matched by name) with the "
+                         "catalog fields instead of skipping them. Also avoids "
+                         "slug-collision skips. Recommended for re-imports / when "
+                         "the DB already has minimally-populated resources.")
     ap.add_argument("--dry-run", action="store_true", help="Write the payload, POST nothing.")
     ap.add_argument("--out", type=Path, default=Path("import-payload.json"))
     args = ap.parse_args()
@@ -169,7 +176,7 @@ def main() -> int:
     n = len(resources)
     for i in range(0, n, args.batch_size):
         batch = resources[i:i + args.batch_size]
-        resp = post_batch(args.url, args.api_key, batch)
+        resp = post_batch(args.url, args.api_key, batch, upsert=args.upsert)
         data = resp.get("data") or {}
         c = len(data.get("created", []) or [])
         s = len(data.get("skipped", []) or [])

@@ -1,4 +1,3 @@
-// /stores/modelBuilderStore.ts
 //
 // Model Builder — a resumable, human-gated recipe runner for Kind Robots
 // records. A user selects a source model, a recipe, and individual outputs;
@@ -870,7 +869,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       setStatus('error', item.error)
       return false
     } finally {
-      state.generatingItemId = null
+      // state.generatingItemId is a store-wide singleton (not per-item, unlike
+      // artJobId/queueState below), so an unconditional clear here can stomp on
+      // a *different* item's still-in-flight generation: selecting another row
+      // while this call is awaiting artStore.generateCurrentArt() and starting
+      // its own generateItemAsset() overwrites generatingItemId to that item's
+      // id, and this call's finally would then null it out from under the
+      // still-running generation the moment this call resolves — silently
+      // clearing its spinner/disabled state and re-opening the exact
+      // isGenerating gate on "Keep this asset" that guards against approving a
+      // stale candidate. Only clear the flag if it's still ours.
+      if (state.generatingItemId === item.id) state.generatingItemId = null
     }
   }
 

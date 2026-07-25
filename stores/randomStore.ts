@@ -1,113 +1,232 @@
 // /stores/randomStore.ts
+import { computed, ref, watch, type WatchStopHandle } from 'vue'
 import { defineStore } from 'pinia'
-import { ref, computed, watch, type WatchStopHandle } from 'vue'
-import type { Dream } from '~/prisma/generated/prisma/client'
-
-import { useUserStore } from './userStore'
-import { useArtStore } from './artStore'
-import { handleError, performFetch } from './utils'
-
-import { artListPresets } from '@/stores/seeds/artList'
+import { useArtStore } from '@/stores/artStore'
 import {
-  getRandom,
-  supportedKeys,
-  getAllPresetLists,
-} from './helpers/randomHelper'
-import type { RandomListItem } from './helpers/randomHelper'
+  useFacetCatalogStore,
+  type FacetCatalogEntry,
+  type FacetTaxonomy,
+} from '@/stores/facetCatalogStore'
+import { handleError } from '@/stores/utils'
+import { negativeList } from '@/stores/seeds/artList'
+import type { ArtListEntry } from '@/stores/seeds/artList'
 
-type PerformFetchResult<T> = {
-  success: boolean
-  data?: T
-  message?: string
-  statusCode?: number
-}
-
-type RandomListDream = Dream & {
-  examples?: string | null
+export type RandomListItem = {
+  id: number
+  title: string
+  content: string[]
+  examplesJson: string
+  userId: number | null
+  isPublic: boolean
+  isMature: boolean
+  source: 'facet'
+  taxonomy?: FacetTaxonomy
+  groupKey?: string | null
 }
 
 const isClient = typeof window !== 'undefined'
 
-function isRandomListDream(dream: Pick<Dream, 'dreamType'>): boolean {
-  return dream.dreamType === 'BRAINSTORM'
+const RANDOM_KEY_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
+  animal: ['ANIMAL'],
+  species: ['ANIMAL', 'SPECIES'],
+  genre: ['GENRE'],
+  occupation: ['OCCUPATION'],
+  archetype: ['ARCHETYPE'],
+  role: ['ROLE'],
+  alignment: ['ALIGNMENT'],
+  personality: ['PERSONALITY'],
+  backstory: ['BACKSTORY'],
+  quirk: ['QUIRK'],
+  material: ['MATERIAL'],
+  theme: ['THEME'],
+  style: ['STYLE'],
+  palette: ['COLOR'],
+  mood: ['MOOD'],
+  setting: ['SETTING'],
+  core: ['CORE'],
+  artDirection: ['ART_DIRECTION', 'PROMPT_ENHANCEMENT'],
 }
 
-function safeParseStringArray(value: unknown): string[] {
-  if (typeof value !== 'string') return []
+const ART_PRESETS: Array<{
+  id: string
+  title: string
+  taxonomies: FacetTaxonomy[]
+  presetType: ArtListEntry['presetType']
+  allowMultiple: boolean
+}> = [
+  {
+    id: 'style',
+    title: 'Art Style',
+    taxonomies: ['STYLE'],
+    presetType: 'dropdown',
+    allowMultiple: false,
+  },
+  {
+    id: 'theme',
+    title: 'Theme',
+    taxonomies: ['THEME'],
+    presetType: 'radio',
+    allowMultiple: false,
+  },
+  {
+    id: 'palette',
+    title: 'Color Palette',
+    taxonomies: ['COLOR'],
+    presetType: 'dropdown',
+    allowMultiple: true,
+  },
+  {
+    id: '__pretty__',
+    title: '✨ Make Pretty Enhancements',
+    taxonomies: ['PROMPT_ENHANCEMENT', 'ART_DIRECTION'],
+    presetType: 'auto',
+    allowMultiple: true,
+  },
+]
 
-  try {
-    const parsed = JSON.parse(value) as unknown
-    if (!Array.isArray(parsed)) return []
-    return parsed.filter(
-      (v): v is string => typeof v === 'string' && v.trim().length > 0,
-    )
-  } catch {
-    return []
+function stableNegativeId(input: string): number {
+  let hash = 0
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0
   }
+  return -(Math.abs(hash) || 1)
 }
 
-function stringifyExamples(values: string[]): string {
-  return JSON.stringify(
-    values.map((value) => value.trim()).filter((value) => value.length > 0),
+function canonicalValue(entry: FacetCatalogEntry): string {
+  return entry.canonicalValue || entry.title
+}
+
+function uniqueValues(entries: FacetCatalogEntry[]): string[] {
+  return Array.from(new Set(entries.map(canonicalValue).filter(Boolean)))
+}
+
+function weightedSample(
+  entries: FacetCatalogEntry[],
+  count: number,
+): FacetCatalogEntry[] {
+  const remaining = entries.filter(
+    (entry) => entry.isRandomizable && entry.randomWeight > 0,
   )
-}
+  const selected: FacetCatalogEntry[] = []
 
-function dreamToRandomListItem(dream: RandomListDream): RandomListItem {
-  const examplesJson = dream.examples || dream.pitch || '[]'
-  const content = safeParseStringArray(examplesJson)
+  while (remaining.length && selected.length < count) {
+    const total = remaining.reduce((sum, entry) => sum + entry.randomWeight, 0)
+    let roll = Math.random() * total
+    let pickedIndex = remaining.length - 1
 
-  return {
-    id: dream.id,
-    source: 'user',
-    title: dream.title || `Random List #${dream.id}`,
-    content,
-    examplesJson,
-    userId: dream.userId,
-    isPublic: dream.isPublic,
-    isMature: dream.isMature,
-  } as RandomListItem
+    for (const [index, entry] of remaining.entries()) {
+      roll -= entry.randomWeight
+      if (roll <= 0) {
+        pickedIndex = index
+        break
+      }
+    }
+
+    const [picked] = remaining.splice(pickedIndex, 1)
+    if (picked) selected.push(picked)
+  }
+
+  return selected
 }
 
 export const useRandomStore = defineStore('randomStore', () => {
-  const userStore = useUserStore()
   const artStore = useArtStore()
+  const facetCatalog = useFacetCatalogStore()
 
   const initialized = ref(false)
   const randomSelections = ref<Record<string, string>>({})
-  const randomLists = ref<RandomListDream[]>([])
-  const presetLists = ref<RandomListItem[]>(getAllPresetLists(artListPresets))
-  const randomListsLoaded = ref(false)
-  const fetchRandomListsPromise = ref<Promise<void> | null>(null)
-
   let randomSelectionsWatcher: WatchStopHandle | null = null
 
-  const filteredLists = computed<RandomListItem[]>(() => {
-    const userLists = (
-      Array.isArray(randomLists.value) ? randomLists.value : []
-    )
-      .filter((dream: RandomListDream) => {
-        const isOwner = dream.userId === userStore.userId
-        const isVisible = dream.isPublic || isOwner
-        const maturityOk = userStore.showMature || !dream.isMature
-        return isRandomListDream(dream) && isVisible && maturityOk
-      })
-      .map(dreamToRandomListItem)
+  const supportedKeys = computed(() =>
+    Object.keys(RANDOM_KEY_TAXONOMIES).filter((key) =>
+      facetCatalog.facetsForTaxonomies(RANDOM_KEY_TAXONOMIES[key] ?? []).some(
+        (entry) => entry.isRandomizable,
+      ),
+    ),
+  )
 
-    return [...presetLists.value, ...userLists]
+  const catalogPresets = computed<ArtListEntry[]>(() => {
+    const facetPresets = ART_PRESETS.map((preset) => ({
+      id: preset.id,
+      title: preset.title,
+      presetType: preset.presetType,
+      allowMultiple: preset.allowMultiple,
+      content: uniqueValues(
+        facetCatalog.facetsForTaxonomies(preset.taxonomies),
+      ),
+    }))
+
+    return [
+      ...facetPresets,
+      {
+        id: '__negative__',
+        title: '🚫 Negative Prompt Filters',
+        presetType: 'auto' as const,
+        allowMultiple: true,
+        // Negative prompts are generation configuration, not reusable Facets.
+        content: [...negativeList],
+      },
+    ]
   })
 
+  const presetLists = computed<RandomListItem[]>(() => {
+    const grouped = new Map<string, FacetCatalogEntry[]>()
+    for (const entry of facetCatalog.entries) {
+      const groupKey = entry.groupKey || entry.taxonomy.toLowerCase()
+      const key = `${entry.taxonomy}:${groupKey}`
+      const values = grouped.get(key) ?? []
+      values.push(entry)
+      grouped.set(key, values)
+    }
+
+    return Array.from(grouped.entries()).map(([key, entries]) => {
+      const first = entries[0]
+      const content = uniqueValues(entries)
+      return {
+        id: stableNegativeId(key),
+        title:
+          first?.groupLabel ||
+          first?.taxonomy.replaceAll('_', ' ').toLowerCase() ||
+          key,
+        content,
+        examplesJson: JSON.stringify(content),
+        userId: null,
+        isPublic: true,
+        isMature: entries.some((entry) => entry.isMature),
+        source: 'facet' as const,
+        taxonomy: first?.taxonomy,
+        groupKey: first?.groupKey,
+      }
+    })
+  })
+
+  const filteredLists = computed(() => presetLists.value)
+
   function pickRandomFromArray(arr: string[], count: number): string[] {
-    if (!Array.isArray(arr)) return []
-    const shuffled = [...arr].sort(() => 0.5 - Math.random())
-    return shuffled.slice(0, Math.min(count, arr.length))
+    if (!Array.isArray(arr) || count <= 0) return []
+    return [...arr]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(count, arr.length))
   }
 
-  function toggleSelection(key: string) {
-    const result = getRandom(key, 1)[0]
+  function getRandom(key: string, count = 1): string[] {
+    const taxonomies = RANDOM_KEY_TAXONOMIES[key] ?? []
+    if (!taxonomies.length) return []
+    return weightedSample(
+      facetCatalog.facetsForTaxonomies(taxonomies),
+      Math.max(1, count),
+    ).map(canonicalValue)
+  }
+
+  function toggleSelection(key: string): void {
+    const [result] = getRandom(key, 1)
     if (!result) return
 
     if (randomSelections.value[key] === result) {
-      const next = getRandom(key, 1)[0]
+      const alternatives = getRandom(key, 2).filter(
+        (value) => value !== result,
+      )
+      const next = alternatives[0]
       if (next) randomSelections.value[key] = next
       return
     }
@@ -115,48 +234,46 @@ export const useRandomStore = defineStore('randomStore', () => {
     randomSelections.value[key] = result
   }
 
-  function clearSelection(key: string) {
+  function clearSelection(key: string): void {
     delete randomSelections.value[key]
   }
 
-  function clearAllSelections() {
+  function clearAllSelections(): void {
     randomSelections.value = {}
   }
 
-  function getAllSelections() {
+  function getAllSelections(): Record<string, string> {
     return randomSelections.value
   }
 
-  function initialize() {
-    if (initialized.value) return
+  async function initialize(force = false): Promise<void> {
+    if (initialized.value && !force) return
+
+    if (!facetCatalog.loaded || force) {
+      await facetCatalog.fetchCatalog({ includeMature: true, take: 1000 }, force)
+    }
 
     if (isClient) {
       const stored = localStorage.getItem('artRandomizerRandomSelections')
       if (stored) {
         try {
           randomSelections.value = JSON.parse(stored) as Record<string, string>
-        } catch (error: unknown) {
-          handleError(
-            error,
-            'Failed to parse randomSelections from localStorage',
-          )
+        } catch (error) {
+          handleError(error, 'Failed to parse random selections from localStorage')
         }
       }
 
       if (!randomSelectionsWatcher) {
         randomSelectionsWatcher = watch(
           randomSelections,
-          (val: Record<string, string>) => {
+          (value) => {
             try {
               localStorage.setItem(
                 'artRandomizerRandomSelections',
-                JSON.stringify(val),
+                JSON.stringify(value),
               )
-            } catch (error: unknown) {
-              handleError(
-                error,
-                'Failed to save randomSelections to localStorage',
-              )
+            } catch (error) {
+              handleError(error, 'Failed to save random selections')
             }
           },
           { deep: true },
@@ -167,196 +284,44 @@ export const useRandomStore = defineStore('randomStore', () => {
     initialized.value = true
   }
 
-  async function fetchRandomLists(force = false) {
-    if (!force && randomListsLoaded.value) return
-    if (fetchRandomListsPromise.value) return fetchRandomListsPromise.value
-
-    fetchRandomListsPromise.value = (async () => {
-      const res = (await performFetch<RandomListDream[]>(
-        '/api/dreams?dreamType=RANDOMLIST',
-      )) as PerformFetchResult<RandomListDream[]>
-
-      if (res.success && res.data) {
-        randomLists.value = res.data.filter(isRandomListDream)
-        randomListsLoaded.value = true
-        return
-      }
-
-      handleError(
-        new Error(res.message || 'Failed to fetch random lists'),
-        'fetching random lists',
-      )
-    })()
-
-    try {
-      await fetchRandomListsPromise.value
-    } finally {
-      fetchRandomListsPromise.value = null
-    }
-  }
-
-  async function createList(title: string) {
-    const examplesJson = '[]'
-    const body: Partial<RandomListDream> & Record<string, unknown> = {
-      title,
-      pitch: examplesJson,
-      examples: examplesJson,
-      description: 'User-created random list.',
-      dreamType: 'BRAINSTORM',
-      userId: userStore.userId,
-      isPublic: true,
-      isMature: false,
-      isActive: true,
-    }
-
-    const res = (await performFetch<RandomListDream>('/api/dreams', {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    })) as PerformFetchResult<RandomListDream>
-
-    if (res.success && res.data) {
-      randomLists.value.push(res.data)
-      return
-    }
-
-    handleError(
-      new Error(res.message || 'Failed to create list'),
-      'creating list',
-    )
-  }
-
-  async function updateList(dream: RandomListDream) {
-    const res = (await performFetch<RandomListDream>(
-      `/api/dreams/${dream.id}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify(dream),
-        headers: { 'Content-Type': 'application/json' },
-      },
-    )) as PerformFetchResult<RandomListDream>
-
-    if (res.success && res.data) {
-      const idx = randomLists.value.findIndex(
-        (entry: RandomListDream) => entry.id === res.data?.id,
-      )
-      if (idx !== -1) randomLists.value[idx] = res.data
-      return
-    }
-
-    handleError(
-      new Error(res.message || 'Failed to update list'),
-      'updating list',
-    )
-  }
-
-  async function updateListItem(list: RandomListItem) {
-    if (list.source !== 'user') return
-
-    const examplesJson = list.examplesJson || stringifyExamples(list.content)
-    const body: Partial<RandomListDream> & Record<string, unknown> = {
-      id: list.id,
-      title: list.title,
-      dreamType: 'PITCH',
-      userId: list.userId ?? userStore.userId,
-      isPublic: list.isPublic,
-      isMature: list.isMature,
-      pitch: examplesJson,
-      examples: examplesJson,
-    }
-
-    await updateList(body as RandomListDream)
-  }
-
-  async function deleteList(id: number) {
-    const res = (await performFetch(`/api/dreams/${id}`, {
-      method: 'DELETE',
-    })) as PerformFetchResult<unknown>
-
-    if (res.success) {
-      randomLists.value = randomLists.value.filter(
-        (entry: RandomListDream) => entry.id !== id,
-      )
-      return
-    }
-
-    handleError(
-      new Error(res.message || 'Failed to delete list'),
-      'deleting list',
-    )
-  }
-
-  async function generateListItems(id: number) {
-    const list = randomLists.value.find((entry) => entry.id === id)
-    if (!list) return
-
-    const existing = safeParseStringArray(list.examples || list.pitch)
-    const fallbackSource = presetLists.value
-      .flatMap((entry) => entry.content || [])
-      .filter(Boolean)
-
-    const generated = existing.length
-      ? pickRandomFromArray(existing, Math.min(existing.length, 12))
-      : pickRandomFromArray(fallbackSource, Math.min(fallbackSource.length, 12))
-
-    const examplesJson = stringifyExamples(generated)
-
-    await updateList({
-      ...list,
-      examples: examplesJson,
-      pitch: examplesJson,
-    })
-  }
-
-  function resetAll() {
-    Object.keys(artStore.artListSelections).forEach((key: string) => {
+  function resetAll(): void {
+    for (const key of Object.keys(artStore.artListSelections)) {
       artStore.updateArtListSelection(key, [])
-    })
+    }
     clearAllSelections()
   }
 
-  function applyMakePretty() {
-    const pretty = artListPresets.find((p) => p.id === '__pretty__')
-    const negative = artListPresets.find((p) => p.id === '__negative__')
+  function applyMakePretty(): void {
+    const pretty = catalogPresets.value.find((entry) => entry.id === '__pretty__')
+    const negative = catalogPresets.value.find(
+      (entry) => entry.id === '__negative__',
+    )
 
     if (pretty) {
       artStore.updateArtListSelection(
-        '__pretty__',
+        pretty.id,
         pickRandomFromArray(pretty.content, 4),
       )
     }
-
     if (negative) {
       artStore.updateArtListSelection(
-        '__negative__',
+        negative.id,
         pickRandomFromArray(negative.content, 4),
       )
     }
   }
 
-  function applySurprise() {
-    for (const entry of artListPresets) {
-      const values = entry.allowMultiple
-        ? pickRandomFromArray(
-            entry.content,
-            Math.ceil(Math.random() * entry.content.length),
-          )
-        : pickRandomFromArray(entry.content, 1)
-
-      artStore.updateArtListSelection(entry.id, values)
+  function applySurprise(): void {
+    for (const entry of catalogPresets.value) {
+      if (!entry.content.length) continue
+      const count = entry.allowMultiple
+        ? Math.max(1, Math.ceil(Math.random() * Math.min(entry.content.length, 6)))
+        : 1
+      artStore.updateArtListSelection(
+        entry.id,
+        pickRandomFromArray(entry.content, count),
+      )
     }
-  }
-
-  function getExamplesForList(list: RandomListItem): string[] {
-    return safeParseStringArray(list.examplesJson)
-  }
-
-  function setExamplesForList(list: RandomListItem, values: string[]) {
-    const cleaned = Array.isArray(values)
-      ? values.filter((v) => typeof v === 'string' && v.trim().length > 0)
-      : []
-    list.examplesJson = stringifyExamples(cleaned)
-    list.content = cleaned
   }
 
   return {
@@ -372,19 +337,9 @@ export const useRandomStore = defineStore('randomStore', () => {
     applyMakePretty,
     applySurprise,
     resetAll,
-
+    catalogPresets,
     presetLists,
-    randomLists,
     filteredLists,
-    randomListsLoaded,
-    fetchRandomLists,
-    createList,
-    updateList,
-    updateListItem,
-    deleteList,
-    generateListItems,
-    getExamplesForList,
-    setExamplesForList,
     randomSelections,
   }
 })

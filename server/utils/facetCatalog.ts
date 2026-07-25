@@ -108,6 +108,10 @@ export async function loadFacetCatalogEntries(options: {
   userId?: number
   isAdmin?: boolean
   search?: string
+  /**
+   * Optional page size for externally paginated consumers. Internal callers that
+   * omit `take` receive the complete matching catalog from `skip` onward.
+   */
   take?: number
   skip?: number
 } = {}): Promise<FacetCatalogEntry[]> {
@@ -234,7 +238,9 @@ export async function loadFacetCatalogEntries(options: {
     )
 
   const skip = Math.max(0, options.skip ?? 0)
-  const take = Math.min(1000, Math.max(1, options.take ?? 500))
+  if (options.take == null) return entries.slice(skip)
+
+  const take = Math.min(1000, Math.max(1, options.take))
   return entries.slice(skip, skip + take)
 }
 
@@ -249,7 +255,6 @@ export async function loadCharacterFacetCatalog(characterId: number) {
     includeMature: true,
     includeInactive: true,
     isAdmin: true,
-    take: 1000,
   })
   const entryById = new Map(entries.map((entry) => [entry.id, entry]))
 

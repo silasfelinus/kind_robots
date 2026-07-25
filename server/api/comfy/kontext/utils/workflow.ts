@@ -43,6 +43,13 @@ export type KontextWorkflowInput = {
   // SetLatentNoiseMask over the source-init latent — everything else is locked
   // to the original. Core ComfyUI nodes only (LoadImageMask/SetLatentNoiseMask).
   maskName?: string | null
+  // Optional style LoRA (matches GenerateArtData.loraName/loraStrength and the
+  // pattern already used by simpleCheckpointWorkflow.ts / imageToVideoWorkflow.ts).
+  // When set, a LoraLoaderModelOnly node is spliced between the base UNet loader
+  // and ModelSamplingFlux so the render graph actually applies the LoRA — until
+  // now this only ever reached the graph as inert `<lora:...>` prompt text.
+  loraName?: string | null
+  loraStrength?: number | null
 }
 
 export const DEFAULT_KONTEXT_WIDTH = 1024
@@ -239,6 +246,28 @@ export function buildKontextWorkflow(
       class_type: 'DetailDaemonSamplerNode',
       _meta: { title: 'Detail Daemon Sampler' },
     },
+  }
+
+  // --- optional style LoRA: load once off the base UNet and route
+  //     ModelSamplingFlux's model input through it, so both the scheduler and
+  //     guider (which both read model from node 30) pick it up. Mirrors the
+  //     LoraLoaderModelOnly pattern in simpleCheckpointWorkflow.ts /
+  //     imageToVideoWorkflow.ts. No-op (base graph unchanged) when no LoRA is
+  //     requested, so prompt-only styles keep their existing behavior. ---
+  const loraName = input.loraName?.trim() || ''
+  if (loraName) {
+    workflow['61'] = {
+      inputs: {
+        model: ['59', 0],
+        lora_name: loraName,
+        strength_model:
+          typeof input.loraStrength === 'number' ? input.loraStrength : 1.0,
+      },
+      class_type: 'LoraLoaderModelOnly',
+      _meta: { title: 'Style LoRA' },
+    }
+
+    ;(workflow['30']!.inputs as Record<string, unknown>).model = ['61', 0]
   }
 
   // --- img2img init: start from the encoded source photo (node 39) so the

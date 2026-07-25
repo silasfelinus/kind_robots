@@ -6,6 +6,19 @@ import { normalizeFacetLookupKey } from '../facetAliases'
 
 const root = process.cwd()
 
+const VISUAL_FACET_FIELDS = new Set([
+  'species',
+  'class',
+  'alignment',
+  'personality',
+  'backstory',
+  'quirks',
+  'quirk',
+  'genre',
+  'genres',
+  'role',
+])
+
 type CuratedArtwork = {
   title: string
   value: string
@@ -29,26 +42,42 @@ async function main(): Promise<void> {
   const curated: CuratedArtwork[] = []
   const artworkByFacetKey = new Map<string, CuratedArtwork>()
   const failures: string[] = []
+  let directVisualFacetChoices = 0
 
   for (const card of ADVENTURE_CARDS) {
     for (const step of card.steps) {
       const fieldKey = clean(step.field) || clean(step.key) || clean(card.key)
+      const visualFacetField = VISUAL_FACET_FIELDS.has(fieldKey.toLowerCase())
 
       for (const choice of step.choices ?? []) {
-        // List/custom controls are UI affordances, not canonical Facet records.
+        // Expanded string lists and custom-entry controls are intentionally text-only.
+        // Direct choices are the curated gallery and must retain their artwork.
         if (choice.opensCustom || choice.opensList) continue
-
-        const imagePath = clean(choice.image)
-        if (!imagePath) continue
 
         const value = clean(choice.value)
         const title = clean(choice.label) || value
+        const imagePath = clean(choice.image)
+
         if (!value || !title) {
-          failures.push(
-            `${card.key}/${step.key} has curated artwork without a canonical title/value: ${imagePath}`,
-          )
+          if (imagePath) {
+            failures.push(
+              `${card.key}/${step.key} has curated artwork without a canonical title/value: ${imagePath}`,
+            )
+          }
           continue
         }
+
+        if (visualFacetField) {
+          directVisualFacetChoices++
+          if (!imagePath) {
+            failures.push(
+              `${card.key}/${step.key}/${title} is a direct visual Facet choice without curated artwork.`,
+            )
+            continue
+          }
+        }
+
+        if (!imagePath) continue
 
         if (!imagePath.startsWith('/images/')) {
           failures.push(
@@ -91,9 +120,14 @@ async function main(): Promise<void> {
     }
   }
 
-  if (curated.length < 50) {
+  if (directVisualFacetChoices < 50) {
     failures.push(
-      `Only ${curated.length} curated Adventure images were found; expected at least 50.`,
+      `Only ${directVisualFacetChoices} direct visual Facet choices were found; expected at least 50.`,
+    )
+  }
+  if (curated.length < directVisualFacetChoices) {
+    failures.push(
+      `${directVisualFacetChoices - curated.length} direct visual Facet choices are missing curated artwork.`,
     )
   }
 
@@ -206,8 +240,9 @@ async function main(): Promise<void> {
 
   const uniquePaths = new Set(curated.map((entry) => entry.imagePath))
   process.stdout.write(
-    `Facet artwork migration verified: ${curated.length} curated choices, ` +
-      `${artworkByFacetKey.size} canonical titles, ${uniquePaths.size} image files.\n`,
+    `Facet artwork migration verified: ${directVisualFacetChoices} direct visual ` +
+      `Facet choices, ${artworkByFacetKey.size} canonical titles, ` +
+      `${uniquePaths.size} image files.\n`,
   )
 }
 

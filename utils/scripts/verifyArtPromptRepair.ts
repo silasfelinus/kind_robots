@@ -4,6 +4,11 @@ import {
   extractReferencedArtImageId,
   isGenericArtLabel,
 } from '../../server/utils/artPromptQuality'
+import {
+  DEFAULT_ASSET_ART_DIRECTION,
+  normalizeKindRobotsImagePath,
+  normalizeQueuedArtJobPayload,
+} from '../../server/utils/artJobNormalization'
 import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
 
 type WorkflowNode = {
@@ -13,7 +18,7 @@ type WorkflowNode = {
 const weakPrompt =
   'polished web illustration for Image 529, clear subject, cohesive Kind Robots visual style, no text'
 const strongPrompt =
-  'A weathered red panda museum visitor leans over a glowing kinetic sculpture, curious expression, layered gallery depth, crisp modern western animation linework, saturated teal and amber light, no readable text'
+  'A weathered red panda museum visitor leans over a glowing kinetic sculpture, curious expression, layered gallery depth, crisp mature western animation linework, saturated teal and amber light, no readable text'
 const concisePrompt = 'Clockwork fox guards neon greenhouse'
 
 assert.equal(assessArtPrompt(weakPrompt).useful, false)
@@ -24,9 +29,28 @@ assert.equal(assessArtPrompt(strongPrompt).useful, true)
 assert.equal(assessArtPrompt(concisePrompt).useful, true)
 assert.equal(assessArtPrompt('red dog').useful, true)
 assert.equal(assessArtPrompt('robot').useful, true)
-assert.deepEqual(assessArtPrompt('Image 529').reasons, ['generic-label'])
+assert.equal(assessArtPrompt('Image 529').reasons[0], 'generic-label')
+assert.equal(
+  assessArtPrompt('Friendly Kind Robots visual language, portrait').reasons[0],
+  'vague-brand-style',
+)
+
+assert.equal(
+  normalizeKindRobotsImagePath('public/rewards/item/lucky-penny.webp'),
+  'public/images/rewards/item/lucky-penny.webp',
+)
+assert.equal(
+  normalizeKindRobotsImagePath('/images/characters/grandmother-whalehall.webp'),
+  'public/images/characters/grandmother-whalehall.webp',
+)
+assert.throws(
+  () => normalizeKindRobotsImagePath('public/rewards/../secret.webp'),
+  /Unsafe Kind Robots imagePath/,
+)
 
 const payload = {
+  targetRepo: 'silasfelinus/kind_robots',
+  imagePath: 'public/rewards/item/identity-mask.webp',
   promptString: weakPrompt,
   negativePrompt: 'blurry, text',
   workflow: {
@@ -43,6 +67,30 @@ const payload = {
   },
 }
 
+const normalization = normalizeQueuedArtJobPayload(payload)
+const normalizedWorkflow = normalization.payload.workflow as Record<
+  string,
+  WorkflowNode
+>
+const defaultDirectionLead = DEFAULT_ASSET_ART_DIRECTION.split(';').at(0) ?? ''
+
+assert.equal(normalization.imagePathChanged, true)
+assert.equal(normalization.promptChanged, true)
+assert.equal(
+  normalization.payload.imagePath,
+  'public/images/rewards/item/identity-mask.webp',
+)
+assert.match(String(normalization.payload.promptString), /multidimensional worldbuilding/)
+assert.doesNotMatch(String(normalization.payload.promptString), /Kind Robots visual/i)
+assert.equal(
+  normalizedWorkflow.positive?.inputs.text,
+  normalization.payload.promptString,
+)
+assert.match(
+  String(normalization.payload.promptString),
+  new RegExp(defaultDirectionLead),
+)
+
 const repaired = applyArtJobOverrides(structuredClone(payload), {
   promptString: strongPrompt,
 })
@@ -51,4 +99,4 @@ const workflow = repaired.workflow as Record<string, WorkflowNode>
 assert.equal(workflow.positive?.inputs.text, strongPrompt)
 assert.equal(workflow.negative?.inputs.text, 'blurry, text')
 
-console.log('Art prompt quality and workflow repair checks passed.')
+console.log('Art prompt quality, canonical path, and workflow repair checks passed.')

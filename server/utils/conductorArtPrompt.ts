@@ -4,6 +4,7 @@ import {
   cleanArtPrompt,
   isGenericArtLabel,
 } from './artPromptQuality'
+import { DEFAULT_ASSET_ART_DIRECTION } from './artJobNormalization'
 
 type ArtPromptTarget = {
   sourceUrl: string
@@ -171,7 +172,7 @@ function contextualFallback(
     `Create artwork for ${subject}.`,
     `Visible subject and scene context: ${context}.`,
     compositionFor(target),
-    'modern western animation for young adults, crisp expressive linework, saturated but balanced color, readable silhouettes, tactile environmental detail, intentional cinematic lighting',
+    DEFAULT_ASSET_ART_DIRECTION,
     'no readable text, no logos, no watermark, no collage',
   ].join(' ')
 
@@ -211,15 +212,16 @@ export async function buildContextualArtPrompt(
       body: JSON.stringify({
         model: openAiModel(),
         instructions: [
-          'You write production-ready image generation prompts for the Kind Robots website.',
+          'You write production-ready image generation prompts for a multidimensional asset-creation platform.',
           'Infer the actual visible subject from the asset path, page URL, meaningful image label, and surrounding page context.',
           'Never treat a database id, filename number, or phrases such as “Image 529” as a subject.',
-          'Never say “Kind Robots style” or “cohesive visual style”; those phrases give an image model no visual information.',
-          'Use concrete art direction instead: modern western animation for young adults, crisp expressive linework, saturated color, readable silhouettes, and intentional cinematic lighting when suitable.',
+          'Never use “Kind Robots style”, “Kind Robots visual style”, “Kind Robots visual language”, or “cohesive visual style”; those phrases give an image model no visual information and often cause unwanted robots.',
+          `Use this concrete default art direction when the surrounding context does not specify another medium: ${DEFAULT_ASSET_ART_DIRECTION}.`,
+          'Robots are not a default mascot. Include a robot only when the requested subject, story, or surrounding page context explicitly requires one.',
           'Return one vivid prompt only. No markdown, no JSON, no quotes.',
           'Always describe the visible subject, action or pose, setting, composition, mood, and concrete rendering style, ending with no readable text.',
           'Respect the requested variant: icon is square and simple, card is 2:3 portrait, hero is 16:9 landscape.',
-          'Avoid copyrighted characters, logos, brands, text in the image, collages, and vague filler.',
+          'Avoid copyrighted characters, licensed style names, logos, brands, text in the image, collages, and vague filler.',
           'If the supplied context does not identify a real subject, return exactly INSUFFICIENT_CONTEXT.',
         ].join(' '),
         input: [

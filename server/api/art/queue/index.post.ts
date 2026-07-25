@@ -13,6 +13,7 @@ import {
   serializeArtJobPayload,
 } from '../../../utils/artJobPayload'
 import { enrichArtJobPayload } from '../../../utils/artJobProvenance'
+import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -67,10 +68,11 @@ export default defineEventHandler(async (event) => {
     const priority = Number.isInteger(body?.priority)
       ? Number(body?.priority)
       : 0
+    const normalizedPayload = normalizeQueuedArtJobPayload(rawPayload).payload
 
     const { payload, provenance } = enrichArtJobPayload(
       engine as 'A1111' | 'COMFY',
-      rawPayload,
+      normalizedPayload,
       {
         projectSlug,
         idempotencyKey: body?.idempotencyKey,

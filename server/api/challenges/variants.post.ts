@@ -3,10 +3,11 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
+import { basicSinglePools } from '@/stores/helpers/randomHelper'
 import {
-  basicSinglePools,
-  dreamToRandomListItem,
-} from '@/stores/helpers/randomHelper'
+  loadFacetCatalogEntries,
+  type FacetTaxonomy,
+} from '~/server/utils/facetCatalog'
 import {
   generatePromptVariants,
   extractPlaceholderKeys,
@@ -19,6 +20,49 @@ type VariantsBody = {
 }
 
 const MAX_VARIANT_COUNT = 50
+
+const FACET_PLACEHOLDERS: Record<string, FacetTaxonomy[]> = {
+  animal: ['ANIMAL'],
+  species: ['ANIMAL', 'SPECIES'],
+  backstory: ['BACKSTORY'],
+  class: ['OCCUPATION', 'ARCHETYPE', 'ROLE'],
+  occupation: ['OCCUPATION'],
+  archetype: ['ARCHETYPE'],
+  role: ['ROLE'],
+  alignment: ['ALIGNMENT'],
+  color: ['COLOR'],
+  palette: ['COLOR'],
+  genre: ['GENRE'],
+  material: ['MATERIAL'],
+  personality: ['PERSONALITY'],
+  quirk: ['QUIRK'],
+  theme: ['THEME'],
+  style: ['STYLE'],
+  mood: ['MOOD'],
+  setting: ['SETTING'],
+  core: ['CORE'],
+  artdirection: ['ART_DIRECTION', 'PROMPT_ENHANCEMENT'],
+}
+
+function addPool(
+  pools: Map<string, string[]>,
+  key: string,
+  values: Iterable<string>,
+): void {
+  const normalizedKey = normalizeVariantKey(key)
+  const existing = pools.get(normalizedKey) ?? []
+  pools.set(
+    normalizedKey,
+    Array.from(
+      new Set([
+        ...existing,
+        ...Array.from(values)
+          .map((value) => value.trim())
+          .filter(Boolean),
+      ]),
+    ),
+  )
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -42,7 +86,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const count = Number(body.count ?? 1)
-
     if (!Number.isInteger(count) || count < 1 || count > MAX_VARIANT_COUNT) {
       throw createError({
         statusCode: 400,
@@ -52,7 +95,6 @@ export default defineEventHandler(async (event) => {
 
     const basePrompt = body.basePrompt.trim()
     const keys = extractPlaceholderKeys(basePrompt)
-
     if (keys.length === 0) {
       throw createError({
         statusCode: 400,
@@ -60,39 +102,68 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const builtInPools = new Map(
-      basicSinglePools.map((pool) => [
-        normalizeVariantKey(pool.key),
-        [...pool.values],
-      ]),
+    const pools = new Map<string, string[]>()
+    for (const pool of basicSinglePools) {
+      addPool(pools, pool.key, pool.values)
+    }
+
+    const requestedFacetTaxonomies = Array.from(
+      new Set(
+        keys.flatMap(
+          (key) => FACET_PLACEHOLDERS[normalizeVariantKey(key)] ?? [],
+        ),
+      ),
     )
 
-    const customKeys = keys.filter((key) => !builtInPools.has(key))
+    if (requestedFacetTaxonomies.length) {
+      const facets = await loadFacetCatalogEntries({
+        taxonomies: requestedFacetTaxonomies,
+        randomizableOnly: true,
+        userId: auth.user.id,
+        isAdmin: auth.user.Role === 'ADMIN' || auth.user.id === 1,
+        take: 1000,
+      })
 
-    const randomListPools = new Map<string, string[]>()
+      for (const [placeholder, taxonomies] of Object.entries(
+        FACET_PLACEHOLDERS,
+      )) {
+        addPool(
+          pools,
+          placeholder,
+          facets
+            .filter((facet) => taxonomies.includes(facet.taxonomy))
+            .map((facet) => facet.canonicalValue || facet.title),
+        )
+      }
+    }
 
-    if (customKeys.length > 0) {
-      const dreams = await prisma.dream.findMany({
+    const rewardPlaceholderKeys = new Set([
+      'item',
+      'skill',
+      'power',
+      'pet',
+      'magic',
+      'favor',
+    ])
+    if (keys.some((key) => rewardPlaceholderKeys.has(normalizeVariantKey(key)))) {
+      const rewards = await prisma.reward.findMany({
         where: {
-          // RANDOMLIST is a virtual/legacy dream type stored as BRAINSTORM in the DB
-          // (see LEGACY_DREAM_TYPE_MAP in stores/helpers/dreamHelper.ts).
-          dreamType: 'BRAINSTORM',
           isActive: true,
           OR: [{ isPublic: true }, { userId: auth.user.id }],
         },
-        orderBy: { updatedAt: 'asc' },
+        select: { name: true, rewardType: true },
+        orderBy: { name: 'asc' },
       })
 
-      for (const dream of dreams) {
-        const item = dreamToRandomListItem(dream)
-        randomListPools.set(normalizeVariantKey(item.title), item.content)
+      for (const reward of rewards) {
+        addPool(pools, reward.rewardType.toLowerCase(), [reward.name])
       }
     }
 
     const variants = generatePromptVariants(
       basePrompt,
       count,
-      (key) => builtInPools.get(key) ?? randomListPools.get(key),
+      (key) => pools.get(key),
     )
 
     return {
@@ -105,7 +176,6 @@ export default defineEventHandler(async (event) => {
     const handled = errorHandler(error)
     const statusCode = handled.statusCode ?? 500
     event.node.res.statusCode = statusCode
-
     return { ...handled, statusCode }
   }
 })

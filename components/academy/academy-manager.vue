@@ -3,10 +3,13 @@
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
     >
       <div class="flex flex-col items-center gap-3 text-center">
-        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="loading loading-spinner loading-lg text-primary" aria-hidden="true" />
         <p class="text-sm text-base-content/70">
           Dusting off the timeline, warming up the remix engine, and politely
           waking twenty-five centuries of dead masters...
@@ -16,6 +19,7 @@
 
     <div
       v-else-if="managerError"
+      role="alert"
       class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
     >
       <div class="flex flex-wrap items-center justify-between gap-3">

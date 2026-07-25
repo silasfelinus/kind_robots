@@ -3,7 +3,6 @@ import { defineNuxtPlugin } from '#app'
 import { ADVENTURE_CARDS } from '@/stores/helpers/adventureCards'
 import type { BuilderChoice } from '@/stores/helpers/builderCards'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
-import { useCharacterStore } from '@/stores/characterStore'
 import {
   CHARACTER_FIELD_TAXONOMIES,
   useFacetCatalogStore,
@@ -11,10 +10,6 @@ import {
 import { useGeneratorStore } from '@/stores/generatorStore'
 
 type MutableGeneratorStore = ReturnType<typeof useGeneratorStore> & {
-  __facetCatalogPatched?: boolean
-}
-
-type MutableCharacterStore = ReturnType<typeof useCharacterStore> & {
   __facetCatalogPatched?: boolean
 }
 
@@ -146,29 +141,6 @@ function patchGenerator(catalog: ReturnType<typeof useFacetCatalogStore>): void 
   generator.__facetCatalogPatched = true
 }
 
-function patchCharacterSave(
-  catalog: ReturnType<typeof useFacetCatalogStore>,
-): void {
-  const characterStore = useCharacterStore() as MutableCharacterStore
-  if (characterStore.__facetCatalogPatched) return
-
-  const originalSave = characterStore.saveCharacter.bind(characterStore)
-  characterStore.saveCharacter = async () => {
-    const result = await originalSave()
-    const character = result.data
-
-    if (result.success && character?.id) {
-      await catalog.syncCharacterFacets(
-        character.id,
-        character as unknown as Record<string, unknown>,
-      )
-    }
-
-    return result
-  }
-  characterStore.__facetCatalogPatched = true
-}
-
 export default defineNuxtPlugin(async () => {
   const catalog = useFacetCatalogStore()
 
@@ -178,7 +150,6 @@ export default defineNuxtPlugin(async () => {
 
     hydrateAdventureBuilder(catalog)
     patchGenerator(catalog)
-    patchCharacterSave(catalog)
 
     // Registration stores the same mutable card graph. Re-register after the
     // async catalog fetch so an already-mounted Character Builder observes the

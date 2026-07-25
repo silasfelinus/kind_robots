@@ -44,6 +44,9 @@ async function main(): Promise<void> {
     profileInput: 'server/utils/facetProfileInput.ts',
     facetStore: 'stores/facetStore.ts',
     facetManager: 'components/facets/facet-manager.vue',
+    characterCreate: 'server/api/characters/index.post.ts',
+    characterPatch: 'server/api/characters/[id].patch.ts',
+    characterFacetSync: 'server/utils/characterFacetSync.ts',
     characterGet: 'server/api/characters/[id]/facets.get.ts',
     characterPut: 'server/api/characters/[id]/facets.put.ts',
     seedWrapper: 'utils/scripts/runFacetCatalogSeed.ts',
@@ -122,6 +125,20 @@ async function main(): Promise<void> {
   requireText(files.facetManager, text.facetManager, 'editForm.isRandomizable')
   requireText(files.facetManager, text.facetManager, 'kindForTaxonomy')
 
+  requireText(
+    files.characterFacetSync,
+    text.characterFacetSync,
+    'syncCharacterFacetsInTransaction',
+  )
+  requireText(files.characterFacetSync, text.characterFacetSync, 'CHARACTER_MUTATION')
+  requireText(files.characterFacetSync, text.characterFacetSync, 'tx.characterFacet.deleteMany')
+  requireText(files.characterFacetSync, text.characterFacetSync, 'tx.characterFacet.createMany')
+  requireText(files.characterFacetSync, text.characterFacetSync, 'allowed.includes(taxonomy)')
+  requireText(files.characterCreate, text.characterCreate, 'prisma.$transaction')
+  requireText(files.characterCreate, text.characterCreate, 'syncCharacterFacetsInTransaction')
+  requireText(files.characterPatch, text.characterPatch, 'prisma.$transaction')
+  requireText(files.characterPatch, text.characterPatch, 'syncCharacterFacetsInTransaction')
+
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')
   requireText(files.characterPut, text.characterPut, 'resolveFacetSelection')
@@ -157,7 +174,8 @@ async function main(): Promise<void> {
   requireText(files.catalogStore, text.catalogStore, 'entriesById.set(entry.id, entry)')
   requireText(files.builderPlugin, text.builderPlugin, 'hydrateAdventureBuilder')
   requireText(files.builderPlugin, text.builderPlugin, 'patchGenerator')
-  requireText(files.builderPlugin, text.builderPlugin, 'patchCharacterSave')
+  forbidText(files.builderPlugin, text.builderPlugin, 'patchCharacterSave')
+  forbidText(files.builderPlugin, text.builderPlugin, 'useCharacterStore')
 
   requireText(files.randomStore, text.randomStore, 'useFacetCatalogStore')
   requireText(files.randomStore, text.randomStore, 'weightedSample')

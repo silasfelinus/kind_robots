@@ -118,6 +118,13 @@ export interface GenerateArtData {
   userId?: number | null
 
   checkpoint?: string
+  // Resource-backed selection. `checkpoint`/`loraName` are the names the engine
+  // renders with; the *ResourceId fields let the finished ArtImage link back to
+  // the Resource rows it used (provenance — see resourceProvenance.ts).
+  checkpointResourceId?: number | null
+  loraName?: string | null
+  loraStrength?: number | null
+  loraResourceIds?: number[] | null
   sampler?: string
   steps?: number
   cfg?: number

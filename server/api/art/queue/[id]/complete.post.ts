@@ -29,6 +29,10 @@ import {
   type ArtJobCompletionProof,
 } from '../../../../utils/artJobProvenance'
 import { resolvePersistedArtImageSeed } from '../../../../utils/artImageSeed'
+import {
+  artImageResourceConnectData,
+  resolveArtImageResourceLinks,
+} from '../../utils/resourceProvenance'
 
 const MAX_ATTEMPTS = 3
 
@@ -325,9 +329,18 @@ export default defineEventHandler(async (event) => {
             data: { artImageId: archived.id },
           })
 
+          // Record which Resources this render used (best-effort provenance).
+          const resourceLinks = await resolveArtImageResourceLinks(
+            job.payload,
+            tx,
+          )
+
           await tx.artImage.update({
             where: { id: targetArtImageId },
-            data: replacementData(staged, job.userId, savePolicy, workflowSeed),
+            data: {
+              ...replacementData(staged, job.userId, savePolicy, workflowSeed),
+              ...artImageResourceConnectData(resourceLinks),
+            },
           })
 
           const completed = await tx.artJob.update({
@@ -374,6 +387,12 @@ export default defineEventHandler(async (event) => {
             workflowSeed,
           )
 
+          // Record which Resources this render used (best-effort provenance).
+          const resourceLinks = await resolveArtImageResourceLinks(
+            job.payload,
+            tx,
+          )
+
           await tx.artImage.update({
             where: { id: uploadedArtImageId },
             data: {
@@ -382,6 +401,7 @@ export default defineEventHandler(async (event) => {
               ...(persistedSeed !== uploaded.seed
                 ? { seed: persistedSeed }
                 : {}),
+              ...artImageResourceConnectData(resourceLinks),
             },
           })
 

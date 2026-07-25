@@ -1012,6 +1012,8 @@ model Resource {
   artPrompt       String?         @db.Text
   triggerWords    String?         @db.Text
   defaultTrigger  String?         @db.Text
+  hash            String?         @db.VarChar(64)
+  previewImageUrl String?         @db.Text
   imagePath       String?
   slug            String?         @unique @db.VarChar(255)
   ArtImages       ArtImage[]      @relation("ArtImageCheckpointResource")

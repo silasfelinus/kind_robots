@@ -103,6 +103,10 @@ type ArtEnqueueRequest = {
   jsonPrompt?: Record<string, unknown> | unknown[] | null
   loraName?: string | null
   loraStrength?: number | null
+  // Resource provenance: the picker sends the Resource ids it selected so the
+  // finished ArtImage can be linked back to them (see resourceProvenance.ts).
+  checkpointResourceId?: number | null
+  loraResourceIds?: number[] | null
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
@@ -224,6 +228,37 @@ export default defineEventHandler(async (event) => {
       promptString,
       save,
     })
+
+    // Stamp resource provenance onto the payload so completion can link the
+    // finished ArtImage back to the checkpoint + LoRA Resources it used. Both
+    // explicit ids (from the picker) and the name strings (for backfill) are
+    // stored; completion resolves and verifies them best-effort.
+    const provenanceResources = {
+      checkpointResourceId:
+        Number.isInteger(body?.checkpointResourceId) &&
+        Number(body?.checkpointResourceId) > 0
+          ? Number(body?.checkpointResourceId)
+          : null,
+      loraResourceIds: Array.isArray(body?.loraResourceIds)
+        ? [
+            ...new Set(
+              body!.loraResourceIds!
+                .map(Number)
+                .filter((n) => Number.isInteger(n) && n > 0),
+            ),
+          ]
+        : [],
+      checkpointName: body?.checkpoint?.trim() || null,
+      loraNames: body?.loraName?.trim() ? [body.loraName.trim()] : [],
+    }
+    if (
+      provenanceResources.checkpointResourceId ||
+      provenanceResources.loraResourceIds.length ||
+      provenanceResources.checkpointName ||
+      provenanceResources.loraNames.length
+    ) {
+      payload.resources = provenanceResources
+    }
 
     const job = await prisma.artJob.create({
       data: {

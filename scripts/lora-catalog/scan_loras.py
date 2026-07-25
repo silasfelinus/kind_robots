@@ -198,6 +198,7 @@ class LoraEntry:
     isMature: bool = False
     civitaiUrl: str = ""
     customUrl: str = ""         # CivArchive link when relevant
+    previewImageUrl: str = ""   # a preview image from Civitai/CivArchive
     huggingUrl: str = ""
     localPath: str = ""
     triggerWords: str = ""      # ALL trigger words, comma-joined
@@ -402,6 +403,11 @@ def apply_civitai(entry: LoraEntry, data: Any) -> bool:
     words = data.get("trainedWords") or []
     if isinstance(words, list):
         entry.trigger_words = [str(w) for w in words if w]
+    imgs = data.get("images") or []
+    if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict):
+        url = imgs[0].get("url")
+        if url:
+            entry.previewImageUrl = str(url)
     base = (data.get("baseModel") or "").strip()
     if base:
         entry.baseModel_raw = base
@@ -443,6 +449,11 @@ def apply_civarchive(entry: LoraEntry, data: Any) -> bool:
     trig = version.get("trigger") or version.get("trainedWords") or []
     if isinstance(trig, list) and not entry.trigger_words:
         entry.trigger_words = [str(w) for w in trig if w]
+    imgs = version.get("images") or []
+    if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict) and not entry.previewImageUrl:
+        url = imgs[0].get("url")
+        if url:
+            entry.previewImageUrl = str(url)
     base = (version.get("baseModel") or "").strip()
     if base and not entry.base_source:
         entry.baseModel_raw = base
@@ -600,8 +611,10 @@ def to_resource(entry: LoraEntry) -> dict:
         "isMature": entry.isMature,
         "civitaiUrl": entry.civitaiUrl or None,
         "customUrl": entry.customUrl or None,
+        "previewImageUrl": entry.previewImageUrl or None,
         "huggingUrl": entry.huggingUrl or None,
         "localPath": entry.localPath or None,
+        "hash": entry.sha256 or None,
         "triggerWords": entry.triggerWords or None,
         "defaultTrigger": entry.defaultTrigger or None,
         "artPrompt": entry.defaultTrigger or None,

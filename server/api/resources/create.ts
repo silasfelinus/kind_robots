@@ -41,6 +41,8 @@ export const resourceCreateFields = new Set<string>([
   'artPrompt',
   'triggerWords',
   'defaultTrigger',
+  'hash',
+  'previewImageUrl',
   'imagePath',
   'slug',
   // relation-alias inputs the builder understands
@@ -280,6 +282,8 @@ export async function buildResourceCreateInput(options: {
     artPrompt: nullableText(entry.artPrompt),
     triggerWords: nullableText(entry.triggerWords),
     defaultTrigger: nullableText(entry.defaultTrigger),
+    hash: nullableText(entry.hash),
+    previewImageUrl: nullableText(entry.previewImageUrl),
     isMature: booleanValue(entry.isMature, false),
     isPublic: booleanValue(entry.isPublic, false),
     isActive: booleanValue(entry.isActive, true),

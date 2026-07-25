@@ -240,6 +240,7 @@ class ModelEntry:
     isMature: bool = False
     civitaiUrl: str = ""
     customUrl: str = ""
+    previewImageUrl: str = ""
     triggerWords: str = ""
     defaultTrigger: str = ""
     description: str = ""
@@ -333,6 +334,11 @@ def enrich_civitai(e: ModelEntry, data) -> bool:
     words = data.get("trainedWords") or []
     if isinstance(words, list) and words:
         e.triggerWords = ", ".join(str(w) for w in words if w)
+    imgs = data.get("images") or []
+    if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict):
+        url = imgs[0].get("url")
+        if url:
+            e.previewImageUrl = str(url)
     base = (data.get("baseModel") or "").strip()
     if base:
         e.supportedServer, e.generation = core.map_base(base)
@@ -363,6 +369,11 @@ def enrich_archive(e: ModelEntry, data) -> bool:
     trig = version.get("trigger") or []
     if isinstance(trig, list) and trig and not e.triggerWords:
         e.triggerWords = ", ".join(str(w) for w in trig if w)
+    imgs = version.get("images") or []
+    if isinstance(imgs, list) and imgs and isinstance(imgs[0], dict) and not e.previewImageUrl:
+        url = imgs[0].get("url")
+        if url:
+            e.previewImageUrl = str(url)
     base = (version.get("baseModel") or "").strip()
     if base and not e.base_source:
         e.supportedServer, e.generation = core.map_base(base)
@@ -379,8 +390,13 @@ def enrich_archive(e: ModelEntry, data) -> bool:
 
 
 def finalize(e: ModelEntry, meta: dict) -> None:
-    # base model for checkpoints: civitai -> folder hint -> metadata
-    if e.kind in ("checkpoint", "video_checkpoint", "audio_checkpoint") and not e.base_source:
+    # base model for checkpoints: civitai -> folder hint -> metadata. Skip if a
+    # generation was already supplied (e.g. by an override) so it isn't clobbered.
+    if (
+        e.kind in ("checkpoint", "video_checkpoint", "audio_checkpoint")
+        and not e.base_source
+        and not e.generation
+    ):
         server, gen = folder_base_hint(e.relpath)
         if server:
             e.supportedServer, e.generation, e.base_source = server, gen, "folder"
@@ -436,7 +452,9 @@ def to_resource(e: ModelEntry) -> Optional[dict]:
         "isMature": e.isMature,
         "civitaiUrl": e.civitaiUrl or None,
         "customUrl": e.customUrl or None,
+        "previewImageUrl": e.previewImageUrl or None,
         "localPath": e.target_rel,
+        "hash": e.sha256 or None,
         "triggerWords": e.triggerWords or None,
         "defaultTrigger": e.defaultTrigger or None,
         "description": e.description or None,
@@ -618,8 +636,10 @@ def main() -> int:
         if args.skip_video and e.kind in ("video_checkpoint", "audio_checkpoint"):
             e.is_tool = True
             e.notes.append("video/audio — left in place (--skip-video)")
+        # Apply overrides BEFORE finalize so an overridden base model / group is
+        # reflected in the computed target folder (sha256/filename-keyed).
+        core.apply_overrides(e, overrides)
         finalize(e, meta_by_id.get(id(e), {}))
-        core.apply_overrides(e, overrides)  # sha256/filename-keyed; sets fields it recognizes
 
     if args.organize != "none":
         organize(entries, args.organize, (args.dest or root).resolve(), args.out)

@@ -118,8 +118,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Import a scanned catalog into kind_robots Resources.")
     ap.add_argument("catalogs", type=Path, nargs="+", help="catalog JSON file(s)")
     ap.add_argument("--url", required=True, help="kind_robots base URL (e.g. https://kindrobots.org)")
-    ap.add_argument("--api-key", default=os.environ.get("KR_API_KEY", ""),
-                    help="kind_robots API key (or set KR_API_KEY). Sent as x-api-key.")
+    ap.add_argument("--api-key",
+                    default=os.environ.get("KR_API_TOKEN")
+                    or os.environ.get("KR_API_KEY", ""),
+                    help="kind_robots API key (or set KR_API_TOKEN / KR_API_KEY). "
+                         "Sent as x-api-key.")
     ap.add_argument("--batch-size", type=int, default=50)
     ap.add_argument("--skip-review", action="store_true",
                     help="Skip rows still flagged needs_review in the catalog.")

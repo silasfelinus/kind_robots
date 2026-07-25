@@ -72,6 +72,8 @@ const normalizedWorkflow = normalization.payload.workflow as Record<
   string,
   WorkflowNode
 >
+const defaultDirectionLead = DEFAULT_ASSET_ART_DIRECTION.split(';').at(0) ?? ''
+
 assert.equal(normalization.imagePathChanged, true)
 assert.equal(normalization.promptChanged, true)
 assert.equal(
@@ -84,7 +86,10 @@ assert.equal(
   normalizedWorkflow.positive?.inputs.text,
   normalization.payload.promptString,
 )
-assert.match(String(normalization.payload.promptString), new RegExp(DEFAULT_ASSET_ART_DIRECTION.split(';')[0]!))
+assert.match(
+  String(normalization.payload.promptString),
+  new RegExp(defaultDirectionLead),
+)
 
 const repaired = applyArtJobOverrides(structuredClone(payload), {
   promptString: strongPrompt,

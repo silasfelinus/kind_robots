@@ -432,16 +432,39 @@ async function runWithConcurrency<T>(
   worker: (item: T) => Promise<void>,
 ): Promise<void> {
   let cursor = 0
+  const errors: unknown[] = []
   async function lane(): Promise<void> {
     while (cursor < items.length) {
       const item = items[cursor]
       cursor++
-      if (item !== undefined) await worker(item)
+      if (item === undefined) continue
+      // Catch per-item rather than letting a throw escape the lane: main()'s
+      // `finally` disconnects the shared Prisma client the instant this
+      // function's returned promise settles. Promise.all below settles (and
+      // rejects) the moment the FIRST lane throws, but the other lanes keep
+      // running in the background against a client that's about to be torn
+      // down -- their in-flight queries then hang forever waiting on a
+      // closed connection instead of erroring, which silently reintroduced
+      // BUILD_EXCEEDED_MAXIMUM_TIME on 2026-07-25 (two production builds
+      // race-seeding the same slug: the loser's create() threw, the other 7
+      // lanes were still mid-query when $disconnect() fired). Every lane
+      // must fully drain before this function settles either way.
+      try {
+        await worker(item)
+      } catch (error) {
+        errors.push(error)
+      }
     }
   }
   await Promise.all(
     Array.from({ length: Math.min(limit, items.length) }, () => lane()),
   )
+  if (errors.length > 0) {
+    throw new AggregateError(
+      errors,
+      `${errors.length} of ${items.length} item(s) failed`,
+    )
+  }
 }
 
 type ExistingFacetRow = {
@@ -499,6 +522,62 @@ async function loadCatalogState(): Promise<CatalogState> {
   }
 }
 
+function isUniqueConstraintError(error: unknown): boolean {
+  return Boolean(
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    error.code === 'P2002',
+  )
+}
+
+async function createOrRecoverFacet(
+  candidate: Candidate,
+  slug: string,
+): Promise<ExistingFacetRow> {
+  try {
+    return await prisma.facet.create({
+      data: {
+        title: candidate.title,
+        slug,
+        kind: legacyKind(candidate.taxonomy),
+        description: candidate.description,
+        imagePath: candidate.imagePath,
+        icon: candidate.icon,
+        designer: 'facet-catalog',
+        creationSource: 'HUMAN',
+        userId: 1,
+        isPublic: true,
+        isMature: false,
+        isActive: true,
+      },
+    })
+  } catch (error) {
+    // Two seed runs (e.g. back-to-back production deploys) can race on a
+    // brand-new slug: loadCatalogState()'s up-front snapshot only reflects
+    // whichever Facet rows existed when EACH run started, so both runs can
+    // decide "this is new" and both call create(). The DB's unique
+    // constraint on `slug` is the real arbiter -- the loser gets P2002, not
+    // a corrupted catalog. Recover by reading the winner's row and updating
+    // it instead of failing the whole seed (see the concurrent-seed-run
+    // incident logged on runWithConcurrency above, 2026-07-25).
+    if (!isUniqueConstraintError(error)) throw error
+    const winner = await prisma.facet.findUnique({ where: { slug } })
+    if (!winner) throw error
+    return prisma.facet.update({
+      where: { id: winner.id },
+      data: {
+        title: candidate.title,
+        kind: legacyKind(candidate.taxonomy),
+        description: candidate.description || winner.description,
+        imagePath: candidate.imagePath || winner.imagePath,
+        icon: candidate.icon || winner.icon,
+        isActive: true,
+      },
+    })
+  }
+}
+
 async function saveCandidate(
   candidate: Candidate,
   state: CatalogState,
@@ -527,22 +606,7 @@ async function saveCandidate(
           isActive: true,
         },
       })
-    : await prisma.facet.create({
-        data: {
-          title: candidate.title,
-          slug,
-          kind: legacyKind(candidate.taxonomy),
-          description: candidate.description,
-          imagePath: candidate.imagePath,
-          icon: candidate.icon,
-          designer: 'facet-catalog',
-          creationSource: 'HUMAN',
-          userId: 1,
-          isPublic: true,
-          isMature: false,
-          isActive: true,
-        },
-      })
+    : await createOrRecoverFacet(candidate, slug)
 
   state.facetsBySlug.set(slug, facet)
   state.facetsById.set(facet.id, facet)

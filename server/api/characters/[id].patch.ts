@@ -5,6 +5,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueCharacterSlug } from '../../utils/characterSlug'
+import { syncCharacterFacetsInTransaction } from '../../utils/characterFacetSync'
 import {
   assertCharacterMutationInput,
   assertCharacterRelationsAttachable,
@@ -121,10 +122,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const updatedCharacter = await prisma.character.update({
-      where: { id },
-      data,
-      select: characterMutationSelect,
+    const updatedCharacter = await prisma.$transaction(async (tx) => {
+      const character = await tx.character.update({
+        where: { id },
+        data,
+        select: characterMutationSelect,
+      })
+
+      await syncCharacterFacetsInTransaction(
+        tx,
+        character as unknown as Record<string, unknown> & { id: number },
+        { userId: existingCharacter.userId ?? user.id, isAdmin },
+      )
+
+      return character
     })
 
     event.node.res.statusCode = 200

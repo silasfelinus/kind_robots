@@ -1,5 +1,4 @@
 // /server/utils/characterFacetSync.ts
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
 import type { FacetTaxonomy } from '~/server/utils/facetCatalog'
 
@@ -20,6 +19,34 @@ type PendingAssignment = {
   fieldKey: string
   lookupKey: string
   sortOrder: number
+}
+
+type CharacterFacetRow = {
+  characterId: number
+  facetId: number
+  fieldKey: string
+  sortOrder: number
+  weight: number
+  source: string
+}
+
+// Prisma 7 extended transaction clients are not assignable to the generated
+// default TransactionClient type. Describe only the delegate methods this
+// helper uses so both the application client and an extended transaction fit.
+type CharacterFacetSyncClient = {
+  facetAlias: {
+    findMany(args: unknown): PromiseLike<Array<{ lookupKey: string; facetId: number }>>
+  }
+  facetProfile: {
+    findMany(args: unknown): PromiseLike<Array<{ facetId: number; taxonomy: string }>>
+  }
+  facet: {
+    findMany(args: unknown): PromiseLike<Array<{ id: number }>>
+  }
+  characterFacet: {
+    deleteMany(args: unknown): PromiseLike<unknown>
+    createMany(args: unknown): PromiseLike<unknown>
+  }
 }
 
 function splitCharacterField(fieldKey: string, value: unknown): string[] {
@@ -55,7 +82,7 @@ function collectAssignments(character: CharacterFacetSource): PendingAssignment[
 }
 
 export async function syncCharacterFacetsInTransaction(
-  tx: Prisma.TransactionClient,
+  tx: CharacterFacetSyncClient,
   character: CharacterFacetSource,
   options: { userId: number; isAdmin: boolean },
 ): Promise<number> {
@@ -112,17 +139,7 @@ export async function syncCharacterFacetsInTransaction(
       .map((alias) => [alias.lookupKey, alias.facetId]),
   )
 
-  const rows = new Map<
-    string,
-    {
-      characterId: number
-      facetId: number
-      fieldKey: string
-      sortOrder: number
-      weight: number
-      source: string
-    }
-  >()
+  const rows = new Map<string, CharacterFacetRow>()
 
   for (const assignment of pending) {
     const facetId = facetIdByLookupKey.get(assignment.lookupKey)

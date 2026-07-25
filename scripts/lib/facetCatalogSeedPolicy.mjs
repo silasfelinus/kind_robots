@@ -16,6 +16,8 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'stores/utils/randomPersonality.ts',
   'stores/utils/randomQuirks.ts',
   'utils/facetAliases.ts',
+  'utils/seeds/facetLegacyCharacterLists.ts',
+  'utils/seeds/facetLegacyCreativeLists.ts',
   'utils/scripts/mergeCanonicalFacetDuplicates.ts',
   'utils/scripts/runFacetCatalogSeed.ts',
   'utils/scripts/seedFacetCatalog.ts',

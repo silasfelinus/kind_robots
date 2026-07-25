@@ -11,6 +11,9 @@ const LEGACY_FALLBACK_PATTERNS = [
   /^polished web illustration for .+?, clear subject, cohesive Kind Robots visual style, no text$/i,
 ]
 
+const VAGUE_BRAND_STYLE_PATTERN =
+  /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/i
+
 const GENERIC_LABEL_PATTERNS = [
   /^image\s*#?\s*\d+$/i,
   /^art\s*image\s*#?\s*\d+$/i,
@@ -47,6 +50,8 @@ export function assessArtPrompt(value: unknown): ArtPromptAssessment {
   if (prompt && isGenericArtLabel(prompt)) reasons.push('generic-label')
   if (LEGACY_FALLBACK_PATTERNS.some((pattern) => pattern.test(prompt))) {
     reasons.push('legacy-generic-fallback')
+  } else if (VAGUE_BRAND_STYLE_PATTERN.test(prompt)) {
+    reasons.push('vague-brand-style')
   }
 
   const referencedArtImageId = extractReferencedArtImageId(prompt)

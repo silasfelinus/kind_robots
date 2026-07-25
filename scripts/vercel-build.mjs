@@ -35,6 +35,8 @@ if (!isVercelBuild || isProductionDeployment) {
     ['scripts/prisma-migrate-deploy.mjs'],
     'Applying production migrations',
   )
+  // runFacetCatalogSeed.ts normalizes source synonyms before importing
+  // seedFacetCatalog.ts; the latter remains the canonical catalog writer.
   run(
     tsxBinary,
     ['utils/scripts/runFacetCatalogSeed.ts', '--apply'],

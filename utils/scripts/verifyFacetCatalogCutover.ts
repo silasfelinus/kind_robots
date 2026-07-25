@@ -80,6 +80,8 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, "taxonomy !== 'COLOR'")
   requireText(files.seed, text.seed, 'negative prompts remain generation configuration')
   requireText(files.seed, text.seed, 'backfillCharacterLinks')
+  requireText(files.seed, text.seed, 'createDatabaseAdapter')
+  forbidText(files.seed, text.seed, 'new PrismaMariaDb(')
   forbidText(files.seed, text.seed, "from './../../stores/utils/randomSpecies'")
 
   requireText(files.catalogStore, text.catalogStore, 'CHARACTER_FIELD_TAXONOMIES')

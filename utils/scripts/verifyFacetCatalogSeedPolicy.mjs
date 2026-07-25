@@ -21,6 +21,10 @@ assert.equal(
   ),
   true,
 )
+assert.equal(
+  isFacetCatalogSourcePath('utils/scripts/mergeCanonicalFacetDuplicates.ts'),
+  false,
+)
 assert.equal(isFacetCatalogSourcePath('components/facets/facet-manager.vue'), false)
 assert.equal(isFacetCatalogSourcePath('README.md'), false)
 
@@ -47,6 +51,15 @@ assert.deepEqual(
     isVercelBuild: true,
     isProductionDeployment: true,
     changedFiles: ['components/facets/facet-manager.vue'],
+  }).run,
+  false,
+)
+
+assert.deepEqual(
+  decideFacetCatalogSeed({
+    isVercelBuild: true,
+    isProductionDeployment: true,
+    changedFiles: ['utils/scripts/mergeCanonicalFacetDuplicates.ts'],
   }).run,
   false,
 )

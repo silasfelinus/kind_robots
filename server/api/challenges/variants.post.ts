@@ -121,7 +121,6 @@ export default defineEventHandler(async (event) => {
         randomizableOnly: true,
         userId: auth.user.id,
         isAdmin: auth.user.Role === 'ADMIN' || auth.user.id === 1,
-        take: 1000,
       })
 
       for (const [placeholder, taxonomies] of Object.entries(

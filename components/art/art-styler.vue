@@ -1033,6 +1033,13 @@ function handleFileSelect(event: Event) {
 
   if (file) {
     if (!isAcceptedImageFile(file)) {
+      // Every other selection path in this component clears both messages
+      // together (see processUploadedFile/selectGalleryImage/selectStarterEntry
+      // below) so a stale banner never survives the next action. This
+      // rejection path only ever set errorMessage, so a leftover
+      // "Style applied!" success banner from a prior generation stayed on
+      // screen right alongside the new rejection error.
+      successMessage.value = ''
       errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
     } else {
       processUploadedFile(file)
@@ -1052,6 +1059,9 @@ function handleDrop(event: DragEvent) {
   if (!file) return
 
   if (!isAcceptedImageFile(file)) {
+    // See handleFileSelect above: clear a stale success banner alongside
+    // the new error so the two don't render at the same time.
+    successMessage.value = ''
     errorMessage.value = 'Only PNG, JPEG, or WebP images are supported.'
     return
   }

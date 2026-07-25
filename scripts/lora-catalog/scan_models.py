@@ -390,8 +390,13 @@ def enrich_archive(e: ModelEntry, data) -> bool:
 
 
 def finalize(e: ModelEntry, meta: dict) -> None:
-    # base model for checkpoints: civitai -> folder hint -> metadata
-    if e.kind in ("checkpoint", "video_checkpoint", "audio_checkpoint") and not e.base_source:
+    # base model for checkpoints: civitai -> folder hint -> metadata. Skip if a
+    # generation was already supplied (e.g. by an override) so it isn't clobbered.
+    if (
+        e.kind in ("checkpoint", "video_checkpoint", "audio_checkpoint")
+        and not e.base_source
+        and not e.generation
+    ):
         server, gen = folder_base_hint(e.relpath)
         if server:
             e.supportedServer, e.generation, e.base_source = server, gen, "folder"
@@ -631,8 +636,10 @@ def main() -> int:
         if args.skip_video and e.kind in ("video_checkpoint", "audio_checkpoint"):
             e.is_tool = True
             e.notes.append("video/audio — left in place (--skip-video)")
+        # Apply overrides BEFORE finalize so an overridden base model / group is
+        # reflected in the computed target folder (sha256/filename-keyed).
+        core.apply_overrides(e, overrides)
         finalize(e, meta_by_id.get(id(e), {}))
-        core.apply_overrides(e, overrides)  # sha256/filename-keyed; sets fields it recognizes
 
     if args.organize != "none":
         organize(entries, args.organize, (args.dest or root).resolve(), args.out)

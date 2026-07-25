@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import { assertArtImageRelationsAttachable } from './relations'
 import { artImageMutationSelect } from './selects'
 
 type CreateArtImagePayload = {
@@ -17,6 +18,8 @@ type CreateArtImagePayload = {
   artPrompt?: unknown
   negativePrompt?: unknown
   checkpoint?: unknown
+  checkpointResourceId?: unknown
+  loraResourceIds?: unknown
   sampler?: unknown
   seed?: unknown
   steps?: unknown
@@ -27,6 +30,7 @@ type CreateArtImagePayload = {
   isPublic?: unknown
   isMature?: unknown
   isActive?: unknown
+  serverId?: unknown
   serverName?: unknown
   serverUrl?: unknown
 }
@@ -42,6 +46,8 @@ const ALLOWED_FIELDS = new Set([
   'artPrompt',
   'negativePrompt',
   'checkpoint',
+  'checkpointResourceId',
+  'loraResourceIds',
   'sampler',
   'seed',
   'steps',
@@ -52,6 +58,7 @@ const ALLOWED_FIELDS = new Set([
   'isPublic',
   'isMature',
   'isActive',
+  'serverId',
   'serverName',
   'serverUrl',
 ])
@@ -129,6 +136,43 @@ function cleanInteger(
   return number
 }
 
+function cleanPositiveId(value: unknown, fieldName: string): number | null {
+  if (typeof value === 'undefined' || value === null || value === '') return null
+
+  const id = Number(value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be a positive integer.`,
+    })
+  }
+
+  return id
+}
+
+function cleanPositiveIdArray(value: unknown, fieldName: string): number[] {
+  if (typeof value === 'undefined' || value === null) return []
+
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be an array of positive integers.`,
+    })
+  }
+
+  const ids = value.map((entry) => Number(entry))
+
+  if (ids.some((id) => !Number.isInteger(id) || id <= 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must contain only positive integers.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
 function cleanBoolean(
   value: unknown,
   fieldName: string,
@@ -175,7 +219,7 @@ function getFallbackFileName(
 
 export default defineEventHandler(async (event) => {
   try {
-    const { user } = await requireApiUser(event)
+    const { user, isAdmin } = await requireApiUser(event)
     const body = await readBody<CreateArtImagePayload>(event)
 
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -228,6 +272,21 @@ export default defineEventHandler(async (event) => {
     const fileName =
       cleanText(body.fileName, 'fileName', 255) ||
       getFallbackFileName(body, fileType)
+    const serverId = cleanPositiveId(body.serverId, 'serverId')
+    const checkpointResourceId = cleanPositiveId(
+      body.checkpointResourceId,
+      'checkpointResourceId',
+    )
+    const loraResourceIds = cleanPositiveIdArray(
+      body.loraResourceIds,
+      'loraResourceIds',
+    )
+
+    await assertArtImageRelationsAttachable(
+      { serverId, checkpointResourceId, loraResourceIds },
+      user.id,
+      isAdmin,
+    )
 
     const data: Prisma.ArtImageCreateInput = {
       imageData,
@@ -263,6 +322,13 @@ export default defineEventHandler(async (event) => {
       User: {
         connect: { id: user.id },
       },
+      Server: serverId ? { connect: { id: serverId } } : undefined,
+      CheckpointResource: checkpointResourceId
+        ? { connect: { id: checkpointResourceId } }
+        : undefined,
+      LoraResources: loraResourceIds.length
+        ? { connect: loraResourceIds.map((id) => ({ id })) }
+        : undefined,
     }
 
     const artImage = await prisma.artImage.create({

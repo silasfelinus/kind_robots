@@ -196,6 +196,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'cloud-city-drift',
+    label: 'Cloud City Drift',
+    reveal: 'The skyline surfaces',
+    icon: 'kind-icon:cloud',
+    tooltip: 'Layered clouds drift past a hidden skyline; click for a distant beacon reply ☁️',
+    color: '#7dd3fc',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

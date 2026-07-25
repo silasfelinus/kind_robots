@@ -74,20 +74,26 @@ for (const effect of animationEffects) {
   }
 }
 
+// StartupAnimationChoice is AnimationEffectId | 'random' | 'none' (animationPreferenceStore.ts)
+// -- 'random' and 'none' are valid sentinels, not catalog ids, so only assert catalog
+// membership (and the generationSafe/non-blocking follow-up check) when the default is
+// actually pinned to a specific effect.
 const defaultStartupEffect = DEFAULT_PREFERENCES.startupEffect
-if (!isAnimationEffectId(defaultStartupEffect)) {
-  throw new Error(
-    `animationPreferenceStore's DEFAULT_PREFERENCES.startupEffect ("${defaultStartupEffect}") is not a catalog id`,
+if (defaultStartupEffect !== 'random' && defaultStartupEffect !== 'none') {
+  if (!isAnimationEffectId(defaultStartupEffect)) {
+    throw new Error(
+      `animationPreferenceStore's DEFAULT_PREFERENCES.startupEffect ("${defaultStartupEffect}") is not a catalog id`,
+    )
+  }
+
+  const defaultEffect = animationEffects.find(
+    (effect) => effect.id === defaultStartupEffect,
+  )
+  assert.ok(
+    defaultEffect?.generationSafe && !defaultEffect.blocksInput,
+    `animationPreferenceStore's default startup effect ("${defaultStartupEffect}") must be generationSafe and non-blocking`,
   )
 }
-
-const defaultEffect = animationEffects.find(
-  (effect) => effect.id === defaultStartupEffect,
-)
-assert.ok(
-  defaultEffect?.generationSafe && !defaultEffect.blocksInput,
-  `animationPreferenceStore's default startup effect ("${defaultStartupEffect}") must be generationSafe and non-blocking`,
-)
 
 // animationStore.ts's pickRandomEffect() falls back to this literal id if safeEffects is
 // somehow empty — verify it hasn't gone stale independently of the DEFAULT_PREFERENCES check.

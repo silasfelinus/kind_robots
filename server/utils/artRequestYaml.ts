@@ -32,13 +32,20 @@ export type ArtQueueEntry = {
   size: string
   label: string
   prompt: string
+  project_id?: number
+  project_slug?: string
+  project_field?: string
 }
 
 export function yamlQuoted(value: string): string {
   return JSON.stringify(value)
 }
 
-export function yamlFolded(key: string, value: string, indent = '    '): string {
+export function yamlFolded(
+  key: string,
+  value: string,
+  indent = '    ',
+): string {
   const clean = value.replace(/\r/g, '').replace(/\n+/g, ' ').trim()
   if (!clean) return `${key}: ""`
   return `${key}: >\n${indent}${clean}`
@@ -78,14 +85,59 @@ export function renderRequestEntry(entry: ArtQueueEntry): string {
   lines.push(`  variant: ${yamlQuoted(normalized.variant)}`)
   if (normalized.size) lines.push(`  size: ${yamlQuoted(normalized.size)}`)
   if (normalized.label) lines.push(`  label: ${yamlQuoted(normalized.label)}`)
+  if (normalized.project_id)
+    lines.push(`  project_id: ${normalized.project_id}`)
+  if (normalized.project_slug) {
+    lines.push(`  project_slug: ${yamlQuoted(normalized.project_slug)}`)
+  }
+  if (normalized.project_field) {
+    lines.push(`  project_field: ${yamlQuoted(normalized.project_field)}`)
+  }
   lines.push(`  ${yamlFolded('prompt', normalized.prompt, '    ')}`)
 
   return lines.join('\n')
 }
 
-export function requestAlreadyQueued(content: string, entry: ArtQueueEntry): boolean {
+const ACTIVE_REQUEST_STATUSES = new Set([
+  'pending',
+  'queued',
+  'running',
+  'processing',
+])
+
+function requestValue(block: string, key: string): string {
+  const prefix = key === 'id' ? '^- id:' : `^\\s{2}${key}:`
+  const match = block.match(new RegExp(`${prefix}\\s*(.+?)\\s*$`, 'm'))
+  if (!match?.[1]) return ''
+  const value = match[1].trim()
+  if (value.startsWith('"')) {
+    try {
+      return String(JSON.parse(value))
+    } catch {}
+  }
+  return value.replace(/^['\"]|['\"]$/g, '')
+}
+
+function requestBlocks(content: string): string[] {
+  return content
+    .split(/(?=^- id:)/m)
+    .filter((block) => block.startsWith('- id:'))
+}
+
+export function requestAlreadyQueued(
+  content: string,
+  entry: ArtQueueEntry,
+): boolean {
   const normalized = normalizeArtQueueEntry(entry)
-  return content.includes(normalized.id) || content.includes(normalized.image_path)
+
+  return requestBlocks(content).some((block) => {
+    const status = requestValue(block, 'status').toLowerCase() || 'pending'
+    if (!ACTIVE_REQUEST_STATUSES.has(status)) return false
+    return (
+      requestValue(block, 'id') === normalized.id ||
+      requestValue(block, 'image_path') === normalized.image_path
+    )
+  })
 }
 
 export function appendRequest(content: string, entry: ArtQueueEntry): string {
@@ -100,7 +152,21 @@ export function appendRequest(content: string, entry: ArtQueueEntry): string {
   }
 
   if (/^requests:\s*$/m.test(trimmed)) {
-    return `${trimmed}\n${serialized}\n`
+    const header = /^requests:\s*$/m.exec(trimmed)
+    if (!header) return `${trimmed}\n${serialized}\n`
+
+    const sectionStart = header.index + header[0].length
+    const tail = trimmed.slice(sectionStart)
+    const nextSection = tail.match(/\n(?=[A-Za-z_][\w-]*:\s*(?:\n|$))/)
+
+    if (!nextSection || nextSection.index === undefined) {
+      return `${trimmed}\n${serialized}\n`
+    }
+
+    const insertion = sectionStart + nextSection.index
+    return `${trimmed.slice(0, insertion).trimEnd()}\n${serialized}\n\n${trimmed
+      .slice(insertion)
+      .trimStart()}\n`
   }
 
   return `${trimmed}\n\nrequests:\n${serialized}\n`

@@ -15,6 +15,9 @@ type MissingImageReport = {
   nearestHeading?: string
   nearbyText?: string
   imageClass?: string
+  projectId?: number
+  projectSlug?: string
+  projectField?: string
 }
 
 const IMAGE_EXTENSIONS = ['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg']
@@ -80,6 +83,7 @@ function shouldIgnoreSource(src: string): boolean {
       'kindrobots.org',
       'www.kindrobots.org',
       'raw.githubusercontent.com',
+      'media.acrocatranch.com',
     ])
     return !allowedHosts.has(host)
   } catch {
@@ -136,14 +140,20 @@ function nearestHeading(img: HTMLImageElement): string | undefined {
 }
 
 function nearbyText(img: HTMLImageElement): string | undefined {
-  const container = img.closest<HTMLElement>('article, section, main, [role="main"], .card')
-  const text = compact(container?.innerText || img.parentElement?.innerText, 700)
+  const container = img.closest<HTMLElement>(
+    'article, section, main, [role="main"], .card',
+  )
+  const text = compact(
+    container?.innerText || img.parentElement?.innerText,
+    700,
+  )
   return text || undefined
 }
 
 function pageDescription(): string | undefined {
   const description = cleanString(
-    document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content,
+    document.querySelector<HTMLMetaElement>('meta[name="description"]')
+      ?.content,
   )
   return description || undefined
 }
@@ -211,6 +221,13 @@ export default defineNuxtPlugin(() => {
       nearestHeading: nearestHeading(img),
       nearbyText: nearbyText(img),
       imageClass: cleanString(img.getAttribute('class')) || undefined,
+      projectId:
+        Number.isInteger(Number(img.dataset.projectId)) &&
+        Number(img.dataset.projectId) > 0
+          ? Number(img.dataset.projectId)
+          : undefined,
+      projectSlug: cleanString(img.dataset.projectSlug) || undefined,
+      projectField: cleanString(img.dataset.projectField) || undefined,
     }
 
     if (!userStore.isAdmin) {

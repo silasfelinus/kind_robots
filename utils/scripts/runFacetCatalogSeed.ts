@@ -55,3 +55,4 @@ await import('./seedScenarioGenreFacetCatalog')
 // rows; illustrated Bot Types and reusable Bot personalities then enrich them.
 await import('./seedLegacyBotTypeFacets')
 await import('./seedBotFacetCatalog')
+await import('./normalizeBotPersonalityFacetValues')

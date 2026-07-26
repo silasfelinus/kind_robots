@@ -16,6 +16,7 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'stores/utils/randomPersonality.ts',
   'stores/utils/randomQuirks.ts',
   'utils/facetAliases.ts',
+  'utils/seeds/facetGenderArtwork.ts',
   'utils/seeds/facetGenderValues.ts',
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',
@@ -75,7 +76,7 @@ export function decideFacetCatalogSeed({
 
   // mergeCanonicalFacetDuplicates.ts runs as its own production-build step after
   // this decision. A merge-only code change therefore does not need to rewrite
-  // all 1,358 source-backed Facets before exercising the updated merger.
+  // all source-backed Facets before exercising the updated merger.
   return {
     run: false,
     reason: 'no canonical Facet source, schema, or migration changed',

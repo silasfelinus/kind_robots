@@ -29,7 +29,7 @@
       >
         <option :value="null">All taxonomies</option>
         <option
-          v-for="taxonomy in facetTaxonomies"
+          v-for="taxonomy in FACET_TAXONOMIES"
           :key="taxonomy"
           :value="taxonomy"
         >
@@ -56,159 +56,8 @@
       >
         + Create a canonical Facet
       </summary>
-
       <div class="space-y-4 border-t border-base-300 p-4">
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <label class="form-control xl:col-span-2">
-            <span class="label-text text-xs">Canonical title</span>
-            <input
-              v-model="createForm.title"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="CowCore"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Canonical value</span>
-            <input
-              v-model="createForm.canonicalValue"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="Defaults to title"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Taxonomy</span>
-            <select
-              v-model="createForm.taxonomy"
-              class="select select-bordered select-sm rounded-xl"
-            >
-              <option
-                v-for="taxonomy in facetTaxonomies"
-                :key="taxonomy"
-                :value="taxonomy"
-              >
-                {{ taxonomyLabel(taxonomy) }}
-              </option>
-            </select>
-          </label>
-          <label class="form-control sm:col-span-2 xl:col-span-4">
-            <span class="label-text text-xs">Aliases</span>
-            <input
-              v-model="createForm.aliases"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="Aliases separated by commas"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Group key</span>
-            <input
-              v-model="createForm.groupKey"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="cosmic-species"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Group label</span>
-            <input
-              v-model="createForm.groupLabel"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="Cosmic Species"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Sort order</span>
-            <input
-              v-model.number="createForm.sortOrder"
-              type="number"
-              step="1"
-              class="input input-bordered input-sm rounded-xl"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Source rank</span>
-            <input
-              v-model.number="createForm.sourceRank"
-              type="number"
-              min="0"
-              step="1"
-              class="input input-bordered input-sm rounded-xl"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Random weight</span>
-            <input
-              v-model.number="createForm.randomWeight"
-              type="number"
-              min="0"
-              step="0.1"
-              class="input input-bordered input-sm rounded-xl"
-            />
-          </label>
-          <label class="form-control sm:col-span-2 xl:col-span-3">
-            <span class="label-text text-xs">Description</span>
-            <textarea
-              v-model="createForm.description"
-              class="textarea textarea-bordered min-h-20 rounded-xl"
-              placeholder="What this reusable concept means..."
-            />
-          </label>
-          <label class="form-control sm:col-span-2 xl:col-span-4">
-            <span class="label-text text-xs">Structured metadata (JSON object)</span>
-            <textarea
-              v-model="createForm.metadata"
-              class="textarea textarea-bordered min-h-24 rounded-xl font-mono text-xs"
-              placeholder='{"scientificName":"...","source":"curated"}'
-            />
-          </label>
-        </div>
-
-        <artwork-fields
-          :title="createForm.title || 'New Facet'"
-          v-model:image-path="createForm.imagePath"
-          v-model:card-path="createForm.cardPath"
-          v-model:hero-path="createForm.heroPath"
-          v-model:art-prompt="createForm.artPrompt"
-        />
-
-        <div class="flex flex-wrap items-center gap-5 text-xs">
-          <label class="flex items-center gap-2">
-            <input
-              v-model="createForm.isRandomizable"
-              type="checkbox"
-              class="toggle toggle-secondary toggle-xs"
-            />
-            Available to randomizers
-          </label>
-          <label class="flex items-center gap-2">
-            <input
-              v-model="createForm.artRequired"
-              type="checkbox"
-              class="toggle toggle-accent toggle-xs"
-            />
-            Artwork expected
-          </label>
-          <label class="flex items-center gap-2">
-            <input
-              v-model="createForm.isPublic"
-              type="checkbox"
-              class="toggle toggle-primary toggle-xs"
-            />
-            Public
-          </label>
-          <label class="flex items-center gap-2">
-            <input
-              v-model="createForm.isMature"
-              type="checkbox"
-              class="toggle toggle-warning toggle-xs"
-            />
-            Mature
-          </label>
-        </div>
-
+        <FacetProfileEditor v-model="createForm" />
         <button
           type="button"
           class="btn btn-secondary btn-sm w-full rounded-xl"
@@ -231,7 +80,7 @@
         class="overflow-hidden rounded-2xl border bg-base-100 transition-all"
         :class="[
           facet.isActive ? 'border-base-300' : 'border-error/40 opacity-60',
-          editingId === facet.id ? 'ring-2 ring-secondary/60' : '',
+          editingId === facet.id ? 'md:col-span-2 xl:col-span-3 ring-2 ring-secondary/60' : '',
         ]"
       >
         <div
@@ -265,7 +114,8 @@
               </div>
               <h2 class="mt-1 truncate text-base font-bold">{{ facet.title }}</h2>
               <p class="truncate text-xs text-base-content/40">
-                {{ facet.canonicalValue }} · {{ facet.aliases.join(' · ') }}
+                {{ facet.canonicalValue }}
+                <template v-if="facet.aliases.length"> · {{ facet.aliases.join(' · ') }}</template>
               </p>
             </div>
             <button
@@ -304,9 +154,7 @@
               <span class="badge badge-ghost badge-xs">
                 {{ facet.artRequired ? 'art expected' : 'art optional' }}
               </span>
-              <span v-if="facet.metadata" class="badge badge-ghost badge-xs">
-                metadata
-              </span>
+              <span v-if="facet.metadata" class="badge badge-ghost badge-xs">metadata</span>
             </div>
 
             <div
@@ -339,139 +187,9 @@
             </div>
           </template>
 
-          <div
-            v-else
-            class="mt-3 grid gap-2 sm:grid-cols-2"
-          >
-            <input
-              v-model="editForm.title"
-              type="text"
-              class="input input-bordered input-sm rounded-xl sm:col-span-2"
-              placeholder="Title"
-            />
-            <input
-              v-model="editForm.canonicalValue"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="Canonical value"
-            />
-            <select
-              v-model="editForm.taxonomy"
-              class="select select-bordered select-sm rounded-xl"
-            >
-              <option
-                v-for="taxonomy in facetTaxonomies"
-                :key="taxonomy"
-                :value="taxonomy"
-              >
-                {{ taxonomyLabel(taxonomy) }}
-              </option>
-            </select>
-            <input
-              v-model="editForm.aliases"
-              type="text"
-              class="input input-bordered input-sm rounded-xl sm:col-span-2"
-              placeholder="Aliases, comma separated"
-            />
-            <input
-              v-model="editForm.groupKey"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="Group key"
-            />
-            <input
-              v-model="editForm.groupLabel"
-              type="text"
-              class="input input-bordered input-sm rounded-xl"
-              placeholder="Group label"
-            />
-            <label class="form-control">
-              <span class="label-text text-[11px]">Sort order</span>
-              <input
-                v-model.number="editForm.sortOrder"
-                type="number"
-                step="1"
-                class="input input-bordered input-sm rounded-xl"
-              />
-            </label>
-            <label class="form-control">
-              <span class="label-text text-[11px]">Source rank</span>
-              <input
-                v-model.number="editForm.sourceRank"
-                type="number"
-                min="0"
-                step="1"
-                class="input input-bordered input-sm rounded-xl"
-              />
-            </label>
-            <label class="form-control sm:col-span-2">
-              <span class="label-text text-[11px]">Random weight</span>
-              <input
-                v-model.number="editForm.randomWeight"
-                type="number"
-                min="0"
-                step="0.1"
-                class="input input-bordered input-sm rounded-xl"
-              />
-            </label>
-            <textarea
-              v-model="editForm.description"
-              class="textarea textarea-bordered min-h-20 rounded-xl sm:col-span-2"
-              placeholder="Description"
-            />
-            <textarea
-              v-model="editForm.metadata"
-              class="textarea textarea-bordered min-h-24 rounded-xl font-mono text-xs sm:col-span-2"
-              placeholder="Structured metadata JSON object"
-            />
-
-            <div class="sm:col-span-2">
-              <artwork-fields
-                :title="editForm.title || facet.title"
-                v-model:image-path="editForm.imagePath"
-                v-model:card-path="editForm.cardPath"
-                v-model:hero-path="editForm.heroPath"
-                v-model:art-prompt="editForm.artPrompt"
-                compact
-              />
-            </div>
-
-            <div class="flex flex-wrap gap-4 text-xs sm:col-span-2">
-              <label class="flex items-center gap-1">
-                <input
-                  v-model="editForm.isRandomizable"
-                  type="checkbox"
-                  class="toggle toggle-secondary toggle-xs"
-                />
-                Randomizable
-              </label>
-              <label class="flex items-center gap-1">
-                <input
-                  v-model="editForm.artRequired"
-                  type="checkbox"
-                  class="toggle toggle-accent toggle-xs"
-                />
-                Art expected
-              </label>
-              <label class="flex items-center gap-1">
-                <input
-                  v-model="editForm.isPublic"
-                  type="checkbox"
-                  class="toggle toggle-secondary toggle-xs"
-                />
-                Public
-              </label>
-              <label class="flex items-center gap-1">
-                <input
-                  v-model="editForm.isMature"
-                  type="checkbox"
-                  class="toggle toggle-warning toggle-xs"
-                />
-                Mature
-              </label>
-            </div>
-
-            <div class="flex gap-2 sm:col-span-2">
+          <div v-else class="mt-4 space-y-4">
+            <FacetProfileEditor v-model="editForm" />
+            <div class="flex gap-2">
               <button
                 type="button"
                 class="btn btn-secondary btn-sm flex-1 rounded-xl"
@@ -518,8 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, onMounted, reactive, ref, watch } from 'vue'
-import type { FacetKind } from '~/prisma/generated/prisma/client'
+import { computed, onMounted, ref } from 'vue'
 import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
 import {
   FACET_TAXONOMIES,
@@ -528,206 +245,28 @@ import {
 } from '@/stores/facetCatalogStore'
 import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
-
-const ArtworkFields = defineComponent({
-  name: 'ArtworkFields',
-  props: {
-    title: { type: String, required: true },
-    imagePath: { type: String, required: true },
-    cardPath: { type: String, required: true },
-    heroPath: { type: String, required: true },
-    artPrompt: { type: String, required: true },
-    compact: { type: Boolean, default: false },
-  },
-  emits: [
-    'update:imagePath',
-    'update:cardPath',
-    'update:heroPath',
-    'update:artPrompt',
-  ],
-  setup(props, { emit }) {
-    const preview = computed(
-      () => props.cardPath.trim() || props.imagePath.trim() || props.heroPath.trim(),
-    )
-    const input = (
-      label: string,
-      value: string,
-      event: string,
-      placeholder: string,
-    ) =>
-      h('label', { class: 'form-control' }, [
-        h('span', { class: 'label-text text-xs' }, label),
-        h('input', {
-          value,
-          type: 'text',
-          class: 'input input-bordered input-sm rounded-xl',
-          placeholder,
-          onInput: (inputEvent: Event) =>
-            emit(event, (inputEvent.target as HTMLInputElement).value),
-        }),
-      ])
-
-    return () =>
-      h(
-        'div',
-        {
-          class:
-            'rounded-2xl border border-base-300 bg-base-200/60 p-3',
-        },
-        [
-          h('div', { class: 'mb-3 flex items-center gap-2' }, [
-            h(resolveIcon(), {
-              name: 'kind-icon:palette',
-              class: 'size-4 text-accent',
-            }),
-            h('div', [
-              h('h3', { class: 'text-sm font-bold' }, 'Curated artwork'),
-              h(
-                'p',
-                { class: 'text-xs text-base-content/50' },
-                'Preserve primary, portrait/card, and hero/wide roles separately.',
-              ),
-            ]),
-          ]),
-          h(
-            'div',
-            {
-              class: props.compact
-                ? 'grid gap-3'
-                : 'grid gap-3 lg:grid-cols-[12rem_1fr]',
-            },
-            [
-              h(
-                'div',
-                {
-                  class:
-                    'flex h-36 items-center justify-center overflow-hidden rounded-xl bg-base-300/50',
-                },
-                preview.value
-                  ? [
-                      h('img', {
-                        src: preview.value,
-                        alt: `${props.title} artwork preview`,
-                        class: 'size-full object-contain',
-                        loading: 'lazy',
-                      }),
-                    ]
-                  : [
-                      h(resolveIcon(), {
-                        name: 'kind-icon:image',
-                        class: 'size-9 text-base-content/20',
-                      }),
-                    ],
-              ),
-              h('div', { class: 'grid gap-2 sm:grid-cols-2 xl:grid-cols-3' }, [
-                input(
-                  'Primary image path',
-                  props.imagePath,
-                  'update:imagePath',
-                  '/images/facets/example.webp',
-                ),
-                input(
-                  'Card / portrait path',
-                  props.cardPath,
-                  'update:cardPath',
-                  '/images/facets/cards/example.webp',
-                ),
-                input(
-                  'Hero / wide path',
-                  props.heroPath,
-                  'update:heroPath',
-                  '/images/facets/heroes/example.webp',
-                ),
-                h('label', { class: 'form-control sm:col-span-2 xl:col-span-3' }, [
-                  h('span', { class: 'label-text text-xs' }, 'Art prompt'),
-                  h('textarea', {
-                    value: props.artPrompt,
-                    class: 'textarea textarea-bordered min-h-20 rounded-xl',
-                    placeholder: 'Prompt for generating or regenerating this artwork...',
-                    onInput: (event: Event) =>
-                      emit(
-                        'update:artPrompt',
-                        (event.target as HTMLTextAreaElement).value,
-                      ),
-                  }),
-                ]),
-              ]),
-            ],
-          ),
-        ],
-      )
-  },
-})
-
-function resolveIcon() {
-  return resolveComponent('Icon')
-}
+import {
+  blankFacetProfileForm,
+  facetProfilePayload,
+  facetToProfileForm,
+  type FacetProfileForm,
+} from '@/utils/facetProfileForm'
 
 const facetStore = useFacetStore()
 const artRequestStore = useFacetArtRequestStore()
-const facetTaxonomies = [...FACET_TAXONOMIES]
 const search = ref('')
 const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const showArchived = ref(false)
 const errorMessage = ref('')
 const editingId = ref<number | null>(null)
 const createOpen = ref(false)
-
-function blankForm() {
-  return {
-    title: '',
-    canonicalValue: '',
-    taxonomy: 'OTHER' as FacetTaxonomy,
-    aliases: '',
-    description: '',
-    groupKey: '',
-    groupLabel: '',
-    sortOrder: 0,
-    sourceRank: 100,
-    metadata: '',
-    imagePath: '',
-    cardPath: '',
-    heroPath: '',
-    artPrompt: '',
-    randomWeight: 1,
-    isRandomizable: true,
-    artRequired: true,
-    isPublic: true,
-    isMature: false,
-  }
-}
-
-const createForm = reactive(blankForm())
-const editForm = reactive(blankForm())
-
-const broadKinds = new Set<FacetTaxonomy>([
-  'GENRE',
-  'ANIMAL',
-  'COLOR',
-  'THEME',
-  'CORE',
-  'MOOD',
-  'STYLE',
-  'SETTING',
-  'ART_DIRECTION',
-  'OTHER',
-])
-
-function kindForTaxonomy(taxonomy: FacetTaxonomy): FacetKind {
-  if (taxonomy === 'PROMPT_ENHANCEMENT') return 'ART_DIRECTION'
-  return broadKinds.has(taxonomy) ? (taxonomy as FacetKind) : 'OTHER'
-}
-
-watch(
-  () => createForm.taxonomy,
-  (taxonomy) => {
-    createForm.artRequired = taxonomy !== 'COLOR'
-  },
-)
+const createForm = ref<FacetProfileForm>(blankFacetProfileForm())
+const editForm = ref<FacetProfileForm>(blankFacetProfileForm())
 
 const visibleFacets = computed(() =>
   showArchived.value ? facetStore.facets : facetStore.activeFacets,
 )
+
 const taxonomyCounts = computed(() => {
   const counts: Partial<Record<FacetTaxonomy, number>> = {}
   for (const facet of visibleFacets.value) {
@@ -735,6 +274,7 @@ const taxonomyCounts = computed(() => {
   }
   return counts
 })
+
 const filteredFacets = computed(() => {
   const needle = normalizeFacetLookupKey(search.value)
   return visibleFacets.value.filter((facet) => {
@@ -764,8 +304,7 @@ onMounted(async () => {
   try {
     await facetStore.fetchFacets({ includeInactive: true, includeMature: true })
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Facets could not be loaded.'
+    setError(error, 'Facets could not be loaded.')
   }
 })
 
@@ -776,126 +315,46 @@ function taxonomyLabel(taxonomy: FacetTaxonomy): string {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-function splitAliases(value: string): string[] {
-  return value
-    .split(',')
-    .map((alias) => alias.trim())
-    .filter(Boolean)
-}
-
 function facetArtwork(facet: FacetWithAliases): string | null {
   return facet.cardPath || facet.imagePath || facet.heroPath || null
 }
 
-function parseMetadata(value: string): Record<string, unknown> | null {
-  if (!value.trim()) return null
-  const parsed = JSON.parse(value) as unknown
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error('Structured metadata must be a JSON object.')
-  }
-  return parsed as Record<string, unknown>
+function setError(error: unknown, fallback: string): void {
+  errorMessage.value = error instanceof Error ? error.message : fallback
 }
 
-function metadataText(value: Record<string, unknown> | null): string {
-  return value ? JSON.stringify(value, null, 2) : ''
-}
-
-function toggleEdit(facet: FacetWithAliases) {
+function toggleEdit(facet: FacetWithAliases): void {
   if (editingId.value === facet.id) {
     editingId.value = null
     return
   }
   editingId.value = facet.id
-  Object.assign(editForm, {
-    title: facet.title,
-    canonicalValue: facet.canonicalValue,
-    taxonomy: facet.taxonomy,
-    aliases: facet.aliases.filter((alias) => alias !== facet.slug).join(', '),
-    description: facet.description || '',
-    groupKey: facet.groupKey || '',
-    groupLabel: facet.groupLabel || '',
-    sortOrder: facet.sortOrder,
-    sourceRank: facet.sourceRank,
-    metadata: metadataText(facet.metadata),
-    imagePath: facet.imagePath || '',
-    cardPath: facet.cardPath || '',
-    heroPath: facet.heroPath || '',
-    artPrompt: facet.artPrompt || '',
-    randomWeight: facet.randomWeight,
-    isRandomizable: facet.isRandomizable,
-    artRequired: facet.artRequired,
-    isPublic: facet.isPublic,
-    isMature: facet.isMature,
-  })
+  editForm.value = facetToProfileForm(facet)
+  errorMessage.value = ''
 }
 
-async function createFacet() {
+async function createFacet(): Promise<void> {
   errorMessage.value = ''
   try {
-    await facetStore.createFacet({
-      title: createForm.title.trim(),
-      kind: kindForTaxonomy(createForm.taxonomy),
-      taxonomy: createForm.taxonomy,
-      canonicalValue:
-        createForm.canonicalValue.trim() || createForm.title.trim() || null,
-      aliases: splitAliases(createForm.aliases),
-      description: createForm.description.trim() || null,
-      groupKey: createForm.groupKey.trim() || null,
-      groupLabel: createForm.groupLabel.trim() || null,
-      sortOrder: Math.trunc(Number(createForm.sortOrder) || 0),
-      sourceRank: Math.max(0, Math.trunc(Number(createForm.sourceRank) || 0)),
-      metadata: parseMetadata(createForm.metadata),
-      imagePath: createForm.imagePath.trim() || null,
-      cardPath: createForm.cardPath.trim() || null,
-      heroPath: createForm.heroPath.trim() || null,
-      artPrompt: createForm.artPrompt.trim() || null,
-      randomWeight: Math.max(0, Number(createForm.randomWeight) || 0),
-      isRandomizable: createForm.isRandomizable,
-      artRequired: createForm.artRequired,
-      isPublic: createForm.isPublic,
-      isMature: createForm.isMature,
-    })
-    Object.assign(createForm, blankForm())
+    await facetStore.createFacet(facetProfilePayload(createForm.value))
+    createForm.value = blankFacetProfileForm()
     createOpen.value = false
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Facet could not be created.'
+    setError(error, 'Facet could not be created.')
   }
 }
 
-async function saveEdit(id: number) {
+async function saveEdit(id: number): Promise<void> {
   errorMessage.value = ''
   try {
-    await facetStore.updateFacet(id, {
-      title: editForm.title.trim(),
-      kind: kindForTaxonomy(editForm.taxonomy),
-      taxonomy: editForm.taxonomy,
-      canonicalValue: editForm.canonicalValue.trim() || editForm.title.trim(),
-      aliases: splitAliases(editForm.aliases),
-      description: editForm.description.trim() || null,
-      groupKey: editForm.groupKey.trim() || null,
-      groupLabel: editForm.groupLabel.trim() || null,
-      sortOrder: Math.trunc(Number(editForm.sortOrder) || 0),
-      sourceRank: Math.max(0, Math.trunc(Number(editForm.sourceRank) || 0)),
-      metadata: parseMetadata(editForm.metadata),
-      imagePath: editForm.imagePath.trim() || null,
-      cardPath: editForm.cardPath.trim() || null,
-      heroPath: editForm.heroPath.trim() || null,
-      artPrompt: editForm.artPrompt.trim() || null,
-      randomWeight: Math.max(0, Number(editForm.randomWeight) || 0),
-      isRandomizable: editForm.isRandomizable,
-      artRequired: editForm.artRequired,
-      isPublic: editForm.isPublic,
-      isMature: editForm.isMature,
-    })
+    await facetStore.updateFacet(id, facetProfilePayload(editForm.value))
     editingId.value = null
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Facet could not be saved.'
+    setError(error, 'Facet could not be saved.')
   }
 }
 
-async function requestArt(facet: FacetWithAliases) {
+async function requestArt(facet: FacetWithAliases): Promise<void> {
   errorMessage.value = ''
   const path = await artRequestStore.requestPrimaryArtwork(
     facet as FacetCatalogEntry,
@@ -905,25 +364,23 @@ async function requestArt(facet: FacetWithAliases) {
   }
 }
 
-async function archive(id: number) {
+async function archive(id: number): Promise<void> {
   errorMessage.value = ''
   try {
     await facetStore.archiveFacet(id)
     editingId.value = null
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Facet could not be archived.'
+    setError(error, 'Facet could not be archived.')
   }
 }
 
-async function restore(id: number) {
+async function restore(id: number): Promise<void> {
   errorMessage.value = ''
   try {
     await facetStore.updateFacet(id, { isActive: true })
     editingId.value = null
   } catch (error) {
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Facet could not be restored.'
+    setError(error, 'Facet could not be restored.')
   }
 }
 </script>

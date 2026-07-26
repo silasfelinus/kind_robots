@@ -43,6 +43,7 @@
     <div
       v-if="expandedStyle"
       :id="`academy-style-detail-${expandedStyle.slug}`"
+      ref="detailPanelRef"
     >
       <academy-style-detail
         :key="expandedStyle.slug"
@@ -124,6 +125,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  watch,
   type ComponentPublicInstance,
 } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
@@ -138,6 +140,21 @@ const academyStore = useAcademyStore()
 const searchQuery = ref('')
 const expandedSlug = ref<string | null>(null)
 const searchInputRef = ref<HTMLInputElement | null>(null)
+const detailPanelRef = ref<HTMLElement | null>(null)
+
+// The detail panel renders above the grid, so opening a style whose card sits
+// near the bottom of a long, scrolled grid pops the panel open off-screen —
+// the user sees no visible change and has to scroll up to find it. Bring it
+// into view whenever a style expands.
+watch(expandedSlug, (slug) => {
+  if (!slug) return
+  nextTick(() => {
+    detailPanelRef.value?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    })
+  })
+})
 
 // The grid button stays mounted while its detail panel is open, but the
 // panel's own close button unmounts (v-if) the instant it's clicked — the

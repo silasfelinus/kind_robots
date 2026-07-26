@@ -8,6 +8,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
+import { syncScenarioGenreFacetsInTransaction } from '../../utils/scenarioGenreFacetSync'
 import {
   assertScenarioMutationInput,
   assertScenarioRelationsAttachable,
@@ -54,12 +55,6 @@ async function processEntry(
 
     id = candidateId
 
-    // Unlike the singular PATCH route, batch entries carry their own routing
-    // id in the body (there's no per-item URL). assertScenarioMutationInput's
-    // id handling rejects a bare `id` field unless told what it's allowed to
-    // match against, so pass the id we just validated as `routeId` -- this
-    // is the same "id must match the route" contract as [id].patch.ts, just
-    // with the entry itself acting as its own route.
     assertScenarioMutationInput(rawEntry, {
       allowedFields: scenarioBatchPatchFields,
       context: `Scenario batch update item ${index}`,
@@ -84,7 +79,8 @@ async function processEntry(
       })
     }
 
-    if (existingScenario.userId !== user.id && !userIsAdmin(user)) {
+    const isAdmin = userIsAdmin(user)
+    if (existingScenario.userId !== user.id && !isAdmin) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this scenario.',
@@ -101,7 +97,7 @@ async function processEntry(
       })
     }
 
-    await assertScenarioRelationsAttachable(fields, user.id, userIsAdmin(user))
+    await assertScenarioRelationsAttachable(fields, user.id, isAdmin)
 
     const data = await buildScenarioUpdateInput(fields)
 
@@ -112,10 +108,19 @@ async function processEntry(
       })
     }
 
-    const updatedScenario = await prisma.scenario.update({
-      where: { id },
-      data,
-      select: scenarioMutationSelect,
+    const updatedScenario = await prisma.$transaction(async (tx) => {
+      const scenario = await tx.scenario.update({
+        where: { id },
+        data,
+        select: scenarioMutationSelect,
+      })
+      if ('genres' in data) {
+        await syncScenarioGenreFacetsInTransaction(tx, scenario, {
+          userId: user.id,
+          isAdmin,
+        })
+      }
+      return scenario
     })
 
     return {

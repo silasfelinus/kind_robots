@@ -48,7 +48,15 @@
       />
     </div>
 
-    <button class="btn btn-primary w-full" @click="addToCart">
+    <p v-if="eligibility && !eligibility.eligible" class="text-sm text-error">
+      🚫 Not eligible for print: {{ eligibility.reason }}
+    </p>
+
+    <button
+      class="btn btn-primary w-full"
+      :disabled="eligibility ? !eligibility.eligible : false"
+      @click="addToCart"
+    >
       ➕ Add to Cart
     </button>
 
@@ -59,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps<{ artImageId?: number }>()
 const emit = defineEmits(['close'])
@@ -67,6 +75,9 @@ const emit = defineEmits(['close'])
 const selectedType = ref('print')
 const quantity = ref(1)
 const customImageUrl = ref('')
+
+type PrintEligibility = { eligible: boolean; reason: string }
+const eligibility = ref<PrintEligibility | null>(null)
 
 const printTypes = [
   { id: 'print', label: 'Art Print', icon: 'kind-icon:print' },
@@ -80,8 +91,29 @@ const imageUrl = computed(() =>
   customImageUrl.value.trim()
     ? customImageUrl.value.trim()
     : props.artImageId
-    ? `/api/media/art/${props.artImageId}`
-    : fallbackImage,
+      ? `/api/media/art/${props.artImageId}`
+      : fallbackImage,
+)
+
+// A custom-URL image (not one of the caller's own ArtImage rows) has no
+// eligibility record to check against, so it is left ungated here.
+watch(
+  () => props.artImageId,
+  async (artImageId) => {
+    eligibility.value = null
+    if (!artImageId) return
+
+    try {
+      const response = await $fetch<
+        { success: boolean; data: PrintEligibility },
+        string
+      >(`/api/art/image/${artImageId}/print-eligibility`)
+      eligibility.value = response.success ? response.data : null
+    } catch {
+      eligibility.value = null
+    }
+  },
+  { immediate: true },
 )
 
 const addToCart = () => {

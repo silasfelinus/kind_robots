@@ -64,6 +64,7 @@ model ArtImage {
   LifeEndingIcons      LifeEnding[]          @relation("LifeEndingIconArtImage")
   LifeRunArt           LifeRunArt[]
   PitchSheets          PitchSheet[]
+  PrintJobs            PrintJob[]
   ProjectsPrimary      Project[]             @relation("ProjectPrimaryArtImage")
   ProjectLinks         ProjectArtImage[]
   Prompts              Prompt[]
@@ -751,6 +752,7 @@ model OrderItem {
   Order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
   Product     Product      @relation(fields: [productId], references: [id])
   Entitlement Entitlement?
+  PrintJob    PrintJob?
 
   @@index([orderId])
   @@index([productId])
@@ -774,6 +776,30 @@ model Entitlement {
 
   @@index([userId])
   @@index([productId])
+}
+
+/// Print-on-demand fulfillment record for a POD-type OrderItem
+/// (digital-storefront/t-030, gallery-to-swag-pipeline.md §3). One row per
+/// OrderItem, tracking the physical order's status against the POD vendor
+/// (Printful) separately from the digital-goods Entitlement model — a print
+/// order isn't "owned" the way a PDF/DLC unlock is, it ships. printfulOrderId
+/// stays null until the vendor integration (needs-human, no account/API key
+/// provisioned yet) actually submits the order; status starts PENDING at
+/// checkout time regardless.
+model PrintJob {
+  id                Int            @id @default(autoincrement())
+  orderItemId       Int            @unique
+  artImageId        Int
+  printfulOrderId   String?
+  printfulVariantId String         @db.VarChar(128)
+  status            PrintJobStatus @default(PENDING)
+  trackingUrl       String?        @db.VarChar(764)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime?      @default(now()) @updatedAt
+  OrderItem         OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  ArtImage          ArtImage       @relation(fields: [artImageId], references: [id])
+
+  @@index([artImageId])
 }
 
 /// Generalized access grant for private-but-shared content (SHARING-SPEC.md,
@@ -2291,6 +2317,17 @@ enum OrderStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+/// digital-storefront/t-030. SUBMITTED means Printful accepted the order;
+/// PENDING is the only status reachable until the Printful vendor
+/// integration itself is built (needs-human — no account/API key yet).
+enum PrintJobStatus {
+  PENDING
+  SUBMITTED
+  IN_PRODUCTION
+  SHIPPED
+  FAILED
 }
 
 /// What kind of thing a Grant's subjectId points at. PACK is deliberately

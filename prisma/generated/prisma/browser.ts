@@ -37,6 +37,11 @@ export type FacetProfile = Prisma.FacetProfileModel
  */
 export type CharacterFacet = Prisma.CharacterFacetModel
 /**
+ * Model RewardFacet
+ * 
+ */
+export type RewardFacet = Prisma.RewardFacetModel
+/**
  * Model ModelBuildRun
  * One resumable Model Builder run: a source record, a chosen recipe, and the
  * build items produced from the selected outputs. `sourceSnapshot` freezes the
@@ -225,6 +230,18 @@ export type OrderItem = Prisma.OrderItemModel
  * purchase history.
  */
 export type Entitlement = Prisma.EntitlementModel
+/**
+ * Model PrintJob
+ * Print-on-demand fulfillment record for a POD-type OrderItem
+ * (digital-storefront/t-030, gallery-to-swag-pipeline.md §3). One row per
+ * OrderItem, tracking the physical order's status against the POD vendor
+ * (Printful) separately from the digital-goods Entitlement model — a print
+ * order isn't "owned" the way a PDF/DLC unlock is, it ships. printfulOrderId
+ * stays null until the vendor integration (needs-human, no account/API key
+ * provisioned yet) actually submits the order; status starts PENDING at
+ * checkout time regardless.
+ */
+export type PrintJob = Prisma.PrintJobModel
 /**
  * Model Grant
  * Generalized access grant for private-but-shared content (SHARING-SPEC.md,

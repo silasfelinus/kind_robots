@@ -1,0 +1,53 @@
+name: Agent Project Gallery Art Pipeline Patch
+
+on:
+  push:
+    branches:
+      - agent/project-gallery-art-pipeline
+    paths:
+      - scripts/agent_patch_project_gallery.py
+      - .github/workflows/agent-project-gallery-art-pipeline.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/project-gallery-art-pipeline
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Apply repository-aware patch
+        run: python scripts/agent_patch_project_gallery.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install validation dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Validate art request YAML contract
+        run: npm run test:art-request-yaml
+
+      - name: Validate formatting
+        run: npx prettier --check components/pages/conductor-overview-gallery-page.vue plugins/missing-image-reporter.client.ts server/api/conductor/art-request.post.ts server/api/conductor/project-art-complete.post.ts server/utils/artRequestYaml.ts utils/scripts/verifyArtRequestYaml.ts
+
+      - name: Commit finished patch
+        run: |
+          rm scripts/agent_patch_project_gallery.py
+          rm .github/workflows/agent-project-gallery-art-pipeline.yml
+          git config user.name "kind-conductor"
+          git config user.email "kind-conductor@users.noreply.github.com"
+          git add components/pages/conductor-overview-gallery-page.vue plugins/missing-image-reporter.client.ts server/api/conductor/art-request.post.ts server/api/conductor/project-art-complete.post.ts server/utils/artRequestYaml.ts utils/scripts/verifyArtRequestYaml.ts scripts/agent_patch_project_gallery.py .github/workflows/agent-project-gallery-art-pipeline.yml
+          git commit -m "fix project gallery filtering and art completion sync"
+          git push origin HEAD:agent/project-gallery-art-pipeline

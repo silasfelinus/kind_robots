@@ -8,6 +8,7 @@ const root = process.cwd()
 
 const VISUAL_FACET_FIELDS = new Set([
   'species',
+  'gender',
   'class',
   'alignment',
   'personality',

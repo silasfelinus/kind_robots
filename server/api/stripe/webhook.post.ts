@@ -6,6 +6,8 @@ import { errorHandler } from '~/server/utils/error'
 import { applyMana, usdToMana } from '~/server/utils/mana'
 import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
 import type { ProductType } from '~/prisma/generated/prisma/client'
+import { checkPrintEligibility } from '../art/utils/printEligibility'
+import { userIsAdmin } from '~/server/utils/authUser'
 
 let stripe: Stripe | null = null
 
@@ -219,6 +221,53 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
         console.error(
           `⚠️ Stripe webhook: POD product "${slug}" missing artImageId/printfulVariantId metadata, skipping PrintJob creation`,
         )
+        return
+      }
+
+      // Re-check print eligibility against the ArtImage's CURRENT state, not
+      // whatever it was at checkout-creation time (digital-storefront/t-032,
+      // gallery-to-swag-pipeline.md §4 "Takedown path"): a moderation action
+      // taken between "added to cart" and "payment completed" — isActive
+      // flipped false, isMature flagged, or the caller's own access revoked
+      // — must not silently ship. Reuses the same eligibility function
+      // pod-checkout.post.ts calls at checkout time, unmodified.
+      const [image, buyer] = await Promise.all([
+        tx.artImage.findUnique({
+          where: { id: artImageId },
+          select: {
+            userId: true,
+            isMature: true,
+            isPublic: true,
+            isActive: true,
+            checkpointResourceId: true,
+            CheckpointResource: { select: { commercialSafe: true } },
+          },
+        }),
+        tx.user.findUnique({
+          where: { id: userId },
+          select: { id: true, Role: true },
+        }),
+      ])
+
+      const eligibility = image
+        ? checkPrintEligibility(image, image.CheckpointResource, {
+            userId,
+            isAdmin: buyer ? userIsAdmin(buyer) : false,
+          })
+        : { eligible: false, reason: 'ArtImage no longer exists.' }
+
+      if (!eligibility.eligible) {
+        console.error(
+          `⚠️ Stripe webhook: POD product "${slug}" (artImageId ${artImageId}) failed re-check at payment time (${eligibility.reason}) — creating PrintJob as FAILED instead of shipping it`,
+        )
+        await tx.printJob.create({
+          data: {
+            orderItemId: item.id,
+            artImageId,
+            printfulVariantId,
+            status: 'FAILED',
+          },
+        })
         return
       }
 

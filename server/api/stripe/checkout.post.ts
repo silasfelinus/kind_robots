@@ -165,6 +165,12 @@ export default defineEventHandler(async (event) => {
           unit_amount: Math.round(item.price * 100),
         },
         quantity,
+        // Carried through to the webhook's listLineItems() response verbatim
+        // (Stripe LineItem objects have their own metadata field, distinct
+        // from price_data.product_data) so handleGiftshopCartPurchase can
+        // fulfil each line item by its cart catalog type without needing to
+        // parse it back out of the display name.
+        metadata: { giftshopType: id },
       }
     })
 

@@ -16,10 +16,12 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'stores/utils/randomPersonality.ts',
   'stores/utils/randomQuirks.ts',
   'utils/facetAliases.ts',
+  'utils/seeds/facetGenderValues.ts',
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',
   'utils/scripts/runFacetCatalogSeed.ts',
   'utils/scripts/seedFacetCatalog.ts',
+  'utils/scripts/seedGenderFacetCatalog.ts',
 ])
 
 const TRUE_VALUES = new Set(['1', 'true', 'yes', 'on'])

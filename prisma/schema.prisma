@@ -1046,6 +1046,12 @@ model Resource {
   previewImageUrl String?         @db.Text
   imagePath       String?
   slug            String?         @unique @db.VarChar(255)
+  /// Whether the checkpoint/LoRA this row represents is licensed for
+  /// commercial output (per CONTROL.md's commercial-generation licensing
+  /// rule). Defaults false/unknown; seeded true only for backends confirmed
+  /// license-clean (FLUX.1 schnell, OpenAI, approved licensed APIs). The
+  /// print-eligibility gate on ArtImage.checkpointResourceId reads this.
+  commercialSafe  Boolean         @default(false)
   ArtImages       ArtImage[]      @relation("ArtImageCheckpointResource")
   Reactions       Reaction[]
   ArtImage        ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])

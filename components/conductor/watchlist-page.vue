@@ -42,9 +42,11 @@ const config: ProjectFrontConfig = {
     done: [
       'Real viewing log parsed and validated (2,440 entries, 12 years)',
       'Import + normalization rules for 12 media types',
-      'MediaEntry data model, browse + stats API, and a minimal browse UI',
+      'MediaEntry data model, browse + stats API, and a full browse UI',
+      'Entry detail view with private review editor and rating control',
+      'CSV export of the current filtered view',
     ],
-    next: ['Entry detail view + private review editor', 'CSV export'],
+    next: [],
   },
 }
 </script>

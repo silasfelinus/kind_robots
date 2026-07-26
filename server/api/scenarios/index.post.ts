@@ -4,6 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { userIsAdmin } from '@/server/utils/authUser'
+import { syncScenarioGenreFacetsInTransaction } from '@/server/utils/scenarioGenreFacetSync'
 import {
   buildScenarioCreateInput,
   findExistingScenario,
@@ -33,7 +34,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    await assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))
+    const isAdmin = userIsAdmin(user)
+    await assertScenarioRelationsAttachable(body, user.id, isAdmin)
 
     const createInput = await buildScenarioCreateInput(body, user.id)
     const existingScenario = await findExistingScenario(
@@ -48,9 +50,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.scenario.create({
-      data: createInput,
-      select: scenarioMutationSelect,
+    const data = await prisma.$transaction(async (tx) => {
+      const scenario = await tx.scenario.create({
+        data: createInput,
+        select: scenarioMutationSelect,
+      })
+      await syncScenarioGenreFacetsInTransaction(tx, scenario, {
+        userId: user.id,
+        isAdmin,
+      })
+      return scenario
     })
 
     event.node.res.statusCode = 201

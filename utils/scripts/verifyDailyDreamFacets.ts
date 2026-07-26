@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   const files = {
     schema: 'prisma/facet-catalog.prisma',
     migration:
-      'prisma/migrations/20260726020000_reward_facet_daily_dream/migration.sql',
+      'prisma/migrations/20260726061000_reward_facet_daily_dream/migration.sql',
     blueprint: 'server/utils/dailyDreamFacetBlueprint.ts',
     endpoint: 'server/api/dreams/daily.post.ts',
     generator: 'components/dreams/daily-dream-generator.vue',

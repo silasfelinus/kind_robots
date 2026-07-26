@@ -52,6 +52,10 @@ async function main(): Promise<void> {
     characterPut: 'server/api/characters/[id]/facets.put.ts',
     seedWrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     seed: 'utils/scripts/seedFacetCatalog.ts',
+    genderSeed: 'utils/scripts/seedGenderFacetCatalog.ts',
+    genderValues: 'utils/seeds/facetGenderValues.ts',
+    builderCoverage: 'utils/scripts/verifyFacetBuilderCoverage.ts',
+    seedPolicy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
     catalogStore: 'stores/facetCatalogStore.ts',
     generatorStore: 'stores/generatorStore.ts',
     randomStore: 'stores/randomStore.ts',
@@ -82,6 +86,7 @@ async function main(): Promise<void> {
     'ARCHETYPE',
     'ROLE',
     'ALIGNMENT',
+    'GENDER',
     'PERSONALITY',
     'BACKSTORY',
     'QUIRK',
@@ -139,6 +144,7 @@ async function main(): Promise<void> {
     'syncCharacterFacetsInTransaction',
   )
   requireText(files.characterFacetSync, text.characterFacetSync, 'CHARACTER_MUTATION')
+  requireText(files.characterFacetSync, text.characterFacetSync, "gender: ['GENDER']")
   requireText(files.characterFacetSync, text.characterFacetSync, 'tx.characterFacet.deleteMany')
   requireText(files.characterFacetSync, text.characterFacetSync, 'tx.characterFacet.createMany')
   requireText(files.characterFacetSync, text.characterFacetSync, 'allowed.includes(taxonomy)')
@@ -157,6 +163,7 @@ async function main(): Promise<void> {
   requireText(files.seedWrapper, text.seedWrapper, 'choice.listOptions')
   requireText(files.seedWrapper, text.seedWrapper, 'step.listOptions = Array.from(completeList)')
   requireText(files.seedWrapper, text.seedWrapper, 'promotedBuilderOptions')
+  requireText(files.seedWrapper, text.seedWrapper, "import('./seedGenderFacetCatalog')")
   requireText(files.seed, text.seed, 'ADVENTURE_CARDS')
   requireText(files.seed, text.seed, 'animalDataList')
   requireText(files.seed, text.seed, 'artListPresets')
@@ -167,8 +174,15 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'createDatabaseAdapter')
   forbidText(files.seed, text.seed, 'new PrismaMariaDb(')
   forbidText(files.seed, text.seed, "from './../../stores/utils/randomSpecies'")
+  requireText(files.genderSeed, text.genderSeed, "taxonomy: 'GENDER'")
+  requireText(files.genderSeed, text.genderSeed, 'backfillCharacterGender')
+  requireText(files.genderValues, text.genderValues, 'legacyFacetGenderValues')
+  requireText(files.builderCoverage, text.builderCoverage, 'FACET_BACKED_FIELDS')
+  requireText(files.builderCoverage, text.builderCoverage, "'gender'")
+  requireText(files.seedPolicy, text.seedPolicy, 'utils/scripts/seedGenderFacetCatalog.ts')
 
   requireText(files.catalogStore, text.catalogStore, 'CHARACTER_FIELD_TAXONOMIES')
+  requireText(files.catalogStore, text.catalogStore, "gender: ['GENDER']")
   requireText(files.catalogStore, text.catalogStore, 'fetchAllCatalogPages')
   requireText(files.catalogStore, text.catalogStore, 'while (true)')
   requireText(files.catalogStore, text.catalogStore, 'skip += page.length')
@@ -192,6 +206,7 @@ async function main(): Promise<void> {
   requireText(files.randomStore, text.randomStore, 'useFacetCatalogStore')
   requireText(files.randomStore, text.randomStore, 'weightedSample')
   requireText(files.randomStore, text.randomStore, 'catalogPresets')
+  requireText(files.randomStore, text.randomStore, "gender: ['GENDER']")
   forbidText(files.randomStore, text.randomStore, 'randomHelper')
   forbidText(files.randomStore, text.randomStore, 'dreamType=RANDOMLIST')
   forbidText(files.randomStore, text.randomStore, 'BRAINSTORM')

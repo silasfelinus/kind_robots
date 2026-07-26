@@ -206,6 +206,16 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'moth-constellation',
+    label: 'Moth Constellation',
+    reveal: 'The pattern holds',
+    icon: 'kind-icon:moon',
+    tooltip: 'Moths gather around unseen moonlight and briefly trace a constellation before scattering; move the pointer to draw a few closer 🌙',
+    color: '#8ea3c7',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

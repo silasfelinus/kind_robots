@@ -173,21 +173,15 @@ export function filterVisibleDreams<T extends Partial<Dream>>(
   })
 }
 
-export function randomEntry(dreamName: string, allDreams: Partial<Dream>[]) {
-  const dream = allDreams.find((entry) => {
-    return (
-      parseDreamType(entry.dreamType as string) === 'BRAINSTORM' &&
-      entry.title?.toLowerCase() === dreamName.toLowerCase()
-    )
-  })
-
-  if (!dream?.examples) return dreamName
-
-  const examples = extractExamples(dream.examples)
-
-  return examples.length
-    ? examples[Math.floor(Math.random() * examples.length)] || dreamName
-    : dreamName
+/**
+ * Deprecated compatibility boundary for RANDOMLIST-era callers.
+ * Reusable random content now belongs to Facets, so Dreams are never sampled.
+ */
+export function randomEntry(
+  dreamName: string,
+  _allDreams: Partial<Dream>[],
+): string {
+  return dreamName
 }
 
 export function extractExamples(exampleString?: string | null): string[] {

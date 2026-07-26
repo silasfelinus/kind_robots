@@ -114,6 +114,79 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
   )
 }
 
+// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
+// $transaction callback's tx param has extended InternalArgs that don't
+// structurally match the plain Prisma.TransactionClient type. Derive the
+// type from the actual instance instead (same pattern as server/utils/mana.ts).
+type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0]
+
+// Shared by handleProductPurchase's POD branch and fulfillGiftshopPrintJob
+// (digital-storefront/t-035, kaizen from t-034): both independently
+// re-checked print eligibility against the ArtImage's *current* state and
+// skipped the PrintJob insert when the ArtImage no longer exists, since
+// PrintJob.artImageId is a required, non-null FK to ArtImage with no
+// onDelete: SetNull -- inserting one referencing a nonexistent row would
+// throw and roll back the whole transaction, including the Order/OrderItem
+// already created in it. Returns whether a PrintJob was created (true for
+// both the eligible and FAILED-status cases; false only when skipped
+// entirely because the ArtImage is gone).
+async function createPrintJobIfEligible(
+  tx: TransactionClient,
+  params: {
+    orderItemId: number
+    artImageId: number
+    printfulVariantId: string
+    userId: number
+  },
+  context: string,
+): Promise<boolean> {
+  const { orderItemId, artImageId, printfulVariantId, userId } = params
+
+  const artImage = await tx.artImage.findUnique({
+    where: { id: artImageId },
+    select: {
+      userId: true,
+      isMature: true,
+      isPublic: true,
+      isActive: true,
+      checkpointResourceId: true,
+      CheckpointResource: { select: { commercialSafe: true } },
+    },
+  })
+
+  if (!artImage) {
+    console.error(
+      `⚠️ Stripe webhook: ${context} references ArtImage ${artImageId} which no longer exists, skipping PrintJob`,
+    )
+    return false
+  }
+
+  const eligibility = checkPrintEligibility(
+    artImage,
+    artImage.CheckpointResource,
+    { userId },
+  )
+
+  await tx.printJob.create({
+    data: {
+      orderItemId,
+      artImageId,
+      printfulVariantId,
+      status: eligibility.eligible ? undefined : 'FAILED',
+    },
+  })
+
+  if (!eligibility.eligible) {
+    console.error(
+      `⚠️ Stripe webhook: ${context} failed print-eligibility re-check at fulfillment time for ArtImage ${artImageId} (${eligibility.reason}), failing PrintJob instead of shipping it`,
+    )
+  }
+
+  return true
+}
+
 // digital-storefront Product purchase (digital-storefront/t-022): checkout
 // sessions for catalog items carry `metadata.productSlug` (set by the
 // checkout-creation route, mirroring mana_topup's `metadata.kind` convention)
@@ -230,61 +303,11 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       // window between "added to cart" and "payment completed" (t-029's gate,
       // gallery-to-swag-pipeline.md §4). Don't trust anything cached on the
       // Product/session from checkout-creation time.
-      const artImage = await tx.artImage.findUnique({
-        where: { id: artImageId },
-        select: {
-          userId: true,
-          isMature: true,
-          isPublic: true,
-          isActive: true,
-          checkpointResourceId: true,
-          CheckpointResource: { select: { commercialSafe: true } },
-        },
-      })
-
-      if (!artImage) {
-        // Do NOT insert a PrintJob here -- artImageId is a required, non-null
-        // FK to ArtImage with no onDelete: SetNull, so pointing it at a
-        // nonexistent row would throw and roll back this whole transaction,
-        // including the Order/OrderItem already created above (same
-        // "check-existence-before-insert" fix as fulfillGiftshopPrintJob
-        // below, digital-storefront/t-034). Leaving the PrintJob out keeps
-        // the Order/OrderItem as the audit trail instead of losing the paid
-        // order entirely.
-        console.error(
-          `⚠️ Stripe webhook: POD product "${slug}" references ArtImage ${artImageId} which no longer exists, skipping PrintJob`,
-        )
-        return
-      }
-
-      const eligibility = checkPrintEligibility(
-        artImage,
-        artImage.CheckpointResource,
-        { userId },
+      await createPrintJobIfEligible(
+        tx,
+        { orderItemId: item.id, artImageId, printfulVariantId, userId },
+        `POD product "${slug}"`,
       )
-
-      if (!eligibility.eligible) {
-        console.error(
-          `⚠️ Stripe webhook: POD product "${slug}" failed print-eligibility re-check at fulfillment time for ArtImage ${artImageId} (${eligibility.reason}), failing PrintJob instead of shipping it`,
-        )
-        await tx.printJob.create({
-          data: {
-            orderItemId: item.id,
-            artImageId,
-            printfulVariantId,
-            status: 'FAILED',
-          },
-        })
-        return
-      }
-
-      await tx.printJob.create({
-        data: {
-          orderItemId: item.id,
-          artImageId,
-          printfulVariantId,
-        },
-      })
     } else {
       await tx.entitlement.create({
         data: {
@@ -330,26 +353,11 @@ const GIFTSHOP_TYPE_TO_PRODUCT_TYPE: Record<CartItem['type'], ProductType> = {
   tokens: 'MANA_TOPUP',
 }
 
-// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
-// $transaction callback's tx param has extended InternalArgs that don't
-// structurally match the plain Prisma.TransactionClient type. Derive the
-// type from the actual instance instead (same pattern as server/utils/mana.ts).
-type TransactionClient = Parameters<
-  Parameters<typeof prisma.$transaction>[0]
->[0]
-
-// Creates a PrintJob for one needsArt line item, re-checking print
-// eligibility against the ArtImage's *current* state -- checkout.post.ts only
-// checked this at session-creation time, and an image can be taken down
-// (isActive/isMature flipped) during the window before payment completes
-// (same re-check-at-fulfillment-time pattern as handleProductPurchase's POD
-// branch, t-029's gate). Unlike that branch, this deliberately does NOT
-// insert a FAILED PrintJob when the artImageId is missing/invalid or the
-// ArtImage no longer exists -- PrintJob.artImageId is a required, non-null FK
-// to ArtImage, so inserting one referencing a nonexistent row would throw and
-// roll back the whole transaction (losing the Order/OrderItem too). The
-// Order/OrderItem audit record still gets created; only the PrintJob is
-// skipped in that case.
+// Creates a PrintJob for one needsArt line item via the shared
+// createPrintJobIfEligible helper above (re-checks print eligibility against
+// the ArtImage's *current* state -- checkout.post.ts only checked this at
+// session-creation time, and an image can be taken down during the window
+// before payment completes, t-029's gate).
 async function fulfillGiftshopPrintJob(
   tx: TransactionClient,
   orderItemId: number,
@@ -374,49 +382,16 @@ async function fulfillGiftshopPrintJob(
     return false
   }
 
-  const artImage = await tx.artImage.findUnique({
-    where: { id: artImageId },
-    select: {
-      userId: true,
-      isMature: true,
-      isPublic: true,
-      isActive: true,
-      checkpointResourceId: true,
-      CheckpointResource: { select: { commercialSafe: true } },
-    },
-  })
-
-  if (!artImage) {
-    console.error(
-      `⚠️ Stripe webhook: giftshop cart line "${catalogEntry.id}" references ArtImage ${artImageId} which no longer exists, skipping PrintJob`,
-    )
-    return false
-  }
-
-  const eligibility = checkPrintEligibility(
-    artImage,
-    artImage.CheckpointResource,
+  return createPrintJobIfEligible(
+    tx,
     {
-      userId,
-    },
-  )
-
-  await tx.printJob.create({
-    data: {
       orderItemId,
       artImageId,
       printfulVariantId: podEntry.printfulVariantId,
-      status: eligibility.eligible ? undefined : 'FAILED',
+      userId,
     },
-  })
-
-  if (!eligibility.eligible) {
-    console.error(
-      `⚠️ Stripe webhook: giftshop cart line "${catalogEntry.id}" failed print-eligibility re-check at fulfillment time for ArtImage ${artImageId} (${eligibility.reason}), failing PrintJob instead of shipping it`,
-    )
-  }
-
-  return true
+    `giftshop cart line "${catalogEntry.id}"`,
+  )
 }
 
 async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {

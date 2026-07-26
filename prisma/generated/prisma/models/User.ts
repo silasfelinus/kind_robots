@@ -812,6 +812,7 @@ export type UserWhereInput = {
   RelationsOwned?: Prisma.UserRelationListRelationFilter
   GrantsGiven?: Prisma.GrantListRelationFilter
   GrantsReceived?: Prisma.GrantListRelationFilter
+  PacksOwned?: Prisma.PackListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -928,6 +929,7 @@ export type UserOrderByWithRelationInput = {
   RelationsOwned?: Prisma.UserRelationOrderByRelationAggregateInput
   GrantsGiven?: Prisma.GrantOrderByRelationAggregateInput
   GrantsReceived?: Prisma.GrantOrderByRelationAggregateInput
+  PacksOwned?: Prisma.PackOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -1048,6 +1050,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   RelationsOwned?: Prisma.UserRelationListRelationFilter
   GrantsGiven?: Prisma.GrantListRelationFilter
   GrantsReceived?: Prisma.GrantListRelationFilter
+  PacksOwned?: Prisma.PackListRelationFilter
 }, "id" | "username" | "email" | "referralCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -1314,6 +1317,7 @@ export type UserCreateInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -1429,6 +1433,7 @@ export type UserUncheckedCreateInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUpdateInput = {
@@ -1543,6 +1548,7 @@ export type UserUpdateInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1658,6 +1664,7 @@ export type UserUncheckedUpdateInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -2402,6 +2409,20 @@ export type UserUpdateOneRequiredWithoutGrantsReceivedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGrantsReceivedInput, Prisma.UserUpdateWithoutGrantsReceivedInput>, Prisma.UserUncheckedUpdateWithoutGrantsReceivedInput>
 }
 
+export type UserCreateNestedOneWithoutPacksOwnedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPacksOwnedInput, Prisma.UserUncheckedCreateWithoutPacksOwnedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPacksOwnedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPacksOwnedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPacksOwnedInput, Prisma.UserUncheckedCreateWithoutPacksOwnedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPacksOwnedInput
+  upsert?: Prisma.UserUpsertWithoutPacksOwnedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPacksOwnedInput, Prisma.UserUpdateWithoutPacksOwnedInput>, Prisma.UserUncheckedUpdateWithoutPacksOwnedInput>
+}
+
 export type UserCreateNestedOneWithoutAchievementsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAchievementsInput, Prisma.UserUncheckedCreateWithoutAchievementsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAchievementsInput
@@ -2953,6 +2974,7 @@ export type UserCreateWithoutArtImagesInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutArtImagesInput = {
@@ -3067,6 +3089,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutArtImagesInput = {
@@ -3185,6 +3208,7 @@ export type UserCreateWithoutArtImageInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutArtImageInput = {
@@ -3299,6 +3323,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutArtImageInput = {
@@ -3433,6 +3458,7 @@ export type UserUpdateWithoutArtImagesInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImagesInput = {
@@ -3547,6 +3573,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutArtImageInput = {
@@ -3751,6 +3778,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutArtCollectionsInput = {
@@ -3865,6 +3893,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutArtCollectionsInput = {
@@ -3994,6 +4023,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtCollectionsInput = {
@@ -4108,6 +4138,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutBotsInput = {
@@ -4221,6 +4252,7 @@ export type UserCreateWithoutBotsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutBotsInput = {
@@ -4335,6 +4367,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutBotsInput = {
@@ -4464,6 +4497,7 @@ export type UserUpdateWithoutBotsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBotsInput = {
@@ -4578,6 +4612,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -4691,6 +4726,7 @@ export type UserCreateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -4805,6 +4841,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -4934,6 +4971,7 @@ export type UserUpdateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -5048,6 +5086,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -5161,6 +5200,7 @@ export type UserCreateWithoutChatsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -5275,6 +5315,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -5404,6 +5445,7 @@ export type UserUpdateWithoutChatsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -5518,6 +5560,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutDreamsInput = {
@@ -5631,6 +5674,7 @@ export type UserCreateWithoutDreamsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutDreamsInput = {
@@ -5745,6 +5789,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutDreamsInput = {
@@ -5874,6 +5919,7 @@ export type UserUpdateWithoutDreamsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDreamsInput = {
@@ -5988,6 +6034,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutProjectsInput = {
@@ -6101,6 +6148,7 @@ export type UserCreateWithoutProjectsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutProjectsInput = {
@@ -6215,6 +6263,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutProjectsInput = {
@@ -6344,6 +6393,7 @@ export type UserUpdateWithoutProjectsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -6458,6 +6508,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutFacetsInput = {
@@ -6571,6 +6622,7 @@ export type UserCreateWithoutFacetsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutFacetsInput = {
@@ -6685,6 +6737,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutFacetsInput = {
@@ -6814,6 +6867,7 @@ export type UserUpdateWithoutFacetsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFacetsInput = {
@@ -6928,6 +6982,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutLogsInput = {
@@ -7041,6 +7096,7 @@ export type UserCreateWithoutLogsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutLogsInput = {
@@ -7155,6 +7211,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutLogsInput = {
@@ -7284,6 +7341,7 @@ export type UserUpdateWithoutLogsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogsInput = {
@@ -7398,6 +7456,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutManaTransactionsInput = {
@@ -7511,6 +7570,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutManaTransactionsInput = {
@@ -7625,6 +7685,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutManaTransactionsInput = {
@@ -7754,6 +7815,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManaTransactionsInput = {
@@ -7868,6 +7930,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutOrdersInput = {
@@ -7981,6 +8044,7 @@ export type UserCreateWithoutOrdersInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutOrdersInput = {
@@ -8095,6 +8159,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutOrdersInput = {
@@ -8224,6 +8289,7 @@ export type UserUpdateWithoutOrdersInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -8338,6 +8404,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutEntitlementsInput = {
@@ -8451,6 +8518,7 @@ export type UserCreateWithoutEntitlementsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutEntitlementsInput = {
@@ -8565,6 +8633,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutEntitlementsInput = {
@@ -8694,6 +8763,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEntitlementsInput = {
@@ -8808,6 +8878,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutGrantsGivenInput = {
@@ -8921,6 +8992,7 @@ export type UserCreateWithoutGrantsGivenInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutGrantsGivenInput = {
@@ -9035,6 +9107,7 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutGrantsGivenInput = {
@@ -9153,6 +9226,7 @@ export type UserCreateWithoutGrantsReceivedInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutGrantsReceivedInput = {
@@ -9267,6 +9341,7 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutGrantsReceivedInput = {
@@ -9396,6 +9471,7 @@ export type UserUpdateWithoutGrantsGivenInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGrantsGivenInput = {
@@ -9510,6 +9586,7 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutGrantsReceivedInput = {
@@ -9634,6 +9711,7 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
@@ -9748,6 +9826,481 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutPacksOwnedInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+}
+
+export type UserUncheckedCreateWithoutPacksOwnedInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+}
+
+export type UserCreateOrConnectWithoutPacksOwnedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPacksOwnedInput, Prisma.UserUncheckedCreateWithoutPacksOwnedInput>
+}
+
+export type UserUpsertWithoutPacksOwnedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPacksOwnedInput, Prisma.UserUncheckedUpdateWithoutPacksOwnedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPacksOwnedInput, Prisma.UserUncheckedCreateWithoutPacksOwnedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPacksOwnedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPacksOwnedInput, Prisma.UserUncheckedUpdateWithoutPacksOwnedInput>
+}
+
+export type UserUpdateWithoutPacksOwnedInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPacksOwnedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
 }
 
 export type UserCreateWithoutAchievementsInput = {
@@ -9861,6 +10414,7 @@ export type UserCreateWithoutAchievementsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutAchievementsInput = {
@@ -9975,6 +10529,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutAchievementsInput = {
@@ -10104,6 +10659,7 @@ export type UserUpdateWithoutAchievementsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAchievementsInput = {
@@ -10218,6 +10774,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutPitchSheetsInput = {
@@ -10331,6 +10888,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutPitchSheetsInput = {
@@ -10445,6 +11003,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutPitchSheetsInput = {
@@ -10574,6 +11133,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPitchSheetsInput = {
@@ -10688,6 +11248,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutClaimedPromptsInput = {
@@ -10801,6 +11362,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutClaimedPromptsInput = {
@@ -10915,6 +11477,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutClaimedPromptsInput = {
@@ -11033,6 +11596,7 @@ export type UserCreateWithoutPromptsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutPromptsInput = {
@@ -11147,6 +11711,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutPromptsInput = {
@@ -11276,6 +11841,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
@@ -11390,6 +11956,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutPromptsInput = {
@@ -11514,6 +12081,7 @@ export type UserUpdateWithoutPromptsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromptsInput = {
@@ -11628,6 +12196,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutReactionsInput = {
@@ -11741,6 +12310,7 @@ export type UserCreateWithoutReactionsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutReactionsInput = {
@@ -11855,6 +12425,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutReactionsInput = {
@@ -11984,6 +12555,7 @@ export type UserUpdateWithoutReactionsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReactionsInput = {
@@ -12098,6 +12670,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -12211,6 +12784,7 @@ export type UserCreateWithoutResourcesInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -12325,6 +12899,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -12454,6 +13029,7 @@ export type UserUpdateWithoutResourcesInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -12568,6 +13144,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutRewardsInput = {
@@ -12681,6 +13258,7 @@ export type UserCreateWithoutRewardsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutRewardsInput = {
@@ -12795,6 +13373,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutRewardsInput = {
@@ -12924,6 +13503,7 @@ export type UserUpdateWithoutRewardsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardsInput = {
@@ -13038,6 +13618,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutScenariosInput = {
@@ -13151,6 +13732,7 @@ export type UserCreateWithoutScenariosInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutScenariosInput = {
@@ -13265,6 +13847,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutScenariosInput = {
@@ -13394,6 +13977,7 @@ export type UserUpdateWithoutScenariosInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutScenariosInput = {
@@ -13508,6 +14092,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutServersInput = {
@@ -13621,6 +14206,7 @@ export type UserCreateWithoutServersInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutServersInput = {
@@ -13735,6 +14321,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutServersInput = {
@@ -13864,6 +14451,7 @@ export type UserUpdateWithoutServersInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutServersInput = {
@@ -13978,6 +14566,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutSmartIconsInput = {
@@ -14091,6 +14680,7 @@ export type UserCreateWithoutSmartIconsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutSmartIconsInput = {
@@ -14205,6 +14795,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutSmartIconsInput = {
@@ -14334,6 +14925,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSmartIconsInput = {
@@ -14448,6 +15040,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutThemesInput = {
@@ -14561,6 +15154,7 @@ export type UserCreateWithoutThemesInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutThemesInput = {
@@ -14675,6 +15269,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -14804,6 +15399,7 @@ export type UserUpdateWithoutThemesInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThemesInput = {
@@ -14918,6 +15514,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutStylistClientsInput = {
@@ -15031,6 +15628,7 @@ export type UserCreateWithoutStylistClientsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutStylistClientsInput = {
@@ -15145,6 +15743,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutStylistClientsInput = {
@@ -15274,6 +15873,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStylistClientsInput = {
@@ -15388,6 +15988,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutStylistAppointmentsInput = {
@@ -15501,6 +16102,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
@@ -15615,6 +16217,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutStylistAppointmentsInput = {
@@ -15744,6 +16347,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
@@ -15858,6 +16462,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutArtJobsInput = {
@@ -15971,6 +16576,7 @@ export type UserCreateWithoutArtJobsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutArtJobsInput = {
@@ -16085,6 +16691,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutArtJobsInput = {
@@ -16214,6 +16821,7 @@ export type UserUpdateWithoutArtJobsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtJobsInput = {
@@ -16328,6 +16936,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutKarmaTransactionsInput = {
@@ -16441,6 +17050,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
@@ -16555,6 +17165,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutKarmaTransactionsInput = {
@@ -16684,6 +17295,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
@@ -16798,6 +17410,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutReferredByInput = {
@@ -16911,6 +17524,7 @@ export type UserCreateWithoutReferredByInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutReferredByInput = {
@@ -17025,6 +17639,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutReferredByInput = {
@@ -17143,6 +17758,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -17257,6 +17873,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -17386,6 +18003,7 @@ export type UserUpdateWithoutReferredByInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredByInput = {
@@ -17500,6 +18118,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutReferralsMadeInput = {
@@ -17624,6 +18243,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -17738,6 +18358,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutRelationsReceivedInput = {
@@ -17851,6 +18472,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutRelationsReceivedInput = {
@@ -17965,6 +18587,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutRelationsReceivedInput = {
@@ -18083,6 +18706,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutRelationsOwnedInput = {
@@ -18197,6 +18821,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutRelationsOwnedInput = {
@@ -18326,6 +18951,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
@@ -18440,6 +19066,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutRelationsOwnedInput = {
@@ -18564,6 +19191,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
@@ -18678,6 +19306,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutChallengesInput = {
@@ -18791,6 +19420,7 @@ export type UserCreateWithoutChallengesInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutChallengesInput = {
@@ -18905,6 +19535,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutChallengesInput = {
@@ -19034,6 +19665,7 @@ export type UserUpdateWithoutChallengesInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChallengesInput = {
@@ -19148,6 +19780,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutLifeRunsInput = {
@@ -19261,6 +19894,7 @@ export type UserCreateWithoutLifeRunsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutLifeRunsInput = {
@@ -19375,6 +20009,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutLifeRunsInput = {
@@ -19504,6 +20139,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeRunsInput = {
@@ -19618,6 +20254,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutLifeAchievementUnlocksInput = {
@@ -19731,6 +20368,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
@@ -19845,6 +20483,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutLifeAchievementUnlocksInput = {
@@ -19974,6 +20613,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
@@ -20088,6 +20728,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutAuthTokensInput = {
@@ -20201,6 +20842,7 @@ export type UserCreateWithoutAuthTokensInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutAuthTokensInput = {
@@ -20315,6 +20957,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutAuthTokensInput = {
@@ -20444,6 +21087,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthTokensInput = {
@@ -20558,6 +21202,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutConversationsInInput = {
@@ -20671,6 +21316,7 @@ export type UserCreateWithoutConversationsInInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutConversationsInInput = {
@@ -20785,6 +21431,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutConversationsInInput = {
@@ -20914,6 +21561,7 @@ export type UserUpdateWithoutConversationsInInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConversationsInInput = {
@@ -21028,6 +21676,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -21141,6 +21790,7 @@ export type UserCreateWithoutSentMessagesInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -21255,6 +21905,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -21384,6 +22035,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -21498,6 +22150,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutActedNotificationsInput = {
@@ -21611,6 +22264,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutActedNotificationsInput = {
@@ -21725,6 +22379,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutActedNotificationsInput = {
@@ -21843,6 +22498,7 @@ export type UserCreateWithoutNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -21957,6 +22613,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -22086,6 +22743,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActedNotificationsInput = {
@@ -22200,6 +22858,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUpsertWithoutNotificationsInput = {
@@ -22324,6 +22983,7 @@ export type UserUpdateWithoutNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -22438,6 +23098,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutGithubInstallationsInput = {
@@ -22551,6 +23212,7 @@ export type UserCreateWithoutGithubInstallationsInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutGithubInstallationsInput = {
@@ -22665,6 +23327,7 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutGithubInstallationsInput = {
@@ -22794,6 +23457,7 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
@@ -22908,6 +23572,7 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutAppReposInput = {
@@ -23021,6 +23686,7 @@ export type UserCreateWithoutAppReposInput = {
   RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutAppReposInput = {
@@ -23135,6 +23801,7 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutAppReposInput = {
@@ -23264,6 +23931,7 @@ export type UserUpdateWithoutAppReposInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAppReposInput = {
@@ -23378,6 +24046,7 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -23562,6 +24231,7 @@ export type UserUpdateWithoutArtImageInput = {
   RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImageInput = {
@@ -23676,6 +24346,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutArtImageInput = {
@@ -23797,6 +24468,7 @@ export type UserCountOutputType = {
   RelationsOwned: number
   GrantsGiven: number
   GrantsReceived: number
+  PacksOwned: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -23842,6 +24514,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   RelationsOwned?: boolean | UserCountOutputTypeCountRelationsOwnedArgs
   GrantsGiven?: boolean | UserCountOutputTypeCountGrantsGivenArgs
   GrantsReceived?: boolean | UserCountOutputTypeCountGrantsReceivedArgs
+  PacksOwned?: boolean | UserCountOutputTypeCountPacksOwnedArgs
 }
 
 /**
@@ -24148,6 +24821,13 @@ export type UserCountOutputTypeCountGrantsReceivedArgs<ExtArgs extends runtime.T
   where?: Prisma.GrantWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPacksOwnedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PackWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -24263,6 +24943,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   RelationsOwned?: boolean | Prisma.User$RelationsOwnedArgs<ExtArgs>
   GrantsGiven?: boolean | Prisma.User$GrantsGivenArgs<ExtArgs>
   GrantsReceived?: boolean | Prisma.User$GrantsReceivedArgs<ExtArgs>
+  PacksOwned?: boolean | Prisma.User$PacksOwnedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -24386,6 +25067,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   RelationsOwned?: boolean | Prisma.User$RelationsOwnedArgs<ExtArgs>
   GrantsGiven?: boolean | Prisma.User$GrantsGivenArgs<ExtArgs>
   GrantsReceived?: boolean | Prisma.User$GrantsReceivedArgs<ExtArgs>
+  PacksOwned?: boolean | Prisma.User$PacksOwnedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -24436,6 +25118,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     RelationsOwned: Prisma.$UserRelationPayload<ExtArgs>[]
     GrantsGiven: Prisma.$GrantPayload<ExtArgs>[]
     GrantsReceived: Prisma.$GrantPayload<ExtArgs>[]
+    PacksOwned: Prisma.$PackPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -24891,6 +25574,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   RelationsOwned<T extends Prisma.User$RelationsOwnedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$RelationsOwnedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   GrantsGiven<T extends Prisma.User$GrantsGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$GrantsGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   GrantsReceived<T extends Prisma.User$GrantsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$GrantsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  PacksOwned<T extends Prisma.User$PacksOwnedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PacksOwnedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -26380,6 +27064,30 @@ export type User$GrantsReceivedArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.GrantScalarFieldEnum | Prisma.GrantScalarFieldEnum[]
+}
+
+/**
+ * User.PacksOwned
+ */
+export type User$PacksOwnedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Pack
+   */
+  select?: Prisma.PackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Pack
+   */
+  omit?: Prisma.PackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PackInclude<ExtArgs> | null
+  where?: Prisma.PackWhereInput
+  orderBy?: Prisma.PackOrderByWithRelationInput | Prisma.PackOrderByWithRelationInput[]
+  cursor?: Prisma.PackWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PackScalarFieldEnum | Prisma.PackScalarFieldEnum[]
 }
 
 /**

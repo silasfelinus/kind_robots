@@ -87,6 +87,7 @@ export const ModelName = {
   Entitlement: 'Entitlement',
   PrintJob: 'PrintJob',
   Grant: 'Grant',
+  Pack: 'Pack',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
@@ -412,6 +413,7 @@ export const CharacterScalarFieldEnum = {
   artImageId: 'artImageId',
   isPublic: 'isPublic',
   userId: 'userId',
+  packId: 'packId',
   artPrompt: 'artPrompt',
   honorific: 'honorific',
   imagePath: 'imagePath',
@@ -509,6 +511,7 @@ export const DreamScalarFieldEnum = {
   userId: 'userId',
   artImageId: 'artImageId',
   artCollectionId: 'artCollectionId',
+  packId: 'packId',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
@@ -602,6 +605,7 @@ export const FacetScalarFieldEnum = {
   userId: 'userId',
   artImageId: 'artImageId',
   artCollectionId: 'artCollectionId',
+  packId: 'packId',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive'
@@ -856,6 +860,17 @@ export const GrantScalarFieldEnum = {
 export type GrantScalarFieldEnum = (typeof GrantScalarFieldEnum)[keyof typeof GrantScalarFieldEnum]
 
 
+export const PackScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  slug: 'slug',
+  title: 'title',
+  ownerId: 'ownerId'
+} as const
+
+export type PackScalarFieldEnum = (typeof PackScalarFieldEnum)[keyof typeof PackScalarFieldEnum]
+
+
 export const AchievementRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -1049,6 +1064,7 @@ export const RewardScalarFieldEnum = {
   rarity: 'rarity',
   userId: 'userId',
   artImageId: 'artImageId',
+  packId: 'packId',
   imagePath: 'imagePath',
   isMature: 'isMature',
   isPublic: 'isPublic',
@@ -2110,6 +2126,14 @@ export const PrintJobOrderByRelevanceFieldEnum = {
 } as const
 
 export type PrintJobOrderByRelevanceFieldEnum = (typeof PrintJobOrderByRelevanceFieldEnum)[keyof typeof PrintJobOrderByRelevanceFieldEnum]
+
+
+export const PackOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title'
+} as const
+
+export type PackOrderByRelevanceFieldEnum = (typeof PackOrderByRelevanceFieldEnum)[keyof typeof PackOrderByRelevanceFieldEnum]
 
 
 export const AchievementRecordOrderByRelevanceFieldEnum = {

@@ -619,7 +619,8 @@ export type PrintJobStatus = (typeof PrintJobStatus)[keyof typeof PrintJobStatus
 
 export const GrantSubject = {
   PROJECT: 'PROJECT',
-  RESOURCE: 'RESOURCE'
+  RESOURCE: 'RESOURCE',
+  PACK: 'PACK'
 } as const
 
 export type GrantSubject = (typeof GrantSubject)[keyof typeof GrantSubject]

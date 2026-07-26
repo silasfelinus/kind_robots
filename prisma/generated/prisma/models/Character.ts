@@ -32,6 +32,7 @@ export type CharacterAvgAggregateOutputType = {
   level: number | null
   artImageId: number | null
   userId: number | null
+  packId: number | null
 }
 
 export type CharacterSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type CharacterSumAggregateOutputType = {
   level: number | null
   artImageId: number | null
   userId: number | null
+  packId: number | null
 }
 
 export type CharacterMinAggregateOutputType = {
@@ -60,6 +62,7 @@ export type CharacterMinAggregateOutputType = {
   artImageId: number | null
   isPublic: boolean | null
   userId: number | null
+  packId: number | null
   artPrompt: string | null
   honorific: string | null
   imagePath: string | null
@@ -100,6 +103,7 @@ export type CharacterMaxAggregateOutputType = {
   artImageId: number | null
   isPublic: boolean | null
   userId: number | null
+  packId: number | null
   artPrompt: string | null
   honorific: string | null
   imagePath: string | null
@@ -140,6 +144,7 @@ export type CharacterCountAggregateOutputType = {
   artImageId: number
   isPublic: number
   userId: number
+  packId: number
   artPrompt: number
   honorific: number
   imagePath: number
@@ -170,6 +175,7 @@ export type CharacterAvgAggregateInputType = {
   level?: true
   artImageId?: true
   userId?: true
+  packId?: true
 }
 
 export type CharacterSumAggregateInputType = {
@@ -178,6 +184,7 @@ export type CharacterSumAggregateInputType = {
   level?: true
   artImageId?: true
   userId?: true
+  packId?: true
 }
 
 export type CharacterMinAggregateInputType = {
@@ -198,6 +205,7 @@ export type CharacterMinAggregateInputType = {
   artImageId?: true
   isPublic?: true
   userId?: true
+  packId?: true
   artPrompt?: true
   honorific?: true
   imagePath?: true
@@ -238,6 +246,7 @@ export type CharacterMaxAggregateInputType = {
   artImageId?: true
   isPublic?: true
   userId?: true
+  packId?: true
   artPrompt?: true
   honorific?: true
   imagePath?: true
@@ -278,6 +287,7 @@ export type CharacterCountAggregateInputType = {
   artImageId?: true
   isPublic?: true
   userId?: true
+  packId?: true
   artPrompt?: true
   honorific?: true
   imagePath?: true
@@ -405,6 +415,7 @@ export type CharacterGroupByOutputType = {
   artImageId: number | null
   isPublic: boolean
   userId: number | null
+  packId: number | null
   artPrompt: string | null
   honorific: string | null
   imagePath: string | null
@@ -468,6 +479,7 @@ export type CharacterWhereInput = {
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntNullableFilter<"Character"> | number | null
+  packId?: Prisma.IntNullableFilter<"Character"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -491,6 +503,7 @@ export type CharacterWhereInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  Pack?: Prisma.XOR<Prisma.PackNullableScalarRelationFilter, Prisma.PackWhereInput> | null
   Chats?: Prisma.ChatListRelationFilter
   ExpressionMedia?: Prisma.ExpressionMediaListRelationFilter
   ExpressionTransition?: Prisma.ExpressionTransitionListRelationFilter
@@ -519,6 +532,7 @@ export type CharacterOrderByWithRelationInput = {
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  packId?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   honorific?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -542,6 +556,7 @@ export type CharacterOrderByWithRelationInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
+  Pack?: Prisma.PackOrderByWithRelationInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   ExpressionMedia?: Prisma.ExpressionMediaOrderByRelationAggregateInput
   ExpressionTransition?: Prisma.ExpressionTransitionOrderByRelationAggregateInput
@@ -575,6 +590,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntNullableFilter<"Character"> | number | null
+  packId?: Prisma.IntNullableFilter<"Character"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -597,6 +613,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  Pack?: Prisma.XOR<Prisma.PackNullableScalarRelationFilter, Prisma.PackWhereInput> | null
   Chats?: Prisma.ChatListRelationFilter
   ExpressionMedia?: Prisma.ExpressionMediaListRelationFilter
   ExpressionTransition?: Prisma.ExpressionTransitionListRelationFilter
@@ -625,6 +642,7 @@ export type CharacterOrderByWithAggregationInput = {
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  packId?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   honorific?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -673,6 +691,7 @@ export type CharacterScalarWhereWithAggregatesInput = {
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
+  packId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
@@ -733,6 +752,7 @@ export type CharacterCreateInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -761,6 +781,7 @@ export type CharacterUncheckedCreateInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -830,6 +851,7 @@ export type CharacterUpdateInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -858,6 +880,7 @@ export type CharacterUncheckedUpdateInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -907,6 +930,7 @@ export type CharacterCreateManyInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -984,6 +1008,7 @@ export type CharacterUncheckedUpdateManyInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1040,6 +1065,7 @@ export type CharacterCountOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  packId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   honorific?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -1068,6 +1094,7 @@ export type CharacterAvgOrderByAggregateInput = {
   level?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  packId?: Prisma.SortOrder
 }
 
 export type CharacterMaxOrderByAggregateInput = {
@@ -1088,6 +1115,7 @@ export type CharacterMaxOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  packId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   honorific?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -1128,6 +1156,7 @@ export type CharacterMinOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  packId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   honorific?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
@@ -1156,6 +1185,7 @@ export type CharacterSumOrderByAggregateInput = {
   level?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  packId?: Prisma.SortOrder
 }
 
 export type CharacterNullableScalarRelationFilter = {
@@ -1293,6 +1323,48 @@ export type CharacterUpdateOneWithoutExpressionTransitionNestedInput = {
   delete?: Prisma.CharacterWhereInput | boolean
   connect?: Prisma.CharacterWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutExpressionTransitionInput, Prisma.CharacterUpdateWithoutExpressionTransitionInput>, Prisma.CharacterUncheckedUpdateWithoutExpressionTransitionInput>
+}
+
+export type CharacterCreateNestedManyWithoutPackInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutPackInput, Prisma.CharacterUncheckedCreateWithoutPackInput> | Prisma.CharacterCreateWithoutPackInput[] | Prisma.CharacterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutPackInput | Prisma.CharacterCreateOrConnectWithoutPackInput[]
+  createMany?: Prisma.CharacterCreateManyPackInputEnvelope
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+}
+
+export type CharacterUncheckedCreateNestedManyWithoutPackInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutPackInput, Prisma.CharacterUncheckedCreateWithoutPackInput> | Prisma.CharacterCreateWithoutPackInput[] | Prisma.CharacterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutPackInput | Prisma.CharacterCreateOrConnectWithoutPackInput[]
+  createMany?: Prisma.CharacterCreateManyPackInputEnvelope
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+}
+
+export type CharacterUpdateManyWithoutPackNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutPackInput, Prisma.CharacterUncheckedCreateWithoutPackInput> | Prisma.CharacterCreateWithoutPackInput[] | Prisma.CharacterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutPackInput | Prisma.CharacterCreateOrConnectWithoutPackInput[]
+  upsert?: Prisma.CharacterUpsertWithWhereUniqueWithoutPackInput | Prisma.CharacterUpsertWithWhereUniqueWithoutPackInput[]
+  createMany?: Prisma.CharacterCreateManyPackInputEnvelope
+  set?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  disconnect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  delete?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  update?: Prisma.CharacterUpdateWithWhereUniqueWithoutPackInput | Prisma.CharacterUpdateWithWhereUniqueWithoutPackInput[]
+  updateMany?: Prisma.CharacterUpdateManyWithWhereWithoutPackInput | Prisma.CharacterUpdateManyWithWhereWithoutPackInput[]
+  deleteMany?: Prisma.CharacterScalarWhereInput | Prisma.CharacterScalarWhereInput[]
+}
+
+export type CharacterUncheckedUpdateManyWithoutPackNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutPackInput, Prisma.CharacterUncheckedCreateWithoutPackInput> | Prisma.CharacterCreateWithoutPackInput[] | Prisma.CharacterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutPackInput | Prisma.CharacterCreateOrConnectWithoutPackInput[]
+  upsert?: Prisma.CharacterUpsertWithWhereUniqueWithoutPackInput | Prisma.CharacterUpsertWithWhereUniqueWithoutPackInput[]
+  createMany?: Prisma.CharacterCreateManyPackInputEnvelope
+  set?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  disconnect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  delete?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  connect?: Prisma.CharacterWhereUniqueInput | Prisma.CharacterWhereUniqueInput[]
+  update?: Prisma.CharacterUpdateWithWhereUniqueWithoutPackInput | Prisma.CharacterUpdateWithWhereUniqueWithoutPackInput[]
+  updateMany?: Prisma.CharacterUpdateManyWithWhereWithoutPackInput | Prisma.CharacterUpdateManyWithWhereWithoutPackInput[]
+  deleteMany?: Prisma.CharacterScalarWhereInput | Prisma.CharacterScalarWhereInput[]
 }
 
 export type CharacterCreateNestedOneWithoutReactionsInput = {
@@ -1498,6 +1570,7 @@ export type CharacterCreateWithoutArtImageInput = {
   slug?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -1525,6 +1598,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   genre?: string | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -1603,6 +1677,7 @@ export type CharacterScalarWhereInput = {
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntNullableFilter<"Character"> | number | null
+  packId?: Prisma.IntNullableFilter<"Character"> | number | null
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -1663,6 +1738,7 @@ export type CharacterCreateWithoutChatsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
@@ -1690,6 +1766,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -1774,6 +1851,7 @@ export type CharacterUpdateWithoutChatsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
@@ -1801,6 +1879,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1869,6 +1948,7 @@ export type CharacterCreateWithoutDreamsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -1896,6 +1976,7 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -1985,6 +2066,7 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
@@ -2012,6 +2094,7 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -2096,6 +2179,7 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
@@ -2123,6 +2207,7 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2191,6 +2276,7 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
@@ -2218,6 +2304,7 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -2302,6 +2389,7 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
@@ -2329,6 +2417,7 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2359,7 +2448,7 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
 }
 
-export type CharacterCreateWithoutReactionsInput = {
+export type CharacterCreateWithoutPackInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
@@ -2401,6 +2490,130 @@ export type CharacterCreateWithoutReactionsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+}
+
+export type CharacterUncheckedCreateWithoutPackInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  isPublic?: boolean
+  userId?: number | null
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+}
+
+export type CharacterCreateOrConnectWithoutPackInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutPackInput, Prisma.CharacterUncheckedCreateWithoutPackInput>
+}
+
+export type CharacterCreateManyPackInputEnvelope = {
+  data: Prisma.CharacterCreateManyPackInput | Prisma.CharacterCreateManyPackInput[]
+  skipDuplicates?: boolean
+}
+
+export type CharacterUpsertWithWhereUniqueWithoutPackInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  update: Prisma.XOR<Prisma.CharacterUpdateWithoutPackInput, Prisma.CharacterUncheckedUpdateWithoutPackInput>
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutPackInput, Prisma.CharacterUncheckedCreateWithoutPackInput>
+}
+
+export type CharacterUpdateWithWhereUniqueWithoutPackInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  data: Prisma.XOR<Prisma.CharacterUpdateWithoutPackInput, Prisma.CharacterUncheckedUpdateWithoutPackInput>
+}
+
+export type CharacterUpdateManyWithWhereWithoutPackInput = {
+  where: Prisma.CharacterScalarWhereInput
+  data: Prisma.XOR<Prisma.CharacterUpdateManyMutationInput, Prisma.CharacterUncheckedUpdateManyWithoutPackInput>
+}
+
+export type CharacterCreateWithoutReactionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  isPublic?: boolean
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
+  User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
+  ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -2424,6 +2637,7 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -2508,6 +2722,7 @@ export type CharacterUpdateWithoutReactionsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -2535,6 +2750,7 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2603,6 +2819,7 @@ export type CharacterCreateWithoutRewardsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -2630,6 +2847,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -2719,6 +2937,7 @@ export type CharacterCreateWithoutScenariosInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -2746,6 +2965,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -2834,6 +3054,7 @@ export type CharacterCreateWithoutUserInput = {
   slug?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -2861,6 +3082,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -2955,6 +3177,7 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   slug?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -2983,6 +3206,7 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -3066,6 +3290,7 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -3094,6 +3319,7 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3162,6 +3388,7 @@ export type CharacterCreateWithoutLifeRunsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
   Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
@@ -3189,6 +3416,7 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   artImageId?: number | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -3273,6 +3501,7 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -3300,6 +3529,7 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3347,6 +3577,7 @@ export type CharacterCreateManyArtImageInput = {
   genre?: string | null
   isPublic?: boolean
   userId?: number | null
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -3406,6 +3637,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -3433,6 +3665,7 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3481,6 +3714,7 @@ export type CharacterUncheckedUpdateManyWithoutArtImageInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3541,6 +3775,7 @@ export type CharacterUpdateWithoutDreamsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -3551,6 +3786,184 @@ export type CharacterUpdateWithoutDreamsInput = {
 }
 
 export type CharacterUncheckedUpdateWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+}
+
+export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type CharacterCreateManyPackInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  isPublic?: boolean
+  userId?: number | null
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+}
+
+export type CharacterUpdateWithoutPackInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
+  User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+}
+
+export type CharacterUncheckedUpdateWithoutPackInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3594,11 +4007,12 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
 }
 
-export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
+export type CharacterUncheckedUpdateManyWithoutPackInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3676,6 +4090,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -3703,6 +4118,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3751,6 +4167,7 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3811,6 +4228,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -3838,6 +4256,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3886,6 +4305,7 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3925,6 +4345,7 @@ export type CharacterCreateManyUserInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  packId?: number | null
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
@@ -3984,6 +4405,7 @@ export type CharacterUpdateWithoutUserInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
@@ -4011,6 +4433,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4059,6 +4482,7 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4202,6 +4626,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   artImageId?: boolean
   isPublic?: boolean
   userId?: boolean
+  packId?: boolean
   artPrompt?: boolean
   honorific?: boolean
   imagePath?: boolean
@@ -4225,6 +4650,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Character$UserArgs<ExtArgs>
+  Pack?: boolean | Prisma.Character$PackArgs<ExtArgs>
   Chats?: boolean | Prisma.Character$ChatsArgs<ExtArgs>
   ExpressionMedia?: boolean | Prisma.Character$ExpressionMediaArgs<ExtArgs>
   ExpressionTransition?: boolean | Prisma.Character$ExpressionTransitionArgs<ExtArgs>
@@ -4256,6 +4682,7 @@ export type CharacterSelectScalar = {
   artImageId?: boolean
   isPublic?: boolean
   userId?: boolean
+  packId?: boolean
   artPrompt?: boolean
   honorific?: boolean
   imagePath?: boolean
@@ -4278,11 +4705,12 @@ export type CharacterSelectScalar = {
   slug?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "artPrompt" | "honorific" | "imagePath" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Character$UserArgs<ExtArgs>
+  Pack?: boolean | Prisma.Character$PackArgs<ExtArgs>
   Chats?: boolean | Prisma.Character$ChatsArgs<ExtArgs>
   ExpressionMedia?: boolean | Prisma.Character$ExpressionMediaArgs<ExtArgs>
   ExpressionTransition?: boolean | Prisma.Character$ExpressionTransitionArgs<ExtArgs>
@@ -4300,6 +4728,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     ChallengeSubmissions: Prisma.$ChallengeSubmissionPayload<ExtArgs>[]
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
+    Pack: Prisma.$PackPayload<ExtArgs> | null
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     ExpressionMedia: Prisma.$ExpressionMediaPayload<ExtArgs>[]
     ExpressionTransition: Prisma.$ExpressionTransitionPayload<ExtArgs>[]
@@ -4327,6 +4756,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     artImageId: number | null
     isPublic: boolean
     userId: number | null
+    packId: number | null
     artPrompt: string | null
     honorific: string | null
     imagePath: string | null
@@ -4690,6 +5120,7 @@ export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtim
   ChallengeSubmissions<T extends Prisma.Character$ChallengeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengeSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImage<T extends Prisma.Character$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Character$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Pack<T extends Prisma.Character$PackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$PackArgs<ExtArgs>>): Prisma.Prisma__PackClient<runtime.Types.Result.GetResult<Prisma.$PackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Chats<T extends Prisma.Character$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ExpressionMedia<T extends Prisma.Character$ExpressionMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ExpressionMediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ExpressionTransition<T extends Prisma.Character$ExpressionTransitionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ExpressionTransitionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionTransitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4744,6 +5175,7 @@ export interface CharacterFieldRefs {
   readonly artImageId: Prisma.FieldRef<"Character", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Character", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Character", 'Int'>
+  readonly packId: Prisma.FieldRef<"Character", 'Int'>
   readonly artPrompt: Prisma.FieldRef<"Character", 'String'>
   readonly honorific: Prisma.FieldRef<"Character", 'String'>
   readonly imagePath: Prisma.FieldRef<"Character", 'String'>
@@ -5171,6 +5603,25 @@ export type Character$UserArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Character.Pack
+ */
+export type Character$PackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Pack
+   */
+  select?: Prisma.PackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Pack
+   */
+  omit?: Prisma.PackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PackInclude<ExtArgs> | null
+  where?: Prisma.PackWhereInput
 }
 
 /**

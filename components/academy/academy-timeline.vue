@@ -75,15 +75,18 @@
               {{ style.recognitionCues[0] }}
             </span>
           </span>
-          <Icon
-            v-if="academyStore.viewedLessons.includes(style.slug)"
-            name="kind-icon:check"
-            class="h-4 w-4 shrink-0 text-success"
-            title="Lesson explored"
-          />
+          <template v-if="academyStore.viewedLessons.includes(style.slug)">
+            <Icon
+              name="kind-icon:check"
+              class="h-4 w-4 shrink-0 text-success"
+              aria-hidden="true"
+            />
+            <span class="sr-only">Lesson explored</span>
+          </template>
           <Icon
             name="mdi:chevron-down"
             class="h-4 w-4 shrink-0 text-base-content/40 group-hover:text-primary"
+            aria-hidden="true"
           />
         </button>
 

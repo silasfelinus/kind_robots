@@ -420,6 +420,7 @@ export const ModelName = {
   Entitlement: 'Entitlement',
   PrintJob: 'PrintJob',
   Grant: 'Grant',
+  Pack: 'Pack',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
@@ -475,7 +476,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2852,6 +2853,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.GrantCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.GrantCountAggregateOutputType> | number
+        }
+      }
+    }
+    Pack: {
+      payload: Prisma.$PackPayload<ExtArgs>
+      fields: Prisma.PackFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PackFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PackFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>
+        }
+        findFirst: {
+          args: Prisma.PackFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PackFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>
+        }
+        findMany: {
+          args: Prisma.PackFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>[]
+        }
+        create: {
+          args: Prisma.PackCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>
+        }
+        createMany: {
+          args: Prisma.PackCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PackDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>
+        }
+        update: {
+          args: Prisma.PackUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>
+        }
+        deleteMany: {
+          args: Prisma.PackDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PackUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PackUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackPayload>
+        }
+        aggregate: {
+          args: Prisma.PackAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePack>
+        }
+        groupBy: {
+          args: Prisma.PackGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PackGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PackCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PackCountAggregateOutputType> | number
         }
       }
     }
@@ -5801,6 +5868,7 @@ export const CharacterScalarFieldEnum = {
   artImageId: 'artImageId',
   isPublic: 'isPublic',
   userId: 'userId',
+  packId: 'packId',
   artPrompt: 'artPrompt',
   honorific: 'honorific',
   imagePath: 'imagePath',
@@ -5898,6 +5966,7 @@ export const DreamScalarFieldEnum = {
   userId: 'userId',
   artImageId: 'artImageId',
   artCollectionId: 'artCollectionId',
+  packId: 'packId',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
@@ -5991,6 +6060,7 @@ export const FacetScalarFieldEnum = {
   userId: 'userId',
   artImageId: 'artImageId',
   artCollectionId: 'artCollectionId',
+  packId: 'packId',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive'
@@ -6245,6 +6315,17 @@ export const GrantScalarFieldEnum = {
 export type GrantScalarFieldEnum = (typeof GrantScalarFieldEnum)[keyof typeof GrantScalarFieldEnum]
 
 
+export const PackScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  slug: 'slug',
+  title: 'title',
+  ownerId: 'ownerId'
+} as const
+
+export type PackScalarFieldEnum = (typeof PackScalarFieldEnum)[keyof typeof PackScalarFieldEnum]
+
+
 export const AchievementRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -6438,6 +6519,7 @@ export const RewardScalarFieldEnum = {
   rarity: 'rarity',
   userId: 'userId',
   artImageId: 'artImageId',
+  packId: 'packId',
   imagePath: 'imagePath',
   isMature: 'isMature',
   isPublic: 'isPublic',
@@ -7499,6 +7581,14 @@ export const PrintJobOrderByRelevanceFieldEnum = {
 } as const
 
 export type PrintJobOrderByRelevanceFieldEnum = (typeof PrintJobOrderByRelevanceFieldEnum)[keyof typeof PrintJobOrderByRelevanceFieldEnum]
+
+
+export const PackOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title'
+} as const
+
+export type PackOrderByRelevanceFieldEnum = (typeof PackOrderByRelevanceFieldEnum)[keyof typeof PackOrderByRelevanceFieldEnum]
 
 
 export const AchievementRecordOrderByRelevanceFieldEnum = {
@@ -8569,6 +8659,7 @@ export type GlobalOmitConfig = {
   entitlement?: Prisma.EntitlementOmit
   printJob?: Prisma.PrintJobOmit
   grant?: Prisma.GrantOmit
+  pack?: Prisma.PackOmit
   achievementRecord?: Prisma.AchievementRecordOmit
   narratorTopic?: Prisma.NarratorTopicOmit
   narratorThread?: Prisma.NarratorThreadOmit

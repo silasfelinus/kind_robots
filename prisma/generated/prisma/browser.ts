@@ -251,11 +251,23 @@ export type PrintJob = Prisma.PrintJobModel
  * polymorphic ids in this schema) — validate subjectType/subjectId together
  * in the application layer, not via FK. Revocation flips status rather than
  * deleting the row, matching ManaTransaction's append-only audit trail.
- * GrantSubject.PACK is deliberately deferred until the separate Pack-model
- * pitch lands. refId is an unenforced back-reference to whatever produced
- * this grant (e.g. a ManaTransaction or Stripe session id).
+ * refId is an unenforced back-reference to whatever produced this grant
+ * (e.g. a ManaTransaction or Stripe session id).
  */
 export type Grant = Prisma.GrantModel
+/**
+ * Model Pack
+ * A purchasable bundle of otherwise-private content (kind-robots/t-037 pitch,
+ * pitches/2026-07-18-pack-model-dlc-unlocks.md, approved by Silas 2026-07-26).
+ * Content rows opt into a Pack via their own nullable packId FK (see Dream,
+ * Facet, Character, Reward below) rather than the Pack owning a polymorphic
+ * member list — mirrors how ArtCollection membership works elsewhere in this
+ * schema. Access is granted per-user via a Grant row with
+ * subjectType: PACK, subjectId: Pack.id (see contentAccess.ts). All DLC
+ * packs are authored under Silas's own account (ownerId 1) for now; no
+ * publication/admin-UI flow ships in this task, that's a separate follow-on.
+ */
+export type Pack = Prisma.PackModel
 /**
  * Model AchievementRecord
  * the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.

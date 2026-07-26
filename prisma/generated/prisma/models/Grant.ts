@@ -21,9 +21,8 @@ import type * as Prisma from "../internal/prismaNamespace"
  * polymorphic ids in this schema) — validate subjectType/subjectId together
  * in the application layer, not via FK. Revocation flips status rather than
  * deleting the row, matching ManaTransaction's append-only audit trail.
- * GrantSubject.PACK is deliberately deferred until the separate Pack-model
- * pitch lands. refId is an unenforced back-reference to whatever produced
- * this grant (e.g. a ManaTransaction or Stripe session id).
+ * refId is an unenforced back-reference to whatever produced this grant
+ * (e.g. a ManaTransaction or Stripe session id).
  */
 export type GrantModel = runtime.Types.Result.DefaultSelection<Prisma.$GrantPayload>
 

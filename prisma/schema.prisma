@@ -184,6 +184,7 @@ model Character {
   artImageId           Int?
   isPublic             Boolean                @default(true)
   userId               Int?                   @default(10)
+  packId               Int?
   artPrompt            String?                @db.Text
   honorific            String?                @default("adventurer") @db.VarChar(256)
   imagePath            String?                @db.VarChar(764)
@@ -207,6 +208,7 @@ model Character {
   ChallengeSubmissions ChallengeSubmission[]
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   User                 User?                  @relation(fields: [userId], references: [id])
+  Pack                 Pack?                  @relation(fields: [packId], references: [id])
   Chats                Chat[]
   ExpressionMedia      ExpressionMedia[]
   ExpressionTransition ExpressionTransition[]
@@ -221,6 +223,7 @@ model Character {
   @@index([isActive])
   @@index([name])
   @@index([artImageId], map: "Character_artImageId_fkey")
+  @@index([packId])
 }
 
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
@@ -327,6 +330,7 @@ model Dream {
   userId          Int?            @default(10)
   artImageId      Int?
   artCollectionId Int?
+  packId          Int?
   isPublic        Boolean         @default(true)
   isMature        Boolean         @default(false)
   isActive        Boolean         @default(true)
@@ -349,6 +353,7 @@ model Dream {
   ArtImage        ArtImage?       @relation("DreamPrimaryArtImage", fields: [artImageId], references: [id])
   Narrator        Bot?            @relation("DreamNarrator", fields: [narratorId], references: [id])
   User            User?           @relation(fields: [userId], references: [id])
+  Pack            Pack?           @relation(fields: [packId], references: [id])
   FacetLinks      DreamFacet[]
   RelationsFrom   DreamRelation[] @relation("DreamRelationFrom")
   RelationsTo     DreamRelation[] @relation("DreamRelationTo")
@@ -370,6 +375,7 @@ model Dream {
   @@index([isActive])
   @@index([artCollectionId])
   @@index([narratorId])
+  @@index([packId])
 }
 
 model DreamRelation {
@@ -469,6 +475,7 @@ model Facet {
   userId             Int?                 @default(10)
   artImageId         Int?
   artCollectionId    Int?
+  packId             Int?
   isPublic           Boolean              @default(true)
   isMature           Boolean              @default(false)
   isActive           Boolean              @default(true)
@@ -476,6 +483,7 @@ model Facet {
   ArtCollection      ArtCollection?       @relation("FacetPrimaryArtCollection", fields: [artCollectionId], references: [id])
   ArtImage           ArtImage?            @relation("FacetPrimaryArtImage", fields: [artImageId], references: [id])
   User               User?                @relation(fields: [userId], references: [id])
+  Pack               Pack?                @relation(fields: [packId], references: [id])
   FacetAlias         FacetAlias[]
   ArtCollectionLinks FacetArtCollection[]
   ArtImageLinks      FacetArtImage[]
@@ -490,6 +498,7 @@ model Facet {
   @@index([artCollectionId])
   @@index([isPublic])
   @@index([isActive])
+  @@index([packId])
 }
 
 model DreamFacet {
@@ -809,9 +818,8 @@ model PrintJob {
 /// polymorphic ids in this schema) — validate subjectType/subjectId together
 /// in the application layer, not via FK. Revocation flips status rather than
 /// deleting the row, matching ManaTransaction's append-only audit trail.
-/// GrantSubject.PACK is deliberately deferred until the separate Pack-model
-/// pitch lands. refId is an unenforced back-reference to whatever produced
-/// this grant (e.g. a ManaTransaction or Stripe session id).
+/// refId is an unenforced back-reference to whatever produced this grant
+/// (e.g. a ManaTransaction or Stripe session id).
 model Grant {
   id          Int          @id @default(autoincrement())
   createdAt   DateTime     @default(now())
@@ -830,6 +838,30 @@ model Grant {
 
   @@index([granteeId, subjectType, subjectId, status])
   @@index([subjectType, subjectId])
+}
+
+/// A purchasable bundle of otherwise-private content (kind-robots/t-037 pitch,
+/// pitches/2026-07-18-pack-model-dlc-unlocks.md, approved by Silas 2026-07-26).
+/// Content rows opt into a Pack via their own nullable packId FK (see Dream,
+/// Facet, Character, Reward below) rather than the Pack owning a polymorphic
+/// member list — mirrors how ArtCollection membership works elsewhere in this
+/// schema. Access is granted per-user via a Grant row with
+/// subjectType: PACK, subjectId: Pack.id (see contentAccess.ts). All DLC
+/// packs are authored under Silas's own account (ownerId 1) for now; no
+/// publication/admin-UI flow ships in this task, that's a separate follow-on.
+model Pack {
+  id         Int         @id @default(autoincrement())
+  createdAt  DateTime    @default(now())
+  slug       String      @unique @db.VarChar(255)
+  title      String      @db.VarChar(255)
+  ownerId    Int
+  Owner      User        @relation("PackOwner", fields: [ownerId], references: [id])
+  Dreams     Dream[]
+  Facets     Facet[]
+  Characters Character[]
+  Rewards    Reward[]
+
+  @@index([ownerId])
 }
 
 /// the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
@@ -1104,6 +1136,7 @@ model Reward {
   rarity      Rarity      @default(COMMON)
   userId      Int?        @default(1)
   artImageId  Int?
+  packId      Int?
   imagePath   String?     @db.VarChar(764)
   isMature    Boolean     @default(false)
   isPublic    Boolean     @default(true)
@@ -1118,6 +1151,7 @@ model Reward {
   Reactions   Reaction[]
   ArtImage    ArtImage?   @relation(fields: [artImageId], references: [id])
   User        User?       @relation(fields: [userId], references: [id])
+  Pack        Pack?       @relation(fields: [packId], references: [id])
   Characters  Character[] @relation("CharacterToReward")
   Dreams      Dream[]     @relation("DreamToReward")
 
@@ -1126,6 +1160,7 @@ model Reward {
   @@index([rarity])
   @@index([slug])
   @@index([artImageId], map: "Reward_artImageId_fkey")
+  @@index([packId])
 }
 
 /// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, ArtImage, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
@@ -1393,6 +1428,7 @@ model User {
   RelationsOwned         UserRelation[]            @relation("UserRelationOwner")
   GrantsGiven            Grant[]                   @relation("GrantGranter")
   GrantsReceived         Grant[]                   @relation("GrantGrantee")
+  PacksOwned             Pack[]                    @relation("PackOwner")
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }
@@ -2335,6 +2371,7 @@ enum PrintJobStatus {
 enum GrantSubject {
   PROJECT
   RESOURCE
+  PACK
 }
 
 /// Flat VIEW/ADMIN split for the first cut (Silas, 2026-07-25) — no finer

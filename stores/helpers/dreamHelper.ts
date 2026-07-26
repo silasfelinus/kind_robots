@@ -2,10 +2,10 @@
 import type {
   CreationSource,
   Dream,
-  DreamType,
+  DreamType as PrismaDreamType,
 } from '~/prisma/generated/prisma/client'
 
-export const DREAM_TYPES: DreamType[] = [
+export const DREAM_TYPES = [
   'ART',
   'BRAINSTORM',
   'PROMPTBOT',
@@ -16,278 +16,260 @@ export const DREAM_TYPES: DreamType[] = [
   'LOCATION',
   'PITCH',
   'WISH',
-]
+] as const satisfies readonly PrismaDreamType[]
 
-export const CREATABLE_DREAM_TYPES: DreamType[] = [
-  'ART',
-  'BRAINSTORM',
-  'CHARACTER',
-  'REWARD',
-  'SCENARIO',
-  'LOCATION',
-  'PITCH',
-  'WISH',
-]
+export type DreamType = (typeof DREAM_TYPES)[number]
+export type CreatableDreamType = DreamType
 
-export type LegacyPitchLike = Partial<Dream> & {
-  id?: number
+export const CREATABLE_DREAM_TYPES = DREAM_TYPES
+
+export const CREATION_SOURCES = [
+  'HUMAN',
+  'AI',
+  'HYBRID',
+  'UPLOAD',
+  'UNKNOWN',
+] as const satisfies readonly CreationSource[]
+
+export type DreamCreationSource = (typeof CREATION_SOURCES)[number]
+
+type LegacyPitchLike = Omit<
+  Partial<Dream>,
+  'title' | 'pitch' | 'artPrompt' | 'designer' | 'creationSource'
+> & {
   title?: string | null
-  pitch?: string | null
-  description?: string | null
   PitchType?: string | null
-  dreamType?: DreamType | string | null
-  flavorText?: string | null
+  pitch?: string | null
   artPrompt?: string | null
-  imagePath?: string | null
-  highlightImage?: string | null
   designer?: string | null
-  creationSource?: CreationSource | string | null
+  creationSource?: string | null
 }
 
 const LEGACY_DREAM_TYPE_MAP: Record<string, DreamType> = {
-  TITLE: 'PITCH',
+  ARTDREAM: 'ART',
+  ARTPITCH: 'ART',
+  BOT: 'PROMPTBOT',
+  DREAM: 'LOCATION',
+  INSPIRATION: 'PITCH',
   RANDOMLIST: 'BRAINSTORM',
-  LIST: 'BRAINSTORM',
-  BRAINSTORM: 'BRAINSTORM',
-  ART: 'ART',
-  PROMPTBOT: 'PROMPTBOT',
-  NARRATOR: 'NARRATOR',
-  CHARACTER: 'CHARACTER',
-  REWARD: 'REWARD',
-  SCENARIO: 'SCENARIO',
-  LOCATION: 'LOCATION',
-  PITCH: 'PITCH',
-  WISH: 'WISH',
+  TEXT: 'PITCH',
+  TITLE: 'BRAINSTORM',
+  WEIRDLANDIA: 'LOCATION',
+}
+
+const DREAM_TYPE_LABELS: Record<DreamType, string> = {
+  ART: 'Art',
+  BRAINSTORM: 'Brainstorm',
+  PROMPTBOT: 'Prompt Bot',
+  NARRATOR: 'Narrator',
+  CHARACTER: 'Character',
+  REWARD: 'Reward',
+  SCENARIO: 'Scenario',
+  LOCATION: 'Location',
+  PITCH: 'Pitch',
+  WISH: 'Wish',
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value))
+}
+
+function cleanString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
 }
 
 function cleanOptionalString(value: unknown): string | null {
-  if (typeof value !== 'string') return null
-  const trimmed = value.trim()
-  return trimmed || null
+  const cleaned = cleanString(value)
+  return cleaned || null
 }
 
 function fallbackTitle(seed?: string | null): string {
-  const normalized = cleanOptionalString(seed)
-  if (!normalized) return 'Untitled Dream'
-  if (normalized.length <= 72) return normalized
-  return `${normalized.slice(0, 69).trim()}...`
+  const cleaned = cleanString(seed)
+  if (!cleaned) return 'Untitled Dream'
+  return cleaned.length > 80 ? `${cleaned.slice(0, 77)}...` : cleaned
 }
 
-export function parseDreamType(
-  value?: DreamType | string | null,
-): DreamType {
-  const key = String(value ?? '')
-    .trim()
-    .toUpperCase()
+export function parseDreamType(value?: string | null): DreamType {
+  const normalized = cleanString(value).toUpperCase()
+  const legacyType = LEGACY_DREAM_TYPE_MAP[normalized]
 
-  return LEGACY_DREAM_TYPE_MAP[key] ?? 'PITCH'
+  if (legacyType) return legacyType
+
+  return DREAM_TYPES.includes(normalized as DreamType)
+    ? (normalized as DreamType)
+    : 'PITCH'
 }
 
-export function dreamTypeLabel(value?: DreamType | string | null): string {
-  const type = parseDreamType(value)
-  return type
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+export function parseCreationSource(
+  value?: string | null,
+): DreamCreationSource {
+  const normalized = cleanString(value).toUpperCase()
+
+  return CREATION_SOURCES.includes(normalized as DreamCreationSource)
+    ? (normalized as DreamCreationSource)
+    : 'UNKNOWN'
 }
 
-export function normalizeDream<T extends Partial<Dream>>(dream: T): T {
+export function normalizeDreamType<T extends Partial<Dream>>(dream: T): T {
   return {
     ...dream,
-    title: cleanOptionalString(dream.title) ?? fallbackTitle(dream.pitch),
-    dreamType: parseDreamType(dream.dreamType as unknown as string),
-    pitch: cleanOptionalString(dream.pitch),
-    description: cleanOptionalString(dream.description),
-    flavorText: cleanOptionalString(dream.flavorText),
-    examples: cleanOptionalString(dream.examples),
-    artPrompt: cleanOptionalString(dream.artPrompt),
-    imagePath: cleanOptionalString(dream.imagePath),
-    highlightImage: cleanOptionalString(dream.highlightImage),
-    icon: cleanOptionalString(dream.icon) ?? 'kind-icon:dream',
-    designer: cleanOptionalString(dream.designer),
-    isPublic: dream.isPublic ?? true,
-    isMature: dream.isMature ?? false,
-    isActive: dream.isActive ?? true,
-  } as T
-}
-
-export function normalizeDreams<T extends Partial<Dream>>(dreams: T[]): T[] {
-  return dreams.map((dream) => normalizeDream(dream))
-}
-
-export function extractExamples(examples?: string | null): string[] {
-  const source = cleanOptionalString(examples)
-  if (!source) return []
-
-  try {
-    const parsed = JSON.parse(source)
-    if (Array.isArray(parsed)) {
-      return parsed
-        .map((entry) => cleanOptionalString(entry))
-        .filter((entry): entry is string => Boolean(entry))
-    }
-  } catch {
-    // Legacy examples were often newline-, pipe-, or comma-separated text.
+    dreamType: parseDreamType(
+      dream.dreamType as unknown as string,
+    ) as T['dreamType'],
+    creationSource: parseCreationSource(
+      dream.creationSource as unknown as string,
+    ) as T['creationSource'],
   }
-
-  return source
-    .split(/\r?\n|\||;/)
-    .flatMap((entry) =>
-      entry.includes(',') ? entry.split(',').map((part) => part.trim()) : [entry],
-    )
-    .map((entry) => entry.trim())
-    .filter(Boolean)
 }
 
-export function joinExamples(examples: string[]): string | null {
-  const cleaned = examples
-    .map((example) => cleanOptionalString(example))
-    .filter((example): example is string => Boolean(example))
+export function sortDreamsByNewest<T extends { id: number }>(a: T, b: T) {
+  return b.id - a.id
+}
 
-  return cleaned.length ? cleaned.join('\n') : null
+export function filterDreamsByType<T extends Partial<Dream>>(
+  type: DreamType,
+  dreams: T[],
+): T[] {
+  return dreams.filter(
+    (dream) => parseDreamType(dream.dreamType as string) === type,
+  )
 }
 
 export function groupDreamsByTitle<T extends Partial<Dream>>(
   dreams: T[],
 ): Record<string, T[]> {
-  return dreams.reduce<Record<string, T[]>>((groups, dream) => {
-    const title = cleanOptionalString(dream.title) ?? 'Untitled Dream'
-    ;(groups[title] ||= []).push(dream)
-    return groups
-  }, {})
-}
-
-export function filterDreamsByType<T extends Partial<Dream>>(
-  type: DreamType | string,
-  dreams: T[],
-): T[] {
-  const normalizedType = parseDreamType(type)
-  return dreams.filter(
-    (dream) => parseDreamType(dream.dreamType as unknown as string) === normalizedType,
+  return dreams.reduce(
+    (acc, dream) => {
+      const key = dream.title || dream.pitch || 'Untitled'
+      if (!acc[key]) acc[key] = []
+      acc[key].push(dream)
+      return acc
+    },
+    {} as Record<string, T[]>,
   )
 }
 
 export function filterPublicDreams<T extends Partial<Dream>>(
   dreams: T[],
-  currentUserId?: number | null,
+  userId?: number | null,
   isAdmin = false,
-): T[] {
-  return dreams.filter(
-    (dream) =>
-      dream.isActive !== false &&
-      (dream.isPublic === true ||
-        isAdmin ||
-        (currentUserId != null && dream.userId === currentUserId)),
-  )
+) {
+  return dreams.filter((dream) => {
+    if (isAdmin) return true
+    return dream.isPublic || dream.userId === userId || dream.userId === 0
+  })
 }
 
 export function filterVisibleDreams<T extends Partial<Dream>>(
   dreams: T[],
-  currentUserId?: number | null,
+  userId?: number | null,
   showMature = false,
   isAdmin = false,
-): T[] {
-  return filterPublicDreams(dreams, currentUserId, isAdmin).filter(
-    (dream) => showMature || isAdmin || dream.isMature !== true,
-  )
-}
-
-export function sortDreamsByNewest<T extends Partial<Dream>>(a: T, b: T): number {
-  const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0
-  const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0
-  return bTime - aTime
+) {
+  return dreams.filter((dream) => {
+    if (!dream.isActive && !isAdmin) return false
+    if (dream.isMature && !showMature && !isAdmin) return false
+    return dream.isPublic || dream.userId === userId || isAdmin
+  })
 }
 
 /**
- * Deprecated compatibility adapter.
- *
- * RANDOMLIST-era Dreams previously sampled their `examples` field here. Reusable
- * creative randomness is now canonical Facet data, so this method deliberately
- * returns the supplied value unchanged. It remains temporarily callable while
- * old store consumers disappear, but it no longer treats Dreams as random lists.
+ * Deprecated compatibility boundary for RANDOMLIST-era callers.
+ * Reusable random content now belongs to Facets, so Dreams are never sampled.
  */
 export function randomEntry(
   dreamName: string,
-  _allDreams: Partial<Dream>[] = [],
+  _allDreams: Partial<Dream>[],
 ): string {
   return dreamName
 }
 
-export function randomSeedDream(): string {
-  const seeds = [
-    'A kindness nobody expected changes the rules of the world.',
-    'A lost machine remembers a future that never happened.',
-    'A tiny creature carries a message meant for the moon.',
-    'A city appears for one night and asks visitors to solve its oldest regret.',
-    'Two rivals discover their powers only work when they cooperate.',
-  ]
+export function extractExamples(exampleString?: string | null): string[] {
+  if (!exampleString) return []
 
-  return seeds[Math.floor(Math.random() * seeds.length)] || seeds[0]
+  return exampleString
+    .replace(/^EXAMPLES:\|\|/, '')
+    .replace(/\|\|"?$/, '')
+    .split('|')
+    .map((example) => example.trim())
+    .filter(Boolean)
 }
 
-export function buildBrainstormPrompt(
-  title: string,
-  description: string,
-  count = 10,
-  examples = '',
-): string {
-  const normalizedTitle = cleanOptionalString(title) ?? 'Untitled Dream'
-  const normalizedDescription =
-    cleanOptionalString(description) ?? 'Create imaginative possibilities.'
-  const exampleText = cleanOptionalString(examples)
-
-  return [
-    `Generate ${Math.max(1, count)} fresh ideas for a Dream called "${normalizedTitle}".`,
-    normalizedDescription,
-    exampleText ? `Existing examples to learn from, not repeat:\n${exampleText}` : '',
-    'Return concise, distinct entries separated by newlines.',
-  ]
+export function joinExamples(examples: string[]): string {
+  return examples
+    .map((example) => example.trim())
     .filter(Boolean)
-    .join('\n\n')
+    .join('|')
 }
 
 export function buildTitleStormPrompt(
   title: string,
   description: string,
-  count = 10,
-  examples = '',
+  numberOfRequests: number,
+  exampleString?: string,
 ): string {
-  const normalizedTitle = cleanOptionalString(title) ?? 'Untitled Dream'
-  const normalizedDescription =
-    cleanOptionalString(description) ?? 'Create imaginative title variations.'
-  const exampleText = cleanOptionalString(examples)
+  const examples = exampleString
+    ? ` Existing examples: ||${exampleString}||`
+    : ''
 
-  return [
-    `Generate ${Math.max(1, count)} memorable title variations inspired by "${normalizedTitle}".`,
-    normalizedDescription,
-    exampleText ? `Existing examples to avoid repeating:\n${exampleText}` : '',
-    'Return titles only, one per line.',
-  ]
-    .filter(Boolean)
-    .join('\n\n')
+  return `Please generate ${numberOfRequests} new and original examples for: ${title}. ${description}.${examples} Separate examples with a | delimiter and bookend the list with two delimiters using this response format: EXAMPLES:||example one|example two||`
+}
+
+export function buildBrainstormPrompt(
+  title: string,
+  description: string,
+  numberOfRequests: number,
+  exampleString?: string,
+): string {
+  const examples = exampleString
+    ? `\nExisting examples: ||${exampleString}||`
+    : ''
+
+  return `Title: ${title}\nDescription: ${description}\nPlease provide ${numberOfRequests} original examples separated by | delimiters.${examples}`
+}
+
+export function isValidDream(dream: Partial<Dream>): dream is Dream {
+  return Boolean(cleanString(dream.title) || cleanString(dream.pitch))
+}
+
+export function hasExamples(dream: Partial<Dream>): boolean {
+  return typeof dream.examples === 'string' && dream.examples.includes('|')
+}
+
+export function dreamTypeLabel(type?: string | null): string {
+  return DREAM_TYPE_LABELS[parseDreamType(type)]
+}
+
+export function estimateTokenCount(text: string): number {
+  return Math.ceil(text.trim().split(/\s+/).filter(Boolean).length * 1.33)
 }
 
 export function normalizeBrainstormResponse(value: unknown): string {
-  if (typeof value === 'string') return value.trim()
+  if (!value) return ''
+  if (typeof value === 'string') return value
+
   if (Array.isArray(value)) {
     return value
-      .map((entry) => cleanOptionalString(entry))
-      .filter((entry): entry is string => Boolean(entry))
+      .map((item) => {
+        if (typeof item === 'string') return item
+
+        if (isRecord(item)) {
+          return [item.title, item.pitch, item.description, item.content]
+            .map(cleanString)
+            .filter(Boolean)
+            .join(': ')
+        }
+
+        return String(item)
+      })
+      .filter(Boolean)
       .join('\n')
   }
 
-  if (value && typeof value === 'object') {
-    const record = value as Record<string, unknown>
-    for (const key of ['content', 'response', 'text', 'message', 'data']) {
-      const candidate = record[key]
-      if (typeof candidate === 'string') return candidate.trim()
-      if (Array.isArray(candidate)) {
-        return candidate
-          .map((entry) => cleanOptionalString(entry))
-          .filter((entry): entry is string => Boolean(entry))
-          .join('\n')
-      }
-    }
+  if (isRecord(value)) {
+    return normalizeBrainstormResponse(
+      value.ideas ?? value.text ?? value.content ?? value.message ?? value.data,
+    )
   }
 
   return String(value)
@@ -340,20 +322,4 @@ export function legacyPitchToDreamPayload(
     designer: pitch.designer ?? null,
     creationSource: parseCreationSource(pitch.creationSource),
   })
-}
-
-function parseCreationSource(value: unknown): CreationSource {
-  const normalized = String(value ?? '')
-    .trim()
-    .toUpperCase()
-  if (
-    normalized === 'HUMAN' ||
-    normalized === 'AI' ||
-    normalized === 'HYBRID' ||
-    normalized === 'UPLOAD' ||
-    normalized === 'UNKNOWN'
-  ) {
-    return normalized as CreationSource
-  }
-  return 'UNKNOWN'
 }

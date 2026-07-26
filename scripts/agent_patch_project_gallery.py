@@ -1,2 +1,614 @@
-import base64,gzip
-exec(compile(gzip.decompress(base64.b64decode('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')), 'patch_kind_robots.py', 'exec'))
+from pathlib import Path
+import re
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    if old not in text:
+        raise RuntimeError(f"Missing patch anchor: {label}")
+    return text.replace(old, new, 1)
+
+
+def regex_once(text: str, pattern: str, replacement: str, label: str) -> str:
+    next_text, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+    if count != 1:
+        raise RuntimeError(f"Expected one regex patch for {label}, found {count}")
+    return next_text
+
+
+root = Path(__file__).resolve().parents[1]
+
+# ---------------------------------------------------------------------------
+# Project gallery: active by default, friendly status toggles, stable sorting,
+# and explicit image metadata for the missing-cover reporter.
+# ---------------------------------------------------------------------------
+gallery_path = root / "components/pages/conductor-overview-gallery-page.vue"
+gallery = gallery_path.read_text()
+
+gallery = replace_once(
+    gallery,
+    "    </header>\n\n    <main",
+    """    </header>
+
+    <nav
+      v-if="userStore.isAdmin"
+      class="flex shrink-0 flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-100 p-2"
+      aria-label="Project status filters"
+    >
+      <button
+        v-for="option in projectFilterOptions"
+        :key="option.value"
+        type="button"
+        class="btn btn-xs gap-1 rounded-2xl"
+        :class="projectFilter === option.value ? 'btn-primary' : 'btn-ghost'"
+        @click="projectFilter = option.value"
+      >
+        <Icon :name="option.icon" class="size-3" />
+        {{ option.label }}
+        <span class="badge badge-xs" :class="projectFilter === option.value ? 'badge-ghost' : 'badge-outline'">
+          {{ projectFilterCount(option.value) }}
+        </span>
+      </button>
+    </nav>
+
+    <main""",
+    "gallery filter navigation",
+)
+
+for source, field, variant in (
+    ('item.cardPath', 'cardPath', 'card'),
+    ('item.heroPath', 'heroPath', 'hero'),
+    ('item.iconPath', 'imagePath', 'icon'),
+):
+    gallery = gallery.replace(
+        f'            :src="{source}"\n',
+        f'''            :src="{source}"
+            :data-project-id="item.projectId || undefined"
+            :data-project-slug="item.slug"
+            data-project-field="{field}"
+            data-variant="{variant}"
+''',
+    )
+    gallery = gallery.replace(
+        f'              :src="{source}"\n',
+        f'''              :src="{source}"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="{field}"
+              data-variant="{variant}"
+''',
+    )
+
+gallery = replace_once(
+    gallery,
+    "type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'\n",
+    """type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
+type ProjectFilter = 'ACTIVE' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED' | 'ALL'
+""",
+    "project filter type",
+)
+
+gallery = replace_once(
+    gallery,
+    "  status: string\n  priority: ProjectPriorityLevel\n",
+    "  status: string\n  isActive: boolean\n  updatedAt: number\n  priority: ProjectPriorityLevel\n",
+    "gallery item activity fields",
+)
+
+gallery = replace_once(
+    gallery,
+    "const projectGalleryMode = ref<GalleryMode>('cards')\n",
+    """const projectGalleryMode = ref<GalleryMode>('cards')
+const projectFilter = ref<ProjectFilter>('ACTIVE')
+const projectFilterOptions: Array<{
+  value: ProjectFilter
+  label: string
+  icon: string
+}> = [
+  { value: 'ACTIVE', label: 'Active', icon: 'kind-icon:sparkles' },
+  { value: 'PAUSED', label: 'Paused', icon: 'kind-icon:pause' },
+  { value: 'DONE', label: 'Completed', icon: 'kind-icon:check-circle' },
+  { value: 'BRAINSTORM', label: 'Ideas', icon: 'kind-icon:lightbulb' },
+  { value: 'ARCHIVED', label: 'Archived', icon: 'kind-icon:archive' },
+  { value: 'ALL', label: 'All', icon: 'kind-icon:cards' },
+]
+""",
+    "project filter state",
+)
+
+replacement_block = """const brainstormProjects = computed(() => {
+  return conductorStore.projects.filter(
+    (project) => dbProjectForSlug(project.slug)?.status === 'BRAINSTORM',
+  )
+})
+
+const priorityOrder: Record<ProjectPriorityLevel, number> = {
+  HIGH: 0,
+  NORMAL: 1,
+  LOW: 2,
+}
+
+const adminItems = computed<ProjectGalleryItem[]>(() => {
+  const conductorItems = conductorStore.projects.map((project) =>
+    itemFromProject(project),
+  )
+  const conductorSlugs = new Set(
+    conductorStore.projects.map((project) => project.slug),
+  )
+  const databaseOnlyItems = projectStore.projects.flatMap((project) => {
+    const slug = project.conductorSlug || project.slug
+    return slug && !conductorSlugs.has(slug)
+      ? [itemFromProjectRecord(project)]
+      : []
+  })
+  return [...conductorItems, ...databaseOnlyItems]
+})
+
+const publicItems = computed<ProjectGalleryItem[]>(() => {
+  return projectStore.publicProjects
+    .flatMap((project) =>
+      project.slug ? [itemFromProjectRecord(project)] : [],
+    )
+    .sort((a, b) => a.title.localeCompare(b.title))
+})
+
+function matchesProjectFilter(
+  item: ProjectGalleryItem,
+  filter: ProjectFilter,
+): boolean {
+  if (filter === 'ALL') return true
+  if (filter === 'ARCHIVED') {
+    return !item.isActive || item.status === 'ARCHIVED'
+  }
+  if (filter === 'ACTIVE') {
+    return item.isActive && item.status === 'ACTIVE'
+  }
+  return item.isActive && item.status === filter
+}
+
+function sortProjectItems(
+  items: ProjectGalleryItem[],
+): ProjectGalleryItem[] {
+  return [...items].sort((a, b) => {
+    const priority =
+      (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1)
+    if (priority !== 0) return priority
+    if (a.updatedAt !== b.updatedAt) return b.updatedAt - a.updatedAt
+    return a.title.localeCompare(b.title)
+  })
+}
+
+const galleryItems = computed(() => {
+  if (!userStore.isAdmin) return publicItems.value
+  return sortProjectItems(
+    adminItems.value.filter((item) =>
+      matchesProjectFilter(item, projectFilter.value),
+    ),
+  )
+})
+
+function projectFilterCount(filter: ProjectFilter): number {
+  return adminItems.value.filter((item) => matchesProjectFilter(item, filter))
+    .length
+}
+"""
+
+gallery = regex_once(
+    gallery,
+    r"const activeProjects = computed\(\(\) => \{.*?const galleryItems = computed\(\(\) => \{\n  return userStore\.isAdmin \? adminItems\.value : publicItems\.value\n\}\)\n",
+    replacement_block,
+    "gallery status filtering block",
+)
+
+gallery = replace_once(
+    gallery,
+    "watch(projectGalleryMode, (mode) => {\n  if (!import.meta.client) return\n\n  localStorage.setItem('conductor-gallery-mode', mode)\n})\n",
+    """watch(projectGalleryMode, (mode) => {
+  if (!import.meta.client) return
+  localStorage.setItem('conductor-gallery-mode', mode)
+})
+
+watch(projectFilter, (filter) => {
+  if (!import.meta.client) return
+  localStorage.setItem('conductor-project-filter', filter)
+})
+""",
+    "project filter persistence watcher",
+)
+
+gallery = replace_once(
+    gallery,
+    """    if (saved && galleryModeOptions.some((mode) => mode.value === saved)) {
+      projectGalleryMode.value = saved
+    }
+  }
+
+  await ensureData()
+""",
+    """    if (saved && galleryModeOptions.some((mode) => mode.value === saved)) {
+      projectGalleryMode.value = saved
+    }
+
+    const savedFilter = localStorage.getItem(
+      'conductor-project-filter',
+    ) as ProjectFilter | null
+    if (
+      savedFilter &&
+      projectFilterOptions.some((option) => option.value === savedFilter)
+    ) {
+      projectFilter.value = savedFilter
+    }
+  }
+
+  await ensureData()
+""",
+    "restore project filter",
+)
+
+gallery = replace_once(
+    gallery,
+    "    status: record?.status || 'ACTIVE',\n    priority,\n",
+    """    status: record?.status || 'ACTIVE',
+    isActive: record?.isActive ?? true,
+    updatedAt: record?.updatedAt ? new Date(record.updatedAt).getTime() : 0,
+    priority,
+""",
+    "conductor gallery activity metadata",
+)
+
+gallery = replace_once(
+    gallery,
+    "    status: record.status,\n    priority: record.priority as ProjectPriorityLevel,\n",
+    """    status: record.status,
+    isActive: record.isActive,
+    updatedAt: record.updatedAt ? new Date(record.updatedAt).getTime() : 0,
+    priority: record.priority as ProjectPriorityLevel,
+""",
+    "database gallery activity metadata",
+)
+
+gallery_path.write_text(gallery)
+
+# ---------------------------------------------------------------------------
+# Browser missing-image reporter: observe self-hosted media and carry project
+# identity/field metadata through the queue.
+# ---------------------------------------------------------------------------
+reporter_path = root / "plugins/missing-image-reporter.client.ts"
+reporter = reporter_path.read_text()
+reporter = replace_once(
+    reporter,
+    "  imageClass?: string\n}",
+    """  imageClass?: string
+  projectId?: number
+  projectSlug?: string
+  projectField?: string
+}""",
+    "missing-image project metadata type",
+)
+reporter = replace_once(
+    reporter,
+    "      'raw.githubusercontent.com',\n",
+    "      'raw.githubusercontent.com',\n      'media.acrocatranch.com',\n",
+    "self-hosted media allowlist",
+)
+reporter = replace_once(
+    reporter,
+    """      imageClass: cleanString(img.getAttribute('class')) || undefined,
+    }
+""",
+    """      imageClass: cleanString(img.getAttribute('class')) || undefined,
+      projectId:
+        Number.isInteger(Number(img.dataset.projectId)) &&
+        Number(img.dataset.projectId) > 0
+          ? Number(img.dataset.projectId)
+          : undefined,
+      projectSlug: cleanString(img.dataset.projectSlug) || undefined,
+      projectField: cleanString(img.dataset.projectField) || undefined,
+    }
+""",
+    "missing-image project metadata payload",
+)
+reporter_path.write_text(reporter)
+
+# ---------------------------------------------------------------------------
+# YAML request contract: preserve project metadata and only suppress a retry
+# while a matching request is actively pending/running.
+# ---------------------------------------------------------------------------
+yaml_path = root / "server/utils/artRequestYaml.ts"
+yaml_text = yaml_path.read_text()
+yaml_text = replace_once(
+    yaml_text,
+    "  label: string\n  prompt: string\n}",
+    """  label: string
+  prompt: string
+  project_id?: number
+  project_slug?: string
+  project_field?: string
+}""",
+    "art queue project metadata type",
+)
+yaml_text = replace_once(
+    yaml_text,
+    """  if (normalized.label) lines.push(`  label: ${yamlQuoted(normalized.label)}`)
+  lines.push(`  ${yamlFolded('prompt', normalized.prompt, '    ')}`)
+""",
+    """  if (normalized.label) lines.push(`  label: ${yamlQuoted(normalized.label)}`)
+  if (normalized.project_id) lines.push(`  project_id: ${normalized.project_id}`)
+  if (normalized.project_slug) {
+    lines.push(`  project_slug: ${yamlQuoted(normalized.project_slug)}`)
+  }
+  if (normalized.project_field) {
+    lines.push(`  project_field: ${yamlQuoted(normalized.project_field)}`)
+  }
+  lines.push(`  ${yamlFolded('prompt', normalized.prompt, '    ')}`)
+""",
+    "render project metadata",
+)
+yaml_text = replace_once(
+    yaml_text,
+    """export function requestAlreadyQueued(content: string, entry: ArtQueueEntry): boolean {
+  const normalized = normalizeArtQueueEntry(entry)
+  return content.includes(normalized.id) || content.includes(normalized.image_path)
+}
+""",
+    """const ACTIVE_REQUEST_STATUSES = new Set([
+  'pending',
+  'queued',
+  'running',
+  'processing',
+])
+
+function requestValue(block: string, key: string): string {
+  const match = block.match(new RegExp(`^\\s{2}${key}:\\s*(.+?)\\s*$`, 'm'))
+  if (!match?.[1]) return ''
+  const value = match[1].trim()
+  if (value.startsWith('"')) {
+    try {
+      return String(JSON.parse(value))
+    } catch {}
+  }
+  return value.replace(/^['\"]|['\"]$/g, '')
+}
+
+function requestBlocks(content: string): string[] {
+  return content.match(/^- id:[\\s\\S]*?(?=^- id:|\\s*$)/gm) ?? []
+}
+
+export function requestAlreadyQueued(content: string, entry: ArtQueueEntry): boolean {
+  const normalized = normalizeArtQueueEntry(entry)
+
+  return requestBlocks(content).some((block) => {
+    const status = requestValue(block, 'status').toLowerCase() || 'pending'
+    if (!ACTIVE_REQUEST_STATUSES.has(status)) return false
+    return (
+      requestValue(block, 'id') === normalized.id ||
+      requestValue(block, 'image_path') === normalized.image_path
+    )
+  })
+}
+""",
+    "status-aware art request dedupe",
+)
+yaml_path.write_text(yaml_text)
+
+# ---------------------------------------------------------------------------
+# Request endpoint: accept project metadata and generate a unique attempt ID so
+# a terminal historical request can be retried without duplicate YAML IDs.
+# ---------------------------------------------------------------------------
+request_path = root / "server/api/conductor/art-request.post.ts"
+request_text = request_path.read_text()
+request_text = replace_once(
+    request_text,
+    "  imageClass?: string\n}",
+    """  imageClass?: string
+  projectId?: number
+  projectSlug?: string
+  projectField?: string
+}""",
+    "art request project metadata body",
+)
+request_text = replace_once(
+    request_text,
+    """  const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}`
+  const fallbackPrompt = buildFallbackPrompt(body, target)
+""",
+    """  const attempt = Date.now().toString(36)
+  const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}-${attempt}`
+  const fallbackPrompt = buildFallbackPrompt(body, target)
+""",
+    "unique art request attempt ID",
+)
+request_text = replace_once(
+    request_text,
+    """    label: cleanString(body.alt || body.label) || titleFromSlug(target.slug),
+    prompt,
+  }
+""",
+    """    label: cleanString(body.alt || body.label) || titleFromSlug(target.slug),
+    prompt,
+    ...(Number.isInteger(Number(body.projectId)) && Number(body.projectId) > 0
+      ? { project_id: Number(body.projectId) }
+      : {}),
+    ...(cleanString(body.projectSlug)
+      ? { project_slug: cleanString(body.projectSlug) }
+      : {}),
+    ...(['imagePath', 'cardPath', 'heroPath'].includes(
+      cleanString(body.projectField),
+    )
+      ? { project_field: cleanString(body.projectField) }
+      : {}),
+  }
+""",
+    "art request queue metadata",
+)
+request_path.write_text(request_text)
+
+# ---------------------------------------------------------------------------
+# Completion endpoint: synchronize a verified generated cover to Project and
+# ArtImage path fields.
+# ---------------------------------------------------------------------------
+completion_path = root / "server/api/conductor/project-art-complete.post.ts"
+completion_path.write_text("""// /server/api/conductor/project-art-complete.post.ts
+import { createError, defineEventHandler, readBody } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
+import prisma from '~/server/utils/prisma'
+import { errorHandler } from '~/server/utils/error'
+import { requireMachineUser } from '~/server/utils/authGuard'
+import { normalizeKindRobotsImagePath } from '~/server/utils/artJobNormalization'
+
+const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
+const CONDUCTOR_REPO = 'silasfelinus/conductor'
+const PROJECT_FIELDS = new Set(['imagePath', 'cardPath', 'heroPath'])
+
+type ProjectArtCompleteBody = {
+  projectId?: number | null
+  projectSlug?: string | null
+  projectField?: string | null
+  variant?: string | null
+  targetRepo?: string | null
+  imagePath?: string | null
+  sourceUrl?: string | null
+  artImageId?: number | null
+}
+
+function clean(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function projectField(body: ProjectArtCompleteBody): 'imagePath' | 'cardPath' | 'heroPath' {
+  const explicit = clean(body.projectField)
+  if (PROJECT_FIELDS.has(explicit)) {
+    return explicit as 'imagePath' | 'cardPath' | 'heroPath'
+  }
+
+  const variant = clean(body.variant).toLowerCase()
+  if (variant === 'icon') return 'imagePath'
+  if (variant === 'card') return 'cardPath'
+  if (variant === 'hero') return 'heroPath'
+  throw createError({ statusCode: 400, message: 'Invalid project cover field.' })
+}
+
+function assetPath(body: ProjectArtCompleteBody): string {
+  const targetRepo = clean(body.targetRepo)
+  const imagePath = clean(body.imagePath)
+  const sourceUrl = clean(body.sourceUrl)
+
+  if (targetRepo === KIND_ROBOTS_REPO) {
+    return `/${normalizeKindRobotsImagePath(imagePath).replace(/^public\//, '')}`
+  }
+
+  if (targetRepo === CONDUCTOR_REPO) {
+    if (sourceUrl) return sourceUrl
+    const path = imagePath.replace(/^\/+/, '')
+    return `https://raw.githubusercontent.com/silasfelinus/conductor/main/${path}`
+  }
+
+  const value = sourceUrl || imagePath
+  if (!value) {
+    throw createError({ statusCode: 400, message: 'Missing completed image path.' })
+  }
+  return value
+}
+
+export default defineEventHandler(async (event) => {
+  try {
+    const auth = await requireMachineUser(event)
+    if (!auth.isAdmin && !auth.isServerKey) {
+      throw createError({ statusCode: 403, message: 'Admin access required.' })
+    }
+
+    const body = (await readBody<ProjectArtCompleteBody>(event)) || {}
+    const id = Number(body.projectId)
+    const slug = clean(body.projectSlug)
+    const artImageId = Number(body.artImageId)
+
+    if ((!Number.isInteger(id) || id <= 0) && !slug) {
+      throw createError({ statusCode: 400, message: 'Missing project identity.' })
+    }
+    if (!Number.isInteger(artImageId) || artImageId <= 0) {
+      throw createError({ statusCode: 400, message: 'Invalid ArtImage id.' })
+    }
+
+    const project = await prisma.project.findFirst({
+      where:
+        Number.isInteger(id) && id > 0
+          ? { id }
+          : { OR: [{ slug }, { conductorSlug: slug }] },
+    })
+    if (!project) {
+      throw createError({ statusCode: 404, message: `Project ${slug || id} not found.` })
+    }
+
+    const image = await prisma.artImage.findUnique({ where: { id: artImageId } })
+    if (!image) {
+      throw createError({ statusCode: 404, message: `ArtImage ${artImageId} not found.` })
+    }
+
+    const field = projectField(body)
+    const path = assetPath(body)
+    const artImageField = field === 'imagePath' ? 'iconPath' : field
+    const shouldAttachPrimaryImage = field === 'imagePath' || !project.artImageId
+
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.artImage.update({
+        where: { id: artImageId },
+        data: { [artImageField]: path } as Prisma.ArtImageUncheckedUpdateInput,
+      })
+
+      return tx.project.update({
+        where: { id: project.id },
+        data: {
+          [field]: path,
+          ...(shouldAttachPrimaryImage ? { artImageId } : {}),
+        } as Prisma.ProjectUncheckedUpdateInput,
+      })
+    })
+
+    event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: `Project ${updated.slug || updated.id} ${field} synchronized.`,
+      data: { project: updated, field, path, artImageId },
+      statusCode: 200,
+    }
+  } catch (error: unknown) {
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+    event.node.res.statusCode = statusCode
+    return { ...handled, statusCode }
+  }
+})
+""")
+
+# ---------------------------------------------------------------------------
+# Regression contract: terminal entries may be re-enqueued; active entries may
+# not duplicate.
+# ---------------------------------------------------------------------------
+test_path = root / "utils/scripts/verifyArtRequestYaml.ts"
+test_text = test_path.read_text()
+test_text = replace_once(
+    test_text,
+    """  check(
+    'appendRequest is idempotent by image_path',
+    appendRequest(once, sampleEntry({ id: 'different-id-99999999' })) === once,
+  )
+}
+""",
+    """  check(
+    'appendRequest is idempotent by active image_path',
+    appendRequest(once, sampleEntry({ id: 'different-id-99999999' })) === once,
+  )
+
+  const completed = once.replace('status: \"pending\"', 'status: \"done\"')
+  const retried = appendRequest(
+    completed,
+    sampleEntry({ id: 'retry-id-99999999' }),
+  )
+  check('completed image_path can be queued again', retried !== completed)
+  check('retry receives its own request block', retried.includes('retry-id-99999999'))
+}
+""",
+    "terminal request retry regression",
+)
+test_path.write_text(test_text)
+
+print('Applied project gallery and art completion pipeline patch.')

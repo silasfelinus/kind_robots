@@ -7,11 +7,6 @@ import {
   CHARACTER_FIELD_TAXONOMIES,
   useFacetCatalogStore,
 } from '@/stores/facetCatalogStore'
-import { useGeneratorStore } from '@/stores/generatorStore'
-
-type MutableGeneratorStore = ReturnType<typeof useGeneratorStore> & {
-  __facetCatalogPatched?: boolean
-}
 
 function fieldKeyForStep(cardKey: string, step: { field?: string; key: string }) {
   const key = step.field || step.key || cardKey
@@ -65,82 +60,6 @@ function hydrateAdventureBuilder(
   }
 }
 
-function patchGenerator(catalog: ReturnType<typeof useFacetCatalogStore>): void {
-  const generator = useGeneratorStore() as MutableGeneratorStore
-  if (generator.__facetCatalogPatched) return
-
-  const original = {
-    genre: generator.genre.bind(generator),
-    species: generator.species.bind(generator),
-    characterClass: generator.characterClass.bind(generator),
-    alignment: generator.alignment.bind(generator),
-    personality: generator.personality.bind(generator),
-    quirks: generator.quirks.bind(generator),
-    background: generator.background.bind(generator),
-    backstory: generator.backstory.bind(generator),
-    suggest: generator.suggest.bind(generator),
-    generateOne: generator.generateOne.bind(generator),
-  }
-
-  const one = (fieldKey: string, fallback: () => string): string =>
-    catalog.randomFacetForField(fieldKey)?.canonicalValue || fallback()
-
-  const many = (
-    fieldKey: string,
-    count: number,
-    fallback: () => string,
-  ): string => {
-    const pool = catalog
-      .facetsForCharacterField(fieldKey)
-      .filter((entry) => entry.isRandomizable && entry.randomWeight > 0)
-    if (!pool.length) return fallback()
-
-    const picked = [...pool]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, Math.max(1, count))
-      .map((entry) => entry.canonicalValue || entry.title)
-    return picked.join(', ')
-  }
-
-  generator.genre = () => one('genre', original.genre)
-  generator.species = () => one('species', original.species)
-  generator.characterClass = () => one('class', original.characterClass)
-  generator.alignment = () => one('alignment', original.alignment)
-  generator.personality = (count = 3) =>
-    many('personality', count, () => original.personality(count))
-  generator.quirks = (count = 1) =>
-    many('quirks', count, () => original.quirks(count))
-  generator.background = () => one('backstory', original.background)
-  generator.backstory = () => one('backstory', original.backstory)
-
-  generator.suggest = (key, context = {}) => {
-    if (key === 'genre') return generator.genre()
-    if (key === 'species') return generator.species()
-    if (key === 'characterClass' || key === 'class') {
-      return generator.characterClass()
-    }
-    if (key === 'alignment') return generator.alignment()
-    if (key === 'personality') return generator.personality()
-    if (key === 'quirks') return generator.quirks()
-    if (key === 'background' || key === 'backstory') {
-      return generator.backstory()
-    }
-    return original.suggest(key, context)
-  }
-
-  generator.generateOne = (key, fallbackOrContext = {}) => {
-    const fallback = typeof fallbackOrContext === 'string' ? fallbackOrContext : ''
-    const context =
-      fallbackOrContext && typeof fallbackOrContext === 'object'
-        ? fallbackOrContext
-        : {}
-    const generated = generator.suggest(key, context).trim()
-    return generated || fallback || original.generateOne(key, fallbackOrContext)
-  }
-
-  generator.__facetCatalogPatched = true
-}
-
 export default defineNuxtPlugin(async () => {
   const catalog = useFacetCatalogStore()
 
@@ -149,11 +68,11 @@ export default defineNuxtPlugin(async () => {
     if (!catalog.entries.length) return
 
     hydrateAdventureBuilder(catalog)
-    patchGenerator(catalog)
 
     // Registration stores the same mutable card graph. Re-register after the
     // async catalog fetch so an already-mounted Character Builder observes the
-    // canonical choices immediately.
+    // canonical choices immediately. Generator methods read this same catalog
+    // directly and need no runtime reassignment.
     ensureBuildersRegistered(true)
   } catch (error) {
     console.error('[facet-catalog] Canonical Facet hydration failed.', error)

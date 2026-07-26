@@ -1,17 +1,4 @@
 // /server/api/art/queue/[id]/reenqueue.post.ts
-//
-// Admin action: re-run any ArtJob by cloning its generation spec into a fresh
-// PENDING job. Two explicit intents are supported:
-//
-// - NEW_OUTPUT: keep the source ArtImage intact and create another ArtImage.
-// - OVERWRITE: render into a temporary ArtImage, then atomically replace the
-//   source ArtImage's pixels/metadata at completion while preserving its id and
-//   every Dream/Bot/Reward/etc. relation that points at it.
-//
-// Retry metadata lives in payload.retry so the relay remains generic and the UI
-// can explain ancestry. Curator/human feedback is deliberately not copied to the
-// fresh attempt, and concrete generation seeds are refreshed by default so a
-// Comfy retry does not reproduce the exact same pixels.
 import {
   createError,
   defineEventHandler,
@@ -32,6 +19,11 @@ import {
   type ArtJobOverrides,
   type ArtJobRetryMode,
 } from '../../../../utils/artJobRetry'
+import {
+  applyArtFacetsToPayload,
+  readArtFacetIds,
+  resolveArtFacetSelection,
+} from '../../../../utils/artFacetSelection'
 import { assessArtPrompt, cleanArtPrompt } from '../../../../utils/artPromptQuality'
 import {
   buildWorkflowForEngine,
@@ -49,7 +41,6 @@ type ReenqueueBody = {
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
-
     if (!auth.isAdmin && !auth.isServerKey) {
       throw createError({
         statusCode: 403,
@@ -58,15 +49,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const id = Number(getRouterParam(event, 'id'))
-
     if (!Number.isInteger(id) || id <= 0) {
       throw createError({ statusCode: 400, message: 'Invalid job id.' })
     }
 
     const body = (await readBody(event).catch(() => null)) as ReenqueueBody | null
-    const mode = String(
-      body?.mode || 'NEW_OUTPUT',
-    ).toUpperCase() as ArtJobRetryMode
+    const mode = String(body?.mode || 'NEW_OUTPUT').toUpperCase() as ArtJobRetryMode
     const hasSeedOverride =
       typeof body?.overrides?.seed === 'number' &&
       Number.isFinite(body.overrides.seed)
@@ -80,7 +68,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const source = await prisma.artJob.findUnique({ where: { id } })
-
     if (!source) {
       throw createError({ statusCode: 404, message: `Job ${id} not found.` })
     }
@@ -93,12 +80,10 @@ export default defineEventHandler(async (event) => {
             'Overwrite retries require a completed source job with an ArtImage.',
         })
       }
-
       const target = await prisma.artImage.findUnique({
         where: { id: source.artImageId },
         select: { id: true },
       })
-
       if (!target) {
         throw createError({
           statusCode: 409,
@@ -114,41 +99,53 @@ export default defineEventHandler(async (event) => {
       mode,
       refreshSeed,
     )
-
-    const requestedPrompt = cleanArtPrompt(body?.overrides?.promptString)
-    if (requestedPrompt && !assessArtPrompt(requestedPrompt).useful) {
-      throw createError({
-        statusCode: 422,
-        message:
-          'The replacement prompt is still too vague. Describe the visible subject, action, setting, composition, and concrete art direction.',
-      })
-    }
-
     const sourceRequest = extractRenderRequest(prepared)
-    const effectivePrompt = requestedPrompt || sourceRequest.prompt
+    const currentBasePrompt = cleanArtPrompt(prepared.basePromptString)
+    const requestedBasePrompt = cleanArtPrompt(
+      body?.overrides?.basePromptString ?? body?.overrides?.promptString,
+    )
+    const basePrompt = requestedBasePrompt || currentBasePrompt || sourceRequest.prompt
+    const hasFacetOverride = Array.isArray(body?.overrides?.facetIds)
+    const facetIds = hasFacetOverride
+      ? body?.overrides?.facetIds
+      : readArtFacetIds(prepared)
+    const facets = await resolveArtFacetSelection({
+      facetIds,
+      userId: auth.user.id,
+      isAdmin: auth.isAdmin,
+      includeMature: true,
+    })
+    const previewPayload: Record<string, unknown> = {}
+    const effectivePrompt = applyArtFacetsToPayload(
+      previewPayload,
+      basePrompt,
+      facets,
+    )
     const promptAssessment = assessArtPrompt(effectivePrompt)
-
     if (!promptAssessment.useful) {
       throw createError({
         statusCode: 422,
-        message: `Retry blocked because the source prompt is not usable (${promptAssessment.reasons.join(', ')}). Supply a specific prompt override instead of reusing it.`,
+        message: `Retry blocked because the prompt is not usable (${promptAssessment.reasons.join(', ')}). Supply a specific prompt instead.`,
       })
     }
 
     const presetEngine = resolvePresetEngine(body?.preset)
     if (presetEngine) {
-      const req = {
+      prepared.workflow = buildWorkflowForEngine(presetEngine, {
         ...sourceRequest,
         prompt: effectivePrompt,
-      }
-      prepared.workflow = buildWorkflowForEngine(presetEngine, req)
-      prepared.promptString = req.prompt
+      })
+      prepared.promptString = effectivePrompt
     }
 
-    const payload = applyArtJobOverrides(prepared, {
+    const renderOverrides: ArtJobOverrides = {
       ...body?.overrides,
-      ...(requestedPrompt ? { promptString: requestedPrompt } : {}),
-    })
+      promptString: effectivePrompt,
+    }
+    delete renderOverrides.facetIds
+    delete renderOverrides.basePromptString
+    const payload = applyArtJobOverrides(prepared, renderOverrides)
+    applyArtFacetsToPayload(payload, basePrompt, facets)
     const jobEngine = presetEngine ? 'COMFY' : source.engine
 
     const job = await prisma.artJob.create({
@@ -163,7 +160,6 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 201
-
     return {
       success: true,
       message:
@@ -180,14 +176,11 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
-    const statusCode = handled.statusCode || 500
-
-    event.node.res.statusCode = statusCode
-
+    event.node.res.statusCode = handled.statusCode || 500
     return {
       success: false,
       message: handled.message || 'Failed to re-enqueue art job.',
-      statusCode,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

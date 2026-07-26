@@ -4,7 +4,10 @@ import { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { buildDailyDreamFacetBlueprint } from '~/server/utils/dailyDreamFacetBlueprint'
+import {
+  buildDailyDreamFacetBlueprint,
+  type DailyDreamBlueprint,
+} from '~/server/utils/dailyDreamFacetBlueprint'
 
 type DailyDreamRequest = {
   dateKey?: string | null
@@ -50,13 +53,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const blueprint = await buildDailyDreamFacetBlueprint({
+    const requestedCharacterCount = normalizeCount(body?.characterCount, 2)
+    const requestedRewardCount = normalizeCount(body?.rewardCount, 2)
+    const blueprintOptions = {
       userId: auth.user.id,
       isAdmin: auth.isAdmin,
       includeMature: Boolean(body?.isMature && auth.user.showMature),
       dateKey,
-      characterCount: normalizeCount(body?.characterCount, 2),
-      rewardCount: normalizeCount(body?.rewardCount, 2),
+    }
+    const blueprint = await buildDailyDreamFacetBlueprint({
+      ...blueprintOptions,
+      characterCount: requestedCharacterCount,
+      rewardCount: requestedRewardCount,
     })
 
     const loadExisting = () =>
@@ -65,12 +73,35 @@ export default defineEventHandler(async (event) => {
         include: dailyDreamInclude,
       })
 
+    async function blueprintForExisting(existing: {
+      Characters: unknown[]
+      Rewards: unknown[]
+    }): Promise<DailyDreamBlueprint> {
+      const characterCount = Math.min(4, Math.max(1, existing.Characters.length))
+      const rewardCount = Math.min(4, Math.max(1, existing.Rewards.length))
+      if (
+        characterCount === requestedCharacterCount &&
+        rewardCount === requestedRewardCount
+      ) {
+        return blueprint
+      }
+      return buildDailyDreamFacetBlueprint({
+        ...blueprintOptions,
+        characterCount,
+        rewardCount,
+      })
+    }
+
     const existing = await loadExisting()
     if (existing) {
       return {
         success: true,
         message: `Daily Dream for ${dateKey} already exists.`,
-        data: { dream: existing, blueprint, reused: true },
+        data: {
+          dream: existing,
+          blueprint: await blueprintForExisting(existing),
+          reused: true,
+        },
         statusCode: 200,
       }
     }
@@ -200,7 +231,11 @@ export default defineEventHandler(async (event) => {
           return {
             success: true,
             message: `Daily Dream for ${dateKey} already exists.`,
-            data: { dream: raced, blueprint, reused: true },
+            data: {
+              dream: raced,
+              blueprint: await blueprintForExisting(raced),
+              reused: true,
+            },
             statusCode: 200,
           }
         }

@@ -30,9 +30,11 @@ type CharacterFacetRow = {
   source: string
 }
 
-// Prisma 7 extended transaction clients are not assignable to the generated
-// default TransactionClient type. Describe only the delegate methods this
-// helper uses so both the application client and an extended transaction fit.
+// Prisma 7 extended transaction clients use generated exact delegate signatures
+// that are intentionally not structurally assignable to the default client type.
+// Accept the transaction as unknown at the public boundary, then narrow it to only
+// the four delegates this helper actually calls. Both callers pass a real Prisma
+// transaction client; this keeps generated-client drift out of unrelated routes.
 type CharacterFacetSyncClient = {
   facetAlias: {
     findMany(args: unknown): PromiseLike<Array<{ lookupKey: string; facetId: number }>>
@@ -82,10 +84,11 @@ function collectAssignments(character: CharacterFacetSource): PendingAssignment[
 }
 
 export async function syncCharacterFacetsInTransaction(
-  tx: CharacterFacetSyncClient,
+  txClient: unknown,
   character: CharacterFacetSource,
   options: { userId: number; isAdmin: boolean },
 ): Promise<number> {
+  const tx = txClient as CharacterFacetSyncClient
   const pending = collectAssignments(character)
   const lookupKeys = Array.from(
     new Set(pending.map((assignment) => assignment.lookupKey)),

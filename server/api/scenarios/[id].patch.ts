@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
         message: 'Invalid scenario ID. It must be a positive integer.',
       })
     }
+    const scenarioId = id
 
     const { isValid, user } = await validateApiKey(event)
 
@@ -36,7 +37,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const existingScenario = await prisma.scenario.findUnique({
-      where: { id },
+      where: { id: scenarioId },
       select: {
         id: true,
         userId: true,
@@ -65,7 +66,7 @@ export default defineEventHandler(async (event) => {
       context: 'Scenario patch payload',
       requireNonEmpty: true,
       authenticatedUserId: user.id,
-      routeId: id,
+      routeId: scenarioId,
     })
 
     await assertScenarioRelationsAttachable(body, user.id, isAdmin)
@@ -81,7 +82,7 @@ export default defineEventHandler(async (event) => {
 
     const updatedScenario = await prisma.$transaction(async (tx) => {
       const scenario = await tx.scenario.update({
-        where: { id },
+        where: { id: scenarioId },
         data,
         select: scenarioMutationSelect,
       })

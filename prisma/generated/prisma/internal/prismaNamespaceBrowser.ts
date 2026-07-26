@@ -52,6 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   FacetAlias: 'FacetAlias',
+  FacetProfile: 'FacetProfile',
+  CharacterFacet: 'CharacterFacet',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -82,6 +84,7 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Entitlement: 'Entitlement',
+  Grant: 'Grant',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
@@ -99,6 +102,7 @@ export const ModelName = {
   StylistClient: 'StylistClient',
   StylistAppointment: 'StylistAppointment',
   ArtJob: 'ArtJob',
+  QueueControl: 'QueueControl',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
@@ -151,6 +155,40 @@ export const FacetAliasScalarFieldEnum = {
 } as const
 
 export type FacetAliasScalarFieldEnum = (typeof FacetAliasScalarFieldEnum)[keyof typeof FacetAliasScalarFieldEnum]
+
+
+export const FacetProfileScalarFieldEnum = {
+  facetId: 'facetId',
+  taxonomy: 'taxonomy',
+  canonicalValue: 'canonicalValue',
+  groupKey: 'groupKey',
+  groupLabel: 'groupLabel',
+  sortOrder: 'sortOrder',
+  isRandomizable: 'isRandomizable',
+  randomWeight: 'randomWeight',
+  artRequired: 'artRequired',
+  sourceRank: 'sourceRank',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FacetProfileScalarFieldEnum = (typeof FacetProfileScalarFieldEnum)[keyof typeof FacetProfileScalarFieldEnum]
+
+
+export const CharacterFacetScalarFieldEnum = {
+  id: 'id',
+  characterId: 'characterId',
+  facetId: 'facetId',
+  fieldKey: 'fieldKey',
+  sortOrder: 'sortOrder',
+  weight: 'weight',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CharacterFacetScalarFieldEnum = (typeof CharacterFacetScalarFieldEnum)[keyof typeof CharacterFacetScalarFieldEnum]
 
 
 export const ModelBuildRunScalarFieldEnum = {
@@ -767,6 +805,24 @@ export const EntitlementScalarFieldEnum = {
 export type EntitlementScalarFieldEnum = (typeof EntitlementScalarFieldEnum)[keyof typeof EntitlementScalarFieldEnum]
 
 
+export const GrantScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  granterId: 'granterId',
+  granteeId: 'granteeId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  level: 'level',
+  source: 'source',
+  refId: 'refId',
+  status: 'status',
+  expiresAt: 'expiresAt'
+} as const
+
+export type GrantScalarFieldEnum = (typeof GrantScalarFieldEnum)[keyof typeof GrantScalarFieldEnum]
+
+
 export const AchievementRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -939,6 +995,10 @@ export const ResourceScalarFieldEnum = {
   isPublic: 'isPublic',
   isActive: 'isActive',
   artPrompt: 'artPrompt',
+  triggerWords: 'triggerWords',
+  defaultTrigger: 'defaultTrigger',
+  hash: 'hash',
+  previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
   slug: 'slug'
 } as const
@@ -1215,6 +1275,18 @@ export const ArtJobScalarFieldEnum = {
 } as const
 
 export type ArtJobScalarFieldEnum = (typeof ArtJobScalarFieldEnum)[keyof typeof ArtJobScalarFieldEnum]
+
+
+export const QueueControlScalarFieldEnum = {
+  id: 'id',
+  paused: 'paused',
+  pausedBy: 'pausedBy',
+  pausedAt: 'pausedAt',
+  note: 'note',
+  updatedAt: 'updatedAt'
+} as const
+
+export type QueueControlScalarFieldEnum = (typeof QueueControlScalarFieldEnum)[keyof typeof QueueControlScalarFieldEnum]
 
 
 export const KarmaTransactionScalarFieldEnum = {
@@ -1616,6 +1688,25 @@ export const FacetAliasOrderByRelevanceFieldEnum = {
 } as const
 
 export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
+
+
+export const FacetProfileOrderByRelevanceFieldEnum = {
+  taxonomy: 'taxonomy',
+  canonicalValue: 'canonicalValue',
+  groupKey: 'groupKey',
+  groupLabel: 'groupLabel',
+  metadata: 'metadata'
+} as const
+
+export type FacetProfileOrderByRelevanceFieldEnum = (typeof FacetProfileOrderByRelevanceFieldEnum)[keyof typeof FacetProfileOrderByRelevanceFieldEnum]
+
+
+export const CharacterFacetOrderByRelevanceFieldEnum = {
+  fieldKey: 'fieldKey',
+  source: 'source'
+} as const
+
+export type CharacterFacetOrderByRelevanceFieldEnum = (typeof CharacterFacetOrderByRelevanceFieldEnum)[keyof typeof CharacterFacetOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
@@ -2060,6 +2151,10 @@ export const ResourceOrderByRelevanceFieldEnum = {
   description: 'description',
   generation: 'generation',
   artPrompt: 'artPrompt',
+  triggerWords: 'triggerWords',
+  defaultTrigger: 'defaultTrigger',
+  hash: 'hash',
+  previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
   slug: 'slug'
 } as const
@@ -2225,6 +2320,14 @@ export const ArtJobOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArtJobOrderByRelevanceFieldEnum = (typeof ArtJobOrderByRelevanceFieldEnum)[keyof typeof ArtJobOrderByRelevanceFieldEnum]
+
+
+export const QueueControlOrderByRelevanceFieldEnum = {
+  pausedBy: 'pausedBy',
+  note: 'note'
+} as const
+
+export type QueueControlOrderByRelevanceFieldEnum = (typeof QueueControlOrderByRelevanceFieldEnum)[keyof typeof QueueControlOrderByRelevanceFieldEnum]
 
 
 export const KarmaTransactionOrderByRelevanceFieldEnum = {

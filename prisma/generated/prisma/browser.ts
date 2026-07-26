@@ -27,6 +27,16 @@ export * from './enums';
  */
 export type FacetAlias = Prisma.FacetAliasModel
 /**
+ * Model FacetProfile
+ * 
+ */
+export type FacetProfile = Prisma.FacetProfileModel
+/**
+ * Model CharacterFacet
+ * 
+ */
+export type CharacterFacet = Prisma.CharacterFacetModel
+/**
  * Model ModelBuildRun
  * One resumable Model Builder run: a source record, a chosen recipe, and the
  * build items produced from the selected outputs. `sourceSnapshot` freezes the
@@ -216,6 +226,20 @@ export type OrderItem = Prisma.OrderItemModel
  */
 export type Entitlement = Prisma.EntitlementModel
 /**
+ * Model Grant
+ * Generalized access grant for private-but-shared content (SHARING-SPEC.md,
+ * pitches/2026-07-17-sharing-grant-model.md, approved by Silas 2026-07-25).
+ * One row answers "does granteeId have `level` access to subjectType:subjectId".
+ * subjectId is an unenforced cross-reference (same informal pattern as other
+ * polymorphic ids in this schema) — validate subjectType/subjectId together
+ * in the application layer, not via FK. Revocation flips status rather than
+ * deleting the row, matching ManaTransaction's append-only audit trail.
+ * GrantSubject.PACK is deliberately deferred until the separate Pack-model
+ * pitch lands. refId is an unenforced back-reference to whatever produced
+ * this grant (e.g. a ManaTransaction or Stripe session id).
+ */
+export type Grant = Prisma.GrantModel
+/**
  * Model AchievementRecord
  * the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
  */
@@ -315,6 +339,13 @@ export type StylistAppointment = Prisma.StylistAppointmentModel
  * stale are re-claimable so a crashed relay never strands work.
  */
 export type ArtJob = Prisma.ArtJobModel
+/**
+ * Model QueueControl
+ * Singleton control row for the ArtJob queue. When `paused` is true the claim
+ * endpoint stops handing jobs to relays, so the queue is preserved but not
+ * drained until resumed. Always id = 1 (one row).
+ */
+export type QueueControl = Prisma.QueueControlModel
 /**
  * Model KarmaTransaction
  * Economy: karma ledger — separate from mana, tracks community contribution score

@@ -591,10 +591,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type ModelBuildRunCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.ModelBuildRunCreateWithoutItemsInput, Prisma.ModelBuildRunUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.ModelBuildRunCreateOrConnectWithoutItemsInput

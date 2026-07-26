@@ -385,6 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   FacetAlias: 'FacetAlias',
+  FacetProfile: 'FacetProfile',
+  CharacterFacet: 'CharacterFacet',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -415,6 +417,7 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Entitlement: 'Entitlement',
+  Grant: 'Grant',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
   NarratorThread: 'NarratorThread',
@@ -432,6 +435,7 @@ export const ModelName = {
   StylistClient: 'StylistClient',
   StylistAppointment: 'StylistAppointment',
   ArtJob: 'ArtJob',
+  QueueControl: 'QueueControl',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
@@ -469,7 +473,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "grant" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -536,6 +540,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FacetAliasCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FacetAliasCountAggregateOutputType> | number
+        }
+      }
+    }
+    FacetProfile: {
+      payload: Prisma.$FacetProfilePayload<ExtArgs>
+      fields: Prisma.FacetProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FacetProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FacetProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.FacetProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FacetProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>
+        }
+        findMany: {
+          args: Prisma.FacetProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>[]
+        }
+        create: {
+          args: Prisma.FacetProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>
+        }
+        createMany: {
+          args: Prisma.FacetProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FacetProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>
+        }
+        update: {
+          args: Prisma.FacetProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.FacetProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FacetProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FacetProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FacetProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.FacetProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFacetProfile>
+        }
+        groupBy: {
+          args: Prisma.FacetProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FacetProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FacetProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    CharacterFacet: {
+      payload: Prisma.$CharacterFacetPayload<ExtArgs>
+      fields: Prisma.CharacterFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CharacterFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CharacterFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.CharacterFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CharacterFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>
+        }
+        findMany: {
+          args: Prisma.CharacterFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>[]
+        }
+        create: {
+          args: Prisma.CharacterFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>
+        }
+        createMany: {
+          args: Prisma.CharacterFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CharacterFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>
+        }
+        update: {
+          args: Prisma.CharacterFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.CharacterFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CharacterFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CharacterFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.CharacterFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCharacterFacet>
+        }
+        groupBy: {
+          args: Prisma.CharacterFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CharacterFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CharacterFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CharacterFacetCountAggregateOutputType> | number
         }
       }
     }
@@ -2519,6 +2655,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Grant: {
+      payload: Prisma.$GrantPayload<ExtArgs>
+      fields: Prisma.GrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>
+        }
+        findFirst: {
+          args: Prisma.GrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>
+        }
+        findMany: {
+          args: Prisma.GrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>[]
+        }
+        create: {
+          args: Prisma.GrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>
+        }
+        createMany: {
+          args: Prisma.GrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.GrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>
+        }
+        update: {
+          args: Prisma.GrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.GrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.GrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrantPayload>
+        }
+        aggregate: {
+          args: Prisma.GrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGrant>
+        }
+        groupBy: {
+          args: Prisma.GrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GrantCountAggregateOutputType> | number
+        }
+      }
+    }
     AchievementRecord: {
       payload: Prisma.$AchievementRecordPayload<ExtArgs>
       fields: Prisma.AchievementRecordFieldRefs
@@ -3638,6 +3840,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ArtJobCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ArtJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    QueueControl: {
+      payload: Prisma.$QueueControlPayload<ExtArgs>
+      fields: Prisma.QueueControlFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.QueueControlFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.QueueControlFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>
+        }
+        findFirst: {
+          args: Prisma.QueueControlFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.QueueControlFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>
+        }
+        findMany: {
+          args: Prisma.QueueControlFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>[]
+        }
+        create: {
+          args: Prisma.QueueControlCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>
+        }
+        createMany: {
+          args: Prisma.QueueControlCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.QueueControlDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>
+        }
+        update: {
+          args: Prisma.QueueControlUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>
+        }
+        deleteMany: {
+          args: Prisma.QueueControlDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.QueueControlUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.QueueControlUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QueueControlPayload>
+        }
+        aggregate: {
+          args: Prisma.QueueControlAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQueueControl>
+        }
+        groupBy: {
+          args: Prisma.QueueControlGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QueueControlGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.QueueControlCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QueueControlCountAggregateOutputType> | number
         }
       }
     }
@@ -5146,6 +5414,40 @@ export const FacetAliasScalarFieldEnum = {
 export type FacetAliasScalarFieldEnum = (typeof FacetAliasScalarFieldEnum)[keyof typeof FacetAliasScalarFieldEnum]
 
 
+export const FacetProfileScalarFieldEnum = {
+  facetId: 'facetId',
+  taxonomy: 'taxonomy',
+  canonicalValue: 'canonicalValue',
+  groupKey: 'groupKey',
+  groupLabel: 'groupLabel',
+  sortOrder: 'sortOrder',
+  isRandomizable: 'isRandomizable',
+  randomWeight: 'randomWeight',
+  artRequired: 'artRequired',
+  sourceRank: 'sourceRank',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FacetProfileScalarFieldEnum = (typeof FacetProfileScalarFieldEnum)[keyof typeof FacetProfileScalarFieldEnum]
+
+
+export const CharacterFacetScalarFieldEnum = {
+  id: 'id',
+  characterId: 'characterId',
+  facetId: 'facetId',
+  fieldKey: 'fieldKey',
+  sortOrder: 'sortOrder',
+  weight: 'weight',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CharacterFacetScalarFieldEnum = (typeof CharacterFacetScalarFieldEnum)[keyof typeof CharacterFacetScalarFieldEnum]
+
+
 export const ModelBuildRunScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -5760,6 +6062,24 @@ export const EntitlementScalarFieldEnum = {
 export type EntitlementScalarFieldEnum = (typeof EntitlementScalarFieldEnum)[keyof typeof EntitlementScalarFieldEnum]
 
 
+export const GrantScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  granterId: 'granterId',
+  granteeId: 'granteeId',
+  subjectType: 'subjectType',
+  subjectId: 'subjectId',
+  level: 'level',
+  source: 'source',
+  refId: 'refId',
+  status: 'status',
+  expiresAt: 'expiresAt'
+} as const
+
+export type GrantScalarFieldEnum = (typeof GrantScalarFieldEnum)[keyof typeof GrantScalarFieldEnum]
+
+
 export const AchievementRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -5932,6 +6252,10 @@ export const ResourceScalarFieldEnum = {
   isPublic: 'isPublic',
   isActive: 'isActive',
   artPrompt: 'artPrompt',
+  triggerWords: 'triggerWords',
+  defaultTrigger: 'defaultTrigger',
+  hash: 'hash',
+  previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
   slug: 'slug'
 } as const
@@ -6208,6 +6532,18 @@ export const ArtJobScalarFieldEnum = {
 } as const
 
 export type ArtJobScalarFieldEnum = (typeof ArtJobScalarFieldEnum)[keyof typeof ArtJobScalarFieldEnum]
+
+
+export const QueueControlScalarFieldEnum = {
+  id: 'id',
+  paused: 'paused',
+  pausedBy: 'pausedBy',
+  pausedAt: 'pausedAt',
+  note: 'note',
+  updatedAt: 'updatedAt'
+} as const
+
+export type QueueControlScalarFieldEnum = (typeof QueueControlScalarFieldEnum)[keyof typeof QueueControlScalarFieldEnum]
 
 
 export const KarmaTransactionScalarFieldEnum = {
@@ -6609,6 +6945,25 @@ export const FacetAliasOrderByRelevanceFieldEnum = {
 } as const
 
 export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelevanceFieldEnum)[keyof typeof FacetAliasOrderByRelevanceFieldEnum]
+
+
+export const FacetProfileOrderByRelevanceFieldEnum = {
+  taxonomy: 'taxonomy',
+  canonicalValue: 'canonicalValue',
+  groupKey: 'groupKey',
+  groupLabel: 'groupLabel',
+  metadata: 'metadata'
+} as const
+
+export type FacetProfileOrderByRelevanceFieldEnum = (typeof FacetProfileOrderByRelevanceFieldEnum)[keyof typeof FacetProfileOrderByRelevanceFieldEnum]
+
+
+export const CharacterFacetOrderByRelevanceFieldEnum = {
+  fieldKey: 'fieldKey',
+  source: 'source'
+} as const
+
+export type CharacterFacetOrderByRelevanceFieldEnum = (typeof CharacterFacetOrderByRelevanceFieldEnum)[keyof typeof CharacterFacetOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
@@ -7053,6 +7408,10 @@ export const ResourceOrderByRelevanceFieldEnum = {
   description: 'description',
   generation: 'generation',
   artPrompt: 'artPrompt',
+  triggerWords: 'triggerWords',
+  defaultTrigger: 'defaultTrigger',
+  hash: 'hash',
+  previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
   slug: 'slug'
 } as const
@@ -7218,6 +7577,14 @@ export const ArtJobOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArtJobOrderByRelevanceFieldEnum = (typeof ArtJobOrderByRelevanceFieldEnum)[keyof typeof ArtJobOrderByRelevanceFieldEnum]
+
+
+export const QueueControlOrderByRelevanceFieldEnum = {
+  pausedBy: 'pausedBy',
+  note: 'note'
+} as const
+
+export type QueueControlOrderByRelevanceFieldEnum = (typeof QueueControlOrderByRelevanceFieldEnum)[keyof typeof QueueControlOrderByRelevanceFieldEnum]
 
 
 export const KarmaTransactionOrderByRelevanceFieldEnum = {
@@ -7455,6 +7822,13 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
  * Reference to a field of type 'ModelBuildStatus'
  */
 export type EnumModelBuildStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelBuildStatus'>
@@ -7581,13 +7955,6 @@ export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
  * Reference to a field of type 'ProductType'
  */
 export type EnumProductTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductType'>
@@ -7598,6 +7965,34 @@ export type EnumProductTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'OrderStatus'
  */
 export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'GrantSubject'
+ */
+export type EnumGrantSubjectFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GrantSubject'>
+    
+
+
+/**
+ * Reference to a field of type 'GrantLevel'
+ */
+export type EnumGrantLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GrantLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'GrantSource'
+ */
+export type EnumGrantSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GrantSource'>
+    
+
+
+/**
+ * Reference to a field of type 'GrantStatus'
+ */
+export type EnumGrantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GrantStatus'>
     
 
 
@@ -7949,6 +8344,8 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   facetAlias?: Prisma.FacetAliasOmit
+  facetProfile?: Prisma.FacetProfileOmit
+  characterFacet?: Prisma.CharacterFacetOmit
   modelBuildRun?: Prisma.ModelBuildRunOmit
   modelBuildItem?: Prisma.ModelBuildItemOmit
   modelBuildArtifact?: Prisma.ModelBuildArtifactOmit
@@ -7979,6 +8376,7 @@ export type GlobalOmitConfig = {
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
   entitlement?: Prisma.EntitlementOmit
+  grant?: Prisma.GrantOmit
   achievementRecord?: Prisma.AchievementRecordOmit
   narratorTopic?: Prisma.NarratorTopicOmit
   narratorThread?: Prisma.NarratorThreadOmit
@@ -7996,6 +8394,7 @@ export type GlobalOmitConfig = {
   stylistClient?: Prisma.StylistClientOmit
   stylistAppointment?: Prisma.StylistAppointmentOmit
   artJob?: Prisma.ArtJobOmit
+  queueControl?: Prisma.QueueControlOmit
   karmaTransaction?: Prisma.KarmaTransactionOmit
   referral?: Prisma.ReferralOmit
   userRelation?: Prisma.UserRelationOmit

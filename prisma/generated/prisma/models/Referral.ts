@@ -486,14 +486,6 @@ export type ReferralUncheckedUpdateManyWithoutReferrerNestedInput = {
   deleteMany?: Prisma.ReferralScalarWhereInput | Prisma.ReferralScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ReferralCreateWithoutReferredInput = {
   createdAt?: Date | string
   codeUsed?: string | null

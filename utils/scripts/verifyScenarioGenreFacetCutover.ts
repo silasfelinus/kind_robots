@@ -85,6 +85,7 @@ async function main(): Promise<void> {
   requireText(files.wrapper, text.wrapper, "import('./seedScenarioGenreFacetCatalog')")
   requireText(files.plugin, text.plugin, 'SCENARIO_CARDS')
   requireText(files.plugin, text.plugin, "if (key === 'genres') return 'genre'")
+  requireText(files.plugin, text.plugin, 'hydrateScenarioBuilder')
   requireText(files.plugin, text.plugin, 'hydrateBuilderCards(SCENARIO_CARDS, catalog)')
   requireText(files.sync, text.sync, 'syncScenarioGenreFacetsInTransaction')
   requireText(files.sync, text.sync, "where: { taxonomy: 'GENRE' }")

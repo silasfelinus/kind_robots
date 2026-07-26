@@ -60,6 +60,7 @@
       </div>
 
       <add-reward mode="add" @saved="handleRewardSaved" />
+      <reward-facet-picker v-model="rewardFacetIds" :reward-id="null" class="mt-4" />
     </section>
 
     <div
@@ -91,6 +92,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
+import { performFetch } from '@/stores/utils'
+import type { FacetWithAliases } from '@/stores/facetStore'
 
 type RewardTab = 'rewards' | 'add'
 
@@ -104,6 +107,7 @@ const rewardStore = useRewardStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
+const rewardFacetIds = ref<number[]>([])
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -142,8 +146,32 @@ function goToRewards() {
 }
 
 async function handleRewardSaved() {
-  await loadManagerData(true)
-  goToRewards()
+  const rewardId = rewardStore.selectedReward?.id
+  if (!rewardId) {
+    managerError.value = 'Reward saved, but its ID could not be resolved.'
+    return
+  }
+
+  try {
+    const response = await performFetch<FacetWithAliases[]>(
+      `/api/rewards/${rewardId}/facets`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ facetIds: rewardFacetIds.value }),
+      },
+    )
+    if (!response.success) {
+      throw new Error(response.message || 'Reward Facets could not be saved.')
+    }
+
+    rewardFacetIds.value = []
+    await loadManagerData(true)
+    goToRewards()
+  } catch (error) {
+    managerError.value =
+      error instanceof Error ? error.message : 'Reward Facets could not be saved.'
+  }
 }
 
 onMounted(async () => {

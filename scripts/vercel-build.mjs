@@ -49,6 +49,14 @@ if (!isVercelBuild || isProductionDeployment) {
     )
   }
 
+  // RewardFacet is stored outside the legacy canonical merge script. Move those
+  // links first so retiring a duplicate Facet can never cascade-delete item traits.
+  run(
+    tsxBinary,
+    ['utils/scripts/mergeRewardFacetDuplicateLinks.ts', '--apply'],
+    'Preserving Reward Facets across canonical merges',
+  )
+
   // Cheap and idempotent: retain this on every production build so any partial
   // historical cleanup converges even when the 1,300-record catalog seed is skipped.
   run(

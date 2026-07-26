@@ -37,6 +37,7 @@ export const resourceGallerySelect = {
   previewImageUrl: true,
   imagePath: true,
   slug: true,
+  commercialSafe: true,
   ArtImage: {
     select: resourcePreviewArtImageSelect,
   },

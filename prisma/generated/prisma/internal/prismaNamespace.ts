@@ -6257,7 +6257,8 @@ export const ResourceScalarFieldEnum = {
   hash: 'hash',
   previewImageUrl: 'previewImageUrl',
   imagePath: 'imagePath',
-  slug: 'slug'
+  slug: 'slug',
+  commercialSafe: 'commercialSafe'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]

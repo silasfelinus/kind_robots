@@ -5,6 +5,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
+import { syncBotFacetsInTransaction } from '../../utils/botFacetSync'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
 import { assertBotRelationsAttachable } from './relations'
@@ -54,8 +55,6 @@ function getDreamRelationUpdate(
   return Object.keys(relation).length ? relation : undefined
 }
 
-// Dream IDs that would be newly attached (set + connect). Disconnected IDs are
-// omitted because removing a relation needs no attach permission.
 function getDreamAttachIds(body: BotPatchBody): number[] {
   const toIds = (value: unknown): number[] =>
     Array.isArray(value)
@@ -267,10 +266,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.bot.update({
-      where: { id },
-      data: updateData,
-      select: botMutationSelect,
+    const data = await prisma.$transaction(async (tx) => {
+      const updated = await tx.bot.update({
+        where: { id },
+        data: updateData,
+        select: botMutationSelect,
+      })
+      await syncBotFacetsInTransaction(tx, updated, {
+        userId: user?.id ?? existingBot.userId,
+        isAdmin: isAdmin || isServerKey,
+      })
+      return updated
     })
 
     event.node.res.statusCode = 200

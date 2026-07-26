@@ -21,6 +21,7 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'utils/seeds/facetGenderValues.ts',
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',
+  'utils/seeds/facetScenarioGenreArtwork.ts',
   'utils/scripts/runFacetCatalogSeed.ts',
   'utils/scripts/seedFacetCatalog.ts',
   'utils/scripts/seedGenderFacetCatalog.ts',

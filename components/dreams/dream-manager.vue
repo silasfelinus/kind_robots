@@ -38,6 +38,8 @@
       </button>
     </div>
 
+    <daily-dream-generator @created="onDailyDreamCreated" />
+
     <section
       v-if="activeTab === 'dreammaker'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
@@ -143,6 +145,13 @@ function onDreamEditing() {
 
 function onDreamCreated() {
   setTab('dreammaker')
+}
+
+async function onDailyDreamCreated(dream: DreamWithRelations) {
+  await loadManagerData(true)
+  await dreamStore.selectDreamById(dream.id)
+  setupUploadTarget()
+  setTab('dreams')
 }
 
 async function onDreamSaved(id?: number | number[] | DreamWithRelations) {

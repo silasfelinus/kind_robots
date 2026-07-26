@@ -6,6 +6,7 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'prisma/facet-catalog.prisma',
   'prisma/schema.prisma',
   'stores/helpers/adventureCards.ts',
+  'stores/helpers/scenarioCards.ts',
   'stores/seeds/artList.ts',
   'stores/utils/animalData.ts',
   'stores/utils/randomBackstory.ts',
@@ -20,9 +21,11 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'utils/seeds/facetGenderValues.ts',
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',
+  'utils/seeds/facetScenarioGenreArtwork.ts',
   'utils/scripts/runFacetCatalogSeed.ts',
   'utils/scripts/seedFacetCatalog.ts',
   'utils/scripts/seedGenderFacetCatalog.ts',
+  'utils/scripts/seedScenarioGenreFacetCatalog.ts',
 ])
 
 const TRUE_VALUES = new Set(['1', 'true', 'yes', 'on'])
@@ -31,8 +34,6 @@ export function isFacetCatalogSourcePath(filePath) {
   const normalized = String(filePath ?? '').trim().replaceAll('\\', '/')
   if (!normalized) return false
   if (FACET_CATALOG_SOURCE_FILES.has(normalized)) return true
-  // A new database migration can change catalog constraints or data semantics;
-  // reseeding is the safe default even when the migration name is unfamiliar.
   return normalized.startsWith('prisma/migrations/')
 }
 
@@ -49,15 +50,12 @@ export function decideFacetCatalogSeed({
       reason: 'non-Vercel build preserves explicit local seed behavior',
     }
   }
-
   if (!isProductionDeployment) {
     return { run: false, reason: 'non-production Vercel deployment' }
   }
-
   if (TRUE_VALUES.has(String(forceValue ?? '').trim().toLowerCase())) {
     return { run: true, reason: 'FACET_CATALOG_SEED_ON_BUILD forced the seed' }
   }
-
   if (diffError) {
     return {
       run: true,
@@ -74,9 +72,6 @@ export function decideFacetCatalogSeed({
     }
   }
 
-  // mergeCanonicalFacetDuplicates.ts runs as its own production-build step after
-  // this decision. A merge-only code change therefore does not need to rewrite
-  // all source-backed Facets before exercising the updated merger.
   return {
     run: false,
     reason: 'no canonical Facet source, schema, or migration changed',
@@ -89,19 +84,13 @@ export function readVercelChangedFiles(env = process.env) {
   const currentSha = env.VERCEL_GIT_COMMIT_SHA?.trim()
 
   if (!previousSha || !currentSha) {
-    return {
-      changedFiles: [],
-      diffError: 'missing Vercel commit ancestry',
-    }
+    return { changedFiles: [], diffError: 'missing Vercel commit ancestry' }
   }
 
   const diff = spawnSync(
     'git',
     ['diff', '--name-only', '--diff-filter=ACMRTUXB', previousSha, currentSha],
-    {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    },
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
   )
 
   if (diff.status !== 0) {

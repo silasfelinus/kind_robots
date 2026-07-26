@@ -53,3 +53,7 @@ await import('./seedGenderFacetCatalog')
 
 // seedFacetCatalog reads process.argv itself, so --apply passes through.
 await import('./seedFacetCatalog')
+
+// Scenario Genre is curated in its own Builder graph. Apply it after the broad
+// legacy gap-fill seed so its descriptions, artwork, grouping, and source rank win.
+await import('./seedScenarioGenreFacetCatalog')

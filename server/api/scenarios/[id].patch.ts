@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { userIsAdmin } from '../../utils/authUser'
+import { syncScenarioGenreFacetsInTransaction } from '../../utils/scenarioGenreFacetSync'
 import {
   assertScenarioMutationInput,
   assertScenarioRelationsAttachable,
@@ -24,6 +25,7 @@ export default defineEventHandler(async (event) => {
         message: 'Invalid scenario ID. It must be a positive integer.',
       })
     }
+    const scenarioId = id
 
     const { isValid, user } = await validateApiKey(event)
 
@@ -35,7 +37,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const existingScenario = await prisma.scenario.findUnique({
-      where: { id },
+      where: { id: scenarioId },
       select: {
         id: true,
         userId: true,
@@ -49,7 +51,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (existingScenario.userId !== user.id && !userIsAdmin(user)) {
+    const isAdmin = userIsAdmin(user)
+    if (existingScenario.userId !== user.id && !isAdmin) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this scenario.',
@@ -63,10 +66,10 @@ export default defineEventHandler(async (event) => {
       context: 'Scenario patch payload',
       requireNonEmpty: true,
       authenticatedUserId: user.id,
-      routeId: id,
+      routeId: scenarioId,
     })
 
-    await assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))
+    await assertScenarioRelationsAttachable(body, user.id, isAdmin)
 
     const data = await buildScenarioUpdateInput(body)
 
@@ -77,10 +80,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const updatedScenario = await prisma.scenario.update({
-      where: { id },
-      data,
-      select: scenarioMutationSelect,
+    const updatedScenario = await prisma.$transaction(async (tx) => {
+      const scenario = await tx.scenario.update({
+        where: { id: scenarioId },
+        data,
+        select: scenarioMutationSelect,
+      })
+      if ('genres' in data) {
+        await syncScenarioGenreFacetsInTransaction(tx, scenario, {
+          userId: user.id,
+          isAdmin,
+        })
+      }
+      return scenario
     })
 
     event.node.res.statusCode = 200

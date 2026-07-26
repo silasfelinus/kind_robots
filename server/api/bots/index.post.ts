@@ -6,17 +6,12 @@ import { requireApiUser } from '@/server/utils/authGuard'
 import { assertOnlyFields } from '../../utils/chatApi'
 import { normalizeSlugInput } from '../../../utils/slugify'
 import { getUniqueBotSlug } from '../../utils/botSlug'
+import { syncBotFacetsInTransaction } from '../../utils/botFacetSync'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
 import { assertBotRelationsAttachable } from './relations'
 
-// Every persisted Bot column plus the relation keys a round-tripped Bot object
-// (the store sends a full Partial<Bot>) can echo, plus the `dreamIds` input
-// alias. Persisted fields are read below; identity/system/relation keys are
-// tolerated but never trusted. Anything outside this set is rejected (400)
-// instead of silently dropped (audit F-4).
 const botCreateFields = new Set<string>([
-  // persisted scalars
   'BotType',
   'name',
   'slug',
@@ -44,12 +39,10 @@ const botCreateFields = new Set<string>([
   'canDelete',
   'isMature',
   'isActive',
-  // relation inputs
   'serverId',
   'artImageId',
   'Dreams',
   'dreamIds',
-  // identity/system + relation keys tolerated on a round-tripped row
   'id',
   'createdAt',
   'updatedAt',
@@ -243,9 +236,16 @@ export default defineEventHandler(async (event) => {
       Dreams: dreamConnect,
     }
 
-    const bot = await prisma.bot.create({
-      data,
-      select: botMutationSelect,
+    const bot = await prisma.$transaction(async (tx) => {
+      const created = await tx.bot.create({
+        data,
+        select: botMutationSelect,
+      })
+      await syncBotFacetsInTransaction(tx, created, {
+        userId: user.id,
+        isAdmin: isAdmin || isServerKey,
+      })
+      return created
     })
 
     event.node.res.statusCode = 201
@@ -259,7 +259,6 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-
     return {
       success: false,
       data: null,

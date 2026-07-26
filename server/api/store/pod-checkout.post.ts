@@ -12,6 +12,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { checkPrintEligibility } from '../art/utils/printEligibility'
+import { POD_CATALOG } from './podCatalog'
 
 let stripe: Stripe | null = null
 
@@ -27,36 +28,6 @@ function getStripeClient() {
 
   stripe ??= new Stripe(secretKey)
   return stripe
-}
-
-// Placeholder Printful catalog — variant ids are not real Printful catalog
-// ids (no vendor account exists yet). Pricing mirrors the display-only
-// stores/seeds/cartItems.ts tiers so this doesn't introduce a second price
-// for the same product type.
-const POD_CATALOG: Record<
-  string,
-  { title: string; priceCents: number; printfulVariantId: string }
-> = {
-  print: {
-    title: 'Art Print',
-    priceCents: 1299,
-    printfulVariantId: 'PLACEHOLDER_PRINT',
-  },
-  shirt: {
-    title: 'T-Shirt',
-    priceCents: 2499,
-    printfulVariantId: 'PLACEHOLDER_SHIRT',
-  },
-  sticker: {
-    title: 'Sticker',
-    priceCents: 499,
-    printfulVariantId: 'PLACEHOLDER_STICKER',
-  },
-  mug: {
-    title: 'Mug',
-    priceCents: 1649,
-    printfulVariantId: 'PLACEHOLDER_MUG',
-  },
 }
 
 function parseBody(body: unknown): {

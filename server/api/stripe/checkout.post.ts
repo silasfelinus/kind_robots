@@ -5,6 +5,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { cartItems } from '@/stores/seeds/cartItems'
+import { checkPrintEligibility } from '../art/utils/printEligibility'
 
 let stripe: Stripe | null = null
 
@@ -22,7 +23,16 @@ function getStripeClient() {
   return stripe
 }
 
-function parseCart(body: unknown): Array<{ id: string; quantity: number }> {
+type ParsedCartEntry = {
+  id: string
+  quantity: number
+  // Only set (and required) for catalog items where needsArt is true
+  // (print/shirt/sticker/mug — see stores/seeds/cartItems.ts). null for
+  // every other type (donation, tokens, book, ...).
+  artImageId: number | null
+}
+
+function parseCart(body: unknown): ParsedCartEntry[] {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     throw createError({
       statusCode: 400,
@@ -56,7 +66,11 @@ function parseCart(body: unknown): Array<{ id: string; quantity: number }> {
     })
   }
 
-  const quantities = new Map<string, number>()
+  // Dedup key for needsArt items includes artImageId so two different prints
+  // of the same product type (e.g. two different "print" line items) stay as
+  // distinct entries instead of being merged into one combined-quantity line
+  // with no way to tell which art each unit is for.
+  const entries = new Map<string, ParsedCartEntry>()
 
   for (const entry of record.cart) {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
@@ -68,7 +82,8 @@ function parseCart(body: unknown): Array<{ id: string; quantity: number }> {
 
     const item = entry as Record<string, unknown>
     const invalidFields = Object.keys(item).filter(
-      (field) => field !== 'id' && field !== 'quantity',
+      (field) =>
+        field !== 'id' && field !== 'quantity' && field !== 'artImageId',
     )
 
     if (invalidFields.length) {
@@ -111,7 +126,25 @@ function parseCart(body: unknown): Array<{ id: string; quantity: number }> {
       })
     }
 
-    const combinedQuantity = (quantities.get(id) || 0) + quantity
+    let artImageId: number | null = null
+
+    if (trustedItem.needsArt) {
+      if (
+        !Number.isSafeInteger(item.artImageId) ||
+        (item.artImageId as number) <= 0
+      ) {
+        throw createError({
+          statusCode: 400,
+          message: `A valid artImageId is required for ${id}.`,
+        })
+      }
+
+      artImageId = Number(item.artImageId)
+    }
+
+    const dedupeKey = artImageId != null ? `${id}:${artImageId}` : id
+    const existing = entries.get(dedupeKey)
+    const combinedQuantity = (existing?.quantity || 0) + quantity
 
     if (combinedQuantity > 25) {
       throw createError({
@@ -120,18 +153,63 @@ function parseCart(body: unknown): Array<{ id: string; quantity: number }> {
       })
     }
 
-    quantities.set(id, combinedQuantity)
+    entries.set(dedupeKey, { id, artImageId, quantity: combinedQuantity })
   }
 
-  return Array.from(quantities, ([id, quantity]) => ({ id, quantity }))
+  return Array.from(entries.values())
 }
 
 export default defineEventHandler(async (event) => {
   try {
-    const { user } = await requireApiUser(event)
+    const { user, isAdmin } = await requireApiUser(event)
     const cart = parseCart(await readBody<unknown>(event))
     const stripeClient = getStripeClient()
     const email = user.email || `user-${user.id}@kindrobots.org`
+
+    // Re-check print eligibility server-side for every art-requiring line
+    // before creating the Stripe session — never trust the client's
+    // disabled-button state (same enforcement point as pod-checkout.post.ts).
+    // Any ineligible line fails the whole checkout rather than silently
+    // dropping just that item, so the user is never charged for less than
+    // the cart they reviewed.
+    for (const { id, artImageId } of cart) {
+      if (artImageId == null) continue
+
+      const image = await prisma.artImage.findUnique({
+        where: { id: artImageId },
+        select: {
+          userId: true,
+          isMature: true,
+          isPublic: true,
+          isActive: true,
+          checkpointResourceId: true,
+          CheckpointResource: { select: { commercialSafe: true } },
+        },
+      })
+
+      if (!image) {
+        throw createError({
+          statusCode: 404,
+          message: `ArtImage ${artImageId} for ${id} not found.`,
+        })
+      }
+
+      const eligibility = checkPrintEligibility(
+        image,
+        image.CheckpointResource,
+        {
+          userId: user.id,
+          isAdmin,
+        },
+      )
+
+      if (!eligibility.eligible) {
+        throw createError({
+          statusCode: 403,
+          message: `${id} (ArtImage ${artImageId}): ${eligibility.reason}`,
+        })
+      }
+    }
 
     const customerId =
       user.stripeCustomerId ??
@@ -144,7 +222,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const lineItems = cart.map(({ id, quantity }) => {
+    const lineItems = cart.map(({ id, quantity, artImageId }) => {
       const item = cartItems.find((candidate) => candidate.id === id)
 
       if (!item) {
@@ -169,8 +247,13 @@ export default defineEventHandler(async (event) => {
         // (Stripe LineItem objects have their own metadata field, distinct
         // from price_data.product_data) so handleGiftshopCartPurchase can
         // fulfil each line item by its cart catalog type without needing to
-        // parse it back out of the display name.
-        metadata: { giftshopType: id },
+        // parse it back out of the display name. artImageId (string — Stripe
+        // metadata values are always strings) is only present for needsArt
+        // types, so handleGiftshopCartPurchase can create a real PrintJob.
+        metadata: {
+          giftshopType: id,
+          ...(artImageId != null ? { artImageId: String(artImageId) } : {}),
+        },
       }
     })
 

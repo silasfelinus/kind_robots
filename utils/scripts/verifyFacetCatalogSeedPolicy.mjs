@@ -6,10 +6,15 @@ import {
 } from '../../scripts/lib/facetCatalogSeedPolicy.mjs'
 
 assert.equal(isFacetCatalogSourcePath('stores/helpers/adventureCards.ts'), true)
+assert.equal(isFacetCatalogSourcePath('stores/helpers/scenarioCards.ts'), true)
 assert.equal(isFacetCatalogSourcePath('stores/utils/animalData.ts'), true)
 assert.equal(isFacetCatalogSourcePath('utils/seeds/facetGenderArtwork.ts'), true)
 assert.equal(isFacetCatalogSourcePath('utils/seeds/facetGenderValues.ts'), true)
 assert.equal(isFacetCatalogSourcePath('utils/scripts/seedGenderFacetCatalog.ts'), true)
+assert.equal(
+  isFacetCatalogSourcePath('utils/scripts/seedScenarioGenreFacetCatalog.ts'),
+  true,
+)
 assert.equal(
   isFacetCatalogSourcePath('utils/seeds/facetLegacyCharacterLists.ts'),
   true,
@@ -44,7 +49,7 @@ assert.deepEqual(
   decideFacetCatalogSeed({
     isVercelBuild: true,
     isProductionDeployment: false,
-    changedFiles: ['stores/helpers/adventureCards.ts'],
+    changedFiles: ['stores/helpers/scenarioCards.ts'],
   }).run,
   false,
 )
@@ -67,27 +72,21 @@ assert.deepEqual(
   false,
 )
 
-assert.deepEqual(
-  decideFacetCatalogSeed({
-    isVercelBuild: true,
-    isProductionDeployment: true,
-    changedFiles: ['stores/helpers/adventureCards.ts'],
-  }).run,
-  true,
-)
-
-for (const snapshot of [
+for (const source of [
+  'stores/helpers/adventureCards.ts',
+  'stores/helpers/scenarioCards.ts',
   'utils/seeds/facetGenderArtwork.ts',
   'utils/seeds/facetGenderValues.ts',
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',
   'utils/scripts/seedGenderFacetCatalog.ts',
+  'utils/scripts/seedScenarioGenreFacetCatalog.ts',
 ]) {
   assert.deepEqual(
     decideFacetCatalogSeed({
       isVercelBuild: true,
       isProductionDeployment: true,
-      changedFiles: [snapshot],
+      changedFiles: [source],
     }).run,
     true,
   )

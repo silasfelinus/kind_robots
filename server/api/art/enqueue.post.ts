@@ -430,6 +430,8 @@ function buildJobPayload(
       sampler: body.sampler ?? null,
       scheduler: body.scheduler ?? null,
       denoise: body.denoise ?? null,
+      loraName: body.loraName ?? null,
+      loraStrength: body.loraStrength ?? null,
     })
 
     return {

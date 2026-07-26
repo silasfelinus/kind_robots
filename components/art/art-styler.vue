@@ -1478,6 +1478,11 @@ async function runStyleTransfer(): Promise<void> {
       isMature: sourceImage.isMature ?? false,
       sourceImageId: sourceImage.id > 0 ? sourceImage.id : undefined,
       sourceImageBase64: base64Payload,
+      // Actually load the style's LoRA in the render graph (see
+      // buildKontextWorkflow's LoraLoaderModelOnly wiring) — previously this
+      // only reached the graph as inert `<lora:...>` prompt text.
+      loraName: style.loraPath || undefined,
+      loraStrength: style.loraPath ? (style.loraWeight ?? 1) : undefined,
       // Provenance: link the generated image back to the LoRA Resource this
       // style is backed by (see resourceProvenance.ts / #937).
       loraResourceIds: style.resourceId ? [style.resourceId] : undefined,

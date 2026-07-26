@@ -1,6 +1,12 @@
 <!-- /components/art/generate-button.vue -->
 <template>
   <section class="flex w-full flex-col gap-3">
+    <art-facet-selector
+      v-model="artFacetDraft.selectedIds"
+      label="Creative Facets"
+      :compact="true"
+    />
+
     <div
       class="grid w-full grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
     >
@@ -115,6 +121,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useArtStore, type GenerateArtData } from '@/stores/artStore'
+import { useArtFacetDraftStore } from '@/stores/artFacetDraftStore'
 import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'
 import { useServerStore } from '@/stores/serverStore'
@@ -152,6 +159,7 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
+const artFacetDraft = useArtFacetDraftStore()
 const errorStore = useErrorStore()
 const manaStore = useManaStore()
 const userStore = useUserStore()
@@ -163,9 +171,6 @@ const resultImage = computed(
   () => artStore.lastGeneratedArtImage || artStore.currentArtImage || null,
 )
 
-// While a generation is in flight it now goes through the durable ArtJob
-// queue: reflect whether the job is waiting for the relay ("Queued…") or
-// actively rendering ("Rendering…"). Falls back to the caller's busyLabel.
 const busyText = computed(() => {
   if (artStore.queueState === 'queued') return 'Queued…'
   if (artStore.queueState === 'rendering') return 'Rendering…'
@@ -190,7 +195,6 @@ const hasServerChoices = computed(() => {
 
 const alternateServerOptions = computed<Server[]>(() => {
   const defaultId = defaultServerId.value
-
   return serverOptions.value.filter((server) => {
     if (!server?.id) return false
     return server.id !== defaultId
@@ -199,28 +203,19 @@ const alternateServerOptions = computed<Server[]>(() => {
 
 const selectedSpecificServerId = computed<number | null>(() => {
   if (!serverChoice.value.startsWith('server:')) return null
-
   const id = Number(serverChoice.value.replace('server:', ''))
-
   return Number.isInteger(id) && id > 0 ? id : null
 })
 
 const selectedSpecificServer = computed<Server | null>(() => {
   const id = selectedSpecificServerId.value
   if (!id) return null
-
   return serverStore.getServerById(id) || null
 })
 
 const displayServer = computed<Server | null>(() => {
-  if (serverChoice.value === 'default') {
-    return defaultServer.value
-  }
-
-  if (serverChoice.value.startsWith('server:')) {
-    return selectedSpecificServer.value
-  }
-
+  if (serverChoice.value === 'default') return defaultServer.value
+  if (serverChoice.value.startsWith('server:')) return selectedSpecificServer.value
   return artStore.activeGenerationServer || defaultServer.value || null
 })
 
@@ -229,10 +224,7 @@ const billingServer = computed<Server | null>(() => {
 })
 
 const defaultServerOptionLabel = computed(() => {
-  if (!defaultServer.value) {
-    return 'Default Image Server'
-  }
-
+  if (!defaultServer.value) return 'Default Image Server'
   return `Default: ${getServerDisplayLabel(defaultServer.value)}`
 })
 
@@ -252,13 +244,8 @@ const selectionSummary = computed(() => {
   if (serverChoice.value === 'any') {
     return 'Whatever compatible image server is available'
   }
-
   const server = displayServer.value
-
-  if (!server) {
-    return 'No image server selected'
-  }
-
+  if (!server) return 'No image server selected'
   return getServerDisplayLabel(server)
 })
 
@@ -268,38 +255,32 @@ const selectionDetail = computed(() => {
       ? 'Uses your preferred image server. Change this in Server Connections.'
       : 'No preferred image server is currently saved.'
   }
-
   if (serverChoice.value === 'any') {
     return 'The art store will pick the best compatible server for this request.'
   }
-
   return 'Uses this server for this generation only.'
 })
 
 const usesOwnServer = computed(() => {
   const server = billingServer.value
-
-  if (!server) return false
-  if (!server.isActive) return false
+  if (!server || !server.isActive) return false
   if (server.userId && server.userId === userStore.userId) return true
   if (server.isPublic && !server.isOfficial) return true
-
   return false
 })
 
 const canAfford = computed(() => {
   if (manaStore.isFamily) return true
   if (usesOwnServer.value) return true
-
   return manaStore.balance > 0
 })
 
 const canClick = computed(() => {
   return Boolean(
     artStore.canGenerateArt &&
-    !artStore.isGenerating &&
-    canAfford.value &&
-    hasServerChoices.value,
+      !artStore.isGenerating &&
+      canAfford.value &&
+      hasServerChoices.value,
   )
 })
 
@@ -307,20 +288,15 @@ watch(
   () => artStore.artForm.serverId,
   (serverId) => {
     if (!serverId) {
-      if (serverChoice.value.startsWith('server:')) {
-        serverChoice.value = 'default'
-      }
-
+      if (serverChoice.value.startsWith('server:')) serverChoice.value = 'default'
       return
     }
-
     serverChoice.value = getSpecificServerValue(serverId)
   },
 )
 
 onMounted(async () => {
-  await artStore.prepareArtGenerator()
-
+  await Promise.all([artStore.prepareArtGenerator(), artFacetDraft.initialize()])
   if (artStore.artForm.serverId) {
     serverChoice.value = getSpecificServerValue(artStore.artForm.serverId)
   }
@@ -335,7 +311,6 @@ function getServerEngineLabel(server: Server): string {
   if (server.serverType === 'COMFY') return 'Comfy'
   if (server.serverType === 'A1111') return 'Stable Diffusion'
   if (server.serverType === 'ANTHROPIC') return 'Anthropic'
-
   return 'Image'
 }
 
@@ -345,24 +320,16 @@ function getServerDisplayLabel(server: Server): string {
 }
 
 function handleServerChoiceChange() {
-  if (serverChoice.value === 'default') {
+  if (serverChoice.value === 'default' || serverChoice.value === 'any') {
     artStore.selectGenerationServer(null)
     return
   }
-
-  if (serverChoice.value === 'any') {
-    artStore.selectGenerationServer(null)
-    return
-  }
-
   const serverId = selectedSpecificServerId.value
-
   if (!serverId) {
     artStore.selectGenerationServer(null)
     serverChoice.value = 'default'
     return
   }
-
   artStore.selectGenerationServer(serverId)
 }
 
@@ -387,46 +354,55 @@ function buildCleanRoutingOverrides(): Pick<
 
 function buildGenerationOverrides(): GenerateArtDataWithRouting {
   const cleanRouting = buildCleanRoutingOverrides()
+  let routed: GenerateArtDataWithRouting
 
   if (serverChoice.value === 'default') {
-    return {
+    routed = {
       ...props.overrides,
       ...cleanRouting,
       serverId: null,
       serverName: null,
       serverSelectionMode: 'default',
     }
-  }
-
-  if (serverChoice.value === 'any') {
-    return {
+  } else if (serverChoice.value === 'any') {
+    routed = {
       ...props.overrides,
       ...cleanRouting,
       serverId: null,
       serverName: null,
       serverSelectionMode: 'any',
     }
+  } else {
+    const server = selectedSpecificServer.value
+    routed = {
+      ...props.overrides,
+      ...cleanRouting,
+      serverId: server?.id ?? null,
+      serverName: server
+        ? server.label || server.title || `Server #${server.id}`
+        : null,
+      serverSelectionMode: 'specific',
+    }
   }
 
-  const server = selectedSpecificServer.value
-
-  return {
-    ...props.overrides,
-    ...cleanRouting,
-    serverId: server?.id ?? null,
-    serverName: server
-      ? server.label || server.title || `Server #${server.id}`
-      : null,
-    serverSelectionMode: 'specific',
-  }
+  const basePrompt = String(
+    routed.promptString ||
+      routed.artPrompt ||
+      routed.prompt ||
+      artStore.finalPromptString ||
+      artStore.artForm.promptString ||
+      '',
+  )
+  return artFacetDraft.decorateGenerationData(
+    routed as Record<string, unknown>,
+    basePrompt,
+  ) as GenerateArtDataWithRouting
 }
 
 async function handleGenerate() {
   const result = await artStore.generateCurrentArt(buildGenerationOverrides())
-
   if (!result.success || !result.data) {
     const message = result.message || 'Generation failed.'
-
     if (/mana|⚡/i.test(message)) {
       errorStore.addError(
         ErrorType.INTERACTION_ERROR,
@@ -435,11 +411,9 @@ async function handleGenerate() {
     } else {
       errorStore.addError(ErrorType.GENERAL_ERROR, message)
     }
-
     emit('failed', message)
     return
   }
-
   emit('generated', result.data)
 }
 </script>

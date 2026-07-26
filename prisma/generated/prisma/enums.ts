@@ -155,7 +155,10 @@ export const ResourceType = {
   SAMPLER: 'SAMPLER',
   CONTROLNET: 'CONTROLNET',
   URL: 'URL',
-  API: 'API'
+  API: 'API',
+  VAE: 'VAE',
+  TEXT_ENCODER: 'TEXT_ENCODER',
+  DIFFUSION_MODEL: 'DIFFUSION_MODEL'
 } as const
 
 export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
@@ -420,7 +423,9 @@ export const SupportedServer = {
   KONTEXT: 'KONTEXT',
   GENERIC: 'GENERIC',
   UNKNOWN: 'UNKNOWN',
-  OPENAI: 'OPENAI'
+  OPENAI: 'OPENAI',
+  LTX: 'LTX',
+  WAN: 'WAN'
 } as const
 
 export type SupportedServer = (typeof SupportedServer)[keyof typeof SupportedServer]
@@ -599,6 +604,41 @@ export const OrderStatus = {
 } as const
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const GrantSubject = {
+  PROJECT: 'PROJECT',
+  RESOURCE: 'RESOURCE'
+} as const
+
+export type GrantSubject = (typeof GrantSubject)[keyof typeof GrantSubject]
+
+
+export const GrantLevel = {
+  VIEW: 'VIEW',
+  ADMIN: 'ADMIN'
+} as const
+
+export type GrantLevel = (typeof GrantLevel)[keyof typeof GrantLevel]
+
+
+export const GrantSource = {
+  MANUAL: 'MANUAL',
+  PURCHASE: 'PURCHASE',
+  SUBSCRIPTION: 'SUBSCRIPTION',
+  ADMIN: 'ADMIN'
+} as const
+
+export type GrantSource = (typeof GrantSource)[keyof typeof GrantSource]
+
+
+export const GrantStatus = {
+  ACTIVE: 'ACTIVE',
+  REVOKED: 'REVOKED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type GrantStatus = (typeof GrantStatus)[keyof typeof GrantStatus]
 
 
 export const ComponentStatus = {

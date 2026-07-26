@@ -774,6 +774,36 @@ model Entitlement {
   @@index([productId])
 }
 
+/// Generalized access grant for private-but-shared content (SHARING-SPEC.md,
+/// pitches/2026-07-17-sharing-grant-model.md, approved by Silas 2026-07-25).
+/// One row answers "does granteeId have `level` access to subjectType:subjectId".
+/// subjectId is an unenforced cross-reference (same informal pattern as other
+/// polymorphic ids in this schema) — validate subjectType/subjectId together
+/// in the application layer, not via FK. Revocation flips status rather than
+/// deleting the row, matching ManaTransaction's append-only audit trail.
+/// GrantSubject.PACK is deliberately deferred until the separate Pack-model
+/// pitch lands. refId is an unenforced back-reference to whatever produced
+/// this grant (e.g. a ManaTransaction or Stripe session id).
+model Grant {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @default(now()) @updatedAt
+  granterId   Int?
+  granteeId   Int
+  subjectType GrantSubject
+  subjectId   Int
+  level       GrantLevel
+  source      GrantSource
+  refId       Int?
+  status      GrantStatus  @default(ACTIVE)
+  expiresAt   DateTime?
+  Granter     User?        @relation("GrantGranter", fields: [granterId], references: [id], onDelete: SetNull)
+  Grantee     User         @relation("GrantGrantee", fields: [granteeId], references: [id], onDelete: Cascade)
+
+  @@index([granteeId, subjectType, subjectId, status])
+  @@index([subjectType, subjectId])
+}
+
 /// the records of achievements earned. They record the date, username, id, etc. Users are given the option to clear their achievements so they can hunt fresh. I use this extensively in debugging.
 model AchievementRecord {
   id                     Int                     @id @default(autoincrement())
@@ -1327,6 +1357,8 @@ model User {
   ArtImage               ArtImage?                 @relation("UserProfileImage", fields: [artImageId], references: [id])
   RelationsReceived      UserRelation[]            @relation("UserRelationTarget")
   RelationsOwned         UserRelation[]            @relation("UserRelationOwner")
+  GrantsGiven            Grant[]                   @relation("GrantGranter")
+  GrantsReceived         Grant[]                   @relation("GrantGrantee")
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }
@@ -1403,12 +1435,12 @@ model ArtJob {
 /// endpoint stops handing jobs to relays, so the queue is preserved but not
 /// drained until resumed. Always id = 1 (one row).
 model QueueControl {
-  id        Int      @id @default(1)
-  paused    Boolean  @default(false)
-  pausedBy  String?  @db.VarChar(255)
+  id        Int       @id @default(1)
+  paused    Boolean   @default(false)
+  pausedBy  String?   @db.VarChar(255)
   pausedAt  DateTime?
-  note      String?  @db.VarChar(500)
-  updatedAt DateTime @default(now()) @updatedAt
+  note      String?   @db.VarChar(500)
+  updatedAt DateTime  @default(now()) @updatedAt
 }
 
 /// Economy: karma ledger — separate from mana, tracks community contribution score
@@ -2253,6 +2285,36 @@ enum OrderStatus {
   REFUNDED
 }
 
+/// What kind of thing a Grant's subjectId points at. PACK is deliberately
+/// deferred until the separate Pack-model pitch lands.
+enum GrantSubject {
+  PROJECT
+  RESOURCE
+}
+
+/// Flat VIEW/ADMIN split for the first cut (Silas, 2026-07-25) — no finer
+/// ADMIN sub-permissions yet.
+enum GrantLevel {
+  VIEW
+  ADMIN
+}
+
+enum GrantSource {
+  MANUAL
+  PURCHASE
+  SUBSCRIPTION
+  ADMIN
+}
+
+/// Revocation flips status rather than deleting the row. Auto-revoking on
+/// refund is NOT wired — manual/admin action only until Silas decides
+/// otherwise (open question 2 in the Grant-model pitch).
+enum GrantStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
 enum ComponentStatus {
   UNREVIEWED
   WORKING
@@ -2325,38 +2387,38 @@ enum MediaType {
 /// projects/media-watchlist/docs/t-008-final-schema-and-browse-api.md for the
 /// full field-by-field reconciliation against the real 2014-2026 import.
 model MediaEntry {
-  id            Int        @id @default(autoincrement())
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime?  @default(now()) @updatedAt
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
 
-  userId        Int?       @default(1)
+  userId Int? @default(1)
 
-  year          Int
-  mediaType     MediaType
-  title         String     @db.VarChar(512)
-  starred       Boolean    @default(false)
-  rewatch       Int?       // total watch count when the source marked a rewatch (e.g. "x2" -> 2); null = single/first watch, per source
+  year      Int
+  mediaType MediaType
+  title     String    @db.VarChar(512)
+  starred   Boolean   @default(false)
+  rewatch   Int? // total watch count when the source marked a rewatch (e.g. "x2" -> 2); null = single/first watch, per source
 
-  releaseYear   Int?
-  watchedMonth  Int?
-  watchedDay    Int?
-  dateRaw       String?    @db.VarChar(32)
+  releaseYear  Int?
+  watchedMonth Int?
+  watchedDay   Int?
+  dateRaw      String? @db.VarChar(32)
 
-  season        Int?       // TV only
-  author        String?    @db.VarChar(256)
-  pageCount     Int?       // BOOK / NOVELLA
-  durationHours Float?     // AUDIOBOOK
-  issueCount    Int?       // COMIC
-  issueRange    String?    @db.VarChar(64) // COMIC, e.g. "134-150"
+  season        Int? // TV only
+  author        String? @db.VarChar(256)
+  pageCount     Int? // BOOK / NOVELLA
+  durationHours Float? // AUDIOBOOK
+  issueCount    Int? // COMIC
+  issueRange    String? @db.VarChar(64) // COMIC, e.g. "134-150"
 
-  review        String?    @db.Text
-  reviewPublic  Boolean    @default(false)
-  rating        Int?       // 1-10, nullable
-  externalId    String?    @db.VarChar(128) // e.g. Letterboxd film slug
-  externalUrl   String?    @db.VarChar(512)
+  review       String? @db.Text
+  reviewPublic Boolean @default(false)
+  rating       Int? // 1-10, nullable
+  externalId   String? @db.VarChar(128) // e.g. Letterboxd film slug
+  externalUrl  String? @db.VarChar(512)
 
-  notes         String?    @db.Text
-  sourceFile    String?    @db.VarChar(128) // import provenance, e.g. "media_list.md"
+  notes      String? @db.Text
+  sourceFile String? @db.VarChar(128) // import provenance, e.g. "media_list.md"
 
   @@index([userId, year, mediaType])
   @@index([starred])

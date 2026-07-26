@@ -64,6 +64,7 @@ async function main(): Promise<void> {
     catalogStore: 'stores/facetCatalogStore.ts',
     seed: 'utils/scripts/seedBotFacetCatalog.ts',
     legacySeed: 'utils/scripts/seedLegacyBotTypeFacets.ts',
+    normalizePersonality: 'utils/scripts/normalizeBotPersonalityFacetValues.ts',
     wrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     sync: 'server/utils/botFacetSync.ts',
     create: 'server/api/bots/index.post.ts',
@@ -71,7 +72,9 @@ async function main(): Promise<void> {
     batch: 'server/api/bots/batch.post.ts',
     get: 'server/api/bots/[id]/facets.get.ts',
     plugin: 'plugins/20.facet-catalog.client.ts',
+    randomStore: 'stores/randomStore.ts',
     policy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
+    legacyTypes: 'utils/seeds/facetLegacyBotTypes.ts',
   } as const
 
   const entries = await Promise.all(
@@ -97,14 +100,37 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'backfillBots')
   requireText(files.seed, text.seed, 'builderValue')
   requireText(files.legacySeed, text.legacySeed, 'LEGACY_BOT_TYPE_VALUES')
+  requireText(
+    files.normalizePersonality,
+    text.normalizePersonality,
+    "canonicalValue: { startsWith: 'personality:' }",
+  )
+  requireText(
+    files.normalizePersonality,
+    text.normalizePersonality,
+    'data: { canonicalValue: update.to }',
+  )
   for (const value of ['CHATBOT', 'PROMPTBOT', 'NARRATOR']) {
-    requireText('utils/seeds/facetLegacyBotTypes.ts', await readFile(resolve(root, 'utils/seeds/facetLegacyBotTypes.ts'), 'utf8'), value)
+    requireText(files.legacyTypes, text.legacyTypes, value)
   }
   requireText(files.wrapper, text.wrapper, "import('./seedLegacyBotTypeFacets')")
   requireText(files.wrapper, text.wrapper, "import('./seedBotFacetCatalog')")
+  requireText(
+    files.wrapper,
+    text.wrapper,
+    "import('./normalizeBotPersonalityFacetValues')",
+  )
   requireText(files.sync, text.sync, 'syncBotFacetsInTransaction')
-  requireText(files.sync, text.sync, "taxonomy: { in: ['BOT_TYPE', 'PERSONALITY'] }")
-  requireText(files.sync, text.sync, "fieldKey: { in: ['BotType', 'personality'] }")
+  requireText(
+    files.sync,
+    text.sync,
+    "taxonomy: { in: ['BOT_TYPE', 'PERSONALITY'] }",
+  )
+  requireText(
+    files.sync,
+    text.sync,
+    "fieldKey: { in: ['BotType', 'personality'] }",
+  )
   for (const [source, label] of [
     [text.create, files.create],
     [text.patch, files.patch],
@@ -119,10 +145,12 @@ async function main(): Promise<void> {
   requireText(files.plugin, text.plugin, 'hydrateBotBuilder')
   requireText(files.plugin, text.plugin, 'builderChoicesForBotField')
   requireText(files.plugin, text.plugin, "fieldKey === 'personality'")
+  requireText(files.randomStore, text.randomStore, "botType: ['BOT_TYPE']")
   for (const source of [
     'stores/helpers/botCards.ts',
     'utils/seeds/facetBotTypeArtwork.ts',
     'utils/seeds/facetLegacyBotTypes.ts',
+    'utils/scripts/normalizeBotPersonalityFacetValues.ts',
     'utils/scripts/seedBotFacetCatalog.ts',
     'utils/scripts/seedLegacyBotTypeFacets.ts',
   ]) {

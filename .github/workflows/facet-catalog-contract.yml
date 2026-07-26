@@ -32,16 +32,25 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
-      - name: Validate schema and cutover contract
+      - name: Validate Facet schema and cutover
+        run: npm run test:facet-catalog
+
+      - name: Verify Facet seed policy
+        run: node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
+
+      - name: Verify retired Facet sources
         run: |
-          npm run test:facet-catalog
-          node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
           node utils/scripts/verifyFacetLegacySeedSnapshots.mjs
           node utils/scripts/verifyRetiredRewardRandomizers.mjs
+
+      - name: Verify Facet generation contracts
+        run: |
           npx tsx utils/scripts/verifyFacetArtGeneration.ts
           npx tsx utils/scripts/verifyDreamRandomCompatibility.ts
           npx tsx utils/scripts/verifyFacetLibraryAdvanced.ts
-          npx tsx utils/scripts/verifyFacetBuilderCoverage.ts
+
+      - name: Verify illustrated Builder Facet coverage
+        run: npx tsx utils/scripts/verifyFacetBuilderCoverage.ts
 
       - name: Verify curated Facet artwork
         id: artwork

@@ -14,6 +14,12 @@ function requireText(path: string, text: string, value: string): void {
   }
 }
 
+function forbidText(path: string, text: string, value: string): void {
+  if (text.includes(value)) {
+    throw new Error(`${path} contains forbidden component request text: ${value}`)
+  }
+}
+
 async function main(): Promise<void> {
   const files = {
     schema: 'prisma/facet-catalog.prisma',
@@ -21,11 +27,13 @@ async function main(): Promise<void> {
       'prisma/migrations/20260726061000_reward_facet_daily_dream/migration.sql',
     blueprint: 'server/utils/dailyDreamFacetBlueprint.ts',
     endpoint: 'server/api/dreams/daily.post.ts',
+    dailyStore: 'stores/dailyDreamStore.ts',
     generator: 'components/dreams/daily-dream-generator.vue',
     dreamManager: 'components/dreams/dream-manager.vue',
     rewardHelper: 'server/utils/rewardFacetCatalog.ts',
     rewardGet: 'server/api/rewards/[id]/facets.get.ts',
     rewardPut: 'server/api/rewards/[id]/facets.put.ts',
+    rewardFacetStore: 'stores/rewardFacetStore.ts',
     rewardPicker: 'components/rewards/reward-facet-picker.vue',
     rewardManager: 'components/rewards/reward-manager.vue',
     rewardMerge: 'utils/scripts/mergeRewardFacetDuplicateLinks.ts',
@@ -66,9 +74,16 @@ async function main(): Promise<void> {
   requireText(files.endpoint, text.endpoint, 'PrismaClientKnownRequestError')
   requireText(files.endpoint, text.endpoint, 'reused: true')
 
-  requireText(files.generator, text.generator, '/api/dreams/daily')
+  requireText(files.dailyStore, text.dailyStore, 'defineStore')
+  requireText(files.dailyStore, text.dailyStore, "'/api/dreams/daily'")
+  requireText(files.dailyStore, text.dailyStore, 'performFetch<DailyDreamResponse>')
+  requireText(files.dailyStore, text.dailyStore, 'lastBlueprint.value')
+  requireText(files.generator, text.generator, 'useDailyDreamStore')
+  requireText(files.generator, text.generator, 'dailyDreamStore.createDailyDream')
   requireText(files.generator, text.generator, 'characterCount')
   requireText(files.generator, text.generator, 'rewardCount')
+  forbidText(files.generator, text.generator, '/api/dreams/daily')
+  forbidText(files.generator, text.generator, 'performFetch')
   requireText(
     files.dreamManager,
     text.dreamManager,
@@ -81,7 +96,27 @@ async function main(): Promise<void> {
   requireText(files.rewardPut, text.rewardPut, 'tx.rewardFacet.deleteMany')
   requireText(files.rewardPut, text.rewardPut, 'tx.rewardFacet.createMany')
   requireText(files.rewardPut, text.rewardPut, 'rewardFacetFieldKey(facet.taxonomy)')
-  requireText(files.rewardPicker, text.rewardPicker, '/api/rewards/${props.rewardId}/facets')
+  requireText(files.rewardFacetStore, text.rewardFacetStore, 'useFacetStore')
+  requireText(files.rewardFacetStore, text.rewardFacetStore, 'fetchRewardFacets')
+  requireText(files.rewardFacetStore, text.rewardFacetStore, 'replaceRewardFacets')
+  requireText(
+    files.rewardFacetStore,
+    text.rewardFacetStore,
+    '`/api/rewards/${id}/facets`',
+  )
+  requireText(files.rewardPicker, text.rewardPicker, 'useRewardFacetStore')
+  requireText(
+    files.rewardPicker,
+    text.rewardPicker,
+    'rewardFacetStore.fetchRewardFacets',
+  )
+  requireText(
+    files.rewardPicker,
+    text.rewardPicker,
+    'rewardFacetStore.replaceRewardFacets',
+  )
+  forbidText(files.rewardPicker, text.rewardPicker, '/api/rewards/')
+  forbidText(files.rewardPicker, text.rewardPicker, 'performFetch')
   requireText(files.rewardManager, text.rewardManager, 'reward-facet-picker')
   requireText(files.rewardManager, text.rewardManager, 'rewardFacetIds')
 

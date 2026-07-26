@@ -127,33 +127,17 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { performFetch } from '@/stores/utils'
+import { useDailyDreamStore } from '@/stores/dailyDreamStore'
 import type { DreamWithRelations } from '@/stores/dreamStore'
 
-type Blueprint = {
-  title: string
-  pitch: string
-  characters: Array<{
-    name: string
-    species: string
-    characterClass: string
-    alignment: string
-  }>
-  rewards: Array<{ name: string; rarity: string }>
-}
-
-type DailyDreamResponse = {
-  dream: DreamWithRelations
-  blueprint: Blueprint
-  reused: boolean
-}
-
 const emit = defineEmits<{ created: [dream: DreamWithRelations] }>()
-const loading = ref(false)
+const dailyDreamStore = useDailyDreamStore()
+const { isCreating: loading, lastBlueprint: blueprint } =
+  storeToRefs(dailyDreamStore)
 const message = ref('')
 const error = ref(false)
-const blueprint = ref<Blueprint | null>(null)
 const characterCount = ref(2)
 const rewardCount = ref(2)
 const today = new Date()
@@ -164,33 +148,25 @@ const dateKey = [
 ].join('-')
 
 async function createDailyDream(): Promise<void> {
-  loading.value = true
   message.value = ''
   error.value = false
-  try {
-    const response = await performFetch<DailyDreamResponse>('/api/dreams/daily', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dateKey,
-        characterCount: characterCount.value,
-        rewardCount: rewardCount.value,
-        isPublic: false,
-        isMature: false,
-      }),
-    })
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Daily Dream could not be created.')
-    }
-    blueprint.value = response.data.blueprint
-    message.value = response.message || 'Daily Dream ready.'
-    emit('created', response.data.dream)
-  } catch (cause) {
+  dailyDreamStore.clearDailyDream()
+
+  const result = await dailyDreamStore.createDailyDream({
+    dateKey,
+    characterCount: characterCount.value,
+    rewardCount: rewardCount.value,
+    isPublic: false,
+    isMature: false,
+  })
+
+  if (!result.success || !result.data) {
     error.value = true
-    message.value =
-      cause instanceof Error ? cause.message : 'Daily Dream could not be created.'
-  } finally {
-    loading.value = false
+    message.value = result.message || 'Daily Dream could not be created.'
+    return
   }
+
+  message.value = result.message || 'Daily Dream ready.'
+  emit('created', result.data.dream)
 }
 </script>

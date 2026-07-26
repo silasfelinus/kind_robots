@@ -102,11 +102,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { performFetch } from '@/stores/utils'
 import {
   useFacetStore,
   type FacetWithAliases,
 } from '@/stores/facetStore'
+import { useRewardFacetStore } from '@/stores/rewardFacetStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 
 const props = withDefaults(
@@ -119,12 +119,15 @@ const props = withDefaults(
 
 const emit = defineEmits<{ 'update:modelValue': [value: number[]] }>()
 const facetStore = useFacetStore()
-const loading = ref(false)
-const saving = ref(false)
+const rewardFacetStore = useRewardFacetStore()
 const search = ref('')
 const showResults = ref(false)
 const errorMessage = ref('')
 
+const loading = computed(() =>
+  rewardFacetStore.isLoadingReward(props.rewardId),
+)
+const saving = computed(() => rewardFacetStore.isSavingReward(props.rewardId))
 const selectedIds = computed(() => new Set(props.modelValue))
 const selectedFacets = computed(() =>
   props.modelValue
@@ -156,53 +159,37 @@ function artwork(facet: FacetWithAliases): string | null {
 
 async function loadAssigned(): Promise<void> {
   if (!props.rewardId || props.rewardId <= 0) return
-  loading.value = true
   errorMessage.value = ''
-  try {
-    const response = await performFetch<FacetWithAliases[]>(
-      `/api/rewards/${props.rewardId}/facets`,
-    )
-    if (!response.success) {
-      throw new Error(response.message || 'Reward Facets could not be loaded.')
-    }
-    const facets = response.data ?? []
-    for (const facet of facets) {
-      const index = facetStore.facets.findIndex((entry) => entry.id === facet.id)
-      if (index >= 0) facetStore.facets[index] = facet
-      else facetStore.facets.push(facet)
-    }
-    emit('update:modelValue', facets.map((facet) => facet.id))
-  } catch (cause) {
-    errorMessage.value =
-      cause instanceof Error ? cause.message : 'Reward Facets could not be loaded.'
-  } finally {
-    loading.value = false
+
+  const result = await rewardFacetStore.fetchRewardFacets(props.rewardId)
+  if (!result.success || !result.data) {
+    errorMessage.value = result.message || 'Reward Facets could not be loaded.'
+    return
   }
+
+  emit(
+    'update:modelValue',
+    result.data.map((facet) => facet.id),
+  )
 }
 
 async function persist(next: number[]): Promise<void> {
+  const previous = [...props.modelValue]
   emit('update:modelValue', next)
   if (!props.rewardId || props.rewardId <= 0) return
-  saving.value = true
   errorMessage.value = ''
-  try {
-    const response = await performFetch<FacetWithAliases[]>(
-      `/api/rewards/${props.rewardId}/facets`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ facetIds: next }),
-      },
-    )
-    if (!response.success) {
-      throw new Error(response.message || 'Reward Facets could not be saved.')
-    }
-  } catch (cause) {
-    errorMessage.value =
-      cause instanceof Error ? cause.message : 'Reward Facets could not be saved.'
-  } finally {
-    saving.value = false
+
+  const result = await rewardFacetStore.replaceRewardFacets(props.rewardId, next)
+  if (!result.success || !result.data) {
+    emit('update:modelValue', previous)
+    errorMessage.value = result.message || 'Reward Facets could not be saved.'
+    return
   }
+
+  emit(
+    'update:modelValue',
+    result.data.map((facet) => facet.id),
+  )
 }
 
 async function addFacet(facetId: number): Promise<void> {

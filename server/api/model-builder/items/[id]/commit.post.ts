@@ -480,6 +480,13 @@ async function linkSourceToTarget(
     })
     return true
   }
+  if (sourceType === 'Dream' && targetType === 'Bot') {
+    await tx.dream.update({
+      where: { id: sourceId },
+      data: { narratorId: targetId },
+    })
+    return true
+  }
   if (sourceType === 'Character' && targetType === 'Reward') {
     await tx.character.update({
       where: { id: sourceId },

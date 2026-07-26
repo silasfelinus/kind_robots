@@ -4,6 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { userIsAdmin } from '@/server/utils/authUser'
+import { syncScenarioGenreFacetsInTransaction } from '@/server/utils/scenarioGenreFacetSync'
 import {
   buildScenarioCreateInput,
   fallbackScenarioTitle,
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
     const created: ScenarioMutationResult[] = []
     const skipped: SkippedScenario[] = []
     const failed: FailedScenario[] = []
+    const isAdmin = userIsAdmin(user)
 
     for (const rawScenarioData of body) {
       const scenarioData = rawScenarioData as ScenarioPostInput
@@ -62,7 +64,7 @@ export default defineEventHandler(async (event) => {
         await assertScenarioRelationsAttachable(
           scenarioData,
           user.id,
-          userIsAdmin(user),
+          isAdmin,
         )
 
         const createInput = await buildScenarioCreateInput(
@@ -84,9 +86,16 @@ export default defineEventHandler(async (event) => {
           continue
         }
 
-        const createdScenario = await prisma.scenario.create({
-          data: createInput,
-          select: scenarioMutationSelect,
+        const createdScenario = await prisma.$transaction(async (tx) => {
+          const scenario = await tx.scenario.create({
+            data: createInput,
+            select: scenarioMutationSelect,
+          })
+          await syncScenarioGenreFacetsInTransaction(tx, scenario, {
+            userId: user.id,
+            isAdmin,
+          })
+          return scenario
         })
 
         created.push(createdScenario)

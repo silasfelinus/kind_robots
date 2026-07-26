@@ -1,8 +1,11 @@
 // /utils/scripts/seedGenderFacetCatalog.ts
 import 'dotenv/config'
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 import { ADVENTURE_CARDS } from './../../stores/helpers/adventureCards'
+import { GENDER_ARTWORK_TARGETS } from './../seeds/facetGenderArtwork'
 import { legacyFacetGenderValues } from './../seeds/facetGenderValues'
 import {
   normalizeFacetLookupKey,
@@ -22,6 +25,7 @@ type GenderCandidate = {
   canonicalValue: string
   description?: string
   imagePath?: string
+  requestedImagePath?: string
   sortOrder: number
   sourceRank: number
   aliases: Set<string>
@@ -52,6 +56,22 @@ function titleCase(value: string): string {
     .join(' ')
 }
 
+function existingPublicImagePath(value: unknown): {
+  imagePath?: string
+  requestedImagePath?: string
+} {
+  const requestedImagePath = clean(value)
+  if (!requestedImagePath) return {}
+  if (!requestedImagePath.startsWith('/images/')) {
+    return { requestedImagePath }
+  }
+
+  const exists = existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1)))
+  return exists
+    ? { imagePath: requestedImagePath, requestedImagePath }
+    : { requestedImagePath }
+}
+
 function collectGenderCandidates(): GenderCandidate[] {
   const candidates = new Map<string, GenderCandidate>()
   const genderCard = ADVENTURE_CARDS.find((card) => card.key === 'gender')
@@ -68,11 +88,16 @@ function collectGenderCandidates(): GenderCandidate[] {
 
       const key = normalizeFacetLookupKey(canonicalValue)
       if (!key) continue
+      const artwork = existingPublicImagePath(choice.image)
+      const artworkTarget = GENDER_ARTWORK_TARGETS.find(
+        (target) => target.path === artwork.requestedImagePath,
+      )
       candidates.set(key, {
         title,
         canonicalValue,
         description: clean(choice.subtext) || undefined,
-        imagePath: clean(choice.image) || undefined,
+        imagePath: artwork.imagePath,
+        requestedImagePath: artwork.requestedImagePath,
         sortOrder,
         sourceRank: 10,
         aliases: new Set([title, canonicalValue]),
@@ -81,6 +106,9 @@ function collectGenderCandidates(): GenderCandidate[] {
           fieldKey: 'gender',
           cardKey: genderCard?.key ?? 'gender',
           stepKey: step.key,
+          requestedImagePath: artwork.requestedImagePath,
+          artworkPrompt: artworkTarget?.prompt,
+          artworkStatus: artwork.imagePath ? 'available' : 'missing',
         },
       })
     }
@@ -102,6 +130,7 @@ function collectGenderCandidates(): GenderCandidate[] {
       metadata: {
         source: 'legacy-generator-gender-list',
         fieldKey: 'gender',
+        artworkStatus: 'missing',
       },
     })
   }
@@ -211,7 +240,6 @@ async function backfillCharacterGender(
   facetIdByLookupKey: Map<string, number>,
 ): Promise<number> {
   const characters = await prisma.character.findMany({
-    where: { gender: { not: null } },
     select: { id: true, gender: true },
   })
   let linked = 0
@@ -246,6 +274,9 @@ async function main(): Promise<void> {
   const candidates = collectGenderCandidates()
   const directArtwork = candidates.filter((candidate) => candidate.imagePath).length
   const missingRequiredArt = candidates.length - directArtwork
+  const missingSourceArtwork = candidates
+    .filter((candidate) => candidate.requestedImagePath && !candidate.imagePath)
+    .map((candidate) => candidate.requestedImagePath)
 
   if (!apply) {
     process.stdout.write(
@@ -256,6 +287,7 @@ async function main(): Promise<void> {
           candidates: candidates.length,
           directArtwork,
           missingRequiredArt,
+          missingSourceArtwork,
           note: 'Run with --apply after prisma migrate deploy.',
         },
         null,
@@ -288,6 +320,7 @@ async function main(): Promise<void> {
         saved: candidates.length,
         directArtwork,
         missingRequiredArt,
+        missingSourceArtwork,
         characterLinks,
       },
       null,

@@ -6,8 +6,8 @@
   projects/media-watchlist/BROWSE-UX.md. Admin-only (this is Silas's private
   log) -- renders a locked notice for any non-admin viewer instead of erroring.
   Selecting an entry opens watchlist-entry-detail.vue (BROWSE-UX.md §3/§5).
-  The Stats view's CSV export (§4) is a separate, smaller follow-on -- still
-  out of scope here.
+  Export downloads GET /api/media-entries/export (media-watchlist/t-006),
+  honoring the current search/type/starred/sort filters.
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -120,6 +120,15 @@
           <option value="title_desc">Title Z–A</option>
           <option value="starred_first">Starred first</option>
         </select>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm ml-auto gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          @click="exportCsv"
+        >
+          <Icon name="kind-icon:download" class="size-3.5" />
+          Export CSV
+        </button>
       </div>
 
       <!-- Results -->
@@ -377,6 +386,23 @@ watch([activeTypes, starredOnly, sort], () => {
 function showMore() {
   skip.value += take
   void loadEntries()
+}
+
+function exportCsv() {
+  const params = new URLSearchParams()
+  if (search.value) params.set('search', search.value)
+  if (activeTypes.value.size) {
+    params.set('mediaType', Array.from(activeTypes.value).join(','))
+  }
+  if (starredOnly.value) params.set('starred', 'true')
+  params.set('sort', sort.value)
+
+  const link = document.createElement('a')
+  link.href = `/api/media-entries/export?${params.toString()}`
+  link.rel = 'noopener'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
 }
 
 onMounted(() => {

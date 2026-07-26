@@ -26,6 +26,7 @@ const createRoute = read('server/api/scenarios/index.post.ts')
 const patchRoute = read('server/api/scenarios/[id].patch.ts')
 const batchCreateRoute = read('server/api/scenarios/batch.post.ts')
 const batchPatchRoute = read('server/api/scenarios/batch.patch.ts')
+const genreSync = read('server/utils/scenarioGenreFacetSync.ts')
 const cypressSpec = read('cypress/e2e/api/scenario-input-boundary.cy.ts')
 const permissionSpec = read(
   'cypress/e2e/api/scenario-relation-permission.cy.ts',
@@ -164,8 +165,6 @@ requireText(
   'Scenario batch deployed regression',
 )
 
-// Phase 2: relation-connect targets must be public or owned by the caller (admins
-// bypass). The gate is wired into create, PATCH, and both batch routes.
 requireText(
   boundary,
   'export async function assertScenarioRelationsAttachable',
@@ -176,30 +175,55 @@ requireText(
   'NOT: { OR: [{ userId }, { isPublic: true }] }',
   'Scenario relation permission clause',
 )
-requireText(
-  createRoute,
-  'assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))',
-  'Scenario create relation permission wiring',
-)
-requireText(
-  patchRoute,
-  'assertScenarioRelationsAttachable(body, user.id, userIsAdmin(user))',
-  'Scenario patch relation permission wiring',
-)
-requireText(
-  batchCreateRoute,
-  'assertScenarioRelationsAttachable(',
-  'Scenario batch create relation permission wiring',
-)
-requireText(
-  batchPatchRoute,
-  'assertScenarioRelationsAttachable(fields, user.id, userIsAdmin(user))',
-  'Scenario batch patch relation permission wiring',
-)
+for (const [source, label] of [
+  [createRoute, 'Scenario create relation permission wiring'],
+  [patchRoute, 'Scenario patch relation permission wiring'],
+  [batchCreateRoute, 'Scenario batch create relation permission wiring'],
+  [batchPatchRoute, 'Scenario batch patch relation permission wiring'],
+] as const) {
+  requireText(source, 'assertScenarioRelationsAttachable(', label)
+}
 requireText(
   permissionSpec,
   'forbids attaching another user private Character on Scenario creation',
   'Scenario relation permission deployed regression',
+)
+
+// Genre strings remain compatibility fields, while canonical ScenarioFacet links
+// are synchronized in the same transaction on every mutation path.
+requireText(
+  genreSync,
+  'export async function syncScenarioGenreFacetsInTransaction',
+  'Scenario Genre Facet synchronizer',
+)
+requireText(
+  genreSync,
+  "where: { taxonomy: 'GENRE' }",
+  'Scenario Genre taxonomy boundary',
+)
+requireText(
+  genreSync,
+  'facetId: { in: genreFacetIds }',
+  'Scenario Genre-only replacement boundary',
+)
+for (const [source, label] of [
+  [createRoute, 'Scenario create Genre transaction'],
+  [patchRoute, 'Scenario patch Genre transaction'],
+  [batchCreateRoute, 'Scenario batch create Genre transaction'],
+  [batchPatchRoute, 'Scenario batch patch Genre transaction'],
+] as const) {
+  requireText(source, 'prisma.$transaction', label)
+  requireText(source, 'syncScenarioGenreFacetsInTransaction', label)
+}
+requireText(
+  patchRoute,
+  "if ('genres' in data)",
+  'Scenario patch conditional Genre sync',
+)
+requireText(
+  batchPatchRoute,
+  "if ('genres' in data)",
+  'Scenario batch patch conditional Genre sync',
 )
 
 console.log('Scenario mutation input parity contract passed.')

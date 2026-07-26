@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import { useFacetCatalogStore } from '@/stores/facetCatalogStore'
 
 export type RolledReward = {
   id: string
@@ -32,7 +33,6 @@ type RewardRecord = {
   rarity?: Rarity | null
   rewardType?: RewardType | null
   payload?: Record<string, unknown> | null
-
   label?: string | null
   title?: string | null
   text?: string | null
@@ -391,7 +391,7 @@ const SPECIES = [
   'Rabbit',
 ]
 
-const Classes = [
+const CLASSES = [
   'Rogue',
   'Warrior',
   'Wizard',
@@ -585,12 +585,9 @@ function weightedRoll<T extends { weight: number }>(options: T[]): T {
   const viable = options.filter((option) => option.weight > 0)
   const total = viable.reduce((sum, option) => sum + option.weight, 0)
 
-  if (!viable.length || total <= 0) {
-    return options[0] as T
-  }
+  if (!viable.length || total <= 0) return options[0] as T
 
   let roll = Math.random() * total
-
   for (const option of viable) {
     roll -= option.weight
     if (roll <= 0) return option
@@ -601,11 +598,9 @@ function weightedRoll<T extends { weight: number }>(options: T[]): T {
 
 function normalizeReward(reward: RewardRecord): RolledReward | null {
   const name = String(reward.name || reward.title || reward.text || '').trim()
-
   const description = String(
     reward.description || reward.text || reward.flavorText || '',
   ).trim()
-
   const effect = String(reward.effect || reward.power || '').trim()
 
   if (!reward.id || !name || !reward.rewardType) return null
@@ -634,11 +629,57 @@ function titleCaseSlug(value: string): string {
 }
 
 export const useGeneratorStore = defineStore('generatorStore', () => {
+  const facetCatalog = useFacetCatalogStore()
   const rewardPool = ref<RolledReward[]>([])
   const rewardLoading = ref(false)
   const rewardError = ref('')
 
   const rewardsLoaded = computed(() => rewardPool.value.length > 0)
+
+  function facetValue(fieldKey: string, fallback: () => string): string {
+    const entry = facetCatalog.randomFacetForField(fieldKey)
+    return entry?.canonicalValue || entry?.title || fallback()
+  }
+
+  function facetValues(
+    fieldKey: string,
+    count: number,
+    fallback: () => string,
+  ): string {
+    const pool = facetCatalog
+      .facetsForCharacterField(fieldKey)
+      .filter((entry) => entry.isRandomizable && entry.randomWeight > 0)
+
+    if (!pool.length) return fallback()
+
+    const remaining = [...pool]
+    const picked: typeof pool = []
+    const target = Math.max(1, count)
+
+    while (remaining.length && picked.length < target) {
+      const total = remaining.reduce(
+        (sum, entry) => sum + entry.randomWeight,
+        0,
+      )
+      let roll = Math.random() * total
+      let selectedIndex = remaining.length - 1
+
+      for (const [index, entry] of remaining.entries()) {
+        roll -= entry.randomWeight
+        if (roll <= 0) {
+          selectedIndex = index
+          break
+        }
+      }
+
+      const [selected] = remaining.splice(selectedIndex, 1)
+      if (selected) picked.push(selected)
+    }
+
+    return picked
+      .map((entry) => entry.canonicalValue || entry.title)
+      .join(', ')
+  }
 
   async function fetchRewards(force = false): Promise<void> {
     if (rewardLoading.value) return
@@ -649,7 +690,6 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
 
     try {
       const response = await performFetch<RewardRecord[]>('/api/rewards')
-
       if (!response.success) {
         rewardError.value = response.message || 'Could not load rewards.'
         return
@@ -658,9 +698,8 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
       const rawRewards: RewardRecord[] = Array.isArray(response.data)
         ? response.data
         : []
-
       rewardPool.value = rawRewards
-        .map((reward: RewardRecord) => normalizeReward(reward))
+        .map((reward) => normalizeReward(reward))
         .filter((reward): reward is RolledReward => Boolean(reward))
     } catch (error) {
       rewardError.value =
@@ -681,12 +720,8 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
   ): RolledReward[] {
     const options: RollRewardOptionsInput =
       typeof input === 'string'
-        ? {
-            baseRarity: input,
-            count: legacyCount,
-          }
+        ? { baseRarity: input, count: legacyCount }
         : input
-
     const baseRarity = options.baseRarity ?? 'COMMON'
     const count = options.count ?? 6
     const rewardTypes = options.rewardTypes ?? []
@@ -696,9 +731,7 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
 
     while (results.length < count && attempts < count * 30) {
       attempts++
-
       const rarity = rarityUpgrade(baseRarity)
-
       const candidates = rewardPool.value.filter((reward) => {
         if (reward.rarity !== rarity) return false
         if (rewardTypes.length && !rewardTypes.includes(reward.rewardType)) {
@@ -706,11 +739,8 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
         }
         return !usedIds.has(reward.id)
       })
-
       const pick = pickRandom(candidates)
-
       if (!pick) continue
-
       usedIds.add(pick.id)
       results.push(pick)
     }
@@ -721,7 +751,6 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
       if (rewardTypes.length && !rewardTypes.includes(reward.rewardType)) {
         return false
       }
-
       return !usedIds.has(reward.id)
     })
 
@@ -744,19 +773,22 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
   }
 
   function genre(): string {
-    return pickRandom(GENRES) ?? 'Fantasy'
+    return facetValue('genre', () => pickRandom(GENRES) ?? 'Fantasy')
   }
 
   function species(): string {
-    return pickRandom(SPECIES) ?? 'Human'
+    return facetValue('species', () => pickRandom(SPECIES) ?? 'Human')
   }
 
   function characterClass(): string {
-    return pickRandom(Classes) ?? 'Rogue'
+    return facetValue('class', () => pickRandom(CLASSES) ?? 'Rogue')
   }
 
   function alignment(): string {
-    return pickRandom(ALIGNMENTS) ?? 'Chaotic Good'
+    return facetValue(
+      'alignment',
+      () => pickRandom(ALIGNMENTS) ?? 'Chaotic Good',
+    )
   }
 
   function genderIdentity(): string {
@@ -764,20 +796,27 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
   }
 
   function personality(count = 3): string {
-    return pickMany(PERSONALITIES, count).join(', ')
+    return facetValues('personality', count, () =>
+      pickMany(PERSONALITIES, count).join(', '),
+    )
   }
 
   function quirks(count = 1): string {
-    return pickMany(QUIRKS, count).map(titleCaseSlug).join(', ')
+    return facetValues('quirks', count, () =>
+      pickMany(QUIRKS, count).map(titleCaseSlug).join(', '),
+    )
+  }
+
+  function legacyBackground(): string {
+    return titleCaseSlug(pickRandom(BACKGROUNDS) ?? 'hunted')
   }
 
   function background(): string {
-    const pick = pickRandom(BACKGROUNDS) ?? 'hunted'
-    return titleCaseSlug(pick)
+    return facetValue('backstory', legacyBackground)
   }
 
-  function backstory(): string {
-    const origin = background()
+  function legacyBackstory(): string {
+    const origin = legacyBackground()
     const vibe = pickRandom(PERSONALITIES) ?? 'curious'
     const flaw = pickRandom(QUIRKS) ?? 'bad-luck-magnet'
 
@@ -786,6 +825,10 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
     ).toLowerCase()} nature keeps dragging them toward trouble, while their ${titleCaseSlug(
       flaw,
     ).toLowerCase()} tendency makes the trouble recognisably theirs.`
+  }
+
+  function backstory(): string {
+    return facetValue('backstory', legacyBackstory)
   }
 
   function artPrompt(context: Record<string, unknown> = {}): string {
@@ -820,9 +863,9 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
     if (key === 'quirks') return quirks()
     if (key === 'background' || key === 'backstory') return backstory()
     if (key === 'art' || key === 'artPrompt') return artPrompt(context)
-
     return ''
   }
+
   function generateName(): string {
     return givenName()
   }
@@ -837,14 +880,11 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
   ): string {
     const fallback =
       typeof fallbackOrContext === 'string' ? fallbackOrContext : ''
-
     const context =
       fallbackOrContext && typeof fallbackOrContext === 'object'
         ? fallbackOrContext
         : {}
-
     const generated = suggest(key, context).trim()
-
     return generated || fallback
   }
 

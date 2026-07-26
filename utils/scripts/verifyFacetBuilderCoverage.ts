@@ -2,6 +2,10 @@
 import { access, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { ADVENTURE_CARDS } from '../../stores/helpers/adventureCards'
+import {
+  GENDER_ARTWORK_PATHS,
+  GENDER_ARTWORK_TARGETS,
+} from '../seeds/facetGenderArtwork'
 
 const root = process.cwd()
 
@@ -38,8 +42,18 @@ function requireText(path: string, text: string, fragment: string): void {
   }
 }
 
+async function pathExists(imagePath: string): Promise<boolean> {
+  try {
+    await access(resolve(root, 'public', imagePath.slice(1)))
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function main(): Promise<void> {
   const failures: string[] = []
+  const knownArtworkDebt: string[] = []
   const illustrated: IllustratedChoice[] = []
 
   for (const card of ADVENTURE_CARDS) {
@@ -79,12 +93,29 @@ async function main(): Promise<void> {
           continue
         }
 
-        try {
-          await access(resolve(root, 'public', imagePath.slice(1)))
-        } catch {
-          failures.push(`${label} references missing Builder artwork: public${imagePath}`)
+        if (!(await pathExists(imagePath))) {
+          if (fieldKey === 'gender' && GENDER_ARTWORK_PATHS.has(imagePath)) {
+            knownArtworkDebt.push(imagePath)
+          } else {
+            failures.push(
+              `${label} references missing Builder artwork: public${imagePath}`,
+            )
+          }
         }
       }
+    }
+  }
+
+  const genderCard = ADVENTURE_CARDS.find((card) => card.key === 'gender')
+  for (const path of [genderCard?.deckImage, genderCard?.heroImage]) {
+    const imagePath = clean(path)
+    if (!imagePath) {
+      failures.push('Gender Builder card must keep both deck and hero artwork paths.')
+      continue
+    }
+    if (!(await pathExists(imagePath))) {
+      if (GENDER_ARTWORK_PATHS.has(imagePath)) knownArtworkDebt.push(imagePath)
+      else failures.push(`Gender Builder references untracked missing artwork: ${imagePath}`)
     }
   }
 
@@ -105,6 +136,20 @@ async function main(): Promise<void> {
     }
   }
 
+  const sourceGenderPaths = new Set([
+    ...genderChoices.map((choice) => choice.imagePath),
+    clean(genderCard?.deckImage),
+    clean(genderCard?.heroImage),
+    '/images/adventure/gender/custom.webp',
+  ])
+  for (const target of GENDER_ARTWORK_TARGETS) {
+    if (!sourceGenderPaths.has(target.path)) {
+      failures.push(
+        `Gender artwork manifest target ${target.path} is not represented by the Builder source.`,
+      )
+    }
+  }
+
   const files = {
     serverCatalog: 'server/utils/facetCatalog.ts',
     catalogStore: 'stores/facetCatalogStore.ts',
@@ -113,6 +158,7 @@ async function main(): Promise<void> {
     seedWrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     genderSeed: 'utils/scripts/seedGenderFacetCatalog.ts',
     genderValues: 'utils/seeds/facetGenderValues.ts',
+    genderArtwork: 'utils/seeds/facetGenderArtwork.ts',
     seedPolicy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
   } as const
 
@@ -131,7 +177,9 @@ async function main(): Promise<void> {
   requireText(files.genderSeed, text.genderSeed, "taxonomy: 'GENDER'")
   requireText(files.genderSeed, text.genderSeed, 'backfillCharacterGender')
   requireText(files.genderSeed, text.genderSeed, "fieldKey: 'gender'")
+  requireText(files.genderSeed, text.genderSeed, 'existingPublicImagePath')
   requireText(files.genderValues, text.genderValues, 'legacyFacetGenderValues')
+  requireText(files.genderArtwork, text.genderArtwork, 'GENDER_ARTWORK_TARGETS')
   requireText(files.seedPolicy, text.seedPolicy, 'utils/seeds/facetGenderValues.ts')
   requireText(files.seedPolicy, text.seedPolicy, 'utils/scripts/seedGenderFacetCatalog.ts')
 
@@ -148,11 +196,19 @@ async function main(): Promise<void> {
   const coveredFields = Array.from(
     new Set(illustrated.map((choice) => choice.fieldKey)),
   ).sort()
+  const uniqueDebt = Array.from(new Set(knownArtworkDebt)).sort()
   process.stdout.write(
     `Facet Builder coverage verified: ${illustrated.length} illustrated choices across ` +
       `${coveredFields.length} fields (${coveredFields.join(', ')}), including ` +
       `${genderChoices.length} Gender choices.\n`,
   )
+  if (uniqueDebt.length) {
+    process.stdout.write(
+      `Known Gender artwork debt (${uniqueDebt.length} files; broken paths are not persisted):\n` +
+        uniqueDebt.map((path) => `- public${path}`).join('\n') +
+        '\n',
+    )
+  }
 }
 
 main().catch((error: unknown) => {

@@ -7,6 +7,7 @@ const CHARACTER_FIELD_TAXONOMIES: Record<string, readonly FacetTaxonomy[]> = {
   species: ['ANIMAL', 'SPECIES'],
   class: ['OCCUPATION', 'ARCHETYPE', 'ROLE'],
   alignment: ['ALIGNMENT'],
+  gender: ['GENDER'],
   personality: ['PERSONALITY'],
   backstory: ['BACKSTORY'],
   quirks: ['QUIRK'],

@@ -32,15 +32,39 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
-      - name: Validate schema and cutover contract
+      - name: Validate Facet schema and cutover
+        run: npm run test:facet-catalog
+
+      - name: Verify Facet seed policy
+        run: node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
+
+      - name: Verify retired Facet sources
         run: |
-          npm run test:facet-catalog
-          node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
           node utils/scripts/verifyFacetLegacySeedSnapshots.mjs
           node utils/scripts/verifyRetiredRewardRandomizers.mjs
+
+      - name: Verify Facet generation contracts
+        run: |
           npx tsx utils/scripts/verifyFacetArtGeneration.ts
           npx tsx utils/scripts/verifyDreamRandomCompatibility.ts
           npx tsx utils/scripts/verifyFacetLibraryAdvanced.ts
+
+      - name: Verify illustrated Builder Facet coverage
+        id: builder-coverage
+        continue-on-error: true
+        run: npx tsx utils/scripts/verifyFacetBuilderCoverage.ts 2>&1 | tee facet-builder-coverage-report.txt
+
+      - name: Upload Builder Facet coverage diagnostics
+        if: steps.builder-coverage.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: facet-builder-coverage-diagnostics
+          path: facet-builder-coverage-report.txt
+          if-no-files-found: error
+
+      - name: Enforce illustrated Builder Facet coverage
+        if: steps.builder-coverage.outcome == 'failure'
+        run: exit 1
 
       - name: Verify curated Facet artwork
         id: artwork

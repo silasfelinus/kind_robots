@@ -47,5 +47,9 @@ console.log(
   `[facet-catalog] Promoted ${promotedBuilderOptions} Builder “More options” entries into canonical seed input.`,
 )
 
+// Gender was omitted from the original catalog cutover. Seed its illustrated
+// Builder choices and legacy generator values before the broader catalog pass.
+await import('./seedGenderFacetCatalog')
+
 // seedFacetCatalog reads process.argv itself, so --apply passes through.
 await import('./seedFacetCatalog')

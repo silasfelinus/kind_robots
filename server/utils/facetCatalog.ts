@@ -18,6 +18,7 @@ export const FACET_TAXONOMIES = [
   'ARCHETYPE',
   'ROLE',
   'ALIGNMENT',
+  'GENDER',
   'PERSONALITY',
   'BACKSTORY',
   'QUIRK',

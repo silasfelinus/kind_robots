@@ -2,12 +2,14 @@
 import { access, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { ADVENTURE_CARDS } from '../../stores/helpers/adventureCards'
+import { GENDER_ARTWORK_PATHS } from '../seeds/facetGenderArtwork'
 import { normalizeFacetLookupKey } from '../facetAliases'
 
 const root = process.cwd()
 
 const VISUAL_FACET_FIELDS = new Set([
   'species',
+  'gender',
   'class',
   'alignment',
   'personality',
@@ -42,6 +44,7 @@ async function main(): Promise<void> {
   const curated: CuratedArtwork[] = []
   const artworkByFacetKey = new Map<string, CuratedArtwork>()
   const failures: string[] = []
+  const knownArtworkDebt: string[] = []
   let directVisualFacetChoices = 0
 
   for (const card of ADVENTURE_CARDS) {
@@ -99,7 +102,14 @@ async function main(): Promise<void> {
         try {
           await access(resolve(root, 'public', imagePath.slice(1)))
         } catch {
-          failures.push(`${title} references missing artwork: public${imagePath}`)
+          if (
+            fieldKey.toLowerCase() === 'gender' &&
+            GENDER_ARTWORK_PATHS.has(imagePath)
+          ) {
+            knownArtworkDebt.push(imagePath)
+          } else {
+            failures.push(`${title} references missing artwork: public${imagePath}`)
+          }
         }
 
         // seedFacetCatalog currently canonicalizes by normalized title. Conflicting
@@ -127,7 +137,7 @@ async function main(): Promise<void> {
   }
   if (curated.length < directVisualFacetChoices) {
     failures.push(
-      `${directVisualFacetChoices - curated.length} direct visual Facet choices are missing curated artwork.`,
+      `${directVisualFacetChoices - curated.length} direct visual Facet choices are missing curated artwork declarations.`,
     )
   }
 
@@ -242,8 +252,16 @@ async function main(): Promise<void> {
   process.stdout.write(
     `Facet artwork migration verified: ${directVisualFacetChoices} direct visual ` +
       `Facet choices, ${artworkByFacetKey.size} canonical titles, ` +
-      `${uniquePaths.size} image files.\n`,
+      `${uniquePaths.size} declared image paths.\n`,
   )
+  const uniqueDebt = Array.from(new Set(knownArtworkDebt)).sort()
+  if (uniqueDebt.length) {
+    process.stdout.write(
+      `Known Gender artwork debt (${uniqueDebt.length}; tracked separately and not persisted as broken Facet paths):\n` +
+        uniqueDebt.map((path) => `- public${path}`).join('\n') +
+        '\n',
+    )
+  }
 }
 
 main().catch((error: unknown) => {

@@ -42,18 +42,20 @@ export async function syncScenarioGenreFacetsInTransaction(
   })
   const genreFacetIds = genreProfiles.map((profile) => profile.facetId)
 
-  await tx.scenarioFacet.deleteMany({
-    where: {
-      scenarioId: scenario.id,
-      ...(genreFacetIds.length ? { facetId: { in: genreFacetIds } } : {}),
-    },
-  })
+  if (genreFacetIds.length) {
+    await tx.scenarioFacet.deleteMany({
+      where: {
+        scenarioId: scenario.id,
+        facetId: { in: genreFacetIds },
+      },
+    })
+  }
 
   const values = splitScenarioGenres(scenario.genres)
   const lookupKeys = Array.from(
     new Set(values.map(normalizeFacetLookupKey).filter(Boolean)),
   )
-  if (!lookupKeys.length) return 0
+  if (!lookupKeys.length || !genreFacetIds.length) return 0
 
   const aliases = await tx.facetAlias.findMany({
     where: {

@@ -101,6 +101,40 @@
           </NuxtLink>
         </div>
 
+        <div v-if="featuredArt.length" class="space-y-3">
+          <h4 class="font-black text-primary">Featured prints</h4>
+
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <article
+              v-for="art in featuredArt"
+              :key="art.id"
+              class="overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+            >
+              <img
+                :src="resolveArtImageThumbSrc(art)"
+                :alt="art.promptString || 'Featured print'"
+                class="h-40 w-full object-cover"
+                loading="lazy"
+              />
+
+              <div class="space-y-2 p-4">
+                <p class="line-clamp-2 text-sm text-base-content/70">
+                  {{ art.promptString || 'Featured print' }}
+                </p>
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline rounded-2xl"
+                  @click="addFeaturedPrint(art)"
+                >
+                  <Icon name="kind-icon:plus" class="h-4 w-4" />
+                  Add to cart
+                </button>
+              </div>
+            </article>
+          </div>
+        </div>
+
         <div class="grid gap-3 xl:grid-cols-2">
           <article
             v-for="item in showcaseItems"
@@ -196,9 +230,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useCartStore, type CartItem } from '@/stores/cartStore'
 import { useNavStore } from '@/stores/navStore'
+import { performFetch } from '@/stores/utils'
+import {
+  resolveArtImageSrc,
+  resolveArtImageThumbSrc,
+} from '@/utils/artImageSrc'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
+
+// Placeholder print price until the POD product/pricing pipeline (digital-storefront
+// t-023's PrintJob work) exists to derive a real per-item price for featured art.
+const FEATURED_PRINT_PRICE = 12
+
+type FeaturedArtImage = Pick<
+  ArtImage,
+  'id' | 'promptString' | 'imagePath' | 'path' | 'thumbnailPath' | 'cardPath'
+>
 
 type GiftshopFeature = {
   title: string
@@ -218,6 +267,7 @@ type ShowcaseItem = {
 
 const cartStore = useCartStore()
 const navStore = useNavStore()
+const featuredArt = ref<FeaturedArtImage[]>([])
 
 const giftshopFeatures: GiftshopFeature[] = [
   {
@@ -260,7 +310,31 @@ const showcaseItems: ShowcaseItem[] = [
 
 onMounted(() => {
   void cartStore.initialize()
+  void loadFeaturedArt()
 })
+
+async function loadFeaturedArt() {
+  const response = await performFetch<FeaturedArtImage[]>(
+    '/api/art/storefront-featured',
+  )
+
+  if (response.success && response.data) {
+    featuredArt.value = response.data
+  }
+}
+
+function addFeaturedPrint(art: FeaturedArtImage) {
+  cartStore.addItem({
+    type: 'print',
+    artImageId: art.id,
+    imageUrl: resolveArtImageSrc(art),
+    quantity: 1,
+    price: FEATURED_PRINT_PRICE,
+    notes: art.promptString || 'Featured print',
+  })
+
+  goToCart()
+}
 
 function addDemoItem(item: ShowcaseItem) {
   cartStore.addItem({

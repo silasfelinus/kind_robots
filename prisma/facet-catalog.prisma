@@ -2,9 +2,9 @@
 //
 // Facet remains the reusable creative concept. FacetProfile carries the richer
 // taxonomy and randomization metadata without duplicating the concept row.
-// CharacterFacet records how a Facet is used by a Character; fieldKey is usage
-// metadata, so an ANIMAL Facet such as Octopus can fill the species slot without
-// creating a duplicate SPECIES Facet.
+// CharacterFacet and RewardFacet record how a Facet is used by a nested object;
+// fieldKey is usage metadata, so a MATERIAL Facet can shape an ITEM Reward while
+// an ANIMAL Facet can fill a Character species slot.
 
 model FacetProfile {
   facetId          Int      @id
@@ -38,5 +38,21 @@ model CharacterFacet {
 
   @@unique([characterId, facetId, fieldKey])
   @@index([characterId, fieldKey, sortOrder])
+  @@index([facetId])
+}
+
+model RewardFacet {
+  id        Int      @id @default(autoincrement())
+  rewardId  Int
+  facetId   Int
+  fieldKey  String   @db.VarChar(64)
+  sortOrder Int      @default(0)
+  weight    Float    @default(1)
+  source    String   @default("CURATED") @db.VarChar(64)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([rewardId, facetId, fieldKey])
+  @@index([rewardId, fieldKey, sortOrder])
   @@index([facetId])
 }

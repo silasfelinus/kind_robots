@@ -17,6 +17,11 @@ import {
   applyArtJobOverrides,
   type ArtJobOverrides,
 } from '../../../../utils/artJobRetry'
+import {
+  applyArtFacetsToPayload,
+  readArtFacetIds,
+  resolveArtFacetSelection,
+} from '../../../../utils/artFacetSelection'
 import { assessArtPrompt, cleanArtPrompt } from '../../../../utils/artPromptQuality'
 import {
   buildWorkflowForEngine,
@@ -51,11 +56,9 @@ export default defineEventHandler(async (event) => {
 
     const body = (await readBody(event).catch(() => null)) as EditBody | null
     const source = await prisma.artJob.findUnique({ where: { id } })
-
     if (!source) {
       throw createError({ statusCode: 404, message: `Job ${id} not found.` })
     }
-
     if (!['PENDING', 'FAILED', 'CANCELLED'].includes(source.status)) {
       throw createError({
         statusCode: 409,
@@ -68,10 +71,24 @@ export default defineEventHandler(async (event) => {
 
     const payload = structuredClone(parseArtJobPayload(source.payload))
     const currentRequest = extractRenderRequest(payload)
-    const requestedPrompt = cleanArtPrompt(body?.overrides?.promptString)
-    const prompt = requestedPrompt || currentRequest.prompt
+    const currentBasePrompt = cleanArtPrompt(payload.basePromptString)
+    const requestedBasePrompt = cleanArtPrompt(
+      body?.overrides?.basePromptString ?? body?.overrides?.promptString,
+    )
+    const basePrompt = requestedBasePrompt || currentBasePrompt || currentRequest.prompt
+    const hasFacetOverride = Array.isArray(body?.overrides?.facetIds)
+    const facetIds = hasFacetOverride
+      ? body?.overrides?.facetIds
+      : readArtFacetIds(payload)
+    const facets = await resolveArtFacetSelection({
+      facetIds,
+      userId: auth.user.id,
+      isAdmin: auth.isAdmin,
+      includeMature: true,
+    })
+    const previewPayload: Record<string, unknown> = {}
+    const prompt = applyArtFacetsToPayload(previewPayload, basePrompt, facets)
     const promptAssessment = assessArtPrompt(prompt)
-
     if (!promptAssessment.useful) {
       throw createError({
         statusCode: 422,
@@ -91,6 +108,7 @@ export default defineEventHandler(async (event) => {
 
     if (presetEngine) {
       payload.workflow = buildWorkflowForEngine(presetEngine, {
+        ...currentRequest,
         prompt,
         negativePrompt:
           typeof body?.overrides?.negativePrompt === 'string'
@@ -103,13 +121,15 @@ export default defineEventHandler(async (event) => {
       payload.promptString = prompt
     }
 
-    delete payload.curation
-
-    const updatedPayload = applyArtJobOverrides(payload, {
+    const renderOverrides: ArtJobOverrides = {
       ...body?.overrides,
       promptString: prompt,
       ...(seed !== null ? { seed } : {}),
-    })
+    }
+    delete renderOverrides.facetIds
+    delete renderOverrides.basePromptString
+    const updatedPayload = applyArtJobOverrides(payload, renderOverrides)
+    applyArtFacetsToPayload(updatedPayload, basePrompt, facets)
     updatedPayload.queueEdit = {
       editedAt: new Date().toISOString(),
       editedByUserId: auth.user.id,
@@ -137,13 +157,11 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
-    const statusCode = handled.statusCode || 500
-    event.node.res.statusCode = statusCode
-
+    event.node.res.statusCode = handled.statusCode || 500
     return {
       success: false,
       message: handled.message || 'Failed to edit queued ArtJob.',
-      statusCode,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

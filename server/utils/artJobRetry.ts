@@ -82,6 +82,8 @@ function replaceExactPrompt(
 
 export type ArtJobOverrides = {
   promptString?: string | null
+  basePromptString?: string | null
+  facetIds?: number[] | null
   negativePrompt?: string | null
   width?: number | null
   height?: number | null

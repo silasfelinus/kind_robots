@@ -38,6 +38,7 @@ jobs:
           node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
           node utils/scripts/verifyFacetLegacySeedSnapshots.mjs
           node utils/scripts/verifyRetiredRewardRandomizers.mjs
+          npx tsx utils/scripts/verifyFacetArtGeneration.ts
 
       - name: Verify curated Facet artwork
         id: artwork

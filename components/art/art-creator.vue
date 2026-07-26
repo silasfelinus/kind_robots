@@ -1,6 +1,12 @@
 <!-- /components/art/art-creator.vue -->
 <template>
   <section class="flex w-full flex-col gap-3">
+    <art-facet-selector
+      v-model="artFacetDraft.selectedIds"
+      label="Creative Facets"
+      :compact="true"
+    />
+
     <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -58,9 +64,7 @@
         "
       >
         <icon
-          :name="
-            messageTone === 'error' ? 'kind-icon:alert' : 'kind-icon:check'
-          "
+          :name="messageTone === 'error' ? 'kind-icon:alert' : 'kind-icon:check'"
           class="mt-0.5 h-4 w-4 shrink-0"
         />
         <span>{{ message }}</span>
@@ -83,6 +87,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useArtStore, type GenerateArtData } from '@/stores/artStore'
+import { useArtFacetDraftStore } from '@/stores/artFacetDraftStore'
 
 const props = withDefaults(
   defineProps<{
@@ -121,6 +126,7 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
+const artFacetDraft = useArtFacetDraftStore()
 const errorStore = useErrorStore()
 
 const localMessage = ref('')
@@ -144,9 +150,9 @@ const displayTitle = computed(() => {
 
 const promptPreview = computed(() => {
   if (!props.showPreview || !cleanPrompt.value) return ''
-  return cleanPrompt.value.length > 260
-    ? `${cleanPrompt.value.slice(0, 260)}…`
-    : cleanPrompt.value
+  const decorated = artFacetDraft.decorateGenerationData({}, cleanPrompt.value)
+  const prompt = decorated.promptString
+  return prompt.length > 260 ? `${prompt.slice(0, 260)}…` : prompt
 })
 
 const selectedGenerationEngine = computed(() => {
@@ -154,15 +160,10 @@ const selectedGenerationEngine = computed(() => {
 })
 
 const activeServer = computed(() => artStore.activeGenerationServer)
-
 const needsServer = computed(() => {
   return !['openai', 'kontext'].includes(String(selectedGenerationEngine.value))
 })
-
-const needsCheckpoint = computed(() => {
-  return activeServer.value?.serverType === 'A1111'
-})
-
+const needsCheckpoint = computed(() => activeServer.value?.serverType === 'A1111')
 const hasGenerationSetup = computed(() => {
   if (needsServer.value && !artStore.artForm.serverId) return false
   if (needsCheckpoint.value && !artStore.selectedCheckpointName) return false
@@ -186,15 +187,10 @@ const statusLabel = computed(() => {
   return 'Ready to generate.'
 })
 
-const message = computed(() => {
-  return localMessage.value || artStore.generationMessage
-})
-
-const messageTone = computed(() => {
-  return localMessage.value
-    ? localMessageTone.value
-    : artStore.generationMessageTone
-})
+const message = computed(() => localMessage.value || artStore.generationMessage)
+const messageTone = computed(() =>
+  localMessage.value ? localMessageTone.value : artStore.generationMessageTone,
+)
 
 function getImagePath(image: ArtImage): string | null {
   const record = image as ArtImage & {
@@ -203,15 +199,12 @@ function getImagePath(image: ArtImage): string | null {
     path?: string | null
     fileType?: string | null
   }
-
   if (record.imagePath) return record.imagePath
   if (record.path) return record.path
-
   if (record.imageData) {
     const fileType = record.fileType || 'png'
     return `data:image/${fileType};base64,${record.imageData}`
   }
-
   return null
 }
 
@@ -220,19 +213,23 @@ function setLocalMessage(tone: 'success' | 'error', text: string) {
   localMessage.value = text
 }
 
+function decoratedOverrides(): Partial<GenerateArtData> {
+  return artFacetDraft.decorateGenerationData(
+    {
+      ...props.overrides,
+      title: props.modelTitle || props.imageRole || props.purpose,
+    } as Record<string, unknown>,
+    cleanPrompt.value,
+  ) as Partial<GenerateArtData>
+}
+
 function syncPromptToArtForm() {
   if (!cleanPrompt.value) return
-
-  artStore.setArtForm({
-    promptString: cleanPrompt.value,
-    title: props.modelTitle || props.imageRole || props.purpose,
-    ...props.overrides,
-  })
+  artStore.setArtForm(decoratedOverrides())
 }
 
 async function generateImage() {
   syncPromptToArtForm()
-
   if (!cleanPrompt.value) {
     const message = 'Add a prompt before generating.'
     setLocalMessage('error', message)
@@ -250,12 +247,9 @@ async function generateImage() {
     return
   }
 
-  const result = await artStore.generateCurrentArt({
-    ...props.overrides,
-    promptString: cleanPrompt.value,
-    title: props.modelTitle || props.imageRole || props.purpose,
-  })
-
+  const result = await artStore.generateCurrentArt(
+    decoratedOverrides() as GenerateArtData,
+  )
   if (!result.success || !result.data) {
     const message = result.message || 'Image generation failed.'
     setLocalMessage('error', message)
@@ -265,29 +259,24 @@ async function generateImage() {
   }
 
   const imagePath = getImagePath(result.data)
-
   generatedImage.value = result.data
   setLocalMessage('success', result.message || 'Image generated.')
-
   emit('update', {
     prompt: cleanPrompt.value,
     imagePath,
     artImageId: result.data.id,
     artImage: result.data,
   })
-
   emit('generated', result.data)
 }
 
 watch(
   () => props.prompt,
-  () => {
-    syncPromptToArtForm()
-  },
+  () => syncPromptToArtForm(),
 )
 
 onMounted(async () => {
-  await artStore.prepareArtGenerator()
+  await Promise.all([artStore.prepareArtGenerator(), artFacetDraft.initialize()])
   syncPromptToArtForm()
 })
 </script>
@@ -298,16 +287,13 @@ onMounted(async () => {
     opacity 300ms ease,
     transform 300ms cubic-bezier(0.34, 1.2, 0.64, 1);
 }
-
 .art-creator-reveal-leave-active {
   transition: opacity 180ms ease;
 }
-
 .art-creator-reveal-enter-from {
   opacity: 0;
   transform: translateY(8px) scale(0.98);
 }
-
 .art-creator-reveal-leave-to {
   opacity: 0;
 }

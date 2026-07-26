@@ -10,14 +10,12 @@
     <div
       class="flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-2xl"
     >
-      <div class="flex items-start justify-between gap-3 border-b border-base-300 p-4">
+      <header class="flex items-start justify-between gap-3 border-b border-base-300 p-4">
         <div>
           <h3 id="artjob-editor-title" class="text-lg font-semibold">
             {{ editorTitle }}
           </h3>
-          <p class="mt-1 text-xs text-base-content/60">
-            {{ actionHint }}
-          </p>
+          <p class="mt-1 text-xs text-base-content/60">{{ actionHint }}</p>
         </div>
         <button
           type="button"
@@ -27,7 +25,7 @@
         >
           ✕
         </button>
-      </div>
+      </header>
 
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div
@@ -40,7 +38,7 @@
         <div class="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]">
           <div class="flex min-w-0 flex-col gap-4">
             <label class="flex flex-col gap-1 text-sm">
-              <span class="font-semibold">Prompt</span>
+              <span class="font-semibold">Base prompt</span>
               <textarea
                 v-model="form.promptString"
                 rows="8"
@@ -48,9 +46,14 @@
                 placeholder="Describe the visible subject, action, setting, composition, mood, and concrete rendering style."
               />
               <span class="text-[11px] text-base-content/50">
-                Image ids and phrases like “Kind Robots style” are rejected as insufficient context.
+                Facet direction is rebuilt separately, so adding or removing chips never duplicates prompt text.
               </span>
             </label>
+
+            <art-facet-selector
+              v-model="facetIds"
+              label="ArtJob Facets"
+            />
 
             <label class="flex flex-col gap-1 text-sm">
               <span class="font-semibold">Negative prompt</span>
@@ -63,75 +66,23 @@
             </label>
 
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">Width</span>
+              <label
+                v-for="field in numericFields"
+                :key="field.key"
+                class="flex flex-col gap-1 text-xs"
+              >
+                <span class="font-semibold">{{ field.label }}</span>
                 <input
-                  v-model="form.width"
+                  v-model="form[field.key]"
                   type="number"
-                  min="64"
-                  step="8"
+                  :min="field.min"
+                  :max="field.max"
+                  :step="field.step"
                   class="input input-bordered input-sm rounded-xl"
+                  :placeholder="field.placeholder"
                 />
               </label>
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">Height</span>
-                <input
-                  v-model="form.height"
-                  type="number"
-                  min="64"
-                  step="8"
-                  class="input input-bordered input-sm rounded-xl"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">Seed</span>
-                <input
-                  v-model="form.seed"
-                  type="number"
-                  class="input input-bordered input-sm rounded-xl"
-                  placeholder="blank = random"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">Steps</span>
-                <input
-                  v-model="form.steps"
-                  type="number"
-                  min="1"
-                  class="input input-bordered input-sm rounded-xl"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">CFG</span>
-                <input
-                  v-model="form.cfg"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  class="input input-bordered input-sm rounded-xl"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">Guidance</span>
-                <input
-                  v-model="form.guidance"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  class="input input-bordered input-sm rounded-xl"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs">
-                <span class="font-semibold">Denoise</span>
-                <input
-                  v-model="form.denoise"
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  class="input input-bordered input-sm rounded-xl"
-                />
-              </label>
+
               <label class="flex flex-col gap-1 text-xs">
                 <span class="font-semibold">Sampler</span>
                 <input
@@ -158,9 +109,6 @@
                 class="input input-bordered rounded-2xl"
                 placeholder="Keep the current model or choose a preset"
               />
-              <span class="text-[11px] text-base-content/50">
-                Engine presets replace this with a compatible default. You can still type another installed model filename.
-              </span>
             </label>
           </div>
 
@@ -213,8 +161,11 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 p-3 text-xs">
-              <div class="font-semibold">Preset defaults</div>
+              <div class="font-semibold">Current selection</div>
               <div class="mt-2 flex flex-wrap gap-1">
+                <span class="badge badge-outline badge-sm rounded-2xl">
+                  {{ facetIds.length }} Facets
+                </span>
                 <span class="badge badge-outline badge-sm rounded-2xl">
                   {{ form.steps || '—' }} steps
                 </span>
@@ -224,18 +175,15 @@
                 <span class="badge badge-outline badge-sm rounded-2xl">
                   {{ form.sampler || 'sampler default' }}
                 </span>
-                <span class="badge badge-outline badge-sm rounded-2xl">
-                  {{ form.scheduler || 'scheduler default' }}
-                </span>
               </div>
             </div>
           </aside>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-4">
+      <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-4">
         <p class="text-xs text-base-content/50">
-          Blank seed = fresh random seed. Other blank numeric/model fields keep the current value unless an engine preset supplies defaults.
+          Blank seed creates a fresh random seed. Facets are persisted as canonical ArtJob provenance.
         </p>
         <div class="flex gap-2">
           <button
@@ -256,7 +204,7 @@
             {{ actionLabel }}
           </button>
         </div>
-      </div>
+      </footer>
     </div>
 
     <datalist id="artjob-sampler-presets">
@@ -294,6 +242,18 @@ import {
 
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 type JsonRecord = Record<string, unknown>
+type FormKey =
+  | 'width'
+  | 'height'
+  | 'steps'
+  | 'cfg'
+  | 'guidance'
+  | 'denoise'
+  | 'seed'
+type FacetAwareOverrides = ArtJobOverrides & {
+  basePromptString?: string | null
+  facetIds?: number[] | null
+}
 type Preset = {
   value: string
   label: string
@@ -307,16 +267,8 @@ type Preset = {
   scheduler: string
 }
 
-const props = defineProps<{
-  job: ArtJobRecord
-  action: EditorAction
-}>()
-
-const emit = defineEmits<{
-  close: []
-  saved: []
-}>()
-
+const props = defineProps<{ job: ArtJobRecord; action: EditorAction }>()
+const emit = defineEmits<{ close: []; saved: [] }>()
 const artJobStore = useArtJobStore()
 const localError = ref('')
 const preset = ref('keep')
@@ -337,7 +289,7 @@ const enginePresets: Preset[] = [
   {
     value: 'krea2',
     label: 'Krea 2 Turbo',
-    hint: 'Fast, highly creative illustration preset built for the installed 12 GB workflow.',
+    hint: 'Fast, highly creative illustration preset.',
     checkpoint: 'Krea-2-Turbo-Q5_K_S.gguf',
     steps: '8',
     cfg: '1',
@@ -349,7 +301,7 @@ const enginePresets: Preset[] = [
   {
     value: 'flux2',
     label: 'Flux.2 Klein 4B',
-    hint: 'Four-step structured prompt model with a compact Apache-2.0 workflow.',
+    hint: 'Four-step structured prompt model.',
     checkpoint: 'flux-2-klein-4b-Q4_K_M.gguf',
     steps: '4',
     cfg: '1',
@@ -361,7 +313,7 @@ const enginePresets: Preset[] = [
   {
     value: 'flux',
     label: 'Flux.1 Dev',
-    hint: 'Slower high-detail Flux workflow using the corrected T5-XXL encoder path.',
+    hint: 'Slower high-detail Flux workflow.',
     checkpoint: 'flux1-dev-Q8_0.gguf',
     steps: '30',
     cfg: '1',
@@ -373,7 +325,7 @@ const enginePresets: Preset[] = [
   {
     value: 'sdxl',
     label: 'Comfy checkpoint workflow',
-    hint: 'Traditional checkpoint workflow with broader sampler and LoRA compatibility.',
+    hint: 'Traditional checkpoint workflow with broad compatibility.',
     checkpoint: 'v1-5-pruned-emaonly.safetensors',
     steps: '20',
     cfg: '3',
@@ -385,18 +337,17 @@ const enginePresets: Preset[] = [
 ]
 
 function asRecord(value: unknown): JsonRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return value as JsonRecord
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as JsonRecord)
+    : {}
 }
-
 function scalar(value: unknown): string {
   if (typeof value === 'string') return value.trim()
   if (typeof value === 'number' && Number.isFinite(value)) return String(value)
   return ''
 }
-
 function nestedScalar(value: unknown, keys: string[], depth = 0): string {
-  if (depth > 6 || value === null || value === undefined) return ''
+  if (depth > 6 || value == null) return ''
   if (Array.isArray(value)) {
     for (const child of value) {
       const result = nestedScalar(child, keys, depth + 1)
@@ -404,7 +355,6 @@ function nestedScalar(value: unknown, keys: string[], depth = 0): string {
     }
     return ''
   }
-
   const record = asRecord(value)
   for (const key of keys) {
     const direct = scalar(record[key])
@@ -416,7 +366,6 @@ function nestedScalar(value: unknown, keys: string[], depth = 0): string {
   }
   return ''
 }
-
 function payloadScalar(keys: string[]): string {
   const payload = asRecord(props.job.payload)
   for (const key of keys) {
@@ -425,7 +374,6 @@ function payloadScalar(keys: string[]): string {
   }
   return nestedScalar(payload.workflow, keys)
 }
-
 function workflowPrompt(kind: 'positive' | 'negative'): string {
   const workflow = asRecord(asRecord(props.job.payload).workflow)
   for (const value of Object.values(workflow)) {
@@ -447,9 +395,22 @@ function workflowPrompt(kind: 'positive' | 'negative'): string {
   }
   return ''
 }
+function payloadFacetIds(): number[] {
+  const facets = asRecord(props.job.payload).facets
+  if (!Array.isArray(facets)) return []
+  return [
+    ...new Set(
+      facets
+        .map((value) => Number(asRecord(value).id))
+        .filter((id) => Number.isInteger(id) && id > 0),
+    ),
+  ]
+}
 
+const facetIds = ref<number[]>(payloadFacetIds())
 const form = reactive({
   promptString:
+    payloadScalar(['basePromptString']) ||
     payloadScalar(['promptString', 'artPrompt', 'positivePrompt', 'prompt']) ||
     workflowPrompt('positive'),
   negativePrompt:
@@ -471,6 +432,23 @@ const form = reactive({
     'model_name',
   ]),
 })
+
+const numericFields: Array<{
+  key: FormKey
+  label: string
+  min?: string
+  max?: string
+  step?: string
+  placeholder?: string
+}> = [
+  { key: 'width', label: 'Width', min: '64', step: '8' },
+  { key: 'height', label: 'Height', min: '64', step: '8' },
+  { key: 'seed', label: 'Seed', placeholder: 'blank = random' },
+  { key: 'steps', label: 'Steps', min: '1' },
+  { key: 'cfg', label: 'CFG', min: '0', step: '0.1' },
+  { key: 'guidance', label: 'Guidance', min: '0', step: '0.1' },
+  { key: 'denoise', label: 'Denoise', min: '0', max: '1', step: '0.05' },
+]
 
 const selectedPreset = computed(
   () => enginePresets.find((option) => option.value === preset.value) ?? enginePresets[0]!,
@@ -494,21 +472,21 @@ const actionLabel = computed(() => {
 })
 const actionHint = computed(() => {
   if (props.action === 'EDIT') {
-    return 'The same pending, failed, or cancelled job is updated and returned to PENDING.'
+    return 'Update this queue row and return it to PENDING.'
   }
   if (props.action === 'OVERWRITE') {
-    return 'The replacement preserves the canonical ArtImage id and archives the current render.'
+    return 'Preserve the canonical ArtImage id and archive the current render.'
   }
-  return 'The original job and ArtImage remain unchanged; this creates a separate attempt.'
+  return 'Keep the original job and create a separate attempt.'
 })
 const actionDescription = computed(() => {
   if (props.action === 'EDIT') {
-    return 'No duplicate queue row is created. Failed state, claims, errors, and attempts are cleared.'
+    return 'Failed state, claims, errors, and attempts are cleared.'
   }
   if (props.action === 'OVERWRITE') {
-    return 'Use this when the generic render already landed in a linked ArtImage that needs repair in place.'
+    return 'Use this to repair a linked ArtImage in place.'
   }
-  return 'Use this for running or completed jobs when you want another candidate without replacing the existing image.'
+  return 'Use this when you want another candidate without replacing existing art.'
 })
 
 function applyPreset(): void {
@@ -523,7 +501,6 @@ function applyPreset(): void {
   form.scheduler = selected.scheduler
   form.seed = ''
 }
-
 function numberValue(value: string): number | null {
   if (!value.trim()) return null
   const parsed = Number(value)
@@ -538,11 +515,12 @@ async function save(): Promise<void> {
     return
   }
 
-  const overrides: ArtJobOverrides = {
+  const overrides: FacetAwareOverrides = {
     promptString: prompt,
+    basePromptString: prompt,
+    facetIds: [...facetIds.value],
     negativePrompt: form.negativePrompt.trim(),
   }
-
   const numeric: Array<[keyof ArtJobOverrides, string]> = [
     ['width', form.width],
     ['height', form.height],
@@ -556,7 +534,6 @@ async function save(): Promise<void> {
     const parsed = numberValue(value)
     if (parsed !== null) overrides[key] = parsed as never
   }
-
   if (form.sampler.trim()) overrides.sampler = form.sampler.trim()
   if (form.scheduler.trim()) overrides.scheduler = form.scheduler.trim()
   if (form.checkpoint.trim()) overrides.checkpoint = form.checkpoint.trim()
@@ -566,7 +543,6 @@ async function save(): Promise<void> {
     preset: preset.value === 'keep' ? null : preset.value,
     overrides,
   }
-
   let success = false
   if (props.action === 'EDIT') {
     success = await artJobStore.editJob(props.job.id, options)

@@ -52,9 +52,6 @@ function hydrateBuilderCards(
           ]
         : []
 
-      // Rich Facets with art remain the primary gallery. Canonical entries that
-      // do not have artwork stay in the compact “More options” division. Custom
-      // entry remains available for one-off prose that should not become a Facet.
       step.choices = [...visualChoices, ...moreChoice, ...controls]
       step.listOptions = listChoices.map((choice) => choice.value)
       step.payload = {
@@ -67,6 +64,18 @@ function hydrateBuilderCards(
   }
 }
 
+function hydrateAdventureBuilder(
+  catalog: ReturnType<typeof useFacetCatalogStore>,
+): void {
+  hydrateBuilderCards(ADVENTURE_CARDS, catalog)
+}
+
+function hydrateScenarioBuilder(
+  catalog: ReturnType<typeof useFacetCatalogStore>,
+): void {
+  hydrateBuilderCards(SCENARIO_CARDS, catalog)
+}
+
 export default defineNuxtPlugin(async () => {
   const catalog = useFacetCatalogStore()
 
@@ -74,8 +83,8 @@ export default defineNuxtPlugin(async () => {
     await catalog.fetchCatalog({ includeMature: true, take: 1000 }, true)
     if (!catalog.entries.length) return
 
-    hydrateBuilderCards(ADVENTURE_CARDS, catalog)
-    hydrateBuilderCards(SCENARIO_CARDS, catalog)
+    hydrateAdventureBuilder(catalog)
+    hydrateScenarioBuilder(catalog)
 
     // Registration stores the same mutable card graphs. Re-register after the
     // async catalog fetch so mounted Builders observe canonical choices immediately.

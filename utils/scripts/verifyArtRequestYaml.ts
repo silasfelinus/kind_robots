@@ -163,6 +163,10 @@ console.log('appendRequest into each requests: shape')
     'retry receives its own request block',
     retried.includes('retry-id-99999999'),
   )
+  check(
+    'retry stays inside one requests section',
+    (retried.match(/^requests:/gm) ?? []).length === 1,
+  )
 }
 
 console.log('')

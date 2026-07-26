@@ -255,10 +255,6 @@
                 :data-project-slug="item.slug"
                 data-project-field="imagePath"
                 data-variant="icon"
-                :data-project-id="item.projectId || undefined"
-                :data-project-slug="item.slug"
-                data-project-field="imagePath"
-                data-variant="icon"
                 alt=""
                 class="h-12 w-12 shrink-0 rounded-2xl border border-base-100/30 object-cover shadow"
               />
@@ -335,10 +331,6 @@
             <div class="flex items-end gap-3">
               <img
                 :src="item.iconPath"
-                :data-project-id="item.projectId || undefined"
-                :data-project-slug="item.slug"
-                data-project-field="imagePath"
-                data-variant="icon"
                 :data-project-id="item.projectId || undefined"
                 :data-project-slug="item.slug"
                 data-project-field="imagePath"
@@ -434,10 +426,6 @@
               :data-project-slug="item.slug"
               data-project-field="imagePath"
               data-variant="icon"
-              :data-project-id="item.projectId || undefined"
-              :data-project-slug="item.slug"
-              data-project-field="imagePath"
-              data-variant="icon"
               :alt="item.title"
               class="h-16 w-16 shrink-0 rounded-2xl border border-base-300 object-cover shadow-sm transition group-hover:scale-105"
             />
@@ -511,10 +499,6 @@
               :data-project-slug="item.slug"
               data-project-field="heroPath"
               data-variant="hero"
-              :data-project-id="item.projectId || undefined"
-              :data-project-slug="item.slug"
-              data-project-field="heroPath"
-              data-variant="hero"
               :alt="item.title"
               class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
@@ -525,10 +509,6 @@
 
             <img
               :src="item.iconPath"
-              :data-project-id="item.projectId || undefined"
-              :data-project-slug="item.slug"
-              data-project-field="imagePath"
-              data-variant="icon"
               :data-project-id="item.projectId || undefined"
               :data-project-slug="item.slug"
               data-project-field="imagePath"

@@ -152,7 +152,21 @@ export function appendRequest(content: string, entry: ArtQueueEntry): string {
   }
 
   if (/^requests:\s*$/m.test(trimmed)) {
-    return `${trimmed}\n${serialized}\n`
+    const header = /^requests:\s*$/m.exec(trimmed)
+    if (!header) return `${trimmed}\n${serialized}\n`
+
+    const sectionStart = header.index + header[0].length
+    const tail = trimmed.slice(sectionStart)
+    const nextSection = tail.match(/\n(?=[A-Za-z_][\w-]*:\s*(?:\n|$))/)
+
+    if (!nextSection || nextSection.index === undefined) {
+      return `${trimmed}\n${serialized}\n`
+    }
+
+    const insertion = sectionStart + nextSection.index
+    return `${trimmed.slice(0, insertion).trimEnd()}\n${serialized}\n\n${trimmed
+      .slice(insertion)
+      .trimStart()}\n`
   }
 
   return `${trimmed}\n\nrequests:\n${serialized}\n`

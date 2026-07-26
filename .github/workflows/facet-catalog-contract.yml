@@ -41,6 +41,7 @@ jobs:
           npx tsx utils/scripts/verifyFacetArtGeneration.ts
           npx tsx utils/scripts/verifyDreamRandomCompatibility.ts
           npx tsx utils/scripts/verifyFacetLibraryAdvanced.ts
+          npx tsx utils/scripts/verifyFacetBuilderCoverage.ts
 
       - name: Verify curated Facet artwork
         id: artwork

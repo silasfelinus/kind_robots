@@ -6,6 +6,7 @@ on:
     types: [opened, reopened, synchronize]
     paths:
       - "scripts/agent_patch_project_gallery.py"
+      - "scripts/agent_fix_art_request_yaml_patch.py"
 
 permissions:
   contents: write
@@ -26,7 +27,9 @@ jobs:
           python-version: "3.12"
 
       - name: Apply repository-aware patch
-        run: python scripts/agent_patch_project_gallery.py
+        run: |
+          python scripts/agent_patch_project_gallery.py
+          python scripts/agent_fix_art_request_yaml_patch.py
 
       - uses: actions/setup-node@v4
         with:
@@ -45,6 +48,7 @@ jobs:
       - name: Commit finished patch
         run: |
           rm scripts/agent_patch_project_gallery.py
+          rm scripts/agent_fix_art_request_yaml_patch.py
           rm .github/workflows/agent-project-gallery-art-pipeline.yml
           git config user.name "kind-conductor"
           git config user.email "kind-conductor@users.noreply.github.com"

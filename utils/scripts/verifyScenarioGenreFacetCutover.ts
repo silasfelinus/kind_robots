@@ -2,6 +2,10 @@
 import { access, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { SCENARIO_CARDS } from '../../stores/helpers/scenarioCards'
+import {
+  SCENARIO_GENRE_ARTWORK_PATHS,
+  SCENARIO_GENRE_ARTWORK_TARGETS,
+} from '../seeds/facetScenarioGenreArtwork'
 
 const root = process.cwd()
 
@@ -15,8 +19,18 @@ function requireText(path: string, text: string, fragment: string): void {
   }
 }
 
+async function pathExists(imagePath: string): Promise<boolean> {
+  try {
+    await access(resolve(root, 'public', imagePath.slice(1)))
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function main(): Promise<void> {
   const failures: string[] = []
+  const missingArtwork: string[] = []
   const genreCard = SCENARIO_CARDS.find((card) => card.key === 'genre')
   if (!genreCard) throw new Error('Scenario Genre Builder card is missing.')
 
@@ -40,14 +54,18 @@ async function main(): Promise<void> {
       const imagePath = clean(choice.image)
       if (!value) continue
       if (!imagePath) {
-        failures.push(`${label} is a direct Scenario Genre choice without artwork.`)
+        failures.push(`${label} is a direct Scenario Genre choice without an artwork target.`)
         continue
       }
       direct.push({ value, label, imagePath })
-      try {
-        await access(resolve(root, 'public', imagePath.slice(1)))
-      } catch {
-        failures.push(`${label} references missing Scenario Genre artwork: public${imagePath}`)
+      if (!(await pathExists(imagePath))) {
+        if (SCENARIO_GENRE_ARTWORK_PATHS.has(imagePath)) {
+          missingArtwork.push(imagePath)
+        } else {
+          failures.push(
+            `${label} references untracked missing Scenario Genre artwork: public${imagePath}`,
+          )
+        }
       }
     }
   }
@@ -59,14 +77,25 @@ async function main(): Promise<void> {
     failures.push(`Expected at least 40 extended Scenario Genres, found ${extended.size}.`)
   }
 
+  const directPaths = new Set(direct.map((entry) => entry.imagePath))
+  for (const target of SCENARIO_GENRE_ARTWORK_TARGETS) {
+    if (!directPaths.has(target.path)) {
+      failures.push(
+        `Scenario Genre artwork manifest target ${target.path} is not represented by the Builder source.`,
+      )
+    }
+  }
+
   const files = {
     seed: 'utils/scripts/seedScenarioGenreFacetCatalog.ts',
+    artwork: 'utils/seeds/facetScenarioGenreArtwork.ts',
     wrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     plugin: 'plugins/20.facet-catalog.client.ts',
     sync: 'server/utils/scenarioGenreFacetSync.ts',
     create: 'server/api/scenarios/index.post.ts',
     patch: 'server/api/scenarios/[id].patch.ts',
-    batch: 'server/api/scenarios/batch.post.ts',
+    batchCreate: 'server/api/scenarios/batch.post.ts',
+    batchPatch: 'server/api/scenarios/batch.patch.ts',
     policy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
   } as const
   const entries = await Promise.all(
@@ -82,6 +111,7 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'builderLabel')
   requireText(files.seed, text.seed, 'backfillScenarioGenres')
   requireText(files.seed, text.seed, 'existingPublicImagePath')
+  requireText(files.artwork, text.artwork, 'SCENARIO_GENRE_ARTWORK_TARGETS')
   requireText(files.wrapper, text.wrapper, "import('./seedScenarioGenreFacetCatalog')")
   requireText(files.plugin, text.plugin, 'SCENARIO_CARDS')
   requireText(files.plugin, text.plugin, "if (key === 'genres') return 'genre'")
@@ -90,13 +120,19 @@ async function main(): Promise<void> {
   requireText(files.sync, text.sync, 'syncScenarioGenreFacetsInTransaction')
   requireText(files.sync, text.sync, "where: { taxonomy: 'GENRE' }")
   requireText(files.sync, text.sync, 'facetId: { in: genreFacetIds }')
-  requireText(files.create, text.create, 'prisma.$transaction')
-  requireText(files.create, text.create, 'syncScenarioGenreFacetsInTransaction')
+  for (const [source, label] of [
+    [text.create, files.create],
+    [text.patch, files.patch],
+    [text.batchCreate, files.batchCreate],
+    [text.batchPatch, files.batchPatch],
+  ] as const) {
+    requireText(label, source, 'prisma.$transaction')
+    requireText(label, source, 'syncScenarioGenreFacetsInTransaction')
+  }
   requireText(files.patch, text.patch, "if ('genres' in data)")
-  requireText(files.patch, text.patch, 'syncScenarioGenreFacetsInTransaction')
-  requireText(files.batch, text.batch, 'prisma.$transaction')
-  requireText(files.batch, text.batch, 'syncScenarioGenreFacetsInTransaction')
+  requireText(files.batchPatch, text.batchPatch, "if ('genres' in data)")
   requireText(files.policy, text.policy, 'stores/helpers/scenarioCards.ts')
+  requireText(files.policy, text.policy, 'utils/seeds/facetScenarioGenreArtwork.ts')
   requireText(files.policy, text.policy, 'utils/scripts/seedScenarioGenreFacetCatalog.ts')
 
   if (failures.length) {
@@ -106,6 +142,14 @@ async function main(): Promise<void> {
   process.stdout.write(
     `Scenario Genre Facet cutover verified: ${direct.length} illustrated choices and ${extended.size} extended genres.\n`,
   )
+  const uniqueDebt = Array.from(new Set(missingArtwork)).sort()
+  if (uniqueDebt.length) {
+    process.stdout.write(
+      `Known Scenario Genre artwork debt (${uniqueDebt.length}; broken paths are not persisted):\n` +
+        uniqueDebt.map((path) => `- public${path}`).join('\n') +
+        '\n',
+    )
+  }
 }
 
 main().catch((error: unknown) => {

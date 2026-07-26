@@ -25,6 +25,7 @@ model ArtImage {
   imagePath            String?
   isMature             Boolean?              @default(false)
   isPublic             Boolean?              @default(true)
+  storefrontFeatured   Boolean               @default(false)
   negativePrompt       String?               @db.Text
   path                 String?               @db.VarChar(764)
   promptString         String?               @db.Text
@@ -78,6 +79,7 @@ model ArtImage {
   @@index([userId], map: "ArtImage_userId_fkey")
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
   @@index([serverId], map: "ArtImage_serverId_fkey")
+  @@index([storefrontFeatured])
 }
 
 model ArtCollection {

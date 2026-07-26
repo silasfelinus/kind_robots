@@ -293,6 +293,7 @@ export const ArtImageScalarFieldEnum = {
   imagePath: 'imagePath',
   isMature: 'isMature',
   isPublic: 'isPublic',
+  storefrontFeatured: 'storefrontFeatured',
   negativePrompt: 'negativePrompt',
   path: 'path',
   promptString: 'promptString',

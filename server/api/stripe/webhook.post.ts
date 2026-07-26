@@ -243,17 +243,17 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       })
 
       if (!artImage) {
+        // Do NOT insert a PrintJob here -- artImageId is a required, non-null
+        // FK to ArtImage with no onDelete: SetNull, so pointing it at a
+        // nonexistent row would throw and roll back this whole transaction,
+        // including the Order/OrderItem already created above (same
+        // "check-existence-before-insert" fix as fulfillGiftshopPrintJob
+        // below, digital-storefront/t-034). Leaving the PrintJob out keeps
+        // the Order/OrderItem as the audit trail instead of losing the paid
+        // order entirely.
         console.error(
-          `⚠️ Stripe webhook: POD product "${slug}" references ArtImage ${artImageId} which no longer exists, failing PrintJob`,
+          `⚠️ Stripe webhook: POD product "${slug}" references ArtImage ${artImageId} which no longer exists, skipping PrintJob`,
         )
-        await tx.printJob.create({
-          data: {
-            orderItemId: item.id,
-            artImageId,
-            printfulVariantId,
-            status: 'FAILED',
-          },
-        })
         return
       }
 

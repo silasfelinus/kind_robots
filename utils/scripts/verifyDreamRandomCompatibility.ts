@@ -9,7 +9,7 @@ async function main(): Promise<void> {
   ])
 
   const compatibility = helper.match(
-    /export function randomEntry[\s\S]*?\n}\n\nexport function randomSeedDream/,
+    /export function randomEntry[\s\S]*?\n}\n\nexport function extractExamples/,
   )?.[0]
   if (!compatibility) {
     throw new Error('Dream randomEntry compatibility boundary is missing.')
@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   if (
     compatibility.includes('.examples') ||
     compatibility.includes('Math.random') ||
-    compatibility.includes('extractExamples')
+    compatibility.includes('extractExamples(')
   ) {
     throw new Error('Dream randomEntry must not sample Dream examples.')
   }

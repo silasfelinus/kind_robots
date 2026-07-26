@@ -35,6 +35,7 @@ const RANDOM_KEY_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   role: ['ROLE'],
   alignment: ['ALIGNMENT'],
   gender: ['GENDER'],
+  botType: ['BOT_TYPE'],
   personality: ['PERSONALITY'],
   backstory: ['BACKSTORY'],
   quirk: ['QUIRK'],

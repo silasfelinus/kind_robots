@@ -43,7 +43,8 @@ function sampleEntry(overrides: Partial<ArtQueueEntry> = {}): ArtQueueEntry {
     variant: 'icon',
     size: '256x256',
     label: 'Packmaker',
-    prompt: 'flat minimal app icon for Packmaker,\nbold clean vector shapes, no text',
+    prompt:
+      'flat minimal app icon for Packmaker,\nbold clean vector shapes, no text',
     ...overrides,
   }
 }
@@ -54,7 +55,11 @@ console.log('renderRequestEntry indentation')
   const rendered = renderRequestEntry(sampleEntry())
   const lines = rendered.split('\n')
 
-  check('first line is the list marker at column 0', lines[0]!.startsWith('- id: '), lines[0])
+  check(
+    'first line is the list marker at column 0',
+    lines[0]!.startsWith('- id: '),
+    lines[0],
+  )
   check('no line contains a tab character', !rendered.includes('\t'))
 
   // Every non-first, non-empty line is either a 2-space key or the 4-space
@@ -81,9 +86,19 @@ console.log('renderRequestEntry indentation')
       break
     }
   }
-  check('every continuation key is indented exactly 2 spaces', indentationOk, badLine)
-  check('prompt renders as a folded scalar (`prompt: >`)', rendered.includes('\n  prompt: >\n    '))
-  check('prompt folds newlines into a single line', !/\n {4}\S.*\n {4}\S/.test(rendered))
+  check(
+    'every continuation key is indented exactly 2 spaces',
+    indentationOk,
+    badLine,
+  )
+  check(
+    'prompt renders as a folded scalar (`prompt: >`)',
+    rendered.includes('\n  prompt: >\n    '),
+  )
+  check(
+    'prompt folds newlines into a single line',
+    !/\n {4}\S.*\n {4}\S/.test(rendered),
+  )
 }
 
 // --- optional fields omitted when empty -------------------------------------
@@ -105,22 +120,48 @@ console.log('appendRequest into each requests: shape')
   const marker = `\n- id: ${JSON.stringify(entry.id)}`
 
   const intoInline = appendRequest('metadata: 1\nrequests: []\n', entry)
-  check('requests: [] -> item at column 0', intoInline.includes(marker), intoInline)
-  check('requests: [] -> no indented list marker', !/\n {1,}- id:/.test(intoInline))
+  check(
+    'requests: [] -> item at column 0',
+    intoInline.includes(marker),
+    intoInline,
+  )
+  check(
+    'requests: [] -> no indented list marker',
+    !/\n {1,}- id:/.test(intoInline),
+  )
 
   const intoEmpty = appendRequest('metadata: 1\nrequests:\n', entry)
-  check('requests: (empty) -> item at column 0', intoEmpty.includes(marker), intoEmpty)
+  check(
+    'requests: (empty) -> item at column 0',
+    intoEmpty.includes(marker),
+    intoEmpty,
+  )
 
   const intoBare = appendRequest('metadata: 1\n', entry)
-  check('no requests: key -> appends requests: block at column 0', /\nrequests:\n- id:/.test(intoBare), intoBare)
+  check(
+    'no requests: key -> appends requests: block at column 0',
+    /\nrequests:\n- id:/.test(intoBare),
+    intoBare,
+  )
 
   // idempotency: same entry twice must not duplicate (dedup by id / image_path)
   const once = appendRequest('requests: []\n', entry)
   const twice = appendRequest(once, entry)
   check('appendRequest is idempotent by id', once === twice)
   check(
-    'appendRequest is idempotent by image_path',
+    'appendRequest is idempotent by active image_path',
     appendRequest(once, sampleEntry({ id: 'different-id-99999999' })) === once,
+  )
+
+  const completed = once.replace('status: "pending"', 'status: "done"')
+  const retried = appendRequest(
+    completed,
+    sampleEntry({ id: 'retry-id-99999999' }),
+  )
+  check('completed image_path can be queued again', retried !== completed)
+  check(
+    'retry receives its own request block',
+    retried.includes('retry-id-99999999'),
   )
 }
 

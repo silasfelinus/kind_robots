@@ -6,7 +6,11 @@ import { errorHandler } from '@/server/utils/error'
 import { userIsAdmin } from '@/server/utils/authUser'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
-import { type ArtQueueEntry, type ArtVariant, appendRequest } from '@/server/utils/artRequestYaml'
+import {
+  type ArtQueueEntry,
+  type ArtVariant,
+  appendRequest,
+} from '@/server/utils/artRequestYaml'
 
 const GITHUB_API = 'https://api.github.com'
 const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
@@ -23,7 +27,14 @@ const MEDIA_ORIGIN = (
   process.env.MEDIA_ORIGIN?.trim() || 'https://media.acrocatranch.com'
 ).replace(/\/+$/, '')
 const MEDIA_EXISTS_TIMEOUT_MS = 8000
-const IMAGE_EXTENSIONS = new Set(['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg'])
+const IMAGE_EXTENSIONS = new Set([
+  '.webp',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.svg',
+])
 const VARIANT_SIZES: Record<ArtVariant, string> = {
   icon: '256x256',
   card: '512x768',
@@ -46,6 +57,9 @@ type MissingArtRequestBody = {
   nearestHeading?: string
   nearbyText?: string
   imageClass?: string
+  projectId?: number
+  projectSlug?: string
+  projectField?: string
 }
 
 type GitHubFile = {
@@ -66,7 +80,9 @@ type ImageTarget = {
 }
 
 function getGithubToken(): string {
-  return String(process.env.CONDUCTOR_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '').trim()
+  return String(
+    process.env.CONDUCTOR_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '',
+  ).trim()
 }
 
 function getConductorBranch(): string {
@@ -149,7 +165,10 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
   }
 
   if (/^(data|blob):/i.test(sourceUrl)) {
-    throw createError({ statusCode: 400, message: 'Inline image sources are ignored.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Inline image sources are ignored.',
+    })
   }
 
   let url: URL | null = null
@@ -170,7 +189,10 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
     const imagePath = fileParts.join('/')
 
     if (!owner || !repo || !ref || !imagePath || !isImagePath(imagePath)) {
-      throw createError({ statusCode: 400, message: 'Unsupported GitHub image source.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Unsupported GitHub image source.',
+      })
     }
 
     const variant = inferVariant(imagePath, body.variant)
@@ -190,7 +212,10 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
   }
 
   if (!isImagePath(rawPath)) {
-    throw createError({ statusCode: 400, message: 'Only image paths can create art requests.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Only image paths can create art requests.',
+    })
   }
 
   const imagePath = rawPath.startsWith('/public/')
@@ -231,13 +256,17 @@ async function fetchGithubFile(
   const res = await fetch(url, { headers: githubHeaders(token) })
 
   if (res.status === 404) return null
-  if (!res.ok) throw new Error(`GitHub ${res.status} while fetching ${repo}/${path}`)
+  if (!res.ok)
+    throw new Error(`GitHub ${res.status} while fetching ${repo}/${path}`)
 
   const data = (await res.json()) as GitHubFile
   return data
 }
 
-async function githubFileExists(target: ImageTarget, token: string): Promise<boolean> {
+async function githubFileExists(
+  target: ImageTarget,
+  token: string,
+): Promise<boolean> {
   const file = await fetchGithubFile(
     target.targetRepo,
     target.imagePath,
@@ -278,24 +307,33 @@ async function mediaFileExists(target: ImageTarget): Promise<boolean> {
 // A target is "already satisfied" if it exists in the repo OR on the media host.
 // GitHub covers conductor-committed art; media covers the git-ignored
 // kind_robots mount. Check media first (cheap HEAD, no token) and short-circuit.
-async function imageAlreadyExists(target: ImageTarget, token: string): Promise<boolean> {
+async function imageAlreadyExists(
+  target: ImageTarget,
+  token: string,
+): Promise<boolean> {
   if (await mediaFileExists(target)) return true
   return githubFileExists(target, token)
 }
 
 function decodeGithubContent(file: GitHubFile): string {
-  return Buffer.from(file.content.replace(/\n/g, ''), 'base64').toString('utf-8')
+  return Buffer.from(file.content.replace(/\n/g, ''), 'base64').toString(
+    'utf-8',
+  )
 }
 
 function encodeGithubContent(content: string): string {
   return Buffer.from(content, 'utf-8').toString('base64')
 }
 
-function buildFallbackPrompt(body: MissingArtRequestBody, target: ImageTarget): string {
+function buildFallbackPrompt(
+  body: MissingArtRequestBody,
+  target: ImageTarget,
+): string {
   const explicit = cleanString(body.prompt)
   if (explicit) return explicit
 
-  const label = cleanString(body.alt || body.label) || titleFromSlug(target.slug)
+  const label =
+    cleanString(body.alt || body.label) || titleFromSlug(target.slug)
 
   if (target.variant === 'icon') {
     return `flat minimal app icon for ${label}, bold clean vector shapes, square composition, no text`
@@ -312,13 +350,17 @@ function buildFallbackPrompt(body: MissingArtRequestBody, target: ImageTarget): 
   return `polished web illustration for ${label}, clear subject, cohesive Kind Robots visual style, no text`
 }
 
-async function buildEntry(body: MissingArtRequestBody, target: ImageTarget): Promise<ArtQueueEntry> {
+async function buildEntry(
+  body: MissingArtRequestBody,
+  target: ImageTarget,
+): Promise<ArtQueueEntry> {
   const repoName = target.targetRepo.split('/').pop() ?? 'repo'
   const hash = createHash('sha1')
     .update(`${target.targetRepo}:${target.imagePath}:${target.sourceUrl}`)
     .digest('hex')
     .slice(0, 8)
-  const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}`
+  const attempt = Date.now().toString(36)
+  const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}-${attempt}`
   const fallbackPrompt = buildFallbackPrompt(body, target)
   const prompt = await buildContextualArtPrompt(body, target, fallbackPrompt)
 
@@ -334,12 +376,28 @@ async function buildEntry(body: MissingArtRequestBody, target: ImageTarget): Pro
     size: target.size,
     label: cleanString(body.alt || body.label) || titleFromSlug(target.slug),
     prompt,
+    ...(Number.isInteger(Number(body.projectId)) && Number(body.projectId) > 0
+      ? { project_id: Number(body.projectId) }
+      : {}),
+    ...(cleanString(body.projectSlug)
+      ? { project_slug: cleanString(body.projectSlug) }
+      : {}),
+    ...(['imagePath', 'cardPath', 'heroPath'].includes(
+      cleanString(body.projectField),
+    )
+      ? { project_field: cleanString(body.projectField) }
+      : {}),
   }
 }
 
 async function updateConductorQueue(entry: ArtQueueEntry, token: string) {
   const branch = getConductorBranch()
-  const file = await fetchGithubFile(CONDUCTOR_REPO, ART_PROMPTS_PATH, token, branch)
+  const file = await fetchGithubFile(
+    CONDUCTOR_REPO,
+    ART_PROMPTS_PATH,
+    token,
+    branch,
+  )
 
   if (!file) {
     throw createError({
@@ -382,7 +440,10 @@ export default defineEventHandler(async (event) => {
     const { isValid, user } = await validateApiKey(event)
 
     if (!isValid || !user) {
-      throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
     }
 
     if (!userIsAdmin(user)) {
@@ -403,7 +464,8 @@ export default defineEventHandler(async (event) => {
     if (await imageAlreadyExists(target, token)) {
       return {
         success: true,
-        message: 'Image already exists in the target repo or on media; no request created.',
+        message:
+          'Image already exists in the target repo or on media; no request created.',
         data: { created: false, target },
         statusCode: 200,
       }

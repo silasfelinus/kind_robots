@@ -129,6 +129,32 @@
       </button>
     </header>
 
+    <nav
+      v-if="userStore.isAdmin"
+      class="flex shrink-0 flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-100 p-2"
+      aria-label="Project status filters"
+    >
+      <button
+        v-for="option in projectFilterOptions"
+        :key="option.value"
+        type="button"
+        class="btn btn-xs gap-1 rounded-2xl"
+        :class="projectFilter === option.value ? 'btn-primary' : 'btn-ghost'"
+        @click="projectFilter = option.value"
+      >
+        <Icon :name="option.icon" class="size-3" />
+        {{ option.label }}
+        <span
+          class="badge badge-xs"
+          :class="
+            projectFilter === option.value ? 'badge-ghost' : 'badge-outline'
+          "
+        >
+          {{ projectFilterCount(option.value) }}
+        </span>
+      </button>
+    </nav>
+
     <main
       class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3"
     >
@@ -185,6 +211,10 @@
         >
           <img
             :src="item.cardPath"
+            :data-project-id="item.projectId || undefined"
+            :data-project-slug="item.slug"
+            data-project-field="cardPath"
+            data-variant="card"
             :alt="item.title"
             class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
@@ -221,6 +251,14 @@
             <div class="flex items-end gap-3">
               <img
                 :src="item.iconPath"
+                :data-project-id="item.projectId || undefined"
+                :data-project-slug="item.slug"
+                data-project-field="imagePath"
+                data-variant="icon"
+                :data-project-id="item.projectId || undefined"
+                :data-project-slug="item.slug"
+                data-project-field="imagePath"
+                data-variant="icon"
                 alt=""
                 class="h-12 w-12 shrink-0 rounded-2xl border border-base-100/30 object-cover shadow"
               />
@@ -279,6 +317,10 @@
         >
           <img
             :src="item.heroPath"
+            :data-project-id="item.projectId || undefined"
+            :data-project-slug="item.slug"
+            data-project-field="heroPath"
+            data-variant="hero"
             :alt="item.title"
             class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
@@ -293,6 +335,14 @@
             <div class="flex items-end gap-3">
               <img
                 :src="item.iconPath"
+                :data-project-id="item.projectId || undefined"
+                :data-project-slug="item.slug"
+                data-project-field="imagePath"
+                data-variant="icon"
+                :data-project-id="item.projectId || undefined"
+                :data-project-slug="item.slug"
+                data-project-field="imagePath"
+                data-variant="icon"
                 alt=""
                 class="h-12 w-12 rounded-2xl border border-base-100/40 object-cover shadow"
               />
@@ -380,6 +430,14 @@
           <div class="flex items-start gap-3">
             <img
               :src="item.iconPath"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="imagePath"
+              data-variant="icon"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="imagePath"
+              data-variant="icon"
               :alt="item.title"
               class="h-16 w-16 shrink-0 rounded-2xl border border-base-300 object-cover shadow-sm transition group-hover:scale-105"
             />
@@ -449,6 +507,14 @@
           >
             <img
               :src="item.heroPath"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="heroPath"
+              data-variant="hero"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="heroPath"
+              data-variant="hero"
               :alt="item.title"
               class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
@@ -459,6 +525,14 @@
 
             <img
               :src="item.iconPath"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="imagePath"
+              data-variant="icon"
+              :data-project-id="item.projectId || undefined"
+              :data-project-slug="item.slug"
+              data-project-field="imagePath"
+              data-variant="icon"
               alt=""
               class="absolute bottom-3 left-3 h-12 w-12 rounded-2xl border border-base-100/30 object-cover shadow"
             />
@@ -564,6 +638,8 @@ const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 
 type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
+type ProjectFilter =
+  'ACTIVE' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED' | 'ALL'
 
 type GalleryOption = {
   value: GalleryMode
@@ -581,6 +657,8 @@ type ProjectGalleryItem = {
   kind: string
   kindLabel: string
   status: string
+  isActive: boolean
+  updatedAt: number
   priority: ProjectPriorityLevel
   progress: number
   blocked: number
@@ -612,6 +690,19 @@ const todoStore = useTodoStore()
 const userStore = useUserStore()
 
 const projectGalleryMode = ref<GalleryMode>('cards')
+const projectFilter = ref<ProjectFilter>('ACTIVE')
+const projectFilterOptions: Array<{
+  value: ProjectFilter
+  label: string
+  icon: string
+}> = [
+  { value: 'ACTIVE', label: 'Active', icon: 'kind-icon:sparkles' },
+  { value: 'PAUSED', label: 'Paused', icon: 'kind-icon:pause' },
+  { value: 'DONE', label: 'Completed', icon: 'kind-icon:check-circle' },
+  { value: 'BRAINSTORM', label: 'Ideas', icon: 'kind-icon:lightbulb' },
+  { value: 'ARCHIVED', label: 'Archived', icon: 'kind-icon:archive' },
+  { value: 'ALL', label: 'All', icon: 'kind-icon:cards' },
+]
 
 const isLoading = computed(() => conductorStore.pending || projectStore.loading)
 const errorMessage = computed(
@@ -621,52 +712,31 @@ const brainstormCount = computed(
   () => conductorStore.pendingPitches.length + brainstormProjects.value.length,
 )
 
-const activeProjects = computed(() => {
-  return conductorStore.projects.filter((project) => {
-    const status = dbProjectForSlug(project.slug)?.status
-    return status !== 'BRAINSTORM' && status !== 'ARCHIVED'
-  })
-})
-
 const brainstormProjects = computed(() => {
   return conductorStore.projects.filter(
     (project) => dbProjectForSlug(project.slug)?.status === 'BRAINSTORM',
   )
 })
 
-const sortedActiveProjects = computed(() => {
-  const order: Record<ProjectPriorityLevel, number> = {
-    HIGH: 0,
-    NORMAL: 1,
-    LOW: 2,
-  }
-
-  return [...activeProjects.value].sort((a, b) => {
-    const aPriority =
-      (dbProjectForSlug(a.slug)?.priority as
-        | ProjectPriorityLevel
-        | undefined) ?? 'NORMAL'
-    const bPriority =
-      (dbProjectForSlug(b.slug)?.priority as
-        | ProjectPriorityLevel
-        | undefined) ?? 'NORMAL'
-
-    return (order[aPriority] ?? 1) - (order[bPriority] ?? 1)
-  })
-})
+const priorityOrder: Record<ProjectPriorityLevel, number> = {
+  HIGH: 0,
+  NORMAL: 1,
+  LOW: 2,
+}
 
 const adminItems = computed<ProjectGalleryItem[]>(() => {
-  const conductorItems = sortedActiveProjects.value.map((project) =>
+  const conductorItems = conductorStore.projects.map((project) =>
     itemFromProject(project),
   )
   const conductorSlugs = new Set(
     conductorStore.projects.map((project) => project.slug),
   )
-  const databaseOnlyItems = projectStore.activeProjects.flatMap((project) =>
-    project.slug && !conductorSlugs.has(project.slug)
+  const databaseOnlyItems = projectStore.projects.flatMap((project) => {
+    const slug = project.conductorSlug || project.slug
+    return slug && !conductorSlugs.has(slug)
       ? [itemFromProjectRecord(project)]
-      : [],
-  )
+      : []
+  })
   return [...conductorItems, ...databaseOnlyItems]
 })
 
@@ -678,9 +748,43 @@ const publicItems = computed<ProjectGalleryItem[]>(() => {
     .sort((a, b) => a.title.localeCompare(b.title))
 })
 
+function matchesProjectFilter(
+  item: ProjectGalleryItem,
+  filter: ProjectFilter,
+): boolean {
+  if (filter === 'ALL') return true
+  if (filter === 'ARCHIVED') {
+    return !item.isActive || item.status === 'ARCHIVED'
+  }
+  if (filter === 'ACTIVE') {
+    return item.isActive && item.status === 'ACTIVE'
+  }
+  return item.isActive && item.status === filter
+}
+
+function sortProjectItems(items: ProjectGalleryItem[]): ProjectGalleryItem[] {
+  return [...items].sort((a, b) => {
+    const priority =
+      (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1)
+    if (priority !== 0) return priority
+    if (a.updatedAt !== b.updatedAt) return b.updatedAt - a.updatedAt
+    return a.title.localeCompare(b.title)
+  })
+}
+
 const galleryItems = computed(() => {
-  return userStore.isAdmin ? adminItems.value : publicItems.value
+  if (!userStore.isAdmin) return publicItems.value
+  return sortProjectItems(
+    adminItems.value.filter((item) =>
+      matchesProjectFilter(item, projectFilter.value),
+    ),
+  )
 })
+
+function projectFilterCount(filter: ProjectFilter): number {
+  return adminItems.value.filter((item) => matchesProjectFilter(item, filter))
+    .length
+}
 
 const humanQueueCount = computed(() =>
   galleryItems.value.reduce((sum, item) => sum + item.needsHuman, 0),
@@ -753,8 +857,12 @@ watch(
 
 watch(projectGalleryMode, (mode) => {
   if (!import.meta.client) return
-
   localStorage.setItem('conductor-gallery-mode', mode)
+})
+
+watch(projectFilter, (filter) => {
+  if (!import.meta.client) return
+  localStorage.setItem('conductor-project-filter', filter)
 })
 
 onMounted(async () => {
@@ -764,6 +872,16 @@ onMounted(async () => {
     ) as GalleryMode | null
     if (saved && galleryModeOptions.some((mode) => mode.value === saved)) {
       projectGalleryMode.value = saved
+    }
+
+    const savedFilter = localStorage.getItem(
+      'conductor-project-filter',
+    ) as ProjectFilter | null
+    if (
+      savedFilter &&
+      projectFilterOptions.some((option) => option.value === savedFilter)
+    ) {
+      projectFilter.value = savedFilter
     }
   }
 
@@ -840,6 +958,8 @@ function itemFromProject(project: ConductorProject): ProjectGalleryItem {
     kind: project.kind || 'project',
     kindLabel: formatKind(project.kind),
     status: record?.status || 'ACTIVE',
+    isActive: record?.isActive ?? true,
+    updatedAt: record?.updatedAt ? new Date(record.updatedAt).getTime() : 0,
     priority,
     progress: Number.isFinite(project.progress) ? project.progress : 0,
     blocked: counts.blocked,
@@ -887,6 +1007,8 @@ function itemFromProjectRecord(
     kind: 'project',
     kindLabel: 'Project',
     status: record.status,
+    isActive: record.isActive,
+    updatedAt: record.updatedAt ? new Date(record.updatedAt).getTime() : 0,
     priority: record.priority as ProjectPriorityLevel,
     progress: record.status === 'DONE' ? 100 : 0,
     blocked: 0,

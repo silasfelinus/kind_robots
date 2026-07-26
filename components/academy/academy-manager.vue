@@ -1,15 +1,44 @@
 <!-- /components/academy/academy-manager.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+    <!--
+      Timeline and Style Gallery render purely off academyStore's static seed
+      data (hydrated synchronously in onMounted below) — they never need
+      serverStore/artStore, so they must not be blocked by isLoadingManager /
+      managerError, which only reflect the Remix Studio / Style Lab art-server
+      fetch (see loadManagerData). Keeping these two branches first ensures a
+      failed or slow art-server call never hides tabs that don't depend on it.
+    -->
+    <section
+      v-if="activeTab === 'timeline'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <academy-timeline class="min-h-full w-full" @remix="goToRemix" />
+      </div>
+    </section>
+
+    <section
+      v-else-if="activeTab === 'styles'"
+      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+    >
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+        <academy-styles-browser class="min-h-full w-full" @remix="goToRemix" />
+      </div>
+    </section>
+
     <div
-      v-if="isLoadingManager"
+      v-else-if="isLoadingManager"
       role="status"
       aria-live="polite"
       aria-busy="true"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
     >
       <div class="flex flex-col items-center gap-3 text-center">
-        <span class="loading loading-spinner loading-lg text-primary" aria-hidden="true" />
+        <span
+          class="loading loading-spinner loading-lg text-primary"
+          aria-hidden="true"
+        />
         <p class="text-sm text-base-content/70">
           Dusting off the timeline, warming up the remix engine, and politely
           waking twenty-five centuries of dead masters...
@@ -33,24 +62,6 @@
         </button>
       </div>
     </div>
-
-    <section
-      v-else-if="activeTab === 'timeline'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <academy-timeline class="min-h-full w-full" @remix="goToRemix" />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'styles'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <academy-styles-browser class="min-h-full w-full" @remix="goToRemix" />
-      </div>
-    </section>
 
     <section
       v-else-if="activeTab === 'remix'"

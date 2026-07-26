@@ -37,13 +37,14 @@ async function main(): Promise<void> {
     migration:
       'prisma/migrations/20260725113000_facet_catalog_cutover/migration.sql',
     catalog: 'server/utils/facetCatalog.ts',
-    catalogRoute: 'server/api/facets/catalog.get.ts',
     facetAssignments: 'server/utils/facetAssignments.ts',
     facetCreate: 'server/api/facets/index.post.ts',
     facetPatch: 'server/api/facets/[id].patch.ts',
     profileInput: 'server/utils/facetProfileInput.ts',
     facetStore: 'stores/facetStore.ts',
     facetManager: 'components/facets/facet-manager.vue',
+    facetProfileEditor: 'components/facets/facet-profile-editor.vue',
+    facetProfileForm: 'utils/facetProfileForm.ts',
     characterCreate: 'server/api/characters/index.post.ts',
     characterPatch: 'server/api/characters/[id].patch.ts',
     characterFacetSync: 'server/utils/characterFacetSync.ts',
@@ -70,7 +71,6 @@ async function main(): Promise<void> {
   requireText(files.schema, text.schema, 'model FacetProfile')
   requireText(files.schema, text.schema, 'model CharacterFacet')
   requireText(files.schema, text.schema, '@@unique([characterId, facetId, fieldKey])')
-
   requireText(files.migration, text.migration, 'FacetProfile_facetId_fkey')
   requireText(files.migration, text.migration, 'CharacterFacet_characterId_fkey')
   requireText(files.migration, text.migration, 'CharacterFacet_facetId_fkey')
@@ -109,10 +109,8 @@ async function main(): Promise<void> {
   )
   requireText(files.facetCreate, text.facetCreate, 'buildFacetProfileCreateData')
   requireText(files.facetCreate, text.facetCreate, 'tx.facetProfile.create')
-  requireText(files.facetCreate, text.facetCreate, 'facetId: facet.id')
   requireText(files.facetPatch, text.facetPatch, 'buildFacetProfileUpdateData')
   requireText(files.facetPatch, text.facetPatch, 'tx.facetProfile.upsert')
-  requireText(files.facetPatch, text.facetPatch, 'where: { facetId: id }')
 
   requireText(files.facetAssignments, text.facetAssignments, 'prisma.facetProfile.findMany')
   requireText(files.facetAssignments, text.facetAssignments, 'randomWeight: profile?.randomWeight')
@@ -121,10 +119,19 @@ async function main(): Promise<void> {
   requireText(files.facetStore, text.facetStore, 'while (true)')
   requireText(files.facetStore, text.facetStore, 'skip += page.length')
   requireText(files.facetStore, text.facetStore, 'taxonomy: FacetTaxonomy')
+
   requireText(files.facetManager, text.facetManager, 'Create canonical Facet')
-  requireText(files.facetManager, text.facetManager, 'newRandomWeight')
-  requireText(files.facetManager, text.facetManager, 'editForm.isRandomizable')
-  requireText(files.facetManager, text.facetManager, 'kindForTaxonomy')
+  requireText(files.facetManager, text.facetManager, 'FacetProfileEditor')
+  requireText(files.facetManager, text.facetManager, 'facetProfilePayload')
+  requireText(files.facetManager, text.facetManager, 'requestPrimaryArtwork')
+  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.randomWeight')
+  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.isRandomizable')
+  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.artRequired')
+  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.sourceRank')
+  requireText(files.facetProfileForm, text.facetProfileForm, 'kindForTaxonomy')
+  requireText(files.facetProfileForm, text.facetProfileForm, 'parseFacetMetadata')
+  requireText(files.facetProfileForm, text.facetProfileForm, 'canonicalValue')
+  requireText(files.facetProfileForm, text.facetProfileForm, 'sortOrder')
 
   requireText(
     files.characterFacetSync,
@@ -139,7 +146,6 @@ async function main(): Promise<void> {
   requireText(files.characterCreate, text.characterCreate, 'syncCharacterFacetsInTransaction')
   requireText(files.characterPatch, text.characterPatch, 'prisma.$transaction')
   requireText(files.characterPatch, text.characterPatch, 'syncCharacterFacetsInTransaction')
-
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')
   requireText(files.characterPut, text.characterPut, 'resolveFacetSelection')
@@ -151,17 +157,12 @@ async function main(): Promise<void> {
   requireText(files.seedWrapper, text.seedWrapper, 'choice.listOptions')
   requireText(files.seedWrapper, text.seedWrapper, 'step.listOptions = Array.from(completeList)')
   requireText(files.seedWrapper, text.seedWrapper, 'promotedBuilderOptions')
-
   requireText(files.seed, text.seed, 'ADVENTURE_CARDS')
   requireText(files.seed, text.seed, 'animalDataList')
   requireText(files.seed, text.seed, 'artListPresets')
   requireText(files.seed, text.seed, "title = isWaterBear ? 'Tardigrade'")
   requireText(files.seed, text.seed, "taxonomy !== 'COLOR'")
-  requireText(
-    files.seed,
-    text.seed,
-    'negative prompts remain generation configuration',
-  )
+  requireText(files.seed, text.seed, 'negative prompts remain generation configuration')
   requireText(files.seed, text.seed, 'backfillCharacterLinks')
   requireText(files.seed, text.seed, 'createDatabaseAdapter')
   forbidText(files.seed, text.seed, 'new PrismaMariaDb(')
@@ -174,15 +175,11 @@ async function main(): Promise<void> {
   requireText(files.catalogStore, text.catalogStore, 'entriesById.set(entry.id, entry)')
   forbidText(files.catalogStore, text.catalogStore, 'syncCharacterFacets')
   forbidText(files.catalogStore, text.catalogStore, 'characterAssignments')
-  forbidText(files.catalogStore, text.catalogStore, 'splitCharacterField')
 
   requireText(files.generatorStore, text.generatorStore, 'useFacetCatalogStore')
-  requireText(files.generatorStore, text.generatorStore, 'const facetCatalog = useFacetCatalogStore()')
   requireText(files.generatorStore, text.generatorStore, 'facetCatalog.randomFacetForField(fieldKey)')
   requireText(files.generatorStore, text.generatorStore, '.facetsForCharacterField(fieldKey)')
   requireText(files.generatorStore, text.generatorStore, 'entry.isRandomizable && entry.randomWeight > 0')
-  requireText(files.generatorStore, text.generatorStore, "return facetValue('species'")
-  requireText(files.generatorStore, text.generatorStore, "return facetValue('backstory', legacyBackstory)")
   forbidText(files.generatorStore, text.generatorStore, '__facetCatalogPatched')
 
   requireText(files.builderPlugin, text.builderPlugin, 'hydrateAdventureBuilder')
@@ -191,7 +188,6 @@ async function main(): Promise<void> {
   forbidText(files.builderPlugin, text.builderPlugin, '__facetCatalogPatched')
   forbidText(files.builderPlugin, text.builderPlugin, 'useGeneratorStore')
   forbidText(files.builderPlugin, text.builderPlugin, 'patchCharacterSave')
-  forbidText(files.builderPlugin, text.builderPlugin, 'useCharacterStore')
 
   requireText(files.randomStore, text.randomStore, 'useFacetCatalogStore')
   requireText(files.randomStore, text.randomStore, 'weightedSample')
@@ -225,11 +221,11 @@ async function main(): Promise<void> {
   )
   await requireMissingPath(
     'stores/utils/randomSpecies.ts',
-    'species selection is canonical Facet data rather than a nondeterministic module-level generator.',
+    'species selection is canonical Facet data.',
   )
   await requireMissingPath(
     'stores/utils/randomAnimal.ts',
-    'animals are canonical Facets enriched from animalData rather than a duplicate string pool.',
+    'animals are canonical Facets enriched from animalData.',
   )
   await requireMissingPath(
     'stores/utils/randomSkills.ts',

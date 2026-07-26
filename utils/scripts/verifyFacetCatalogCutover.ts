@@ -52,6 +52,7 @@ async function main(): Promise<void> {
     seedWrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     seed: 'utils/scripts/seedFacetCatalog.ts',
     catalogStore: 'stores/facetCatalogStore.ts',
+    generatorStore: 'stores/generatorStore.ts',
     randomStore: 'stores/randomStore.ts',
     randomHelper: 'stores/helpers/randomHelper.ts',
     builderPlugin: 'plugins/20.facet-catalog.client.ts',
@@ -174,8 +175,21 @@ async function main(): Promise<void> {
   forbidText(files.catalogStore, text.catalogStore, 'syncCharacterFacets')
   forbidText(files.catalogStore, text.catalogStore, 'characterAssignments')
   forbidText(files.catalogStore, text.catalogStore, 'splitCharacterField')
+
+  requireText(files.generatorStore, text.generatorStore, 'useFacetCatalogStore')
+  requireText(files.generatorStore, text.generatorStore, 'const facetCatalog = useFacetCatalogStore()')
+  requireText(files.generatorStore, text.generatorStore, 'facetCatalog.randomFacetForField(fieldKey)')
+  requireText(files.generatorStore, text.generatorStore, '.facetsForCharacterField(fieldKey)')
+  requireText(files.generatorStore, text.generatorStore, 'entry.isRandomizable && entry.randomWeight > 0')
+  requireText(files.generatorStore, text.generatorStore, "return facetValue('species'")
+  requireText(files.generatorStore, text.generatorStore, "return facetValue('backstory', legacyBackstory)")
+  forbidText(files.generatorStore, text.generatorStore, '__facetCatalogPatched')
+
   requireText(files.builderPlugin, text.builderPlugin, 'hydrateAdventureBuilder')
-  requireText(files.builderPlugin, text.builderPlugin, 'patchGenerator')
+  requireText(files.builderPlugin, text.builderPlugin, 'Generator methods read this same catalog')
+  forbidText(files.builderPlugin, text.builderPlugin, 'patchGenerator')
+  forbidText(files.builderPlugin, text.builderPlugin, '__facetCatalogPatched')
+  forbidText(files.builderPlugin, text.builderPlugin, 'useGeneratorStore')
   forbidText(files.builderPlugin, text.builderPlugin, 'patchCharacterSave')
   forbidText(files.builderPlugin, text.builderPlugin, 'useCharacterStore')
 

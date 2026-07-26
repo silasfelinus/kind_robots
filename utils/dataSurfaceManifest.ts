@@ -35,4 +35,11 @@ export const DATA_SURFACES: DataSurfaceEntry[] = [
     dataSource: 'stores/todoStore.ts: todoStore.honeyDoTodos',
     navEntry: { channelKey: 'home', tabKey: 'for-you' },
   },
+  {
+    id: 'video-generator',
+    label: 'Image-to-video generator',
+    dataSource:
+      'pages/video-generator.vue: stores/videoStore.ts -> POST /api/art/enqueue',
+    navEntry: { channelKey: 'lab', tabKey: 'video-generator' },
+  },
 ]

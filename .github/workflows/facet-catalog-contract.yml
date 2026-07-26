@@ -49,6 +49,9 @@ jobs:
           npx tsx utils/scripts/verifyDreamRandomCompatibility.ts
           npx tsx utils/scripts/verifyFacetLibraryAdvanced.ts
 
+      - name: Verify Scenario Genre Facet cutover
+        run: npx tsx utils/scripts/verifyScenarioGenreFacetCutover.ts
+
       - name: Verify illustrated Builder Facet coverage
         id: builder-coverage
         continue-on-error: true

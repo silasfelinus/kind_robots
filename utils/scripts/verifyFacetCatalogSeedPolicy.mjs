@@ -7,6 +7,7 @@ import {
 
 assert.equal(isFacetCatalogSourcePath('stores/helpers/adventureCards.ts'), true)
 assert.equal(isFacetCatalogSourcePath('stores/utils/animalData.ts'), true)
+assert.equal(isFacetCatalogSourcePath('utils/seeds/facetGenderArtwork.ts'), true)
 assert.equal(isFacetCatalogSourcePath('utils/seeds/facetGenderValues.ts'), true)
 assert.equal(isFacetCatalogSourcePath('utils/scripts/seedGenderFacetCatalog.ts'), true)
 assert.equal(
@@ -76,6 +77,7 @@ assert.deepEqual(
 )
 
 for (const snapshot of [
+  'utils/seeds/facetGenderArtwork.ts',
   'utils/seeds/facetGenderValues.ts',
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',

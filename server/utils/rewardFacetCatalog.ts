@@ -41,18 +41,24 @@ export async function loadRewardFacetAssignments(
     isAdmin: true,
   })
   const byId = new Map(facets.map((facet) => [facet.id, facet]))
+  const assignments: Array<
+    RewardFacetAssignment & { facet: FacetCatalogEntry }
+  > = []
 
-  return links
-    .map((link) => {
-      const facet = byId.get(link.facetId)
-      return facet ? { ...link, facet } : null
+  for (const link of links) {
+    const facet = byId.get(link.facetId)
+    if (!facet) continue
+    assignments.push({
+      facetId: link.facetId,
+      fieldKey: link.fieldKey,
+      sortOrder: link.sortOrder,
+      weight: link.weight,
+      source: link.source,
+      facet,
     })
-    .filter(
-      (
-        entry,
-      ): entry is RewardFacetAssignment & { facet: FacetCatalogEntry } =>
-        Boolean(entry),
-    )
+  }
+
+  return assignments
 }
 
 export async function loadRewardFacetCatalog(

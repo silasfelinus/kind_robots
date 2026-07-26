@@ -8,7 +8,11 @@
         <h2
           class="flex items-center gap-2 text-base font-black text-base-content"
         >
-          <Icon name="kind-icon:palette" class="h-5 w-5 text-primary" />
+          <Icon
+            name="kind-icon:palette"
+            class="h-5 w-5 text-primary"
+            aria-hidden="true"
+          />
           Style Gallery
         </h2>
         <p class="text-sm text-base-content/70">
@@ -23,6 +27,7 @@
         <Icon
           name="kind-icon:search"
           class="h-3.5 w-3.5 shrink-0 text-base-content/40"
+          aria-hidden="true"
         />
         <input
           ref="searchInputRef"
@@ -69,13 +74,15 @@
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
         <div class="flex items-center justify-between gap-2">
-          <span class="text-2xl leading-none">🏛️</span>
-          <Icon
-            v-if="academyStore.viewedLessons.includes(style.slug)"
-            name="kind-icon:check"
-            class="h-4 w-4 text-success"
-            title="Lesson explored"
-          />
+          <span class="text-2xl leading-none" aria-hidden="true">🏛️</span>
+          <template v-if="academyStore.viewedLessons.includes(style.slug)">
+            <Icon
+              name="kind-icon:check"
+              class="h-4 w-4 text-success"
+              aria-hidden="true"
+            />
+            <span class="sr-only">Lesson explored</span>
+          </template>
         </div>
         <div class="flex flex-col">
           <span
@@ -97,7 +104,11 @@
       v-if="!filteredStyles.length"
       class="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200/60 text-center"
     >
-      <Icon name="kind-icon:search" class="h-8 w-8 text-base-content/20" />
+      <Icon
+        name="kind-icon:search"
+        class="h-8 w-8 text-base-content/20"
+        aria-hidden="true"
+      />
       <p class="mt-1 text-xs text-base-content/40">
         No styles match "{{ searchQuery }}" — history is long, but not that
         long.

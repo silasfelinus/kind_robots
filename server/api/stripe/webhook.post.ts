@@ -309,20 +309,61 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
         `POD product "${slug}"`,
       )
     } else {
-      await tx.entitlement.create({
+      const entitlement = await tx.entitlement.create({
         data: {
           userId,
           productId: product.id,
           orderItemId: item.id,
         },
       })
+
+      if (product.type === 'DLC') {
+        // DLC products carry the Pack they unlock in metadata (same
+        // JSON-in-metadata convention as the POD branch's artImageId/
+        // printfulVariantId). Grant.level uses VIEW, not the "UNLOCK" level
+        // digital-storefront/t-026's original note named — GrantLevel only
+        // defines VIEW/ADMIN (kind-robots/t-037's "flat first cut" schema)
+        // and server/utils/contentAccess.ts already gates Pack-owned content
+        // on an active PACK Grant at GrantLevel.VIEW, so VIEW is the level
+        // that actually unlocks the pack's content for this user.
+        let dlcMetadata: { packId?: unknown } = {}
+        try {
+          dlcMetadata = product.metadata ? JSON.parse(product.metadata) : {}
+        } catch (error) {
+          console.error(
+            `⚠️ Stripe webhook: unparseable metadata on DLC product "${slug}"`,
+            error,
+          )
+        }
+
+        const packId = Number(dlcMetadata.packId)
+        if (Number.isInteger(packId) && packId > 0) {
+          await tx.grant.create({
+            data: {
+              granteeId: userId,
+              subjectType: 'PACK',
+              subjectId: packId,
+              level: 'VIEW',
+              source: 'PURCHASE',
+              refId: entitlement.id,
+              status: 'ACTIVE',
+            },
+          })
+        } else {
+          console.error(
+            `⚠️ Stripe webhook: DLC product "${slug}" missing/invalid packId metadata, skipping Grant creation`,
+          )
+        }
+      }
     }
   })
 
   console.log(
     product.type === 'POD'
       ? `🖨️ Created PrintJob for product "${slug}" (user ${userId}, session ${session.id})`
-      : `🎟️ Granted entitlement for product "${slug}" to user ${userId} (session ${session.id})`,
+      : product.type === 'DLC'
+        ? `🎟️📦 Granted entitlement + Pack unlock for product "${slug}" to user ${userId} (session ${session.id})`
+        : `🎟️ Granted entitlement for product "${slug}" to user ${userId} (session ${session.id})`,
   )
 }
 

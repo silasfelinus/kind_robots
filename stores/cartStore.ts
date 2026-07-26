@@ -256,9 +256,13 @@ export const useCartStore = defineStore('cartStore', () => {
           }
         }
 
+        // artImageId is sent for every line; the server only requires/uses it
+        // for needsArt catalog types (print/shirt/sticker/mug) and ignores it
+        // otherwise (see server/api/stripe/checkout.post.ts's parseCart).
         const cartPayload = items.value.map((item) => ({
           id: item.type,
           quantity: item.quantity,
+          artImageId: item.artImageId,
         }))
 
         const result = await performFetch<{ url: string }>(

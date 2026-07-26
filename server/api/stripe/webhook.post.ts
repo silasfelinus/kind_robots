@@ -7,6 +7,7 @@ import { applyMana, usdToMana } from '~/server/utils/mana'
 import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
 import type { ProductType } from '~/prisma/generated/prisma/client'
 import { checkPrintEligibility } from '../art/utils/printEligibility'
+import { POD_CATALOG } from '../store/podCatalog'
 
 let stripe: Stripe | null = null
 
@@ -310,20 +311,15 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
 // per-line `metadata` field) instead of a single session-level productSlug.
 // One Order is created per session with one OrderItem per line item.
 //
-// Scope of this pass: every purchased line item gets a real Order/OrderItem
-// audit record (closing the "succeeds at Stripe, no Order ever created" gap),
-// and 'tokens' additionally credits real mana in the same transaction
-// (mirroring handleManaTopup's PURCHASE-reason pattern) since leaving that
-// unfulfilled would mean charging a user real money for boost tokens and
-// granting nothing. Deliberately NOT implemented here: PrintJob creation for
-// print/shirt/sticker/mug/book -- unlike pod-checkout.post.ts's dedicated
-// route, the general cart's checkout() payload only ever sends `{id,
-// quantity}` per line (stores/cartStore.ts), even though its own CartItem
-// interface tracks a real artImageId client-side; wiring that through plus a
-// server-side checkPrintEligibility re-check is real-art-selection work
-// still needed as a follow-up. Filing a PrintJob against a fabricated
-// artImageId here would misrepresent what art is being printed, so this pass
-// records the sale for those four types and stops there.
+// Scope: every purchased line item gets a real Order/OrderItem audit record
+// (closing the "succeeds at Stripe, no Order ever created" gap); 'tokens'
+// additionally credits real mana (mirroring handleManaTopup's PURCHASE-reason
+// pattern); and print/shirt/sticker/mug (needsArt in stores/seeds/cartItems.ts)
+// get a real PrintJob (digital-storefront/t-033) using the artImageId
+// checkout.post.ts now carries through per-line metadata. 'book' is also POD
+// but needsArt is false -- it's the fixed "Mermaids of Venice (Signed)"
+// product, not a print of a specific ArtImage, and has no POD_CATALOG entry
+// (no Printful variant), so it stays Order/OrderItem-only like donation.
 const GIFTSHOP_TYPE_TO_PRODUCT_TYPE: Record<CartItem['type'], ProductType> = {
   print: 'POD',
   shirt: 'POD',
@@ -332,6 +328,95 @@ const GIFTSHOP_TYPE_TO_PRODUCT_TYPE: Record<CartItem['type'], ProductType> = {
   book: 'POD',
   donation: 'DONATION',
   tokens: 'MANA_TOPUP',
+}
+
+// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
+// $transaction callback's tx param has extended InternalArgs that don't
+// structurally match the plain Prisma.TransactionClient type. Derive the
+// type from the actual instance instead (same pattern as server/utils/mana.ts).
+type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0]
+
+// Creates a PrintJob for one needsArt line item, re-checking print
+// eligibility against the ArtImage's *current* state -- checkout.post.ts only
+// checked this at session-creation time, and an image can be taken down
+// (isActive/isMature flipped) during the window before payment completes
+// (same re-check-at-fulfillment-time pattern as handleProductPurchase's POD
+// branch, t-029's gate). Unlike that branch, this deliberately does NOT
+// insert a FAILED PrintJob when the artImageId is missing/invalid or the
+// ArtImage no longer exists -- PrintJob.artImageId is a required, non-null FK
+// to ArtImage, so inserting one referencing a nonexistent row would throw and
+// roll back the whole transaction (losing the Order/OrderItem too). The
+// Order/OrderItem audit record still gets created; only the PrintJob is
+// skipped in that case.
+async function fulfillGiftshopPrintJob(
+  tx: TransactionClient,
+  orderItemId: number,
+  catalogEntry: CartItem,
+  rawArtImageId: string | undefined,
+  userId: number,
+): Promise<boolean> {
+  const podEntry = POD_CATALOG[catalogEntry.id]
+  const artImageId = Number(rawArtImageId)
+
+  if (!podEntry) {
+    console.error(
+      `⚠️ Stripe webhook: giftshop cart line "${catalogEntry.id}" has no POD_CATALOG entry, skipping PrintJob`,
+    )
+    return false
+  }
+
+  if (!Number.isInteger(artImageId) || artImageId <= 0) {
+    console.error(
+      `⚠️ Stripe webhook: giftshop cart line "${catalogEntry.id}" missing/invalid artImageId metadata, skipping PrintJob`,
+    )
+    return false
+  }
+
+  const artImage = await tx.artImage.findUnique({
+    where: { id: artImageId },
+    select: {
+      userId: true,
+      isMature: true,
+      isPublic: true,
+      isActive: true,
+      checkpointResourceId: true,
+      CheckpointResource: { select: { commercialSafe: true } },
+    },
+  })
+
+  if (!artImage) {
+    console.error(
+      `⚠️ Stripe webhook: giftshop cart line "${catalogEntry.id}" references ArtImage ${artImageId} which no longer exists, skipping PrintJob`,
+    )
+    return false
+  }
+
+  const eligibility = checkPrintEligibility(
+    artImage,
+    artImage.CheckpointResource,
+    {
+      userId,
+    },
+  )
+
+  await tx.printJob.create({
+    data: {
+      orderItemId,
+      artImageId,
+      printfulVariantId: podEntry.printfulVariantId,
+      status: eligibility.eligible ? undefined : 'FAILED',
+    },
+  })
+
+  if (!eligibility.eligible) {
+    console.error(
+      `⚠️ Stripe webhook: giftshop cart line "${catalogEntry.id}" failed print-eligibility re-check at fulfillment time for ArtImage ${artImageId} (${eligibility.reason}), failing PrintJob instead of shipping it`,
+    )
+  }
+
+  return true
 }
 
 async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {
@@ -435,6 +520,14 @@ async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {
           note: `Giftshop cart purchase: ${catalogEntry.label}`,
           tx,
         })
+      } else if (catalogEntry.needsArt) {
+        await fulfillGiftshopPrintJob(
+          tx,
+          item.id,
+          catalogEntry,
+          line.metadata?.artImageId,
+          userId,
+        )
       }
 
       fulfilledCount += 1

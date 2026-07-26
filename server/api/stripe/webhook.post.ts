@@ -3,7 +3,9 @@ import { createError, defineEventHandler, getHeader, readRawBody } from 'h3'
 import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
-import { applyMana } from '~/server/utils/mana'
+import { applyMana, usdToMana } from '~/server/utils/mana'
+import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
+import type { ProductType } from '~/prisma/generated/prisma/client'
 
 let stripe: Stripe | null = null
 
@@ -245,6 +247,150 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   )
 }
 
+// General multi-item giftshop cart checkout (digital-storefront/t-031).
+// Unlike handleProductPurchase (one Product per session, via
+// metadata.productSlug), a cart session can mix several
+// stores/seeds/cartItems.ts catalog types in one Stripe session -- each line
+// item carries its own `metadata.giftshopType` (set by checkout.post.ts's
+// per-line `metadata` field) instead of a single session-level productSlug.
+// One Order is created per session with one OrderItem per line item.
+//
+// Scope of this pass: every purchased line item gets a real Order/OrderItem
+// audit record (closing the "succeeds at Stripe, no Order ever created" gap),
+// and 'tokens' additionally credits real mana in the same transaction
+// (mirroring handleManaTopup's PURCHASE-reason pattern) since leaving that
+// unfulfilled would mean charging a user real money for boost tokens and
+// granting nothing. Deliberately NOT implemented here: PrintJob creation for
+// print/shirt/sticker/mug/book -- unlike pod-checkout.post.ts's dedicated
+// route, the general cart's checkout() payload only ever sends `{id,
+// quantity}` per line (stores/cartStore.ts), even though its own CartItem
+// interface tracks a real artImageId client-side; wiring that through plus a
+// server-side checkPrintEligibility re-check is real-art-selection work
+// still needed as a follow-up. Filing a PrintJob against a fabricated
+// artImageId here would misrepresent what art is being printed, so this pass
+// records the sale for those four types and stops there.
+const GIFTSHOP_TYPE_TO_PRODUCT_TYPE: Record<CartItem['type'], ProductType> = {
+  print: 'POD',
+  shirt: 'POD',
+  sticker: 'POD',
+  mug: 'POD',
+  book: 'POD',
+  donation: 'DONATION',
+  tokens: 'MANA_TOPUP',
+}
+
+async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {
+  const userId = Number(session.metadata?.userId)
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    console.error(
+      `⚠️ Stripe webhook: giftshop cart session ${session.id} missing/invalid userId metadata`,
+    )
+    return
+  }
+
+  const existingOrder = await prisma.order.findUnique({
+    where: { stripeSessionId: session.id },
+  })
+  if (existingOrder) {
+    console.log(
+      `💤 Stripe webhook: session ${session.id} already fulfilled, skipping`,
+    )
+    return
+  }
+
+  const lineItems = await getStripeClient().checkout.sessions.listLineItems(
+    session.id,
+    { limit: 100 },
+  )
+
+  const customerId =
+    typeof session.customer === 'string'
+      ? session.customer
+      : session.customer?.id
+
+  let fulfilledCount = 0
+  let skippedCount = 0
+
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.create({
+      data: {
+        userId,
+        stripeSessionId: session.id,
+        stripeCustomerId: customerId ?? null,
+        status: 'PAID',
+        totalCents: session.amount_total ?? 0,
+      },
+    })
+
+    for (const line of lineItems.data) {
+      const cartType = line.metadata?.giftshopType
+      const catalogEntry = cartItems.find((entry) => entry.id === cartType)
+      const productType = catalogEntry
+        ? GIFTSHOP_TYPE_TO_PRODUCT_TYPE[catalogEntry.type]
+        : undefined
+
+      if (!catalogEntry || !productType) {
+        console.error(
+          `⚠️ Stripe webhook: giftshop cart session ${session.id} has a line item with unknown giftshopType "${cartType}", skipping`,
+        )
+        skippedCount += 1
+        continue
+      }
+
+      const quantity = line.quantity ?? 1
+      const priceCents = Math.round(catalogEntry.price * 100)
+      const slug = `giftshop-${catalogEntry.id}`
+
+      const product = await tx.product.upsert({
+        where: { slug },
+        create: {
+          slug,
+          type: productType,
+          title: catalogEntry.label,
+          priceCents,
+        },
+        update: {},
+      })
+
+      const item = await tx.orderItem.create({
+        data: {
+          orderId: order.id,
+          productId: product.id,
+          quantity,
+          priceCents,
+        },
+      })
+
+      if (catalogEntry.type === 'tokens') {
+        // Real fulfillment, not just an audit record -- unlike donation/POD,
+        // "100 Boost Tokens" has nothing else that represents ownership, so
+        // if mana isn't credited here the user paid real money for nothing.
+        // Passed the same `tx` so this commits atomically with the Order/
+        // OrderItem above rather than opening its own transaction.
+        const manaAmount = usdToMana(catalogEntry.price) * quantity
+
+        await applyMana({
+          userId,
+          amount: manaAmount,
+          reason: 'PURCHASE',
+          refId: `${session.id}:${item.id}`,
+          provider: 'stripe',
+          costUsd: catalogEntry.price * quantity,
+          note: `Giftshop cart purchase: ${catalogEntry.label}`,
+          tx,
+        })
+      }
+
+      fulfilledCount += 1
+    }
+  })
+
+  console.log(
+    `🛍️ Fulfilled giftshop cart session ${session.id} for user ${userId} (${fulfilledCount} line item(s), ${skippedCount} skipped)`,
+  )
+}
+
 // customer.subscription.updated/deleted — keeps isMember in sync with Stripe's
 // view of the subscription (renewal, cancellation, payment failure) independent
 // of whether the cancellation was initiated from our UI or the Stripe dashboard.
@@ -322,6 +468,11 @@ export default defineEventHandler(async (event) => {
         await handleSubscriptionCheckout(session)
       } else if (session.mode === 'payment' && session.metadata?.productSlug) {
         await handleProductPurchase(session)
+      } else if (
+        session.mode === 'payment' &&
+        session.metadata?.kind === 'giftshop_checkout'
+      ) {
+        await handleGiftshopCartPurchase(session)
       }
     } else if (
       stripeEvent.type === 'customer.subscription.updated' ||

@@ -2,6 +2,15 @@
 import { prisma } from './prisma'
 import type { ManaReason, Role } from '~/prisma/generated/prisma/client'
 
+// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
+// $transaction callback's tx param has extended InternalArgs that don't
+// structurally match the plain Prisma.TransactionClient type. Derive the
+// type from the actual instance instead of the generated default (same
+// pattern as server/api/model-builder/items/[id]/commit.post.ts).
+type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0]
+
 const PEG_USD_PER_MANA = 0.001
 
 export function usdToMana(usd: number) {
@@ -9,6 +18,9 @@ export function usdToMana(usd: number) {
 }
 
 // Atomic credit/debit + ledger row. Throws on insufficient funds.
+// Pass `tx` when this call must participate in a caller's own transaction
+// (e.g. crediting mana alongside an Order/OrderItem write in the same
+// commit) instead of opening its own independent transaction.
 export async function applyMana(opts: {
   userId: number
   amount: number // signed
@@ -18,8 +30,9 @@ export async function applyMana(opts: {
   provider?: string
   costUsd?: number
   allowNegative?: boolean
+  tx?: TransactionClient
 }) {
-  return prisma.$transaction(async (tx) => {
+  const run = async (tx: TransactionClient) => {
     const user = await tx.user.findUniqueOrThrow({
       where: { id: opts.userId },
       select: { mana: true },
@@ -45,7 +58,9 @@ export async function applyMana(opts: {
       },
     })
     return { balance: next, txnId: txn.id }
-  })
+  }
+
+  return opts.tx ? run(opts.tx) : prisma.$transaction(run)
 }
 
 export type { ManaReason }

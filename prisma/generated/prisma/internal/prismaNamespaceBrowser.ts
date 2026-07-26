@@ -54,6 +54,7 @@ export const ModelName = {
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
+  RewardFacet: 'RewardFacet',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -84,6 +85,7 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Entitlement: 'Entitlement',
+  PrintJob: 'PrintJob',
   Grant: 'Grant',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
@@ -189,6 +191,21 @@ export const CharacterFacetScalarFieldEnum = {
 } as const
 
 export type CharacterFacetScalarFieldEnum = (typeof CharacterFacetScalarFieldEnum)[keyof typeof CharacterFacetScalarFieldEnum]
+
+
+export const RewardFacetScalarFieldEnum = {
+  id: 'id',
+  rewardId: 'rewardId',
+  facetId: 'facetId',
+  fieldKey: 'fieldKey',
+  sortOrder: 'sortOrder',
+  weight: 'weight',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RewardFacetScalarFieldEnum = (typeof RewardFacetScalarFieldEnum)[keyof typeof RewardFacetScalarFieldEnum]
 
 
 export const ModelBuildRunScalarFieldEnum = {
@@ -804,6 +821,21 @@ export const EntitlementScalarFieldEnum = {
 } as const
 
 export type EntitlementScalarFieldEnum = (typeof EntitlementScalarFieldEnum)[keyof typeof EntitlementScalarFieldEnum]
+
+
+export const PrintJobScalarFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  artImageId: 'artImageId',
+  printfulOrderId: 'printfulOrderId',
+  printfulVariantId: 'printfulVariantId',
+  status: 'status',
+  trackingUrl: 'trackingUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PrintJobScalarFieldEnum = (typeof PrintJobScalarFieldEnum)[keyof typeof PrintJobScalarFieldEnum]
 
 
 export const GrantScalarFieldEnum = {
@@ -1711,6 +1743,14 @@ export const CharacterFacetOrderByRelevanceFieldEnum = {
 export type CharacterFacetOrderByRelevanceFieldEnum = (typeof CharacterFacetOrderByRelevanceFieldEnum)[keyof typeof CharacterFacetOrderByRelevanceFieldEnum]
 
 
+export const RewardFacetOrderByRelevanceFieldEnum = {
+  fieldKey: 'fieldKey',
+  source: 'source'
+} as const
+
+export type RewardFacetOrderByRelevanceFieldEnum = (typeof RewardFacetOrderByRelevanceFieldEnum)[keyof typeof RewardFacetOrderByRelevanceFieldEnum]
+
+
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
   sourceType: 'sourceType',
   sourceLabel: 'sourceLabel',
@@ -2061,6 +2101,15 @@ export const OrderOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+
+
+export const PrintJobOrderByRelevanceFieldEnum = {
+  printfulOrderId: 'printfulOrderId',
+  printfulVariantId: 'printfulVariantId',
+  trackingUrl: 'trackingUrl'
+} as const
+
+export type PrintJobOrderByRelevanceFieldEnum = (typeof PrintJobOrderByRelevanceFieldEnum)[keyof typeof PrintJobOrderByRelevanceFieldEnum]
 
 
 export const AchievementRecordOrderByRelevanceFieldEnum = {

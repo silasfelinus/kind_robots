@@ -626,6 +626,23 @@ export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
 }
 
+export type EnumPrintJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PrintJobStatus | Prisma.EnumPrintJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PrintJobStatus[]
+  notIn?: $Enums.PrintJobStatus[]
+  not?: Prisma.NestedEnumPrintJobStatusFilter<$PrismaModel> | $Enums.PrintJobStatus
+}
+
+export type EnumPrintJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PrintJobStatus | Prisma.EnumPrintJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PrintJobStatus[]
+  notIn?: $Enums.PrintJobStatus[]
+  not?: Prisma.NestedEnumPrintJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.PrintJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPrintJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPrintJobStatusFilter<$PrismaModel>
+}
+
 export type EnumGrantSubjectFilter<$PrismaModel = never> = {
   equals?: $Enums.GrantSubject | Prisma.EnumGrantSubjectFieldRefInput<$PrismaModel>
   in?: $Enums.GrantSubject[]
@@ -1860,6 +1877,23 @@ export type NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOrderStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPrintJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.PrintJobStatus | Prisma.EnumPrintJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PrintJobStatus[]
+  notIn?: $Enums.PrintJobStatus[]
+  not?: Prisma.NestedEnumPrintJobStatusFilter<$PrismaModel> | $Enums.PrintJobStatus
+}
+
+export type NestedEnumPrintJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PrintJobStatus | Prisma.EnumPrintJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.PrintJobStatus[]
+  notIn?: $Enums.PrintJobStatus[]
+  not?: Prisma.NestedEnumPrintJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.PrintJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPrintJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPrintJobStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumGrantSubjectFilter<$PrismaModel = never> = {

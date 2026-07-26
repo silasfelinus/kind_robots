@@ -1,4 +1,4 @@
-<!-- /components/content/art/print-swag.vue -->
+<!-- /components/giftshop/print-swag.vue -->
 <template>
   <div class="space-y-4">
     <h3 class="text-lg font-bold">🖼️ Print Your Art</h3>
@@ -30,20 +30,12 @@
     </div>
 
     <div class="form-control">
-      <label class="label font-semibold">🎨 Use Different Art?</label>
-      <input
-        v-model="customImageUrl"
-        class="input input-bordered w-full"
-        placeholder="Paste a different image URL..."
-      />
-    </div>
-
-    <div class="form-control">
       <label class="label font-semibold">🛒 Quantity</label>
       <input
         v-model.number="quantity"
         type="number"
         min="1"
+        max="25"
         class="input input-bordered w-24"
       />
     </div>
@@ -51,13 +43,18 @@
     <p v-if="eligibility && !eligibility.eligible" class="text-sm text-error">
       🚫 Not eligible for print: {{ eligibility.reason }}
     </p>
+    <p v-if="checkoutError" class="text-sm text-error">{{ checkoutError }}</p>
 
     <button
       class="btn btn-primary w-full"
-      :disabled="eligibility ? !eligibility.eligible : false"
+      :disabled="
+        checkingOut ||
+        !props.artImageId ||
+        (eligibility ? !eligibility.eligible : false)
+      "
       @click="addToCart"
     >
-      ➕ Add to Cart
+      {{ checkingOut ? 'Redirecting to checkout…' : '➕ Add to Cart' }}
     </button>
 
     <button class="btn btn-ghost text-sm underline" @click="emit('close')">
@@ -74,10 +71,17 @@ const emit = defineEmits(['close'])
 
 const selectedType = ref('print')
 const quantity = ref(1)
-const customImageUrl = ref('')
+const checkingOut = ref(false)
+const checkoutError = ref('')
 
 type PrintEligibility = { eligible: boolean; reason: string }
 const eligibility = ref<PrintEligibility | null>(null)
+
+type PodCheckoutResponse = {
+  success: boolean
+  data: { url: string } | null
+  message: string
+}
 
 const printTypes = [
   { id: 'print', label: 'Art Print', icon: 'kind-icon:print' },
@@ -88,15 +92,9 @@ const printTypes = [
 
 const fallbackImage = '/images/art-placeholder.jpg'
 const imageUrl = computed(() =>
-  customImageUrl.value.trim()
-    ? customImageUrl.value.trim()
-    : props.artImageId
-      ? `/api/media/art/${props.artImageId}`
-      : fallbackImage,
+  props.artImageId ? `/api/media/art/${props.artImageId}` : fallbackImage,
 )
 
-// A custom-URL image (not one of the caller's own ArtImage rows) has no
-// eligibility record to check against, so it is left ungated here.
 watch(
   () => props.artImageId,
   async (artImageId) => {
@@ -116,12 +114,42 @@ watch(
   { immediate: true },
 )
 
-const addToCart = () => {
-  console.log('🛍️ Add to cart:', {
-    type: selectedType.value,
-    image: imageUrl.value,
-    quantity: quantity.value,
-  })
-  alert(`Added ${quantity.value} ${selectedType.value}(s) to cart!`)
+const addToCart = async () => {
+  if (!props.artImageId) {
+    checkoutError.value = 'Select a piece of art from your gallery first.'
+    return
+  }
+
+  checkingOut.value = true
+  checkoutError.value = ''
+
+  try {
+    const response = await $fetch<PodCheckoutResponse, string>(
+      '/api/store/pod-checkout',
+      {
+        method: 'POST',
+        body: {
+          printType: selectedType.value,
+          artImageId: props.artImageId,
+          quantity: quantity.value,
+        },
+      },
+    )
+
+    if (!response.success || !response.data?.url) {
+      checkoutError.value =
+        response.message || 'Checkout failed. Please try again.'
+      return
+    }
+
+    window.location.href = response.data.url
+  } catch (error) {
+    checkoutError.value =
+      error instanceof Error
+        ? error.message
+        : 'Checkout failed. Please try again.'
+  } finally {
+    checkingOut.value = false
+  }
 }
 </script>

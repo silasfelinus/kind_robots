@@ -507,6 +507,7 @@ export type ArtImageWhereInput = {
   LifeEndingIcons?: Prisma.LifeEndingListRelationFilter
   LifeRunArt?: Prisma.LifeRunArtListRelationFilter
   PitchSheets?: Prisma.PitchSheetListRelationFilter
+  PrintJobs?: Prisma.PrintJobListRelationFilter
   ProjectsPrimary?: Prisma.ProjectListRelationFilter
   ProjectLinks?: Prisma.ProjectArtImageListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
@@ -576,6 +577,7 @@ export type ArtImageOrderByWithRelationInput = {
   LifeEndingIcons?: Prisma.LifeEndingOrderByRelationAggregateInput
   LifeRunArt?: Prisma.LifeRunArtOrderByRelationAggregateInput
   PitchSheets?: Prisma.PitchSheetOrderByRelationAggregateInput
+  PrintJobs?: Prisma.PrintJobOrderByRelationAggregateInput
   ProjectsPrimary?: Prisma.ProjectOrderByRelationAggregateInput
   ProjectLinks?: Prisma.ProjectArtImageOrderByRelationAggregateInput
   Prompts?: Prisma.PromptOrderByRelationAggregateInput
@@ -649,6 +651,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   LifeEndingIcons?: Prisma.LifeEndingListRelationFilter
   LifeRunArt?: Prisma.LifeRunArtListRelationFilter
   PitchSheets?: Prisma.PitchSheetListRelationFilter
+  PrintJobs?: Prisma.PrintJobListRelationFilter
   ProjectsPrimary?: Prisma.ProjectListRelationFilter
   ProjectLinks?: Prisma.ProjectArtImageListRelationFilter
   Prompts?: Prisma.PromptListRelationFilter
@@ -800,6 +803,7 @@ export type ArtImageCreateInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -866,6 +870,7 @@ export type ArtImageUncheckedCreateInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -931,6 +936,7 @@ export type ArtImageUpdateInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -997,6 +1003,7 @@ export type ArtImageUncheckedUpdateInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -1538,6 +1545,20 @@ export type ArtImageUpdateOneWithoutAchievementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutAchievementsInput, Prisma.ArtImageUpdateWithoutAchievementsInput>, Prisma.ArtImageUncheckedUpdateWithoutAchievementsInput>
 }
 
+export type ArtImageCreateNestedOneWithoutPrintJobsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutPrintJobsInput, Prisma.ArtImageUncheckedCreateWithoutPrintJobsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutPrintJobsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneRequiredWithoutPrintJobsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutPrintJobsInput, Prisma.ArtImageUncheckedCreateWithoutPrintJobsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutPrintJobsInput
+  upsert?: Prisma.ArtImageUpsertWithoutPrintJobsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutPrintJobsInput, Prisma.ArtImageUpdateWithoutPrintJobsInput>, Prisma.ArtImageUncheckedUpdateWithoutPrintJobsInput>
+}
+
 export type ArtImageCreateNestedOneWithoutPitchSheetsInput = {
   create?: Prisma.XOR<Prisma.ArtImageCreateWithoutPitchSheetsInput, Prisma.ArtImageUncheckedCreateWithoutPitchSheetsInput>
   connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutPitchSheetsInput
@@ -1960,6 +1981,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -2025,6 +2047,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -2151,6 +2174,7 @@ export type ArtImageCreateWithoutBotsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -2216,6 +2240,7 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -2296,6 +2321,7 @@ export type ArtImageUpdateWithoutBotsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -2361,6 +2387,7 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2425,6 +2452,7 @@ export type ArtImageCreateWithoutCharactersInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -2490,6 +2518,7 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -2570,6 +2599,7 @@ export type ArtImageUpdateWithoutCharactersInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -2635,6 +2665,7 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2699,6 +2730,7 @@ export type ArtImageCreateWithoutChatsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -2764,6 +2796,7 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -2844,6 +2877,7 @@ export type ArtImageUpdateWithoutChatsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -2909,6 +2943,7 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2973,6 +3008,7 @@ export type ArtImageCreateWithoutComponentsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -3038,6 +3074,7 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -3118,6 +3155,7 @@ export type ArtImageUpdateWithoutComponentsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -3183,6 +3221,7 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3247,6 +3286,7 @@ export type ArtImageCreateWithoutDreamsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -3312,6 +3352,7 @@ export type ArtImageUncheckedCreateWithoutDreamsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -3382,6 +3423,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -3447,6 +3489,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -3526,6 +3569,7 @@ export type ArtImageUpdateWithoutDreamsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -3591,6 +3635,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3672,6 +3717,7 @@ export type ArtImageCreateWithoutProjectsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
@@ -3737,6 +3783,7 @@ export type ArtImageUncheckedCreateWithoutProjectsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
@@ -3817,6 +3864,7 @@ export type ArtImageUpdateWithoutProjectsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
@@ -3882,6 +3930,7 @@ export type ArtImageUncheckedUpdateWithoutProjectsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -3945,6 +3994,7 @@ export type ArtImageCreateWithoutFacetsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -4010,6 +4060,7 @@ export type ArtImageUncheckedCreateWithoutFacetsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -4090,6 +4141,7 @@ export type ArtImageUpdateWithoutFacetsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -4155,6 +4207,7 @@ export type ArtImageUncheckedUpdateWithoutFacetsPrimaryInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4220,6 +4273,7 @@ export type ArtImageCreateWithoutProjectLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
@@ -4285,6 +4339,7 @@ export type ArtImageUncheckedCreateWithoutProjectLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
@@ -4365,6 +4420,7 @@ export type ArtImageUpdateWithoutProjectLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
@@ -4430,6 +4486,7 @@ export type ArtImageUncheckedUpdateWithoutProjectLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4493,6 +4550,7 @@ export type ArtImageCreateWithoutFacetLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -4558,6 +4616,7 @@ export type ArtImageUncheckedCreateWithoutFacetLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -4638,6 +4697,7 @@ export type ArtImageUpdateWithoutFacetLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -4703,6 +4763,7 @@ export type ArtImageUncheckedUpdateWithoutFacetLinksInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -4767,6 +4828,7 @@ export type ArtImageCreateWithoutExpressionMediaInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -4832,6 +4894,7 @@ export type ArtImageUncheckedCreateWithoutExpressionMediaInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -4912,6 +4975,7 @@ export type ArtImageUpdateWithoutExpressionMediaInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -4977,6 +5041,7 @@ export type ArtImageUncheckedUpdateWithoutExpressionMediaInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5041,6 +5106,7 @@ export type ArtImageCreateWithoutAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -5106,6 +5172,7 @@ export type ArtImageUncheckedCreateWithoutAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -5186,6 +5253,7 @@ export type ArtImageUpdateWithoutAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -5236,6 +5304,285 @@ export type ArtImageUncheckedUpdateWithoutAchievementsInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
+  Contenders?: Prisma.ContenderUncheckedUpdateManyWithoutAvatarImageNestedInput
+  DreamsPrimary?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateOneWithoutArtImageNestedInput
+  FacetsPrimary?: Prisma.FacetUncheckedUpdateManyWithoutArtImageNestedInput
+  FacetLinks?: Prisma.FacetArtImageUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedUpdateManyWithoutArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
+  ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
+  ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  LoraResources?: Prisma.ResourceUncheckedUpdateManyWithoutUsedInImagesNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImagesNestedInput
+}
+
+export type ArtImageCreateWithoutPrintJobsInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  storefrontFeatured?: boolean
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  isActive?: boolean | null
+  artPrompt?: string | null
+  cardData?: string | null
+  cardPath?: string | null
+  heroData?: string | null
+  heroPath?: string | null
+  iconData?: string | null
+  iconPath?: string | null
+  thumbnailData?: string | null
+  thumbnailPath?: string | null
+  Achievements?: Prisma.AchievementCreateNestedManyWithoutArtImageInput
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  Contenders?: Prisma.ContenderCreateNestedManyWithoutAvatarImageInput
+  DreamsPrimary?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedOneWithoutArtImageInput
+  FacetsPrimary?: Prisma.FacetCreateNestedManyWithoutArtImageInput
+  FacetLinks?: Prisma.FacetArtImageCreateNestedManyWithoutArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementCreateNestedManyWithoutArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
+  ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  LoraResources?: Prisma.ResourceCreateNestedManyWithoutUsedInImagesInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImagesInput
+}
+
+export type ArtImageUncheckedCreateWithoutPrintJobsInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  storefrontFeatured?: boolean
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  isActive?: boolean | null
+  artPrompt?: string | null
+  cardData?: string | null
+  cardPath?: string | null
+  heroData?: string | null
+  heroPath?: string | null
+  iconData?: string | null
+  iconPath?: string | null
+  thumbnailData?: string | null
+  thumbnailPath?: string | null
+  Achievements?: Prisma.AchievementUncheckedCreateNestedManyWithoutArtImageInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  Contenders?: Prisma.ContenderUncheckedCreateNestedManyWithoutAvatarImageInput
+  DreamsPrimary?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedOneWithoutArtImageInput
+  FacetsPrimary?: Prisma.FacetUncheckedCreateNestedManyWithoutArtImageInput
+  FacetLinks?: Prisma.FacetArtImageUncheckedCreateNestedManyWithoutArtImageInput
+  LifeAchievements?: Prisma.LifeAchievementUncheckedCreateNestedManyWithoutArtImageInput
+  LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
+  LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
+  LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
+  ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  LoraResources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUsedInImagesInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImagesInput
+}
+
+export type ArtImageCreateOrConnectWithoutPrintJobsInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutPrintJobsInput, Prisma.ArtImageUncheckedCreateWithoutPrintJobsInput>
+}
+
+export type ArtImageUpsertWithoutPrintJobsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutPrintJobsInput, Prisma.ArtImageUncheckedUpdateWithoutPrintJobsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutPrintJobsInput, Prisma.ArtImageUncheckedCreateWithoutPrintJobsInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutPrintJobsInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutPrintJobsInput, Prisma.ArtImageUncheckedUpdateWithoutPrintJobsInput>
+}
+
+export type ArtImageUpdateWithoutPrintJobsInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  storefrontFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementUpdateManyWithoutArtImageNestedInput
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  Contenders?: Prisma.ContenderUpdateManyWithoutAvatarImageNestedInput
+  DreamsPrimary?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateOneWithoutArtImageNestedInput
+  FacetsPrimary?: Prisma.FacetUpdateManyWithoutArtImageNestedInput
+  FacetLinks?: Prisma.FacetArtImageUpdateManyWithoutArtImageNestedInput
+  LifeAchievements?: Prisma.LifeAchievementUpdateManyWithoutArtImageNestedInput
+  LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
+  LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
+  LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
+  ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  LoraResources?: Prisma.ResourceUpdateManyWithoutUsedInImagesNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImagesNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutPrintJobsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  storefrontFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  thumbnailPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Achievements?: Prisma.AchievementUncheckedUpdateManyWithoutArtImageNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5315,6 +5662,7 @@ export type ArtImageCreateWithoutPitchSheetsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -5380,6 +5728,7 @@ export type ArtImageUncheckedCreateWithoutPitchSheetsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -5460,6 +5809,7 @@ export type ArtImageUpdateWithoutPitchSheetsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -5525,6 +5875,7 @@ export type ArtImageUncheckedUpdateWithoutPitchSheetsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5590,6 +5941,7 @@ export type ArtImageCreateWithoutPromptsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
@@ -5655,6 +6007,7 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
@@ -5735,6 +6088,7 @@ export type ArtImageUpdateWithoutPromptsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
@@ -5800,6 +6154,7 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
@@ -5864,6 +6219,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -5929,6 +6285,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -6009,6 +6366,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -6074,6 +6432,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6137,6 +6496,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -6202,6 +6562,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -6277,6 +6638,7 @@ export type ArtImageCreateWithoutResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -6342,6 +6704,7 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -6411,6 +6774,7 @@ export type ArtImageCreateWithoutLoraResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -6476,6 +6840,7 @@ export type ArtImageUncheckedCreateWithoutLoraResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -6572,6 +6937,7 @@ export type ArtImageUpdateWithoutResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -6637,6 +7003,7 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6717,6 +7084,7 @@ export type ArtImageCreateWithoutRewardsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -6782,6 +7150,7 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -6862,6 +7231,7 @@ export type ArtImageUpdateWithoutRewardsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -6927,6 +7297,7 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -6991,6 +7362,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -7056,6 +7428,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -7136,6 +7509,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -7201,6 +7575,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -7264,6 +7639,7 @@ export type ArtImageCreateWithoutServerInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -7329,6 +7705,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -7419,6 +7796,7 @@ export type ArtImageCreateWithoutUserInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -7484,6 +7862,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -7559,6 +7938,7 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -7624,6 +8004,7 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -7720,6 +8101,7 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -7785,6 +8167,7 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -7848,6 +8231,7 @@ export type ArtImageCreateWithoutChallengeSubmissionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -7913,6 +8297,7 @@ export type ArtImageUncheckedCreateWithoutChallengeSubmissionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -7993,6 +8378,7 @@ export type ArtImageUpdateWithoutChallengeSubmissionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -8058,6 +8444,7 @@ export type ArtImageUncheckedUpdateWithoutChallengeSubmissionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8122,6 +8509,7 @@ export type ArtImageCreateWithoutContendersInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -8187,6 +8575,7 @@ export type ArtImageUncheckedCreateWithoutContendersInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -8267,6 +8656,7 @@ export type ArtImageUpdateWithoutContendersInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -8332,6 +8722,7 @@ export type ArtImageUncheckedUpdateWithoutContendersInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8396,6 +8787,7 @@ export type ArtImageCreateWithoutLifeEndingHeroesInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -8461,6 +8853,7 @@ export type ArtImageUncheckedCreateWithoutLifeEndingHeroesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -8530,6 +8923,7 @@ export type ArtImageCreateWithoutLifeEndingIconsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -8595,6 +8989,7 @@ export type ArtImageUncheckedCreateWithoutLifeEndingIconsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -8675,6 +9070,7 @@ export type ArtImageUpdateWithoutLifeEndingHeroesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -8740,6 +9136,7 @@ export type ArtImageUncheckedUpdateWithoutLifeEndingHeroesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8815,6 +9212,7 @@ export type ArtImageUpdateWithoutLifeEndingIconsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -8880,6 +9278,7 @@ export type ArtImageUncheckedUpdateWithoutLifeEndingIconsInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -8944,6 +9343,7 @@ export type ArtImageCreateWithoutLifeAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -9009,6 +9409,7 @@ export type ArtImageUncheckedCreateWithoutLifeAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedCreateNestedManyWithoutArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -9089,6 +9490,7 @@ export type ArtImageUpdateWithoutLifeAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -9154,6 +9556,7 @@ export type ArtImageUncheckedUpdateWithoutLifeAchievementsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9218,6 +9621,7 @@ export type ArtImageCreateWithoutLifeRunArtInput = {
   LifeEndingHeroes?: Prisma.LifeEndingCreateNestedManyWithoutHeroArtImageInput
   LifeEndingIcons?: Prisma.LifeEndingCreateNestedManyWithoutIconArtImageInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
@@ -9283,6 +9687,7 @@ export type ArtImageUncheckedCreateWithoutLifeRunArtInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutHeroArtImageInput
   LifeEndingIcons?: Prisma.LifeEndingUncheckedCreateNestedManyWithoutIconArtImageInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutArtImageInput
+  PrintJobs?: Prisma.PrintJobUncheckedCreateNestedManyWithoutArtImageInput
   ProjectsPrimary?: Prisma.ProjectUncheckedCreateNestedManyWithoutArtImageInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedCreateNestedManyWithoutArtImageInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
@@ -9363,6 +9768,7 @@ export type ArtImageUpdateWithoutLifeRunArtInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUpdateManyWithoutHeroArtImageNestedInput
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -9428,6 +9834,7 @@ export type ArtImageUncheckedUpdateWithoutLifeRunArtInput = {
   LifeEndingHeroes?: Prisma.LifeEndingUncheckedUpdateManyWithoutHeroArtImageNestedInput
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9493,6 +9900,7 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -9558,6 +9966,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9661,6 +10070,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -9726,6 +10136,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -9866,6 +10277,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -9931,6 +10343,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10034,6 +10447,7 @@ export type ArtImageUpdateWithoutLoraResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -10099,6 +10513,7 @@ export type ArtImageUncheckedUpdateWithoutLoraResourcesInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10239,6 +10654,7 @@ export type ArtImageUpdateWithoutServerInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -10304,6 +10720,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10444,6 +10861,7 @@ export type ArtImageUpdateWithoutUserInput = {
   LifeEndingIcons?: Prisma.LifeEndingUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
@@ -10509,6 +10927,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   LifeEndingIcons?: Prisma.LifeEndingUncheckedUpdateManyWithoutIconArtImageNestedInput
   LifeRunArt?: Prisma.LifeRunArtUncheckedUpdateManyWithoutArtImageNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutArtImageNestedInput
+  PrintJobs?: Prisma.PrintJobUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectsPrimary?: Prisma.ProjectUncheckedUpdateManyWithoutArtImageNestedInput
   ProjectLinks?: Prisma.ProjectArtImageUncheckedUpdateManyWithoutArtImageNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
@@ -10581,6 +11000,7 @@ export type ArtImageCountOutputType = {
   LifeEndingIcons: number
   LifeRunArt: number
   PitchSheets: number
+  PrintJobs: number
   ProjectsPrimary: number
   ProjectLinks: number
   Prompts: number
@@ -10610,6 +11030,7 @@ export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   LifeEndingIcons?: boolean | ArtImageCountOutputTypeCountLifeEndingIconsArgs
   LifeRunArt?: boolean | ArtImageCountOutputTypeCountLifeRunArtArgs
   PitchSheets?: boolean | ArtImageCountOutputTypeCountPitchSheetsArgs
+  PrintJobs?: boolean | ArtImageCountOutputTypeCountPrintJobsArgs
   ProjectsPrimary?: boolean | ArtImageCountOutputTypeCountProjectsPrimaryArgs
   ProjectLinks?: boolean | ArtImageCountOutputTypeCountProjectLinksArgs
   Prompts?: boolean | ArtImageCountOutputTypeCountPromptsArgs
@@ -10736,6 +11157,13 @@ export type ArtImageCountOutputTypeCountLifeRunArtArgs<ExtArgs extends runtime.T
  */
 export type ArtImageCountOutputTypeCountPitchSheetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PitchSheetWhereInput
+}
+
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountPrintJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PrintJobWhereInput
 }
 
 /**
@@ -10872,6 +11300,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   LifeEndingIcons?: boolean | Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs>
   LifeRunArt?: boolean | Prisma.ArtImage$LifeRunArtArgs<ExtArgs>
   PitchSheets?: boolean | Prisma.ArtImage$PitchSheetsArgs<ExtArgs>
+  PrintJobs?: boolean | Prisma.ArtImage$PrintJobsArgs<ExtArgs>
   ProjectsPrimary?: boolean | Prisma.ArtImage$ProjectsPrimaryArgs<ExtArgs>
   ProjectLinks?: boolean | Prisma.ArtImage$ProjectLinksArgs<ExtArgs>
   Prompts?: boolean | Prisma.ArtImage$PromptsArgs<ExtArgs>
@@ -10948,6 +11377,7 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   LifeEndingIcons?: boolean | Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs>
   LifeRunArt?: boolean | Prisma.ArtImage$LifeRunArtArgs<ExtArgs>
   PitchSheets?: boolean | Prisma.ArtImage$PitchSheetsArgs<ExtArgs>
+  PrintJobs?: boolean | Prisma.ArtImage$PrintJobsArgs<ExtArgs>
   ProjectsPrimary?: boolean | Prisma.ArtImage$ProjectsPrimaryArgs<ExtArgs>
   ProjectLinks?: boolean | Prisma.ArtImage$ProjectLinksArgs<ExtArgs>
   Prompts?: boolean | Prisma.ArtImage$PromptsArgs<ExtArgs>
@@ -10984,6 +11414,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     LifeEndingIcons: Prisma.$LifeEndingPayload<ExtArgs>[]
     LifeRunArt: Prisma.$LifeRunArtPayload<ExtArgs>[]
     PitchSheets: Prisma.$PitchSheetPayload<ExtArgs>[]
+    PrintJobs: Prisma.$PrintJobPayload<ExtArgs>[]
     ProjectsPrimary: Prisma.$ProjectPayload<ExtArgs>[]
     ProjectLinks: Prisma.$ProjectArtImagePayload<ExtArgs>[]
     Prompts: Prisma.$PromptPayload<ExtArgs>[]
@@ -11392,6 +11823,7 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   LifeEndingIcons<T extends Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LifeEndingIconsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeEndingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LifeRunArt<T extends Prisma.ArtImage$LifeRunArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$LifeRunArtArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   PitchSheets<T extends Prisma.ArtImage$PitchSheetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$PitchSheetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchSheetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  PrintJobs<T extends Prisma.ArtImage$PrintJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$PrintJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PrintJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProjectsPrimary<T extends Prisma.ArtImage$ProjectsPrimaryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ProjectsPrimaryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProjectLinks<T extends Prisma.ArtImage$ProjectLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ProjectLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Prompts<T extends Prisma.ArtImage$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12249,6 +12681,30 @@ export type ArtImage$PitchSheetsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.PitchSheetScalarFieldEnum | Prisma.PitchSheetScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.PrintJobs
+ */
+export type ArtImage$PrintJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PrintJob
+   */
+  select?: Prisma.PrintJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PrintJob
+   */
+  omit?: Prisma.PrintJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PrintJobInclude<ExtArgs> | null
+  where?: Prisma.PrintJobWhereInput
+  orderBy?: Prisma.PrintJobOrderByWithRelationInput | Prisma.PrintJobOrderByWithRelationInput[]
+  cursor?: Prisma.PrintJobWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PrintJobScalarFieldEnum | Prisma.PrintJobScalarFieldEnum[]
 }
 
 /**

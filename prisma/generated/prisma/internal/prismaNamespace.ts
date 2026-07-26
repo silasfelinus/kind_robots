@@ -387,6 +387,7 @@ export const ModelName = {
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
+  RewardFacet: 'RewardFacet',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -417,6 +418,7 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Entitlement: 'Entitlement',
+  PrintJob: 'PrintJob',
   Grant: 'Grant',
   AchievementRecord: 'AchievementRecord',
   NarratorTopic: 'NarratorTopic',
@@ -473,7 +475,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "grant" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -672,6 +674,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CharacterFacetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CharacterFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    RewardFacet: {
+      payload: Prisma.$RewardFacetPayload<ExtArgs>
+      fields: Prisma.RewardFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RewardFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RewardFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.RewardFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RewardFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>
+        }
+        findMany: {
+          args: Prisma.RewardFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>[]
+        }
+        create: {
+          args: Prisma.RewardFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>
+        }
+        createMany: {
+          args: Prisma.RewardFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RewardFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>
+        }
+        update: {
+          args: Prisma.RewardFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.RewardFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RewardFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RewardFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.RewardFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRewardFacet>
+        }
+        groupBy: {
+          args: Prisma.RewardFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RewardFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RewardFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RewardFacetCountAggregateOutputType> | number
         }
       }
     }
@@ -2652,6 +2720,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.EntitlementCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.EntitlementCountAggregateOutputType> | number
+        }
+      }
+    }
+    PrintJob: {
+      payload: Prisma.$PrintJobPayload<ExtArgs>
+      fields: Prisma.PrintJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PrintJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PrintJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        findFirst: {
+          args: Prisma.PrintJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PrintJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        findMany: {
+          args: Prisma.PrintJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>[]
+        }
+        create: {
+          args: Prisma.PrintJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        createMany: {
+          args: Prisma.PrintJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PrintJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        update: {
+          args: Prisma.PrintJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.PrintJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PrintJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PrintJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        aggregate: {
+          args: Prisma.PrintJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePrintJob>
+        }
+        groupBy: {
+          args: Prisma.PrintJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PrintJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintJobCountAggregateOutputType> | number
         }
       }
     }
@@ -5448,6 +5582,21 @@ export const CharacterFacetScalarFieldEnum = {
 export type CharacterFacetScalarFieldEnum = (typeof CharacterFacetScalarFieldEnum)[keyof typeof CharacterFacetScalarFieldEnum]
 
 
+export const RewardFacetScalarFieldEnum = {
+  id: 'id',
+  rewardId: 'rewardId',
+  facetId: 'facetId',
+  fieldKey: 'fieldKey',
+  sortOrder: 'sortOrder',
+  weight: 'weight',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RewardFacetScalarFieldEnum = (typeof RewardFacetScalarFieldEnum)[keyof typeof RewardFacetScalarFieldEnum]
+
+
 export const ModelBuildRunScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -6061,6 +6210,21 @@ export const EntitlementScalarFieldEnum = {
 } as const
 
 export type EntitlementScalarFieldEnum = (typeof EntitlementScalarFieldEnum)[keyof typeof EntitlementScalarFieldEnum]
+
+
+export const PrintJobScalarFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  artImageId: 'artImageId',
+  printfulOrderId: 'printfulOrderId',
+  printfulVariantId: 'printfulVariantId',
+  status: 'status',
+  trackingUrl: 'trackingUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PrintJobScalarFieldEnum = (typeof PrintJobScalarFieldEnum)[keyof typeof PrintJobScalarFieldEnum]
 
 
 export const GrantScalarFieldEnum = {
@@ -6968,6 +7132,14 @@ export const CharacterFacetOrderByRelevanceFieldEnum = {
 export type CharacterFacetOrderByRelevanceFieldEnum = (typeof CharacterFacetOrderByRelevanceFieldEnum)[keyof typeof CharacterFacetOrderByRelevanceFieldEnum]
 
 
+export const RewardFacetOrderByRelevanceFieldEnum = {
+  fieldKey: 'fieldKey',
+  source: 'source'
+} as const
+
+export type RewardFacetOrderByRelevanceFieldEnum = (typeof RewardFacetOrderByRelevanceFieldEnum)[keyof typeof RewardFacetOrderByRelevanceFieldEnum]
+
+
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
   sourceType: 'sourceType',
   sourceLabel: 'sourceLabel',
@@ -7318,6 +7490,15 @@ export const OrderOrderByRelevanceFieldEnum = {
 } as const
 
 export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldEnum)[keyof typeof OrderOrderByRelevanceFieldEnum]
+
+
+export const PrintJobOrderByRelevanceFieldEnum = {
+  printfulOrderId: 'printfulOrderId',
+  printfulVariantId: 'printfulVariantId',
+  trackingUrl: 'trackingUrl'
+} as const
+
+export type PrintJobOrderByRelevanceFieldEnum = (typeof PrintJobOrderByRelevanceFieldEnum)[keyof typeof PrintJobOrderByRelevanceFieldEnum]
 
 
 export const AchievementRecordOrderByRelevanceFieldEnum = {
@@ -7971,6 +8152,13 @@ export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
 
 
 /**
+ * Reference to a field of type 'PrintJobStatus'
+ */
+export type EnumPrintJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintJobStatus'>
+    
+
+
+/**
  * Reference to a field of type 'GrantSubject'
  */
 export type EnumGrantSubjectFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GrantSubject'>
@@ -8348,6 +8536,7 @@ export type GlobalOmitConfig = {
   facetAlias?: Prisma.FacetAliasOmit
   facetProfile?: Prisma.FacetProfileOmit
   characterFacet?: Prisma.CharacterFacetOmit
+  rewardFacet?: Prisma.RewardFacetOmit
   modelBuildRun?: Prisma.ModelBuildRunOmit
   modelBuildItem?: Prisma.ModelBuildItemOmit
   modelBuildArtifact?: Prisma.ModelBuildArtifactOmit
@@ -8378,6 +8567,7 @@ export type GlobalOmitConfig = {
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
   entitlement?: Prisma.EntitlementOmit
+  printJob?: Prisma.PrintJobOmit
   grant?: Prisma.GrantOmit
   achievementRecord?: Prisma.AchievementRecordOmit
   narratorTopic?: Prisma.NarratorTopicOmit

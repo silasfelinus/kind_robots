@@ -606,6 +606,17 @@ export const OrderStatus = {
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
+export const PrintJobStatus = {
+  PENDING: 'PENDING',
+  SUBMITTED: 'SUBMITTED',
+  IN_PRODUCTION: 'IN_PRODUCTION',
+  SHIPPED: 'SHIPPED',
+  FAILED: 'FAILED'
+} as const
+
+export type PrintJobStatus = (typeof PrintJobStatus)[keyof typeof PrintJobStatus]
+
+
 export const GrantSubject = {
   PROJECT: 'PROJECT',
   RESOURCE: 'RESOURCE'

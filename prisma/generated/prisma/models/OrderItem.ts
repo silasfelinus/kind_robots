@@ -236,6 +236,7 @@ export type OrderItemWhereInput = {
   Order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   Product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   Entitlement?: Prisma.XOR<Prisma.EntitlementNullableScalarRelationFilter, Prisma.EntitlementWhereInput> | null
+  PrintJob?: Prisma.XOR<Prisma.PrintJobNullableScalarRelationFilter, Prisma.PrintJobWhereInput> | null
 }
 
 export type OrderItemOrderByWithRelationInput = {
@@ -247,6 +248,7 @@ export type OrderItemOrderByWithRelationInput = {
   Order?: Prisma.OrderOrderByWithRelationInput
   Product?: Prisma.ProductOrderByWithRelationInput
   Entitlement?: Prisma.EntitlementOrderByWithRelationInput
+  PrintJob?: Prisma.PrintJobOrderByWithRelationInput
 }
 
 export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
@@ -261,6 +263,7 @@ export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
   Order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   Product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   Entitlement?: Prisma.XOR<Prisma.EntitlementNullableScalarRelationFilter, Prisma.EntitlementWhereInput> | null
+  PrintJob?: Prisma.XOR<Prisma.PrintJobNullableScalarRelationFilter, Prisma.PrintJobWhereInput> | null
 }, "id">
 
 export type OrderItemOrderByWithAggregationInput = {
@@ -293,6 +296,7 @@ export type OrderItemCreateInput = {
   Order: Prisma.OrderCreateNestedOneWithoutItemsInput
   Product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
   Entitlement?: Prisma.EntitlementCreateNestedOneWithoutOrderItemInput
+  PrintJob?: Prisma.PrintJobCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemUncheckedCreateInput = {
@@ -302,6 +306,7 @@ export type OrderItemUncheckedCreateInput = {
   quantity?: number
   priceCents: number
   Entitlement?: Prisma.EntitlementUncheckedCreateNestedOneWithoutOrderItemInput
+  PrintJob?: Prisma.PrintJobUncheckedCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemUpdateInput = {
@@ -310,6 +315,7 @@ export type OrderItemUpdateInput = {
   Order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   Product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
   Entitlement?: Prisma.EntitlementUpdateOneWithoutOrderItemNestedInput
+  PrintJob?: Prisma.PrintJobUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemUncheckedUpdateInput = {
@@ -319,6 +325,7 @@ export type OrderItemUncheckedUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
   Entitlement?: Prisma.EntitlementUncheckedUpdateOneWithoutOrderItemNestedInput
+  PrintJob?: Prisma.PrintJobUncheckedUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemCreateManyInput = {
@@ -495,11 +502,26 @@ export type OrderItemUpdateOneRequiredWithoutEntitlementNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderItemUpdateToOneWithWhereWithoutEntitlementInput, Prisma.OrderItemUpdateWithoutEntitlementInput>, Prisma.OrderItemUncheckedUpdateWithoutEntitlementInput>
 }
 
+export type OrderItemCreateNestedOneWithoutPrintJobInput = {
+  create?: Prisma.XOR<Prisma.OrderItemCreateWithoutPrintJobInput, Prisma.OrderItemUncheckedCreateWithoutPrintJobInput>
+  connectOrCreate?: Prisma.OrderItemCreateOrConnectWithoutPrintJobInput
+  connect?: Prisma.OrderItemWhereUniqueInput
+}
+
+export type OrderItemUpdateOneRequiredWithoutPrintJobNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderItemCreateWithoutPrintJobInput, Prisma.OrderItemUncheckedCreateWithoutPrintJobInput>
+  connectOrCreate?: Prisma.OrderItemCreateOrConnectWithoutPrintJobInput
+  upsert?: Prisma.OrderItemUpsertWithoutPrintJobInput
+  connect?: Prisma.OrderItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderItemUpdateToOneWithWhereWithoutPrintJobInput, Prisma.OrderItemUpdateWithoutPrintJobInput>, Prisma.OrderItemUncheckedUpdateWithoutPrintJobInput>
+}
+
 export type OrderItemCreateWithoutProductInput = {
   quantity?: number
   priceCents: number
   Order: Prisma.OrderCreateNestedOneWithoutItemsInput
   Entitlement?: Prisma.EntitlementCreateNestedOneWithoutOrderItemInput
+  PrintJob?: Prisma.PrintJobCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemUncheckedCreateWithoutProductInput = {
@@ -508,6 +530,7 @@ export type OrderItemUncheckedCreateWithoutProductInput = {
   quantity?: number
   priceCents: number
   Entitlement?: Prisma.EntitlementUncheckedCreateNestedOneWithoutOrderItemInput
+  PrintJob?: Prisma.PrintJobUncheckedCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemCreateOrConnectWithoutProductInput = {
@@ -552,6 +575,7 @@ export type OrderItemCreateWithoutOrderInput = {
   priceCents: number
   Product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
   Entitlement?: Prisma.EntitlementCreateNestedOneWithoutOrderItemInput
+  PrintJob?: Prisma.PrintJobCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemUncheckedCreateWithoutOrderInput = {
@@ -560,6 +584,7 @@ export type OrderItemUncheckedCreateWithoutOrderInput = {
   quantity?: number
   priceCents: number
   Entitlement?: Prisma.EntitlementUncheckedCreateNestedOneWithoutOrderItemInput
+  PrintJob?: Prisma.PrintJobUncheckedCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemCreateOrConnectWithoutOrderInput = {
@@ -593,6 +618,7 @@ export type OrderItemCreateWithoutEntitlementInput = {
   priceCents: number
   Order: Prisma.OrderCreateNestedOneWithoutItemsInput
   Product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
+  PrintJob?: Prisma.PrintJobCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemUncheckedCreateWithoutEntitlementInput = {
@@ -601,6 +627,7 @@ export type OrderItemUncheckedCreateWithoutEntitlementInput = {
   productId: number
   quantity?: number
   priceCents: number
+  PrintJob?: Prisma.PrintJobUncheckedCreateNestedOneWithoutOrderItemInput
 }
 
 export type OrderItemCreateOrConnectWithoutEntitlementInput = {
@@ -624,6 +651,7 @@ export type OrderItemUpdateWithoutEntitlementInput = {
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
   Order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   Product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
+  PrintJob?: Prisma.PrintJobUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemUncheckedUpdateWithoutEntitlementInput = {
@@ -632,6 +660,57 @@ export type OrderItemUncheckedUpdateWithoutEntitlementInput = {
   productId?: Prisma.IntFieldUpdateOperationsInput | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  PrintJob?: Prisma.PrintJobUncheckedUpdateOneWithoutOrderItemNestedInput
+}
+
+export type OrderItemCreateWithoutPrintJobInput = {
+  quantity?: number
+  priceCents: number
+  Order: Prisma.OrderCreateNestedOneWithoutItemsInput
+  Product: Prisma.ProductCreateNestedOneWithoutOrderItemsInput
+  Entitlement?: Prisma.EntitlementCreateNestedOneWithoutOrderItemInput
+}
+
+export type OrderItemUncheckedCreateWithoutPrintJobInput = {
+  id?: number
+  orderId: number
+  productId: number
+  quantity?: number
+  priceCents: number
+  Entitlement?: Prisma.EntitlementUncheckedCreateNestedOneWithoutOrderItemInput
+}
+
+export type OrderItemCreateOrConnectWithoutPrintJobInput = {
+  where: Prisma.OrderItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderItemCreateWithoutPrintJobInput, Prisma.OrderItemUncheckedCreateWithoutPrintJobInput>
+}
+
+export type OrderItemUpsertWithoutPrintJobInput = {
+  update: Prisma.XOR<Prisma.OrderItemUpdateWithoutPrintJobInput, Prisma.OrderItemUncheckedUpdateWithoutPrintJobInput>
+  create: Prisma.XOR<Prisma.OrderItemCreateWithoutPrintJobInput, Prisma.OrderItemUncheckedCreateWithoutPrintJobInput>
+  where?: Prisma.OrderItemWhereInput
+}
+
+export type OrderItemUpdateToOneWithWhereWithoutPrintJobInput = {
+  where?: Prisma.OrderItemWhereInput
+  data: Prisma.XOR<Prisma.OrderItemUpdateWithoutPrintJobInput, Prisma.OrderItemUncheckedUpdateWithoutPrintJobInput>
+}
+
+export type OrderItemUpdateWithoutPrintJobInput = {
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  priceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  Order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
+  Product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
+  Entitlement?: Prisma.EntitlementUpdateOneWithoutOrderItemNestedInput
+}
+
+export type OrderItemUncheckedUpdateWithoutPrintJobInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  orderId?: Prisma.IntFieldUpdateOperationsInput | number
+  productId?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  priceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  Entitlement?: Prisma.EntitlementUncheckedUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemCreateManyProductInput = {
@@ -646,6 +725,7 @@ export type OrderItemUpdateWithoutProductInput = {
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
   Order?: Prisma.OrderUpdateOneRequiredWithoutItemsNestedInput
   Entitlement?: Prisma.EntitlementUpdateOneWithoutOrderItemNestedInput
+  PrintJob?: Prisma.PrintJobUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemUncheckedUpdateWithoutProductInput = {
@@ -654,6 +734,7 @@ export type OrderItemUncheckedUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
   Entitlement?: Prisma.EntitlementUncheckedUpdateOneWithoutOrderItemNestedInput
+  PrintJob?: Prisma.PrintJobUncheckedUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemUncheckedUpdateManyWithoutProductInput = {
@@ -675,6 +756,7 @@ export type OrderItemUpdateWithoutOrderInput = {
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
   Product?: Prisma.ProductUpdateOneRequiredWithoutOrderItemsNestedInput
   Entitlement?: Prisma.EntitlementUpdateOneWithoutOrderItemNestedInput
+  PrintJob?: Prisma.PrintJobUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemUncheckedUpdateWithoutOrderInput = {
@@ -683,6 +765,7 @@ export type OrderItemUncheckedUpdateWithoutOrderInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   priceCents?: Prisma.IntFieldUpdateOperationsInput | number
   Entitlement?: Prisma.EntitlementUncheckedUpdateOneWithoutOrderItemNestedInput
+  PrintJob?: Prisma.PrintJobUncheckedUpdateOneWithoutOrderItemNestedInput
 }
 
 export type OrderItemUncheckedUpdateManyWithoutOrderInput = {
@@ -703,6 +786,7 @@ export type OrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   Order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   Product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   Entitlement?: boolean | Prisma.OrderItem$EntitlementArgs<ExtArgs>
+  PrintJob?: boolean | Prisma.OrderItem$PrintJobArgs<ExtArgs>
 }, ExtArgs["result"]["orderItem"]>
 
 
@@ -720,6 +804,7 @@ export type OrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   Order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   Product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   Entitlement?: boolean | Prisma.OrderItem$EntitlementArgs<ExtArgs>
+  PrintJob?: boolean | Prisma.OrderItem$PrintJobArgs<ExtArgs>
 }
 
 export type $OrderItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -728,6 +813,7 @@ export type $OrderItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     Order: Prisma.$OrderPayload<ExtArgs>
     Product: Prisma.$ProductPayload<ExtArgs>
     Entitlement: Prisma.$EntitlementPayload<ExtArgs> | null
+    PrintJob: Prisma.$PrintJobPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1078,6 +1164,7 @@ export interface Prisma__OrderItemClient<T, Null = never, ExtArgs extends runtim
   Order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Entitlement<T extends Prisma.OrderItem$EntitlementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderItem$EntitlementArgs<ExtArgs>>): Prisma.Prisma__EntitlementClient<runtime.Types.Result.GetResult<Prisma.$EntitlementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  PrintJob<T extends Prisma.OrderItem$PrintJobArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderItem$PrintJobArgs<ExtArgs>>): Prisma.Prisma__PrintJobClient<runtime.Types.Result.GetResult<Prisma.$PrintJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1476,6 +1563,25 @@ export type OrderItem$EntitlementArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.EntitlementInclude<ExtArgs> | null
   where?: Prisma.EntitlementWhereInput
+}
+
+/**
+ * OrderItem.PrintJob
+ */
+export type OrderItem$PrintJobArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PrintJob
+   */
+  select?: Prisma.PrintJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PrintJob
+   */
+  omit?: Prisma.PrintJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PrintJobInclude<ExtArgs> | null
+  where?: Prisma.PrintJobWhereInput
 }
 
 /**

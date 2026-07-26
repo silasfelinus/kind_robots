@@ -151,6 +151,26 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       ? session.customer
       : session.customer?.id
 
+  // Read the real purchased quantity from the session's line items instead of
+  // hardcoding 1 — required for POD orders (digital-storefront/t-030), where
+  // a caller can print more than one copy of the same image.
+  let quantity = 1
+  try {
+    const lineItems = await getStripeClient().checkout.sessions.listLineItems(
+      session.id,
+      { limit: 1 },
+    )
+    const firstQuantity = lineItems.data[0]?.quantity
+    if (Number.isInteger(firstQuantity) && (firstQuantity ?? 0) > 0) {
+      quantity = firstQuantity as number
+    }
+  } catch (error) {
+    console.error(
+      `⚠️ Stripe webhook: failed to read line items for session ${session.id}, defaulting to quantity 1`,
+      error,
+    )
+  }
+
   await prisma.$transaction(async (tx) => {
     const order = await tx.order.create({
       data: {
@@ -158,7 +178,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
         stripeSessionId: session.id,
         stripeCustomerId: customerId ?? null,
         status: 'PAID',
-        totalCents: session.amount_total ?? product.priceCents,
+        totalCents: session.amount_total ?? product.priceCents * quantity,
       },
     })
 
@@ -166,22 +186,62 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       data: {
         orderId: order.id,
         productId: product.id,
-        quantity: 1,
+        quantity,
         priceCents: product.priceCents,
       },
     })
 
-    await tx.entitlement.create({
-      data: {
-        userId,
-        productId: product.id,
-        orderItemId: item.id,
-      },
-    })
+    if (product.type === 'POD') {
+      // Physical fulfillment goes through PrintJob, not Entitlement — a print
+      // order isn't "owned" the way a digital good is, it ships. Stays
+      // PENDING until the Printful vendor integration itself is built
+      // (needs-human, no account/API key yet) actually submits the order.
+      let podMetadata: { artImageId?: unknown; printfulVariantId?: unknown } =
+        {}
+      try {
+        podMetadata = product.metadata ? JSON.parse(product.metadata) : {}
+      } catch (error) {
+        console.error(
+          `⚠️ Stripe webhook: unparseable metadata on POD product "${slug}"`,
+          error,
+        )
+      }
+
+      const artImageId = Number(podMetadata.artImageId)
+      const printfulVariantId =
+        typeof podMetadata.printfulVariantId === 'string'
+          ? podMetadata.printfulVariantId
+          : null
+
+      if (!Number.isInteger(artImageId) || !printfulVariantId) {
+        console.error(
+          `⚠️ Stripe webhook: POD product "${slug}" missing artImageId/printfulVariantId metadata, skipping PrintJob creation`,
+        )
+        return
+      }
+
+      await tx.printJob.create({
+        data: {
+          orderItemId: item.id,
+          artImageId,
+          printfulVariantId,
+        },
+      })
+    } else {
+      await tx.entitlement.create({
+        data: {
+          userId,
+          productId: product.id,
+          orderItemId: item.id,
+        },
+      })
+    }
   })
 
   console.log(
-    `🎟️ Granted entitlement for product "${slug}" to user ${userId} (session ${session.id})`,
+    product.type === 'POD'
+      ? `🖨️ Created PrintJob for product "${slug}" (user ${userId}, session ${session.id})`
+      : `🎟️ Granted entitlement for product "${slug}" to user ${userId} (session ${session.id})`,
   )
 }
 

@@ -2,16 +2,28 @@
 import { createError, type H3Event } from 'h3'
 import prisma from './prisma'
 import { requireApiUser } from './authGuard'
+import { userIsAdmin } from './authUser'
 import { applyMana } from './mana'
 import type { ManaReason } from './mana'
+import { resolveManaGateTarget } from './manaGateTarget'
 
 type ManaGateKind = 'text' | 'art' | 'video' | 'model' | 'free'
+
+// Kinds an external caller may request via /api/economy/mana/charge -- 'free'
+// is deliberately excluded, it's an internal-only bypass, not something a
+// trusted caller should be able to request directly.
+export type ManaGateChargeableKind = Exclude<ManaGateKind, 'free'>
 
 type ManaGateInput = {
   kind: ManaGateKind
   estCostUsd?: number
   serverId?: number | null
   useOwnResource?: boolean
+  // Set only by a trusted machine caller (economy/mana/charge.post.ts) to
+  // charge a different user for work the caller performed on its own
+  // infrastructure. Ignored (falls back to the caller's own id) unless the
+  // caller authenticates as a server key -- see resolveManaGateTarget.
+  targetUserId?: number | null
 }
 
 type ManaGateResult = {
@@ -45,9 +57,15 @@ export async function manaGate(
 ): Promise<ManaGateResult> {
   const auth = await requireApiUser(event)
 
+  const { userId: targetUserId, onBehalfOfOtherUser } = resolveManaGateTarget({
+    callerUserId: auth.user.id,
+    isServerKey: auth.isServerKey,
+    targetUserId: input.targetUserId,
+  })
+
   const user = await prisma.user.findUnique({
     where: {
-      id: auth.user.id,
+      id: targetUserId,
     },
     select: {
       id: true,
@@ -58,8 +76,10 @@ export async function manaGate(
 
   if (!user) {
     throw createError({
-      statusCode: 401,
-      message: 'Authorization user was not found.',
+      statusCode: onBehalfOfOtherUser ? 404 : 401,
+      message: onBehalfOfOtherUser
+        ? 'Target user was not found.'
+        : 'Authorization user was not found.',
     })
   }
 
@@ -67,8 +87,11 @@ export async function manaGate(
     userId: user.id,
     serverId: input.serverId ?? null,
     useOwnResource: input.useOwnResource ?? false,
-    isAdmin: auth.isAdmin,
-    isServerKey: auth.isServerKey,
+    // On-behalf-of charges bill the target user for real. The caller's own
+    // admin/server-key standing must not grant a free pass on someone else's
+    // account, or every cross-app charge would silently cost nothing.
+    isAdmin: onBehalfOfOtherUser ? userIsAdmin(user) : auth.isAdmin,
+    isServerKey: onBehalfOfOtherUser ? false : auth.isServerKey,
     userRole: user.Role,
     kind: input.kind,
   })

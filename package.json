@@ -89,6 +89,7 @@
     "test:newsfeed-perspective-balance": "tsx utils/scripts/verifyNewsfeedPerspectiveBalance.ts",
     "test:tutorial-channel-resolver": "tsx utils/scripts/verifyTutorialChannelResolver.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
+    "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",

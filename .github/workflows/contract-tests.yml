@@ -133,6 +133,9 @@ jobs:
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 
+      - name: Mana-gate on-behalf-of target authorization contract
+        run: npm run test:mana-gate-on-behalf-of-target
+
       - name: WonderLab reconciliation contract
         run: npm run test:wonderlab-reconcile
 

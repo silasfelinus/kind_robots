@@ -85,8 +85,8 @@ async function main(): Promise<void> {
   requireText(files.rewardManager, text.rewardManager, 'reward-facet-picker')
   requireText(files.rewardManager, text.rewardManager, 'rewardFacetIds')
 
-  requireText(files.rewardMerge, text.rewardMerge, 'prisma.rewardFacet.createMany')
-  requireText(files.rewardMerge, text.rewardMerge, 'prisma.rewardFacet.deleteMany')
+  requireText(files.rewardMerge, text.rewardMerge, 'tx.rewardFacet.createMany')
+  requireText(files.rewardMerge, text.rewardMerge, 'tx.rewardFacet.deleteMany')
   const rewardMergeIndex = text.vercelBuild.indexOf(
     'mergeRewardFacetDuplicateLinks.ts',
   )

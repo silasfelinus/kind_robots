@@ -23,7 +23,7 @@ function requestBlocks(content: string): string[] {
 }'''
 text, count = re.subn(
     r"function requestValue\(block: string, key: string\): string \{.*?function requestBlocks\(content: string\): string\[\] \{.*?\n\}",
-    replacement,
+    lambda _match: replacement,
     text,
     count=1,
     flags=re.S,

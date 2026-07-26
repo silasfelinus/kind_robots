@@ -93,9 +93,6 @@ function hydrateBotBuilder(
       )
 
       if (fieldKey === 'personality') {
-        // Bot personalities are a compact multi-select rather than an image gallery.
-        // Keep every canonical Personality directly selectable instead of hiding the
-        // shared Character/Bot vocabulary behind a single “More options” control.
         step.choices = [...canonical, ...controls]
         step.listOptions = canonical.map((choice) => choice.value)
       } else {
@@ -143,6 +140,7 @@ export default defineNuxtPlugin(async () => {
 
     // Registration stores the same mutable card graphs. Re-register after the
     // async catalog fetch so mounted Builders observe canonical choices immediately.
+    // Generator methods read this same catalog directly and need no runtime patching.
     ensureBuildersRegistered(true)
   } catch (error) {
     console.error('[facet-catalog] Canonical Facet hydration failed.', error)

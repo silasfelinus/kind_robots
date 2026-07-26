@@ -7,6 +7,7 @@ on:
     paths:
       - "scripts/agent_patch_project_gallery.py"
       - "scripts/agent_fix_art_request_yaml_patch.py"
+      - "scripts/agent_cleanup_project_gallery_patch.py"
 
 permissions:
   contents: write
@@ -28,8 +29,9 @@ jobs:
 
       - name: Apply repository-aware patch
         run: |
-          python scripts/agent_patch_project_gallery.py
-          python scripts/agent_fix_art_request_yaml_patch.py
+          if [ -f scripts/agent_patch_project_gallery.py ]; then python scripts/agent_patch_project_gallery.py; fi
+          if [ -f scripts/agent_fix_art_request_yaml_patch.py ]; then python scripts/agent_fix_art_request_yaml_patch.py; fi
+          if [ -f scripts/agent_cleanup_project_gallery_patch.py ]; then python scripts/agent_cleanup_project_gallery_patch.py; fi
 
       - uses: actions/setup-node@v4
         with:
@@ -47,9 +49,10 @@ jobs:
 
       - name: Commit finished patch
         run: |
-          rm scripts/agent_patch_project_gallery.py
-          rm scripts/agent_fix_art_request_yaml_patch.py
-          rm .github/workflows/agent-project-gallery-art-pipeline.yml
+          rm -f scripts/agent_patch_project_gallery.py
+          rm -f scripts/agent_fix_art_request_yaml_patch.py
+          rm -f scripts/agent_cleanup_project_gallery_patch.py
+          rm -f .github/workflows/agent-project-gallery-art-pipeline.yml
           git config user.name "kind-conductor"
           git config user.email "kind-conductor@users.noreply.github.com"
           git add -A

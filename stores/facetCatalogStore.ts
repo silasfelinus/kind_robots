@@ -21,6 +21,7 @@ export const FACET_TAXONOMIES = [
   'ROLE',
   'ALIGNMENT',
   'GENDER',
+  'BOT_TYPE',
   'PERSONALITY',
   'BACKSTORY',
   'QUIRK',
@@ -67,7 +68,6 @@ type FacetCatalogQuery = {
   includeMature?: boolean
   randomizableOnly?: boolean
   search?: string
-  /** Page size. The store continues requesting pages until the result is complete. */
   take?: number
   skip?: number
 }
@@ -84,6 +84,11 @@ export const CHARACTER_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   backstory: ['BACKSTORY'],
   quirks: ['QUIRK'],
   role: ['ROLE'],
+}
+
+export const BOT_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
+  BotType: ['BOT_TYPE'],
+  personality: ['PERSONALITY'],
 }
 
 function toQuery(options: FacetCatalogQuery): string {
@@ -142,6 +147,15 @@ function weightedPick(entries: FacetCatalogEntry[]): FacetCatalogEntry | null {
     if (roll <= 0) return entry
   }
   return viable.at(-1) ?? null
+}
+
+function metadataString(
+  entry: FacetCatalogEntry,
+  key: string | undefined,
+): string | null {
+  if (!key) return null
+  const value = entry.metadata?.[key]
+  return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
 export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
@@ -209,6 +223,10 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     return facetsForTaxonomies(CHARACTER_FIELD_TAXONOMIES[fieldKey] ?? [])
   }
 
+  function facetsForBotField(fieldKey: string): FacetCatalogEntry[] {
+    return facetsForTaxonomies(BOT_FIELD_TAXONOMIES[fieldKey] ?? [])
+  }
+
   function facetForValue(value: string): FacetCatalogEntry | null {
     const key = normalizeFacetLookupKey(value)
     return key ? (byLookupKey.value.get(key) ?? null) : null
@@ -218,9 +236,19 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     return weightedPick(facetsForCharacterField(fieldKey))
   }
 
-  function builderChoicesForField(fieldKey: string): BuilderChoice[] {
-    return facetsForCharacterField(fieldKey).map((entry) => ({
-      value: entry.canonicalValue || entry.title,
+  function randomFacetForBotField(fieldKey: string): FacetCatalogEntry | null {
+    return weightedPick(facetsForBotField(fieldKey))
+  }
+
+  function builderChoicesForTaxonomies(
+    taxonomies: readonly FacetTaxonomy[],
+    metadataValueKey?: string,
+  ): BuilderChoice[] {
+    return facetsForTaxonomies(taxonomies).map((entry) => ({
+      value:
+        metadataString(entry, metadataValueKey) ||
+        entry.canonicalValue ||
+        entry.title,
       label: entry.title,
       subtext: entry.description || entry.flavorText || undefined,
       image: entry.cardPath || entry.imagePath || entry.heroPath || undefined,
@@ -235,6 +263,19 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     }))
   }
 
+  function builderChoicesForField(fieldKey: string): BuilderChoice[] {
+    return builderChoicesForTaxonomies(
+      CHARACTER_FIELD_TAXONOMIES[fieldKey] ?? [],
+    )
+  }
+
+  function builderChoicesForBotField(fieldKey: string): BuilderChoice[] {
+    return builderChoicesForTaxonomies(
+      BOT_FIELD_TAXONOMIES[fieldKey] ?? [],
+      fieldKey === 'BotType' ? 'builderValue' : undefined,
+    )
+  }
+
   return {
     entries,
     loading,
@@ -245,8 +286,12 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     fetchCatalog,
     facetsForTaxonomies,
     facetsForCharacterField,
+    facetsForBotField,
     facetForValue,
     randomFacetForField,
+    randomFacetForBotField,
+    builderChoicesForTaxonomies,
     builderChoicesForField,
+    builderChoicesForBotField,
   }
 })

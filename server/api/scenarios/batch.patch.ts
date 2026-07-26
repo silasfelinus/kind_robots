@@ -59,13 +59,13 @@ async function processEntry(
       allowedFields: scenarioBatchPatchFields,
       context: `Scenario batch update item ${index}`,
       requireNonEmpty: true,
-      routeId: id,
+      routeId: candidateId,
     })
 
     const entry = rawEntry as ScenarioBatchEntry
 
     const existingScenario = await prisma.scenario.findUnique({
-      where: { id },
+      where: { id: candidateId },
       select: {
         id: true,
         userId: true,
@@ -110,7 +110,7 @@ async function processEntry(
 
     const updatedScenario = await prisma.$transaction(async (tx) => {
       const scenario = await tx.scenario.update({
-        where: { id },
+        where: { id: candidateId },
         data,
         select: scenarioMutationSelect,
       })
@@ -124,7 +124,7 @@ async function processEntry(
     })
 
     return {
-      id,
+      id: candidateId,
       success: true,
       message: 'Scenario updated successfully.',
       statusCode: 200,

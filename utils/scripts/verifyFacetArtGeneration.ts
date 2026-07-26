@@ -25,7 +25,9 @@ async function main(): Promise<void> {
     enqueue: 'server/api/art/enqueue.post.ts',
     edit: 'server/api/art/queue/[id]/edit.post.ts',
     reenqueue: 'server/api/art/queue/[id]/reenqueue.post.ts',
+    complete: 'server/api/art/queue/[id]/complete.post.ts',
     selection: 'server/utils/artFacetSelection.ts',
+    completion: 'server/utils/artFacetCompletion.ts',
     prompt: 'utils/artFacetPrompt.ts',
   } as const
 
@@ -51,6 +53,11 @@ async function main(): Promise<void> {
   requireText(files.edit, text.edit, 'readArtFacetIds')
   requireText(files.reenqueue, text.reenqueue, 'readArtFacetIds')
   requireText(files.selection, text.selection, 'readArtFacetSnapshots')
+  requireText(files.complete, text.complete, 'copyArtImageFacets')
+  requireText(files.complete, text.complete, 'syncCompletedArtImageFacets')
+  requireText(files.complete, text.complete, 'completedFacetIds')
+  requireText(files.completion, text.completion, 'facetArtImage.deleteMany')
+  requireText(files.completion, text.completion, 'facetArtImage.createMany')
   requireText(files.prompt, text.prompt, 'Facet direction:')
 
   process.stdout.write('Facet art generation contract verified.\n')

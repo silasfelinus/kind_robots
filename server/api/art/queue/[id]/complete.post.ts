@@ -30,6 +30,11 @@ import {
 } from '../../../../utils/artJobProvenance'
 import { resolvePersistedArtImageSeed } from '../../../../utils/artImageSeed'
 import {
+  copyArtImageFacets,
+  syncCompletedArtImageFacets,
+  type FacetCompletionTransaction,
+} from '../../../../utils/artFacetCompletion'
+import {
   artImageResourceConnectData,
   resolveArtImageResourceLinks,
 } from '../../utils/resourceProvenance'
@@ -244,6 +249,7 @@ export default defineEventHandler(async (event) => {
     let archivedArtImageId: number | null = null
     let replacedArtImageId: number | null = null
     let completionTrace: Record<string, unknown> | null = null
+    let completedFacetIds: number[] = []
 
     if (body.success) {
       const uploadedArtImageId = Number(body.artImageId)
@@ -320,6 +326,12 @@ export default defineEventHandler(async (event) => {
           const archived = await tx.artImage.create({
             data: snapshotData(target),
           })
+          const facetTx = tx as unknown as FacetCompletionTransaction
+          await copyArtImageFacets(
+            facetTx,
+            targetArtImageId,
+            archived.id,
+          )
 
           await tx.artJob.updateMany({
             where: {
@@ -329,7 +341,6 @@ export default defineEventHandler(async (event) => {
             data: { artImageId: archived.id },
           })
 
-          // Record which Resources this render used (best-effort provenance).
           const resourceLinks = await resolveArtImageResourceLinks(
             job.payload,
             tx,
@@ -342,6 +353,11 @@ export default defineEventHandler(async (event) => {
               ...artImageResourceConnectData(resourceLinks),
             },
           })
+          const facetIds = await syncCompletedArtImageFacets(
+            facetTx,
+            tracedPayload,
+            targetArtImageId,
+          )
 
           const completed = await tx.artJob.update({
             where: { id },
@@ -357,12 +373,13 @@ export default defineEventHandler(async (event) => {
 
           await tx.artImage.delete({ where: { id: uploadedArtImageId } })
 
-          return { completed, archivedId: archived.id }
+          return { completed, archivedId: archived.id, facetIds }
         })
 
         updated = result.completed
         archivedArtImageId = result.archivedId
         replacedArtImageId = targetArtImageId
+        completedFacetIds = result.facetIds
       } else {
         const normalResult = await prisma.$transaction(async (tx) => {
           const uploaded = await tx.artImage.findUnique({
@@ -387,7 +404,6 @@ export default defineEventHandler(async (event) => {
             workflowSeed,
           )
 
-          // Record which Resources this render used (best-effort provenance).
           const resourceLinks = await resolveArtImageResourceLinks(
             job.payload,
             tx,
@@ -404,6 +420,11 @@ export default defineEventHandler(async (event) => {
               ...artImageResourceConnectData(resourceLinks),
             },
           })
+          const facetIds = await syncCompletedArtImageFacets(
+            tx as unknown as FacetCompletionTransaction,
+            tracedPayload,
+            uploadedArtImageId,
+          )
 
           const completed = await tx.artJob.update({
             where: { id },
@@ -415,10 +436,11 @@ export default defineEventHandler(async (event) => {
             },
           })
 
-          return { completed }
+          return { completed, facetIds }
         })
 
         updated = normalResult.completed
+        completedFacetIds = normalResult.facetIds
       }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)
@@ -446,6 +468,7 @@ export default defineEventHandler(async (event) => {
         replacedArtImageId,
         archivedArtImageId,
         completionTrace,
+        completedFacetIds,
       },
       statusCode: 200,
     }

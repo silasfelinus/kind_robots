@@ -13,9 +13,11 @@ async function main(): Promise<void> {
     editor: 'components/facets/facet-profile-editor.vue',
     form: 'utils/facetProfileForm.ts',
   } as const
-  const [manager, editor, form] = await Promise.all(
-    Object.values(files).map((path) => readFile(path, 'utf8')),
-  )
+  const [manager, editor, form] = await Promise.all([
+    readFile(files.manager, 'utf8'),
+    readFile(files.editor, 'utf8'),
+    readFile(files.form, 'utf8'),
+  ])
 
   for (const field of [
     'canonicalValue',

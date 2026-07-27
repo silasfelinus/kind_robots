@@ -533,10 +533,20 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useServerStore } from '@/stores/serverStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 withDefaults(defineProps<{ showModelConnect?: boolean }>(), {
   showModelConnect: false,
 })
+
+// Consumers that only wire uploadStore.setTarget() (no per-image applyImage
+// callback -- e.g. art-maker.vue's remix-upload disclosure) have no other
+// way to learn a batch actually produced images: this component previously
+// had no defineEmits at all, so `@uploaded="..."` on <image-upload> anywhere
+// in the app was silently dead code -- the listener was simply never called.
+const emit = defineEmits<{
+  uploaded: [images: ArtImage[]]
+}>()
 
 type ImageUploadForm = {
   promptString: string
@@ -797,6 +807,15 @@ async function handleBatchUpload() {
     failedFiles.value = new Set(
       result.failed.map((r) => r.file).filter(Boolean) as File[],
     )
+
+    if (result.succeeded.length) {
+      emit(
+        'uploaded',
+        result.succeeded
+          .map((r) => r.artImage)
+          .filter((img): img is ArtImage => Boolean(img)),
+      )
+    }
 
     // Give the per-thumbnail success checkmark a frame to actually render
     // before its item is spliced out of the queue (or the whole queue is

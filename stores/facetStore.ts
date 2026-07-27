@@ -1,7 +1,7 @@
 // /stores/facetStore.ts
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Facet, FacetKind } from '~/prisma/generated/prisma/client'
+import type { Facet } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import type { FacetTaxonomy } from '@/stores/facetCatalogStore'
@@ -11,7 +11,6 @@ export type FacetWithAliases = Pick<
   | 'id'
   | 'title'
   | 'slug'
-  | 'kind'
   | 'description'
   | 'flavorText'
   | 'examples'
@@ -42,7 +41,7 @@ export type FacetWithAliases = Pick<
 
 export type FacetListOptions = {
   search?: string
-  kind?: FacetKind
+  taxonomy?: FacetTaxonomy
   includeInactive?: boolean
   includeMature?: boolean
   mine?: boolean
@@ -53,9 +52,8 @@ export type FacetListOptions = {
 
 export type FacetCreateInput = {
   title: string
+  taxonomy: FacetTaxonomy
   slug?: string
-  kind?: FacetKind
-  taxonomy?: FacetTaxonomy
   canonicalValue?: string | null
   groupKey?: string | null
   groupLabel?: string | null

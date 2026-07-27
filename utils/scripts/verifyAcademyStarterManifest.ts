@@ -26,6 +26,8 @@ import {
 const manifestRelativePath = 'academy/starters/starters.manifest.json'
 const manifestSource = mediaSourceDescription(manifestRelativePath)
 
+const REQUIRED_OWN_STRING_FIELDS = ['file'] as const
+
 async function main(): Promise<void> {
   const raw = await readMediaText(manifestRelativePath)
 
@@ -63,6 +65,13 @@ async function main(): Promise<void> {
       return
     }
     const record = entry as Record<string, unknown>
+
+    for (const field of REQUIRED_OWN_STRING_FIELDS) {
+      const value = record[field]
+      if (typeof value !== 'string' || value.trim() === '') {
+        errors.push(`${label}: missing or empty required field "${field}"`)
+      }
+    }
     validateProvenanceRecord(record, label, errors)
   })
 

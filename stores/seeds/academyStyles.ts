@@ -1414,7 +1414,7 @@ export const academyStyles: AcademyStyle[] = [
       {
         name: 'Ustad Mansur',
         years: 'fl. c. 1590 – d. 1624',
-        note: "Jahangir's court naturalist-painter, titled Nadir al-Asr (\"Wonder of the Age\"), renowned for scientifically exacting studies of birds, animals, and plants.",
+        note: 'Jahangir\'s court naturalist-painter, titled Nadir al-Asr ("Wonder of the Age"), renowned for scientifically exacting studies of birds, animals, and plants.',
       },
     ],
     failureMode:
@@ -1522,6 +1522,121 @@ export const academyStyles: AcademyStyle[] = [
       mode: 'prompt',
       template:
         'Repaint this image as a late-Joseon Korean genre painting (pungsokhwa) in the style of Kim Hong-do: loose, economical brush-line figures with light, translucent color wash on plain paper, a candid or gently humorous everyday moment, almost no background detail beyond a single ground line, muted earthy palette of pale ochre, indigo, and dull red, a small red seal stamp in one corner, no cast shadow or linear perspective',
+    },
+  },
+  {
+    slug: 'the-nabis',
+    name: 'The Nabis',
+    era: 'c. 1888–1900',
+    sortYear: 1888,
+    region: 'Paris, France',
+    keyIdeas:
+      'The Nabis ("prophets," from the Hebrew) formed around 1888-1889 among students connected to the Académie Julian, after Paul Sérusier returned from Pont-Aven with a small landscape painted under Paul Gauguin\'s direct guidance: instead of copying the scene\'s colors as observed, Sérusier organized it as patches of emotionally chosen, non-naturalistic color. That painting — nicknamed "The Talisman" by the group — became their founding icon. Maurice Denis crystallized the theory: before a painting depicts a person, a horse, or a story, "it is essentially a flat surface covered with colors assembled in a certain order." The group carried the flattened space and strong contours of Japanese ukiyo-e prints into decorative panels, posters, book illustration, and theater design, treating those "minor" decorative arts as equal in seriousness to easel painting.',
+    recognitionCues: [
+      'Flattened, shallow pictorial space rather than Renaissance-style depth',
+      'Large, interlocking areas of unmodulated color rather than blended tonal shading',
+      'Strong contour lines separating color areas, echoing Japanese woodblock prints',
+      'Wallpaper, textiles, screens, and other domestic patterns treated as a major structural element of the composition, not background filler',
+      'Cropped, off-center viewpoints suggesting a photograph or a print rather than a staged studio arrangement',
+      'Quiet, intimate subject matter: interiors, gardens, theater scenes, and domestic moments rather than history painting or grand landscape',
+      'Figures simplified toward silhouette or rhythmic pattern, sometimes nearly dissolving into the surrounding decoration',
+    ],
+    artists: [
+      {
+        name: 'Paul Sérusier',
+        years: '1864–1927',
+        note: "Painted The Talisman under Gauguin's direction at Pont-Aven in 1888; the small landscape's color-as-emotion logic became the group's founding argument.",
+      },
+      {
+        name: 'Édouard Vuillard',
+        years: '1868–1940',
+        note: 'Specialist in compressed, pattern-dense interiors where figures nearly merge with wallpaper and upholstery.',
+      },
+      {
+        name: 'Maurice Denis',
+        years: '1870–1943',
+        note: 'The movement\'s clearest theorist; his "flat surface covered with colors" argument is the cleanest entry point for students into why the Nabis painted the way they did.',
+      },
+    ],
+    failureMode:
+      'Instead of a coherent decorative motif like art-nouveau\'s whiplash line or vienna-secession\'s gold ornament, the model must invent wallpaper/textile pattern where the source photo has none; likely defaults to a generic "flat vector-art"/cartoon filter that flattens color without adding pattern — lean on the remix template\'s explicit "textiles, wallpaper, foliage, or architectural patterns organize the composition" to check pattern is actually present',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Reinterpret this image as a late-1890s Nabis decorative painting: flatten the depth into interlocking color shapes, simplify figures into rhythmic silhouettes, use strong contour edges, and let textiles, wallpaper, foliage, or architectural patterns organize the composition; favor intimate mood and designed surface rhythm over photographic realism',
+    },
+  },
+  {
+    slug: 'hudson-river-school',
+    name: 'Hudson River School',
+    era: 'c. 1825–1875',
+    sortYear: 1825,
+    region: 'United States',
+    keyIdeas:
+      'The Hudson River School adds a major nineteenth-century landscape tradition, visually distinct from this curriculum\'s Romanticism, Realism, and American Regionalism entries. Its signature is not merely "dramatic nature": it combines panoramic scale, precise botanical and geological detail, theatrical light, deep atmospheric distance, and tiny human figures that turn the landscape into a moral or spiritual stage. Thomas Cole founded the movement by combining observed American scenery with allegory and warnings about unchecked development; Frederic Edwin Church and Albert Bierstadt later scaled it up into enormous, scientifically detailed canvases displayed as public spectacles. Teach the movement\'s cultural framing honestly: these paintings often present American land as sublime, abundant, and apparently unoccupied, a visual language that overlaps with Manifest Destiny and can erase Indigenous presence and displacement.',
+    recognitionCues: [
+      'Panoramic wilderness compositions with a high horizon and enormous depth',
+      'Luminous, often golden light breaking through clouds or mist',
+      'Meticulously rendered trees, rocks, water, and distant terrain',
+      'Tiny people, buildings, boats, or animals used mainly to establish scale',
+      'A staged progression from shadowed foreground to glowing distance',
+      'Calm reflective water or a dramatic weather break used as a compositional hinge',
+      'Nature presented as sublime, spiritual, national, or morally instructive',
+    ],
+    artists: [
+      {
+        name: 'Thomas Cole',
+        years: '1801–1848',
+        note: 'Founder of the movement, combining observed American scenery with allegory, historical cycles, and warnings about unchecked development.',
+      },
+      {
+        name: 'Frederic Edwin Church',
+        years: '1826–1900',
+        note: "Cole's pupil, known for enormous, scientifically detailed landscapes assembled from travel studies and displayed as public spectacles.",
+      },
+      {
+        name: 'Albert Bierstadt',
+        years: '1830–1902',
+        note: 'Painter of monumental western landscapes whose theatrical light and scale helped shape popular ideas of the American West.',
+      },
+    ],
+    failureMode:
+      'Likely fails toward a generic "dramatic sky filter" over the photo\'s existing composition rather than the movement\'s real structure; lean on the remix template\'s explicit "tiny figures for scale" and "shadowed foreground opening toward luminous golden light" to check those staged compositional roles are actually present, and discuss the Manifest Destiny/Indigenous-erasure framing honestly rather than teaching the beauty alone',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Hudson River School landscape: panoramic wilderness, meticulous natural detail, deep atmospheric distance, tiny figures for scale, a shadowed foreground opening toward luminous golden light, reflective water, dramatic clouds, and a sublime theatrical sense of nature',
+    },
+  },
+  {
+    slug: 'precisionism',
+    name: 'Precisionism',
+    era: 'c. 1915–1935',
+    sortYear: 1915,
+    region: 'United States',
+    keyIdeas:
+      "Precisionism gives learners a clean bridge between Cubist simplification, American industrial modernity, photography, and later graphic design: a repeatable visual grammar of hard-edged geometry, compressed depth, and controlled light rather than one painter's brushwork. The label was applied retrospectively to artists who shared a highly controlled approach to factories, grain elevators, bridges, city architecture, machinery, and simplified rural buildings, absorbing lessons from Cubism, Futurism, photography, commercial illustration, and machine-age design without forming a single manifesto-driven group. Teach the movement's framing honestly: these paintings often remove people, smoke, and clutter from industrial scenes, producing images that are simultaneously celebratory, uncanny, and emotionally distant — a useful prompt for asking what labor and environmental cost disappears when a factory is rendered as pristine geometry.",
+    recognitionCues: [
+      'Crisp, sharply bounded shapes; simplified cylinders, rectangles, cones, and stepped planes',
+      'Compressed or shallow spatial depth; clean architectural silhouettes',
+      'Little or no visible brush texture; strong sunlight producing broad, exact shadows',
+      'Factories, silos, smokestacks, bridges, skyscrapers, barns, or machinery',
+      'Very few people, vehicles, signs, or incidental details',
+      'A quiet, suspended atmosphere despite industrial subject matter; compositions that feel designed rather than casually observed',
+    ],
+    artists: [
+      {
+        name: 'Charles Demuth',
+        years: '1883–1935',
+        note: "Transformed industrial buildings, signs, and vernacular architecture into layered geometric compositions. The only Precisionist figure whose death (1935) clears the Academy's 1956 public-domain cutoff with a comfortable margin — Charles Sheeler, Ralston Crawford, and Georgia O'Keeffe are commonly discussed alongside him but all died after 1956 and are not named here as generation-style targets.",
+      },
+    ],
+    failureMode:
+      'Model may under-cook toward a lightly-processed photo, or over-cook into a glossy science-fiction city with futuristic materials and neon lighting the movement never had; lean on the remix template\'s explicit "crisp geometric masses," "controlled daylight and exact-edged shadows," and "remove visual clutter" to keep it early-20th-century industrial rather than either extreme',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Recompose this image as an early twentieth-century American Precisionist scene: reduce structures and objects to crisp geometric masses, flatten incidental detail, use controlled daylight and exact-edged shadows, compress depth, remove visual clutter, and preserve the source composition',
     },
   },
 ]

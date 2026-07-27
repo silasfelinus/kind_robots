@@ -87,6 +87,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Greek Vase Painting',
     era: 'c. 600–300 BCE',
     sortYear: -600,
+    previewImageSrc: '/images/academy/styles/greek-vase-painting.webp',
     region: 'Ancient Greece',
     keyIdeas:
       'Storytelling wrapped around everyday objects: gods, athletes, and heroes rendered in bold silhouette on clay. Black-figure and later red-figure techniques turned pottery into a portable gallery, and the strict two-tone palette forced artists to say everything with contour and gesture.',

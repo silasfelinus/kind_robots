@@ -860,6 +860,11 @@ const isDragging = ref(false)
 const gallerySearch = ref('')
 const galleryThumbs = ref<Record<number, string>>({})
 const isLoadingGallery = ref(false)
+// getArtImageById failures (404, network, no thumbnail/imagePath in the
+// response) are excluded from future hydrateGalleryThumbs() batches so a
+// permanently-unfetchable image can't keep the recursive drain below running
+// forever.
+const failedGalleryThumbIds = new Set<number>()
 // Shared across all three source tabs (upload/gallery/starters), not just
 // gallery-to-gallery: an in-flight starter or upload read can otherwise
 // resolve after a later selection on a different tab and silently overwrite
@@ -1258,7 +1263,10 @@ function clearSourceImage() {
 
 async function hydrateGalleryThumbs() {
   const missing = galleryImages.value
-    .filter((img) => !galleryThumbs.value[img.id])
+    .filter(
+      (img) =>
+        !galleryThumbs.value[img.id] && !failedGalleryThumbIds.has(img.id),
+    )
     .slice(0, 24)
 
   if (!missing.length) return
@@ -1275,7 +1283,8 @@ async function hydrateGalleryThumbs() {
           })
 
           const hydrated = fetched as
-            (ArtImage & { thumbnailData?: string | null }) | null
+            | (ArtImage & { thumbnailData?: string | null })
+            | null
 
           if (hydrated?.thumbnailData) {
             galleryThumbs.value = {
@@ -1287,14 +1296,28 @@ async function hydrateGalleryThumbs() {
               ...galleryThumbs.value,
               [img.id]: hydrated.imagePath,
             }
+          } else {
+            failedGalleryThumbIds.add(img.id)
           }
         } catch {
-          return
+          failedGalleryThumbIds.add(img.id)
         }
       }),
     )
   } finally {
     isLoadingGallery.value = false
+  }
+
+  // galleryImages.value shows up to 48 entries but each batch only fetches
+  // 24; without this, everything past the first batch stayed a permanent
+  // placeholder unless a search happened to narrow the list further.
+  if (
+    galleryImages.value.some(
+      (img) =>
+        !galleryThumbs.value[img.id] && !failedGalleryThumbIds.has(img.id),
+    )
+  ) {
+    void hydrateGalleryThumbs()
   }
 }
 

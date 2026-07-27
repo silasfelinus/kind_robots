@@ -54,6 +54,7 @@ export const ModelName = {
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
+  BotFacet: 'BotFacet',
   RewardFacet: 'RewardFacet',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
@@ -192,6 +193,21 @@ export const CharacterFacetScalarFieldEnum = {
 } as const
 
 export type CharacterFacetScalarFieldEnum = (typeof CharacterFacetScalarFieldEnum)[keyof typeof CharacterFacetScalarFieldEnum]
+
+
+export const BotFacetScalarFieldEnum = {
+  id: 'id',
+  botId: 'botId',
+  facetId: 'facetId',
+  fieldKey: 'fieldKey',
+  sortOrder: 'sortOrder',
+  weight: 'weight',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BotFacetScalarFieldEnum = (typeof BotFacetScalarFieldEnum)[keyof typeof BotFacetScalarFieldEnum]
 
 
 export const RewardFacetScalarFieldEnum = {
@@ -1741,7 +1757,6 @@ export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelev
 
 
 export const FacetProfileOrderByRelevanceFieldEnum = {
-  taxonomy: 'taxonomy',
   canonicalValue: 'canonicalValue',
   groupKey: 'groupKey',
   groupLabel: 'groupLabel',
@@ -1757,6 +1772,14 @@ export const CharacterFacetOrderByRelevanceFieldEnum = {
 } as const
 
 export type CharacterFacetOrderByRelevanceFieldEnum = (typeof CharacterFacetOrderByRelevanceFieldEnum)[keyof typeof CharacterFacetOrderByRelevanceFieldEnum]
+
+
+export const BotFacetOrderByRelevanceFieldEnum = {
+  fieldKey: 'fieldKey',
+  source: 'source'
+} as const
+
+export type BotFacetOrderByRelevanceFieldEnum = (typeof BotFacetOrderByRelevanceFieldEnum)[keyof typeof BotFacetOrderByRelevanceFieldEnum]
 
 
 export const RewardFacetOrderByRelevanceFieldEnum = {

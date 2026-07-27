@@ -142,6 +142,13 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
+export type EnumFacetTaxonomyFilter<$PrismaModel = never> = {
+  equals?: $Enums.FacetTaxonomy | Prisma.EnumFacetTaxonomyFieldRefInput<$PrismaModel>
+  in?: $Enums.FacetTaxonomy[]
+  notIn?: $Enums.FacetTaxonomy[]
+  not?: Prisma.NestedEnumFacetTaxonomyFilter<$PrismaModel> | $Enums.FacetTaxonomy
+}
+
 export type StringNullableFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
   in?: string[] | null
@@ -166,6 +173,16 @@ export type FloatFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type EnumFacetTaxonomyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FacetTaxonomy | Prisma.EnumFacetTaxonomyFieldRefInput<$PrismaModel>
+  in?: $Enums.FacetTaxonomy[]
+  notIn?: $Enums.FacetTaxonomy[]
+  not?: Prisma.NestedEnumFacetTaxonomyWithAggregatesFilter<$PrismaModel> | $Enums.FacetTaxonomy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFacetTaxonomyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFacetTaxonomyFilter<$PrismaModel>
 }
 
 export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -1444,6 +1461,13 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
+export type NestedEnumFacetTaxonomyFilter<$PrismaModel = never> = {
+  equals?: $Enums.FacetTaxonomy | Prisma.EnumFacetTaxonomyFieldRefInput<$PrismaModel>
+  in?: $Enums.FacetTaxonomy[]
+  notIn?: $Enums.FacetTaxonomy[]
+  not?: Prisma.NestedEnumFacetTaxonomyFilter<$PrismaModel> | $Enums.FacetTaxonomy
+}
+
 export type NestedStringNullableFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
   in?: string[] | null
@@ -1457,6 +1481,16 @@ export type NestedStringNullableFilter<$PrismaModel = never> = {
   endsWith?: string | Prisma.StringFieldRefInput<$PrismaModel>
   search?: string
   not?: Prisma.NestedStringNullableFilter<$PrismaModel> | string | null
+}
+
+export type NestedEnumFacetTaxonomyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FacetTaxonomy | Prisma.EnumFacetTaxonomyFieldRefInput<$PrismaModel>
+  in?: $Enums.FacetTaxonomy[]
+  notIn?: $Enums.FacetTaxonomy[]
+  not?: Prisma.NestedEnumFacetTaxonomyWithAggregatesFilter<$PrismaModel> | $Enums.FacetTaxonomy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFacetTaxonomyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFacetTaxonomyFilter<$PrismaModel>
 }
 
 export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {

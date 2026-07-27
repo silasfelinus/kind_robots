@@ -387,6 +387,7 @@ export const ModelName = {
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
+  BotFacet: 'BotFacet',
   RewardFacet: 'RewardFacet',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
@@ -476,7 +477,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -675,6 +676,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CharacterFacetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CharacterFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    BotFacet: {
+      payload: Prisma.$BotFacetPayload<ExtArgs>
+      fields: Prisma.BotFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BotFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BotFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.BotFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BotFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>
+        }
+        findMany: {
+          args: Prisma.BotFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>[]
+        }
+        create: {
+          args: Prisma.BotFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>
+        }
+        createMany: {
+          args: Prisma.BotFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BotFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>
+        }
+        update: {
+          args: Prisma.BotFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.BotFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BotFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BotFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BotFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.BotFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBotFacet>
+        }
+        groupBy: {
+          args: Prisma.BotFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BotFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BotFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BotFacetCountAggregateOutputType> | number
         }
       }
     }
@@ -5649,6 +5716,21 @@ export const CharacterFacetScalarFieldEnum = {
 export type CharacterFacetScalarFieldEnum = (typeof CharacterFacetScalarFieldEnum)[keyof typeof CharacterFacetScalarFieldEnum]
 
 
+export const BotFacetScalarFieldEnum = {
+  id: 'id',
+  botId: 'botId',
+  facetId: 'facetId',
+  fieldKey: 'fieldKey',
+  sortOrder: 'sortOrder',
+  weight: 'weight',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BotFacetScalarFieldEnum = (typeof BotFacetScalarFieldEnum)[keyof typeof BotFacetScalarFieldEnum]
+
+
 export const RewardFacetScalarFieldEnum = {
   id: 'id',
   rewardId: 'rewardId',
@@ -7196,7 +7278,6 @@ export type FacetAliasOrderByRelevanceFieldEnum = (typeof FacetAliasOrderByRelev
 
 
 export const FacetProfileOrderByRelevanceFieldEnum = {
-  taxonomy: 'taxonomy',
   canonicalValue: 'canonicalValue',
   groupKey: 'groupKey',
   groupLabel: 'groupLabel',
@@ -7212,6 +7293,14 @@ export const CharacterFacetOrderByRelevanceFieldEnum = {
 } as const
 
 export type CharacterFacetOrderByRelevanceFieldEnum = (typeof CharacterFacetOrderByRelevanceFieldEnum)[keyof typeof CharacterFacetOrderByRelevanceFieldEnum]
+
+
+export const BotFacetOrderByRelevanceFieldEnum = {
+  fieldKey: 'fieldKey',
+  source: 'source'
+} as const
+
+export type BotFacetOrderByRelevanceFieldEnum = (typeof BotFacetOrderByRelevanceFieldEnum)[keyof typeof BotFacetOrderByRelevanceFieldEnum]
 
 
 export const RewardFacetOrderByRelevanceFieldEnum = {
@@ -8095,6 +8184,13 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'FacetTaxonomy'
+ */
+export type EnumFacetTaxonomyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FacetTaxonomy'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -8626,6 +8722,7 @@ export type GlobalOmitConfig = {
   facetAlias?: Prisma.FacetAliasOmit
   facetProfile?: Prisma.FacetProfileOmit
   characterFacet?: Prisma.CharacterFacetOmit
+  botFacet?: Prisma.BotFacetOmit
   rewardFacet?: Prisma.RewardFacetOmit
   modelBuildRun?: Prisma.ModelBuildRunOmit
   modelBuildItem?: Prisma.ModelBuildItemOmit

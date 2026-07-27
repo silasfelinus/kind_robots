@@ -42,7 +42,7 @@ export type FacetProfileSumAggregateOutputType = {
 
 export type FacetProfileMinAggregateOutputType = {
   facetId: number | null
-  taxonomy: string | null
+  taxonomy: $Enums.FacetTaxonomy | null
   canonicalValue: string | null
   groupKey: string | null
   groupLabel: string | null
@@ -58,7 +58,7 @@ export type FacetProfileMinAggregateOutputType = {
 
 export type FacetProfileMaxAggregateOutputType = {
   facetId: number | null
-  taxonomy: string | null
+  taxonomy: $Enums.FacetTaxonomy | null
   canonicalValue: string | null
   groupKey: string | null
   groupLabel: string | null
@@ -241,7 +241,7 @@ export type FacetProfileGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type FacetProfileGroupByOutputType = {
   facetId: number
-  taxonomy: string
+  taxonomy: $Enums.FacetTaxonomy
   canonicalValue: string | null
   groupKey: string | null
   groupLabel: string | null
@@ -280,7 +280,7 @@ export type FacetProfileWhereInput = {
   OR?: Prisma.FacetProfileWhereInput[]
   NOT?: Prisma.FacetProfileWhereInput | Prisma.FacetProfileWhereInput[]
   facetId?: Prisma.IntFilter<"FacetProfile"> | number
-  taxonomy?: Prisma.StringFilter<"FacetProfile"> | string
+  taxonomy?: Prisma.EnumFacetTaxonomyFilter<"FacetProfile"> | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.StringNullableFilter<"FacetProfile"> | string | null
   groupKey?: Prisma.StringNullableFilter<"FacetProfile"> | string | null
   groupLabel?: Prisma.StringNullableFilter<"FacetProfile"> | string | null
@@ -316,7 +316,7 @@ export type FacetProfileWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.FacetProfileWhereInput | Prisma.FacetProfileWhereInput[]
   OR?: Prisma.FacetProfileWhereInput[]
   NOT?: Prisma.FacetProfileWhereInput | Prisma.FacetProfileWhereInput[]
-  taxonomy?: Prisma.StringFilter<"FacetProfile"> | string
+  taxonomy?: Prisma.EnumFacetTaxonomyFilter<"FacetProfile"> | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.StringNullableFilter<"FacetProfile"> | string | null
   groupKey?: Prisma.StringNullableFilter<"FacetProfile"> | string | null
   groupLabel?: Prisma.StringNullableFilter<"FacetProfile"> | string | null
@@ -356,7 +356,7 @@ export type FacetProfileScalarWhereWithAggregatesInput = {
   OR?: Prisma.FacetProfileScalarWhereWithAggregatesInput[]
   NOT?: Prisma.FacetProfileScalarWhereWithAggregatesInput | Prisma.FacetProfileScalarWhereWithAggregatesInput[]
   facetId?: Prisma.IntWithAggregatesFilter<"FacetProfile"> | number
-  taxonomy?: Prisma.StringWithAggregatesFilter<"FacetProfile"> | string
+  taxonomy?: Prisma.EnumFacetTaxonomyWithAggregatesFilter<"FacetProfile"> | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.StringNullableWithAggregatesFilter<"FacetProfile"> | string | null
   groupKey?: Prisma.StringNullableWithAggregatesFilter<"FacetProfile"> | string | null
   groupLabel?: Prisma.StringNullableWithAggregatesFilter<"FacetProfile"> | string | null
@@ -372,7 +372,7 @@ export type FacetProfileScalarWhereWithAggregatesInput = {
 
 export type FacetProfileCreateInput = {
   facetId: number
-  taxonomy?: string
+  taxonomy?: $Enums.FacetTaxonomy
   canonicalValue?: string | null
   groupKey?: string | null
   groupLabel?: string | null
@@ -388,7 +388,7 @@ export type FacetProfileCreateInput = {
 
 export type FacetProfileUncheckedCreateInput = {
   facetId: number
-  taxonomy?: string
+  taxonomy?: $Enums.FacetTaxonomy
   canonicalValue?: string | null
   groupKey?: string | null
   groupLabel?: string | null
@@ -404,7 +404,7 @@ export type FacetProfileUncheckedCreateInput = {
 
 export type FacetProfileUpdateInput = {
   facetId?: Prisma.IntFieldUpdateOperationsInput | number
-  taxonomy?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomy?: Prisma.EnumFacetTaxonomyFieldUpdateOperationsInput | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -420,7 +420,7 @@ export type FacetProfileUpdateInput = {
 
 export type FacetProfileUncheckedUpdateInput = {
   facetId?: Prisma.IntFieldUpdateOperationsInput | number
-  taxonomy?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomy?: Prisma.EnumFacetTaxonomyFieldUpdateOperationsInput | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -436,7 +436,7 @@ export type FacetProfileUncheckedUpdateInput = {
 
 export type FacetProfileCreateManyInput = {
   facetId: number
-  taxonomy?: string
+  taxonomy?: $Enums.FacetTaxonomy
   canonicalValue?: string | null
   groupKey?: string | null
   groupLabel?: string | null
@@ -452,7 +452,7 @@ export type FacetProfileCreateManyInput = {
 
 export type FacetProfileUpdateManyMutationInput = {
   facetId?: Prisma.IntFieldUpdateOperationsInput | number
-  taxonomy?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomy?: Prisma.EnumFacetTaxonomyFieldUpdateOperationsInput | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -468,7 +468,7 @@ export type FacetProfileUpdateManyMutationInput = {
 
 export type FacetProfileUncheckedUpdateManyInput = {
   facetId?: Prisma.IntFieldUpdateOperationsInput | number
-  taxonomy?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomy?: Prisma.EnumFacetTaxonomyFieldUpdateOperationsInput | $Enums.FacetTaxonomy
   canonicalValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groupLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -550,6 +550,10 @@ export type FacetProfileSumOrderByAggregateInput = {
   sourceRank?: Prisma.SortOrder
 }
 
+export type EnumFacetTaxonomyFieldUpdateOperationsInput = {
+  set?: $Enums.FacetTaxonomy
+}
+
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
@@ -605,7 +609,7 @@ export type $FacetProfilePayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     facetId: number
-    taxonomy: string
+    taxonomy: $Enums.FacetTaxonomy
     canonicalValue: string | null
     groupKey: string | null
     groupLabel: string | null
@@ -987,7 +991,7 @@ export interface Prisma__FacetProfileClient<T, Null = never, ExtArgs extends run
  */
 export interface FacetProfileFieldRefs {
   readonly facetId: Prisma.FieldRef<"FacetProfile", 'Int'>
-  readonly taxonomy: Prisma.FieldRef<"FacetProfile", 'String'>
+  readonly taxonomy: Prisma.FieldRef<"FacetProfile", 'FacetTaxonomy'>
   readonly canonicalValue: Prisma.FieldRef<"FacetProfile", 'String'>
   readonly groupKey: Prisma.FieldRef<"FacetProfile", 'String'>
   readonly groupLabel: Prisma.FieldRef<"FacetProfile", 'String'>

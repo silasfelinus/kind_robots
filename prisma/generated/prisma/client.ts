@@ -61,6 +61,11 @@ export type FacetProfile = Prisma.FacetProfileModel
  */
 export type CharacterFacet = Prisma.CharacterFacetModel
 /**
+ * Model BotFacet
+ * 
+ */
+export type BotFacet = Prisma.BotFacetModel
+/**
  * Model RewardFacet
  * 
  */

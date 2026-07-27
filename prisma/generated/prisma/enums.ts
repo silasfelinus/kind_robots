@@ -9,6 +9,37 @@
 * 🟢 You can import this file directly.
 */
 
+export const FacetTaxonomy = {
+  GENRE: 'GENRE',
+  ANIMAL: 'ANIMAL',
+  COLOR: 'COLOR',
+  THEME: 'THEME',
+  CORE: 'CORE',
+  MOOD: 'MOOD',
+  STYLE: 'STYLE',
+  SETTING: 'SETTING',
+  ART_DIRECTION: 'ART_DIRECTION',
+  SPECIES: 'SPECIES',
+  OCCUPATION: 'OCCUPATION',
+  ARCHETYPE: 'ARCHETYPE',
+  ROLE: 'ROLE',
+  ALIGNMENT: 'ALIGNMENT',
+  GENDER: 'GENDER',
+  BOT_TYPE: 'BOT_TYPE',
+  DREAM_TYPE: 'DREAM_TYPE',
+  REWARD_TYPE: 'REWARD_TYPE',
+  RARITY: 'RARITY',
+  PERSONALITY: 'PERSONALITY',
+  BACKSTORY: 'BACKSTORY',
+  QUIRK: 'QUIRK',
+  MATERIAL: 'MATERIAL',
+  PROMPT_ENHANCEMENT: 'PROMPT_ENHANCEMENT',
+  OTHER: 'OTHER'
+} as const
+
+export type FacetTaxonomy = (typeof FacetTaxonomy)[keyof typeof FacetTaxonomy]
+
+
 export const ModelBuildStatus = {
   DRAFT: 'DRAFT',
   ACTIVE: 'ACTIVE',

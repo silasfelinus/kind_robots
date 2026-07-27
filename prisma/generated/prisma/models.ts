@@ -11,6 +11,7 @@
 export type * from './models/FacetAlias'
 export type * from './models/FacetProfile'
 export type * from './models/CharacterFacet'
+export type * from './models/BotFacet'
 export type * from './models/RewardFacet'
 export type * from './models/ModelBuildRun'
 export type * from './models/ModelBuildItem'

@@ -273,7 +273,7 @@ export default defineEventHandler(async (event) => {
         select: botMutationSelect,
       })
       await syncBotFacetsInTransaction(tx, updated, {
-        userId: user?.id ?? existingBot.userId,
+        userId: user?.id ?? existingBot.userId ?? 0,
         isAdmin: isAdmin || isServerKey,
       })
       return updated

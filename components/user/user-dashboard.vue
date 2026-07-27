@@ -160,7 +160,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
@@ -188,6 +188,10 @@ function configureUserImageUpload() {
 
 onMounted(() => {
   configureUserImageUpload()
+})
+
+onUnmounted(() => {
+  imageUploadStore.clearTarget()
 })
 
 watch(

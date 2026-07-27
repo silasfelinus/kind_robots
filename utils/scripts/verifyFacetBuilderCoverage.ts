@@ -2,6 +2,7 @@
 import { access, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { ADVENTURE_CARDS } from '../../stores/helpers/adventureCards'
+import { ART_CARDS } from '../../stores/helpers/artCards'
 import {
   GENDER_ARTWORK_PATHS,
   GENDER_ARTWORK_TARGETS,
@@ -21,9 +22,33 @@ const FACET_BACKED_FIELDS = new Set([
   'genre',
   'genres',
   'role',
+  'subject',
+  'figureSpecies',
+  'style',
+  'punk',
+  'theme',
+  'palette',
+  'emotion',
+  'prettifiers',
+])
+
+const OPERATIONAL_ART_FIELDS = new Set([
+  'mode',
+  'sourceImage',
+  'sourceImages',
+  'blendInstruction',
+  'figureCount',
+  'background',
+  'objects',
+  'loras',
+  'checkpoint',
+  'artServer',
+  'negativeFilters',
+  'art',
 ])
 
 type IllustratedChoice = {
+  sourceKey: 'adventure' | 'art'
   cardKey: string
   stepKey: string
   fieldKey: string
@@ -55,52 +80,72 @@ async function main(): Promise<void> {
   const failures: string[] = []
   const knownArtworkDebt: string[] = []
   const illustrated: IllustratedChoice[] = []
+  const sources = [
+    { sourceKey: 'adventure' as const, cards: ADVENTURE_CARDS },
+    { sourceKey: 'art' as const, cards: ART_CARDS },
+  ]
 
-  for (const card of ADVENTURE_CARDS) {
-    for (const step of card.steps) {
-      const fieldKey = (
-        clean(step.field) ||
-        clean(step.key) ||
-        clean(card.key)
-      ).toLowerCase()
+  for (const source of sources) {
+    for (const card of source.cards) {
+      for (const step of card.steps) {
+        const fieldKey = (
+          clean(step.field) ||
+          clean(step.key) ||
+          clean(card.key)
+        )
 
-      for (const choice of step.choices ?? []) {
-        if (choice.opensCustom || choice.opensList) continue
-        const value = clean(choice.value)
-        const label = clean(choice.label) || value
-        const imagePath = clean(choice.image)
-        if (!value || !imagePath) continue
+        for (const choice of step.choices ?? []) {
+          if (choice.opensCustom || choice.opensList) continue
+          const value = clean(choice.value)
+          const label = clean(choice.label) || value
+          const imagePath = clean(choice.image)
+          if (!value || !imagePath) continue
 
-        illustrated.push({
-          cardKey: card.key,
-          stepKey: step.key,
-          fieldKey,
-          value,
-          label,
-          imagePath,
-        })
+          illustrated.push({
+            sourceKey: source.sourceKey,
+            cardKey: card.key,
+            stepKey: step.key,
+            fieldKey,
+            value,
+            label,
+            imagePath,
+          })
 
-        if (!FACET_BACKED_FIELDS.has(fieldKey)) {
-          failures.push(
-            `${card.key}/${step.key}/${label} has dedicated Builder artwork but field ${fieldKey} is not Facet-backed.`,
-          )
-        }
-
-        if (!imagePath.startsWith('/images/')) {
-          failures.push(
-            `${card.key}/${step.key}/${label} uses non-public Builder artwork: ${imagePath}`,
-          )
-          continue
-        }
-
-        if (!(await pathExists(imagePath))) {
-          if (fieldKey === 'gender' && GENDER_ARTWORK_PATHS.has(imagePath)) {
-            knownArtworkDebt.push(imagePath)
-          } else {
+          if (!FACET_BACKED_FIELDS.has(fieldKey)) {
             failures.push(
-              `${label} references missing Builder artwork: public${imagePath}`,
+              `${source.sourceKey}:${card.key}/${step.key}/${label} has dedicated Builder artwork but field ${fieldKey} is not Facet-backed.`,
             )
           }
+
+          if (!imagePath.startsWith('/images/')) {
+            failures.push(
+              `${source.sourceKey}:${card.key}/${step.key}/${label} uses non-public Builder artwork: ${imagePath}`,
+            )
+            continue
+          }
+
+          // Adventure art is versioned in-repo except for the tracked Gender
+          // backlog. Art Builder assets live on the media host and are validated
+          // by the seed's media contract instead of local existsSync/access.
+          if (source.sourceKey === 'adventure' && !(await pathExists(imagePath))) {
+            if (fieldKey === 'gender' && GENDER_ARTWORK_PATHS.has(imagePath)) {
+              knownArtworkDebt.push(imagePath)
+            } else {
+              failures.push(
+                `${label} references missing Builder artwork: public${imagePath}`,
+              )
+            }
+          }
+        }
+
+        if (
+          source.sourceKey === 'art' &&
+          !FACET_BACKED_FIELDS.has(fieldKey) &&
+          !OPERATIONAL_ART_FIELDS.has(fieldKey)
+        ) {
+          failures.push(
+            `Art Builder field ${card.key}/${step.key} (${fieldKey}) is neither Facet-backed nor an explicit operational exemption.`,
+          )
         }
       }
     }
@@ -150,16 +195,29 @@ async function main(): Promise<void> {
     }
   }
 
+  const illustratedArtFields = new Set(
+    illustrated
+      .filter((choice) => choice.sourceKey === 'art')
+      .map((choice) => choice.fieldKey),
+  )
+  for (const fieldKey of ['subject', 'style', 'punk']) {
+    if (!illustratedArtFields.has(fieldKey)) {
+      failures.push(`Art Builder illustrated field ${fieldKey} was not discovered.`)
+    }
+  }
+
   const files = {
     serverCatalog: 'server/utils/facetCatalog.ts',
     catalogStore: 'stores/facetCatalogStore.ts',
     characterSync: 'server/utils/characterFacetSync.ts',
     randomStore: 'stores/randomStore.ts',
     seedWrapper: 'utils/scripts/runFacetCatalogSeed.ts',
+    artSeed: 'utils/scripts/seedArtBuilderFacetCatalog.ts',
     genderSeed: 'utils/scripts/seedGenderFacetCatalog.ts',
     genderValues: 'utils/seeds/facetGenderValues.ts',
     genderArtwork: 'utils/seeds/facetGenderArtwork.ts',
     seedPolicy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
+    builderPlugin: 'plugins/20.facet-catalog.client.ts',
   } as const
 
   const entries = await Promise.all(
@@ -171,21 +229,35 @@ async function main(): Promise<void> {
 
   requireText(files.serverCatalog, text.serverCatalog, "'GENDER'")
   requireText(files.catalogStore, text.catalogStore, "gender: ['GENDER']")
+  requireText(files.catalogStore, text.catalogStore, 'ART_FIELD_FACETS')
+  requireText(files.catalogStore, text.catalogStore, 'builderChoicesForArtField')
+  requireText(files.catalogStore, text.catalogStore, "subject: { taxonomies: ['ART_DIRECTION']")
+  requireText(files.catalogStore, text.catalogStore, "punk: { taxonomies: ['STYLE']")
+  requireText(files.catalogStore, text.catalogStore, "emotion: { taxonomies: ['MOOD']")
   requireText(files.characterSync, text.characterSync, "gender: ['GENDER']")
   requireText(files.randomStore, text.randomStore, "gender: ['GENDER']")
   requireText(files.seedWrapper, text.seedWrapper, "import('./seedGenderFacetCatalog')")
+  requireText(files.seedWrapper, text.seedWrapper, "import('./seedArtBuilderFacetCatalog')")
+  requireText(files.artSeed, text.artSeed, "subject: {")
+  requireText(files.artSeed, text.artSeed, "punk: {")
+  requireText(files.artSeed, text.artSeed, "emotion: {")
+  requireText(files.artSeed, text.artSeed, 'artBuilderFields')
+  requireText(files.artSeed, text.artSeed, 'mediaAssetExists')
   requireText(files.genderSeed, text.genderSeed, "taxonomy: 'GENDER'")
   requireText(files.genderSeed, text.genderSeed, 'backfillCharacterGender')
   requireText(files.genderSeed, text.genderSeed, "fieldKey: 'gender'")
   requireText(files.genderSeed, text.genderSeed, 'existingPublicImagePath')
   requireText(files.genderValues, text.genderValues, 'legacyFacetGenderValues')
   requireText(files.genderArtwork, text.genderArtwork, 'GENDER_ARTWORK_TARGETS')
-  requireText(files.seedPolicy, text.seedPolicy, 'utils/seeds/facetGenderValues.ts')
-  requireText(files.seedPolicy, text.seedPolicy, 'utils/scripts/seedGenderFacetCatalog.ts')
+  requireText(files.seedPolicy, text.seedPolicy, 'stores/helpers/artCards.ts')
+  requireText(files.seedPolicy, text.seedPolicy, 'utils/scripts/seedArtBuilderFacetCatalog.ts')
+  requireText(files.builderPlugin, text.builderPlugin, "import { ART_CARDS }")
+  requireText(files.builderPlugin, text.builderPlugin, 'hydrateArtBuilder')
+  requireText(files.builderPlugin, text.builderPlugin, "operationalExemptions: ['mode', 'figureCount', 'negativeFilters']")
 
-  if (illustrated.length < 50) {
+  if (illustrated.length < 70) {
     failures.push(
-      `Only ${illustrated.length} illustrated reusable Adventure choices were found; expected at least 50.`,
+      `Only ${illustrated.length} illustrated reusable Builder choices were found; expected at least 70 across Adventure and Art.`,
     )
   }
 
@@ -200,7 +272,7 @@ async function main(): Promise<void> {
   process.stdout.write(
     `Facet Builder coverage verified: ${illustrated.length} illustrated choices across ` +
       `${coveredFields.length} fields (${coveredFields.join(', ')}), including ` +
-      `${genderChoices.length} Gender choices.\n`,
+      `${genderChoices.length} Gender choices and Art Builder coverage.\n`,
   )
   if (uniqueDebt.length) {
     process.stdout.write(

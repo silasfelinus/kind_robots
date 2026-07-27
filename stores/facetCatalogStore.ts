@@ -75,6 +75,11 @@ type FacetCatalogQuery = {
   skip?: number
 }
 
+type ArtFieldDefinition = {
+  taxonomies: FacetTaxonomy[]
+  groupKeys?: string[]
+}
+
 const FACET_CATALOG_PAGE_SIZE = 1000
 
 export const CHARACTER_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
@@ -98,6 +103,24 @@ export const SYSTEM_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   dreamType: ['DREAM_TYPE'],
   rewardType: ['REWARD_TYPE'],
   rarity: ['RARITY'],
+}
+
+// Art workflow controls (mode, figure count, resources, and negative filters)
+// remain operational configuration. Reusable visual vocabulary comes from the
+// canonical catalog. Subject types use grouped ART_DIRECTION Facets rather than
+// adding another top-level taxonomy solely for one Builder deck.
+export const ART_FIELD_FACETS: Record<string, ArtFieldDefinition> = {
+  subject: { taxonomies: ['ART_DIRECTION'], groupKeys: ['art-subject'] },
+  figureSpecies: { taxonomies: ['ANIMAL', 'SPECIES'] },
+  style: { taxonomies: ['STYLE'], groupKeys: ['style'] },
+  punk: { taxonomies: ['STYLE'], groupKeys: ['punk'] },
+  theme: { taxonomies: ['THEME'], groupKeys: ['theme'] },
+  palette: { taxonomies: ['COLOR'], groupKeys: ['palette'] },
+  emotion: { taxonomies: ['MOOD'], groupKeys: ['art-mood'] },
+  prettifiers: {
+    taxonomies: ['PROMPT_ENHANCEMENT'],
+    groupKeys: ['__pretty__'],
+  },
 }
 
 function toQuery(options: FacetCatalogQuery): string {
@@ -165,6 +188,55 @@ function metadataString(
   if (!key) return null
   const value = entry.metadata?.[key]
   return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function metadataRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null
+}
+
+function metadataStrings(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter(
+        (entry): entry is string =>
+          typeof entry === 'string' && Boolean(entry.trim()),
+      )
+    : []
+}
+
+function builderChoiceForEntry(
+  entry: FacetCatalogEntry,
+  metadataValueKey?: string,
+): BuilderChoice {
+  return {
+    value:
+      metadataString(entry, metadataValueKey) ||
+      entry.canonicalValue ||
+      entry.title,
+    label: entry.title,
+    subtext: entry.description || entry.flavorText || undefined,
+    image: entry.cardPath || entry.imagePath || entry.heroPath || undefined,
+    icon: entry.icon || undefined,
+    payload: {
+      facetId: entry.id,
+      taxonomy: entry.taxonomy,
+      groupKey: entry.groupKey,
+      groupLabel: entry.groupLabel,
+      aliases: entry.aliases,
+      structuralEnum: entry.metadata?.structuralEnum === true,
+    },
+  }
+}
+
+function supportsArtField(
+  entry: FacetCatalogEntry,
+  fieldKey: string,
+  definition: ArtFieldDefinition,
+): boolean {
+  if (!definition.groupKeys?.length) return true
+  if (entry.groupKey && definition.groupKeys.includes(entry.groupKey)) return true
+  return metadataStrings(entry.metadata?.artBuilderFields).includes(fieldKey)
 }
 
 export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
@@ -240,6 +312,14 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     return facetsForTaxonomies(SYSTEM_FIELD_TAXONOMIES[fieldKey] ?? [])
   }
 
+  function facetsForArtField(fieldKey: string): FacetCatalogEntry[] {
+    const definition = ART_FIELD_FACETS[fieldKey]
+    if (!definition) return []
+    return facetsForTaxonomies(definition.taxonomies).filter((entry) =>
+      supportsArtField(entry, fieldKey, definition),
+    )
+  }
+
   function facetForValue(value: string): FacetCatalogEntry | null {
     const key = normalizeFacetLookupKey(value)
     return key ? (byLookupKey.value.get(key) ?? null) : null
@@ -257,24 +337,9 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     taxonomies: readonly FacetTaxonomy[],
     metadataValueKey?: string,
   ): BuilderChoice[] {
-    return facetsForTaxonomies(taxonomies).map((entry) => ({
-      value:
-        metadataString(entry, metadataValueKey) ||
-        entry.canonicalValue ||
-        entry.title,
-      label: entry.title,
-      subtext: entry.description || entry.flavorText || undefined,
-      image: entry.cardPath || entry.imagePath || entry.heroPath || undefined,
-      icon: entry.icon || undefined,
-      payload: {
-        facetId: entry.id,
-        taxonomy: entry.taxonomy,
-        groupKey: entry.groupKey,
-        groupLabel: entry.groupLabel,
-        aliases: entry.aliases,
-        structuralEnum: entry.metadata?.structuralEnum === true,
-      },
-    }))
+    return facetsForTaxonomies(taxonomies).map((entry) =>
+      builderChoiceForEntry(entry, metadataValueKey),
+    )
   }
 
   function builderChoicesForField(fieldKey: string): BuilderChoice[] {
@@ -297,6 +362,34 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     )
   }
 
+  function builderChoicesForArtField(fieldKey: string): BuilderChoice[] {
+    return facetsForArtField(fieldKey).map((entry) => {
+      const choice = builderChoiceForEntry(entry)
+      const artBuilder = metadataRecord(entry.metadata?.artBuilder)
+      const fieldMetadata = metadataRecord(artBuilder?.[fieldKey])
+      const builderValue = fieldMetadata?.builderValue
+      const promptHint = fieldMetadata?.promptHint
+      const loras = metadataStrings(fieldMetadata?.loras)
+
+      return {
+        ...choice,
+        value:
+          typeof builderValue === 'string' && builderValue.trim()
+            ? builderValue.trim()
+            : choice.value,
+        payload: {
+          ...(choice.payload ?? {}),
+          source: 'facet-catalog',
+          artField: fieldKey,
+          ...(typeof promptHint === 'string' && promptHint.trim()
+            ? { promptHint: promptHint.trim() }
+            : {}),
+          ...(loras.length ? { loras } : {}),
+        },
+      }
+    })
+  }
+
   return {
     entries,
     loading,
@@ -309,6 +402,7 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     facetsForCharacterField,
     facetsForBotField,
     facetsForSystemField,
+    facetsForArtField,
     facetForValue,
     randomFacetForField,
     randomFacetForBotField,
@@ -316,5 +410,6 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     builderChoicesForField,
     builderChoicesForBotField,
     builderChoicesForSystemField,
+    builderChoicesForArtField,
   }
 })

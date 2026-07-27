@@ -210,6 +210,34 @@ function safeRemove(key: string): void {
   } catch {}
 }
 
+// A store-wide (not per-item) "who's in flight" flag — generatingItemId,
+// committingItemId, autoBuildingItemId, batchingOutputKey, and draftingField
+// are all this same shape. Because only one value can be in flight at a time
+// per flag, starting a second operation overwrites it to the new owner; the
+// first operation's `finally` must then only clear the flag if it still holds
+// that operation's own value, or it silently stomps the second operation's
+// in-flight state the moment the first resolves. `claim`/`release` collapse
+// that set-then-conditional-clear pattern into one primitive so a new
+// singleton can't be added without the guard.
+interface OwnedSingleton<T> {
+  claim(value: T): void
+  release(value: T): void
+}
+
+function createOwnedSingleton<T>(
+  getValue: () => T | null,
+  setValue: (value: T | null) => void,
+): OwnedSingleton<T> {
+  return {
+    claim(value: T): void {
+      setValue(value)
+    },
+    release(value: T): void {
+      if (getValue() === value) setValue(null)
+    },
+  }
+}
+
 // Initial stage map: PITCH is workable, the rest are locked behind it.
 function freshStages(): Record<BuildStageKey, StageState> {
   const stages = {} as Record<BuildStageKey, StageState>
@@ -327,6 +355,40 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // Per-button spinner state for AI drafting: which item/field is in flight.
   const draftingField = ref<{ itemId: string; field: DraftField } | null>(null)
+
+  const generatingItemSingleton = createOwnedSingleton<string>(
+    () => state.generatingItemId,
+    (value) => {
+      state.generatingItemId = value
+    },
+  )
+  const committingItemSingleton = createOwnedSingleton<string>(
+    () => state.committingItemId,
+    (value) => {
+      state.committingItemId = value
+    },
+  )
+  const autoBuildingItemSingleton = createOwnedSingleton<string>(
+    () => state.autoBuildingItemId,
+    (value) => {
+      state.autoBuildingItemId = value
+    },
+  )
+  const batchingOutputSingleton = createOwnedSingleton<string>(
+    () => state.batchingOutputKey,
+    (value) => {
+      state.batchingOutputKey = value
+    },
+  )
+  const draftingFieldSingleton = createOwnedSingleton<{
+    itemId: string
+    field: DraftField
+  }>(
+    () => draftingField.value,
+    (value) => {
+      draftingField.value = value
+    },
+  )
 
   // Run ids cancelled via cancelRun, so a synchronous generateItemAsset call
   // still in flight when the user cancels its run can tell "my run was
@@ -724,7 +786,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           : item.promptDraft
 
     const draftKey = { itemId, field }
-    draftingField.value = draftKey
+    draftingFieldSingleton.claim(draftKey)
     clearStatus()
 
     try {
@@ -807,13 +869,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       setStatus('error', message)
       return false
     } finally {
-      // draftingField is a store-wide singleton, same shape as
-      // generatingItemId/autoBuildingItemId above: starting a second draft
-      // (a different field or item) while this one is still in flight
-      // overwrites draftingField, and this call's finally would then null it
-      // out from under the still-running draft the moment this call
-      // resolves. Only clear if it's still ours.
-      if (draftingField.value === draftKey) draftingField.value = null
+      draftingFieldSingleton.release(draftKey)
     }
   }
 
@@ -871,7 +927,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const dims = sizeToDimensions(output?.size)
     const artStore = useArtStore()
 
-    state.generatingItemId = item.id
+    generatingItemSingleton.claim(item.id)
     item.error = null
     item.stages.GENERATE_ASSETS = { status: 'in-progress' }
     clearStatus()
@@ -925,16 +981,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       return false
     } finally {
       // state.generatingItemId is a store-wide singleton (not per-item, unlike
-      // artJobId/queueState below), so an unconditional clear here can stomp on
-      // a *different* item's still-in-flight generation: selecting another row
-      // while this call is awaiting artStore.generateCurrentArt() and starting
-      // its own generateItemAsset() overwrites generatingItemId to that item's
-      // id, and this call's finally would then null it out from under the
-      // still-running generation the moment this call resolves — silently
-      // clearing its spinner/disabled state and re-opening the exact
-      // isGenerating gate on "Keep this asset" that guards against approving a
-      // stale candidate. Only clear the flag if it's still ours.
-      if (state.generatingItemId === item.id) state.generatingItemId = null
+      // artJobId/queueState below) — see createOwnedSingleton's doc comment
+      // for why release() only clears it when it's still this call's own value.
+      generatingItemSingleton.release(item.id)
     }
   }
 
@@ -1114,7 +1163,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item) return false
 
-    state.committingItemId = item.id
+    committingItemSingleton.claim(item.id)
     item.error = null
     clearStatus()
 
@@ -1155,15 +1204,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       setStatus('error', item.error)
       return false
     } finally {
-      // state.committingItemId is a store-wide singleton (not per-item), same
-      // shape as generatingItemId/autoBuildingItemId above: clicking "Commit"
-      // on a different row while this call is awaiting performFetch() and
-      // starting its own commitItem() overwrites committingItemId to that
-      // item's id, and this call's finally would then null it out from under
-      // the still-running commit the moment this call resolves — silently
-      // clearing its in-flight/disabled state. Only clear the flag if it's
-      // still ours.
-      if (state.committingItemId === item.id) state.committingItemId = null
+      committingItemSingleton.release(item.id)
     }
   }
 
@@ -1192,7 +1233,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       return false
     }
 
-    state.autoBuildingItemId = item.id
+    autoBuildingItemSingleton.claim(item.id)
     try {
       if (item.stages.PITCH.status !== 'approved') {
         if (!item.pitch.trim()) await draftText(itemId, 'pitch')
@@ -1218,14 +1259,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }
       return true
     } finally {
-      // state.autoBuildingItemId is a store-wide singleton, same shape as
-      // generatingItemId above: clicking "Auto" on a different row while this
-      // item's auto-build is still awaiting its own draft/generate/commit
-      // calls overwrites autoBuildingItemId to that row's id, and this call's
-      // finally would then null it out from under the still-running
-      // auto-build the moment this call resolves. Only clear if it's still
-      // ours.
-      if (state.autoBuildingItemId === item.id) state.autoBuildingItemId = null
+      autoBuildingItemSingleton.release(item.id)
     }
   }
 
@@ -1307,7 +1341,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
-    state.batchingOutputKey = outputKey
+    batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let drafted = 0
     try {
@@ -1325,14 +1359,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const label = field === 'artPrompt' ? 'prompt' : field
       setStatus('success', `Drafted ${label} for ${drafted}/${items.length} items.`)
     } finally {
-      // state.batchingOutputKey is a store-wide singleton, same shape as
-      // generatingItemId/committingItemId/autoBuildingItemId above: selecting a
-      // different group and starting its own batch op while this one is still
-      // awaiting draftText() overwrites batchingOutputKey to that group's key,
-      // and this call's finally would then null it out from under the
-      // still-running batch — re-enabling that group's batch buttons mid-flight
-      // and allowing a duplicate concurrent batch op. Only clear if it's ours.
-      if (state.batchingOutputKey === outputKey) state.batchingOutputKey = null
+      batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -1385,7 +1412,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function batchAutoBuild(outputKey: string): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
-    state.batchingOutputKey = outputKey
+    batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let committed = 0
     try {
@@ -1402,8 +1429,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         `Auto-built ${committed}/${items.length} in this group.`,
       )
     } finally {
-      // Same ownership-check reasoning as batchDraftField above.
-      if (state.batchingOutputKey === outputKey) state.batchingOutputKey = null
+      batchingOutputSingleton.release(outputKey)
     }
   }
 

@@ -118,8 +118,16 @@ async function main(): Promise<void> {
 
   requireText(files.manager, text.manager, 'taxonomyLabel(facet.taxonomy)')
   forbidText(files.manager, text.manager, 'facet.kind')
-  requireText(files.serendipity, text.serendipity, 'facet.taxonomy')
-  forbidText(files.serendipity, text.serendipity, 'facet.kind')
+
+  // One bounded compatibility consumer remains until the physical Facet.kind
+  // column is dropped: Serendipity uses only five broad values for which the
+  // server-derived compatibility kind is exactly equal to taxonomy.
+  requireText(
+    files.serendipity,
+    text.serendipity,
+    "const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])",
+  )
+  requireText(files.serendipity, text.serendipity, 'storyGrammarKinds.has(facet.kind)')
 
   process.stdout.write(
     `Facet taxonomy authority verified across ${prismaTaxonomies.length} typed taxonomies.\n`,

@@ -1,12 +1,10 @@
 // /server/utils/facetAssignments.ts
 import { createError } from 'h3'
-import type { Facet, FacetKind, Prisma } from '~/prisma/generated/prisma/client'
+import type { Facet, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
-import {
-  FACET_TAXONOMIES,
-  type FacetTaxonomy,
-} from '~/server/utils/facetCatalog'
+import type { FacetTaxonomy } from '~/server/utils/facetCatalog'
+import { legacyFacetTaxonomyFromKind } from '~/server/utils/facetProfileInput'
 
 export type FacetSummary = Pick<
   Facet,
@@ -42,23 +40,11 @@ export type FacetSummary = Pick<
   metadata: Record<string, unknown> | null
 }
 
-export const facetKinds: FacetKind[] = [
-  'GENRE',
-  'ANIMAL',
-  'COLOR',
-  'THEME',
-  'CORE',
-  'MOOD',
-  'STYLE',
-  'SETTING',
-  'ART_DIRECTION',
-  'OTHER',
-]
-
 export const facetSummarySelect = {
   id: true,
   title: true,
   slug: true,
+  // Deprecated compatibility data. Consumers classify with taxonomy.
   kind: true,
   description: true,
   flavorText: true,
@@ -104,12 +90,6 @@ function normalizeKeys(value: unknown): string[] {
   )
 }
 
-function taxonomyFromKind(kind: FacetKind): FacetTaxonomy {
-  return FACET_TAXONOMIES.includes(kind as FacetTaxonomy)
-    ? (kind as FacetTaxonomy)
-    : 'OTHER'
-}
-
 function parseMetadata(value: string | null): Record<string, unknown> | null {
   if (!value) return null
 
@@ -121,6 +101,16 @@ function parseMetadata(value: string | null): Record<string, unknown> | null {
   } catch {
     return null
   }
+}
+
+function sortFacetSummaries(facets: FacetSummary[]): FacetSummary[] {
+  return facets.sort((a, b) =>
+    a.taxonomy === b.taxonomy
+      ? a.sortOrder === b.sortOrder
+        ? a.title.localeCompare(b.title)
+        : a.sortOrder - b.sortOrder
+      : a.taxonomy.localeCompare(b.taxonomy),
+  )
 }
 
 export async function hydrateFacetSummaries(
@@ -156,29 +146,29 @@ export async function hydrateFacetSummaries(
     profiles.map((profile) => [profile.facetId, profile]),
   )
 
-  return facets.map((facet) => {
-    const profile = profilesByFacet.get(facet.id)
-    const taxonomy = profile?.taxonomy
-      ? FACET_TAXONOMIES.includes(profile.taxonomy as FacetTaxonomy)
-        ? (profile.taxonomy as FacetTaxonomy)
-        : 'OTHER'
-      : taxonomyFromKind(facet.kind)
+  return sortFacetSummaries(
+    facets.map((facet) => {
+      const profile = profilesByFacet.get(facet.id)
+      const taxonomy = (profile?.taxonomy ??
+        legacyFacetTaxonomyFromKind(facet.kind)) as FacetTaxonomy
 
-    return {
-      ...facet,
-      aliases: aliasesByFacet.get(facet.id) ?? (facet.slug ? [facet.slug] : []),
-      taxonomy,
-      canonicalValue: profile?.canonicalValue || facet.title,
-      groupKey: profile?.groupKey ?? null,
-      groupLabel: profile?.groupLabel ?? null,
-      sortOrder: profile?.sortOrder ?? 0,
-      isRandomizable: profile?.isRandomizable ?? true,
-      randomWeight: profile?.randomWeight ?? 1,
-      artRequired: profile?.artRequired ?? taxonomy !== 'COLOR',
-      sourceRank: profile?.sourceRank ?? 5,
-      metadata: parseMetadata(profile?.metadata ?? null),
-    }
-  })
+      return {
+        ...facet,
+        aliases:
+          aliasesByFacet.get(facet.id) ?? (facet.slug ? [facet.slug] : []),
+        taxonomy,
+        canonicalValue: profile?.canonicalValue || facet.title,
+        groupKey: profile?.groupKey ?? null,
+        groupLabel: profile?.groupLabel ?? null,
+        sortOrder: profile?.sortOrder ?? 0,
+        isRandomizable: profile?.isRandomizable ?? true,
+        randomWeight: profile?.randomWeight ?? 1,
+        artRequired: profile?.artRequired ?? taxonomy !== 'COLOR',
+        sourceRank: profile?.sourceRank ?? 5,
+        metadata: parseMetadata(profile?.metadata ?? null),
+      }
+    }),
+  )
 }
 
 export async function loadFacetSummaries(
@@ -191,7 +181,7 @@ export async function loadFacetSummaries(
       id: { in: facetIds },
       isActive: true,
     },
-    orderBy: [{ kind: 'asc' }, { title: 'asc' }],
+    orderBy: [{ title: 'asc' }],
     select: facetSummarySelect,
   })
 
@@ -254,13 +244,7 @@ export async function resolveFacetSelection(options: {
     })
   }
 
-  return hydrateFacetSummaries(
-    facets.sort((a, b) =>
-      a.kind === b.kind
-        ? a.title.localeCompare(b.title)
-        : a.kind.localeCompare(b.kind),
-    ),
-  )
+  return hydrateFacetSummaries(facets)
 }
 
 export function parseFacetSelectionBody(body: unknown): {

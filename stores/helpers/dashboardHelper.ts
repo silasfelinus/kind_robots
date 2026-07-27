@@ -616,6 +616,18 @@ export const dashboardConfigs = {
           'Facets are the small reusable building blocks — genres, animals, colors, themes, cores, moods, styles, settings, and art direction — that Dreams, Scenarios, and Art share. Browse the library, refine titles and aliases, and keep the flavor vocabulary tidy.',
         route: '/facets',
       },
+      {
+        key: 'gallery',
+        label: 'Gallery',
+        icon: 'kind-icon:tag',
+        title: 'Facet Gallery',
+        summary:
+          'Explore the canonical Facet catalog by taxonomy, with artwork.',
+        image: tabImage('facets', 'gallery'),
+        narrative:
+          'A read-only showcase of the shared creative building blocks — genres, species, archetypes, moods, styles, and settings — grouped by taxonomy and shown with their artwork, descriptions, and aliases. The browse-and-admire companion to the editable Library.',
+        route: '/facet-gallery',
+      },
     ],
   },
 

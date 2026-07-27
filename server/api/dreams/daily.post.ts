@@ -185,7 +185,7 @@ export default defineEventHandler(async (event) => {
               effect: reward.effect,
               flavorText: reward.flavorText,
               artPrompt: reward.artPrompt,
-              rewardType: 'ITEM',
+              rewardType: reward.rewardType,
               rarity: reward.rarity,
               collection: 'Daily Dream Objects',
               userId: auth.user.id,

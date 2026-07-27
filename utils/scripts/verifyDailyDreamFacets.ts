@@ -67,7 +67,17 @@ async function main(): Promise<void> {
   requireText(files.blueprint, text.blueprint, "one('MATERIAL')")
   requireText(files.blueprint, text.blueprint, "use(material, 'material')")
 
+  // A narrator bot, two locations, and typed rewards (spec: 3 characters,
+  // 2 locations, 1 narrator bot, 2 rewards — one SKILL, one ITEM).
+  requireText(files.blueprint, text.blueprint, "one('BOT_TYPE')")
+  requireText(files.blueprint, text.blueprint, "weightedMany(pool('SETTING'), 2, random)")
+  requireText(files.blueprint, text.blueprint, "facetByEnum('REWARD_TYPE', rewardType)")
+  requireText(files.blueprint, text.blueprint, "? 'SKILL'")
+  requireText(files.blueprint, text.blueprint, "? 'ITEM'")
+  requireText(files.blueprint, text.blueprint, "use(rewardTypeFacet, 'rewardType')")
+
   requireText(files.endpoint, text.endpoint, 'validDateKey(dateKey)')
+  requireText(files.endpoint, text.endpoint, 'rewardType: reward.rewardType')
   requireText(files.endpoint, text.endpoint, 'tx.dreamFacet.createMany')
   requireText(files.endpoint, text.endpoint, 'tx.characterFacet.createMany')
   requireText(files.endpoint, text.endpoint, 'tx.rewardFacet.createMany')

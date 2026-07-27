@@ -6,11 +6,12 @@
   projects/media-watchlist/BROWSE-UX.md. Admin-only (this is Silas's private
   log) -- renders a locked notice for any non-admin viewer instead of erroring.
   Selecting an entry opens watchlist-entry-detail.vue (BROWSE-UX.md §3/§5).
-  Export downloads GET /api/media-entries/export (media-watchlist/t-006),
-  honoring the current search/year/type/starred/sort filters. The Year pill
-  selector and the two extra stats tiles (comics read, TV seasons) close the
-  remaining BROWSE-UX.md §2/§4 gaps -- the API already computed/accepted this
-  data, it just wasn't wired into the UI yet (media-watchlist/t-006).
+  Export downloads GET /api/media-entries/export (media-watchlist/t-006,
+  t-012), honoring the current search/year/type/starred/month/season/sort
+  filters. The Year pill selector, Month multi-select, Season number filter
+  (TV only), and the two extra stats tiles (comics read, TV seasons) close
+  the BROWSE-UX.md §2/§4 gaps -- the API already computed/accepted this
+  data, it just wasn't wired into the UI yet (media-watchlist/t-006, t-012).
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -161,6 +162,59 @@
           <Icon name="kind-icon:star" class="size-3.5" />
           Starred
         </button>
+
+        <div class="dropdown">
+          <button
+            type="button"
+            tabindex="0"
+            class="btn btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :class="
+              activeMonths.size
+                ? 'btn-primary'
+                : 'btn-ghost border border-base-300'
+            "
+            :aria-pressed="activeMonths.size > 0"
+          >
+            <Icon name="kind-icon:clock" class="size-3.5" />
+            {{ activeMonths.size ? `Month (${activeMonths.size})` : 'Month' }}
+          </button>
+          <div
+            tabindex="0"
+            class="dropdown-content z-10 mt-1 grid grid-cols-4 gap-1 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-lg"
+          >
+            <button
+              v-for="monthOption in MONTH_LABELS"
+              :key="monthOption.value"
+              type="button"
+              class="btn btn-xs rounded-lg"
+              :class="
+                activeMonths.has(monthOption.value)
+                  ? 'btn-primary'
+                  : 'btn-ghost border border-base-300'
+              "
+              :aria-pressed="activeMonths.has(monthOption.value)"
+              @click="toggleMonth(monthOption.value)"
+            >
+              {{ monthOption.label }}
+            </button>
+          </div>
+        </div>
+
+        <label
+          v-if="showSeasonFilter"
+          class="flex items-center gap-1.5 text-xs font-semibold text-base-content/60"
+        >
+          Season
+          <input
+            v-model.number="season"
+            type="number"
+            min="1"
+            max="99"
+            placeholder="Any"
+            aria-label="Season number (TV only)"
+            class="input input-sm input-bordered w-16 rounded-xl"
+          />
+        </label>
 
         <select
           v-model="sort"
@@ -333,12 +387,29 @@ const MEDIA_TYPE_CHIPS: { value: MediaType; label: string }[] = [
   { value: 'VIDEO_GAME', label: 'Games' },
 ]
 
+const MONTH_LABELS: { value: number; label: string }[] = [
+  { value: 1, label: 'Jan' },
+  { value: 2, label: 'Feb' },
+  { value: 3, label: 'Mar' },
+  { value: 4, label: 'Apr' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'Jun' },
+  { value: 7, label: 'Jul' },
+  { value: 8, label: 'Aug' },
+  { value: 9, label: 'Sep' },
+  { value: 10, label: 'Oct' },
+  { value: 11, label: 'Nov' },
+  { value: 12, label: 'Dec' },
+]
+
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.isAdmin === true)
 
 const search = ref('')
 const activeYear = ref<number | null>(null)
 const activeTypes = ref<Set<MediaType>>(new Set())
+const activeMonths = ref<Set<number>>(new Set())
+const season = ref<number | null>(null)
 const starredOnly = ref(false)
 const sort = ref<
   'date_desc' | 'date_asc' | 'title_asc' | 'title_desc' | 'starred_first'
@@ -358,6 +429,16 @@ const selectedEntry = computed(
   () => entries.value.find((entry) => entry.id === selectedId.value) ?? null,
 )
 
+// Season (BROWSE-UX.md §2) only applies to TV entries, so only show/send it
+// when TV is the active filter or no type filter narrows the results away
+// from TV at all.
+const showSeasonFilter = computed(
+  () => activeTypes.value.size === 0 || activeTypes.value.has('TV'),
+)
+watch(showSeasonFilter, (visible) => {
+  if (!visible) season.value = null
+})
+
 function handleEntryUpdated(updated: MediaEntryDetail) {
   const index = entries.value.findIndex((entry) => entry.id === updated.id)
   if (index !== -1)
@@ -369,6 +450,13 @@ function toggleType(type: MediaType) {
   if (next.has(type)) next.delete(type)
   else next.add(type)
   activeTypes.value = next
+}
+
+function toggleMonth(month: number) {
+  const next = new Set(activeMonths.value)
+  if (next.has(month)) next.delete(month)
+  else next.add(month)
+  activeMonths.value = next
 }
 
 function formatDate(entry: MediaEntrySummary): string {
@@ -407,6 +495,13 @@ async function loadEntries(): Promise<void> {
             ? Array.from(activeTypes.value).join(',')
             : undefined,
           starred: starredOnly.value ? 'true' : undefined,
+          month: activeMonths.value.size
+            ? Array.from(activeMonths.value)
+                .sort((a, b) => a - b)
+                .join(',')
+            : undefined,
+          season:
+            showSeasonFilter.value && season.value ? season.value : undefined,
           sort: sort.value,
           take,
           skip: skip.value,
@@ -438,7 +533,7 @@ watch(search, () => {
   }, 300)
 })
 
-watch([activeTypes, starredOnly, sort], () => {
+watch([activeTypes, starredOnly, sort, activeMonths, season], () => {
   skip.value = 0
   void loadEntries()
 })
@@ -464,6 +559,17 @@ function exportCsv() {
     params.set('mediaType', Array.from(activeTypes.value).join(','))
   }
   if (starredOnly.value) params.set('starred', 'true')
+  if (activeMonths.value.size) {
+    params.set(
+      'month',
+      Array.from(activeMonths.value)
+        .sort((a, b) => a - b)
+        .join(','),
+    )
+  }
+  if (showSeasonFilter.value && season.value) {
+    params.set('season', String(season.value))
+  }
   params.set('sort', sort.value)
 
   const link = document.createElement('a')

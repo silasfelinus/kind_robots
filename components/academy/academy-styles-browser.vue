@@ -74,7 +74,27 @@
         :aria-controls="`academy-style-detail-${style.slug}`"
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
-        <div class="flex items-center justify-between gap-2">
+        <div
+          v-if="style.previewImageSrc"
+          class="relative -mx-4 -mt-4 w-[calc(100%+2rem)] overflow-hidden rounded-t-xl"
+          style="aspect-ratio: 16 / 9"
+        >
+          <img
+            :src="style.previewImageSrc"
+            :alt="style.name"
+            loading="lazy"
+            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+          />
+          <template v-if="academyStore.viewedLessons.includes(style.slug)">
+            <Icon
+              name="kind-icon:check"
+              class="absolute right-1.5 top-1.5 h-4 w-4 rounded-full bg-base-100/80 p-0.5 text-success"
+              aria-hidden="true"
+            />
+            <span class="sr-only">Lesson explored</span>
+          </template>
+        </div>
+        <div v-else class="flex items-center justify-between gap-2">
           <span class="text-2xl leading-none" aria-hidden="true">🏛️</span>
           <template v-if="academyStore.viewedLessons.includes(style.slug)">
             <Icon

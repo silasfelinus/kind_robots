@@ -63,13 +63,9 @@
               <Icon name="kind-icon:external-link" class="h-4 w-4" />
               Paperback on Amazon
             </a>
-            <span
-              class="badge badge-outline badge-lg gap-1 rounded-2xl text-xs text-base-content/70"
-            >
-              <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
-              PDF edition (third printing) — coming to the giftshop
-            </span>
           </div>
+
+          <mermaids-pdf-purchase />
 
           <p class="text-xs text-base-content/50">
             Signed copies appear in the Kind Robots giftshop when the tide is

@@ -9,8 +9,8 @@
 // filtered set, not one page of it). Admin-gated, same as every other
 // media-entries route.
 //
-// Query: search, mediaType, starred, sort, year (all optional, same
-// semantics as index.get.ts).
+// Query: search, mediaType, starred, sort, year, month, season (all
+// optional, same semantics as index.get.ts).
 import { defineEventHandler, getQuery, setHeader } from 'h3'
 import type { MediaEntry, Prisma } from '~/prisma/generated/prisma/client'
 import { MediaType } from '~/prisma/generated/prisma/client'
@@ -27,6 +27,14 @@ const SORT_MODES = [
   'starred_first',
 ] as const
 type SortMode = (typeof SORT_MODES)[number]
+
+function parseIntList(value: unknown): number[] {
+  if (typeof value !== 'string' || !value.trim()) return []
+  return value
+    .split(',')
+    .map((entry) => Number(entry.trim()))
+    .filter((entry) => Number.isInteger(entry))
+}
 
 // Hard cap so a filterless export on a much larger future log can't build an
 // unbounded CSV in memory; the current log is ~2,440 entries total.
@@ -121,6 +129,14 @@ export default defineEventHandler(async (event) => {
 
     if (query.starred === 'true') {
       andFilters.push({ starred: true })
+    }
+
+    const months = parseIntList(query.month).filter((m) => m >= 1 && m <= 12)
+    if (months.length) andFilters.push({ watchedMonth: { in: months } })
+
+    const parsedSeason = Number(query.season)
+    if (Number.isInteger(parsedSeason) && parsedSeason > 0) {
+      andFilters.push({ season: parsedSeason })
     }
 
     const search = typeof query.search === 'string' ? query.search.trim() : ''

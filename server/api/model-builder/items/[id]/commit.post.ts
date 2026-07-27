@@ -1,35 +1,22 @@
 // /server/api/model-builder/items/[id]/commit.post.ts
-//
-// Execute the approved COMMIT for a build item — the durable, idempotent write.
-//
-// - ASSET_ONLY: promote the item's generated ArtImage onto the source record's
-//   canonical `artImageId`.
-// - UPDATE: write the item's pitch into a single safe text field on the source,
-//   plus any additional known columns parsed from the item's structured FIELDS
-//   draft (t-028).
-// - CREATE: create a new private/inactive (draft-early) related record and link
-//   it to the source via the known relation, populated with the same known
-//   columns.
-//
-// Idempotency: the first commit atomically claims the item by setting its unique
-// `idempotencyKey`; a replay returns the existing target instead of writing
-// again. If the write fails after the claim, the claim is released so a retry can
-// run. CREATE + link happen in one transaction so a link failure never leaves an
-// orphan. COMMIT never overwrites unrelated canonical data — it only touches the
-// fields it owns (the single text field plus the model's known field spec).
-
+// Execute the approved COMMIT for a build item as an idempotent durable write.
 import { createError, defineEventHandler, readBody } from 'h3'
-import type { Rarity, RewardType, DreamType, FacetKind } from '~/prisma/generated/prisma/client'
+import type { DreamType, Rarity, RewardType } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { assertRunAccess, getItemId, parseStoredJson } from '../../runs/index'
 import { CREATE_TARGETS, fieldSpecFor } from '~/stores/helpers/modelBuilderFields'
+import { syncCharacterFacetsInTransaction } from '~/server/utils/characterFacetSync'
+import { syncBotFacetsInTransaction } from '~/server/utils/botFacetSync'
+import type { FacetTaxonomy } from '~/server/utils/facetCatalog'
+import {
+  buildFacetProfileCreateData,
+  buildFacetProfileUpdateData,
+  legacyFacetKindForTaxonomy,
+  normalizeFacetTaxonomy,
+} from '~/server/utils/facetProfileInput'
 
-// prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
-// $transaction callback's tx param has extended InternalArgs that don't
-// structurally match the plain Prisma.TransactionClient type. Derive the
-// type from the actual instance instead of the generated default.
 type TransactionClient = Parameters<
   Parameters<typeof prisma.$transaction>[0]
 >[0]
@@ -43,6 +30,8 @@ type SourceType =
   | 'Reward'
   | 'Scenario'
 
+type SyncOptions = { userId: number; isAdmin: boolean }
+
 function isSourceType(value: string): value is SourceType {
   return [
     'Project',
@@ -55,36 +44,19 @@ function isSourceType(value: string): value is SourceType {
   ].includes(value)
 }
 
-// ── Structured FIELDS-draft parsing (t-028) ─────────────────────────────────
-//
-// The FIELDS stage draft is free text of "field: value" lines (one per line,
-// per modelBuilderSuggest's `fields` prompt). Parse it into a lowercased-key
-// map, then apply only the columns modelBuilderFields.ts already knows about
-// for the target model — the single source of per-model field truth used to
-// auto-fill and AI-ground the FIELDS stage (t-024). Choice fields are
-// validated against their pool; unknown keys are ignored; nothing here writes
-// an arbitrary column.
-
 const LONG_TEXT_MAX = 20000
 const DEFAULT_TEXT_MAX = 256
-
-// Short VarChar columns whose real schema limit is longer than the default cap.
 const SHORT_TEXT_MAX: Partial<Record<SourceType, Record<string, number>>> = {
   Character: { class: 764, species: 764 },
   Bot: { subtitle: 764 },
   Reward: { flavorText: 512, collection: 764 },
   Dream: { flavorText: 512 },
 }
-
-// Free-text fields backed by a Text/LongText column but not flagged `prose` in
-// the field spec — cap generously rather than truncating at the short default.
 const LONG_TEXT_FIELDS: Partial<Record<SourceType, Set<string>>> = {
   Dream: new Set(['examples']),
   Scenario: new Set(['locations', 'inspirations']),
   Facet: new Set(['examples']),
 }
-
-// Fields stored as a numeric column rather than text.
 const NUMERIC_FIELDS: Partial<Record<SourceType, Set<string>>> = {
   Scenario: new Set(['difficulty']),
 }
@@ -157,6 +129,7 @@ interface CharacterExtra {
   might?: Rarity
   wits?: Rarity
 }
+
 function characterFields(fields: Record<string, string>): CharacterExtra {
   const data: CharacterExtra = {}
   const cls = pickText(fields, 'Character', 'class'); if (cls) data.class = cls
@@ -183,6 +156,7 @@ interface BotExtra {
   userIntro?: string
   prompt?: string
 }
+
 function botFields(fields: Record<string, string>): BotExtra {
   const data: BotExtra = {}
   const botType = pickChoice<string>(fields, 'Bot', 'botType'); if (botType) data.BotType = botType
@@ -203,6 +177,7 @@ interface RewardExtra {
   flavorText?: string
   collection?: string
 }
+
 function rewardFields(fields: Record<string, string>): RewardExtra {
   const data: RewardExtra = {}
   const rewardType = pickChoice<RewardType>(fields, 'Reward', 'rewardType'); if (rewardType) data.rewardType = rewardType
@@ -221,6 +196,7 @@ interface DreamExtra {
   flavorText?: string
   examples?: string
 }
+
 function dreamFields(fields: Record<string, string>): DreamExtra {
   const data: DreamExtra = {}
   const dreamType = pickChoice<DreamType>(fields, 'Dream', 'dreamType'); if (dreamType) data.dreamType = dreamType
@@ -238,6 +214,7 @@ interface ScenarioExtra {
   locations?: string
   inspirations?: string
 }
+
 function scenarioFields(fields: Record<string, string>): ScenarioExtra {
   const data: ScenarioExtra = {}
   const description = pickText(fields, 'Scenario', 'description'); if (description) data.description = description
@@ -254,6 +231,7 @@ interface ProjectExtra {
   pitch?: string
   goal?: string
 }
+
 function projectFields(fields: Record<string, string>): ProjectExtra {
   const data: ProjectExtra = {}
   const description = pickText(fields, 'Project', 'description'); if (description) data.description = description
@@ -263,109 +241,141 @@ function projectFields(fields: Record<string, string>): ProjectExtra {
 }
 
 interface FacetExtra {
-  kind?: FacetKind
+  taxonomy?: FacetTaxonomy
   description?: string
   examples?: string
 }
+
 function facetFields(fields: Record<string, string>): FacetExtra {
   const data: FacetExtra = {}
-  const kind = pickChoice<FacetKind>(fields, 'Facet', 'kind'); if (kind) data.kind = kind
+  const taxonomy = pickChoice<FacetTaxonomy>(fields, 'Facet', 'taxonomy')
+  if (taxonomy) data.taxonomy = normalizeFacetTaxonomy(taxonomy)
   const description = pickText(fields, 'Facet', 'description'); if (description) data.description = description
   const examples = pickText(fields, 'Facet', 'examples'); if (examples) data.examples = examples
   return data
 }
 
-// Read-only view of which extra columns a commit would write — used for the
-// dry-run plan summary. Never passed directly to Prisma (see the typed
-// per-model functions above for the actual write path).
+function facetTextFields(fields: Record<string, string>): Omit<FacetExtra, 'taxonomy'> {
+  const { taxonomy: _taxonomy, ...textFields } = facetFields(fields)
+  return textFields
+}
+
 function extraFieldKeys(type: SourceType, fields: Record<string, string>): string[] {
   switch (type) {
-    case 'Character':
-      return Object.keys(characterFields(fields))
-    case 'Bot':
-      return Object.keys(botFields(fields))
-    case 'Reward':
-      return Object.keys(rewardFields(fields))
-    case 'Dream':
-      return Object.keys(dreamFields(fields))
-    case 'Scenario':
-      return Object.keys(scenarioFields(fields))
-    case 'Project':
-      return Object.keys(projectFields(fields))
-    case 'Facet':
-      return Object.keys(facetFields(fields))
+    case 'Character': return Object.keys(characterFields(fields))
+    case 'Bot': return Object.keys(botFields(fields))
+    case 'Reward': return Object.keys(rewardFields(fields))
+    case 'Dream': return Object.keys(dreamFields(fields))
+    case 'Scenario': return Object.keys(scenarioFields(fields))
+    case 'Project': return Object.keys(projectFields(fields))
+    case 'Facet': return Object.keys(facetFields(fields))
   }
 }
 
-// Promote a generated ArtImage onto the source record's canonical art link.
 async function promoteAsset(
   type: SourceType,
   id: number,
   artImageId: number,
 ): Promise<void> {
   switch (type) {
-    case 'Project':
-      await prisma.project.update({ where: { id }, data: { artImageId } })
-      return
-    case 'Character':
-      await prisma.character.update({ where: { id }, data: { artImageId } })
-      return
-    case 'Bot':
-      await prisma.bot.update({ where: { id }, data: { artImageId } })
-      return
-    case 'Facet':
-      await prisma.facet.update({ where: { id }, data: { artImageId } })
-      return
-    case 'Dream':
-      await prisma.dream.update({ where: { id }, data: { artImageId } })
-      return
-    case 'Reward':
-      await prisma.reward.update({ where: { id }, data: { artImageId } })
-      return
-    case 'Scenario':
-      await prisma.scenario.update({ where: { id }, data: { artImageId } })
-      return
+    case 'Project': await prisma.project.update({ where: { id }, data: { artImageId } }); return
+    case 'Character': await prisma.character.update({ where: { id }, data: { artImageId } }); return
+    case 'Bot': await prisma.bot.update({ where: { id }, data: { artImageId } }); return
+    case 'Facet': await prisma.facet.update({ where: { id }, data: { artImageId } }); return
+    case 'Dream': await prisma.dream.update({ where: { id }, data: { artImageId } }); return
+    case 'Reward': await prisma.reward.update({ where: { id }, data: { artImageId } }); return
+    case 'Scenario': await prisma.scenario.update({ where: { id }, data: { artImageId } }); return
   }
 }
 
-// The single freeform text field UPDATE writes on each model, plus any
-// additional known columns parsed from the item's structured FIELDS draft. A
-// structured value for the same key as the primary text field wins over the
-// generic `text` fallback.
+async function syncFacetProfileUpdate(
+  tx: TransactionClient,
+  id: number,
+  fields: Record<string, string>,
+): Promise<void> {
+  const [facet, existingProfile] = await Promise.all([
+    tx.facet.findUnique({ where: { id }, select: { title: true } }),
+    tx.facetProfile.findUnique({
+      where: { facetId: id },
+      select: { taxonomy: true },
+    }),
+  ])
+  if (!facet) throw createError({ statusCode: 404, message: `Facet #${id} not found.` })
+
+  const requestedTaxonomy = facetFields(fields).taxonomy
+  const fallbackTaxonomy = normalizeFacetTaxonomy(existingProfile?.taxonomy, 'OTHER')
+  const taxonomy = requestedTaxonomy ?? fallbackTaxonomy
+
+  if (!existingProfile) {
+    const profile = buildFacetProfileCreateData(
+      { taxonomy },
+      { title: facet.title, taxonomy },
+    )
+    await tx.facetProfile.create({ data: { facetId: id, ...profile } })
+  } else if (requestedTaxonomy) {
+    const profile = buildFacetProfileUpdateData(
+      { taxonomy: requestedTaxonomy },
+      { title: facet.title, taxonomy: fallbackTaxonomy },
+    )
+    await tx.facetProfile.update({ where: { facetId: id }, data: profile })
+  }
+}
+
 async function updateText(
+  tx: TransactionClient,
   type: SourceType,
   id: number,
   text: string,
   fields: Record<string, string>,
+  syncOptions: SyncOptions,
 ): Promise<void> {
   switch (type) {
     case 'Project':
-      await prisma.project.update({ where: { id }, data: { pitch: text, ...projectFields(fields) } })
+      await tx.project.update({ where: { id }, data: { pitch: text, ...projectFields(fields) } })
       return
-    case 'Character':
-      await prisma.character.update({ where: { id }, data: { backstory: text, ...characterFields(fields) } })
+    case 'Character': {
+      const character = await tx.character.update({
+        where: { id },
+        data: { backstory: text, ...characterFields(fields) },
+      })
+      await syncCharacterFacetsInTransaction(tx, character, syncOptions)
       return
-    case 'Bot':
-      await prisma.bot.update({ where: { id }, data: { description: text, ...botFields(fields) } })
+    }
+    case 'Bot': {
+      const bot = await tx.bot.update({
+        where: { id },
+        data: { description: text, ...botFields(fields) },
+      })
+      await syncBotFacetsInTransaction(tx, bot, syncOptions)
       return
-    case 'Facet':
-      await prisma.facet.update({ where: { id }, data: { description: text, ...facetFields(fields) } })
+    }
+    case 'Facet': {
+      const extra = facetFields(fields)
+      await tx.facet.update({
+        where: { id },
+        data: {
+          description: text,
+          ...facetTextFields(fields),
+          ...(extra.taxonomy
+            ? { kind: legacyFacetKindForTaxonomy(extra.taxonomy) }
+            : {}),
+        },
+      })
+      await syncFacetProfileUpdate(tx, id, fields)
       return
+    }
     case 'Dream':
-      await prisma.dream.update({ where: { id }, data: { pitch: text, ...dreamFields(fields) } })
+      await tx.dream.update({ where: { id }, data: { pitch: text, ...dreamFields(fields) } })
       return
     case 'Reward':
-      await prisma.reward.update({ where: { id }, data: { description: text, ...rewardFields(fields) } })
+      await tx.reward.update({ where: { id }, data: { description: text, ...rewardFields(fields) } })
       return
     case 'Scenario':
-      await prisma.scenario.update({ where: { id }, data: { description: text, ...scenarioFields(fields) } })
+      await tx.scenario.update({ where: { id }, data: { description: text, ...scenarioFields(fields) } })
       return
   }
 }
 
-// Create a private/inactive draft-early record of the target type, populated
-// with the single text field plus any known columns from the structured FIELDS
-// draft. Returns its id.
 async function createRecord(
   tx: TransactionClient,
   type: SourceType,
@@ -373,67 +383,60 @@ async function createRecord(
   text: string,
   fields: Record<string, string>,
   userId: number,
+  syncOptions: SyncOptions,
 ): Promise<number> {
   const priv = { userId, isPublic: false, isActive: false }
   switch (type) {
-    case 'Character':
-      return (
-        await tx.character.create({
-          data: { name, backstory: text, ...priv, ...characterFields(fields) },
-        })
-      ).id
+    case 'Character': {
+      const character = await tx.character.create({
+        data: { name, backstory: text, ...priv, ...characterFields(fields) },
+      })
+      await syncCharacterFacetsInTransaction(tx, character, syncOptions)
+      return character.id
+    }
     case 'Reward':
-      return (
-        await tx.reward.create({
-          data: { name, description: text, ...priv, ...rewardFields(fields) },
-        })
-      ).id
+      return (await tx.reward.create({ data: { name, description: text, ...priv, ...rewardFields(fields) } })).id
     case 'Scenario':
-      return (
-        await tx.scenario.create({
-          data: {
-            title: name,
-            description: text || name,
-            intros: '',
-            ...priv,
-            ...scenarioFields(fields),
-          },
-        })
-      ).id
+      return (await tx.scenario.create({ data: { title: name, description: text || name, intros: '', ...priv, ...scenarioFields(fields) } })).id
     case 'Dream':
-      return (
-        await tx.dream.create({
-          data: { title: name, pitch: text, ...priv, ...dreamFields(fields) },
-        })
-      ).id
+      return (await tx.dream.create({ data: { title: name, pitch: text, ...priv, ...dreamFields(fields) } })).id
     case 'Project':
-      return (
-        await tx.project.create({
-          data: { title: name, pitch: text, ...priv, ...projectFields(fields) },
-        })
-      ).id
-    case 'Facet':
-      return (
-        await tx.facet.create({
-          data: { title: name, description: text, ...priv, ...facetFields(fields) },
-        })
-      ).id
+      return (await tx.project.create({ data: { title: name, pitch: text, ...priv, ...projectFields(fields) } })).id
+    case 'Facet': {
+      const extra = facetFields(fields)
+      const taxonomy = extra.taxonomy ?? 'OTHER'
+      const facet = await tx.facet.create({
+        data: {
+          title: name,
+          description: text,
+          ...priv,
+          ...facetTextFields(fields),
+          kind: legacyFacetKindForTaxonomy(taxonomy),
+        },
+      })
+      const profile = buildFacetProfileCreateData(
+        { taxonomy },
+        { title: name, taxonomy },
+      )
+      await tx.facetProfile.create({ data: { facetId: facet.id, ...profile } })
+      return facet.id
+    }
     case 'Bot': {
       const extra = botFields(fields)
-      return (
-        await tx.bot.create({
-          data: {
-            name,
-            description: text,
-            BotType: extra.BotType ?? 'CHATBOT',
-            botIntro: extra.botIntro ?? (text || name),
-            userIntro: extra.userIntro ?? 'Hello!',
-            prompt: extra.prompt ?? (text || name),
-            ...priv,
-            ...extra,
-          },
-        })
-      ).id
+      const bot = await tx.bot.create({
+        data: {
+          name,
+          description: text,
+          BotType: extra.BotType ?? 'CHATBOT',
+          botIntro: extra.botIntro ?? (text || name),
+          userIntro: extra.userIntro ?? 'Hello!',
+          prompt: extra.prompt ?? (text || name),
+          ...priv,
+          ...extra,
+        },
+      })
+      await syncBotFacetsInTransaction(tx, bot, syncOptions)
+      return bot.id
     }
     default:
       throw createError({
@@ -443,8 +446,6 @@ async function createRecord(
   }
 }
 
-// Link a newly created target back to its source via the known relation.
-// Returns true if a link was written, false if the pair has no known relation.
 async function linkSourceToTarget(
   tx: TransactionClient,
   sourceType: SourceType,
@@ -453,52 +454,31 @@ async function linkSourceToTarget(
   targetId: number,
 ): Promise<boolean> {
   if (sourceType === 'Dream' && targetType === 'Character') {
-    await tx.dream.update({
-      where: { id: sourceId },
-      data: { Characters: { connect: { id: targetId } } },
-    })
+    await tx.dream.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
     return true
   }
   if (sourceType === 'Dream' && targetType === 'Reward') {
-    await tx.dream.update({
-      where: { id: sourceId },
-      data: { Rewards: { connect: { id: targetId } } },
-    })
+    await tx.dream.update({ where: { id: sourceId }, data: { Rewards: { connect: { id: targetId } } } })
     return true
   }
   if (sourceType === 'Dream' && targetType === 'Scenario') {
-    await tx.dream.update({
-      where: { id: sourceId },
-      data: { Scenarios: { connect: { id: targetId } } },
-    })
+    await tx.dream.update({ where: { id: sourceId }, data: { Scenarios: { connect: { id: targetId } } } })
     return true
   }
   if (sourceType === 'Project' && targetType === 'Bot') {
-    await tx.project.update({
-      where: { id: sourceId },
-      data: { managerBotId: targetId },
-    })
+    await tx.project.update({ where: { id: sourceId }, data: { managerBotId: targetId } })
     return true
   }
   if (sourceType === 'Dream' && targetType === 'Bot') {
-    await tx.dream.update({
-      where: { id: sourceId },
-      data: { narratorId: targetId },
-    })
+    await tx.dream.update({ where: { id: sourceId }, data: { narratorId: targetId } })
     return true
   }
   if (sourceType === 'Character' && targetType === 'Reward') {
-    await tx.character.update({
-      where: { id: sourceId },
-      data: { Rewards: { connect: { id: targetId } } },
-    })
+    await tx.character.update({ where: { id: sourceId }, data: { Rewards: { connect: { id: targetId } } } })
     return true
   }
   if (sourceType === 'Scenario' && targetType === 'Character') {
-    await tx.scenario.update({
-      where: { id: sourceId },
-      data: { Characters: { connect: { id: targetId } } },
-    })
+    await tx.scenario.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
     return true
   }
   return false
@@ -517,6 +497,10 @@ export default defineEventHandler(async (event) => {
     const auth = await requireApiUser(event)
     const body = await readBody<{ dryRun?: boolean }>(event)
     const dryRun = body?.dryRun === true
+    const syncOptions: SyncOptions = {
+      userId: auth.user.id,
+      isAdmin: auth.user.Role === 'ADMIN' || auth.user.id === 1,
+    }
 
     const item = await prisma.modelBuildItem.findUnique({
       where: { id },
@@ -530,10 +514,7 @@ export default defineEventHandler(async (event) => {
 
     const sourceType = item.Run.sourceType
     if (!isSourceType(sourceType)) {
-      throw createError({
-        statusCode: 400,
-        message: `Unsupported source type "${sourceType}".`,
-      })
+      throw createError({ statusCode: 400, message: `Unsupported source type "${sourceType}".` })
     }
     const sourceId = item.Run.sourceId
     const text = (item.pitch || item.fieldsDraft || '').trim()
@@ -541,7 +522,6 @@ export default defineEventHandler(async (event) => {
       (item.pitch?.split('\n')[0]?.trim() || item.label || 'Untitled').slice(0, 255)
     const fieldMap = parseFieldLines(item.fieldsDraft)
 
-    // Already committed? Return the recorded target without writing again.
     if (item.idempotencyKey) {
       return {
         success: true,
@@ -557,7 +537,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Plan the write (also the dry-run response).
     let plan:
       | { action: 'ASSET_ONLY'; targetType: SourceType; targetId: number; field: string; value: number }
       | { action: 'UPDATE'; targetType: SourceType; targetId: number; field: string; value: string; fields: string[] }
@@ -565,10 +544,7 @@ export default defineEventHandler(async (event) => {
 
     if (item.action === 'ASSET_ONLY') {
       if (!item.artImageId) {
-        throw createError({
-          statusCode: 400,
-          message: 'Generate and keep an asset before committing.',
-        })
+        throw createError({ statusCode: 400, message: 'Generate and keep an asset before committing.' })
       }
       plan = {
         action: 'ASSET_ONLY',
@@ -579,10 +555,7 @@ export default defineEventHandler(async (event) => {
       }
     } else if (item.action === 'UPDATE') {
       if (!text) {
-        throw createError({
-          statusCode: 400,
-          message: 'Add pitch/field text before committing an update.',
-        })
+        throw createError({ statusCode: 400, message: 'Add pitch/field text before committing an update.' })
       }
       plan = {
         action: 'UPDATE',
@@ -595,10 +568,7 @@ export default defineEventHandler(async (event) => {
     } else {
       const targetType = CREATE_TARGETS[item.outputKey]
       if (!targetType) {
-        throw createError({
-          statusCode: 400,
-          message: `Commit for "${item.outputKey}" is not supported yet.`,
-        })
+        throw createError({ statusCode: 400, message: `Commit for "${item.outputKey}" is not supported yet.` })
       }
       plan = {
         action: 'CREATE',
@@ -618,8 +588,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Atomic claim: only one commit may proceed. count === 0 means another
-    // request already claimed/committed this item.
     const claim = await prisma.modelBuildItem.updateMany({
       where: { id, idempotencyKey: null },
       data: { idempotencyKey: `commit:${id}` },
@@ -643,20 +611,28 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Execute the durable write. On any failure, release the claim so a retry
-    // can run (compensating cleanup).
     let target: CommitTarget
     try {
       if (plan.action === 'ASSET_ONLY') {
         await promoteAsset(sourceType, sourceId, plan.value)
         target = { type: sourceType, id: sourceId, created: false }
       } else if (plan.action === 'UPDATE') {
-        await updateText(sourceType, sourceId, plan.value, fieldMap)
+        await prisma.$transaction((tx) =>
+          updateText(tx, sourceType, sourceId, plan.value, fieldMap, syncOptions),
+        )
         target = { type: sourceType, id: sourceId, created: false }
       } else {
         const targetType = plan.targetType
         const created = await prisma.$transaction(async (tx) => {
-          const newId = await createRecord(tx, targetType, name, text, fieldMap, auth.user.id)
+          const newId = await createRecord(
+            tx,
+            targetType,
+            name,
+            text,
+            fieldMap,
+            auth.user.id,
+            syncOptions,
+          )
           const linked = await linkSourceToTarget(
             tx,
             sourceType,
@@ -681,12 +657,7 @@ export default defineEventHandler(async (event) => {
       throw writeError
     }
 
-    // Record the commit on the item (COMMIT stage + target) so it survives resume.
-    // stageStatuses is stored as serialized JSON text (see prisma/model-builder.prisma).
-    const stages = parseStoredJson<Record<string, unknown>>(
-      item.stageStatuses,
-      {},
-    )
+    const stages = parseStoredJson<Record<string, unknown>>(item.stageStatuses, {})
     stages.COMMIT = {
       status: 'approved',
       note: `Committed → ${target.type} #${target.id}${target.created ? (target.linked ? ' (created + linked)' : ' (created)') : ''}`,

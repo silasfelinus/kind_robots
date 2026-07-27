@@ -23,12 +23,13 @@
         </p>
         <ul v-if="recentScenarios.length" class="flex flex-col gap-1">
           <li v-for="scenario in recentScenarios" :key="scenario.id">
-            <NuxtLink
-              to="/stories"
+            <button
+              type="button"
               class="text-sm text-primary hover:underline"
+              @click="openScenario(scenario.id)"
             >
               {{ scenario.title || 'Untitled scenario' }}
-            </NuxtLink>
+            </button>
           </li>
         </ul>
         <div class="flex flex-wrap gap-2">
@@ -77,6 +78,18 @@ const recentScenarios = computed(() => scenarioStore.scenarios.slice(0, 3))
  */
 function startNewScenario() {
   navigateTo('/stories?scenario=new')
+}
+
+/**
+ * Recent scenarios previously linked to the generic /stories browse view,
+ * leaving the visitor to re-find the scenario they just saw here. Selecting
+ * it first flips scenario-manager's phase straight to 'configure' for that
+ * scenario (storyStore.phase reacts to scenarioStore.selectedScenario), so
+ * the deep link actually lands on the scenario instead of losing it.
+ */
+async function openScenario(id: number) {
+  await scenarioStore.selectScenario(id)
+  navigateTo('/stories')
 }
 
 const config: ProjectFrontConfig = {

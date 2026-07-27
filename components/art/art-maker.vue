@@ -400,7 +400,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import type { Server } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import type { Resource } from '@/stores/resourceStore'
@@ -553,5 +553,9 @@ onMounted(async () => {
       result.message || 'Failed to load image generator.',
     )
   }
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 </script>

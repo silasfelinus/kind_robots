@@ -292,7 +292,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
@@ -368,6 +368,10 @@ const resolvedActiveImage = computed(() => {
 onMounted(async () => {
   await prepareForm()
   configureScenarioImageUpload()
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 
 watch(

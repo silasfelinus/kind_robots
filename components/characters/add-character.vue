@@ -496,7 +496,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { Rarity } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { useCharacterStore, type Character } from '@/stores/characterStore'
@@ -672,6 +672,10 @@ onMounted(async () => {
 
   await prepareForm()
   configureCharacterImageUpload()
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 
 watch(

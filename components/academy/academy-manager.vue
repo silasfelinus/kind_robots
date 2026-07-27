@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
@@ -198,5 +198,9 @@ async function loadManagerData(force = false) {
 onMounted(() => {
   academyStore.hydrate()
   void loadManagerData()
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 </script>

@@ -1269,10 +1269,22 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.autoBuilding = true
     clearStatus()
 
+    // Captured so this loop can tell "the user switched to a different run
+    // via History mid-auto-build" apart from "still the same run" across each
+    // item's awaited work. Without this check the loop keeps walking the
+    // original run's items (autoBuildItem's own findItem lookup just fails
+    // fast against the newly-active run, so no wrong data is written — but
+    // state.autoBuilding is a store-wide flag, not per-run, so it stays true
+    // and keeps the newly-opened run's "Auto-build all" button disabled until
+    // the abandoned run's in-flight item finishes; the final status message
+    // would then also overwrite whatever the user is now looking at with a
+    // completed count for a run they've navigated away from).
+    const runId = state.run.id
     const items = [...state.run.items]
     let committed = 0
     try {
       for (const item of items) {
+        if (state.run?.id !== runId) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
           continue
@@ -1280,10 +1292,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const ok = await autoBuildItem(item.id)
         if (ok) committed++
       }
-      setStatus(
-        'success',
-        `Auto-build finished: ${committed}/${items.length} committed.`,
-      )
+      if (state.run?.id === runId) {
+        setStatus(
+          'success',
+          `Auto-build finished: ${committed}/${items.length} committed.`,
+        )
+      }
     } finally {
       state.autoBuilding = false
     }

@@ -290,6 +290,7 @@ const filteredStyles = computed<AcademyStyle[]>(() => {
   return academyStore.timeline.filter((style) => {
     const isViewed = academyStore.viewedLessons.includes(style.slug)
     const matchesProgress =
+      style.slug === expandedSlug.value ||
       lessonFilter.value === 'all' ||
       (lessonFilter.value === 'explored' && isViewed) ||
       (lessonFilter.value === 'new' && !isViewed)

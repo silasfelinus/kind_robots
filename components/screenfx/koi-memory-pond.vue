@@ -290,21 +290,22 @@ function spawnRipple(
   y: number,
   strength: number,
   duration: number,
+  now: number,
 ): void {
   if (ripples.length >= MAX_RIPPLES) ripples.shift()
-  ripples.push({ x, y, startedAt: performance.now(), duration, strength })
+  ripples.push({ x, y, startedAt: now, duration, strength })
 }
 
 function handlePointerDown(event: PointerEvent): void {
   const point = canvasPoint(event.clientX, event.clientY)
   if (!point) return
 
-  spawnRipple(point.x, point.y, 1, 1400)
+  const now = performance.now()
+  spawnRipple(point.x, point.y, 1, 1400, now)
 
   if (reducedMotion) return
 
   const attractRadius = 220
-  const now = performance.now()
   for (const self of fish) {
     if (Math.hypot(self.x - point.x, self.y - point.y) < attractRadius) {
       self.foodX = point.x
@@ -515,6 +516,7 @@ function drawRipples(now: number): void {
       ripples.splice(i, 1)
       continue
     }
+    if (progress <= 0) continue
 
     const radius = progress * 70 * ripple.strength
     const alpha = (1 - progress) * 0.35 * ripple.strength
@@ -537,6 +539,7 @@ function maybeSpawnAmbientRipple(now: number): void {
     randomBetween(height * 0.1, height * 0.9),
     0.6,
     1800,
+    now,
   )
   nextAmbientRippleAt =
     now +

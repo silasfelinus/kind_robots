@@ -411,12 +411,16 @@ function nearestBloomTarget(
   return closest
 }
 
-function spawnSpark(x: number, y: number, hue: number): void {
+function spawnSpark(x: number, y: number, hue: number, now: number): void {
   if (sparks.length >= 4) sparks.shift()
-  sparks.push({ x, y, startedAt: performance.now(), hue })
+  sparks.push({ x, y, startedAt: now, hue })
 }
 
-function updatePollinator(pollinator: Pollinator, delta: number): void {
+function updatePollinator(
+  pollinator: Pollinator,
+  delta: number,
+  now: number,
+): void {
   pollinator.angle += delta * pollinator.spinSpeed * (reducedMotion ? 0.3 : 1)
 
   const target =
@@ -447,7 +451,7 @@ function updatePollinator(pollinator: Pollinator, delta: number): void {
   const distance = Math.sqrt(dx * dx + dy * dy)
 
   if (distance < 6) {
-    spawnSpark(pollinator.x, pollinator.y, current.hue)
+    spawnSpark(pollinator.x, pollinator.y, current.hue, now)
     const next = nearestBloomTarget(pollinator, current.id)
     pollinator.targetId = next ? next.id : null
     return
@@ -494,7 +498,7 @@ function drawSpark(spark: Spark, timestamp: number): boolean {
   const life = 550
   if (age >= life) return false
 
-  const progress = age / life
+  const progress = Math.max(0, age / life)
   const radius = 3 + progress * 14
 
   context.save()
@@ -545,7 +549,7 @@ function renderFrame(timestamp: number): void {
   }
 
   for (const pollinator of pollinators) {
-    updatePollinator(pollinator, delta)
+    updatePollinator(pollinator, delta, timestamp)
     drawPollinator(pollinator)
   }
 

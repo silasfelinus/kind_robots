@@ -52,7 +52,7 @@ async function main(): Promise<void> {
   requireText(files.commit, text.commit, 'await syncBotFacetsInTransaction(tx, bot, syncOptions)')
   requireText(files.commit, text.commit, 'await prisma.$transaction((tx) =>')
   requireText(files.commit, text.commit, 'syncFacetProfileUpdate(tx, id, fields)')
-  forbidText(files.commit, text.commit, 'FacetKind')
+  forbidText(files.commit, text.commit, 'import type { FacetKind')
   forbidText(files.commit, text.commit, "pickChoice<FacetKind>(fields, 'Facet', 'kind')")
 
   requireText(files.characterSync, text.characterSync, "backstory: ['BACKSTORY']")

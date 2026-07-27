@@ -223,7 +223,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ArtImage, ArtCollection } from '@/stores/artStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -563,6 +563,10 @@ onMounted(async () => {
   initPreview()
   configureUploadTarget()
   await refreshGallery(false)
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 
 watch(

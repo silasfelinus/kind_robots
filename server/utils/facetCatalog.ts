@@ -19,6 +19,7 @@ export const FACET_TAXONOMIES = [
   'ROLE',
   'ALIGNMENT',
   'GENDER',
+  'BOT_TYPE',
   'PERSONALITY',
   'BACKSTORY',
   'QUIRK',
@@ -109,10 +110,6 @@ export async function loadFacetCatalogEntries(options: {
   userId?: number
   isAdmin?: boolean
   search?: string
-  /**
-   * Optional page size for externally paginated consumers. Internal callers that
-   * omit `take` receive the complete matching catalog from `skip` onward.
-   */
   take?: number
   skip?: number
 } = {}): Promise<FacetCatalogEntry[]> {
@@ -245,12 +242,9 @@ export async function loadFacetCatalogEntries(options: {
   return entries.slice(skip, skip + take)
 }
 
-export async function loadCharacterFacetCatalog(characterId: number) {
-  const links = await prisma.characterFacet.findMany({
-    where: { characterId },
-    orderBy: [{ fieldKey: 'asc' }, { sortOrder: 'asc' }, { id: 'asc' }],
-  })
-
+async function loadOwnerFacetCatalog(
+  links: Array<{ facetId: number } & Record<string, unknown>>,
+) {
   const entries = await loadFacetCatalogEntries({
     facetIds: links.map((link) => link.facetId),
     includeMature: true,
@@ -265,4 +259,20 @@ export async function loadCharacterFacetCatalog(characterId: number) {
       facet: entryById.get(link.facetId) ?? null,
     }))
     .filter((link) => Boolean(link.facet))
+}
+
+export async function loadCharacterFacetCatalog(characterId: number) {
+  const links = await prisma.characterFacet.findMany({
+    where: { characterId },
+    orderBy: [{ fieldKey: 'asc' }, { sortOrder: 'asc' }, { id: 'asc' }],
+  })
+  return loadOwnerFacetCatalog(links)
+}
+
+export async function loadBotFacetCatalog(botId: number) {
+  const links = await prisma.botFacet.findMany({
+    where: { botId },
+    orderBy: [{ fieldKey: 'asc' }, { sortOrder: 'asc' }, { id: 'asc' }],
+  })
+  return loadOwnerFacetCatalog(links)
 }

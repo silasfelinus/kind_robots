@@ -3,6 +3,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { syncBotFacetsInTransaction } from '../../utils/botFacetSync'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { assertBotRelationsAttachable } from './relations'
 
@@ -75,8 +76,6 @@ function getDreamRelationUpdate(
   return Object.keys(op).length ? op : undefined
 }
 
-// Dream IDs a batch entry would newly attach (set + connect). Disconnected IDs
-// are omitted because removing a relation needs no attach permission.
 function getDreamAttachIds(body: BotBatchPatch): number[] {
   const toIds = (value: unknown): number[] =>
     Array.isArray(value)
@@ -344,22 +343,35 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const ownerIdByBotId = new Map(
+      existingBots.map((bot) => [bot.id, bot.userId]),
+    )
     const data = await prisma.$transaction(
-      updates.map(({ id, data }) =>
-        prisma.bot.update({
-          where: { id },
-          data,
-          select: {
-            id: true,
-            name: true,
-            BotType: true,
-            subtitle: true,
-            avatarImage: true,
-            tagline: true,
-            updatedAt: true,
-          },
-        }),
-      ),
+      async (tx) => {
+        const results = []
+        for (const update of updates) {
+          const bot = await tx.bot.update({
+            where: { id: update.id },
+            data: update.data,
+            select: {
+              id: true,
+              name: true,
+              BotType: true,
+              personality: true,
+              subtitle: true,
+              avatarImage: true,
+              tagline: true,
+              updatedAt: true,
+            },
+          })
+          await syncBotFacetsInTransaction(tx, bot, {
+            userId: user?.id ?? ownerIdByBotId.get(update.id) ?? 1,
+            isAdmin: isAdmin || isServerKey,
+          })
+          results.push(bot)
+        }
+        return results
+      },
       { timeout: 30000 },
     )
 

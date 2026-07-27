@@ -52,6 +52,9 @@ jobs:
       - name: Verify Scenario Genre Facet cutover
         run: npx tsx utils/scripts/verifyScenarioGenreFacetCutover.ts
 
+      - name: Verify Bot Facet cutover
+        run: npx tsx utils/scripts/verifyBotFacetCutover.ts
+
       - name: Verify illustrated Builder Facet coverage
         id: builder-coverage
         continue-on-error: true

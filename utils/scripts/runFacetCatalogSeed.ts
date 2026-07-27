@@ -47,13 +47,12 @@ console.log(
   `[facet-catalog] Promoted ${promotedBuilderOptions} Builder “More options” entries into canonical seed input.`,
 )
 
-// Gender was omitted from the original catalog cutover. Seed its illustrated
-// Builder choices and legacy generator values before the broader catalog pass.
 await import('./seedGenderFacetCatalog')
-
-// seedFacetCatalog reads process.argv itself, so --apply passes through.
 await import('./seedFacetCatalog')
-
-// Scenario Genre is curated in its own Builder graph. Apply it after the broad
-// legacy gap-fill seed so its descriptions, artwork, grouping, and source rank win.
 await import('./seedScenarioGenreFacetCatalog')
+
+// Legacy Bot values must exist before the Bot Builder seed backfills production
+// rows; illustrated Bot Types and reusable Bot personalities then enrich them.
+await import('./seedLegacyBotTypeFacets')
+await import('./seedBotFacetCatalog')
+await import('./normalizeBotPersonalityFacetValues')

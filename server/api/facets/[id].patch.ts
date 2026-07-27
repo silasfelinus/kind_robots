@@ -1,18 +1,21 @@
 // PATCH /api/facets/:id
 import { createError, defineEventHandler, readBody } from 'h3'
-import type { FacetKind, Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
-  facetKinds,
   facetSummarySelect,
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
 import {
+  assertLegacyFacetKindAbsent,
   buildFacetProfileCreateData,
   buildFacetProfileUpdateData,
+  legacyFacetKindForTaxonomy,
+  legacyFacetTaxonomyFromKind,
+  normalizeFacetTaxonomy,
 } from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'
 
@@ -64,10 +67,16 @@ export default defineEventHandler(async (event) => {
     }
 
     const auth = await requireApiUser(event)
-    const existing = await prisma.facet.findUnique({
-      where: { id },
-      select: { id: true, userId: true, slug: true, title: true, kind: true },
-    })
+    const [existing, existingProfile] = await Promise.all([
+      prisma.facet.findUnique({
+        where: { id },
+        select: { id: true, userId: true, slug: true, title: true, kind: true },
+      }),
+      prisma.facetProfile.findUnique({
+        where: { facetId: id },
+        select: { taxonomy: true },
+      }),
+    ])
 
     if (!existing) {
       throw createError({ statusCode: 404, message: 'Facet not found.' })
@@ -81,9 +90,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<FacetPatchBody>(event)
+    assertLegacyFacetKindAbsent(body)
+
     const data: Prisma.FacetUncheckedUpdateInput = {}
     let nextTitle = existing.title
-    let nextKind = existing.kind
+    const existingTaxonomy = existingProfile?.taxonomy
+      ? normalizeFacetTaxonomy(existingProfile.taxonomy)
+      : legacyFacetTaxonomyFromKind(existing.kind)
+    const nextTaxonomy =
+      body.taxonomy !== undefined
+        ? normalizeFacetTaxonomy(body.taxonomy, existingTaxonomy)
+        : existingTaxonomy
 
     if (body.title !== undefined) {
       const title = optionalText(body.title)
@@ -96,15 +113,9 @@ export default defineEventHandler(async (event) => {
       data.title = title
       nextTitle = title
     }
-    if (body.kind !== undefined) {
-      if (!facetKinds.includes(body.kind as FacetKind)) {
-        throw createError({
-          statusCode: 400,
-          message: `Invalid Facet kind. Expected one of: ${facetKinds.join(', ')}.`,
-        })
-      }
-      data.kind = body.kind as FacetKind
-      nextKind = body.kind as FacetKind
+    if (body.taxonomy !== undefined) {
+      // Deprecated compatibility column; taxonomy is authoritative.
+      data.kind = legacyFacetKindForTaxonomy(nextTaxonomy)
     }
     if (body.description !== undefined)
       data.description = optionalText(body.description)
@@ -151,11 +162,11 @@ export default defineEventHandler(async (event) => {
       body.aliases !== undefined ? normalizeAliases(body.aliases) : null
     const profileCreateData = buildFacetProfileCreateData(body, {
       title: nextTitle,
-      kind: nextKind,
+      taxonomy: nextTaxonomy,
     })
     const profileUpdateData = buildFacetProfileUpdateData(body, {
       title: nextTitle,
-      kind: nextKind,
+      taxonomy: nextTaxonomy,
     })
 
     const updated = await prisma.$transaction(async (tx) => {

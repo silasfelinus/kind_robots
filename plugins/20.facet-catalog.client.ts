@@ -7,11 +7,14 @@ import type {
   BuilderChoice,
   BuilderStep,
 } from '@/stores/helpers/builderCards'
+import { DREAM_CARDS } from '@/stores/helpers/dreamCards'
+import { REWARD_CARDS } from '@/stores/helpers/rewardCards'
 import { SCENARIO_CARDS } from '@/stores/helpers/scenarioCards'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 import {
   BOT_FIELD_TAXONOMIES,
   CHARACTER_FIELD_TAXONOMIES,
+  SYSTEM_FIELD_TAXONOMIES,
   useFacetCatalogStore,
 } from '@/stores/facetCatalogStore'
 
@@ -127,6 +130,34 @@ function hydrateBotBuilder(
   }
 }
 
+function hydrateSystemBuilder(
+  cards: BuilderCard[],
+  catalog: ReturnType<typeof useFacetCatalogStore>,
+): void {
+  for (const card of cards) {
+    for (const step of card.steps) {
+      const fieldKey = step.field || step.key || card.key
+      const taxonomies = SYSTEM_FIELD_TAXONOMIES[fieldKey]
+      if (!taxonomies) continue
+
+      const canonical = catalog.builderChoicesForSystemField(fieldKey)
+      if (!canonical.length) continue
+
+      // These decks mirror Prisma enums. They never expose custom values or
+      // compact fallback lists; the Facet metadata returns the exact enum value.
+      step.choices = canonical
+      step.listOptions = []
+      step.payload = {
+        ...(step.payload ?? {}),
+        source: 'facet-catalog',
+        fieldKey,
+        taxonomies,
+        structuralEnum: true,
+      }
+    }
+  }
+}
+
 export default defineNuxtPlugin(async () => {
   const catalog = useFacetCatalogStore()
 
@@ -137,6 +168,8 @@ export default defineNuxtPlugin(async () => {
     hydrateAdventureBuilder(catalog)
     hydrateScenarioBuilder(catalog)
     hydrateBotBuilder(catalog)
+    hydrateSystemBuilder(DREAM_CARDS, catalog)
+    hydrateSystemBuilder(REWARD_CARDS, catalog)
 
     // Registration stores the same mutable card graphs. Re-register after the
     // async catalog fetch so mounted Builders observe canonical choices immediately.

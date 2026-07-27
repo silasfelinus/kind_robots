@@ -227,6 +227,17 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'impossible-terrarium',
+    label: 'Impossible Terrarium',
+    reveal: 'Gravity disagrees',
+    icon: 'kind-icon:cube',
+    tooltip:
+      'A glass terrarium where each pocket obeys its own gravity; click a wall to open a door 🌿',
+    color: '#22c55e',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

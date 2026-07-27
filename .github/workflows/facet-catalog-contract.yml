@@ -64,6 +64,9 @@ jobs:
       - name: Verify Facet taxonomy authority
         run: npx tsx utils/scripts/verifyFacetTaxonomyAuthority.ts
 
+      - name: Verify Model Builder Facet synchronization
+        run: npx tsx utils/scripts/verifyModelBuilderFacetSync.ts
+
       - name: Verify Facet closure
         run: npm run test:facet-closure
 

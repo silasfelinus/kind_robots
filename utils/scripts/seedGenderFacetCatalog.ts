@@ -11,6 +11,7 @@ import {
   normalizeFacetLookupKey,
   prepareUniqueFacetAliases,
 } from './../facetAliases'
+import { imageSrcToMediaPath, mediaAssetExists } from './mediaContractSource'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
@@ -56,23 +57,28 @@ function titleCase(value: string): string {
     .join(' ')
 }
 
-function existingPublicImagePath(value: unknown): {
+async function existingPublicImagePath(value: unknown): Promise<{
   imagePath?: string
   requestedImagePath?: string
-} {
+}> {
   const requestedImagePath = clean(value)
   if (!requestedImagePath) return {}
   if (!requestedImagePath.startsWith('/images/')) {
     return { requestedImagePath }
   }
 
-  const exists = existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1)))
+  // public/images/** is git-ignored and served from the media host, so the
+  // local existsSync check alone reports live art as missing in CI/production.
+  // Treat the asset as present if it exists locally OR on the media mount.
+  const exists =
+    existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1))) ||
+    (await mediaAssetExists(imageSrcToMediaPath(requestedImagePath)))
   return exists
     ? { imagePath: requestedImagePath, requestedImagePath }
     : { requestedImagePath }
 }
 
-function collectGenderCandidates(): GenderCandidate[] {
+async function collectGenderCandidates(): Promise<GenderCandidate[]> {
   const candidates = new Map<string, GenderCandidate>()
   const genderCard = ADVENTURE_CARDS.find((card) => card.key === 'gender')
 
@@ -88,7 +94,7 @@ function collectGenderCandidates(): GenderCandidate[] {
 
       const key = normalizeFacetLookupKey(canonicalValue)
       if (!key) continue
-      const artwork = existingPublicImagePath(choice.image)
+      const artwork = await existingPublicImagePath(choice.image)
       const artworkTarget = GENDER_ARTWORK_TARGETS.find(
         (target) => target.path === artwork.requestedImagePath,
       )
@@ -271,7 +277,7 @@ async function backfillCharacterGender(
 }
 
 async function main(): Promise<void> {
-  const candidates = collectGenderCandidates()
+  const candidates = await collectGenderCandidates()
   const directArtwork = candidates.filter((candidate) => candidate.imagePath).length
   const missingRequiredArt = candidates.length - directArtwork
   const missingSourceArtwork = candidates

@@ -9,6 +9,7 @@ import {
   BOT_TYPES,
 } from './../../stores/helpers/botCards'
 import { BOT_TYPE_ARTWORK_TARGETS } from './../seeds/facetBotTypeArtwork'
+import { imageSrcToMediaPath, mediaAssetExists } from './mediaContractSource'
 import {
   normalizeFacetLookupKey,
   prepareUniqueFacetAliases,
@@ -53,26 +54,32 @@ function slugify(value: string): string {
     .slice(0, 220)
 }
 
-function existingPublicImagePath(value: unknown): {
+async function existingPublicImagePath(value: unknown): Promise<{
   imagePath?: string
   requestedImagePath?: string
-} {
+}> {
   const requestedImagePath = clean(value)
   if (!requestedImagePath) return {}
   if (!requestedImagePath.startsWith('/images/')) return { requestedImagePath }
-  return existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1)))
+  // public/images/** is git-ignored and served from the media host, so a local
+  // existsSync check reports live art as missing in CI/production. Treat the
+  // asset as present if it exists locally OR on the media mount.
+  const exists =
+    existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1))) ||
+    (await mediaAssetExists(imageSrcToMediaPath(requestedImagePath)))
+  return exists
     ? { imagePath: requestedImagePath, requestedImagePath }
     : { requestedImagePath }
 }
 
-function collectCandidates(): BotFacetCandidate[] {
+async function collectCandidates(): Promise<BotFacetCandidate[]> {
   const candidates: BotFacetCandidate[] = []
 
   for (const [sortOrder, option] of BOT_TYPES.entries()) {
     const builderValue = clean(option.value)
     const title = clean(option.label) || builderValue
     if (!builderValue || !title) continue
-    const artwork = existingPublicImagePath(option.image)
+    const artwork = await existingPublicImagePath(option.image)
     const artworkTarget = BOT_TYPE_ARTWORK_TARGETS.find(
       (target) => target.value === builderValue,
     )
@@ -382,7 +389,7 @@ async function backfillBots(): Promise<number> {
 }
 
 async function main(): Promise<void> {
-  const candidates = collectCandidates()
+  const candidates = await collectCandidates()
   const byTaxonomy = candidates.reduce<Record<string, number>>((counts, candidate) => {
     counts[candidate.taxonomy] = (counts[candidate.taxonomy] ?? 0) + 1
     return counts

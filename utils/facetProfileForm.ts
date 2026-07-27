@@ -1,5 +1,4 @@
 // /utils/facetProfileForm.ts
-import type { FacetKind } from '~/prisma/generated/prisma/client'
 import type {
   FacetCreateInput,
   FacetWithAliases,
@@ -27,19 +26,6 @@ export type FacetProfileForm = {
   isPublic: boolean
   isMature: boolean
 }
-
-const BROAD_KINDS = new Set<FacetTaxonomy>([
-  'GENRE',
-  'ANIMAL',
-  'COLOR',
-  'THEME',
-  'CORE',
-  'MOOD',
-  'STYLE',
-  'SETTING',
-  'ART_DIRECTION',
-  'OTHER',
-])
 
 export function blankFacetProfileForm(): FacetProfileForm {
   return {
@@ -89,11 +75,6 @@ export function facetToProfileForm(facet: FacetWithAliases): FacetProfileForm {
   }
 }
 
-function kindForTaxonomy(taxonomy: FacetTaxonomy): FacetKind {
-  if (taxonomy === 'PROMPT_ENHANCEMENT') return 'ART_DIRECTION'
-  return BROAD_KINDS.has(taxonomy) ? (taxonomy as FacetKind) : 'OTHER'
-}
-
 function optional(value: string): string | null {
   return value.trim() || null
 }
@@ -126,7 +107,6 @@ export function facetProfilePayload(form: FacetProfileForm): FacetCreateInput {
 
   return {
     title,
-    kind: kindForTaxonomy(form.taxonomy),
     taxonomy: form.taxonomy,
     canonicalValue: form.canonicalValue.trim() || title,
     aliases: parseAliases(form.aliases),

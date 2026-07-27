@@ -58,6 +58,9 @@ jobs:
       - name: Verify enum-backed system option Facets
         run: npx tsx utils/scripts/verifySystemOptionFacetCutover.ts
 
+      - name: Verify Facet taxonomy authority
+        run: npx tsx utils/scripts/verifyFacetTaxonomyAuthority.ts
+
       - name: Verify illustrated Builder Facet coverage
         id: builder-coverage
         continue-on-error: true

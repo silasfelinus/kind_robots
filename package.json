@@ -6,6 +6,7 @@
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
     "audit:facet-data": "prisma generate && tsx utils/scripts/auditFacetCatalogData.ts",
+    "triage:facet-audit": "prisma generate && tsx utils/scripts/triageFacetAudit.ts",
     "facet:alias": "prisma generate && tsx utils/scripts/setFacetAliases.ts",
     "facet:catalog:dry": "prisma generate && tsx utils/scripts/runFacetCatalogSeed.ts && tsx utils/scripts/mergeRewardFacetDuplicateLinks.ts && tsx utils/scripts/mergeCanonicalFacetDuplicates.ts",
     "facet:catalog:apply": "prisma generate && tsx utils/scripts/runFacetCatalogSeed.ts --apply && tsx utils/scripts/mergeRewardFacetDuplicateLinks.ts --apply && tsx utils/scripts/mergeCanonicalFacetDuplicates.ts --apply",

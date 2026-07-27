@@ -1526,8 +1526,10 @@ export const academyStyles: AcademyStyle[] = [
   },
 ]
 
-export const academyStylesBySlug: Record<string, AcademyStyle> =
-  Object.fromEntries(academyStyles.map((style) => [style.slug, style]))
+export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(
+  Object.create(null),
+  Object.fromEntries(academyStyles.map((style) => [style.slug, style])),
+)
 
 export const academyTimeline: AcademyStyle[] = [...academyStyles].sort(
   (a, b) => a.sortYear - b.sortYear,

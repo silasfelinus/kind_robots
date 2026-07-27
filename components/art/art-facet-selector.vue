@@ -48,68 +48,89 @@
         v-model="search"
         type="search"
         class="input input-bordered input-sm w-full rounded-xl bg-base-200"
-        placeholder="Add style, theme, mood, material, character trait…"
+        placeholder="Search or browse styles, themes, moods, materials, traits…"
         @focus="open = true"
+        @keydown.esc="open = false"
+      />
+      <button
+        v-if="open"
+        type="button"
+        class="fixed inset-0 z-30 cursor-default"
+        aria-hidden="true"
+        tabindex="-1"
+        @click="open = false"
       />
       <div
-        v-if="open && search.trim()"
-        class="absolute z-40 mt-1 max-h-72 w-full overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-1 shadow-xl"
+        v-if="open"
+        class="absolute z-40 mt-1 max-h-80 w-full overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-1 shadow-xl"
       >
-        <div
-          v-for="facet in results"
-          :key="facet.id"
-          class="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-200"
-        >
-          <span
-            class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+        <template v-for="group in groupedResults" :key="group.taxonomy">
+          <div
+            class="sticky top-0 z-10 flex items-center gap-2 bg-base-100/95 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-base-content/45 backdrop-blur"
           >
-            <img
-              v-if="facetArtwork(facet)"
-              :src="facetArtwork(facet) || ''"
-              :alt="`${facet.title} artwork`"
-              class="size-full object-cover"
-            />
-            <Icon v-else :name="facet.icon || 'kind-icon:tag'" class="size-4" />
-          </span>
-          <button
-            type="button"
-            class="min-w-0 flex-1 text-left disabled:opacity-40"
-            :disabled="selectedSet.has(facet.id)"
-            @click="addFacet(facet.id)"
-          >
-            <span class="block truncate text-sm font-semibold">{{ facet.title }}</span>
-            <span class="block truncate text-[11px] text-base-content/45">
-              {{ taxonomyLabel(facet.taxonomy) }}
-              <template v-if="facet.groupLabel"> · {{ facet.groupLabel }}</template>
-            </span>
-          </button>
-          <button
-            v-if="!facetArtwork(facet)"
-            type="button"
-            class="btn btn-ghost btn-xs rounded-xl"
-            :disabled="artRequests.requesting[facet.id]"
-            :title="`Request curated artwork for ${facet.title}`"
-            @click="requestArtwork(facet)"
+            <Icon name="kind-icon:tag" class="size-3" />
+            {{ group.label }}
+            <span class="font-semibold text-base-content/25">{{ group.facets.length }}</span>
+          </div>
+          <div
+            v-for="facet in group.facets"
+            :key="facet.id"
+            class="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-200"
           >
             <span
-              v-if="artRequests.requesting[facet.id]"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:image" class="size-3.5" />
-            {{ artRequests.requested[facet.id] ? 'Requested' : 'Art' }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs btn-circle"
-            :disabled="selectedSet.has(facet.id)"
-            aria-label="Add Facet"
-            @click="addFacet(facet.id)"
-          >
-            <Icon name="kind-icon:plus" class="size-3.5" />
-          </button>
-        </div>
-        <p v-if="!results.length" class="px-3 py-3 text-xs text-base-content/45">
-          No matching canonical Facet.
+              class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+            >
+              <img
+                v-if="facetArtwork(facet)"
+                :src="facetArtwork(facet) || ''"
+                :alt="`${facet.title} artwork`"
+                class="size-full object-cover"
+                loading="lazy"
+              />
+              <Icon v-else :name="facet.icon || 'kind-icon:tag'" class="size-4" />
+            </span>
+            <button
+              type="button"
+              class="min-w-0 flex-1 text-left disabled:opacity-40"
+              :disabled="selectedSet.has(facet.id)"
+              @click="addFacet(facet.id)"
+            >
+              <span class="block truncate text-sm font-semibold">{{ facet.title }}</span>
+              <span
+                v-if="facet.groupLabel"
+                class="block truncate text-[11px] text-base-content/45"
+              >
+                {{ facet.groupLabel }}
+              </span>
+            </button>
+            <button
+              v-if="!facetArtwork(facet)"
+              type="button"
+              class="btn btn-ghost btn-xs rounded-xl"
+              :disabled="artRequests.requesting[facet.id]"
+              :title="`Request curated artwork for ${facet.title}`"
+              @click="requestArtwork(facet)"
+            >
+              <span
+                v-if="artRequests.requesting[facet.id]"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:image" class="size-3.5" />
+              {{ artRequests.requested[facet.id] ? 'Requested' : 'Art' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs btn-circle"
+              :disabled="selectedSet.has(facet.id)"
+              aria-label="Add Facet"
+              @click="addFacet(facet.id)"
+            >
+              <Icon name="kind-icon:plus" class="size-3.5" />
+            </button>
+          </div>
+        </template>
+        <p v-if="!hasResults" class="px-3 py-3 text-xs text-base-content/45">
+          {{ search.trim() ? 'No matching canonical Facet.' : 'No Facets available yet.' }}
         </p>
       </div>
     </div>
@@ -166,26 +187,52 @@ const selectedFacets = computed(() => {
     .filter((entry): entry is FacetCatalogEntry => Boolean(entry))
 })
 
-const results = computed(() => {
-  const needle = normalizeFacetLookupKey(search.value)
-  if (!needle) return []
-  return catalog.entries
-    .filter((facet) => {
-      if (!facet.isActive) return false
-      if (allowedTaxonomies.value && !allowedTaxonomies.value.has(facet.taxonomy)) {
-        return false
-      }
-      return [
-        facet.title,
-        facet.canonicalValue,
-        facet.slug || '',
-        facet.taxonomy,
-        facet.groupLabel || '',
-        ...facet.aliases,
-      ].some((value) => normalizeFacetLookupKey(value).includes(needle))
-    })
-    .slice(0, 40)
+const activeSearch = computed(() => normalizeFacetLookupKey(search.value))
+
+const matches = computed(() => {
+  const needle = activeSearch.value
+  return catalog.entries.filter((facet) => {
+    if (!facet.isActive) return false
+    if (allowedTaxonomies.value && !allowedTaxonomies.value.has(facet.taxonomy)) {
+      return false
+    }
+    if (!needle) return true
+    return [
+      facet.title,
+      facet.canonicalValue,
+      facet.slug || '',
+      facet.taxonomy,
+      facet.groupLabel || '',
+      ...facet.aliases,
+    ].some((value) => normalizeFacetLookupKey(value).includes(needle))
+  })
 })
+
+// Group results by taxonomy so the picker reads as labelled categories. When
+// browsing (no search) each group is capped so focusing the field previews the
+// catalog without rendering hundreds of rows; a search widens each group.
+const groupedResults = computed(() => {
+  const browsing = !activeSearch.value
+  const perGroupCap = browsing ? 6 : 24
+  const groups = new Map<FacetTaxonomy, FacetCatalogEntry[]>()
+  for (const facet of matches.value) {
+    const list = groups.get(facet.taxonomy) ?? []
+    if (list.length < perGroupCap) list.push(facet)
+    groups.set(facet.taxonomy, list)
+  }
+  return Array.from(groups.entries())
+    .map(([taxonomy, facets]) => ({
+      taxonomy,
+      label: taxonomyLabel(taxonomy),
+      facets,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .slice(0, 14)
+})
+
+const hasResults = computed(() =>
+  groupedResults.value.some((group) => group.facets.length > 0),
+)
 
 onMounted(async () => {
   if (!catalog.loaded) {

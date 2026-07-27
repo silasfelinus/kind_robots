@@ -137,6 +137,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Byzantine Mosaic',
     era: 'c. 500–1200',
     sortYear: 500,
+    previewImageSrc: '/images/academy/styles/byzantine-mosaic.webp',
     region: 'Eastern Mediterranean',
     keyIdeas:
       'Images built from thousands of glass and gold tesserae, designed to shimmer in candlelight. Byzantine artists cared about presence, not realism — flattened figures with huge eyes gaze straight at you from fields of gold that stand in for heaven itself.',
@@ -182,6 +183,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Illuminated Manuscript',
     era: 'c. 700–1500',
     sortYear: 700,
+    previewImageSrc: '/images/academy/styles/illuminated-manuscript.webp',
     region: 'Medieval Europe',
     keyIdeas:
       'Books as treasure: monks and workshop artists decorated hand-copied pages with gold leaf, impossible knotwork, and tiny worlds curling through the margins. Every inch of vellum was an invitation to ornament, from dragon-tailed initials to snails jousting with knights.',
@@ -225,6 +227,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Song Dynasty Landscape Painting',
     era: 'c. 950–1130',
     sortYear: 950,
+    previewImageSrc: '/images/academy/styles/song-dynasty-landscape.webp',
     region: 'Northern Song China',
     keyIdeas:
       'The "monumental landscape" (daguan shan): a single towering mountain fills most of the composition, its scale felt physically rather than measured with linear perspective. Painters worked in ink, sometimes with light color washes, on silk hanging scrolls meant for slow contemplation. Space is organized through the "three distances" — looking up at a peak from its base, through overlapping ranges toward unseen depth, and across a near hill toward a far one — often combined within a single scroll. Human figures and temples appear only as tiny incidental details, dwarfed by nature’s overwhelming moral and cosmological order. Rock and foliage are built from repeated, textured brushstrokes ("cun" strokes) rather than outline-and-fill, giving a felt, sculptural density despite the monochrome palette.',
@@ -264,6 +267,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Gothic Panel Painting',
     era: 'c. 1200–1450',
     sortYear: 1200,
+    previewImageSrc: '/images/academy/styles/gothic.webp',
     region: 'Italy & Europe',
     keyIdeas:
       'Before the Renaissance learned to fake deep space, painters worked on wooden panels in glowing tempera against skies of solid gold leaf. Gothic painting is the hinge between the flat, eternal figures of Byzantine art and the breathing bodies of the Renaissance: artists like Giotto began letting saints stand with real weight, turn in space, and show tenderness or grief on their faces, while keeping the medieval love of gold, pattern, and pointed-arch framing.',
@@ -323,6 +327,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Renaissance',
     era: 'c. 1400–1600',
     sortYear: 1400,
+    previewImageSrc: '/images/academy/styles/renaissance.webp',
     region: 'Italy & Northern Europe',
     keyIdeas:
       'The rediscovery of perspective, anatomy, and the individual. Renaissance painters built pictures like architects — vanishing points, balanced triangles, sfumato haze — and made human faces worth studying for their own sake.',
@@ -378,6 +383,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Persian Miniature Painting',
     era: 'c. 1400–1600',
     sortYear: 1400,
+    previewImageSrc: '/images/academy/styles/persian-miniature.webp',
     region: 'Timurid Herat & Safavid Persia',
     keyIdeas:
       'Manuscript pages built to be held close and read slowly: court poetry and epic — the Bustan, the Shahnameh — illustrated with a logic opposite to Western perspective. Distant figures sit higher on the page rather than shrinking, light falls flat with no cast shadow, and buildings open in "cutaway" view so inside and outside read at once. Mineral pigment and gold leaf fill flat jewel-bright fields, and the picture surface doubles as ornament — tilework, foliage, and cloth patterns rendered with the same dense precision as the figures.',
@@ -412,6 +418,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Northern Renaissance',
     era: 'c. 1420–1570',
     sortYear: 1420,
+    previewImageSrc: '/images/academy/styles/northern-renaissance.webp',
     region: 'The Low Countries & Germany',
     keyIdeas:
       'While Italy rediscovered antiquity, the artists of Flanders and the Netherlands staged a quieter revolution: oil paint. Building color up in transparent glazes, they achieved a jewel-like realism the south could not match — every hair, brass rivet, and distant church tower rendered with almost microscopic devotion. It hides symbols in ordinary objects (a single candle, a dog, a convex mirror), sets sacred scenes in real Flemish rooms, and looks out of the frame with startlingly modern, individual faces. Later, Bruegel turned that same sharp eye on peasant weddings and snowy villages, inventing the everyday landscape.',
@@ -477,6 +484,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Baroque',
     era: 'c. 1600–1750',
     sortYear: 1600,
+    previewImageSrc: '/images/academy/styles/baroque.webp',
     region: 'Europe',
     keyIdeas:
       'Drama as doctrine. Baroque painters aimed the spotlight, cranked the contrast, and froze stories at their most theatrical instant — a technique called chiaroscuro, where figures blaze out of near-black shadow.',
@@ -532,6 +540,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Rococo',
     era: 'c. 1700–1780',
     sortYear: 1700,
+    previewImageSrc: '/images/academy/styles/rococo.webp',
     region: 'France & Europe',
     keyIdeas:
       'After the thunder of the Baroque, the 18th century exhaled into something lighter and more playful. Rococo is the art of pleasure: garden parties, flirtation, silk and porcelain, painted in a pastel palette of rose, cream, and sky-blue with feathery, dissolving brushwork. Where Baroque used dark drama, Rococo uses soft diffused light and swirling ornamental curves. It can be pure frothy delight (Boucher, Fragonard) or something quieter and more tender — Chardin, working in the same era, turned the same soft light on a soap bubble or a kitchen still life and found real poetry there.',
@@ -591,6 +600,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Neoclassicism',
     era: 'c. 1750–1830',
     sortYear: 1750,
+    previewImageSrc: '/images/academy/styles/neoclassicism.webp',
     region: 'Europe',
     keyIdeas:
       'A deliberate correction after Rococo’s pastel frivolity: artists turned back to the "noble simplicity" of Greece and Rome, freshly fueled by the excavations at Pompeii and Herculaneum. Clear drawing over loose paint, moral seriousness over decoration, stoic self-sacrifice over romance — the art of the Enlightenment and the age of revolutions.',
@@ -648,6 +658,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Ukiyo-e',
     era: 'c. 1650–1900',
     sortYear: 1650,
+    previewImageSrc: '/images/academy/styles/ukiyo-e.webp',
     region: 'Edo-period Japan',
     keyIdeas:
       'Pictures of the floating world: woodblock prints of actors, landscapes, and great waves, made to be affordable and everywhere. Flat color planes, confident outlines, and daring crops later electrified European painters when the prints reached Paris.',
@@ -697,6 +708,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Romanticism',
     era: 'c. 1780–1850',
     sortYear: 1780,
+    previewImageSrc: '/images/academy/styles/romanticism.webp',
     region: 'Europe',
     keyIdeas:
       'Feeling over formula. Romantic painters chased awe — storm-wrecked ships, mountain mists, lone figures dwarfed by the sublime — insisting that emotion and imagination were as true as any measurement.',
@@ -746,6 +758,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Realism',
     era: 'c. 1840–1880',
     sortYear: 1840,
+    previewImageSrc: '/images/academy/styles/realism.webp',
     region: 'France',
     keyIdeas:
       'Paint what is actually there. Realists turned from gods and storms to gleaners, stone breakers, and ordinary rooms, arguing that honest observation of working life deserved the grandest canvases.',
@@ -794,6 +807,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Impressionism',
     era: 'c. 1860–1890',
     sortYear: 1860,
+    previewImageSrc: '/images/academy/styles/impressionism.webp',
     region: 'France',
     keyIdeas:
       'Painting the light instead of the thing. Impressionists worked outdoors, fast, in broken dabs of unmixed color, catching how a haystack or a river actually looks in one fleeting moment of sun.',
@@ -850,6 +864,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Post-Impressionism',
     era: 'c. 1885–1910',
     sortYear: 1885,
+    previewImageSrc: '/images/academy/styles/post-impressionism.webp',
     region: 'France & beyond',
     keyIdeas:
       'Impressionism’s children went separate, radical ways: Van Gogh bent color and stroke to emotion, Seurat rebuilt light from scientific dots, Cézanne carved nature into planes that would later crack open into Cubism.',
@@ -906,6 +921,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Symbolism',
     era: 'c. 1880–1910',
     sortYear: 1880,
+    previewImageSrc: '/images/academy/styles/symbolism.webp',
     region: 'France, Belgium & beyond',
     keyIdeas:
       'While the Impressionists painted sunlight on water, the Symbolists turned inward, toward dreams, myths, and the unseen. Reacting against both cold realism and mere prettiness, they wanted painting to suggest rather than describe — to give form to longing, mystery, death, and the sacred. Expect twilight color, allegorical figures, and scenes that feel like something remembered from a dream you cannot quite place.',
@@ -966,6 +982,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Neo-Impressionism / Pointillism',
     era: 'c. 1884–1910',
     sortYear: 1884,
+    previewImageSrc: '/images/academy/styles/pointillism.webp',
     region: 'France & Belgium',
     keyIdeas:
       'Georges Seurat loved what Impressionism had discovered about light but wanted to put it on a scientific footing. Instead of loose dabs mixed on the palette, he built entire canvases from thousands of tiny, separate dots of pure color, placed so your eye — not the brush — does the blending. Up close it is a field of confetti; step back and it fuses into a glowing, oddly still, luminous whole. His followers, the Neo-Impressionists, spread this "divisionism" across France and Belgium.',
@@ -1026,6 +1043,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Art Nouveau',
     era: 'c. 1890–1910',
     sortYear: 1890,
+    previewImageSrc: '/images/academy/styles/art-nouveau.webp',
     region: 'Europe',
     keyIdeas:
       'Nature as ornament, everywhere. Art Nouveau wrapped posters, jewelry, and whole buildings in whiplash curves, flowing hair, and flattened decorative frames — fine art and design refusing to stay in separate rooms.',
@@ -1076,6 +1094,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Ashcan School',
     era: 'c. 1900–1913',
     sortYear: 1900,
+    previewImageSrc: '/images/academy/styles/ashcan-school.webp',
     region: 'New York',
     keyIdeas:
       'Robert Henri told his students to forget polite academy subjects and paint what was actually outside their studio windows — tenements, saloons, boxing clubs, crowded streets. His circle, nicknamed "the Ashcan School" by a critic who meant it as an insult, gave the modern industrial city the same serious, confident brushwork as a mythological scene: gritty, loud, and alive, like photojournalism painted in oil decades before photojournalism existed.',
@@ -1120,6 +1139,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Expressionism',
     era: 'c. 1905–1930',
     sortYear: 1905,
+    previewImageSrc: '/images/academy/styles/expressionism.webp',
     region: 'Germany & Northern Europe',
     keyIdeas:
       'Truth through distortion. Expressionists jangled color and warped form until the canvas felt the way the world felt — anxious, electric, alive — trading optical accuracy for raw psychological voltage.',
@@ -1175,6 +1195,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Cubism',
     era: 'c. 1907–1920',
     sortYear: 1907,
+    previewImageSrc: '/images/academy/styles/cubism.webp',
     region: 'Paris',
     keyIdeas:
       'Why paint one viewpoint when you can paint them all at once? Cubists shattered subjects into facets and reassembled them, showing a guitar’s front, side, and soul on a single flat surface.',
@@ -1219,6 +1240,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Suprematism',
     era: '1913–1919',
     sortYear: 1913,
+    previewImageSrc: '/images/academy/styles/suprematism.webp',
     region: 'Russia',
     keyIdeas:
       'Kazimir Malevich pushed abstraction as far as it would go: not reducing a subject to shapes, but throwing the subject away entirely. He called it Suprematism — "the supremacy of pure feeling" over the depiction of objects — and within a few years was floating clusters of squares, bars, and circles across bare white canvases, as if geometry itself had come unmoored from gravity.',
@@ -1248,6 +1270,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'De Stijl',
     era: 'c. 1917–1931',
     sortYear: 1917,
+    previewImageSrc: '/images/academy/styles/de-stijl.webp',
     region: 'Netherlands',
     keyIdeas:
       'Art reduced to its purest ingredients: straight lines, right angles, and primary colors. De Stijl believed a universal visual harmony could rebuild a world shaken by war — one perfect grid at a time.',
@@ -1300,6 +1323,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Bauhaus',
     era: '1919–1933',
     sortYear: 1919,
+    previewImageSrc: '/images/academy/styles/bauhaus.webp',
     region: 'Germany',
     keyIdeas:
       'Painting, craft, and design as one discipline: "form follows function," taught through hands-on workshops and a shared foundational visual vocabulary. Kandinsky and Klee both taught the school\'s first-year "form" class, codifying geometric shape and color into symbolic language — a direct continuation of De Stijl\'s flat grids, until the Nazi government forced the school to close in 1933 and its faculty scattered its style worldwide.',
@@ -1355,6 +1379,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'American Regionalism',
     era: 'c. 1928–1935',
     sortYear: 1928,
+    previewImageSrc: '/images/academy/styles/american-regionalism.webp',
     region: 'American Midwest',
     keyIdeas:
       'After a decade of American painters looking to Paris for their cues, a Midwestern countercurrent insisted the most American subject was standing right outside the studio window: county fairs, cornfields, Carpenter Gothic farmhouses, storm cellars. Regionalist painters rendered these everyday rural scenes with a smooth, almost sculptural precision — crisp outlines and simplified rounded forms — rather than the loose, gritty immediacy of the Ashcan School. The tone is famously ambiguous: sincere homage or gentle satire?',
@@ -1390,6 +1415,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Mughal Miniature Painting',
     era: 'c. 1560–1650',
     sortYear: 1560,
+    previewImageSrc: '/images/academy/styles/mughal-miniature.webp',
     region: 'Imperial atelier, Mughal India',
     keyIdeas:
       "Akbar's Imperial atelier fused the flat, jewel-toned Persian manuscript tradition with Indian color sense and an increasingly naturalistic, observational eye — figures gained volume and individualized faces, and landscapes gained atmospheric recession that Persian miniatures deliberately avoided. Akbar-era works are crowded narrative scenes illustrating dynastic chronicles, built from teams of specialist painters. Under Jahangir the emphasis shifted from crowded narrative toward exacting single-subject portraiture and scientific nature studies. Gold is used more sparingly and locally than in Persian work, reserved for thrones, halos, and ornament rather than whole sky fields; fine stippled brushwork gives faces and fabric a rounded, sculptural finish quite distinct from Persian flat color fields.",
@@ -1431,6 +1457,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Fayum Mummy Portraits',
     era: 'c. A.D. 50–250',
     sortYear: 50,
+    previewImageSrc: '/images/academy/styles/fayum-mummy-portraits.webp',
     region: 'Roman Egypt (Fayum oasis, Antinoopolis, Memphis)',
     keyIdeas:
       "In Roman-era Egypt, funerary practice fused Egyptian mummification with imported Greco-Roman portrait painting: a lifelike panel portrait of the deceased, painted in encaustic (pigmented hot wax, occasionally tempera) on a thin wood panel, was wrapped directly into the mummy's linen bandaging over the face. Named for the Fayum oasis where the largest number survive, these are among the only large surviving body of painted portraiture from the ancient Mediterranean world. The style is strikingly naturalistic for its era: modeled flesh tones, individualized features, and direct psychological presence, sitting at the meeting point of Egyptian funerary tradition and Roman portrait convention. Almost nothing is known of the individual painters — no signed Fayum portrait survives.",
@@ -1462,6 +1489,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Vienna Secession',
     era: 'c. 1897–1918',
     sortYear: 1897,
+    previewImageSrc: '/images/academy/styles/vienna-secession.webp',
     region: 'Vienna, Austria',
     keyIdeas:
       'Founded in 1897 when Gustav Klimt and a group of Viennese artists broke from the conservative Künstlerhaus academy under the motto "Der Zeit ihre Kunst, der Kunst ihre Freiheit" ("To every age its art, to art its freedom"), the Vienna Secession fused Art Nouveau\'s organic decorative line with a new, almost proto-abstract flatness: whole passages of a picture dissolve into pure ornamental pattern — gold-leaf spirals, eyes, rectangles, checkerboards — while the figures\' faces and hands remain rendered with sharp, almost photographic naturalism. The effect sits deliberately between two-dimensional pattern and three-dimensional portraiture in the same canvas, applied to symbolic and allegorical subjects (love, mortality, myth) rather than everyday scenes. Klimt\'s late "Golden Phase" (c. 1899-1910) is the movement\'s best-known and most visually distinctive output.',
@@ -1493,6 +1521,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Joseon Dynasty Korean Genre Painting',
     era: 'c. 1750–1820',
     sortYear: 1750,
+    previewImageSrc: '/images/academy/styles/joseon-genre-painting.webp',
     region: 'Late Joseon Dynasty, Korea',
     keyIdeas:
       'For most of the Joseon Dynasty, Korean painting followed Chinese scholarly convention: monochrome ink landscapes and disciplined calligraphic brushwork, made by and for the yangban aristocracy. In the late 18th century a handful of court painters turned that same economical brush toward something almost nobody had painted seriously before: ordinary people doing ordinary things — wrestling matches, village schoolrooms, courting couples, market stalls. This genre-painting tradition (pungsokhwa, "pictures of customs") is candid and often funny, with a light touch that assumes the viewer already knows the joke. There is no dense border, no gold, and often barely any background at all — figures float on plain paper, caught mid-gesture, the whole scene carried by a few confident, economical lines.',
@@ -1530,6 +1559,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'The Nabis',
     era: 'c. 1888–1900',
     sortYear: 1888,
+    previewImageSrc: '/images/academy/styles/the-nabis.webp',
     region: 'Paris, France',
     keyIdeas:
       'The Nabis ("prophets," from the Hebrew) formed around 1888-1889 among students connected to the Académie Julian, after Paul Sérusier returned from Pont-Aven with a small landscape painted under Paul Gauguin\'s direct guidance: instead of copying the scene\'s colors as observed, Sérusier organized it as patches of emotionally chosen, non-naturalistic color. That painting — nicknamed "The Talisman" by the group — became their founding icon. Maurice Denis crystallized the theory: before a painting depicts a person, a horse, or a story, "it is essentially a flat surface covered with colors assembled in a certain order." The group carried the flattened space and strong contours of Japanese ukiyo-e prints into decorative panels, posters, book illustration, and theater design, treating those "minor" decorative arts as equal in seriousness to easel painting.',
@@ -1572,6 +1602,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Hudson River School',
     era: 'c. 1825–1875',
     sortYear: 1825,
+    previewImageSrc: '/images/academy/styles/hudson-river-school.webp',
     region: 'United States',
     keyIdeas:
       'The Hudson River School adds a major nineteenth-century landscape tradition, visually distinct from this curriculum\'s Romanticism, Realism, and American Regionalism entries. Its signature is not merely "dramatic nature": it combines panoramic scale, precise botanical and geological detail, theatrical light, deep atmospheric distance, and tiny human figures that turn the landscape into a moral or spiritual stage. Thomas Cole founded the movement by combining observed American scenery with allegory and warnings about unchecked development; Frederic Edwin Church and Albert Bierstadt later scaled it up into enormous, scientifically detailed canvases displayed as public spectacles. Teach the movement\'s cultural framing honestly: these paintings often present American land as sublime, abundant, and apparently unoccupied, a visual language that overlaps with Manifest Destiny and can erase Indigenous presence and displacement.',
@@ -1614,6 +1645,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Precisionism',
     era: 'c. 1915–1935',
     sortYear: 1915,
+    previewImageSrc: '/images/academy/styles/precisionism.webp',
     region: 'United States',
     keyIdeas:
       "Precisionism gives learners a clean bridge between Cubist simplification, American industrial modernity, photography, and later graphic design: a repeatable visual grammar of hard-edged geometry, compressed depth, and controlled light rather than one painter's brushwork. The label was applied retrospectively to artists who shared a highly controlled approach to factories, grain elevators, bridges, city architecture, machinery, and simplified rural buildings, absorbing lessons from Cubism, Futurism, photography, commercial illustration, and machine-age design without forming a single manifesto-driven group. Teach the movement's framing honestly: these paintings often remove people, smoke, and clutter from industrial scenes, producing images that are simultaneously celebratory, uncanny, and emotionally distant — a useful prompt for asking what labor and environmental cost disappears when a factory is rendered as pristine geometry.",

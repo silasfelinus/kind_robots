@@ -16,7 +16,8 @@
         <div>
           <h2 class="text-lg font-semibold">ArtJob Pipeline</h2>
           <p class="text-xs text-base-content/60">
-            Paginated queue, editable generation briefs, render health, and recovery tools.
+            Paginated queue, editable generation briefs, render health, and
+            recovery tools.
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -52,7 +53,11 @@
       <div
         v-if="repairMessage"
         class="rounded-2xl border p-3 text-sm"
-        :class="repairPreview?.unresolvedCount ? 'border-warning/40 bg-warning/10' : 'border-success/40 bg-success/10'"
+        :class="
+          repairPreview?.unresolvedCount
+            ? 'border-warning/40 bg-warning/10'
+            : 'border-success/40 bg-success/10'
+        "
       >
         {{ repairMessage }}
       </div>
@@ -71,7 +76,9 @@
           :key="status"
           class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <div class="text-[11px] font-semibold uppercase tracking-wide text-base-content/50">
+          <div
+            class="text-[11px] font-semibold uppercase tracking-wide text-base-content/50"
+          >
             {{ status }}
           </div>
           <div class="mt-1 text-2xl font-black">{{ statusCount(status) }}</div>
@@ -81,11 +88,15 @@
       <div class="grid gap-3 xl:grid-cols-2">
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <div class="mb-2 flex items-center justify-between gap-2">
-            <h3 class="text-sm font-semibold">Art servers</h3>
+            <h3 class="text-sm font-semibold">Private art servers</h3>
             <button
               type="button"
               class="btn btn-xs rounded-2xl"
-              :class="artJobStore.queuePaused ? 'btn-success' : 'btn-warning btn-outline'"
+              :class="
+                artJobStore.queuePaused
+                  ? 'btn-success'
+                  : 'btn-warning btn-outline'
+              "
               :disabled="artJobStore.togglingQueuePause"
               @click="artJobStore.setQueuePaused(!artJobStore.queuePaused)"
             >
@@ -94,38 +105,114 @@
           </div>
           <div class="grid gap-2 sm:grid-cols-2">
             <div
-              v-for="server in serverStore.artServers"
+              v-for="server in privateArtServers"
               :key="server.id"
               class="rounded-xl border border-base-200 p-2"
             >
-              <div class="truncate text-sm font-semibold">
-                {{ server.label || server.title }}
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex min-w-0 items-center gap-2">
+                  <span
+                    class="h-2.5 w-2.5 shrink-0 rounded-full"
+                    :class="serverStatusDotClass(server.lastStatus)"
+                    :title="server.lastStatus"
+                  />
+                  <span class="truncate text-sm font-semibold">
+                    {{ server.label || server.title }}
+                  </span>
+                </div>
+                <div class="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-xl px-2"
+                    :disabled="refreshingServerIds.includes(server.id)"
+                    title="Re-check this server now"
+                    @click="refreshServer(server.id)"
+                  >
+                    <span
+                      v-if="refreshingServerIds.includes(server.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    <span v-else>Refresh</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-xl px-2 text-error"
+                    :disabled="removingServerIds.includes(server.id)"
+                    title="Remove this server"
+                    @click="removeServer(server)"
+                  >
+                    <span
+                      v-if="removingServerIds.includes(server.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    <span v-else>Remove</span>
+                  </button>
+                </div>
               </div>
               <div class="mt-1 text-[11px] text-base-content/60">
                 {{ server.serverType }} · {{ server.lastStatus }}
               </div>
             </div>
-            <p v-if="!serverStore.artServers.length" class="text-xs text-base-content/50">
-              No art servers registered.
+            <p
+              v-if="!privateArtServers.length"
+              class="text-xs text-base-content/50"
+            >
+              No private art servers registered.
             </p>
           </div>
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-          <h3 class="mb-2 text-sm font-semibold">Uptime · {{ windowHours }}h</h3>
-          <div class="flex flex-col gap-2">
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold">Uptime · {{ windowHours }}h</h3>
+            <div
+              class="flex items-center gap-3 text-[10px] text-base-content/50"
+            >
+              <span class="flex items-center gap-1">
+                <span class="h-2 w-2 rounded-sm bg-success" /> up
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="h-2 w-2 rounded-sm bg-error" /> down
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-3">
             <div
               v-for="server in uptime"
               :key="server.serverId"
-              class="flex items-center justify-between gap-3 rounded-xl bg-base-200/50 p-2 text-xs"
+              class="rounded-xl bg-base-200/50 p-2"
             >
-              <span class="truncate font-semibold">{{ server.title }}</span>
-              <span :class="uptimeClass(server.uptimePct)">
-                {{ server.uptimePct === null ? 'no data' : `${server.uptimePct}%` }}
-                <span v-if="server.avgLatencyMs !== null" class="text-base-content/50">
-                  · {{ server.avgLatencyMs }}ms
+              <div class="flex items-center justify-between gap-3 text-xs">
+                <span class="truncate font-semibold">{{ server.title }}</span>
+                <span :class="uptimeClass(server.uptimePct)">
+                  {{
+                    server.uptimePct === null
+                      ? 'no data'
+                      : `${server.uptimePct}%`
+                  }}
+                  <span
+                    v-if="server.avgLatencyMs !== null"
+                    class="text-base-content/50"
+                  >
+                    · {{ server.avgLatencyMs }}ms
+                  </span>
                 </span>
-              </span>
+              </div>
+              <div
+                v-if="server.samples.length"
+                class="mt-2 flex h-8 items-stretch gap-px overflow-hidden rounded"
+              >
+                <span
+                  v-for="(sample, index) in server.samples"
+                  :key="index"
+                  class="min-w-0 flex-1 rounded-sm"
+                  :class="sample.ok ? 'bg-success' : 'bg-error'"
+                  :title="sampleTooltip(sample)"
+                />
+              </div>
+              <p v-else class="mt-2 text-[11px] text-base-content/40">
+                No samples in this window.
+              </p>
             </div>
             <p v-if="!uptime.length" class="text-xs text-base-content/50">
               No uptime samples yet.
@@ -140,7 +227,8 @@
             <div class="flex flex-wrap items-center gap-2">
               <h3 class="text-sm font-semibold">Queue browser</h3>
               <span class="text-[11px] text-base-content/50">
-                Showing {{ pageStart }}–{{ pageEnd }} of {{ artJobStore.jobTotalCount }}
+                Showing {{ pageStart }}–{{ pageEnd }} of
+                {{ artJobStore.jobTotalCount }}
               </span>
               <button
                 type="button"
@@ -171,11 +259,17 @@
                 :key="filter"
                 type="button"
                 class="btn btn-xs rounded-2xl"
-                :class="artJobStore.jobStatusFilter === filter ? 'btn-primary' : 'btn-ghost'"
+                :class="
+                  artJobStore.jobStatusFilter === filter
+                    ? 'btn-primary'
+                    : 'btn-ghost'
+                "
                 @click="changeStatus(filter)"
               >
                 {{ filter }}
-                <span class="ml-1 font-mono opacity-70">{{ statusCount(filter) }}</span>
+                <span class="ml-1 font-mono opacity-70">{{
+                  statusCount(filter)
+                }}</span>
               </button>
             </div>
           </div>
@@ -211,7 +305,9 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs rounded-2xl"
-                :disabled="!artJobStore.jobHasPreviousPage || artJobStore.loadingJobs"
+                :disabled="
+                  !artJobStore.jobHasPreviousPage || artJobStore.loadingJobs
+                "
                 @click="artJobStore.setJobPage(artJobStore.jobPage - 1)"
               >
                 Previous
@@ -231,7 +327,9 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs rounded-2xl"
-                :disabled="!artJobStore.jobHasNextPage || artJobStore.loadingJobs"
+                :disabled="
+                  !artJobStore.jobHasNextPage || artJobStore.loadingJobs
+                "
                 @click="artJobStore.setJobPage(artJobStore.jobPage + 1)"
               >
                 Next
@@ -271,11 +369,18 @@
 
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-1">
-                  <span class="font-mono text-xs font-semibold">#{{ job.id }}</span>
-                  <span class="badge badge-xs rounded-2xl" :class="jobStatusClass(job.status)">
+                  <span class="font-mono text-xs font-semibold"
+                    >#{{ job.id }}</span
+                  >
+                  <span
+                    class="badge badge-xs rounded-2xl"
+                    :class="jobStatusClass(job.status)"
+                  >
                     {{ job.status }}
                   </span>
-                  <span class="badge badge-outline badge-xs rounded-2xl">{{ job.engine }}</span>
+                  <span class="badge badge-outline badge-xs rounded-2xl">{{
+                    job.engine
+                  }}</span>
                   <span
                     v-if="job.projectSlug"
                     class="badge badge-secondary badge-xs rounded-2xl"
@@ -283,7 +388,9 @@
                     {{ job.projectSlug }}
                   </span>
                 </div>
-                <p class="mt-2 line-clamp-5 whitespace-pre-wrap text-sm font-medium leading-relaxed">
+                <p
+                  class="mt-2 line-clamp-5 whitespace-pre-wrap text-sm font-medium leading-relaxed"
+                >
                   {{ jobPrompt(job) || 'Prompt unavailable.' }}
                 </p>
                 <div class="mt-2 flex flex-wrap gap-1">
@@ -296,7 +403,8 @@
                   </span>
                 </div>
                 <p class="mt-2 text-[11px] text-base-content/50">
-                  {{ formatDateTime(job.createdAt) }} · attempt {{ job.attempts }} · priority {{ job.priority }}
+                  {{ formatDateTime(job.createdAt) }} · attempt
+                  {{ job.attempts }} · priority {{ job.priority }}
                 </p>
               </div>
             </div>
@@ -312,13 +420,23 @@
               <summary class="cursor-pointer px-3 py-2 text-xs font-semibold">
                 Full prompt and generation fields
               </summary>
-              <div class="flex flex-col gap-3 border-t border-base-300 p-3 text-xs">
+              <div
+                class="flex flex-col gap-3 border-t border-base-300 p-3 text-xs"
+              >
                 <div>
-                  <div class="font-semibold uppercase tracking-wide text-base-content/50">Prompt</div>
-                  <p class="mt-1 whitespace-pre-wrap leading-relaxed">{{ jobPrompt(job) }}</p>
+                  <div
+                    class="font-semibold uppercase tracking-wide text-base-content/50"
+                  >
+                    Prompt
+                  </div>
+                  <p class="mt-1 whitespace-pre-wrap leading-relaxed">
+                    {{ jobPrompt(job) }}
+                  </p>
                 </div>
                 <div>
-                  <div class="font-semibold uppercase tracking-wide text-base-content/50">
+                  <div
+                    class="font-semibold uppercase tracking-wide text-base-content/50"
+                  >
                     Negative prompt
                   </div>
                   <p class="mt-1 whitespace-pre-wrap text-base-content/70">
@@ -429,7 +547,10 @@
           >
             Previous
           </button>
-          <span class="text-xs">Page {{ artJobStore.jobPage }} of {{ artJobStore.jobPageCount }}</span>
+          <span class="text-xs"
+            >Page {{ artJobStore.jobPage }} of
+            {{ artJobStore.jobPageCount }}</span
+          >
           <button
             type="button"
             class="btn btn-ghost btn-sm rounded-2xl"
@@ -464,10 +585,12 @@ import {
   useArtJobStore,
   type ArtJobRecord,
   type ArtJobStatus,
+  type UptimeSample,
   type WeakPromptRepairResult,
 } from '@/stores/artJobStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import type { Server } from '@/stores/serverStore'
 
 type JsonRecord = Record<string, unknown>
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
@@ -484,6 +607,8 @@ const editorJob = ref<ArtJobRecord | null>(null)
 const editorAction = ref<EditorAction>('EDIT')
 const repairPreview = ref<WeakPromptRepairResult | null>(null)
 const repairMessage = ref('')
+const refreshingServerIds = ref<number[]>([])
+const removingServerIds = ref<number[]>([])
 
 const statusFilters: Array<ArtJobStatus | 'ALL'> = [
   'PENDING',
@@ -497,6 +622,15 @@ const summaryStatuses: ArtJobStatus[] = ['PENDING', 'RUNNING', 'FAILED', 'DONE']
 const stats = computed(() => artJobStore.stats)
 const uptime = computed(() => artJobStore.uptime)
 const windowHours = computed(() => artJobStore.windowHours)
+// Only self-hosted render servers (ComfyUI / Automatic1111). Cloud providers
+// like OpenAI are omitted — this panel mirrors the private servers the uptime
+// endpoint tracks, so no "OpenAI is up" indicators appear here.
+const privateArtServers = computed<Server[]>(() =>
+  serverStore.artServers.filter(
+    (server: Server) =>
+      server.serverType === 'COMFY' || server.serverType === 'A1111',
+  ),
+)
 const isLoading = computed(
   () =>
     artJobStore.loadingStats ||
@@ -569,7 +703,10 @@ function payloadScalar(job: ArtJobRecord, keys: string[]): string {
   return nestedScalar(payload.workflow, keys)
 }
 
-function workflowPrompt(job: ArtJobRecord, kind: 'positive' | 'negative'): string {
+function workflowPrompt(
+  job: ArtJobRecord,
+  kind: 'positive' | 'negative',
+): string {
   const workflow = asRecord(asRecord(job.payload).workflow)
   for (const value of Object.values(workflow)) {
     const node = asRecord(value)
@@ -593,8 +730,12 @@ function workflowPrompt(job: ArtJobRecord, kind: 'positive' | 'negative'): strin
 
 function jobPrompt(job: ArtJobRecord): string {
   return (
-    payloadScalar(job, ['promptString', 'artPrompt', 'positivePrompt', 'prompt']) ||
-    workflowPrompt(job, 'positive')
+    payloadScalar(job, [
+      'promptString',
+      'artPrompt',
+      'positivePrompt',
+      'prompt',
+    ]) || workflowPrompt(job, 'positive')
   )
 }
 
@@ -607,8 +748,19 @@ function jobNegativePrompt(job: ArtJobRecord): string {
 
 function jobSettings(job: ArtJobRecord): string[] {
   const values = [
-    ['size', `${payloadScalar(job, ['width'])}×${payloadScalar(job, ['height'])}`],
-    ['model', payloadScalar(job, ['checkpoint', 'ckpt_name', 'unet_name', 'model_name'])],
+    [
+      'size',
+      `${payloadScalar(job, ['width'])}×${payloadScalar(job, ['height'])}`,
+    ],
+    [
+      'model',
+      payloadScalar(job, [
+        'checkpoint',
+        'ckpt_name',
+        'unet_name',
+        'model_name',
+      ]),
+    ],
     ['sampler', payloadScalar(job, ['sampler', 'sampler_name'])],
     ['scheduler', payloadScalar(job, ['scheduler'])],
     ['steps', payloadScalar(job, ['steps'])],
@@ -649,6 +801,56 @@ function uptimeClass(value: number | null): string {
   if (value >= 99) return 'text-success'
   if (value >= 90) return 'text-warning'
   return 'text-error'
+}
+
+function serverStatusDotClass(status: string | null | undefined): string {
+  if (status === 'ONLINE') return 'bg-success'
+  if (status === 'OFFLINE') return 'bg-error'
+  if (status === 'DEGRADED') return 'bg-warning'
+  return 'bg-base-content/30'
+}
+
+function sampleTooltip(sample: UptimeSample): string {
+  const when = formatDateTime(sample.checkedAt)
+  const state = sample.ok ? 'up' : 'down'
+  const latency = sample.latencyMs === null ? '' : ` · ${sample.latencyMs}ms`
+  return `${when} · ${state}${latency}`
+}
+
+async function refreshServer(id: number): Promise<void> {
+  if (refreshingServerIds.value.includes(id)) return
+  refreshingServerIds.value = [...refreshingServerIds.value, id]
+  try {
+    await serverStore.testServerHealth(id)
+    // Pull the freshly recorded health sample into the uptime graph.
+    await artJobStore.fetchUptime()
+  } finally {
+    refreshingServerIds.value = refreshingServerIds.value.filter(
+      (serverId) => serverId !== id,
+    )
+  }
+}
+
+async function removeServer(server: Server): Promise<void> {
+  if (removingServerIds.value.includes(server.id)) return
+  const confirmed = window.confirm(
+    `Remove art server "${server.label || server.title}"? This deletes the server record.`,
+  )
+  if (!confirmed) return
+
+  removingServerIds.value = [...removingServerIds.value, server.id]
+  try {
+    const result = await serverStore.deleteServer(server.id)
+    if (result.success) {
+      await artJobStore.fetchUptime()
+    } else {
+      artJobStore.error = result.message || 'Failed to remove server.'
+    }
+  } finally {
+    removingServerIds.value = removingServerIds.value.filter(
+      (serverId) => serverId !== server.id,
+    )
+  }
 }
 
 function formatAge(seconds: number): string {
@@ -720,8 +922,10 @@ async function requestCuration(job: ArtJobRecord): Promise<void> {
 }
 
 function curationRequested(job: ArtJobRecord): boolean {
-  return artJobStore.curationRequestedIds.includes(job.id) ||
+  return (
+    artJobStore.curationRequestedIds.includes(job.id) ||
     Boolean(asRecord(asRecord(job.payload).curation).curator)
+  )
 }
 
 async function copyPrompt(job: ArtJobRecord): Promise<void> {

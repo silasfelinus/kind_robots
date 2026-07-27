@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
@@ -258,5 +258,9 @@ watch(
 
 onMounted(async () => {
   await loadManagerData()
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 </script>

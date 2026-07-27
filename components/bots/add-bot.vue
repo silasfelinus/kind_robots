@@ -493,7 +493,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useBotStore, type BotForm } from '@/stores/botStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
@@ -693,6 +693,10 @@ onMounted(async () => {
 
   await prepareForm()
   configureBotImageUpload()
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 
 watch(

@@ -271,7 +271,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import {
@@ -350,6 +350,10 @@ const resolvedActiveImage = computed(() => {
 onMounted(async () => {
   await prepareForm()
   configureRewardImageUpload()
+})
+
+onUnmounted(() => {
+  uploadStore.clearTarget()
 })
 
 watch(

@@ -4,6 +4,10 @@ import { computed, ref } from 'vue'
 import type { Rarity, RewardType } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { useFacetCatalogStore } from '@/stores/facetCatalogStore'
+import {
+  FACET_EMERGENCY_FALLBACKS,
+  type FacetEmergencyField,
+} from '@/utils/facetEmergencyFallbacks'
 
 export type RolledReward = {
   id: string
@@ -69,6 +73,8 @@ type RarityRollOption = {
   weight: number
 }
 
+// Names and honorifics are procedural language lexicons, not reusable creative
+// concepts. They intentionally remain local rather than becoming Facets.
 const GIVEN_NAMES = [
   'Mira',
   'Buttonwick',
@@ -100,7 +106,7 @@ const GIVEN_NAMES = [
   'Kestrel',
   'Lark',
   'Marlow',
-]
+] as const
 
 const FAMILY_NAMES = [
   'Voss',
@@ -123,7 +129,7 @@ const FAMILY_NAMES = [
   'Mothweather',
   'Tanglebone',
   'Foxglove',
-]
+] as const
 
 const HONORIFICS = [
   'adventurer',
@@ -142,384 +148,7 @@ const HONORIFICS = [
   'the recently noticed',
   'bearer of confusing credentials',
   'the mostly harmless',
-]
-
-const PERSONALITIES = [
-  'introverted',
-  'extroverted',
-  'passionate',
-  'hopeless-romantic',
-  'foolish',
-  'easily-frustrated',
-  'submissive',
-  'dominant',
-  'narcissistic',
-  'nervous',
-  'scatter-brained',
-  'bookworm',
-  'book-smart',
-  'obsequious',
-  'driven',
-  'show-off',
-  'altruistic',
-  'generous',
-  'apathetic',
-  'sarcastic',
-  'sense-of-humor',
-  'fatalistic',
-  'optimist',
-  'pessimist',
-  'logical',
-  'emotional',
-  'charismatic',
-  'enthusiastic',
-  'energetic',
-  'hyperactive',
-  'ditzy',
-  'artistic',
-  'authoritarian',
-  'problem-solver',
-  'puzzler',
-  'devious',
-  'ignorant',
-  'obsessive',
-  'amoral',
-  'inventive',
-  'creative-writer',
-  'secretive',
-  'lone-wolf',
-  'team-player',
-  'believes-psychic',
-  'metaphysical',
-  'superstitious',
-  'overly-literal',
-  'compulsively-honest',
-  'pathological-liar',
-  'hoarder',
-  'conspiracy-minded',
-  'soft-spoken',
-  'brash',
-  'dramatic',
-  'deadpan',
-  'melancholy',
-  'cheerfully-morbid',
-  'worrisome',
-  'reckless',
-  'protective',
-  'jealous',
-  'vindictive',
-  'diplomatic',
-  'blunt',
-  'curious',
-  'inquisitive',
-  'gullible',
-  'suspicious',
-  'perfectionist',
-  'animist',
-  'serene',
-  'competitive',
-  'flirtatious',
-  'daydreamer',
-  'daredevil',
-]
-
-const QUIRKS = [
-  'double-jointed',
-  'fortunate',
-  'heterochromia',
-  'extra-body-part',
-  'musical',
-  'likes-to-dance',
-  'left-handed',
-  'obsessive-compulsive',
-  'clumsy',
-  'notably-tall',
-  'notably-short',
-  'kleptomaniac',
-  'pyromaniac',
-  'lactose-intolerant',
-  'allergies',
-  'addict',
-  'secret-identity',
-  'always-online',
-  'messy',
-  'fashionable',
-  'forgetful',
-  'animal-magnet',
-  'green-thumb',
-  'insomniac',
-  'bad-luck-magnet',
-]
-
-const GENRES = [
-  'Fantasy',
-  'Science Fiction',
-  'Mystery',
-  'Thriller',
-  'Crime',
-  'Horror',
-  'Romance',
-  'Comedy',
-  'Drama',
-  'Action',
-  'Adventure',
-  'Historical Fiction',
-  'Literary Fiction',
-  'Contemporary Fiction',
-  'Young Adult',
-  "Children's Fantasy",
-  'True Crime',
-  'Gothic',
-  'Gothic Comedy',
-  'Weirdcore',
-  'Magical Realism',
-  'Cosmic Horror',
-  'Cosmic Dread',
-  'Folk Horror',
-  'Cozy Horror',
-  'Noir',
-  'Western',
-  'War',
-  'Spy / Espionage',
-  'Superhero',
-  'Cyberpunk',
-  'Steampunk',
-  'Space Opera',
-  'Urban Fantasy',
-  'Dark Fantasy',
-  'Paranormal',
-  'Dystopian',
-  'Post-Apocalypse',
-  'Satire',
-  'Musical',
-  'Solarpunk',
-  'Sword and Sorcery',
-  'Martial Arts',
-  'Fairy Tale',
-  'Mythology',
-  'Carnival',
-]
-
-const SPECIES = [
-  'Human',
-  'Elf',
-  'Dwarf',
-  'Orc',
-  'Goblin',
-  'Halfling',
-  'Gnome',
-  'Troll',
-  'Ogre',
-  'Giant',
-  'Catfolk',
-  'Wolfkin',
-  'Foxkin',
-  'Rabbitfolk',
-  'Bearfolk',
-  'Lizardfolk',
-  'Frogfolk',
-  'Birdfolk',
-  'Sharkfolk',
-  'Mothfolk',
-  'Fae',
-  'Satyr',
-  'Merfolk',
-  'Centaur',
-  'Minotaur',
-  'Harpy',
-  'Sphinx',
-  'Dragonkin',
-  'Phoenixborn',
-  'Unicorn-Touched',
-  'Vampire',
-  'Werebeast',
-  'Ghost',
-  'Skeleton',
-  'Zombie',
-  'Ghoul',
-  'Witchborn',
-  'Shadowkin',
-  'Changeling',
-  'Nightmare',
-  'Robot',
-  'Android',
-  'Golem',
-  'Living Doll',
-  'Slime',
-  'Plantfolk',
-  'Mushroomfolk',
-  'Crystalborn',
-  'Starborn',
-  'Voidling',
-  'Siren',
-  'Tardigrade',
-  'Axolotl',
-  'Mantis Shrimp',
-  'Murder of Crows',
-  'Leech',
-  'Octopus',
-  'Elder God',
-  'Platypus',
-  'Ankylosaurus',
-  'Angel',
-  'Demon',
-  'Trickster',
-  'Deity',
-  'Fairy',
-  'Imp',
-  'Gremlin',
-  'Dryad',
-  'Luck Dragon',
-  'Butterfly',
-  'Spider',
-  'Imaginary Friend',
-  'Poltergeist',
-  'Cryptid',
-  'Dragon',
-  'Whale',
-  'Potted Geranium',
-  'Sentient Spaceship',
-  'Space Clown',
-  'Kaiju',
-  'Toon',
-  'Yokai',
-  'Scarecrow',
-  'Time Being',
-  'Lion',
-  'Cat',
-  'Dog',
-  'Rabbit',
-]
-
-const CLASSES = [
-  'Rogue',
-  'Warrior',
-  'Wizard',
-  'Cleric',
-  'Bard',
-  'Ranger',
-  'Paladin',
-  'Druid',
-  'Monk',
-  'Warlock',
-  'Artificer',
-  'Oracle',
-  'Witch',
-  'Slacker',
-  'Netrunner',
-  'Cupid',
-  'Accountant',
-  'Public Notary',
-  'Politician',
-  'Groupie',
-  'Musician',
-  'Performance Artist',
-  'Bounty Hunter',
-  'Doctor',
-  'Lawyer',
-  'Space Lawyer',
-  'Criminal Mastermind',
-  'Super Hero',
-  'Super Villain',
-  'Reporter',
-  'Clown',
-  'Mime',
-  'Assassin',
-  'NPC',
-  'Gambler',
-  'Mad Scientist',
-  'Alchemist',
-  'Polymath',
-  'Poet',
-  'Waste of Space',
-  'Philanthropist',
-  'Troublemaker',
-  'Chaos Consultant',
-  'Reluctant Chosen One',
-  'Tactical Coward',
-  'Unlicensed Exorcist',
-  'Narrative Engineer',
-  'Drone Wrangler',
-  'Containment Specialist',
-  'The Bait',
-  'Mentor',
-  'Middle Manager',
-  'Compliance Officer',
-  'Apex Predator',
-]
-
-const ALIGNMENTS = [
-  'Lawful Good',
-  'Neutral Good',
-  'Chaotic Good',
-  'Lawful Neutral',
-  'True Neutral',
-  'Chaotic Neutral',
-  'Lawful Evil',
-  'Neutral Evil',
-  'Chaotic Evil',
-  'Appetite',
-  'Onanism',
-  'Safety',
-  'Curious',
-  'Petty',
-  'Correct',
-  'Loyal',
-  'Aesthetic',
-  'Utilitarian',
-  'Transactional',
-]
-
-const GENDERS = [
-  'man',
-  'woman',
-  'nonbinary',
-  'agender',
-  'fluid',
-  'N/A — inapplicable to entity architecture',
-  'two-spirit',
-  'demi',
-  'intersex',
-  'questioning',
-  'pangender',
-  'genderqueer',
-  'androgynous',
-  'neutrois',
-  'xenogender',
-]
-
-const BACKGROUNDS = [
-  'hunted',
-  'tragic-past',
-  'blessed-life',
-  'survivor',
-  'exiled',
-  'orphaned',
-  'resurrected',
-  'witch-blood',
-  'escaped-cultist',
-  'reformed-villain',
-  'rejected-destiny',
-  'mutation',
-  'child-prodigy',
-  'science-experiment',
-  'cursed',
-  'haunted',
-  'chosen-wrong',
-  'hidden-heir',
-  'lost-royal',
-  'forbidden-born',
-  'omen-born',
-  'star-fallen',
-  'time-lost',
-  'world-stranded',
-  'memory-erased',
-  'name-stolen',
-  'debt-born',
-  'miracle-child',
-  'last-of-kind',
-  'unmade',
-]
+] as const
 
 const UPGRADE_TABLE: Record<Rarity, RarityRollOption[]> = {
   COMMON: [
@@ -572,12 +201,12 @@ const UPGRADE_TABLE: Record<Rarity, RarityRollOption[]> = {
   ],
 }
 
-function pickRandom<T>(items: T[]): T | null {
+function pickRandom<T>(items: readonly T[]): T | null {
   if (!items.length) return null
   return items[Math.floor(Math.random() * items.length)] ?? null
 }
 
-function pickMany<T>(items: T[], count: number): T[] {
+function pickMany<T>(items: readonly T[], count: number): T[] {
   return [...items].sort(() => Math.random() - 0.5).slice(0, count)
 }
 
@@ -620,14 +249,6 @@ function normalizeReward(reward: RewardRecord): RolledReward | null {
   }
 }
 
-function titleCaseSlug(value: string): string {
-  return value
-    .split('-')
-    .filter(Boolean)
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(' ')
-}
-
 export const useGeneratorStore = defineStore('generatorStore', () => {
   const facetCatalog = useFacetCatalogStore()
   const rewardPool = ref<RolledReward[]>([])
@@ -636,21 +257,34 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
 
   const rewardsLoaded = computed(() => rewardPool.value.length > 0)
 
-  function facetValue(fieldKey: string, fallback: () => string): string {
+  function emergencyValue(field: FacetEmergencyField): string {
+    return pickRandom(FACET_EMERGENCY_FALLBACKS[field]) ?? ''
+  }
+
+  function emergencyValues(field: FacetEmergencyField, count: number): string {
+    return pickMany(FACET_EMERGENCY_FALLBACKS[field], Math.max(1, count)).join(
+      ', ',
+    )
+  }
+
+  function facetValue(
+    fieldKey: string,
+    emergencyField: FacetEmergencyField,
+  ): string {
     const entry = facetCatalog.randomFacetForField(fieldKey)
-    return entry?.canonicalValue || entry?.title || fallback()
+    return entry?.canonicalValue || entry?.title || emergencyValue(emergencyField)
   }
 
   function facetValues(
     fieldKey: string,
     count: number,
-    fallback: () => string,
+    emergencyField: FacetEmergencyField,
   ): string {
     const pool = facetCatalog
       .facetsForCharacterField(fieldKey)
       .filter((entry) => entry.isRandomizable && entry.randomWeight > 0)
 
-    if (!pool.length) return fallback()
+    if (!pool.length) return emergencyValues(emergencyField, count)
 
     const remaining = [...pool]
     const picked: typeof pool = []
@@ -773,62 +407,39 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
   }
 
   function genre(): string {
-    return facetValue('genre', () => pickRandom(GENRES) ?? 'Fantasy')
+    return facetValue('genre', 'genre')
   }
 
   function species(): string {
-    return facetValue('species', () => pickRandom(SPECIES) ?? 'Human')
+    return facetValue('species', 'species')
   }
 
   function characterClass(): string {
-    return facetValue('class', () => pickRandom(CLASSES) ?? 'Rogue')
+    return facetValue('class', 'class')
   }
 
   function alignment(): string {
-    return facetValue(
-      'alignment',
-      () => pickRandom(ALIGNMENTS) ?? 'Chaotic Good',
-    )
+    return facetValue('alignment', 'alignment')
   }
 
   function genderIdentity(): string {
-    return pickRandom(GENDERS) ?? 'nonbinary'
+    return facetValue('gender', 'gender')
   }
 
   function personality(count = 3): string {
-    return facetValues('personality', count, () =>
-      pickMany(PERSONALITIES, count).join(', '),
-    )
+    return facetValues('personality', count, 'personality')
   }
 
   function quirks(count = 1): string {
-    return facetValues('quirks', count, () =>
-      pickMany(QUIRKS, count).map(titleCaseSlug).join(', '),
-    )
-  }
-
-  function legacyBackground(): string {
-    return titleCaseSlug(pickRandom(BACKGROUNDS) ?? 'hunted')
+    return facetValues('quirks', count, 'quirks')
   }
 
   function background(): string {
-    return facetValue('backstory', legacyBackground)
-  }
-
-  function legacyBackstory(): string {
-    const origin = legacyBackground()
-    const vibe = pickRandom(PERSONALITIES) ?? 'curious'
-    const flaw = pickRandom(QUIRKS) ?? 'bad-luck-magnet'
-
-    return `${origin}. They learned early that survival is less about being prepared and more about looking prepared while everything catches fire. Their ${titleCaseSlug(
-      vibe,
-    ).toLowerCase()} nature keeps dragging them toward trouble, while their ${titleCaseSlug(
-      flaw,
-    ).toLowerCase()} tendency makes the trouble recognisably theirs.`
+    return facetValue('backstory', 'backstory')
   }
 
   function backstory(): string {
-    return facetValue('backstory', legacyBackstory)
+    return facetValue('backstory', 'backstory')
   }
 
   function artPrompt(context: Record<string, unknown> = {}): string {

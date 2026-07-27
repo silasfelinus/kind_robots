@@ -5,10 +5,12 @@
 // recording works without converting first). Runs entirely in the browser via
 // the Web Audio API — the raw audio never leaves the device; only the compact
 // numeric summary this returns is sent to the server for the LLM to reason over.
-// Deliberately dependency-free (a hand-rolled autocorrelation pitch tracker):
-// good for monophonic vocal takes, and honestly flagged as less reliable on
-// mixed/polyphonic material. A heavier pitch model can later slot in behind this
-// same AudioFeatureSummary shape (see conductor music-mentor/t-007).
+// Deliberately dependency-free (a hand-rolled YIN pitch tracker, see
+// detectPitchYIN below): good for monophonic vocal takes, and honestly flagged
+// as less reliable on mixed/polyphonic material. YIN replaced an earlier plain
+// autocorrelation tracker (kept as detectPitchAutocorrelation) after
+// conductor music-mentor/t-007's accuracy evaluation found it materially more
+// resistant to octave errors on harmonic-rich tones at the same per-frame cost.
 
 export interface FeatureSegment {
   startSec: number
@@ -181,7 +183,13 @@ function autocorrAt(frame: Float32Array, lag: number): number {
 
 // Normalized autocorrelation pitch detector for a single frame. Returns the
 // fundamental in Hz, or null when the frame is too quiet or has no clear period.
-function detectPitch(frame: Float32Array, sampleRate: number): number | null {
+// Kept (unused by analyzeAudioFile as of music-mentor/t-007) for the accuracy
+// comparison in utils/scripts/verifyPitchDetectorAccuracy.test.ts and as a
+// documented fallback if YIN's threshold ever needs re-tuning.
+export function detectPitchAutocorrelation(
+  frame: Float32Array,
+  sampleRate: number,
+): number | null {
   let energy = 0
   for (const s of frame) energy += s * s
   const rms = Math.sqrt(energy / frame.length)
@@ -221,6 +229,85 @@ function detectPitch(frame: Float32Array, sampleRate: number): number | null {
   const refinedLag = bestLag + shift
 
   const f0 = sampleRate / refinedLag
+  return f0 >= MIN_F0 && f0 <= MAX_F0 ? f0 : null
+}
+
+// YIN difference function (de Cheveigné & Kawahara, 2002): d(tau) = sum of
+// squared sample differences at lag tau, for tau in [1, maxLag]. Unlike
+// autocorrelation this is a *distance* (zero at a perfect match), which is what
+// lets the cumulative-mean normalization below flatten the low-lag bias that
+// makes plain autocorrelation prone to octave errors on harmonic-rich singing.
+function yinDifference(frame: Float32Array, maxLag: number): Float64Array {
+  const w = frame.length - maxLag
+  const d = new Float64Array(maxLag + 1)
+  for (let lag = 1; lag <= maxLag; lag++) {
+    let sum = 0
+    for (let i = 0; i < w; i++) {
+      const delta = (frame[i] ?? 0) - (frame[i + lag] ?? 0)
+      sum += delta * delta
+    }
+    d[lag] = sum
+  }
+  return d
+}
+
+// YIN pitch detector for a single frame. Same signature and return contract as
+// detectPitchAutocorrelation above (Hz or null) so it slots in behind the same
+// AudioFeatureSummary shape per music-mentor/t-007's "evaluate a stronger
+// option" spec — see the accuracy comparison in
+// utils/scripts/verifyPitchDetectorAccuracy.test.ts for why this replaced it.
+const YIN_THRESHOLD = 0.15
+
+export function detectPitchYIN(
+  frame: Float32Array,
+  sampleRate: number,
+): number | null {
+  let energy = 0
+  for (const s of frame) energy += s * s
+  const rms = Math.sqrt(energy / frame.length)
+  if (rms < 0.01) return null // silence / unvoiced gate
+
+  const minLag = Math.floor(sampleRate / MAX_F0)
+  const maxLag = Math.min(frame.length - 1, Math.floor(sampleRate / MIN_F0))
+  if (maxLag <= minLag) return null
+
+  const d = yinDifference(frame, maxLag)
+
+  // Cumulative mean normalized difference function: d'(0) = 1, and for tau >= 1
+  // d'(tau) = d(tau) * tau / sum_{j=1..tau} d(j). This is what makes low lags
+  // (which have the smallest raw d(tau)) score *worse*, not better, unless they
+  // truly are the period — the opposite bias of plain autocorrelation.
+  const cmndf = new Float64Array(maxLag + 1)
+  cmndf[0] = 1
+  let runningSum = 0
+  for (let tau = 1; tau <= maxLag; tau++) {
+    runningSum += d[tau] ?? 0
+    cmndf[tau] = runningSum > 0 ? ((d[tau] ?? 0) * tau) / runningSum : 1
+  }
+
+  // Absolute threshold: take the first tau at/after minLag whose CMNDF dips
+  // below YIN_THRESHOLD, then walk forward to its local minimum (the standard
+  // YIN refinement) rather than stopping at the first sample under threshold.
+  let tauEstimate = -1
+  for (let tau = minLag; tau <= maxLag; tau++) {
+    if ((cmndf[tau] ?? 1) < YIN_THRESHOLD) {
+      let t = tau
+      while (t + 1 <= maxLag && (cmndf[t + 1] ?? 1) < (cmndf[t] ?? 1)) t++
+      tauEstimate = t
+      break
+    }
+  }
+  if (tauEstimate < 0) return null // nothing periodic enough — unvoiced
+
+  // Parabolic interpolation around the chosen tau for sub-sample precision.
+  const y0 = cmndf[tauEstimate - 1] ?? cmndf[tauEstimate] ?? 0
+  const y1 = cmndf[tauEstimate] ?? 0
+  const y2 = cmndf[tauEstimate + 1] ?? cmndf[tauEstimate] ?? 0
+  const denom = 2 * (2 * y1 - y0 - y2)
+  const shift = denom !== 0 ? (y2 - y0) / denom : 0
+  const refinedTau = tauEstimate + shift
+
+  const f0 = sampleRate / refinedTau
   return f0 >= MIN_F0 && f0 <= MAX_F0 ? f0 : null
 }
 
@@ -332,8 +419,10 @@ export async function analyzeAudioFile(
     onsetEnv.push(Math.max(0, rms - prevEnergy))
     prevEnergy = rms
 
-    // Pitch.
-    const f0 = detectPitch(frame, TARGET_RATE)
+    // Pitch. YIN (see detectPitchYIN above) — music-mentor/t-007 found it more
+    // resistant to octave errors on harmonic-rich tones than the prior
+    // autocorrelation tracker, at equivalent per-frame cost.
+    const f0 = detectPitchYIN(frame, TARGET_RATE)
     totalFrames++
     if (f0 != null) {
       voicedFrames++

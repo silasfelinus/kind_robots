@@ -6,7 +6,6 @@
 // *Cards). Used to auto-fill the FIELDS stage and to ground AI drafting so a
 // created record comes out complete and specific (a Reward gets a real
 // type/rarity/effect) instead of a generic sentence.
-
 import type { SourceTypeKey } from '@/stores/helpers/modelBuilderRecipes'
 
 export interface ModelFieldSpec {
@@ -32,7 +31,10 @@ const DREAM_TYPES = [
   'PITCH',
   'WISH',
 ]
-const FACET_KINDS = [
+
+// Facet.kind is a compatibility column. Model Builder accepts the authoritative
+// FacetProfile taxonomy and the commit route derives kind internally.
+const FACET_TAXONOMIES = [
   'GENRE',
   'ANIMAL',
   'COLOR',
@@ -42,6 +44,21 @@ const FACET_KINDS = [
   'STYLE',
   'SETTING',
   'ART_DIRECTION',
+  'SPECIES',
+  'OCCUPATION',
+  'ARCHETYPE',
+  'ROLE',
+  'ALIGNMENT',
+  'GENDER',
+  'BOT_TYPE',
+  'DREAM_TYPE',
+  'REWARD_TYPE',
+  'RARITY',
+  'PERSONALITY',
+  'BACKSTORY',
+  'QUIRK',
+  'MATERIAL',
+  'PROMPT_ENHANCEMENT',
   'OTHER',
 ]
 
@@ -105,7 +122,12 @@ export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
   ],
   Facet: [
     { key: 'title', label: 'Title', required: true },
-    { key: 'kind', label: 'Kind', default: 'OTHER', choices: FACET_KINDS },
+    {
+      key: 'taxonomy',
+      label: 'Taxonomy',
+      default: 'OTHER',
+      choices: FACET_TAXONOMIES,
+    },
     { key: 'description', label: 'Description', prose: true },
     { key: 'examples', label: 'Examples' },
   ],
@@ -155,10 +177,6 @@ export const CREATE_TARGETS: Record<string, SourceTypeKey> = {
 }
 
 // --- FIELDS blob helpers ----------------------------------------------------
-// The FIELDS stage stores a "key: value" text blob (one field per line, the same
-// format defaultFieldsTemplate produces and the commit executor parses). These
-// helpers let the batch editor read and set individual fields across many items
-// without disturbing the other lines.
 
 export interface FieldLine {
   key: string
@@ -178,14 +196,10 @@ export function parseFieldLines(blob: string): FieldLine[] {
     .filter((line): line is FieldLine => line !== null)
 }
 
-// Read a single field's value from a FIELDS blob ('' if absent).
 export function readFieldLine(blob: string, key: string): string {
   return parseFieldLines(blob).find((line) => line.key === key)?.value ?? ''
 }
 
-// Set (or append) a key's value in a FIELDS blob, preserving every other line and
-// its order. Appending drops a single trailing blank line first so the blob stays
-// tidy.
 export function setFieldLine(blob: string, key: string, value: string): string {
   const lines = blob.split('\n')
   let found = false

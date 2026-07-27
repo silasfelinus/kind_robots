@@ -222,11 +222,18 @@ async function main(): Promise<void> {
   // so they are excluded from the scalar-assignment check entirely.
   const PROSE_CHARACTER_FIELDS = new Set(['backstory', 'quirks'])
 
-  const missingProfiles = facets.filter((facet) => !profileByFacetId.has(facet.id))
+  // Only active Facets must carry a profile: the runtime catalog serves active
+  // Facets only, and inactive/archived Facets (often merge-losers whose
+  // canonical value duplicates an active winner) don't need one. Any live harm
+  // an inactive Facet could cause is already caught by INACTIVE_FACET_REFERENCED
+  // and ASSIGNMENT_WITHOUT_PROFILE.
+  const missingProfiles = facets.filter(
+    (facet) => facet.isActive && !profileByFacetId.has(facet.id),
+  )
   if (missingProfiles.length) {
     severe.push({
       code: 'FACET_WITHOUT_PROFILE',
-      message: `${missingProfiles.length} Facets do not have a FacetProfile.`,
+      message: `${missingProfiles.length} active Facets do not have a FacetProfile.`,
       details: missingProfiles.map(({ id, title, slug }) => ({ id, title, slug })),
     })
   }

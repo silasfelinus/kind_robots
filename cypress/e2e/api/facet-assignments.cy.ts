@@ -29,7 +29,7 @@ describe('Dream and Scenario Facet assignments', () => {
       body: {
         title: `CowCore ${stamp}`,
         slug: facetSlug,
-        kind: 'CORE',
+        taxonomy: 'CORE',
         aliases: [cowAlias, cowsAlias],
         isPublic: false,
       },
@@ -254,7 +254,7 @@ describe('Dream and Scenario Facet assignments', () => {
       headers: { Authorization: `Bearer ${token}` },
       body: {
         description: 'Everything cows, updated.',
-        kind: 'THEME',
+        taxonomy: 'THEME',
         aliases: [cowAlias, bovineAlias],
       },
     }).then((response) => {

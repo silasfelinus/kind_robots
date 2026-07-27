@@ -8,6 +8,9 @@
 // parsing in index.get.ts but skips pagination (an export is the whole
 // filtered set, not one page of it). Admin-gated, same as every other
 // media-entries route.
+//
+// Query: search, mediaType, starred, sort, year (all optional, same
+// semantics as index.get.ts).
 import { defineEventHandler, getQuery, setHeader } from 'h3'
 import type { MediaEntry, Prisma } from '~/prisma/generated/prisma/client'
 import { MediaType } from '~/prisma/generated/prisma/client'
@@ -99,6 +102,11 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
 
     const andFilters: Prisma.MediaEntryWhereInput[] = []
+
+    const parsedYear = Number(query.year)
+    if (Number.isInteger(parsedYear) && parsedYear > 0) {
+      andFilters.push({ year: parsedYear })
+    }
 
     const mediaTypes =
       typeof query.mediaType === 'string'

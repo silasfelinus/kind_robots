@@ -195,6 +195,33 @@ async function main(): Promise<void> {
     aliasesByFacetId.set(alias.facetId, values)
   }
 
+  // lookupKey -> the taxonomies of the Facet(s) owning that alias. Used to
+  // decide whether a populated scalar value even maps to a canonical Facet: the
+  // scalar-assignment checks only treat a field as a strict error when a
+  // matching Facet exists but was never linked ("mappable but unlinked").
+  // Custom/free-text values (the point of a creative builder) have no canonical
+  // Facet and are reported as an informational warning, not a strict failure.
+  const taxonomiesByLookup = new Map<string, Set<string>>()
+  for (const alias of aliases) {
+    const taxonomy = profileByFacetId.get(alias.facetId)?.taxonomy
+    if (!taxonomy) continue
+    const set = taxonomiesByLookup.get(alias.lookupKey) ?? new Set<string>()
+    set.add(taxonomy)
+    taxonomiesByLookup.set(alias.lookupKey, set)
+  }
+  const valuesMapToAllowed = (
+    values: string[],
+    allowed: readonly string[],
+  ): boolean =>
+    values.some((value) => {
+      const owners = taxonomiesByLookup.get(normalizeFacetLookupKey(value))
+      return owners ? allowed.some((taxonomy) => owners.has(taxonomy)) : false
+    })
+
+  // backstory and quirks are narrative prose, not canonical concept references,
+  // so they are excluded from the scalar-assignment check entirely.
+  const PROSE_CHARACTER_FIELDS = new Set(['backstory', 'quirks'])
+
   const missingProfiles = facets.filter((facet) => !profileByFacetId.has(facet.id))
   if (missingProfiles.length) {
     severe.push({
@@ -378,29 +405,45 @@ async function main(): Promise<void> {
     fieldKey: string
     values: string[]
   }> = []
+  // Fields that are populated + unlinked but whose value(s) map to no canonical
+  // Facet: expected bespoke creative data (custom species, classes, freeform
+  // genres, prose). Counted as an informational warning, never a strict error.
+  let customCharacterFields = 0
   for (const character of characters) {
     for (const fieldKey of Object.keys(CHARACTER_FIELD_TAXONOMIES)) {
+      if (PROSE_CHARACTER_FIELDS.has(fieldKey)) continue
       const values = splitScalar(
         fieldKey,
         (character as Record<string, unknown>)[fieldKey],
       )
       if (
-        values.length &&
-        !characterLinksByOwnerField.has(`${character.id}:${fieldKey}`)
+        !values.length ||
+        characterLinksByOwnerField.has(`${character.id}:${fieldKey}`)
       ) {
+        continue
+      }
+      if (valuesMapToAllowed(values, CHARACTER_FIELD_TAXONOMIES[fieldKey]!)) {
         missingCharacterAssignments.push({
           characterId: character.id,
           fieldKey,
           values,
         })
+      } else {
+        customCharacterFields += 1
       }
     }
   }
   if (missingCharacterAssignments.length) {
     severe.push({
       code: 'CHARACTER_SCALAR_WITHOUT_ASSIGNMENT',
-      message: `${missingCharacterAssignments.length} populated Character fields have no canonical Facet assignment.`,
+      message: `${missingCharacterAssignments.length} populated Character fields map to a canonical Facet but have no assignment (mappable-but-unlinked).`,
       details: missingCharacterAssignments,
+    })
+  }
+  if (customCharacterFields) {
+    warnings.push({
+      code: 'CHARACTER_SCALAR_CUSTOM',
+      message: `${customCharacterFields} populated Character fields hold custom/free-text values with no canonical Facet (expected; excludes prose backstory/quirks).`,
     })
   }
 
@@ -412,22 +455,34 @@ async function main(): Promise<void> {
     fieldKey: string
     values: string[]
   }> = []
+  let customBotFields = 0
   for (const bot of bots) {
     for (const fieldKey of Object.keys(BOT_FIELD_TAXONOMIES)) {
       const values = splitScalar(
         fieldKey,
         (bot as Record<string, unknown>)[fieldKey],
       )
-      if (values.length && !botLinksByOwnerField.has(`${bot.id}:${fieldKey}`)) {
+      if (!values.length || botLinksByOwnerField.has(`${bot.id}:${fieldKey}`)) {
+        continue
+      }
+      if (valuesMapToAllowed(values, BOT_FIELD_TAXONOMIES[fieldKey]!)) {
         missingBotAssignments.push({ botId: bot.id, fieldKey, values })
+      } else {
+        customBotFields += 1
       }
     }
   }
   if (missingBotAssignments.length) {
     severe.push({
       code: 'BOT_SCALAR_WITHOUT_ASSIGNMENT',
-      message: `${missingBotAssignments.length} populated Bot fields have no canonical Facet assignment.`,
+      message: `${missingBotAssignments.length} populated Bot fields map to a canonical Facet but have no assignment (mappable-but-unlinked).`,
       details: missingBotAssignments,
+    })
+  }
+  if (customBotFields) {
+    warnings.push({
+      code: 'BOT_SCALAR_CUSTOM',
+      message: `${customBotFields} populated Bot fields hold custom/free-text values with no canonical Facet (expected).`,
     })
   }
 
@@ -441,18 +496,29 @@ async function main(): Promise<void> {
       .filter((link) => genreFacetIds.has(link.facetId))
       .map((link) => link.scenarioId),
   )
-  const missingScenarioGenreAssignments = scenarios
+  const scenarioGenreCandidates = scenarios
     .filter((scenario) => splitScalar('genres', scenario.genres).length)
     .filter((scenario) => !scenarioIdsWithGenreLinks.has(scenario.id))
     .map((scenario) => ({
       scenarioId: scenario.id,
       values: splitScalar('genres', scenario.genres),
     }))
+  const missingScenarioGenreAssignments = scenarioGenreCandidates.filter(
+    (scenario) => valuesMapToAllowed(scenario.values, ['GENRE']),
+  )
+  const customScenarioGenres =
+    scenarioGenreCandidates.length - missingScenarioGenreAssignments.length
   if (missingScenarioGenreAssignments.length) {
     severe.push({
       code: 'SCENARIO_GENRE_WITHOUT_ASSIGNMENT',
-      message: `${missingScenarioGenreAssignments.length} Scenarios have genre strings but no GENRE Facet links.`,
+      message: `${missingScenarioGenreAssignments.length} Scenarios have genre strings that map to a canonical GENRE Facet but no link (mappable-but-unlinked).`,
       details: missingScenarioGenreAssignments,
+    })
+  }
+  if (customScenarioGenres) {
+    warnings.push({
+      code: 'SCENARIO_GENRE_CUSTOM',
+      message: `${customScenarioGenres} Scenarios hold custom/free-text genre strings with no canonical GENRE Facet (expected).`,
     })
   }
 

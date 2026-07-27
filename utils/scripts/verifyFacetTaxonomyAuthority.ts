@@ -27,13 +27,16 @@ function extractQuotedArray(text: string, marker: string): string[] {
   const open = text.indexOf('[', start)
   const close = text.indexOf('] as const', open)
   if (open < 0 || close < 0) throw new Error(`Could not parse ${marker}`)
-  return Array.from(text.slice(open, close).matchAll(/'([A-Z_]+)'/g), (match) => match[1])
+  return Array.from(text.slice(open, close).matchAll(/'([A-Z_]+)'/g))
+    .map((match) => match[1])
+    .filter((value): value is string => Boolean(value))
 }
 
 function extractPrismaEnum(text: string, enumName: string): string[] {
   const match = text.match(new RegExp(`enum\\s+${enumName}\\s*\\{([\\s\\S]*?)\\}`))
-  if (!match) throw new Error(`Could not parse Prisma enum ${enumName}.`)
-  return match[1]
+  const body = match?.[1]
+  if (!body) throw new Error(`Could not parse Prisma enum ${enumName}.`)
+  return body
     .split(/\s+/)
     .map((value) => value.trim())
     .filter((value) => /^[A-Z][A-Z_]+$/.test(value))

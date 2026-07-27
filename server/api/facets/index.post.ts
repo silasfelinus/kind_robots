@@ -1,25 +1,25 @@
 // POST /api/facets
 import { createError, defineEventHandler, readBody } from 'h3'
-import type {
-  CreationSource,
-  FacetKind,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { CreationSource, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
-  facetKinds,
   facetSummarySelect,
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
-import { buildFacetProfileCreateData } from '~/server/utils/facetProfileInput'
+import {
+  assertLegacyFacetKindAbsent,
+  buildFacetProfileCreateData,
+  legacyFacetKindForTaxonomy,
+} from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'
 
 type FacetCreateBody = {
   title?: unknown
   slug?: unknown
+  /** @deprecated Rejected. Use taxonomy. */
   kind?: unknown
   taxonomy?: unknown
   canonicalValue?: unknown
@@ -97,8 +97,9 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requireApiUser(event)
     const body = await readBody<FacetCreateBody>(event)
-    const title = optionalText(body.title)
+    assertLegacyFacetKindAbsent(body)
 
+    const title = optionalText(body.title)
     if (!title) {
       throw createError({ statusCode: 400, message: 'Facet title is required.' })
     }
@@ -108,15 +109,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Facet slug is required.' })
     }
 
-    const kind = facetKinds.includes(body.kind as FacetKind)
-      ? (body.kind as FacetKind)
-      : 'OTHER'
+    const profileData = buildFacetProfileCreateData(body, { title })
+    const legacyKind = legacyFacetKindForTaxonomy(profileData.taxonomy)
     const creationSource = creationSources.includes(
       body.creationSource as CreationSource,
     )
       ? (body.creationSource as CreationSource)
       : 'HUMAN'
-    const profileData = buildFacetProfileCreateData(body, { title, kind })
 
     const artImageId = positiveId(body.artImageId)
     const artCollectionId = positiveId(body.artCollectionId)
@@ -141,7 +140,8 @@ export default defineEventHandler(async (event) => {
       const data: Prisma.FacetUncheckedCreateInput = {
         title,
         slug,
-        kind,
+        // Deprecated compatibility column; taxonomy is authoritative.
+        kind: legacyKind,
         description: optionalText(body.description),
         flavorText: optionalText(body.flavorText),
         examples: optionalText(body.examples),

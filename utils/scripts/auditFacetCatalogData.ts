@@ -11,7 +11,7 @@ import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
-const databaseUrl = process.env.DATABASE_URL
+const databaseUrl: string = process.env.DATABASE_URL ?? ''
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
 const prisma = new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
@@ -92,10 +92,6 @@ function splitScalar(fieldKey: string, value: unknown): string[] {
       .filter(Boolean)
   }
   return [value.trim()]
-}
-
-function unique<T>(values: T[]): T[] {
-  return Array.from(new Set(values))
 }
 
 function hasUsableArt(facet: {

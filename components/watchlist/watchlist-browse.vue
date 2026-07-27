@@ -7,7 +7,10 @@
   log) -- renders a locked notice for any non-admin viewer instead of erroring.
   Selecting an entry opens watchlist-entry-detail.vue (BROWSE-UX.md §3/§5).
   Export downloads GET /api/media-entries/export (media-watchlist/t-006),
-  honoring the current search/type/starred/sort filters.
+  honoring the current search/year/type/starred/sort filters. The Year pill
+  selector and the two extra stats tiles (comics read, TV seasons) close the
+  remaining BROWSE-UX.md §2/§4 gaps -- the API already computed/accepted this
+  data, it just wasn't wired into the UI yet (media-watchlist/t-006).
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -25,7 +28,7 @@
       <!-- Stats strip -->
       <div
         v-if="stats"
-        class="grid grid-cols-2 gap-2 rounded-3xl border border-base-300 bg-base-100 p-4 sm:grid-cols-4"
+        class="grid grid-cols-2 gap-2 rounded-3xl border border-base-300 bg-base-100 p-4 sm:grid-cols-3 lg:grid-cols-6"
       >
         <div
           class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
@@ -67,6 +70,26 @@
             >pages read</span
           >
         </div>
+        <div
+          class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
+        >
+          <span class="text-lg font-black text-base-content">{{
+            stats.comicIssuesRead
+          }}</span>
+          <span class="text-xs font-semibold text-base-content/50"
+            >comics read</span
+          >
+        </div>
+        <div
+          class="flex flex-col items-center gap-0.5 rounded-2xl p-2 text-center"
+        >
+          <span class="text-lg font-black text-base-content">{{
+            stats.tvSeasonCount
+          }}</span>
+          <span class="text-xs font-semibold text-base-content/50"
+            >TV seasons ({{ stats.tvShowCount }} shows)</span
+          >
+        </div>
       </div>
 
       <!-- Filters -->
@@ -79,6 +102,36 @@
           placeholder="Search title or author…"
           class="input input-sm input-bordered w-full rounded-xl sm:w-56"
         />
+
+        <button
+          v-if="stats?.years.length"
+          type="button"
+          class="btn btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :class="
+            activeYear === null
+              ? 'btn-primary'
+              : 'btn-ghost border border-base-300'
+          "
+          :aria-pressed="activeYear === null"
+          @click="activeYear = null"
+        >
+          All years
+        </button>
+        <button
+          v-for="yearOption in stats?.years ?? []"
+          :key="yearOption"
+          type="button"
+          class="btn btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :class="
+            activeYear === yearOption
+              ? 'btn-primary'
+              : 'btn-ghost border border-base-300'
+          "
+          :aria-pressed="activeYear === yearOption"
+          @click="activeYear = activeYear === yearOption ? null : yearOption"
+        >
+          {{ yearOption }}
+        </button>
 
         <button
           v-for="type in MEDIA_TYPE_CHIPS"
@@ -256,10 +309,14 @@ type MediaEntriesResponse = {
 }
 
 type MediaEntryStats = {
+  years: number[]
   totalCount: number
   starredCount: number
   audiobookHours: number
   pagesRead: number
+  comicIssuesRead: number
+  tvShowCount: number
+  tvSeasonCount: number
 }
 
 type MediaEntryStatsResponse = {
@@ -280,6 +337,7 @@ const userStore = useUserStore()
 const isAdmin = computed(() => userStore.isAdmin === true)
 
 const search = ref('')
+const activeYear = ref<number | null>(null)
 const activeTypes = ref<Set<MediaType>>(new Set())
 const starredOnly = ref(false)
 const sort = ref<
@@ -326,6 +384,7 @@ async function loadStats(): Promise<void> {
   try {
     const res = await $fetch<MediaEntryStatsResponse, string>(
       '/api/media-entries/stats',
+      { query: { year: activeYear.value || undefined } },
     )
     if (res?.success) stats.value = res.data
   } catch {
@@ -343,6 +402,7 @@ async function loadEntries(): Promise<void> {
       {
         query: {
           search: search.value || undefined,
+          year: activeYear.value || undefined,
           mediaType: activeTypes.value.size
             ? Array.from(activeTypes.value).join(',')
             : undefined,
@@ -383,6 +443,14 @@ watch([activeTypes, starredOnly, sort], () => {
   void loadEntries()
 })
 
+// Year is the one filter the Stats strip itself also respects (BROWSE-UX.md
+// §4's "year switcher"), so changing it reloads both entries and stats.
+watch(activeYear, () => {
+  skip.value = 0
+  void loadEntries()
+  void loadStats()
+})
+
 function showMore() {
   skip.value += take
   void loadEntries()
@@ -391,6 +459,7 @@ function showMore() {
 function exportCsv() {
   const params = new URLSearchParams()
   if (search.value) params.set('search', search.value)
+  if (activeYear.value) params.set('year', String(activeYear.value))
   if (activeTypes.value.size) {
     params.set('mediaType', Array.from(activeTypes.value).join(','))
   }

@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
       pagesRead,
       comicIssues,
       tvSeasons,
+      yearRows,
     ] = await Promise.all([
       prisma.mediaEntry.count({ where }),
       prisma.mediaEntry.groupBy({
@@ -65,6 +66,14 @@ export default defineEventHandler(async (event) => {
         _count: { _all: true },
         _sum: { season: true },
       }),
+      // Unfiltered by `year` -- this powers the Year pill selector itself
+      // (BROWSE-UX.md §2), so it must list every year regardless of which
+      // one is currently selected.
+      prisma.mediaEntry.findMany({
+        distinct: ['year'],
+        select: { year: true },
+        orderBy: { year: 'desc' },
+      }),
     ])
 
     const countByType = byMediaType.reduce<Record<string, number>>(
@@ -89,6 +98,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: {
         year: year ?? null,
+        years: yearRows.map((row) => row.year),
         totalCount,
         countByType,
         countByMonth,

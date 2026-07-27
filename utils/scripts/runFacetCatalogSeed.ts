@@ -56,3 +56,7 @@ await import('./seedScenarioGenreFacetCatalog')
 await import('./seedLegacyBotTypeFacets')
 await import('./seedBotFacetCatalog')
 await import('./normalizeBotPersonalityFacetValues')
+
+// Enum-backed Builder decks are presentation Facets only. Prisma enums remain
+// authoritative for persisted Dream and Reward values.
+await import('./seedSystemOptionFacets')

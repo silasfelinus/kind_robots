@@ -7,6 +7,8 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'prisma/schema.prisma',
   'stores/helpers/adventureCards.ts',
   'stores/helpers/botCards.ts',
+  'stores/helpers/dreamCards.ts',
+  'stores/helpers/rewardCards.ts',
   'stores/helpers/scenarioCards.ts',
   'stores/seeds/artList.ts',
   'stores/utils/animalData.ts',
@@ -25,6 +27,7 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'utils/seeds/facetLegacyCharacterLists.ts',
   'utils/seeds/facetLegacyCreativeLists.ts',
   'utils/seeds/facetScenarioGenreArtwork.ts',
+  'utils/seeds/facetSystemOptionArtwork.ts',
   'utils/scripts/normalizeBotPersonalityFacetValues.ts',
   'utils/scripts/runFacetCatalogSeed.ts',
   'utils/scripts/seedBotFacetCatalog.ts',
@@ -32,6 +35,7 @@ const FACET_CATALOG_SOURCE_FILES = new Set([
   'utils/scripts/seedGenderFacetCatalog.ts',
   'utils/scripts/seedLegacyBotTypeFacets.ts',
   'utils/scripts/seedScenarioGenreFacetCatalog.ts',
+  'utils/scripts/seedSystemOptionFacets.ts',
 ])
 
 const TRUE_VALUES = new Set(['1', 'true', 'yes', 'on'])

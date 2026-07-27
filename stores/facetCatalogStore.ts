@@ -22,6 +22,9 @@ export const FACET_TAXONOMIES = [
   'ALIGNMENT',
   'GENDER',
   'BOT_TYPE',
+  'DREAM_TYPE',
+  'REWARD_TYPE',
+  'RARITY',
   'PERSONALITY',
   'BACKSTORY',
   'QUIRK',
@@ -89,6 +92,12 @@ export const CHARACTER_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
 export const BOT_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   BotType: ['BOT_TYPE'],
   personality: ['PERSONALITY'],
+}
+
+export const SYSTEM_FIELD_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
+  dreamType: ['DREAM_TYPE'],
+  rewardType: ['REWARD_TYPE'],
+  rarity: ['RARITY'],
 }
 
 function toQuery(options: FacetCatalogQuery): string {
@@ -227,6 +236,10 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     return facetsForTaxonomies(BOT_FIELD_TAXONOMIES[fieldKey] ?? [])
   }
 
+  function facetsForSystemField(fieldKey: string): FacetCatalogEntry[] {
+    return facetsForTaxonomies(SYSTEM_FIELD_TAXONOMIES[fieldKey] ?? [])
+  }
+
   function facetForValue(value: string): FacetCatalogEntry | null {
     const key = normalizeFacetLookupKey(value)
     return key ? (byLookupKey.value.get(key) ?? null) : null
@@ -259,6 +272,7 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
         groupKey: entry.groupKey,
         groupLabel: entry.groupLabel,
         aliases: entry.aliases,
+        structuralEnum: entry.metadata?.structuralEnum === true,
       },
     }))
   }
@@ -276,6 +290,13 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     )
   }
 
+  function builderChoicesForSystemField(fieldKey: string): BuilderChoice[] {
+    return builderChoicesForTaxonomies(
+      SYSTEM_FIELD_TAXONOMIES[fieldKey] ?? [],
+      'enumValue',
+    )
+  }
+
   return {
     entries,
     loading,
@@ -287,11 +308,13 @@ export const useFacetCatalogStore = defineStore('facetCatalogStore', () => {
     facetsForTaxonomies,
     facetsForCharacterField,
     facetsForBotField,
+    facetsForSystemField,
     facetForValue,
     randomFacetForField,
     randomFacetForBotField,
     builderChoicesForTaxonomies,
     builderChoicesForField,
     builderChoicesForBotField,
+    builderChoicesForSystemField,
   }
 })

@@ -97,11 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
+import { useUploadStore } from '@/stores/uploadStore'
 
 type AcademyTab = 'timeline' | 'styles' | 'remix' | 'stylelab'
 
@@ -109,6 +110,7 @@ const academyStore = useAcademyStore()
 const artStore = useArtStore()
 const navStore = useNavStore()
 const serverStore = useServerStore()
+const uploadStore = useUploadStore()
 
 const defaultDashboardKey = 'academy'
 const defaultTab: AcademyTab = 'timeline'
@@ -136,6 +138,38 @@ function goToRemix(styleSlug: string) {
   academyStore.selectStyle(styleSlug)
   navStore.setDashboardTab(dashboardKey.value, 'remix', 'academy remix CTA')
 }
+
+// The stylelab tab renders a bare <image-upload> alongside art-styler for
+// general gallery uploads. uploadStore.activeTarget is an app-lifetime Pinia
+// singleton that only other pages (add-bot, add-character, art-maker, ...)
+// ever write -- none of them clear it on unmount -- so without setting our
+// own target here, entering this tab either finds no target (upload button
+// permanently disabled) or inherits a stale one from whatever page ran last
+// (e.g. a Bot edit target, silently applying an Academy upload to that bot).
+// Mirrors art-maker.vue's configureArtImageUpload() pattern.
+function configureStyleLabUploadTarget() {
+  uploadStore.setTarget({
+    model: 'ArtImage',
+    modelId: null,
+    galleryName: 'artImageUploads',
+    collectionLabel: 'image uploads',
+    promptString: '[UploadedArtImage]',
+    path: '[UploadedArtImage]',
+    buttonLabel: 'Upload image',
+    icon: 'kind-icon:image',
+    showPreview: true,
+  })
+}
+
+watch(
+  activeTab,
+  (tab) => {
+    if (tab === 'stylelab') {
+      configureStyleLabUploadTarget()
+    }
+  },
+  { immediate: true },
+)
 
 async function loadManagerData(force = false) {
   isLoadingManager.value = true

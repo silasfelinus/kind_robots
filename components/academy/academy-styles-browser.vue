@@ -2,9 +2,9 @@
 <template>
   <section class="flex flex-col gap-4">
     <header
-      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-4"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
     >
-      <div class="flex flex-col gap-1">
+      <div class="flex min-w-0 flex-col gap-1">
         <h2
           class="flex items-center gap-2 text-base font-black text-base-content"
         >
@@ -21,23 +21,56 @@
         </p>
       </div>
 
-      <label
-        class="input input-bordered input-sm flex items-center gap-1.5 bg-base-100"
-      >
-        <Icon
-          name="kind-icon:search"
-          class="h-3.5 w-3.5 shrink-0 text-base-content/40"
-          aria-hidden="true"
-        />
-        <input
-          ref="searchInputRef"
-          v-model="searchQuery"
-          type="search"
-          class="min-w-0 flex-1 bg-transparent"
-          placeholder="Search styles…"
-          aria-label="Search Academy styles"
-        />
-      </label>
+      <div class="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+        <div class="join" aria-label="Filter Academy lessons by progress">
+          <button
+            v-for="option in lessonFilterOptions"
+            :key="option.value"
+            type="button"
+            class="btn btn-sm join-item"
+            :class="lessonFilter === option.value ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="lessonFilter === option.value"
+            @click="lessonFilter = option.value"
+          >
+            <Icon :name="option.icon" class="h-3.5 w-3.5" aria-hidden="true" />
+            {{ option.label }}
+          </button>
+        </div>
+
+        <div class="flex w-full items-center gap-2 sm:w-auto">
+          <label
+            class="input input-bordered input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 sm:w-64"
+          >
+            <Icon
+              name="kind-icon:search"
+              class="h-3.5 w-3.5 shrink-0 text-base-content/40"
+              aria-hidden="true"
+            />
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              type="search"
+              class="min-w-0 flex-1 bg-transparent"
+              placeholder="Search styles…"
+              aria-label="Search Academy styles"
+            />
+          </label>
+          <button
+            v-if="searchQuery"
+            type="button"
+            class="btn btn-circle btn-ghost btn-sm shrink-0"
+            aria-label="Clear style search"
+            title="Clear search"
+            @click="clearSearch"
+          >
+            <Icon name="mdi:close" class="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <p class="text-xs font-semibold text-base-content/50" aria-live="polite">
+          {{ resultSummary }}
+        </p>
+      </div>
     </header>
 
     <div
@@ -123,17 +156,24 @@
 
     <div
       v-if="!filteredStyles.length"
-      class="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200/60 text-center"
+      class="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200/60 px-4 text-center"
     >
       <Icon
-        name="kind-icon:search"
+        :name="emptyStateIcon"
         class="h-8 w-8 text-base-content/20"
         aria-hidden="true"
       />
       <p class="mt-1 text-xs text-base-content/40">
-        No styles match "{{ searchQuery }}" — history is long, but not that
-        long.
+        {{ emptyStateMessage }}
       </p>
+      <button
+        v-if="searchQuery || lessonFilter !== 'all'"
+        type="button"
+        class="btn btn-ghost btn-xs mt-2"
+        @click="resetFilters"
+      >
+        Show every lesson
+      </button>
     </div>
   </section>
 </template>
@@ -151,6 +191,8 @@ import {
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'
 
+type LessonFilter = 'all' | 'new' | 'explored'
+
 const emit = defineEmits<{
   remix: [styleSlug: string]
 }>()
@@ -158,14 +200,21 @@ const emit = defineEmits<{
 const academyStore = useAcademyStore()
 
 const searchQuery = ref('')
+const lessonFilter = ref<LessonFilter>('all')
 const expandedSlug = ref<string | null>(null)
 const searchInputRef = ref<HTMLInputElement | null>(null)
 const detailPanelRef = ref<HTMLElement | null>(null)
 
-// The detail panel renders above the grid, so opening a style whose card sits
-// near the bottom of a long, scrolled grid pops the panel open off-screen —
-// the user sees no visible change and has to scroll up to find it. Bring it
-// into view whenever a style expands.
+const lessonFilterOptions: Array<{
+  value: LessonFilter
+  label: string
+  icon: string
+}> = [
+  { value: 'all', label: 'All', icon: 'kind-icon:gallery' },
+  { value: 'new', label: 'New', icon: 'kind-icon:sparkles' },
+  { value: 'explored', label: 'Explored', icon: 'kind-icon:check' },
+]
+
 watch(expandedSlug, (slug) => {
   if (!slug) return
   nextTick(() => {
@@ -176,10 +225,6 @@ watch(expandedSlug, (slug) => {
   })
 })
 
-// The grid button stays mounted while its detail panel is open, but the
-// panel's own close button unmounts (v-if) the instant it's clicked — the
-// browser drops focus to <body> with nothing to restore it. Track each
-// grid button so we can return focus to it after closing.
 const gridRefs = new Map<string, HTMLButtonElement>()
 
 function setGridRef(
@@ -197,13 +242,20 @@ function closeStyle() {
   const slug = expandedSlug.value
   expandedSlug.value = null
   nextTick(() => {
-    // The grid button can be gone even though its slug is known — an active
-    // search filter unmounts (and deletes the ref for) any style that no
-    // longer matches while its detail panel stays open. Fall back to the
-    // search input so focus never drops to <body>.
     const target = (slug && gridRefs.get(slug)) || searchInputRef.value
     target?.focus()
   })
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  nextTick(() => searchInputRef.value?.focus())
+}
+
+function resetFilters() {
+  searchQuery.value = ''
+  lessonFilter.value = 'all'
+  nextTick(() => searchInputRef.value?.focus())
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -235,9 +287,16 @@ const expandedStyle = computed<AcademyStyle | null>(() => {
 const filteredStyles = computed<AcademyStyle[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  if (!query) return academyStore.timeline
-
   return academyStore.timeline.filter((style) => {
+    const isViewed = academyStore.viewedLessons.includes(style.slug)
+    const matchesProgress =
+      lessonFilter.value === 'all' ||
+      (lessonFilter.value === 'explored' && isViewed) ||
+      (lessonFilter.value === 'new' && !isViewed)
+
+    if (!matchesProgress) return false
+    if (!query) return true
+
     return [
       style.name,
       style.era,
@@ -250,5 +309,28 @@ const filteredStyles = computed<AcademyStyle[]>(() => {
       .toLowerCase()
       .includes(query)
   })
+})
+
+const resultSummary = computed(() => {
+  const shown = filteredStyles.value.length
+  const total = academyStore.timeline.length
+  const noun = shown === 1 ? 'lesson' : 'lessons'
+  return `${shown} ${noun} shown · ${academyStore.viewedLessons.length} explored of ${total}`
+})
+
+const emptyStateIcon = computed(() => {
+  return lessonFilter.value === 'new' ? 'kind-icon:check' : 'kind-icon:search'
+})
+
+const emptyStateMessage = computed(() => {
+  if (lessonFilter.value === 'new' && !searchQuery.value) {
+    return 'You explored every lesson. Art history officially fears you now.'
+  }
+
+  if (lessonFilter.value === 'explored' && !searchQuery.value) {
+    return 'No explored lessons yet. Open one and your progress will appear here.'
+  }
+
+  return `No styles match “${searchQuery.value}”. Try a broader search or reset the filters.`
 })
 </script>

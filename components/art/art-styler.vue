@@ -1473,7 +1473,17 @@ async function runStyleTransfer(): Promise<void> {
           thumbnailData?: string | null
           negativePrompt?: string | null
         }
-        selectedSourceImage.value = fetched
+        // Only reflect the freshly-fetched image data back into the visible
+        // selection if the user hasn't since picked a different source or
+        // started a newer generation -- this is the one write to
+        // selectedSourceImage in the whole file that wasn't token-guarded,
+        // so a slow-but-successful lazy fetch from a superseded request
+        // could silently revert a newer pick back to the stale image it was
+        // still processing (same pattern as the resultImage/successMessage
+        // guard below).
+        if (token === generationToken) {
+          selectedSourceImage.value = fetched
+        }
       }
     }
 

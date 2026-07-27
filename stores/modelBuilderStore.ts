@@ -1155,7 +1155,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       setStatus('error', item.error)
       return false
     } finally {
-      state.committingItemId = null
+      // state.committingItemId is a store-wide singleton (not per-item), same
+      // shape as generatingItemId/autoBuildingItemId above: clicking "Commit"
+      // on a different row while this call is awaiting performFetch() and
+      // starting its own commitItem() overwrites committingItemId to that
+      // item's id, and this call's finally would then null it out from under
+      // the still-running commit the moment this call resolves — silently
+      // clearing its in-flight/disabled state. Only clear the flag if it's
+      // still ours.
+      if (state.committingItemId === item.id) state.committingItemId = null
     }
   }
 

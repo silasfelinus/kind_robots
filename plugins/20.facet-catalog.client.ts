@@ -1,6 +1,7 @@
 // /plugins/20.facet-catalog.client.ts
 import { defineNuxtPlugin } from '#app'
 import { ADVENTURE_CARDS } from '@/stores/helpers/adventureCards'
+import { ART_CARDS } from '@/stores/helpers/artCards'
 import { BOT_CARDS } from '@/stores/helpers/botCards'
 import type {
   BuilderCard,
@@ -12,6 +13,7 @@ import { REWARD_CARDS } from '@/stores/helpers/rewardCards'
 import { SCENARIO_CARDS } from '@/stores/helpers/scenarioCards'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 import {
+  ART_FIELD_FACETS,
   BOT_FIELD_TAXONOMIES,
   CHARACTER_FIELD_TAXONOMIES,
   SYSTEM_FIELD_TAXONOMIES,
@@ -130,6 +132,69 @@ function hydrateBotBuilder(
   }
 }
 
+function hydrateArtBuilder(
+  catalog: ReturnType<typeof useFacetCatalogStore>,
+): void {
+  const inlineLimit = 12
+
+  for (const card of ART_CARDS) {
+    for (const step of card.steps) {
+      const fieldKey = step.field || step.key || card.key
+      const definition = ART_FIELD_FACETS[fieldKey]
+      if (!definition) continue
+
+      const canonical = catalog.builderChoicesForArtField(fieldKey)
+      if (!canonical.length) continue
+
+      const inlineChoices = canonical.slice(0, inlineLimit)
+      const listChoices = canonical.slice(inlineLimit)
+      const existingControls = (step.choices ?? []).filter(
+        (choice) => choice.opensCustom && !choice.opensList,
+      )
+      const controls = existingControls.length
+        ? existingControls
+        : [
+            {
+              value: '',
+              label: 'Write my own',
+              subtext: 'Use a custom value instead of the shared catalog.',
+              opensCustom: true,
+            } satisfies BuilderChoice,
+          ]
+      const moreChoice: BuilderChoice[] = listChoices.length
+        ? [
+            {
+              value: '',
+              label: 'More options...',
+              subtext: `${listChoices.length} more in the Facet catalog.`,
+              opensList: true,
+              listOptions: listChoices.map((choice) => choice.value),
+              payload: {
+                source: 'facet-catalog',
+                fieldKey,
+                count: listChoices.length,
+              },
+            },
+          ]
+        : []
+
+      // figureSpecies was formerly a free-text-only field. The catalog becomes
+      // the primary picker while the custom control preserves the escape hatch.
+      if (fieldKey === 'figureSpecies') step.inputType = 'preset'
+
+      step.choices = [...inlineChoices, ...moreChoice, ...controls]
+      step.listOptions = listChoices.map((choice) => choice.value)
+      step.payload = {
+        ...(step.payload ?? {}),
+        source: 'facet-catalog',
+        fieldKey,
+        taxonomies: definition.taxonomies,
+        operationalExemptions: ['mode', 'figureCount', 'negativeFilters'],
+      }
+    }
+  }
+}
+
 function hydrateSystemBuilder(
   cards: BuilderCard[],
   catalog: ReturnType<typeof useFacetCatalogStore>,
@@ -168,6 +233,7 @@ export default defineNuxtPlugin(async () => {
     hydrateAdventureBuilder(catalog)
     hydrateScenarioBuilder(catalog)
     hydrateBotBuilder(catalog)
+    hydrateArtBuilder(catalog)
     hydrateSystemBuilder(DREAM_CARDS, catalog)
     hydrateSystemBuilder(REWARD_CARDS, catalog)
 

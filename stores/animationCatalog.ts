@@ -216,6 +216,17 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'koi-memory-pond',
+    label: 'Koi Memory Pond',
+    reveal: 'The koi remember',
+    icon: 'kind-icon:fish',
+    tooltip:
+      'Koi drift beneath floating leaves and slowly favor routes they remember; click to drop food 🐟',
+    color: '#f97316',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

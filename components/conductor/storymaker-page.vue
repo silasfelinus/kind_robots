@@ -21,6 +21,14 @@
           {{ totalScenarios }} scenario{{ totalScenarios === 1 ? '' : 's' }}
           ready to weave into a story right now.
         </p>
+        <div
+          v-if="initError"
+          role="alert"
+          class="alert alert-warning rounded-2xl text-sm"
+        >
+          <Icon name="kind-icon:warning" class="size-5" />
+          <span>{{ initError }}</span>
+        </div>
         <ul v-if="recentScenarios.length" class="flex flex-col gap-1">
           <li v-for="scenario in recentScenarios" :key="scenario.id">
             <button
@@ -67,6 +75,7 @@ onMounted(() => {
 
 const totalScenarios = computed(() => scenarioStore.totalScenarios)
 const recentScenarios = computed(() => scenarioStore.scenarios.slice(0, 3))
+const initError = computed(() => scenarioStore.lastError)
 
 /**
  * The Stories manager resolves its dashboard tab from content frontmatter

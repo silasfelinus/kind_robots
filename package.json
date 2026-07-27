@@ -75,6 +75,7 @@
     "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts",
     "test:conductor-api-auth-guards-selftest": "tsx utils/scripts/verifyConductorApiAuthGuards.test.ts",
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",
+    "test:pitch-detector-accuracy": "tsx utils/scripts/verifyPitchDetectorAccuracy.test.ts",
     "test:pack-scaffold-extraction": "tsx utils/scripts/verifyPackScaffoldExtraction.test.ts",
     "test:parse-mysql-url": "tsx utils/scripts/verifyParseMysqlUrl.ts",
     "test:wonderlab-reconcile": "tsx utils/scripts/verifyWonderLabReconcile.ts",

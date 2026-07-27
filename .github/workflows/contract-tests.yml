@@ -115,6 +115,9 @@ jobs:
       - name: Pack scaffold extraction self-test
         run: npm run test:pack-scaffold-extraction
 
+      - name: Pitch detector accuracy contract
+        run: npm run test:pitch-detector-accuracy
+
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 

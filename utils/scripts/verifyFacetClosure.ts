@@ -26,6 +26,7 @@ async function main(): Promise<void> {
     generator: 'stores/generatorStore.ts',
     fallback: 'utils/facetEmergencyFallbacks.ts',
     audit: 'utils/scripts/auditFacetCatalogData.ts',
+    proseAudit: 'utils/scripts/auditFacetProseAssignments.ts',
     package: 'package.json',
     workflow: '.github/workflows/facet-catalog-contract.yml',
   } as const
@@ -106,8 +107,14 @@ async function main(): Promise<void> {
   requireText(files.audit, text.audit, 'if (strict && severe.length)')
   requireText(files.audit, text.audit, 'prisma.$disconnect()')
 
-  // The live audit is read-only. File-system writes are allowed only for the
-  // requested JSON report; Prisma mutations are not.
+  requireText(files.proseAudit, text.proseAudit, "taxonomy: { in: ['BACKSTORY', 'QUIRK'] }")
+  requireText(files.proseAudit, text.proseAudit, "fieldKey: { in: ['backstory', 'quirks'] }")
+  requireText(files.proseAudit, text.proseAudit, 'bespoke prose remains intentionally unlinked')
+  requireText(files.proseAudit, text.proseAudit, 'if (strict && findings.length)')
+  requireText(files.proseAudit, text.proseAudit, 'prisma.$disconnect()')
+
+  // Both live audits are read-only. File-system writes are allowed only for the
+  // primary audit's requested JSON report; Prisma mutations are not.
   for (const mutation of [
     'prisma.$transaction',
     '.create({',
@@ -119,6 +126,7 @@ async function main(): Promise<void> {
     '.deleteMany({',
   ]) {
     forbidText(files.audit, text.audit, mutation)
+    forbidText(files.proseAudit, text.proseAudit, mutation)
   }
 
   requireText(files.package, text.package, '"audit:facet-data"')
@@ -127,7 +135,7 @@ async function main(): Promise<void> {
   requireText(files.workflow, text.workflow, 'npm run test:facet-closure')
 
   process.stdout.write(
-    'Facet closure verified: creative generation is catalog-first, emergency pools are bounded, and the live audit is read-only.\n',
+    'Facet closure verified: creative generation is catalog-first, emergency pools are bounded, and live audits are read-only.\n',
   )
 }
 

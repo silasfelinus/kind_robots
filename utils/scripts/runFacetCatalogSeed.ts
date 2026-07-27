@@ -49,6 +49,7 @@ console.log(
 
 await import('./seedGenderFacetCatalog')
 await import('./seedFacetCatalog')
+await import('./seedArtBuilderFacetCatalog')
 await import('./seedScenarioGenreFacetCatalog')
 
 // Legacy Bot values must exist before the Bot Builder seed backfills production

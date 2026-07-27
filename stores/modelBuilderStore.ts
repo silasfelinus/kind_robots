@@ -1325,7 +1325,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const label = field === 'artPrompt' ? 'prompt' : field
       setStatus('success', `Drafted ${label} for ${drafted}/${items.length} items.`)
     } finally {
-      state.batchingOutputKey = null
+      // state.batchingOutputKey is a store-wide singleton, same shape as
+      // generatingItemId/committingItemId/autoBuildingItemId above: selecting a
+      // different group and starting its own batch op while this one is still
+      // awaiting draftText() overwrites batchingOutputKey to that group's key,
+      // and this call's finally would then null it out from under the
+      // still-running batch — re-enabling that group's batch buttons mid-flight
+      // and allowing a duplicate concurrent batch op. Only clear if it's ours.
+      if (state.batchingOutputKey === outputKey) state.batchingOutputKey = null
     }
   }
 
@@ -1395,7 +1402,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         `Auto-built ${committed}/${items.length} in this group.`,
       )
     } finally {
-      state.batchingOutputKey = null
+      // Same ownership-check reasoning as batchDraftField above.
+      if (state.batchingOutputKey === outputKey) state.batchingOutputKey = null
     }
   }
 

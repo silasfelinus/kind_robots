@@ -11,6 +11,7 @@ export type FacetWithAliases = Pick<
   | 'id'
   | 'title'
   | 'slug'
+  | 'kind'
   | 'description'
   | 'flavorText'
   | 'examples'

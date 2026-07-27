@@ -21,6 +21,19 @@ export type FacetProfileData = {
   metadata: string | null
 }
 
+const LEGACY_BROAD_KINDS = new Set<FacetTaxonomy>([
+  'GENRE',
+  'ANIMAL',
+  'COLOR',
+  'THEME',
+  'CORE',
+  'MOOD',
+  'STYLE',
+  'SETTING',
+  'ART_DIRECTION',
+  'OTHER',
+])
+
 function optionalText(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
@@ -38,17 +51,36 @@ function finiteNumber(
     : normalized
 }
 
-function taxonomyFromKind(kind: FacetKind): FacetTaxonomy {
+export function legacyFacetTaxonomyFromKind(kind: FacetKind): FacetTaxonomy {
   return FACET_TAXONOMIES.includes(kind as FacetTaxonomy)
     ? (kind as FacetTaxonomy)
     : 'OTHER'
 }
 
+/**
+ * Facet.kind is a deprecated compatibility column. New writes derive it from
+ * the authoritative FacetProfile.taxonomy; clients never choose it directly.
+ */
+export function legacyFacetKindForTaxonomy(
+  taxonomy: FacetTaxonomy,
+): FacetKind {
+  if (taxonomy === 'PROMPT_ENHANCEMENT') return 'ART_DIRECTION'
+  return LEGACY_BROAD_KINDS.has(taxonomy) ? (taxonomy as FacetKind) : 'OTHER'
+}
+
+export function assertLegacyFacetKindAbsent(body: FacetProfileInput): void {
+  if (body.kind === undefined) return
+  throw createError({
+    statusCode: 400,
+    message: 'Facet kind is deprecated. Use taxonomy instead.',
+  })
+}
+
 export function normalizeFacetTaxonomy(
   value: unknown,
-  fallbackKind: FacetKind,
+  fallback: FacetTaxonomy = 'OTHER',
 ): FacetTaxonomy {
-  if (value == null || value === '') return taxonomyFromKind(fallbackKind)
+  if (value == null || value === '') return fallback
 
   const normalized = String(value).trim().toUpperCase()
   if (!FACET_TAXONOMIES.includes(normalized as FacetTaxonomy)) {
@@ -91,9 +123,12 @@ function normalizeMetadata(value: unknown): string | null {
 
 export function buildFacetProfileCreateData(
   body: FacetProfileInput,
-  defaults: { title: string; kind: FacetKind },
+  defaults: { title: string; taxonomy?: FacetTaxonomy },
 ): FacetProfileData {
-  const taxonomy = normalizeFacetTaxonomy(body.taxonomy, defaults.kind)
+  const taxonomy = normalizeFacetTaxonomy(
+    body.taxonomy,
+    defaults.taxonomy ?? 'OTHER',
+  )
 
   return {
     taxonomy,
@@ -118,12 +153,12 @@ export function buildFacetProfileCreateData(
 
 export function buildFacetProfileUpdateData(
   body: FacetProfileInput,
-  defaults: { title: string; kind: FacetKind },
+  defaults: { title: string; taxonomy: FacetTaxonomy },
 ): Partial<FacetProfileData> {
   const data: Partial<FacetProfileData> = {}
 
-  if (body.taxonomy !== undefined || body.kind !== undefined) {
-    data.taxonomy = normalizeFacetTaxonomy(body.taxonomy, defaults.kind)
+  if (body.taxonomy !== undefined) {
+    data.taxonomy = normalizeFacetTaxonomy(body.taxonomy, defaults.taxonomy)
   }
   if (body.canonicalValue !== undefined || body.title !== undefined) {
     data.canonicalValue = optionalText(body.canonicalValue) ?? defaults.title

@@ -12,6 +12,7 @@ import {
   type SystemOptionFacetTarget,
 } from './../seeds/facetSystemOptionArtwork'
 import { prepareUniqueFacetAliases } from './../facetAliases'
+import { imageSrcToMediaPath, mediaAssetExists } from './mediaContractSource'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
@@ -34,14 +35,18 @@ function taxonomyPrefix(target: SystemOptionFacetTarget): string {
   return target.taxonomy.toLowerCase().replaceAll('_', '-')
 }
 
-function imageState(path: string): {
+async function imageState(path: string): Promise<{
   imagePath?: string
   requestedImagePath: string
   artworkStatus: 'available' | 'missing'
-} {
+}> {
+  // public/images/** is git-ignored and served from the media host, so a local
+  // existsSync check reports live art as missing in CI/production. Treat the
+  // asset as present if it exists locally OR on the media mount.
   const available =
     path.startsWith('/images/') &&
-    existsSync(resolve(process.cwd(), 'public', path.slice(1)))
+    (existsSync(resolve(process.cwd(), 'public', path.slice(1))) ||
+      (await mediaAssetExists(imageSrcToMediaPath(path))))
   return {
     imagePath: available ? path : undefined,
     requestedImagePath: path,
@@ -52,7 +57,7 @@ function imageState(path: string): {
 async function saveTarget(target: SystemOptionFacetTarget): Promise<'created' | 'updated'> {
   const prefix = taxonomyPrefix(target)
   const slug = `${prefix}-${slugify(target.enumValue)}`
-  const art = imageState(target.path)
+  const art = await imageState(target.path)
   const metadata = JSON.stringify({
     source: 'system-builder',
     structuralEnum: true,
@@ -158,8 +163,11 @@ async function main(): Promise<void> {
     counts.set(target.taxonomy, (counts.get(target.taxonomy) ?? 0) + 1)
   }
 
+  const artStates = await Promise.all(
+    SYSTEM_OPTION_FACET_TARGETS.map((target) => imageState(target.path)),
+  )
   const missingArtwork = SYSTEM_OPTION_FACET_TARGETS.filter(
-    (target) => imageState(target.path).artworkStatus === 'missing',
+    (_, index) => artStates[index]!.artworkStatus === 'missing',
   )
 
   process.stdout.write(

@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
 import { SCENARIO_CARDS } from './../../stores/helpers/scenarioCards'
+import { imageSrcToMediaPath, mediaAssetExists } from './mediaContractSource'
 import {
   normalizeFacetLookupKey,
   prepareUniqueFacetAliases,
@@ -46,21 +47,27 @@ function slugify(value: string): string {
     .slice(0, 255)
 }
 
-function existingPublicImagePath(value: unknown): {
+async function existingPublicImagePath(value: unknown): Promise<{
   imagePath?: string
   requestedImagePath?: string
-} {
+}> {
   const requestedImagePath = clean(value)
   if (!requestedImagePath) return {}
   if (!requestedImagePath.startsWith('/images/')) {
     return { requestedImagePath }
   }
-  return existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1)))
+  // public/images/** is git-ignored and served from the media host, so a local
+  // existsSync check reports live art as missing in CI/production. Treat the
+  // asset as present if it exists locally OR on the media mount.
+  const exists =
+    existsSync(resolve(process.cwd(), 'public', requestedImagePath.slice(1))) ||
+    (await mediaAssetExists(imageSrcToMediaPath(requestedImagePath)))
+  return exists
     ? { imagePath: requestedImagePath, requestedImagePath }
     : { requestedImagePath }
 }
 
-function collectScenarioGenreCandidates(): ScenarioGenreCandidate[] {
+async function collectScenarioGenreCandidates(): Promise<ScenarioGenreCandidate[]> {
   const candidates = new Map<string, ScenarioGenreCandidate>()
   const genreCard = SCENARIO_CARDS.find((card) => card.key === 'genre')
   let order = 0
@@ -100,7 +107,7 @@ function collectScenarioGenreCandidates(): ScenarioGenreCandidate[] {
       const builderLabel = clean(choice.label) || canonicalValue
       const key = normalizeFacetLookupKey(canonicalValue)
       if (!canonicalValue || !builderLabel || !key) continue
-      const artwork = existingPublicImagePath(choice.image)
+      const artwork = await existingPublicImagePath(choice.image)
       candidates.set(key, {
         title: canonicalValue,
         canonicalValue,
@@ -314,7 +321,7 @@ async function backfillScenarioGenres(state: CatalogState): Promise<number> {
 }
 
 async function main(): Promise<void> {
-  const candidates = collectScenarioGenreCandidates()
+  const candidates = await collectScenarioGenreCandidates()
   const missingSourceArtwork = candidates
     .filter((candidate) => candidate.requestedImagePath && !candidate.imagePath)
     .map((candidate) => candidate.requestedImagePath)

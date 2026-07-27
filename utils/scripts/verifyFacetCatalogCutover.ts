@@ -36,13 +36,17 @@ async function main(): Promise<void> {
     schema: 'prisma/facet-catalog.prisma',
     migration:
       'prisma/migrations/20260725113000_facet_catalog_cutover/migration.sql',
+    taxonomyMigration:
+      'prisma/migrations/20260727022500_facet_taxonomy_authority/migration.sql',
     catalog: 'server/utils/facetCatalog.ts',
     facetAssignments: 'server/utils/facetAssignments.ts',
     facetCreate: 'server/api/facets/index.post.ts',
     facetPatch: 'server/api/facets/[id].patch.ts',
+    facetList: 'server/api/facets/index.get.ts',
     profileInput: 'server/utils/facetProfileInput.ts',
     facetStore: 'stores/facetStore.ts',
     facetManager: 'components/facets/facet-manager.vue',
+    facetPicker: 'components/facets/facet-picker.vue',
     facetProfileEditor: 'components/facets/facet-profile-editor.vue',
     facetProfileForm: 'utils/facetProfileForm.ts',
     characterCreate: 'server/api/characters/index.post.ts',
@@ -72,13 +76,17 @@ async function main(): Promise<void> {
   )
   const text = Object.fromEntries(entries) as Record<keyof typeof files, string>
 
+  requireText(files.schema, text.schema, 'enum FacetTaxonomy')
   requireText(files.schema, text.schema, 'model FacetProfile')
+  requireText(files.schema, text.schema, 'taxonomy         FacetTaxonomy @default(OTHER)')
   requireText(files.schema, text.schema, 'model CharacterFacet')
   requireText(files.schema, text.schema, '@@unique([characterId, facetId, fieldKey])')
   requireText(files.migration, text.migration, 'FacetProfile_facetId_fkey')
   requireText(files.migration, text.migration, 'CharacterFacet_characterId_fkey')
   requireText(files.migration, text.migration, 'CharacterFacet_facetId_fkey')
   requireText(files.migration, text.migration, 'ON DELETE CASCADE')
+  requireText(files.taxonomyMigration, text.taxonomyMigration, 'MODIFY `taxonomy` ENUM(')
+  requireText(files.taxonomyMigration, text.taxonomyMigration, "SET `taxonomy` = 'OTHER'")
 
   for (const taxonomy of [
     'SPECIES',
@@ -87,6 +95,10 @@ async function main(): Promise<void> {
     'ROLE',
     'ALIGNMENT',
     'GENDER',
+    'BOT_TYPE',
+    'DREAM_TYPE',
+    'REWARD_TYPE',
+    'RARITY',
     'PERSONALITY',
     'BACKSTORY',
     'QUIRK',
@@ -106,6 +118,8 @@ async function main(): Promise<void> {
   requireText(files.profileInput, text.profileInput, 'normalizeFacetTaxonomy')
   requireText(files.profileInput, text.profileInput, 'buildFacetProfileCreateData')
   requireText(files.profileInput, text.profileInput, 'buildFacetProfileUpdateData')
+  requireText(files.profileInput, text.profileInput, 'assertLegacyFacetKindAbsent')
+  requireText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
   requireText(files.profileInput, text.profileInput, "taxonomy !== 'COLOR'")
   requireText(
     files.profileInput,
@@ -113,17 +127,24 @@ async function main(): Promise<void> {
     'Facet metadata must be a valid JSON object.',
   )
   requireText(files.facetCreate, text.facetCreate, 'buildFacetProfileCreateData')
+  requireText(files.facetCreate, text.facetCreate, 'legacyFacetKindForTaxonomy')
   requireText(files.facetCreate, text.facetCreate, 'tx.facetProfile.create')
   requireText(files.facetPatch, text.facetPatch, 'buildFacetProfileUpdateData')
+  requireText(files.facetPatch, text.facetPatch, 'legacyFacetKindForTaxonomy')
   requireText(files.facetPatch, text.facetPatch, 'tx.facetProfile.upsert')
+  requireText(files.facetList, text.facetList, 'query.taxonomy')
+  requireText(files.facetList, text.facetList, 'prisma.facetProfile.findMany')
 
   requireText(files.facetAssignments, text.facetAssignments, 'prisma.facetProfile.findMany')
   requireText(files.facetAssignments, text.facetAssignments, 'randomWeight: profile?.randomWeight')
   requireText(files.facetAssignments, text.facetAssignments, 'metadata: parseMetadata')
+  requireText(files.facetAssignments, text.facetAssignments, 'sortFacetSummaries')
+  forbidText(files.facetAssignments, text.facetAssignments, 'export const facetKinds')
   requireText(files.facetStore, text.facetStore, 'FACET_LIBRARY_PAGE_SIZE')
   requireText(files.facetStore, text.facetStore, 'while (true)')
   requireText(files.facetStore, text.facetStore, 'skip += page.length')
   requireText(files.facetStore, text.facetStore, 'taxonomy: FacetTaxonomy')
+  forbidText(files.facetStore, text.facetStore, 'FacetKind')
 
   requireText(files.facetManager, text.facetManager, 'Create canonical Facet')
   requireText(files.facetManager, text.facetManager, 'FacetProfileEditor')
@@ -133,10 +154,15 @@ async function main(): Promise<void> {
   requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.isRandomizable')
   requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.artRequired')
   requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.sourceRank')
-  requireText(files.facetProfileForm, text.facetProfileForm, 'kindForTaxonomy')
   requireText(files.facetProfileForm, text.facetProfileForm, 'parseFacetMetadata')
   requireText(files.facetProfileForm, text.facetProfileForm, 'canonicalValue')
   requireText(files.facetProfileForm, text.facetProfileForm, 'sortOrder')
+  forbidText(files.facetProfileForm, text.facetProfileForm, 'kindForTaxonomy')
+  forbidText(files.facetProfileForm, text.facetProfileForm, 'kind:')
+  requireText(files.facetPicker, text.facetPicker, 'newTaxonomy')
+  requireText(files.facetPicker, text.facetPicker, 'facet.taxonomy')
+  forbidText(files.facetPicker, text.facetPicker, 'newKind')
+  forbidText(files.facetPicker, text.facetPicker, 'facet.kind')
 
   requireText(
     files.characterFacetSync,

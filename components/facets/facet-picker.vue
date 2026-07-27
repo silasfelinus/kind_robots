@@ -6,17 +6,15 @@
       <div class="min-w-0 flex-1">
         <h3 class="text-sm font-bold">{{ label }}</h3>
         <p class="text-xs text-base-content/50">
-          Reusable flavor shared by Dreams, Scenarios, and Art. Aliases resolve
-          to one canonical Facet.
+          Reusable creative building blocks shared by Characters, Bots, Dreams,
+          Rewards, Scenarios, and art. Aliases resolve to one canonical Facet.
         </p>
       </div>
       <span
         v-if="saving || loadingAssignments"
         class="loading loading-spinner loading-xs"
       />
-      <span class="badge badge-ghost badge-sm">{{
-        selectedFacets.length
-      }}</span>
+      <span class="badge badge-ghost badge-sm">{{ selectedFacets.length }}</span>
     </div>
 
     <div v-if="selectedFacets.length" class="flex flex-wrap gap-2">
@@ -49,7 +47,7 @@
         v-model="search"
         type="search"
         class="input input-bordered input-sm w-full rounded-xl bg-base-200"
-        placeholder="Search title, slug, or alias — try cow, cows, cowCore..."
+        placeholder="Search title, taxonomy, slug, or alias — try species, cow, cows..."
         @focus="showResults = true"
       />
 
@@ -81,7 +79,7 @@
             />
           </span>
           <span class="badge badge-outline badge-xs shrink-0">{{
-            kindLabel(facet.kind)
+            taxonomyLabel(facet.taxonomy)
           }}</span>
           <span class="min-w-0 flex-1">
             <span class="block truncate text-sm font-semibold">{{
@@ -117,11 +115,15 @@
           placeholder="Canonical title, e.g. CowCore"
         />
         <select
-          v-model="newKind"
+          v-model="newTaxonomy"
           class="select select-bordered select-sm rounded-xl"
         >
-          <option v-for="kind in facetKinds" :key="kind" :value="kind">
-            {{ kindLabel(kind) }}
+          <option
+            v-for="taxonomy in FACET_TAXONOMIES"
+            :key="taxonomy"
+            :value="taxonomy"
+          >
+            {{ taxonomyLabel(taxonomy) }}
           </option>
         </select>
         <input
@@ -152,12 +154,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import type { FacetKind } from '~/prisma/generated/prisma/client'
 import {
   useFacetStore,
   type FacetOwnerType,
   type FacetWithAliases,
 } from '@/stores/facetStore'
+import {
+  FACET_TAXONOMIES,
+  type FacetTaxonomy,
+} from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 
 const props = withDefaults(
@@ -184,20 +189,7 @@ const loadingAssignments = ref(false)
 const errorMessage = ref('')
 const newTitle = ref('')
 const newAliases = ref('')
-const newKind = ref<FacetKind>('OTHER')
-
-const facetKinds: FacetKind[] = [
-  'GENRE',
-  'ANIMAL',
-  'COLOR',
-  'THEME',
-  'CORE',
-  'MOOD',
-  'STYLE',
-  'SETTING',
-  'ART_DIRECTION',
-  'OTHER',
-]
+const newTaxonomy = ref<FacetTaxonomy>('OTHER')
 
 const saving = computed(() => facetStore.saving)
 const selectedIds = computed(() => new Set(props.modelValue))
@@ -213,7 +205,13 @@ const searchResults = computed(() => {
 
   return facetStore.activeFacets
     .filter((facet) => {
-      const values = [facet.title, facet.slug, ...facet.aliases]
+      const values = [
+        facet.title,
+        facet.slug,
+        facet.taxonomy,
+        facet.groupLabel,
+        ...facet.aliases,
+      ]
       return values.some((value) =>
         normalizeFacetLookupKey(value || '').includes(needle),
       )
@@ -254,8 +252,8 @@ watch(
   { immediate: true },
 )
 
-function kindLabel(kind: FacetKind): string {
-  return kind
+function taxonomyLabel(taxonomy: FacetTaxonomy): string {
+  return taxonomy
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
@@ -266,7 +264,7 @@ function facetArtwork(facet: FacetWithAliases): string | null {
 }
 
 function facetTitle(facet: FacetWithAliases): string {
-  return `${kindLabel(facet.kind)} · ${facet.aliases.join(', ')}`
+  return `${taxonomyLabel(facet.taxonomy)} · ${facet.aliases.join(', ')}`
 }
 
 async function persist(next: number[]) {
@@ -301,7 +299,7 @@ async function createAndAddFacet() {
   try {
     const facet = await facetStore.createFacet({
       title,
-      kind: newKind.value,
+      taxonomy: newTaxonomy.value,
       aliases: newAliases.value
         .split(',')
         .map((alias) => alias.trim())
@@ -311,7 +309,7 @@ async function createAndAddFacet() {
     await addFacet(facet.id)
     newTitle.value = ''
     newAliases.value = ''
-    newKind.value = 'OTHER'
+    newTaxonomy.value = 'OTHER'
   } catch (error) {
     errorMessage.value =
       error instanceof Error ? error.message : 'Facet could not be created.'

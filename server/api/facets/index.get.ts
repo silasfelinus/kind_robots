@@ -1,18 +1,20 @@
 // GET /api/facets
-import { defineEventHandler, getQuery } from 'h3'
-import type { FacetKind, Prisma } from '~/prisma/generated/prisma/client'
+import { createError, defineEventHandler, getQuery } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import {
-  facetKinds,
   facetSummarySelect,
   hydrateFacetSummaries,
 } from '~/server/utils/facetAssignments'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
+import { normalizeFacetTaxonomy } from '~/server/utils/facetProfileInput'
 
 type FacetListQuery = {
   search?: string
+  taxonomy?: string
+  /** @deprecated Rejected. Use taxonomy. */
   kind?: string
   includeInactive?: string
   includeMature?: string
@@ -34,6 +36,13 @@ function toPositiveInt(value: unknown, fallback: number, max: number): number {
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery<FacetListQuery>(event)
+    if (query.kind !== undefined) {
+      throw createError({
+        statusCode: 400,
+        message: 'Facet kind filtering is deprecated. Use taxonomy instead.',
+      })
+    }
+
     const auth = await getOptionalApiUser(event)
     const userId = auth?.user.id ?? null
     const isAdmin = auth?.isAdmin ?? false
@@ -43,9 +52,10 @@ export default defineEventHandler(async (event) => {
     const take = Math.max(1, toPositiveInt(query.take, 100, 250))
     const skip = toPositiveInt(query.skip, 0, 100000)
     const search = typeof query.search === 'string' ? query.search.trim() : ''
-    const kind = facetKinds.includes(query.kind as FacetKind)
-      ? (query.kind as FacetKind)
-      : null
+    const taxonomy =
+      typeof query.taxonomy === 'string' && query.taxonomy.trim()
+        ? normalizeFacetTaxonomy(query.taxonomy)
+        : null
 
     const andFilters: Prisma.FacetWhereInput[] = []
     if (!includeInactive) andFilters.push({ isActive: true })
@@ -61,7 +71,16 @@ export default defineEventHandler(async (event) => {
       )
     }
 
-    if (kind) andFilters.push({ kind })
+    if (taxonomy) {
+      const profileIds = await prisma.facetProfile.findMany({
+        where: { taxonomy },
+        select: { facetId: true },
+      })
+      if (!profileIds.length) {
+        return { success: true, data: [], count: 0 }
+      }
+      andFilters.push({ id: { in: profileIds.map((profile) => profile.facetId) } })
+    }
 
     if (search) {
       const lookupKey = normalizeFacetLookupKey(search)
@@ -88,16 +107,24 @@ export default defineEventHandler(async (event) => {
 
     const facets = await prisma.facet.findMany({
       where: andFilters.length ? { AND: andFilters } : undefined,
-      orderBy: [{ kind: 'asc' }, { title: 'asc' }],
+      orderBy: [{ title: 'asc' }],
       take,
       skip,
       select: facetSummarySelect,
     })
+    const hydrated = await hydrateFacetSummaries(facets)
+    hydrated.sort((a, b) =>
+      a.taxonomy === b.taxonomy
+        ? a.sortOrder === b.sortOrder
+          ? a.title.localeCompare(b.title)
+          : a.sortOrder - b.sortOrder
+        : a.taxonomy.localeCompare(b.taxonomy),
+    )
 
     return {
       success: true,
-      data: await hydrateFacetSummaries(facets),
-      count: facets.length,
+      data: hydrated,
+      count: hydrated.length,
     }
   } catch (error) {
     return errorHandler(error)

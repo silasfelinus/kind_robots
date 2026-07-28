@@ -9,11 +9,11 @@
           <h3 class="text-2xl font-black">Coloring Book Production Studio</h3>
         </div>
         <p class="mt-1 max-w-3xl text-sm text-base-content/60">
-          Three canonical books, 108 proposal slots, real Conductor prompts, paired
-          art, queue state, and targeted revision requests. Finally, the front end
-          knows what the backend is talking about.
+          Three canonical books, 108 proposal slots, real Conductor prompts,
+          paired art, queue state, and targeted revision requests.
         </p>
       </div>
+
       <button
         type="button"
         class="btn btn-outline rounded-2xl"
@@ -29,15 +29,27 @@
     <div v-if="studio.error" class="alert alert-error rounded-2xl" role="alert">
       <icon name="kind-icon:alert" class="size-5" />
       <span>{{ studio.error }}</span>
-      <button type="button" class="btn btn-ghost btn-sm" @click="studio.clearNotice()">
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        @click="studio.clearNotice()"
+      >
         Dismiss
       </button>
     </div>
 
-    <div v-if="studio.message" class="alert alert-success rounded-2xl" role="status">
+    <div
+      v-if="studio.message"
+      class="alert alert-success rounded-2xl"
+      role="status"
+    >
       <icon name="kind-icon:check" class="size-5" />
       <span>{{ studio.message }}</span>
-      <button type="button" class="btn btn-ghost btn-sm" @click="studio.clearNotice()">
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        @click="studio.clearNotice()"
+      >
         Dismiss
       </button>
     </div>
@@ -65,28 +77,47 @@
         >
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+              <p
+                class="text-xs font-black uppercase tracking-widest text-base-content/40"
+              >
                 Book {{ book.order }}
               </p>
               <h4 class="text-xl font-black">{{ book.title }}</h4>
             </div>
             <span class="badge badge-outline rounded-2xl">{{ book.status }}</span>
           </div>
+
           <progress
             class="progress progress-primary my-3 w-full"
             :value="book.counts.finalPairs"
             :max="book.targetProposals"
           />
+
           <div class="grid grid-cols-4 gap-2 text-center text-xs">
-            <metric-chip label="Prompts" :value="book.counts.prompts" />
-            <metric-chip label="Rendered" :value="book.counts.rendered" />
-            <metric-chip label="Pairs" :value="book.counts.acceptedPairs" />
-            <metric-chip label="Final" :value="book.counts.finalPairs" />
+            <div class="rounded-2xl bg-base-200 p-2">
+              <strong class="block text-base">{{ book.counts.prompts }}</strong>
+              Prompts
+            </div>
+            <div class="rounded-2xl bg-base-200 p-2">
+              <strong class="block text-base">{{ book.counts.rendered }}</strong>
+              Rendered
+            </div>
+            <div class="rounded-2xl bg-base-200 p-2">
+              <strong class="block text-base">{{ book.counts.acceptedPairs }}</strong>
+              Pairs
+            </div>
+            <div class="rounded-2xl bg-base-200 p-2">
+              <strong class="block text-base">{{ book.counts.finalPairs }}</strong>
+              Final
+            </div>
           </div>
         </button>
       </div>
 
-      <div role="tablist" class="tabs tabs-boxed flex-wrap rounded-2xl bg-base-200 p-1">
+      <div
+        role="tablist"
+        class="tabs tabs-boxed flex-wrap rounded-2xl bg-base-200 p-1"
+      >
         <button
           v-for="mode in modes"
           :key="mode.key"
@@ -109,7 +140,9 @@
         >
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+              <p
+                class="text-xs font-black uppercase tracking-widest text-base-content/40"
+              >
                 {{ book.slug }}
               </p>
               <h4 class="text-2xl font-black">{{ book.title }}</h4>
@@ -161,6 +194,7 @@
               Side-by-side production candidates for every proposal slot.
             </p>
           </div>
+
           <select
             v-model="pageFilter"
             class="select select-bordered rounded-2xl"
@@ -188,33 +222,69 @@
             @click="openProposal(proposal.id)"
           >
             <div class="grid aspect-[4/3] grid-cols-2 bg-base-200">
-              <preview-cell
-                label="Color"
-                :url="proposal.colorUrl"
-                :alt="`${proposal.title} color candidate`"
-                icon="kind-icon:palette"
-              />
-              <preview-cell
-                label="B&W"
-                :url="proposal.bwUrl"
-                :alt="`${proposal.title} black-and-white page`"
-                icon="kind-icon:pencil"
-                grayscale
-              />
+              <div class="relative overflow-hidden border-r border-base-300">
+                <img
+                  v-if="proposal.colorUrl"
+                  :src="proposal.colorUrl"
+                  :alt="`${proposal.title} color candidate`"
+                  class="size-full object-cover"
+                  loading="lazy"
+                />
+                <div
+                  v-else
+                  class="flex size-full items-center justify-center text-base-content/30"
+                >
+                  <icon name="kind-icon:palette" class="size-10" />
+                </div>
+                <span
+                  class="badge badge-sm absolute bottom-2 left-2 rounded-2xl"
+                >
+                  Color
+                </span>
+              </div>
+
+              <div class="relative overflow-hidden">
+                <img
+                  v-if="proposal.bwUrl"
+                  :src="proposal.bwUrl"
+                  :alt="`${proposal.title} black-and-white page`"
+                  class="size-full object-cover grayscale"
+                  loading="lazy"
+                />
+                <div
+                  v-else
+                  class="flex size-full items-center justify-center text-base-content/30"
+                >
+                  <icon name="kind-icon:pencil" class="size-10" />
+                </div>
+                <span
+                  class="badge badge-sm absolute bottom-2 left-2 rounded-2xl"
+                >
+                  B&amp;W
+                </span>
+              </div>
             </div>
+
             <div class="flex flex-col gap-2 p-4">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
+                  <p
+                    class="text-xs font-black uppercase tracking-widest text-base-content/40"
+                  >
                     Slot {{ proposal.slot }} · {{ proposal.id }}
                   </p>
                   <h5 class="font-black">{{ proposal.title }}</h5>
                 </div>
-                <span class="badge badge-sm rounded-2xl" :class="statusBadge(proposal.queue.status)">
+                <span
+                  class="badge badge-sm rounded-2xl"
+                  :class="statusBadge(proposal.queue.status)"
+                >
                   {{ proposal.queue.status }}
                 </span>
               </div>
-              <p class="line-clamp-2 text-xs leading-relaxed text-base-content/55">
+              <p
+                class="line-clamp-2 text-xs leading-relaxed text-base-content/55"
+              >
                 {{ proposal.prompt || 'No production prompt yet.' }}
               </p>
             </div>
@@ -226,61 +296,118 @@
         v-if="activeMode === 'editor' && studio.selectedProposal"
         class="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]"
       >
-        <article class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <article
+          class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
+        >
+          <div
+            class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+          >
             <div>
-              <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
-                {{ studio.selectedBook?.title }} · Slot {{ studio.selectedProposal.slot }} ·
+              <p
+                class="text-xs font-black uppercase tracking-widest text-base-content/40"
+              >
+                {{ studio.selectedBook?.title }} · Slot
+                {{ studio.selectedProposal.slot }} ·
                 {{ studio.selectedProposal.id }}
               </p>
-              <h4 class="text-2xl font-black">{{ studio.selectedProposal.title }}</h4>
+              <h4 class="text-2xl font-black">
+                {{ studio.selectedProposal.title }}
+              </h4>
             </div>
-            <span class="badge rounded-2xl" :class="statusBadge(studio.selectedProposal.queue.status)">
+            <span
+              class="badge rounded-2xl"
+              :class="statusBadge(studio.selectedProposal.queue.status)"
+            >
               {{ studio.selectedProposal.queue.status }}
             </span>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <preview-figure
-              title="Current color master"
-              :url="studio.selectedProposal.colorUrl"
-              :alt="`${studio.selectedProposal.title} current color version`"
-              icon="kind-icon:palette"
-              empty-text="No color candidate"
-            />
-            <preview-figure
-              title="Current black & white"
-              :url="studio.selectedProposal.bwUrl"
-              :alt="`${studio.selectedProposal.title} current black-and-white version`"
-              icon="kind-icon:pencil"
-              empty-text="No line-art pair"
-              grayscale
-            />
+            <figure
+              class="overflow-hidden rounded-3xl border border-base-300 bg-base-200"
+            >
+              <div class="aspect-[2/3]">
+                <img
+                  v-if="studio.selectedProposal.colorUrl"
+                  :src="studio.selectedProposal.colorUrl"
+                  :alt="`${studio.selectedProposal.title} current color version`"
+                  class="size-full object-contain"
+                />
+                <div
+                  v-else
+                  class="flex size-full flex-col items-center justify-center gap-2 text-base-content/35"
+                >
+                  <icon name="kind-icon:palette" class="size-14" />
+                  <span>No color candidate</span>
+                </div>
+              </div>
+              <figcaption
+                class="border-t border-base-300 p-3 text-center font-black"
+              >
+                Current color master
+              </figcaption>
+            </figure>
+
+            <figure
+              class="overflow-hidden rounded-3xl border border-base-300 bg-base-200"
+            >
+              <div class="aspect-[2/3]">
+                <img
+                  v-if="studio.selectedProposal.bwUrl"
+                  :src="studio.selectedProposal.bwUrl"
+                  :alt="`${studio.selectedProposal.title} current black-and-white version`"
+                  class="size-full object-contain grayscale"
+                />
+                <div
+                  v-else
+                  class="flex size-full flex-col items-center justify-center gap-2 text-base-content/35"
+                >
+                  <icon name="kind-icon:pencil" class="size-14" />
+                  <span>No line-art pair</span>
+                </div>
+              </div>
+              <figcaption
+                class="border-t border-base-300 p-3 text-center font-black"
+              >
+                Current black &amp; white
+              </figcaption>
+            </figure>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-3">
-            <metric-card
-              label="Semantic score"
-              :value="studio.selectedProposal.queue.semanticScore ?? '—'"
-            />
-            <metric-card
-              label="Render engine"
-              :value="studio.selectedProposal.queue.renderEngine ?? '—'"
-            />
-            <metric-card
-              label="Archived revisions"
-              :value="studio.selectedProposal.queue.revisionCount"
-            />
+            <div class="rounded-2xl bg-base-200 p-3 text-sm">
+              <span class="block text-xs text-base-content/45">Semantic score</span>
+              <strong>
+                {{ studio.selectedProposal.queue.semanticScore ?? '—' }}
+              </strong>
+            </div>
+            <div class="rounded-2xl bg-base-200 p-3 text-sm">
+              <span class="block text-xs text-base-content/45">Render engine</span>
+              <strong>
+                {{ studio.selectedProposal.queue.renderEngine ?? '—' }}
+              </strong>
+            </div>
+            <div class="rounded-2xl bg-base-200 p-3 text-sm">
+              <span class="block text-xs text-base-content/45">
+                Archived revisions
+              </span>
+              <strong>{{ studio.selectedProposal.queue.revisionCount }}</strong>
+            </div>
           </div>
         </article>
 
-        <aside class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5">
+        <aside
+          class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
+        >
           <div>
             <h4 class="text-xl font-black">Canonical production prompt</h4>
             <p class="mt-1 break-all text-xs text-base-content/45">
               {{ studio.selectedProposal.promptSourcePath }}
             </p>
-            <p v-if="studio.selectedProposal.promptRef" class="mt-1 break-all text-xs text-info">
+            <p
+              v-if="studio.selectedProposal.promptRef"
+              class="mt-1 break-all text-xs text-info"
+            >
               Queue reference: {{ studio.selectedProposal.promptRef }}
             </p>
           </div>
@@ -292,9 +419,14 @@
             :placeholder="`Describe ${studio.selectedProposal.title} as a production-ready color master...`"
           />
 
-          <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-base-content/45">
+          <div
+            class="flex flex-wrap items-center justify-between gap-2 text-xs text-base-content/45"
+          >
             <span>{{ promptDraft.length }} characters</span>
-            <span v-if="promptDirty" class="badge badge-warning badge-sm rounded-2xl">
+            <span
+              v-if="promptDirty"
+              class="badge badge-warning badge-sm rounded-2xl"
+            >
               Unsaved changes
             </span>
           </div>
@@ -303,10 +435,17 @@
             v-if="userStore.isAdmin"
             type="button"
             class="btn btn-primary rounded-2xl"
-            :disabled="!promptDirty || studio.savingPrompt || promptDraft.trim().length < 20"
+            :disabled="
+              !promptDirty ||
+              studio.savingPrompt ||
+              promptDraft.trim().length < 20
+            "
             @click="savePrompt"
           >
-            <span v-if="studio.savingPrompt" class="loading loading-spinner loading-sm" />
+            <span
+              v-if="studio.savingPrompt"
+              class="loading loading-spinner loading-sm"
+            />
             <icon v-else name="kind-icon:save" class="size-5" />
             Save canonical prompt
           </button>
@@ -329,19 +468,32 @@
             :disabled="studio.requestingRender || promptDirty"
             @click="requestRender"
           >
-            <span v-if="studio.requestingRender" class="loading loading-spinner loading-sm" />
+            <span
+              v-if="studio.requestingRender"
+              class="loading loading-spinner loading-sm"
+            />
             <icon v-else name="kind-icon:sparkles" class="size-5" />
-            {{ requestNeedsForce ? 'Archive current and request revision' : 'Request this color candidate' }}
+            {{
+              requestNeedsForce
+                ? 'Archive current and request revision'
+                : 'Request this color candidate'
+            }}
           </button>
 
-          <div v-if="!userStore.isAdmin" class="alert rounded-2xl bg-base-200 text-sm">
+          <div
+            v-if="!userStore.isAdmin"
+            class="alert rounded-2xl bg-base-200 text-sm"
+          >
             <icon name="kind-icon:lock" class="size-5" />
             <span>Production edits and render requests are admin-only.</span>
           </div>
 
-          <div class="rounded-2xl border border-info/30 bg-info/10 p-3 text-xs leading-relaxed">
-            Black-and-white generation remains color-first. Existing pairs are visible now;
-            targeted B&amp;W conversion follows after a color composition is accepted.
+          <div
+            class="rounded-2xl border border-info/30 bg-info/10 p-3 text-xs leading-relaxed"
+          >
+            Black-and-white generation remains color-first. Existing pairs are
+            visible now; targeted B&amp;W conversion follows after a color
+            composition is accepted.
           </div>
         </aside>
       </div>
@@ -377,16 +529,24 @@
           @click="openProblem(problem.bookSlug, problem.proposal.id)"
         >
           <div>
-            <p class="text-xs font-black uppercase tracking-widest text-base-content/45">
+            <p
+              class="text-xs font-black uppercase tracking-widest text-base-content/45"
+            >
               {{ problem.bookTitle }} · {{ problem.proposal.id }}
             </p>
             <h5 class="font-black">{{ problem.proposal.title }}</h5>
             <p class="mt-1 max-w-4xl text-sm text-base-content/65">
-              {{ problem.proposal.queue.semanticGateError || 'Automatic attempts exhausted; human review required.' }}
+              {{
+                problem.proposal.queue.semanticGateError ||
+                'Automatic attempts exhausted; human review required.'
+              }}
             </p>
           </div>
           <div class="flex shrink-0 flex-wrap gap-2">
-            <span class="badge rounded-2xl" :class="statusBadge(problem.proposal.queue.status)">
+            <span
+              class="badge rounded-2xl"
+              :class="statusBadge(problem.proposal.queue.status)"
+            >
               {{ problem.proposal.queue.status }}
             </span>
             <span class="badge badge-outline rounded-2xl">
@@ -396,11 +556,15 @@
         </button>
       </div>
 
-      <div v-if="activeMode === 'color'" class="rounded-3xl border border-base-300 bg-base-100 p-4">
+      <div
+        v-if="activeMode === 'color'"
+        class="rounded-3xl border border-base-300 bg-base-100 p-4"
+      >
         <div class="mb-4">
           <h4 class="text-xl font-black">End-user coloring preview</h4>
           <p class="text-sm text-base-content/50">
-            The existing coloring engine lives here without pretending to be the production manager.
+            The existing coloring engine lives here without pretending to be the
+            production manager.
           </p>
         </div>
         <coloring-book-manager />
@@ -410,85 +574,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
 import { useUserStore } from '@/stores/userStore'
 
 type StudioMode = 'books' | 'pages' | 'editor' | 'queue' | 'color'
 type PageFilter = 'all' | 'pending' | 'rendered' | 'review' | 'paired'
-
-const MetricChip = defineComponent({
-  props: { label: { type: String, required: true }, value: { type: [String, Number], required: true } },
-  setup: (props) => () =>
-    h('div', { class: 'rounded-2xl bg-base-200 p-2' }, [
-      h('strong', { class: 'block text-base' }, String(props.value)),
-      props.label,
-    ]),
-})
-
-const MetricCard = defineComponent({
-  props: { label: { type: String, required: true }, value: { type: [String, Number], required: true } },
-  setup: (props) => () =>
-    h('div', { class: 'rounded-2xl bg-base-200 p-3 text-sm' }, [
-      h('span', { class: 'block text-xs text-base-content/45' }, props.label),
-      h('strong', String(props.value)),
-    ]),
-})
-
-const PreviewCell = defineComponent({
-  props: {
-    label: { type: String, required: true },
-    url: { type: String, default: '' },
-    alt: { type: String, required: true },
-    icon: { type: String, required: true },
-    grayscale: { type: Boolean, default: false },
-  },
-  setup: (props) => () =>
-    h('div', { class: 'relative overflow-hidden border-r border-base-300 last:border-r-0' }, [
-      props.url
-        ? h('img', {
-            src: props.url,
-            alt: props.alt,
-            loading: 'lazy',
-            class: ['size-full object-cover', props.grayscale ? 'grayscale' : ''],
-          })
-        : h('div', { class: 'flex size-full items-center justify-center text-base-content/30' }, [
-            h(resolveIcon(), { name: props.icon, class: 'size-10' }),
-          ]),
-      h('span', { class: 'badge badge-sm absolute bottom-2 left-2 rounded-2xl' }, props.label),
-    ]),
-})
-
-const PreviewFigure = defineComponent({
-  props: {
-    title: { type: String, required: true },
-    url: { type: String, default: '' },
-    alt: { type: String, required: true },
-    icon: { type: String, required: true },
-    emptyText: { type: String, required: true },
-    grayscale: { type: Boolean, default: false },
-  },
-  setup: (props) => () =>
-    h('figure', { class: 'overflow-hidden rounded-3xl border border-base-300 bg-base-200' }, [
-      h('div', { class: 'aspect-[2/3]' }, [
-        props.url
-          ? h('img', {
-              src: props.url,
-              alt: props.alt,
-              class: ['size-full object-contain', props.grayscale ? 'grayscale' : ''],
-            })
-          : h('div', { class: 'flex size-full flex-col items-center justify-center gap-2 text-base-content/35' }, [
-              h(resolveIcon(), { name: props.icon, class: 'size-14' }),
-              h('span', props.emptyText),
-            ]),
-      ]),
-      h('figcaption', { class: 'border-t border-base-300 p-3 text-center font-black' }, props.title),
-    ]),
-})
-
-function resolveIcon() {
-  return resolveComponent('icon')
-}
 
 const studio = useColoringBookStudioStore()
 const userStore = useUserStore()
@@ -507,11 +598,17 @@ const modes: { key: StudioMode; label: string; icon: string }[] = [
 
 const filteredProposals = computed(() => {
   const proposals = studio.selectedBook?.proposals ?? []
-  if (pageFilter.value === 'pending') return proposals.filter((proposal) => proposal.queue.status === 'pending')
-  if (pageFilter.value === 'rendered') return proposals.filter((proposal) => Boolean(proposal.colorUrl))
+  if (pageFilter.value === 'pending') {
+    return proposals.filter((proposal) => proposal.queue.status === 'pending')
+  }
+  if (pageFilter.value === 'rendered') {
+    return proposals.filter((proposal) => Boolean(proposal.colorUrl))
+  }
   if (pageFilter.value === 'review') {
     return proposals.filter(
-      (proposal) => proposal.queue.status === 'needs_review' || Boolean(proposal.queue.semanticGateError),
+      (proposal) =>
+        proposal.queue.status === 'needs_review' ||
+        Boolean(proposal.queue.semanticGateError),
     )
   }
   if (pageFilter.value === 'paired') {
@@ -525,12 +622,15 @@ const filteredProposals = computed(() => {
 })
 
 const promptDirty = computed(
-  () => promptDraft.value.trim() !== (studio.selectedProposal?.prompt ?? '').trim(),
+  () =>
+    promptDraft.value.trim() !== (studio.selectedProposal?.prompt ?? '').trim(),
 )
 
 const requestNeedsForce = computed(() => {
   const proposal = studio.selectedProposal
-  return Boolean(proposal && (proposal.queue.status !== 'pending' || proposal.colorUrl))
+  return Boolean(
+    proposal && (proposal.queue.status !== 'pending' || proposal.colorUrl),
+  )
 })
 
 watch(

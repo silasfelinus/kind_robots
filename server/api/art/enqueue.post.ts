@@ -499,6 +499,10 @@ function buildVideoJobPayload(
     30,
   )
   const negativePrompt = body.negativePrompt?.trim() || DEFAULT_VIDEO_NEGATIVE
+  const loraName = body.loraName?.trim() || null
+  const loraStrength = loraName
+    ? clampNumber(body.loraStrength, 1, -2, 2)
+    : null
   const images: QueuedImage[] = []
   let firstImageName: string | null = null
   let lastImageName: string | null = null
@@ -539,6 +543,8 @@ function buildVideoJobPayload(
         cfg: body.cfg ?? null,
         sampler: body.sampler ?? null,
         scheduler: body.scheduler ?? null,
+        loraName,
+        loraStrength,
       })
     : buildLtxImageToVideoWorkflow({
         prompt: promptString,
@@ -553,6 +559,8 @@ function buildVideoJobPayload(
         steps: body.steps ?? null,
         cfg: body.cfg ?? null,
         sampler: body.sampler ?? null,
+        styleLoraName: loraName,
+        styleLoraStrength: loraStrength,
       })
 
   return {
@@ -572,6 +580,8 @@ function buildVideoJobPayload(
         height,
         hasFirstImage: Boolean(firstImageName),
         hasLastImage: Boolean(lastImageName),
+        hasLora: Boolean(loraName),
+        loraStrength,
       },
       save,
     },

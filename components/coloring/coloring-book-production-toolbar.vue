@@ -13,7 +13,7 @@
         </div>
         <h3 class="mt-2 text-xl font-black">{{ proposal.title }}</h3>
         <p class="mt-1 max-w-3xl text-sm text-base-content/55">
-          Human decisions and counterpart generation now write directly to the canonical
+          Human decisions and counterpart generation write directly to the canonical
           Conductor ledger. Generation may suggest. Only these controls accept.
         </p>
       </div>
@@ -45,7 +45,7 @@
       />
       <ProductionStageCard
         label="B&W candidate"
-        :done="Boolean(production?.bwRenderedPath)"
+        :done="Boolean(production?.bwRenderedPath || proposal.bwPath)"
         :detail="bwCandidateDetail"
         icon-name="kind-icon:pencil"
       />
@@ -64,6 +64,17 @@
     </div>
 
     <div
+      v-if="colorUsesLegacyAsset || bwUsesLegacyAsset"
+      class="alert alert-info rounded-2xl"
+    >
+      <icon name="kind-icon:archive" class="size-5" />
+      <span>
+        The displayed {{ legacyAssetLabel }} predates the current ArtJob queue. Adopting it
+        keeps the existing Conductor file and does not fabricate missing generation metadata.
+      </span>
+    </div>
+
+    <div
       v-if="production?.bwUrl || proposal.bwUrl"
       class="grid gap-4 rounded-2xl border border-base-300 bg-base-200/40 p-4 lg:grid-cols-[10rem_minmax(0,1fr)]"
     >
@@ -75,7 +86,12 @@
       <div class="flex flex-col gap-2">
         <h4 class="font-black">Current B&amp;W production candidate</h4>
         <p class="break-all text-xs text-base-content/50">
-          {{ production?.bwRenderedPath || proposal.accepted.bw || proposal.final.bw }}
+          {{
+            production?.bwRenderedPath ||
+            proposal.bwPath ||
+            proposal.accepted.bw ||
+            proposal.final.bw
+          }}
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <span v-if="hasBwScore" class="badge badge-info rounded-2xl">
@@ -109,8 +125,8 @@
 
       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ProductionActionButton
-          label="Accept color master"
-          confirm-label="Confirm color acceptance"
+          :label="colorUsesLegacyAsset ? 'Adopt displayed color' : 'Accept color master'"
+          :confirm-label="colorUsesLegacyAsset ? 'Confirm legacy color adoption' : 'Confirm color acceptance'"
           icon-name="kind-icon:palette"
           :enabled="canAcceptColor"
           :armed="armedAction === 'accept-color'"
@@ -131,8 +147,8 @@
         </button>
 
         <ProductionActionButton
-          label="Accept B&W master"
-          confirm-label="Confirm B&W acceptance"
+          :label="bwUsesLegacyAsset ? 'Adopt displayed B&W' : 'Accept B&W master'"
+          :confirm-label="bwUsesLegacyAsset ? 'Confirm legacy B&W adoption' : 'Confirm B&W acceptance'"
           icon-name="kind-icon:check"
           :enabled="canAcceptBw"
           :armed="armedAction === 'accept-bw'"
@@ -199,12 +215,57 @@ const hasBwScore = computed(
   () => typeof production.value?.bwSemanticScore === 'number',
 )
 
+function adoptablePath(value: string | null | undefined): string {
+  const path = String(value || '').trim().replace(/\\/g, '/')
+  if (
+    !path ||
+    path.startsWith('/') ||
+    path.includes(':') ||
+    path.split('/').includes('..') ||
+    !/\.(?:webp|png|jpe?g)$/i.test(path)
+  ) {
+    return ''
+  }
+  return path
+}
+
+const colorAcceptanceSource = computed(() => {
+  if (proposal.value?.queue.status === 'done' && proposal.value.queue.renderedPath) {
+    return ''
+  }
+  return adoptablePath(proposal.value?.colorPath)
+})
+
+const bwAcceptanceSource = computed(() => {
+  if (
+    production.value?.bwStatus === 'done' &&
+    production.value.bwRenderedPath
+  ) {
+    return ''
+  }
+  return adoptablePath(proposal.value?.bwPath)
+})
+
+const colorUsesLegacyAsset = computed(
+  () => Boolean(!proposal.value?.accepted.color && colorAcceptanceSource.value),
+)
+
+const bwUsesLegacyAsset = computed(
+  () => Boolean(!proposal.value?.accepted.bw && bwAcceptanceSource.value),
+)
+
+const legacyAssetLabel = computed(() => {
+  if (colorUsesLegacyAsset.value && bwUsesLegacyAsset.value) return 'color and B&W files'
+  if (colorUsesLegacyAsset.value) return 'color file'
+  return 'B&W file'
+})
+
 const canAcceptColor = computed(() =>
   Boolean(
     proposal.value &&
       !proposal.value.accepted.color &&
       proposal.value.colorUrl &&
-      proposal.value.queue.status === 'done',
+      (proposal.value.queue.status === 'done' || colorAcceptanceSource.value),
   ),
 )
 
@@ -223,10 +284,11 @@ const canReviseBw = computed(() => {
 
 const canAcceptBw = computed(() =>
   Boolean(
-    proposal.value &&
+    proposal.value?.accepted.color &&
       !proposal.value.accepted.bw &&
-      production.value?.bwStatus === 'done' &&
-      production.value.bwRenderedPath,
+      ((production.value?.bwStatus === 'done' &&
+        production.value.bwRenderedPath) ||
+        bwAcceptanceSource.value),
   ),
 )
 
@@ -240,6 +302,7 @@ const canFinalizePair = computed(() =>
 
 const colorCandidateDetail = computed(() => {
   if (proposal.value?.accepted.color) return 'Accepted master recorded'
+  if (colorUsesLegacyAsset.value) return 'Existing Conductor set asset'
   if (typeof proposal.value?.queue.semanticScore === 'number') {
     return `Semantic score ${proposal.value.queue.semanticScore}`
   }
@@ -248,6 +311,7 @@ const colorCandidateDetail = computed(() => {
 
 const bwCandidateDetail = computed(() => {
   if (proposal.value?.accepted.bw) return 'Accepted master recorded'
+  if (bwUsesLegacyAsset.value) return 'Existing Conductor set asset'
   if (typeof production.value?.bwSemanticScore === 'number') {
     return `Pair score ${production.value.bwSemanticScore}`
   }
@@ -269,8 +333,15 @@ async function runHumanAction(
     armedAction.value = operation
     return
   }
+  const sourcePath =
+    operation === 'accept-color'
+      ? colorAcceptanceSource.value
+      : operation === 'accept-bw'
+        ? bwAcceptanceSource.value
+        : ''
   const success = await studio.requestProductionAction(operation, {
     note: actionNote.value,
+    sourcePath,
   })
   if (success) {
     armedAction.value = null

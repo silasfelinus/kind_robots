@@ -1,4 +1,5 @@
 import type {
+  ColoringBookCoverState,
   ColoringBookProductionState,
   ColoringBookProposal,
   ColoringBookStudioBook,
@@ -32,7 +33,9 @@ export type ColoringBookReadinessSummary = {
   needsPrompt: number
   blocked: number
   actionable: number
+  coverStatus: string
   coverPending: boolean
+  coverActionable: boolean
   interiorReady: boolean
   printReady: boolean
 }
@@ -175,10 +178,23 @@ export function proposalReadiness(
   }
 }
 
+function coverStatusLabel(cover: ColoringBookCoverState | null): string {
+  if (!cover) return 'Not configured'
+  if (cover.finalPath || cover.status === 'final') return 'Final cover source'
+  if (cover.acceptedPath || cover.status === 'approved') return 'Finalize cover source'
+  if (cover.renderedPath || cover.status === 'done') return 'Accept cover source'
+  if (cover.status === 'needs_review') return 'Cover needs review'
+  if (cover.status === 'running') return 'Cover rendering'
+  if (cover.status === 'failed') return 'Cover generation failed'
+  return 'Generate cover source'
+}
+
 export function summarizeBookReadiness(
   book: ColoringBookStudioBook,
   productionStates: Record<string, ColoringBookProductionState>,
+  cover: ColoringBookCoverState | null = null,
 ): ColoringBookReadinessSummary {
+  const coverPending = book.coverIsSeparate && !cover?.finalPath && cover?.status !== 'final'
   const summary: ColoringBookReadinessSummary = {
     total: book.proposals.length,
     final: 0,
@@ -190,7 +206,9 @@ export function summarizeBookReadiness(
     needsPrompt: 0,
     blocked: 0,
     actionable: 0,
-    coverPending: book.coverIsSeparate,
+    coverStatus: coverStatusLabel(cover),
+    coverPending,
+    coverActionable: coverPending && cover?.status !== 'running',
     interiorReady: false,
     printReady: false,
   }

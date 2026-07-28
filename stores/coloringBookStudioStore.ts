@@ -1,6 +1,8 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type {
+  ColoringBookCoverPromptUpdate,
+  ColoringBookCoverState,
   ColoringBookProductionData,
   ColoringBookProductionState,
   ColoringBookPromptUpdate,
@@ -11,15 +13,23 @@ import type {
 } from '~/types/coloringBookStudio'
 import { performFetch } from '@/stores/utils'
 
+const COVER_OPERATIONS = new Set<ColoringBookStudioOperation>([
+  'generate-cover',
+  'accept-cover',
+  'finalize-cover',
+])
+
 export const useColoringBookStudioStore = defineStore(
   'coloringBookStudioStore',
   () => {
     const books = ref<ColoringBookStudioBook[]>([])
     const productionStates = ref<Record<string, ColoringBookProductionState>>({})
+    const coverStates = ref<Record<string, ColoringBookCoverState>>({})
     const selectedBookSlug = ref('monster-recast')
     const selectedProposalId = ref('')
     const loading = ref(false)
     const savingPrompt = ref(false)
+    const savingCoverPrompt = ref(false)
     const requestingAction = ref(false)
     const error = ref<string | null>(null)
     const message = ref<string | null>(null)
@@ -50,6 +60,12 @@ export const useColoringBookStudioStore = defineStore(
       if (!book || !proposal) return null
       return productionStates.value[`${book.slug}:${proposal.id}`] ?? null
     })
+
+    const selectedCover = computed<ColoringBookCoverState | null>(() =>
+      selectedBook.value
+        ? (coverStates.value[selectedBook.value.slug] ?? null)
+        : null,
+    )
 
     const requestingRender = computed(() => requestingAction.value)
 
@@ -111,6 +127,7 @@ export const useColoringBookStudioStore = defineStore(
         }
         books.value = studioResponse.data.books
         productionStates.value = productionResponse.data.states
+        coverStates.value = productionResponse.data.covers ?? {}
         fetchedAt.value = studioResponse.data.fetchedAt
         if (
           !books.value.some((book) => book.slug === selectedBookSlug.value)
@@ -167,13 +184,42 @@ export const useColoringBookStudioStore = defineStore(
       }
     }
 
+    async function saveCoverPrompt(prompt: string): Promise<boolean> {
+      const book = selectedBook.value
+      if (!book || savingCoverPrompt.value) return false
+
+      savingCoverPrompt.value = true
+      error.value = null
+      message.value = null
+      try {
+        const body: ColoringBookCoverPromptUpdate = {
+          bookSlug: book.slug,
+          prompt,
+        }
+        const response = await performFetch<ColoringBookCoverPromptUpdate>(
+          '/api/conductor/coloring-books/cover-prompt',
+          { method: 'POST', body: JSON.stringify(body) },
+        )
+        if (!response.success) {
+          error.value = response.message || 'Failed to save the cover prompt.'
+          return false
+        }
+        message.value = response.message || `${book.title} cover prompt saved.`
+        await fetchStudio()
+        return true
+      } finally {
+        savingCoverPrompt.value = false
+      }
+    }
+
     async function requestProductionAction(
       operation: ColoringBookStudioOperation,
       options: { force?: boolean; note?: string; sourcePath?: string } = {},
     ): Promise<boolean> {
       const book = selectedBook.value
       const proposal = selectedProposal.value
-      if (!book || !proposal || requestingAction.value) return false
+      const coverOperation = COVER_OPERATIONS.has(operation)
+      if (!book || (!coverOperation && !proposal) || requestingAction.value) return false
 
       requestingAction.value = true
       error.value = null
@@ -182,7 +228,7 @@ export const useColoringBookStudioStore = defineStore(
         const body: ColoringBookRenderRequest = {
           operation,
           bookSlug: book.slug,
-          proposalId: proposal.id,
+          proposalId: coverOperation ? undefined : proposal?.id,
           sourcePath: options.sourcePath || undefined,
           force: options.force === true,
           note: options.note || '',
@@ -196,7 +242,8 @@ export const useColoringBookStudioStore = defineStore(
           return false
         }
         message.value =
-          response.message || `${proposal.id} production action queued.`
+          response.message ||
+          `${coverOperation ? book.title : proposal?.id} production action queued.`
         await fetchStudio()
         return true
       } finally {
@@ -224,6 +271,18 @@ export const useColoringBookStudioStore = defineStore(
       return requestProductionAction('finalize-pair', { note })
     }
 
+    function requestCover(force = false, note = ''): Promise<boolean> {
+      return requestProductionAction('generate-cover', { force, note })
+    }
+
+    function acceptCover(note = '', sourcePath = ''): Promise<boolean> {
+      return requestProductionAction('accept-cover', { note, sourcePath })
+    }
+
+    function finalizeCover(note = ''): Promise<boolean> {
+      return requestProductionAction('finalize-cover', { note })
+    }
+
     function clearNotice(): void {
       error.value = null
       message.value = null
@@ -232,14 +291,17 @@ export const useColoringBookStudioStore = defineStore(
     return {
       books,
       productionStates,
+      coverStates,
       selectedBookSlug,
       selectedProposalId,
       selectedBook,
       selectedProposal,
       selectedProductionState,
+      selectedCover,
       queueProblems,
       loading,
       savingPrompt,
+      savingCoverPrompt,
       requestingAction,
       requestingRender,
       error,
@@ -249,12 +311,16 @@ export const useColoringBookStudioStore = defineStore(
       selectBook,
       selectProposal,
       savePrompt,
+      saveCoverPrompt,
       requestProductionAction,
       requestColorRender,
       acceptColor,
       requestBw,
       acceptBw,
       finalizePair,
+      requestCover,
+      acceptCover,
+      finalizeCover,
       clearNotice,
     }
   },

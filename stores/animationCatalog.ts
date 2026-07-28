@@ -230,7 +230,7 @@ export const ANIMATION_EFFECTS = [
     id: 'impossible-terrarium',
     label: 'Impossible Terrarium',
     reveal: 'Gravity disagrees',
-    icon: 'kind-icon:cube',
+    icon: 'kind-icon:terrarium',
     tooltip:
       'A glass terrarium where each pocket obeys its own gravity; click a wall to open a door 🌿',
     color: '#22c55e',

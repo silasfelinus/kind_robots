@@ -25,10 +25,19 @@
         v-model="query"
         type="search"
         class="grow bg-transparent"
+        :aria-label="`Search ${label}`"
         :placeholder="`Search ${label.toLowerCase()}…`"
         :disabled="disabled || loading"
       />
     </label>
+
+    <p
+      v-if="query.trim() && !filteredItems.length"
+      class="rounded-xl border border-dashed border-base-300 bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
+    >
+      No matching {{ label.toLowerCase() }}. Clear the search or leave the
+      narrator free to choose.
+    </p>
 
     <div
       v-if="error"

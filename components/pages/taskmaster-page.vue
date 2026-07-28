@@ -467,8 +467,28 @@
         </div>
       </section>
 
+      <section
+        v-if="store.canClose"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-success/30 bg-success/5 p-3"
+      >
+        <div>
+          <p class="text-sm font-bold text-success">All checkpoints have an outcome</p>
+          <p class="mt-0.5 text-xs text-base-content/55">
+            Finish the quest for a practical recap of completed, blocked, deferred,
+            and missing-information items.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-success btn-sm rounded-xl"
+          @click="store.closeStory()"
+        >
+          Finish the quest
+        </button>
+      </section>
+
       <NarrativeResponseComposer
-        v-if="!store.isComplete"
+        v-if="!store.isComplete && !store.canClose"
         v-model="answerInput"
         :options="store.currentBeat?.question.options ?? []"
         :disabled="!store.awaitingAnswer"

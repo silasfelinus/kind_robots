@@ -308,7 +308,7 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
 
   function buildCheckpointPlan(): TaskmasterCheckpoint[] {
     const hooks = availableHooks.value
-    if (hooks.length) return hooks.map(checkpointFromHook)
+    if (hooks.length) return hooks.slice(0, 5).map(checkpointFromHook)
 
     const active = session.value
     const slug = active?.projectSlug
@@ -728,8 +728,7 @@ Continue the quest, honor the answer, preserve the real objective, and end with 
               checkpoint.proposedNote ? ` — ${checkpoint.proposedNote}` : ''
             }`,
         )
-        .join('
-') ?? ''
+        .join('\n') ?? ''
     )
   }
 
@@ -895,6 +894,7 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     saveToLocalStorage()
 
     const hook = nextHook()
+    if (!hook) return true
     return await weaveBeat(buildNextBeatPrompt(trimmed, hook), false, hook)
   }
 

@@ -205,6 +205,61 @@
       </div>
     </div>
 
+    <div
+      v-else-if="store.session.status === 'draft'"
+      class="space-y-4 rounded-2xl border border-secondary/25 bg-secondary/5 p-4"
+    >
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-secondary/70">
+          Review the practical plan
+        </p>
+        <h3 class="mt-1 text-xl font-black">The quest starts with real checkpoints</h3>
+        <p class="mt-1 text-sm leading-relaxed text-base-content/60">
+          Taskmaster will weave these actions into the fiction in order. The plan is
+          saved before narration begins, and no external task changes happen without
+          an explicit Apply action.
+        </p>
+      </div>
+      <article
+        v-for="(checkpoint, index) in store.session.checkpoints"
+        :key="checkpoint.id"
+        class="rounded-2xl border border-base-300 bg-base-100 p-3"
+      >
+        <div class="flex items-start gap-3">
+          <span class="badge badge-secondary badge-sm mt-0.5 rounded-xl">
+            {{ index + 1 }}
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="font-bold">{{ checkpoint.title }}</p>
+            <p v-if="checkpoint.detail" class="mt-1 text-xs text-base-content/55">
+              {{ checkpoint.detail }}
+            </p>
+            <p class="mt-1 text-[0.7rem] uppercase tracking-wide text-base-content/40">
+              {{ checkpoint.sourceKind.replace('-', ' ') }}
+            </p>
+          </div>
+        </div>
+      </article>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-secondary rounded-xl"
+          :disabled="store.isWeaving || !store.session.checkpoints.length"
+          @click="store.startQuest()"
+        >
+          <Icon name="kind-icon:story" class="size-4" /> Start the adventure
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost rounded-xl border border-base-300 bg-base-100"
+          :disabled="store.isWeaving"
+          @click="startOver"
+        >
+          Edit setup
+        </button>
+      </div>
+    </div>
+
     <div v-else class="flex min-h-0 flex-1 flex-col gap-3">
       <div
         v-if="store.session.seed.taskTitle"
@@ -219,6 +274,58 @@
       </div>
 
       <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+        <section
+          v-if="store.session.checkpoints.length"
+          class="space-y-3 rounded-2xl border border-secondary/20 bg-secondary/5 p-3"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="text-[0.7rem] font-bold uppercase tracking-wide text-secondary/75">
+                Practical checkpoint plan
+              </p>
+              <p v-if="store.currentCheckpoint" class="mt-1 text-sm font-semibold">
+                Current action: {{ store.currentCheckpoint.title }}
+              </p>
+              <p v-else class="mt-1 text-xs text-base-content/55">
+                All planned checkpoints have an outcome. Review any optional Apply
+                actions, then finish the quest.
+              </p>
+            </div>
+            <span class="badge badge-secondary badge-sm rounded-xl">
+              {{ store.remainingCheckpoints.length }} remaining
+            </span>
+          </div>
+          <div class="grid gap-2 sm:grid-cols-2">
+            <article
+              v-for="checkpoint in store.session.checkpoints"
+              :key="checkpoint.id"
+              class="rounded-xl border border-base-300 bg-base-100 p-2.5 text-xs"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <p class="font-bold">{{ checkpoint.title }}</p>
+                <span
+                  class="badge badge-sm rounded-xl"
+                  :class="
+                    checkpoint.status === 'completed'
+                      ? 'badge-success'
+                      : checkpoint.status === 'active'
+                        ? 'badge-secondary'
+                        : checkpoint.status === 'blocked' ||
+                            checkpoint.status === 'needs-info'
+                          ? 'badge-warning'
+                          : 'badge-ghost'
+                  "
+                >
+                  {{ checkpoint.status.replace('-', ' ') }}
+                </span>
+              </div>
+              <p v-if="checkpoint.proposedNote" class="mt-1 text-base-content/55">
+                {{ checkpoint.proposedNote }}
+              </p>
+            </article>
+          </div>
+        </section>
+
         <NarrativeTranscript
           :beats="store.session.beats"
           :is-streaming="store.isWeaving"
@@ -329,8 +436,60 @@
         </div>
       </div>
 
+      <section
+        v-if="!store.isComplete && store.awaitingAnswer && store.currentCheckpoint"
+        class="space-y-2 rounded-2xl border border-info/25 bg-info/5 p-3"
+      >
+        <div>
+          <p class="text-[0.7rem] font-bold uppercase tracking-wide text-info/75">
+            What happened in the real world?
+          </p>
+          <p class="mt-1 text-xs text-base-content/55">
+            Choose the honest checkpoint outcome, then describe what happened below.
+          </p>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <button
+            v-for="outcome in checkpointOutcomes"
+            :key="outcome.value"
+            type="button"
+            class="rounded-xl border p-2 text-left text-xs transition"
+            :class="
+              selectedOutcome === outcome.value
+                ? 'border-info bg-info text-info-content'
+                : 'border-base-300 bg-base-100 hover:border-info/50'
+            "
+            :aria-pressed="selectedOutcome === outcome.value"
+            @click="selectedOutcome = outcome.value"
+          >
+            <span class="font-bold">{{ outcome.label }}</span>
+            <span class="mt-0.5 block opacity-70">{{ outcome.helper }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section
+        v-if="store.canClose"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-success/30 bg-success/5 p-3"
+      >
+        <div>
+          <p class="text-sm font-bold text-success">All checkpoints have an outcome</p>
+          <p class="mt-0.5 text-xs text-base-content/55">
+            Finish the quest for a practical recap of completed, blocked, deferred,
+            and missing-information items.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-success btn-sm rounded-xl"
+          @click="store.closeStory()"
+        >
+          Finish the quest
+        </button>
+      </section>
+
       <NarrativeResponseComposer
-        v-if="!store.isComplete"
+        v-if="!store.isComplete && !store.canClose"
         v-model="answerInput"
         :options="store.currentBeat?.question.options ?? []"
         :disabled="!store.awaitingAnswer"
@@ -356,6 +515,7 @@ import { useProjectStore } from '@/stores/projectStore'
 import {
   TASKMASTER_TONES,
   useTaskmasterStore,
+  type TaskmasterCheckpointOutcome,
   type TaskmasterIngredient,
   type TaskmasterTone,
 } from '@/stores/taskmasterStore'
@@ -377,6 +537,18 @@ const selectedGrammarSlug = ref<string | null>(null)
 const selectedProjectSlug = ref('')
 const vibeInput = ref('')
 const answerInput = ref('')
+const selectedOutcome = ref<TaskmasterCheckpointOutcome>('completed')
+
+const checkpointOutcomes: {
+  value: TaskmasterCheckpointOutcome
+  label: string
+  helper: string
+}[] = [
+  { value: 'completed', label: 'Completed', helper: 'The action is genuinely done.' },
+  { value: 'blocked', label: 'Blocked', helper: 'Something external prevents progress.' },
+  { value: 'deferred', label: 'Deferred', helper: 'This is intentionally postponed.' },
+  { value: 'needs-info', label: 'Needs info', helper: 'A question or missing fact comes next.' },
+]
 
 const canBegin = computed(
   () => Boolean(taskInput.value.trim() || selectedProjectSlug.value),
@@ -455,6 +627,14 @@ const sessionRecap = computed(() => {
       value: `${realThreadCount} answer${realThreadCount === 1 ? '' : 's'} captured`,
     })
   }
+  const completed = active.checkpoints.filter(
+    (checkpoint) => checkpoint.status === 'completed',
+  ).length
+  const unresolved = active.checkpoints.length - completed
+  items.push({
+    label: 'Checkpoint result',
+    value: `${completed} completed · ${unresolved} blocked, deferred, or awaiting follow-up`,
+  })
   return items
 })
 
@@ -500,7 +680,7 @@ async function begin(surprise: boolean) {
         ),
       )
 
-  await store.beginStory({
+  await store.prepareQuest({
     tone,
     taskTitle: taskInput.value.trim() || undefined,
     vibeTags: parseNarrativeTags(vibeInput.value),
@@ -515,7 +695,9 @@ async function submitAnswer(value: string) {
   const text = value.trim()
   if (!text || !store.awaitingAnswer) return
   answerInput.value = ''
-  await store.answerCurrentBeat(text)
+  const outcome = selectedOutcome.value
+  selectedOutcome.value = 'completed'
+  await store.answerCurrentBeat(text, outcome)
 }
 
 function startOver() {

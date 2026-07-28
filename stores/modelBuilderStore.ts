@@ -1016,6 +1016,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       setStatus('success', `Generated a candidate for ${item.label}.`)
       return true
     } catch (error) {
+      // Mirror the success path's cancelledRunIds guard above: a render that
+      // fails after the user has cancelled this run shouldn't surface a stray
+      // error banner for a run the user no longer has open.
+      if (cancelledRunIds.has(runId)) return false
+
       handleError(error, 'generating model builder asset')
       item.error = error instanceof Error ? error.message : 'Generation failed.'
       finishGenerateAssets(item, { status: 'ready', note: item.error })

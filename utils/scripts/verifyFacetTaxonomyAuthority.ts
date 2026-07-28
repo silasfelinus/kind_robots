@@ -66,7 +66,7 @@ async function main(): Promise<void> {
     profileForm: 'utils/facetProfileForm.ts',
     picker: 'components/facets/facet-picker.vue',
     manager: 'components/facets/facet-manager.vue',
-    serendipity: 'components/pages/serendipity-page.vue',
+    taskmaster: 'components/pages/taskmaster-page.vue',
   } as const
 
   const entries = await Promise.all(
@@ -123,14 +123,15 @@ async function main(): Promise<void> {
   forbidText(files.manager, text.manager, 'facet.kind')
 
   // One bounded compatibility consumer remains until the physical Facet.kind
-  // column is dropped: Serendipity uses only five broad values for which the
+  // column is dropped: Taskmaster uses only five broad values for which the
   // server-derived compatibility kind is exactly equal to taxonomy.
   requireText(
-    files.serendipity,
-    text.serendipity,
+    files.taskmaster,
+    text.taskmaster,
     "const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])",
   )
-  requireText(files.serendipity, text.serendipity, 'storyGrammarKinds.has(facet.kind)')
+  requireText(files.taskmaster, text.taskmaster, 'storyGrammarKinds.has(facet.kind)')
+  forbidText(files.taskmaster, text.taskmaster, 'serendipity')
 
   process.stdout.write(
     `Facet taxonomy authority verified across ${prismaTaxonomies.length} typed taxonomies.\n`,

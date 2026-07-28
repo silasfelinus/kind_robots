@@ -113,11 +113,11 @@ export function buildLtxImageToVideoWorkflow(
       _meta: { title: 'Load LoRA' },
     },
 
-    // --- Prompt conditioning ------------------------------------------------
+    // --- Prompt conditioning -----------------------------------------------
     '319': {
       inputs: { value: input.prompt },
       class_type: 'PrimitiveStringMultiline',
-      _meta: { title: 'Prompt' },
+      _meta: { title: 'Prompt', prompt: input.prompt },
     },
     '306': {
       inputs: { text: ['319', 0], clip: ['318', 0] },
@@ -139,7 +139,7 @@ export function buildLtxImageToVideoWorkflow(
       _meta: { title: 'LTXVConditioning' },
     },
 
-    // --- Image conditioning (the i2v part) ----------------------------------
+    // --- Image conditioning (the i2v part) ---------------------------------
     // First frame: load the still, encode it, and seed the video latent from it.
     img_first: {
       inputs: { image: input.firstImageName },
@@ -222,7 +222,7 @@ export function buildLtxImageToVideoWorkflow(
     latentRef = ['ltxv_guide', 2]
   }
 
-  // --- Sampling -------------------------------------------------------------
+  // --- Sampling ------------------------------------------------------------
   workflow['286'] = {
     inputs: { noise_seed: seed },
     class_type: 'RandomNoise',

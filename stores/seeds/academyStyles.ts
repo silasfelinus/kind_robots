@@ -1787,6 +1787,48 @@ export const academyStyles: AcademyStyle[] = [
         "Recompose this image to depict dynamism and motion in the Italian Futurist manner: overlapping, semi-transparent repetitions of the subject's form suggesting successive instants of movement, sharp diagonal force lines, and fragmented crystalline facets organized around implied energy rather than a fixed viewpoint, and preserve the source subject's identity and general pose",
     },
   },
+  {
+    slug: 'fauvism',
+    name: 'Fauvism',
+    era: 'c. 1904–1908',
+    sortYear: 1904,
+    previewImageSrc: '/images/academy/styles/fauvism.webp',
+    region: 'France',
+    keyIdeas:
+      'Named in 1905 when a critic, startled by a room of canvases at the Salon d\'Automne, called their painters "les fauves" ("the wild beasts"), Fauvism pushed color entirely free of description: a face could be painted green, a tree trunk orange, a sky yellow-green, with no attempt to record local color at all. The lesson gives learners a clean contrast against `impressionism` and `post-impressionism` already in the curriculum: where those movements still built color from observed light, Fauvism used raw, unmixed, high-key pigment straight from the tube as an expressive end in itself, applied in loose, visibly brushy patches with heavy black or dark contour outlines holding the composition together. The movement was brief — most sources place its core years at 1904–1908, after which Matisse, Derain, and others each moved on to different concerns — but its central idea (that color can carry emotional force independent of naturalistic description) fed directly into Expressionism and much of the century that followed.',
+    recognitionCues: [
+      'Unmixed, high-key primary and secondary colors applied straight from the tube, with no attempt at naturalistic local color',
+      'Loose, visibly brushy patches of paint rather than smooth blending',
+      'Bold dark contour outlines (often black or deep blue) holding flat color areas together',
+      'Warm and cool colors placed in direct, high-contrast juxtaposition rather than gradually blended',
+      'Simplified, often flattened forms with minimal interior shading or modeling',
+      'Everyday subjects — portraits, landscapes, harbor and window views — rendered with startling, non-naturalistic color rather than exotic or literary subject matter',
+    ],
+    artists: [
+      {
+        name: 'Henri Matisse',
+        years: '1869–1954',
+        note: "The movement's central figure; Fauvism's defining works (Woman with a Hat, The Green Line, Open Window, Collioure) all fall within the movement's brief pre-1930 core period, distinct from Matisse's later, larger post-1930 body of work.",
+      },
+      {
+        name: 'André Derain',
+        years: '1880–1954',
+        note: "Painted alongside Matisse at Collioure in 1905, the summer usually credited with founding the style; his high-key harbor and London-bridge views are among the movement's most recognizable canvases.",
+      },
+      {
+        name: 'Raoul Dufy',
+        years: '1877–1953',
+        note: "Joined the group after seeing Matisse's work at the 1905 Salon; later developed his own lighter, calligraphic variant, but his Fauvist-period harbor and beach scenes belong squarely to this lesson.",
+      },
+    ],
+    failureMode:
+      'Likely under-cooks toward a generic "colorful painting" filter that brightens the source palette without committing to unmixed, non-naturalistic color choices (a green face, an orange tree trunk); lean on the remix template\'s explicit instruction to break local color entirely rather than just increasing saturation, and keep the bold dark contour outlines that Fauvist paintings almost always use to hold flat color areas together',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Recompose this image as an early Fauvist painting: unmixed, high-key non-naturalistic color applied in loose visible brushstrokes with no attempt at local color accuracy, bold dark contour outlines holding flat color areas together, warm and cool colors in direct high-contrast juxtaposition, and preserve the source composition and subject',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

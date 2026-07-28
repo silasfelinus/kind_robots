@@ -5,7 +5,6 @@ import { errorHandler } from './../../utils/error'
 import {
   canDeleteServer,
   parseId,
-  readServerById,
   requireAuthUser,
 } from './../../utils/serverApi'
 
@@ -13,7 +12,20 @@ export default defineEventHandler(async (event) => {
   try {
     const id = parseId(getRouterParam(event, 'id'))
     const user = await requireAuthUser(event)
-    const server = await readServerById(id)
+    const server = await prisma.server.findUnique({ where: { id } })
+
+    // DELETE is idempotent. A browser may still hold a cached row after that
+    // database record was removed elsewhere (for example, Cypress cleanup).
+    // Returning success lets the client discard that stale local entry.
+    if (!server) {
+      event.node.res.statusCode = 200
+      return {
+        success: true,
+        message: 'Server was already removed.',
+        data: null,
+        statusCode: 200,
+      }
+    }
 
     if (!canDeleteServer(server, user)) {
       throw createError({

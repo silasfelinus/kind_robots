@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   migrate:
+    name: Apply Storymaker lifecycle source migration
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

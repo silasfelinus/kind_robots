@@ -683,6 +683,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     return status === 'ready' || status === 'stale' || status === 'rejected'
   }
 
+  // A GENERATE_ASSETS render (sync or async) can be reopened upstream — and
+  // therefore marked 'stale' by markDownstreamStale — while it's still in
+  // flight. The render's own completion handler (success or failure) must not
+  // blindly overwrite that back to 'ready': it would silently erase the
+  // "needs re-review" signal for a candidate that was actually produced from
+  // an outdated prompt. Only apply the completion status if nothing else
+  // touched the stage while we were awaiting.
+  function finishGenerateAssets(item: BuildItem, next: StageState): void {
+    if (item.stages.GENERATE_ASSETS.status === 'in-progress') {
+      item.stages.GENERATE_ASSETS = next
+    }
+  }
+
   // Stale-invalidation: editing an upstream stage marks every downstream stage
   // stale (unless still locked). Commit is always downstream of everything.
   function markDownstreamStale(item: BuildItem, fromStage: BuildStageKey): void {
@@ -980,7 +993,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null
-      item.stages.GENERATE_ASSETS = { status: 'ready' }
+      finishGenerateAssets(item, { status: 'ready' })
 
       await recordArtifact(item, image, output, prompt, dims)
       pushItem(item, {
@@ -993,7 +1006,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     } catch (error) {
       handleError(error, 'generating model builder asset')
       item.error = error instanceof Error ? error.message : 'Generation failed.'
-      item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
+      finishGenerateAssets(item, { status: 'ready', note: item.error })
       setStatus('error', item.error)
       return false
     } finally {
@@ -1035,10 +1048,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
       if (!job || job.status === 'PENDING' || job.status === 'RUNNING') {
         item.queueState = job?.status === 'RUNNING' ? 'rendering' : 'queued'
-        item.stages.GENERATE_ASSETS = {
+        finishGenerateAssets(item, {
           status: 'in-progress',
           note: item.queueState,
-        }
+        })
         await new Promise((resolve) => setTimeout(resolve, ASYNC_ART_POLL_MS))
         continue
       }
@@ -1051,7 +1064,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
       if (!result.success || !result.data) {
         item.error = result.message || `Art job ${jobId} did not complete.`
-        item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
+        finishGenerateAssets(item, { status: 'ready', note: item.error })
         setStatus('error', item.error)
         return
       }
@@ -1059,7 +1072,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null
-      item.stages.GENERATE_ASSETS = { status: 'ready' }
+      finishGenerateAssets(item, { status: 'ready' })
 
       await recordArtifact(item, image, output, prompt, dims)
       pushItem(item, {
@@ -1132,7 +1145,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       handleError(error, 'queueing model builder asset')
       item.error =
         error instanceof Error ? error.message : 'Failed to queue generation.'
-      item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
+      finishGenerateAssets(item, { status: 'ready', note: item.error })
       item.queueState = null
       item.artJobId = null
       setStatus('error', item.error)

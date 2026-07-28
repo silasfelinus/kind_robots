@@ -174,6 +174,18 @@ function normalizeLegacyComfyWorkflow(
     const record = asRecord(node)
     const classType = stringValue(record.class_type)
     const inputs = asRecord(record.inputs)
+    const meta = asRecord(record._meta)
+
+    if (
+      classType === 'PrimitiveStringMultiline' &&
+      stringValue(meta.title).toLowerCase() === 'prompt'
+    ) {
+      const prompt = stringValue(inputs.value) || stringValue(payload.promptString)
+      if (prompt) {
+        meta.prompt = prompt
+        record._meta = meta
+      }
+    }
 
     if (classType === 'ImageResize+') {
       record.class_type = 'ImageScale'

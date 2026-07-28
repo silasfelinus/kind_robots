@@ -1,6 +1,9 @@
 import type {
+  ColoringBookHistoryItem,
+  ColoringBookHistoryKind,
   ColoringBookProductionState,
   ColoringBookProductionData,
+  ColoringBookVariant,
 } from '~/types/coloringBookStudio'
 import {
   COLORING_BOOK_REF,
@@ -55,15 +58,51 @@ function listValues(block: string, key: string): string[] {
     .filter(Boolean)
 }
 
-function historyCount(block: string, key: string): number {
+function historySection(block: string, key: string): string {
+  return (
+    capture(
+      block,
+      new RegExp(
+        `^    ${key}:\\s*(?:\\[\\])?\\s*$([\\s\\S]*?)(?=^    [a-z_]+:|$(?![\\s\\S]))`,
+        'm',
+      ),
+    ) ?? ''
+  )
+}
+
+function historyBlocks(block: string, key: string): string[] {
+  return historySection(block, key)
+    .split(/(?=^    - )/m)
+    .filter((entry) => entry.startsWith('    - '))
+}
+
+function historyScalar(block: string, key: string): string | null {
+  const first = capture(
+    block,
+    new RegExp(`^    - ${key}:\\s*(.*?)\\s*$`, 'm'),
+  )
+  if (first !== undefined) return yamlValue(first)
+  return yamlValue(
+    capture(block, new RegExp(`^      ${key}:\\s*(.*?)\\s*$`, 'm')),
+  )
+}
+
+function historyList(block: string, key: string): string[] {
   const section = capture(
     block,
     new RegExp(
-      `^    ${key}:\\s*$([\\s\\S]*?)(?=^    [a-z_]+:|$(?![\\s\\S]))`,
+      `^      ${key}:\\s*(?:\\[\\])?\\s*$([\\s\\S]*?)(?=^      [a-z_]+:|^    - |$(?![\\s\\S]))`,
       'm',
     ),
   )
-  return section ? [...section.matchAll(/requested_at:/g)].length : 0
+  if (!section) return []
+  return [...section.matchAll(/^\s*-\s*(.*?)\s*$/gm)]
+    .map((match) => yamlValue(match?.[1]) ?? '')
+    .filter(Boolean)
+}
+
+function historyCount(block: string, key: string): number {
+  return historyBlocks(block, key).length
 }
 
 function rawAssetUrl(path: string | null, bookSlug: string): string | null {
@@ -73,6 +112,102 @@ function rawAssetUrl(path: string | null, bookSlug: string): string | null {
     ? clean
     : `${COLORING_BOOK_ROOT}/sets/${bookSlug}/${clean.replace(/^\.\//, '')}`
   return `https://raw.githubusercontent.com/${COLORING_BOOK_REPO}/${COLORING_BOOK_REF}/${repoPath}`
+}
+
+function historyItems(
+  block: string,
+  key: string,
+  bookSlug: string,
+  variant: ColoringBookVariant,
+  kind: ColoringBookHistoryKind,
+): ColoringBookHistoryItem[] {
+  return historyBlocks(block, key).map((item, index) => {
+    const archivedPath = historyScalar(item, 'archived_path')
+    const rejectedPath = historyScalar(item, 'rejected_path')
+    const renderedPath = historyScalar(item, 'rendered_path')
+    const path = archivedPath || rejectedPath || renderedPath
+    const createdAt =
+      historyScalar(item, 'reviewed_at') || historyScalar(item, 'requested_at')
+    const attempt = historyScalar(item, 'attempt')
+    const status =
+      historyScalar(item, 'previous_status') ||
+      (attempt ? `attempt ${attempt}` : null)
+    const score = yamlNumber(historyScalar(item, 'score') || historyScalar(item, 'semantic_score'))
+    const artImageId = yamlNumber(historyScalar(item, 'art_image_id'))
+    const seed = yamlNumber(historyScalar(item, 'seed'))
+    const engine = historyScalar(item, 'engine')
+    const verdict = historyScalar(item, 'verdict')
+    const reasons = historyList(item, 'reasons')
+    return {
+      id: `${variant}:${kind}:${path || createdAt || index}`,
+      variant,
+      kind,
+      path,
+      url: rawAssetUrl(path, bookSlug),
+      createdAt,
+      status,
+      score,
+      verdict,
+      reasons,
+      artImageId,
+      seed,
+      engine,
+    }
+  })
+}
+
+function currentBwRejection(
+  block: string,
+  bookSlug: string,
+): ColoringBookHistoryItem | null {
+  const path = scalar(block, 'bw_rejected_path', 4)
+  if (!path) return null
+  const kind: ColoringBookHistoryKind = path.includes('/mechanical/')
+    ? 'mechanical-rejection'
+    : path.includes('/unverified/')
+      ? 'unverified'
+      : 'semantic-rejection'
+  return {
+    id: `bw:${kind}:${path}`,
+    variant: 'bw',
+    kind,
+    path,
+    url: rawAssetUrl(path, bookSlug),
+    createdAt: scalar(block, 'bw_completed_at', 4),
+    status: scalar(block, 'bw_status', 4),
+    score: yamlNumber(scalar(block, 'bw_semantic_score', 4)),
+    verdict: scalar(block, 'bw_semantic_verdict', 4),
+    reasons: listValues(block, 'bw_semantic_reasons'),
+    artImageId: yamlNumber(scalar(block, 'bw_art_image_id', 4)),
+    seed: null,
+    engine: 'kontext',
+  }
+}
+
+function collectHistory(
+  block: string,
+  bookSlug: string,
+): ColoringBookHistoryItem[] {
+  const items = [
+    ...historyItems(block, 'studio_revision_history', bookSlug, 'color', 'revision'),
+    ...historyItems(
+      block,
+      'semantic_rejections',
+      bookSlug,
+      'color',
+      'semantic-rejection',
+    ),
+    ...historyItems(block, 'bw_revision_history', bookSlug, 'bw', 'revision'),
+  ]
+  const currentBw = currentBwRejection(block, bookSlug)
+  if (currentBw && !items.some((item) => item.path === currentBw.path)) {
+    items.push(currentBw)
+  }
+  return items.sort((left, right) => {
+    const leftTime = Date.parse(left.createdAt || '') || 0
+    const rightTime = Date.parse(right.createdAt || '') || 0
+    return rightTime - leftTime
+  })
 }
 
 function emptyState(bookSlug: string, proposalId: string): ColoringBookProductionState {
@@ -98,6 +233,7 @@ function emptyState(bookSlug: string, proposalId: string): ColoringBookProductio
     pairSemanticScore: null,
     pairSemanticReasons: [],
     pairFinalizedAt: null,
+    history: [],
   }
 }
 
@@ -139,6 +275,7 @@ export function buildColoringBookProductionData(
       state.pairSemanticScore = yamlNumber(scalar(block, 'pair_semantic_score', 4))
       state.pairSemanticReasons = listValues(block, 'pair_semantic_reasons')
       state.pairFinalizedAt = scalar(block, 'pair_finalized_at', 4)
+      state.history = collectHistory(block, bookSlug)
       states[`${bookSlug}:${proposalId}`] = state
     }
   }

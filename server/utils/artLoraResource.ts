@@ -4,6 +4,7 @@ import {
   ResourceType,
   SupportedServer,
 } from '~/prisma/generated/prisma/client'
+import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 import prisma from './prisma'
 
 export type LoraAwareEnqueueBody = {
@@ -186,19 +187,23 @@ export async function resolveEnqueueLoraResource(input: {
   resourceIds: number[]
   resourceName: string | null
 }> {
-  const resourceIds = normalizeIds(input.body.loraResourceIds)
-  const requestedName = String(input.body.loraName || '').trim()
+  const normalizedBody: LoraAwareEnqueueBody = {
+    ...input.body,
+    ...resolveMaturityPrivacy(input.body),
+  }
+  const resourceIds = normalizeIds(normalizedBody.loraResourceIds)
+  const requestedName = String(normalizedBody.loraName || '').trim()
 
   if (!RESOURCE_RESOLVED_ENGINES.has(input.engine)) {
     return {
-      body: input.body,
+      body: normalizedBody,
       resourceIds,
       resourceName: requestedName || null,
     }
   }
 
   if (!resourceIds.length && !requestedName) {
-    return { body: input.body, resourceIds: [], resourceName: null }
+    return { body: normalizedBody, resourceIds: [], resourceName: null }
   }
 
   if (resourceIds.length > 1) {
@@ -290,7 +295,7 @@ export async function resolveEnqueueLoraResource(input: {
 
   return {
     body: {
-      ...input.body,
+      ...normalizedBody,
       loraName: localPath,
       loraResourceIds: [resource.id],
     },

@@ -1,0 +1,33 @@
+name: Apply Narrative Art Session Integration
+
+on:
+  push:
+    branches:
+      - codex/narrative-scene-art-persistence
+    paths:
+      - .github/workflows/apply-narrative-art-session-integration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/narrative-scene-art-persistence
+          fetch-depth: 0
+      - name: Apply session integration
+        run: python utils/scripts/applyNarrativeArtSessionIntegration.py
+      - name: Remove one-time integration machinery
+        run: |
+          rm utils/scripts/applyNarrativeArtSessionIntegration.py
+          rm .github/workflows/apply-narrative-art-session-integration.yml
+      - name: Commit integrated source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stores/storymakerStore.ts stores/taskmasterStore.ts components/narrative/narrative-transcript.vue components/conductor/storymaker-page.vue components/pages/taskmaster-page.vue utils/scripts/applyNarrativeArtSessionIntegration.py .github/workflows/apply-narrative-art-session-integration.yml
+          git commit -m "feat: persist narrative art jobs on story beats"
+          git push origin HEAD:codex/narrative-scene-art-persistence

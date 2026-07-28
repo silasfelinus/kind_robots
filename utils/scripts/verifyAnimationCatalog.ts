@@ -14,7 +14,19 @@ import {
 import { DEFAULT_PREFERENCES } from '@/stores/animationPreferenceStore'
 import { narratorAnimationAliases } from '@/stores/helpers/narratorHelper'
 
-const VALID_SURFACES = new Set(['header', 'sheet', 'page', 'hand', 'fullscreen'])
+const VALID_SURFACES = new Set([
+  'header',
+  'sheet',
+  'page',
+  'hand',
+  'fullscreen',
+])
+
+// Generic geometric icons are the smart-icon system's shape for "no dedicated icon exists
+// yet" -- impossible-terrarium shipped as kind-icon:cube until a kaizen pass (t-015, kind_robots
+// PR #1086) noticed it by chance and added a real terrarium.svg. Flag reuse here so the next
+// one surfaces on its own instead of depending on a future pass catching it.
+const GENERIC_PLACEHOLDER_ICONS = new Set(['kind-icon:cube', 'kind-icon:box'])
 
 const ids = animationEffects.map((effect) => effect.id)
 const idSet = new Set(ids)
@@ -40,7 +52,10 @@ function pascalFromFilename(filename: string): string {
     .join('')
 }
 
-const screenfxDir = join(dirname(fileURLToPath(import.meta.url)), '../../components/screenfx')
+const screenfxDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../components/screenfx',
+)
 const componentNames = new Set(
   readdirSync(screenfxDir)
     .filter((file) => file.endsWith('.vue'))
@@ -48,7 +63,10 @@ const componentNames = new Set(
 )
 
 for (const effect of animationEffects) {
-  const expectedComponent = getAnimationComponentName(effect.id).replace(/^Lazy/, '')
+  const expectedComponent = getAnimationComponentName(effect.id).replace(
+    /^Lazy/,
+    '',
+  )
   assert.ok(
     componentNames.has(expectedComponent),
     `catalog id "${effect.id}" expects a components/screenfx file resolving to "${expectedComponent}", but none was found`,
@@ -72,6 +90,13 @@ for (const effect of animationEffects) {
       `catalog id "${effect.id}" sets blocksInput: true but generationSafe: true — random selection paths do not filter blocksInput separately`,
     )
   }
+
+  assert.ok(
+    !GENERIC_PLACEHOLDER_ICONS.has(effect.icon),
+    `catalog id "${effect.id}" uses generic placeholder icon "${effect.icon}" — add a ` +
+      `dedicated icon to assets/icons/, regenerate stores/seeds/validIcons.ts ` +
+      `(node utils/scripts/updateKindIcons.js), and reference the new icon here instead`,
+  )
 }
 
 // StartupAnimationChoice is AnimationEffectId | 'random' | 'none' (animationPreferenceStore.ts)

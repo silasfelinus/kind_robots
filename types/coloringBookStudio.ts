@@ -91,7 +91,9 @@ export type ColoringBookProposal = {
   final: ColoringBookPair
   notes: string[]
   queue: ColoringBookQueueState
+  colorPath: string | null
   colorUrl: string | null
+  bwPath: string | null
   bwUrl: string | null
 }
 
@@ -140,6 +142,7 @@ export type ColoringBookRenderRequest = {
   operation?: ColoringBookStudioOperation
   bookSlug: string
   proposalId: string
+  sourcePath?: string
   force?: boolean
   note?: string
 }

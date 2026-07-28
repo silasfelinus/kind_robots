@@ -61,7 +61,7 @@
           :aria-controls="`academy-style-detail-${style.slug}`"
           @click="expandedSlug = style.slug"
         >
-          <span class="text-xl leading-none">🏛️</span>
+          <span class="text-xl leading-none" aria-hidden="true">🏛️</span>
           <span class="flex min-w-0 flex-1 flex-col">
             <span class="flex flex-wrap items-baseline gap-2">
               <span

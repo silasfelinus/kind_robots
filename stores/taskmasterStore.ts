@@ -42,6 +42,33 @@ export type TaskmasterRealHook = {
   todoId?: number
   conductorTaskId?: string
   projectSlug?: string
+  checkpointId?: string
+}
+
+export type TaskmasterCheckpointOutcome =
+  | 'completed'
+  | 'blocked'
+  | 'deferred'
+  | 'needs-info'
+
+export type TaskmasterCheckpointStatus =
+  | 'pending'
+  | 'active'
+  | 'proposed-complete'
+  | TaskmasterCheckpointOutcome
+
+export type TaskmasterCheckpoint = {
+  id: string
+  title: string
+  detail?: string | null
+  sourceKind: TaskmasterRealHook['kind']
+  projectSlug?: string
+  todoId?: number
+  conductorTaskId?: string
+  status: TaskmasterCheckpointStatus
+  proposedOutcome?: TaskmasterCheckpointOutcome
+  proposedNote?: string
+  updatedAt: string
 }
 
 export type TaskmasterQuestion = {
@@ -56,6 +83,7 @@ export type TaskmasterQuestion = {
   projectSlug?: string
   conductorTaskId?: string
   todoId?: number
+  checkpointId?: string
   options?: string[]
 }
 
@@ -86,6 +114,7 @@ export type TaskmasterSession = {
   seed: TaskmasterStorySeed
   location?: TaskmasterIngredient
   genre?: TaskmasterIngredient
+  checkpoints: TaskmasterCheckpoint[]
   beats: TaskmasterBeat[]
   status: 'draft' | 'active' | 'paused' | 'complete'
   createdAt: string
@@ -171,6 +200,19 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
 
   const isComplete = computed(() => session.value?.status === 'complete')
 
+  const currentCheckpoint = computed(
+    () =>
+      session.value?.checkpoints.find((checkpoint) => checkpoint.status === 'active') ??
+      null,
+  )
+
+  const remainingCheckpoints = computed(
+    () =>
+      session.value?.checkpoints.filter((checkpoint) =>
+        ['pending', 'active', 'proposed-complete'].includes(checkpoint.status),
+      ) ?? [],
+  )
+
   const usedHookKeys = computed(() => {
     const keys = new Set<string>()
     for (const beat of session.value?.beats ?? []) {
@@ -235,12 +277,88 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
     return hooks
   })
 
+  function checkpointFromHook(hook: TaskmasterRealHook): TaskmasterCheckpoint {
+    return {
+      id: makeId(),
+      title: hook.title,
+      detail: hook.detail,
+      sourceKind: hook.kind,
+      projectSlug: hook.projectSlug,
+      todoId: hook.todoId,
+      conductorTaskId: hook.conductorTaskId,
+      status: 'pending',
+      updatedAt: nowIso(),
+    }
+  }
+
+  function checkpointToHook(
+    checkpoint: TaskmasterCheckpoint | null,
+  ): TaskmasterRealHook | null {
+    if (!checkpoint) return null
+    return {
+      kind: checkpoint.sourceKind,
+      title: checkpoint.title,
+      detail: checkpoint.detail,
+      projectSlug: checkpoint.projectSlug,
+      todoId: checkpoint.todoId,
+      conductorTaskId: checkpoint.conductorTaskId,
+      checkpointId: checkpoint.id,
+    }
+  }
+
+  function buildCheckpointPlan(): TaskmasterCheckpoint[] {
+    const hooks = availableHooks.value
+    if (hooks.length) return hooks.map(checkpointFromHook)
+
+    const active = session.value
+    const slug = active?.projectSlug
+    const project = slug ? projectStore.projectForSlug(slug) : null
+    if (!active || !slug) return []
+
+    return [
+      checkpointFromHook({
+        kind: 'direct-task',
+        title: `Choose and complete the next concrete action for ${project?.title || slug}`,
+        detail:
+          'No open project hook was available, so the first checkpoint is to identify and carry out one useful next action.',
+        projectSlug: slug,
+      }),
+    ]
+  }
+
+  function activateNextCheckpoint(): TaskmasterCheckpoint | null {
+    const active = session.value
+    if (!active) return null
+    const alreadyActive = active.checkpoints.find(
+      (checkpoint) => checkpoint.status === 'active',
+    )
+    if (alreadyActive) return alreadyActive
+    const next = active.checkpoints.find(
+      (checkpoint) => checkpoint.status === 'pending',
+    )
+    if (next) {
+      next.status = 'active'
+      next.updatedAt = nowIso()
+    }
+    return next ?? null
+  }
+
   function nextHook(): TaskmasterRealHook | null {
-    return availableHooks.value[0] ?? null
+    return checkpointToHook(activateNextCheckpoint())
   }
 
   function resolveQuestionContext(question: TaskmasterQuestion | undefined) {
     if (!question || question.realWorldKind === 'preference') return null
+
+    const checkpoint = question.checkpointId
+      ? session.value?.checkpoints.find((entry) => entry.id === question.checkpointId)
+      : null
+    if (checkpoint) {
+      return {
+        kind: checkpoint.sourceKind,
+        title: checkpoint.title,
+      }
+    }
 
     if (question.realWorldKind === 'direct-task') {
       return {
@@ -284,6 +402,7 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
       title: string
       answer: string
       proposedWrite: string
+      outcome?: TaskmasterCheckpointOutcome
       status: TaskmasterAnswer['writeBackStatus']
     }[] = []
 
@@ -300,6 +419,9 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
       }
 
       const context = resolveQuestionContext(question)
+      const activeCheckpoint = question.checkpointId
+        ? session.value?.checkpoints.find((entry) => entry.id === question.checkpointId)
+        : null
       items.push({
         beatId: beat.id,
         kind: question.realWorldKind,
@@ -308,7 +430,10 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
         proposedWrite:
           question.realWorldKind === 'honeydo'
             ? `Marks honey-do #${question.todoId} done and appends this answer to its description.`
-            : `Creates an AGENT todo recording the answer for conductor task ${question.conductorTaskId}; the roadmap remains unchanged.`,
+            : `Creates an AGENT todo recording the ${
+                activeCheckpoint?.proposedOutcome ?? 'captured'
+              } outcome for conductor task ${question.conductorTaskId}; the roadmap remains unchanged.`,
+        outcome: activeCheckpoint?.proposedOutcome,
         status: beat.answer.writeBackStatus,
       })
     }
@@ -360,6 +485,13 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
       }
 
       beat.answer.writeBackStatus = ok ? 'written' : 'pending-human-gate'
+      const checkpoint = question.checkpointId
+        ? active.checkpoints.find((entry) => entry.id === question.checkpointId)
+        : null
+      if (ok && checkpoint?.status === 'proposed-complete') {
+        checkpoint.status = 'completed'
+        checkpoint.updatedAt = nowIso()
+      }
       if (!ok) {
         errorMessage.value =
           'The update did not land. It remains in the quest ledger to retry.'
@@ -403,7 +535,8 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
     return Boolean(
       active &&
         active.status === 'active' &&
-        active.beats.length >= 2 &&
+        active.beats.length >= 1 &&
+        remainingCheckpoints.value.length === 0 &&
         !isWeaving.value,
     )
   })
@@ -423,7 +556,28 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
     if (!raw) return
 
     try {
-      session.value = JSON.parse(raw) as TaskmasterSession
+      const restored = JSON.parse(raw) as TaskmasterSession
+      if (!Array.isArray(restored.checkpoints)) {
+        restored.checkpoints = restored.seed.taskTitle
+          ? [
+              {
+                id: makeId(),
+                title: restored.seed.taskTitle,
+                detail: 'Restored from an earlier Taskmaster session.',
+                sourceKind: 'direct-task',
+                projectSlug: restored.projectSlug,
+                status:
+                  restored.status === 'complete'
+                    ? 'completed'
+                    : restored.beats.length
+                      ? 'active'
+                      : 'pending',
+                updatedAt: restored.updatedAt || nowIso(),
+              },
+            ]
+          : []
+      }
+      session.value = restored
     } catch {
       localStorage.removeItem(STORAGE_KEY)
     }
@@ -470,6 +624,13 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
     if (seed.surprise && !active.location && !active.genre) {
       parts.push(
         'The protagonist asked to be surprised. Choose an unexpected but coherent setting and genre.',
+      )
+    }
+    if (active.checkpoints.length) {
+      parts.push(
+        `The reviewed practical checkpoint plan is: ${active.checkpoints
+          .map((checkpoint, index) => `${index + 1}. ${checkpoint.title}`)
+          .join(' ')}`,
       )
     }
 
@@ -558,6 +719,20 @@ The protagonist just answered: ${answerText}
 Continue the quest, honor the answer, preserve the real objective, and end with one new question.`
   }
 
+  function buildCheckpointSummary(): string {
+    return (
+      session.value?.checkpoints
+        .map(
+          (checkpoint) =>
+            `- ${checkpoint.title}: ${checkpoint.status}${
+              checkpoint.proposedNote ? ` — ${checkpoint.proposedNote}` : ''
+            }`,
+        )
+        .join('
+') ?? ''
+    )
+  }
+
   function buildClosingPrompt(): string {
     return `${PERSONA}
 
@@ -566,7 +741,10 @@ ${buildSeedDescription()}
 The quest so far:
 ${buildRecap()}
 
-The protagonist is ready to finish this session. Resolve the fictional threads, plainly summarize any real progress and remaining next action, and end warmly. This is the finale; do NOT end with a question.`
+Practical checkpoint ledger:
+${buildCheckpointSummary()}
+
+The protagonist is ready to finish this session. Resolve the fictional threads, plainly summarize completed work, blocked or deferred work, missing information, and the next practical action. End warmly. This is the finale; do NOT end with a question.`
   }
 
   async function weaveBeat(
@@ -606,6 +784,7 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
           projectSlug: active.projectSlug,
           todoId: hook?.todoId,
           conductorTaskId: hook?.conductorTaskId,
+          checkpointId: hook?.checkpointId,
         },
         createdAt: nowIso(),
       }
@@ -626,7 +805,7 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     }
   }
 
-  async function beginStory(input: {
+  async function prepareQuest(input: {
     tone: TaskmasterTone
     taskTitle?: string
     vibeTags?: string[]
@@ -653,31 +832,64 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
       seed,
       location: input.location,
       genre: input.genre,
+      checkpoints: [],
       beats: [],
-      status: 'active',
+      status: 'draft',
       createdAt: nowIso(),
       updatedAt: nowIso(),
     }
+    session.value.checkpoints = buildCheckpointPlan()
     saveToLocalStorage()
+    return session.value.checkpoints.length > 0
+  }
 
+  async function startQuest(): Promise<boolean> {
+    const active = session.value
+    if (!active || active.status !== 'draft' || !active.checkpoints.length) {
+      return false
+    }
+    active.status = 'active'
     const hook = nextHook()
+    active.updatedAt = nowIso()
+    saveToLocalStorage()
     return await weaveBeat(buildOpeningPrompt(hook), false, hook)
   }
 
-  async function answerCurrentBeat(text: string): Promise<boolean> {
+  async function beginStory(input: Parameters<typeof prepareQuest>[0]): Promise<boolean> {
+    const prepared = await prepareQuest(input)
+    return prepared ? await startQuest() : false
+  }
+
+  async function answerCurrentBeat(
+    text: string,
+    outcome: TaskmasterCheckpointOutcome = 'completed',
+  ): Promise<boolean> {
     const active = session.value
     const beat = currentBeat.value
     const trimmed = text.trim()
     if (!awaitingAnswer.value || !active || !beat || !trimmed) return false
 
+    const checkpoint = beat.question.checkpointId
+      ? active.checkpoints.find((entry) => entry.id === beat.question.checkpointId)
+      : currentCheckpoint.value
     beat.answer = {
       text: trimmed,
       capturedAt: nowIso(),
       writeBackStatus:
-        beat.question.realWorldKind === 'honeydo' ||
+        (beat.question.realWorldKind === 'honeydo' && outcome === 'completed') ||
         beat.question.realWorldKind === 'needs-human'
           ? 'pending-human-gate'
           : 'not-applicable',
+    }
+    if (checkpoint) {
+      checkpoint.proposedOutcome = outcome
+      checkpoint.proposedNote = trimmed
+      checkpoint.status =
+        outcome === 'completed' &&
+        (checkpoint.sourceKind === 'honeydo' || checkpoint.sourceKind === 'needs-human')
+          ? 'proposed-complete'
+          : outcome
+      checkpoint.updatedAt = nowIso()
     }
     active.updatedAt = nowIso()
     saveToLocalStorage()
@@ -700,6 +912,8 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     awaitingAnswer,
     isComplete,
     canClose,
+    currentCheckpoint,
+    remainingCheckpoints,
     availableHooks,
     currentHookContext,
     pendingWriteBacks,
@@ -707,6 +921,8 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     loadRealSurfaces,
     restoreFromLocalStorage,
     resetSession,
+    prepareQuest,
+    startQuest,
     beginStory,
     answerCurrentBeat,
     closeStory,

@@ -113,14 +113,18 @@
       >
         <!-- Collection selector -->
         <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-1.5">
+          <label
+            class="flex items-center gap-1.5"
+            for="image-upload-collection"
+          >
             <icon name="kind-icon:folder" class="h-4 w-4 text-secondary" />
             <span class="text-xs font-bold text-base-content/70"
               >Add to collection</span
             >
-          </div>
+          </label>
 
           <select
+            id="image-upload-collection"
             v-model="selectedCollectionId"
             class="select select-bordered select-sm w-full"
             :disabled="isUploading"
@@ -335,14 +339,18 @@
 
       <!-- Model connect -->
       <div v-if="showModelConnect" class="flex flex-col gap-2">
-        <div class="flex items-center gap-1.5">
+        <label
+          class="flex items-center gap-1.5"
+          for="image-upload-model-connect"
+        >
           <icon name="kind-icon:link" class="h-4 w-4 text-accent" />
           <span class="text-xs font-bold text-base-content/70"
             >Link image owner to model</span
           >
-        </div>
+        </label>
 
         <select
+          id="image-upload-model-connect"
           v-model="connectedModelType"
           class="select select-bordered select-sm w-full"
           :disabled="isUploading"

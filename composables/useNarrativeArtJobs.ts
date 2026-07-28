@@ -1,6 +1,7 @@
 // /composables/useNarrativeArtJobs.ts
-import { useArtStore } from '@/stores/artStore'
+import { useArtStore, type QueuedArtJob } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
+import { performFetch } from '@/stores/utils'
 import {
   applyQueuedArtJobToNarrativeState,
   buildNarrativeArtGenerationData,
@@ -39,6 +40,30 @@ export function useNarrativeArtJobs() {
     if (!serverStore.hasLoaded) {
       await serverStore.initialize({ fetchRemote: true })
     }
+  }
+
+  async function recoverExistingJob(
+    state: NarrativeArtJobState,
+  ): Promise<QueuedArtJob | null> {
+    const generationData = buildNarrativeArtGenerationData(state)
+    const query = new URLSearchParams({
+      product: state.product,
+      sessionId: state.sessionId,
+      beatId: state.beatId,
+      moment: state.moment,
+      dedupeKey: state.dedupeKey,
+    })
+    if (generationData.projectSlug) {
+      query.set('projectSlug', generationData.projectSlug)
+    }
+
+    const response = await performFetch<{ job: QueuedArtJob | null }>(
+      `/api/art/queue/narrative?${query.toString()}`,
+      { method: 'GET' },
+      1,
+      20_000,
+    )
+    return response.success ? (response.data?.job ?? null) : null
   }
 
   function schedulePoll(
@@ -169,6 +194,25 @@ export function useNarrativeArtJobs() {
     await submit(state, update)
   }
 
+  async function recoverOrSubmit(
+    state: NarrativeArtJobState,
+    update: NarrativeArtUpdate,
+  ): Promise<void> {
+    try {
+      const recovered = await recoverExistingJob(state)
+      if (recovered) {
+        const recoveredState = applyQueuedArtJobToNarrativeState(state, recovered)
+        update(recoveredState)
+        void poll(recoveredState, update)
+        return
+      }
+    } catch {
+      // Recovery is best-effort. The enqueue endpoint has a second idempotency
+      // check, so falling through remains safe.
+    }
+    await submit(state, update)
+  }
+
   function resume(
     state: NarrativeArtJobState | null | undefined,
     update: NarrativeArtUpdate,
@@ -177,9 +221,8 @@ export function useNarrativeArtJobs() {
     if (state.status === 'failed' || state.status === 'cancelled') return
 
     if (!state.jobId) {
-      // The request may have reached the server before local persistence. The
-      // server-side dedupe key makes this re-submit safe and charge-free.
-      void submit(state, update)
+      // Recover the already-paid job before invoking the mana-gated enqueue path.
+      void recoverOrSubmit(state, update)
       return
     }
 

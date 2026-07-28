@@ -28,6 +28,8 @@ export interface GenerateVideoParams {
   width?: number | null
   height?: number | null
   seed?: number | null
+  loraResourceIds?: number[]
+  loraStrength?: number | null
   isPublic?: boolean
   isMature?: boolean
   designer?: string | null
@@ -107,6 +109,10 @@ export const useVideoStore = defineStore('videoStore', () => {
       width: params.width ?? undefined,
       height: params.height ?? undefined,
       seed: params.seed ?? undefined,
+      loraResourceIds: params.loraResourceIds?.length
+        ? params.loraResourceIds
+        : undefined,
+      loraStrength: params.loraStrength ?? undefined,
       isPublic: params.isPublic ?? true,
       isMature: params.isMature ?? false,
       designer: params.designer ?? undefined,

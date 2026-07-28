@@ -163,6 +163,10 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     blurb: 'Character deck with expressions, transitions, and an art upgrade.',
   },
   {
+    // No 'relationship-expansion' (model-builder/t-034): DreamFacet/ScenarioFacet are
+    // tag-attachment joins used to attach a Facet to *existing* Dreams/Scenarios
+    // (see server/api/{dreams,scenarios}/[id]/facets.put.ts), not a parent->child
+    // creation relation linkSourceToTarget could commit a newly-created record into.
     key: 'Facet',
     label: 'Facet',
     plural: 'Facets',
@@ -171,8 +175,8 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     titleField: 'title',
     subtitleField: 'kind',
     defaultRecipe: 'art-upgrade',
-    recipes: ['art-upgrade', 'relationship-expansion'],
-    blurb: 'Art upgrade, or expand into fitting dreams, characters, or rewards.',
+    recipes: ['art-upgrade'],
+    blurb: 'Art upgrade only — Facets are reusable tags/attributes, not a relationship-expansion source.',
   },
   {
     key: 'Dream',
@@ -251,7 +255,7 @@ export const RECIPES: RecipeConfig[] = [
     label: 'Relationship Expansion',
     icon: 'kind-icon:link',
     summary: 'Create related records — each child is an independently gated build item.',
-    sourceTypes: ['Project', 'Character', 'Facet', 'Dream', 'Scenario', 'Reward'],
+    sourceTypes: ['Project', 'Character', 'Dream', 'Scenario', 'Reward'],
   },
 ]
 

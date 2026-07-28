@@ -22,6 +22,8 @@ export type NarrativeArtJobStatus =
 export type NarrativeArtJobState = {
   dedupeKey: string
   product: NarrativeProduct
+  sessionId: string
+  beatId: string
   moment: NarrativeArtMoment
   surface: NarrativeArtSurface
   profileKey: string
@@ -77,7 +79,9 @@ export function buildNarrativeArtPrompt(
   const title = compact(context.title, 180)
   const objective = compact(context.objective, 280)
   const location = compact(context.location, 280)
-  const cast = (context.cast ?? []).map((item) => compact(item, 160)).filter(Boolean)
+  const cast = (context.cast ?? [])
+    .map((item) => compact(item, 160))
+    .filter(Boolean)
   const facets = (context.facets ?? [])
     .map((item) => compact(item, 120))
     .filter(Boolean)
@@ -86,7 +90,9 @@ export function buildNarrativeArtPrompt(
     profile.styleDirective,
     `Illustrate a ${context.moment.replace(/-/g, ' ')} from an unfolding ${context.product} narrative.`,
     title ? `Story title: ${title}.` : '',
-    objective ? `The practical objective must remain visually legible: ${objective}.` : '',
+    objective
+      ? `The practical objective must remain visually legible: ${objective}.`
+      : '',
     location ? `Location: ${location}.` : '',
     cast.length ? `Featured cast: ${cast.join(', ')}.` : '',
     facets.length ? `Creative direction: ${facets.join(', ')}.` : '',
@@ -107,6 +113,8 @@ export function createNarrativeArtJobState(
   return {
     dedupeKey: buildNarrativeArtDedupeKey(context),
     product: context.product,
+    sessionId: context.sessionId,
+    beatId: context.beatId,
     moment: context.moment,
     surface,
     profileKey: profile.key,
@@ -143,6 +151,8 @@ export function buildNarrativeArtGenerationData(
     seed: null,
     narrativeContext: {
       product: state.product,
+      sessionId: state.sessionId,
+      beatId: state.beatId,
       moment: state.moment,
       dedupeKey: state.dedupeKey,
     },

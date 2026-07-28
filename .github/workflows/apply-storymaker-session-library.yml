@@ -1,0 +1,33 @@
+name: Apply Storymaker Session Library
+
+on:
+  push:
+    branches:
+      - codex/storymaker-session-library
+    paths:
+      - .github/workflows/apply-storymaker-session-library.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/storymaker-session-library
+          fetch-depth: 0
+      - name: Apply Storymaker lifecycle migration
+        run: python utils/scripts/applyStorymakerSessionLibrary.py
+      - name: Remove one-time migration machinery
+        run: |
+          rm utils/scripts/applyStorymakerSessionLibrary.py
+          rm .github/workflows/apply-storymaker-session-library.yml
+      - name: Commit migrated source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stores/storymakerStore.ts components/conductor/storymaker-page.vue utils/scripts/applyStorymakerSessionLibrary.py .github/workflows/apply-storymaker-session-library.yml
+          git commit -m "feat: add Storymaker recent-story lifecycle"
+          git push origin HEAD:codex/storymaker-session-library

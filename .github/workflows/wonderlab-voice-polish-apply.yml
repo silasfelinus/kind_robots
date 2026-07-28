@@ -1,281 +1,35 @@
-name: WonderLab Voice Polish Apply
+name: Apply Storymaker Session Library Migration
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/workflows/wonderlab-voice-polish-apply.yml'
-      - 'scripts/apply-wonderlab-voice-polish-batch.mjs'
-      - 'scripts/preflight-wonderlab-voice-polish-batch.mjs'
-      - 'scripts/wonderlab-definitive-inventory.mjs'
-      - 'config/*wonderlab-voice-polish-batch*.json'
   push:
-    branches: [main]
+    branches:
+      - codex/storymaker-session-library
     paths:
-      - '.github/workflows/wonderlab-voice-polish-apply.yml'
-      - 'scripts/apply-wonderlab-voice-polish-batch.mjs'
-      - 'scripts/preflight-wonderlab-voice-polish-batch.mjs'
-      - 'scripts/wonderlab-definitive-inventory.mjs'
-      - 'config/*wonderlab-voice-polish-batch*.json'
-  workflow_dispatch:
-    inputs:
-      manifest:
-        description: 'Voice-polish manifest path'
-        required: false
-        default: ''
+      - .github/workflows/wonderlab-voice-polish-apply.yml
 
 permissions:
   contents: write
 
-concurrency:
-  group: wonderlab-voice-polish-apply
-  cancel-in-progress: false
-
 jobs:
-  validate:
-    name: Validate guarded voice-polish manifests
-    if: github.event_name == 'pull_request'
+  migrate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Validate scripts and manifests
-        run: |
-          set -euo pipefail
-          node --check scripts/apply-wonderlab-voice-polish-batch.mjs
-          node --check scripts/preflight-wonderlab-voice-polish-batch.mjs
-          node --check scripts/wonderlab-definitive-inventory.mjs
-          node <<'NODE'
-          const fs = require('node:fs')
-          const assert = require('node:assert').strict
-          const paths = fs.readdirSync('config')
-            .filter((name) => /^wonderlab-voice-polish-batch-\d+\.json$/.test(name))
-            .sort()
-            .map((name) => `config/${name}`)
-          assert.ok(paths.length >= 4, 'expected the definitive batch manifest')
-          for (const path of paths) {
-            const manifest = JSON.parse(fs.readFileSync(path, 'utf8'))
-            assert.equal(manifest.version, 1)
-            assert.match(manifest.minimumProductionCommit, /^[0-9a-f]{40}$/)
-            assert.ok(Array.isArray(manifest.revisions))
-            assert.ok(manifest.revisions.length > 0 && manifest.revisions.length <= 20)
-            assert.ok(new Set(manifest.revisions.map((entry) => entry.componentId)).size <= 10)
-            assert.equal(new Set(manifest.revisions.map((entry) => entry.draftId)).size, manifest.revisions.length)
-            assert.equal(new Set(manifest.revisions.map((entry) => entry.reactionId)).size, manifest.revisions.length)
-            const lengths = []
-            for (const entry of manifest.revisions) {
-              assert.ok(Number.isInteger(entry.draftId) && entry.draftId > 0)
-              assert.ok(Number.isInteger(entry.reactionId) && entry.reactionId > 0)
-              assert.ok(Number.isInteger(entry.componentId) && entry.componentId > 0)
-              assert.ok(['BOT', 'CHARACTER'].includes(entry.author?.kind))
-              assert.ok(Number.isInteger(entry.author?.id) && entry.author.id > 0)
-              assert.match(entry.expectedCurrentCommentHash, /^[0-9a-f]{64}$/)
-              assert.ok(entry.sourceKey.endsWith('.vue') && fs.existsSync(entry.sourceKey))
-              const length = String(entry.editedComment || '').trim().length
-              assert.ok(length >= 1)
-              assert.ok(entry.editedComment.length <= 2000)
-              lengths.push(length)
-            }
-            if (manifest.editorialContract?.verbosity) {
-              assert.ok(Math.min(...lengths) < 80, `${path} must prove micro-flavor is permitted`)
-              assert.ok(Math.max(...lengths) >= Math.min(...lengths) * 4, `${path} lacks deliberate verbosity range`)
-            }
-          }
-          const runner = fs.readFileSync('scripts/apply-wonderlab-voice-polish-batch.mjs', 'utf8')
-          const preflight = fs.readFileSync('scripts/preflight-wonderlab-voice-polish-batch.mjs', 'utf8')
-          for (const required of [
-            '/review-drafts/${revision.draftId}/revise',
-            'expectedCurrentCommentHash',
-            'assertPublicLock',
-            'beforeDraft.status',
-            'afterDraft.status',
-            'publisherUserId',
-            'flavorLength',
-          ]) assert.ok(runner.includes(required), `missing guarded apply boundary: ${required}`)
-          for (const required of [
-            'publicationState',
-            'componentAssignment',
-            'reactionAssignment',
-            'reviewerAssignment',
-            'sourceLock',
-            'ratingLock',
-            'reactionTypeLock',
-            'publicReactionIdentity',
-            'draftProjectionAgreement',
-          ]) assert.ok(preflight.includes(required), `missing guarded preflight boundary: ${required}`)
-          for (const forbidden of [
-            '/publish',
-            '/generate',
-            '/approve',
-            '/reject',
-            'DATABASE_URL',
-            'prisma.',
-          ]) {
-            assert.ok(!runner.includes(forbidden), `voice-polish runner crossed boundary: ${forbidden}`)
-            assert.ok(!preflight.includes(forbidden), `voice-polish preflight crossed boundary: ${forbidden}`)
-          }
-          console.log(`WonderLab guarded flavor manifests passed: ${paths.length}.`)
-          NODE
-
-  apply:
-    name: Revise published flavor in place
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && contains(github.event.head_commit.message, '[wonderlab-voice-polish-apply]'))
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
+          ref: codex/storymaker-session-library
           fetch-depth: 0
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Resolve manifest
-        id: manifest
-        env:
-          INPUT_MANIFEST: ${{ github.event.inputs.manifest || '' }}
+      - name: Apply Storymaker lifecycle migration
+        run: python utils/scripts/applyStorymakerSessionLibrary.py
+      - name: Restore workflow and remove migration machinery
         run: |
-          set -euo pipefail
-          manifest="$INPUT_MANIFEST"
-          if [ -z "$manifest" ]; then
-            manifest="$(find config -maxdepth 1 -type f -name 'wonderlab-voice-polish-batch-*.json' | sort -V | tail -n 1)"
-          fi
-          test -n "$manifest"
-          test -f "$manifest"
-          echo "path=$manifest" >> "$GITHUB_OUTPUT"
-          echo "minimum=$(jq -r '.minimumProductionCommit' "$manifest")" >> "$GITHUB_OUTPUT"
-          echo "batch=$(jq -r '.batchId' "$manifest")" >> "$GITHUB_OUTPUT"
-          echo "probe_reaction=$(jq -r '.revisions[0].reactionId' "$manifest")" >> "$GITHUB_OUTPUT"
-      - name: Verify revision endpoint ancestry
-        env:
-          BASE_URL: https://kind-robots.vercel.app
-          MINIMUM_COMMIT: ${{ steps.manifest.outputs.minimum }}
+          git fetch origin main
+          git show origin/main:.github/workflows/wonderlab-voice-polish-apply.yml > .github/workflows/wonderlab-voice-polish-apply.yml
+          rm utils/scripts/applyStorymakerSessionLibrary.py
+          rm .github/workflows/apply-storymaker-session-library.yml
+      - name: Commit migrated source
         run: |
-          set -euo pipefail
-          body="$(curl -sf --max-time 20 "$BASE_URL/api/version")"
-          live="$(printf '%s' "$body" | jq -r '.data.commit // empty')"
-          test -n "$live"
-          if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
-            git fetch --quiet origin main
-          fi
-          if ! git merge-base --is-ancestor "$MINIMUM_COMMIT" "$live"; then
-            echo "::error::Production $live does not contain guarded revision commit $MINIMUM_COMMIT."
-            exit 1
-          fi
-          echo "Production $live contains the guarded revision endpoint."
-      - name: Wait for direct Reaction guard route
-        env:
-          BASE_URL: https://kind-robots.vercel.app
-          ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          REACTION_ID: ${{ steps.manifest.outputs.probe_reaction }}
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 36); do
-            body="$(
-              curl -sS --max-time 20 \
-                -H 'accept: application'/'json' \
-                -H "x-beta-admin-token: $ADMIN_TOKEN" \
-                -H "x-admin-token: $ADMIN_TOKEN" \
-                -H "x-api-key: $ADMIN_TOKEN" \
-                "$BASE_URL/api/admin/wonderlab/reactions/$REACTION_ID" \
-                || true
-            )"
-            projected="$(printf '%s' "$body" | jq -r '.data.id // empty' 2>/dev/null || true)"
-            if [ "$projected" = "$REACTION_ID" ]; then
-              echo "Direct Reaction guard is ready for Reaction #$REACTION_ID."
-              exit 0
-            fi
-            echo "Direct Reaction guard not ready (attempt $attempt of 36); retrying in 10 seconds."
-            sleep 10
-          done
-          echo "::error::Direct Reaction guard route did not become ready for Reaction #$REACTION_ID."
-          exit 1
-      - name: Inspect exact publication locks
-        id: preflight
-        continue-on-error: true
-        env:
-          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
-          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          WONDERLAB_VOICE_POLISH_MANIFEST: ${{ steps.manifest.outputs.path }}
-          WONDERLAB_VOICE_POLISH_PREFLIGHT_OUTPUT: wonderlab-voice-polish-preflight-artifacts
-        run: node scripts/preflight-wonderlab-voice-polish-batch.mjs
-      - name: Publish preflight evidence
-        if: always() && steps.preflight.outcome != 'skipped'
-        env:
-          PREFLIGHT_BRANCH: wonderlab-voice-polish-preflight
-          PREFLIGHT_DIR: wonderlab-voice-polish-preflight-artifacts
-        run: |
-          set -euo pipefail
-          snapshot_tmp="$(mktemp -d)"
-          cp -R "$PREFLIGHT_DIR"/. "$snapshot_tmp"/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -C "$PREFLIGHT_BRANCH"
-          rm -rf preflight
-          mkdir -p preflight
-          cp -R "$snapshot_tmp"/. preflight/
-          cat > preflight/README.md <<EOF
-          # WonderLab voice-polish preflight
-
-          Generated from the authenticated production API by workflow run ${GITHUB_RUN_ID}.
-
-          This branch is machine-generated and force-updated. It records IDs, hashes and invariant comparisons only; it contains no credentials or full commentary text.
-          EOF
-          git add preflight
-          git commit --allow-empty -m "[skip ci] WonderLab voice-polish preflight (run ${GITHUB_RUN_ID})"
-          git push --force origin "HEAD:${PREFLIGHT_BRANCH}"
-          git switch --detach "$GITHUB_SHA"
-      - name: Enforce preflight result
-        if: steps.preflight.outcome != 'success'
-        run: |
-          echo "::error::Guarded voice-polish preflight found a lock mismatch or read failure."
-          exit 1
-      - name: Apply exact voice-polish revisions
-        env:
-          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
-          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          WONDERLAB_VOICE_POLISH_MANIFEST: ${{ steps.manifest.outputs.path }}
-          WONDERLAB_VOICE_POLISH_OUTPUT: wonderlab-voice-polish-apply-artifacts
-        run: node scripts/apply-wonderlab-voice-polish-batch.mjs
-      - name: Re-audit full published corpus
-        env:
-          WONDERLAB_BASE_URL: https://kind-robots.vercel.app
-          WONDERLAB_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
-          WONDERLAB_DEFINITIVE_OUTPUT: wonderlab-voice-polish-post-audit
-        run: node scripts/wonderlab-definitive-inventory.mjs
-      - name: Upload voice-polish evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: wonderlab-voice-polish-${{ steps.manifest.outputs.batch }}-${{ github.run_id }}
-          path: |
-            wonderlab-voice-polish-preflight-artifacts
-            wonderlab-voice-polish-apply-artifacts
-            wonderlab-voice-polish-post-audit
-          retention-days: 30
-      - name: Write workflow summary
-        env:
-          PREFLIGHT_COMMENT: wonderlab-voice-polish-preflight-artifacts/wonderlab-voice-polish-preflight.md
-          APPLY_REPORT: wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.json
-          APPLY_COMMENT: wonderlab-voice-polish-apply-artifacts/wonderlab-voice-polish-apply.md
-          AUDIT_REPORT: wonderlab-voice-polish-post-audit/wonderlab-definitive-inventory.json
-        run: |
-          set -euo pipefail
-          cat "$PREFLIGHT_COMMENT" >> "$GITHUB_STEP_SUMMARY"
-          cat "$APPLY_COMMENT" >> "$GITHUB_STEP_SUMMARY"
-          printf '\n## Full-corpus post-audit\n\n' >> "$GITHUB_STEP_SUMMARY"
-          published="$(jq -r '.scan.publishedReviews' "$AUDIT_REPORT")"
-          first="$(jq -r '.scan.firstDraftId' "$AUDIT_REPORT")"
-          last="$(jq -r '.scan.lastDraftId' "$AUDIT_REPORT")"
-          highest="$(jq -r '.scan.highestDraftId' "$AUDIT_REPORT")"
-          production="$(jq -r '.production.commit // "unknown"' "$AUDIT_REPORT")"
-          deployment="$(jq -r '.production.deploymentId // "unknown"' "$AUDIT_REPORT")"
-          printf '%s\n' \
-            "- **Published reviews captured:** $published" \
-            "- **Draft range:** #$first–#$last" \
-            "- **Highest draft ID scanned:** #$highest" \
-            "- **Production:** \`$production\` · deployment \`$deployment\`" \
-            >> "$GITHUB_STEP_SUMMARY"
+          git add stores/storymakerStore.ts components/conductor/storymaker-page.vue .github/workflows/wonderlab-voice-polish-apply.yml utils/scripts/applyStorymakerSessionLibrary.py .github/workflows/apply-storymaker-session-library.yml
+          git commit -m "feat: add Storymaker recent-story lifecycle"
+          git push origin HEAD:codex/storymaker-session-library

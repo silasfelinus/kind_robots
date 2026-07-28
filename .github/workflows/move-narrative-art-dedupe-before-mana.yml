@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   migrate:
+    name: Apply pre-gate narrative idempotency
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

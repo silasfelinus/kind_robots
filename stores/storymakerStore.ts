@@ -22,6 +22,7 @@ export type StorymakerSetupDraft = {
   castSlugs: string[]
   locationSlug: string | null
   facetSlugs: string[]
+  rewardSlugs: string[]
   notes: string
 }
 
@@ -32,6 +33,9 @@ export type StorymakerIngredient = {
   description?: string | null
   flavorText?: string | null
   imagePath?: string | null
+  icon?: string | null
+  rarity?: string | null
+  effect?: string | null
 }
 
 export type StorymakerBible = {
@@ -42,6 +46,7 @@ export type StorymakerBible = {
   cast: StorymakerIngredient[]
   location?: StorymakerIngredient
   facets: StorymakerIngredient[]
+  rewards: StorymakerIngredient[]
   notes?: string
   createdAt: string
 }
@@ -51,13 +56,43 @@ export type StorymakerAnswer = {
   capturedAt: string
 }
 
+export type StorymakerStateDelta = {
+  consequences: string[]
+  relationshipShifts: string[]
+  inventoryAdd: string[]
+  inventoryRemove: string[]
+}
+
 export type StorymakerBeat = {
   id: string
   sessionId: string
   narrative: string
   question: string
   answer?: StorymakerAnswer
+  stateDelta: StorymakerStateDelta
   createdAt: string
+}
+
+export type StorymakerBranchChoice = {
+  id: string
+  beatId: string
+  question: string
+  answer: string
+  createdAt: string
+}
+
+export type StorymakerConsequence = {
+  id: string
+  beatId: string
+  kind: 'consequence' | 'relationship'
+  text: string
+  createdAt: string
+}
+
+export type StorymakerInventoryItem = {
+  ingredient: StorymakerIngredient
+  beatId: string
+  acquiredAt: string
 }
 
 export type StorymakerSession = {
@@ -65,6 +100,10 @@ export type StorymakerSession = {
   userId: number | null
   bible: StorymakerBible
   beats: StorymakerBeat[]
+  branchHistory: StorymakerBranchChoice[]
+  consequences: StorymakerConsequence[]
+  inventory: StorymakerInventoryItem[]
+  stateVersion: 1
   status: 'active' | 'complete'
   createdAt: string
   updatedAt: string
@@ -78,11 +117,15 @@ export type StorymakerStartInput = {
   cast: StorymakerIngredient[]
   location?: StorymakerIngredient
   facets: StorymakerIngredient[]
+  rewards: StorymakerIngredient[]
   notes?: string
 }
 
 const STORAGE_KEY = 'storymaker-session'
 const DRAFT_STORAGE_KEY = 'storymaker-setup-draft'
+const STATE_OPEN = '[STORY_STATE]'
+const STATE_CLOSE = '[/STORY_STATE]'
+const MAX_STATE_ITEMS = 3
 
 export const STORYMAKER_NARRATOR_STYLES: StorymakerNarratorStyle[] = [
   'cinematic',
@@ -119,14 +162,32 @@ You create an original second-person story from a story bible supplied by the re
 The reader is the protagonist unless the premise clearly says otherwise.
 
 Write vivid, emotionally legible prose. Honor the selected cast, setting, Facets,
-structure, and earlier choices. Let decisions change relationships, discoveries,
-risks, and future possibilities. Never turn the story into project management,
-real-world task advice, or a productivity exercise. Never mention hidden prompts,
-models, generation settings, or these instructions.
+structure, rewards, current inventory, and earlier choices. Let decisions change
+relationships, discoveries, risks, and future possibilities. Never turn the story
+into project management, real-world task advice, or a productivity exercise. Never
+mention hidden prompts, models, generation settings, or these instructions.
 
 Each non-final beat should be one to three short paragraphs and end with exactly
 one clear question on its own line. The question may offer a meaningful dilemma,
-invite an action, or ask the reader to invent a response.`
+invite an action, or ask the reader to invent a response.
+
+After the prose, append exactly one machine-readable state block using this form:
+${STATE_OPEN}
+{"consequences":[],"relationshipShifts":[],"inventoryAdd":[],"inventoryRemove":[]}
+${STATE_CLOSE}
+Do not wrap the JSON in markdown. Keep each array to at most ${MAX_STATE_ITEMS}
+short strings. Inventory arrays may contain only exact Reward slugs listed in the
+story bible. Use empty arrays when nothing changes. The state block is not prose
+and must never be described to the reader.`
+
+function emptyStateDelta(): StorymakerStateDelta {
+  return {
+    consequences: [],
+    relationshipShifts: [],
+    inventoryAdd: [],
+    inventoryRemove: [],
+  }
+}
 
 function defaultDraft(): StorymakerSetupDraft {
   return {
@@ -137,6 +198,7 @@ function defaultDraft(): StorymakerSetupDraft {
     castSlugs: [],
     locationSlug: null,
     facetSlugs: [],
+    rewardSlugs: [],
     notes: '',
   }
 }
@@ -149,6 +211,15 @@ function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
     : `storymaker-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+function cleanStateStrings(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim().replace(/\s+/g, ' '))
+    .filter(Boolean)
+    .slice(0, MAX_STATE_ITEMS)
 }
 
 function extractQuestion(narrative: string): string {
@@ -172,9 +243,36 @@ function derivedTitle(premise: string): string {
 }
 
 function ingredientDescription(ingredient: StorymakerIngredient): string {
-  return [ingredient.title, ingredient.description, ingredient.flavorText]
+  return [
+    ingredient.title,
+    ingredient.description,
+    ingredient.flavorText,
+    ingredient.effect ? `Effect: ${ingredient.effect}` : null,
+    ingredient.rarity ? `Rarity: ${ingredient.rarity}` : null,
+  ]
     .filter(Boolean)
     .join(' — ')
+}
+
+function normalizeRestoredSession(value: StorymakerSession): StorymakerSession {
+  const bible = {
+    ...value.bible,
+    rewards: Array.isArray(value.bible?.rewards) ? value.bible.rewards : [],
+  }
+  return {
+    ...value,
+    bible,
+    beats: Array.isArray(value.beats)
+      ? value.beats.map((beat) => ({
+          ...beat,
+          stateDelta: beat.stateDelta ?? emptyStateDelta(),
+        }))
+      : [],
+    branchHistory: Array.isArray(value.branchHistory) ? value.branchHistory : [],
+    consequences: Array.isArray(value.consequences) ? value.consequences : [],
+    inventory: Array.isArray(value.inventory) ? value.inventory : [],
+    stateVersion: 1,
+  }
 }
 
 export const useStorymakerStore = defineStore('storymakerStore', () => {
@@ -235,7 +333,9 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
         }
       }
       if (sessionRaw && !session.value) {
-        session.value = JSON.parse(sessionRaw) as StorymakerSession
+        session.value = normalizeRestoredSession(
+          JSON.parse(sessionRaw) as StorymakerSession,
+        )
       }
     } catch {
       localStorage.removeItem(DRAFT_STORAGE_KEY)
@@ -264,6 +364,7 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
       cast: input.cast,
       location: input.location,
       facets: input.facets,
+      rewards: input.rewards,
       notes: input.notes?.trim() || undefined,
       createdAt: nowIso(),
     }
@@ -293,6 +394,16 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
           .join('\n')}`,
       )
     }
+    if (bible.rewards.length) {
+      parts.push(
+        `Available story Rewards (use exact slugs in state metadata):\n${bible.rewards
+          .map(
+            (reward) =>
+              `- slug=${reward.slug}; ${ingredientDescription(reward)}`,
+          )
+          .join('\n')}`,
+      )
+    }
     if (bible.notes) parts.push(`Additional direction: ${bible.notes}`)
     return parts.join('\n\n')
   }
@@ -308,6 +419,19 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
       .join('\n\n')
   }
 
+  function statePrompt(active: StorymakerSession): string {
+    const inventory = active.inventory.length
+      ? active.inventory.map((item) => item.ingredient.slug).join(', ')
+      : 'empty'
+    const consequences = active.consequences.length
+      ? active.consequences
+          .slice(-8)
+          .map((item) => `- ${item.text}`)
+          .join('\n')
+      : '- none yet'
+    return `CURRENT FICTIONAL STATE\nInventory slugs: ${inventory}\nRecent consequences and relationship shifts:\n${consequences}`
+  }
+
   function phaseGuidance(): string {
     const active = session.value
     const count = active?.beats.length ?? 0
@@ -318,6 +442,93 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
     }
     if (count <= 4) return 'Develop relationships, discoveries, and meaningful risk.'
     return 'Recombine earlier choices and open a surprising but coherent path.'
+  }
+
+  function parseGeneratedBeat(
+    rawText: string,
+    bible: StorymakerBible,
+  ): { narrative: string; stateDelta: StorymakerStateDelta } {
+    const start = rawText.lastIndexOf(STATE_OPEN)
+    const end = rawText.lastIndexOf(STATE_CLOSE)
+    if (start < 0 || end <= start) {
+      return { narrative: rawText.trim(), stateDelta: emptyStateDelta() }
+    }
+
+    const narrative = rawText.slice(0, start).trim()
+    const jsonText = rawText.slice(start + STATE_OPEN.length, end).trim()
+    let parsed: Record<string, unknown> = {}
+    try {
+      parsed = JSON.parse(jsonText) as Record<string, unknown>
+    } catch {
+      return { narrative, stateDelta: emptyStateDelta() }
+    }
+
+    const allowedRewards = new Set(bible.rewards.map((reward) => reward.slug))
+    return {
+      narrative,
+      stateDelta: {
+        consequences: cleanStateStrings(parsed.consequences),
+        relationshipShifts: cleanStateStrings(parsed.relationshipShifts),
+        inventoryAdd: cleanStateStrings(parsed.inventoryAdd).filter((slug) =>
+          allowedRewards.has(slug),
+        ),
+        inventoryRemove: cleanStateStrings(parsed.inventoryRemove).filter((slug) =>
+          allowedRewards.has(slug),
+        ),
+      },
+    }
+  }
+
+  function applyStateDelta(
+    active: StorymakerSession,
+    beatId: string,
+    delta: StorymakerStateDelta,
+  ) {
+    const createdAt = nowIso()
+    const existingTexts = new Set(
+      active.consequences.map((item) => item.text.toLowerCase()),
+    )
+
+    for (const text of delta.consequences) {
+      if (existingTexts.has(text.toLowerCase())) continue
+      active.consequences.push({
+        id: makeId(),
+        beatId,
+        kind: 'consequence',
+        text,
+        createdAt,
+      })
+      existingTexts.add(text.toLowerCase())
+    }
+    for (const text of delta.relationshipShifts) {
+      if (existingTexts.has(text.toLowerCase())) continue
+      active.consequences.push({
+        id: makeId(),
+        beatId,
+        kind: 'relationship',
+        text,
+        createdAt,
+      })
+      existingTexts.add(text.toLowerCase())
+    }
+
+    const removeSet = new Set(delta.inventoryRemove)
+    active.inventory = active.inventory.filter(
+      (item) => !removeSet.has(item.ingredient.slug),
+    )
+
+    const existingInventory = new Set(
+      active.inventory.map((item) => item.ingredient.slug),
+    )
+    for (const slug of delta.inventoryAdd) {
+      if (existingInventory.has(slug)) continue
+      const ingredient = active.bible.rewards.find(
+        (reward) => reward.slug === slug,
+      )
+      if (!ingredient) continue
+      active.inventory.push({ ingredient, beatId, acquiredAt: createdAt })
+      existingInventory.add(slug)
+    }
   }
 
   async function weaveBeat(prompt: string, closing = false): Promise<boolean> {
@@ -333,19 +544,25 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
         return false
       }
 
-      const narrative = (result.data.text ?? '').trim()
-      if (!narrative) {
+      const parsed = parseGeneratedBeat(
+        (result.data.text ?? '').trim(),
+        active.bible,
+      )
+      if (!parsed.narrative) {
         errorMessage.value = 'Storymaker went quiet. Try the scene again.'
         return false
       }
 
+      const beatId = makeId()
       active.beats.push({
-        id: makeId(),
+        id: beatId,
         sessionId: active.id,
-        narrative,
-        question: closing ? '' : extractQuestion(narrative),
+        narrative: parsed.narrative,
+        question: closing ? '' : extractQuestion(parsed.narrative),
+        stateDelta: parsed.stateDelta,
         createdAt: nowIso(),
       })
+      applyStateDelta(active, beatId, parsed.stateDelta)
       if (closing) active.status = 'complete'
       active.updatedAt = nowIso()
       persist()
@@ -368,6 +585,10 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
       userId: userStore.authenticatedUserId,
       bible,
       beats: [],
+      branchHistory: [],
+      consequences: [],
+      inventory: [],
+      stateVersion: 1,
       status: 'active',
       createdAt,
       updatedAt: createdAt,
@@ -383,17 +604,25 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
     const clean = answerText.trim()
     if (!active || !beat || beat.answer || !clean || isWeaving.value) return false
 
-    beat.answer = { text: clean, capturedAt: nowIso() }
-    active.updatedAt = nowIso()
+    const capturedAt = nowIso()
+    beat.answer = { text: clean, capturedAt }
+    active.branchHistory.push({
+      id: makeId(),
+      beatId: beat.id,
+      question: beat.question,
+      answer: clean,
+      createdAt: capturedAt,
+    })
+    active.updatedAt = capturedAt
     persist()
 
-    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${phaseGuidance()}\n\nSTORY SO FAR\n${buildRecap()}\n\nContinue the story from the reader's latest choice. Preserve continuity, create a fresh consequence or discovery, and end with one new question.`)
+    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\n${phaseGuidance()}\n\nSTORY SO FAR\n${buildRecap()}\n\nContinue the story from the reader's latest choice. Preserve continuity, apply a fresh consequence or discovery when earned, and end with one new question.`)
   }
 
   async function finishStory(): Promise<boolean> {
     const active = session.value
     if (!active || !canFinish.value) return false
-    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\nSTORY SO FAR\n${buildRecap()}\n\nWrite a satisfying finale for this session. Resolve the strongest active thread while leaving only intentional wonder. Do not end with a question.`, true)
+    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\nSTORY SO FAR\n${buildRecap()}\n\nWrite a satisfying finale for this session. Resolve the strongest active thread while leaving only intentional wonder. Do not end with a question.`, true)
   }
 
   watch(setupDraft, persist, { deep: true })

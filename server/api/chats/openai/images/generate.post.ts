@@ -6,6 +6,7 @@ import { errorHandler } from './../../../../utils/error'
 import { saveImage } from '../../../../utils/saveImage'
 import { manaGate } from '../../../../utils/manaGate'
 import { estimateArtCostUsd } from '../../../../utils/manaCost'
+import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 import {
   type RequestData,
   validateAndLoadArtCollectionId,
@@ -156,6 +157,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const visibility = resolveMaturityPrivacy(requestData)
     const updatedImage = await prisma.artImage.update({
       where: {
         id: savedImage.id,
@@ -175,8 +177,8 @@ export default defineEventHandler(async (event) => {
         promptString: prompt,
         artPrompt: prompt,
         negativePrompt: requestData.negativePrompt ?? null,
-        isPublic: requestData.isPublic ?? true,
-        isMature: requestData.isMature ?? false,
+        isPublic: visibility.isPublic,
+        isMature: visibility.isMature,
         userId: validatedData.userId ?? user.id,
         serverId: requestData.serverId ?? null,
         serverName: requestData.serverName || 'OpenAI Images',

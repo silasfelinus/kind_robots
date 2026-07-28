@@ -1,6 +1,6 @@
 <!-- /components/narrative/narrative-transcript.vue -->
 <template>
-  <section class="space-y-3" aria-live="polite" aria-busy="isStreaming">
+  <section class="space-y-3" aria-live="polite" :aria-busy="isStreaming">
     <div
       v-if="!beats.length && !isStreaming"
       class="rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-5 text-center text-sm text-base-content/50"

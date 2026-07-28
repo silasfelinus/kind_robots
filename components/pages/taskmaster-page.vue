@@ -415,7 +415,7 @@ const grammarFacets = computed(() =>
 const grammarOptions = computed<NarrativeIngredientOption[]>(() =>
   grammarFacets.value.map((facet) => ({
     id: facet.id,
-    slug: facet.slug,
+    slug: facet.slug || String(facet.id),
     title: facet.title,
     description: facet.description,
     flavorText: facet.flavorText,

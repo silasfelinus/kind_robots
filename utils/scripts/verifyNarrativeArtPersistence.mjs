@@ -37,9 +37,34 @@ includesAll(profilesPath, [
   'steps: 4',
   "sampler: 'euler'",
   "scheduler: 'simple'",
+  "key: 'storymaker-narrative-krea4'",
+  "product: 'storymaker'",
   "projectSlug: 'storymaker'",
+  "key: 'taskmaster-narrative-krea4'",
+  "product: 'taskmaster'",
   "projectSlug: 'taskmaster'",
 ])
+
+const storymakerProfile = profiles.slice(
+  profiles.indexOf('  storymaker: {'),
+  profiles.indexOf('  taskmaster: {'),
+)
+const taskmasterProfile = profiles.slice(
+  profiles.indexOf('  taskmaster: {'),
+  profiles.indexOf('\n  },\n}', profiles.indexOf('  taskmaster: {')) + 5,
+)
+for (const [label, profile] of [
+  ['Storymaker', storymakerProfile],
+  ['Taskmaster', taskmasterProfile],
+]) {
+  assert.ok(
+    profile.includes("engine: 'krea2'") &&
+      profile.includes('steps: 4') &&
+      profile.includes("sampler: 'euler'") &&
+      profile.includes("scheduler: 'simple'"),
+    `${label} must retain its centralized four-step Krea profile`,
+  )
+}
 
 includesAll(jobsPath, [
   'NarrativeArtJobState',
@@ -158,11 +183,6 @@ includesAll(taskPagePath, [
   '@retry="store.retryBeatArt(beat.id)"',
 ])
 
-assert.equal(
-  (profiles.match(/steps: 4/g) || []).length,
-  2,
-  'Storymaker and Taskmaster must both use the centralized four-step profile',
-)
 assert.ok(
   controller.includes('MAX_POLL_ATTEMPTS') &&
     controller.includes('resume checking when this story is opened again'),

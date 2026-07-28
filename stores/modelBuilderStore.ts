@@ -666,6 +666,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       .catch((error) => handleError(error, 'saving build items'))
   }
 
+  // A stage's content is only safe to overwrite while it is workable — ready,
+  // stale, or rejected. This mirrors the item panel's own isEditable gate
+  // (components/model-builder/model-builder-item-panel.vue), which hides that
+  // stage's textarea and "Draft with AI" button once it's approved/locked. The
+  // per-item write paths (updatePitch/updateFields/updatePrompt) are only ever
+  // called from behind that same gate, so they never need to check it
+  // themselves — but the batch group operations below call draftText/write the
+  // field directly for every item in a quantity group, bypassing that UI gate
+  // entirely. Without this check, batch-drafting or batch-setting a field
+  // silently rewrites an item whose stage the user already reviewed and
+  // approved, while its badge keeps showing "approved" — the review gate would
+  // be lying about what's actually stored.
+  function isStageEditable(item: BuildItem, stageKey: BuildStageKey): boolean {
+    const status = item.stages[stageKey].status
+    return status === 'ready' || status === 'stale' || status === 'rejected'
+  }
+
   // Stale-invalidation: editing an upstream stage marks every downstream stage
   // stale (unless still locked). Commit is always downstream of everything.
   function markDownstreamStale(item: BuildItem, fromStage: BuildStageKey): void {
@@ -1359,11 +1376,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // pitch lives under PITCH; fields/artPrompt both live under
+    // FIELDS_AND_PROMPTS (see model-builder-item-panel.vue's stage sections).
+    const stageKey: BuildStageKey =
+      field === 'pitch' ? 'PITCH' : 'FIELDS_AND_PROMPTS'
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let drafted = 0
     try {
       for (const item of items) {
+        // Skip items whose stage is already approved/locked — see
+        // isStageEditable's doc comment.
+        if (!isStageEditable(item, stageKey)) continue
         const current =
           field === 'pitch'
             ? item.pitch
@@ -1397,6 +1421,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       meta?: { stage?: string; reason?: string }
     }> = []
     for (const item of items) {
+      // Skip items whose FIELDS_AND_PROMPTS is already approved/locked — see
+      // isStageEditable's doc comment.
+      if (!isStageEditable(item, 'FIELDS_AND_PROMPTS')) continue
       const next = setFieldLine(item.fieldsDraft, fieldKey, value)
       if (next === item.fieldsDraft) continue
       item.fieldsDraft = next

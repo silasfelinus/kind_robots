@@ -19,6 +19,20 @@ export function defaultFacetArtworkPath(facet: FacetCatalogEntry): string {
   )}.webp`
 }
 
+function facetPromptContext(facet: FacetCatalogEntry): string {
+  return [
+    `Facet title: ${facet.title}`,
+    `Taxonomy: ${facet.taxonomy}`,
+    facet.canonicalValue ? `Canonical value: ${facet.canonicalValue}` : '',
+    facet.groupLabel ? `Group: ${facet.groupLabel}` : '',
+    facet.description ? `Description: ${facet.description}` : '',
+    facet.flavorText ? `Flavor: ${facet.flavorText}` : '',
+    facet.examples ? `Examples: ${facet.examples}` : '',
+  ]
+    .filter(Boolean)
+    .join(' · ')
+}
+
 export const useFacetArtRequestStore = defineStore('facetArtRequestStore', () => {
   const requesting = reactive<Record<number, boolean>>({})
   const requested = reactive<Record<number, string>>({})
@@ -40,27 +54,17 @@ export const useFacetArtRequestStore = defineStore('facetArtRequestStore', () =>
           body: JSON.stringify({
             src,
             pageUrl:
-              typeof window !== 'undefined'
-                ? window.location.href
-                : '/facets',
-            label: facet.title,
+              typeof window !== 'undefined' ? window.location.href : '/facets',
+            label: `${facet.title} ${facet.taxonomy.toLowerCase()} facet`,
             alt: `${facet.title} canonical Facet artwork`,
             variant: 'image',
             size: '1024x1024',
-            prompt:
-              facet.artPrompt ||
-              facet.description ||
-              `A clear, expressive reference illustration of ${facet.title}, suitable for a reusable creative concept card.`,
-            pageTitle: 'Facet Library',
-            pageDescription: `Canonical ${facet.taxonomy} Facet requiring curated artwork.`,
-            nearbyText: [
-              facet.canonicalValue,
-              facet.groupLabel,
-              facet.flavorText,
-              facet.examples,
-            ]
-              .filter(Boolean)
-              .join(' · '),
+            prompt: facet.artPrompt || undefined,
+            pageTitle: 'Facets',
+            pageDescription:
+              'Browse the canonical creative building blocks shared across Characters, Bots, Dreams, Scenarios, and Art.',
+            nearestHeading: facet.title,
+            nearbyText: facetPromptContext(facet),
           }),
         },
       )

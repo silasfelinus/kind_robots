@@ -6,6 +6,9 @@ export type ColoringBookStudioOperation =
   | 'generate-bw'
   | 'accept-bw'
   | 'finalize-pair'
+  | 'generate-cover'
+  | 'accept-cover'
+  | 'finalize-cover'
 
 export type ColoringBookHistoryKind =
   | 'revision'
@@ -33,6 +36,16 @@ export type ColoringBookHistoryItem = {
   artImageId: number | null
   seed: number | null
   engine: string | null
+}
+
+export type ColoringBookCoverHistoryItem = {
+  id: string
+  archivedPath: string | null
+  archivedUrl: string | null
+  requestedAt: string | null
+  previousStatus: string | null
+  artImageId: number | null
+  semanticScore: number | null
 }
 
 export type ColoringBookPair = {
@@ -77,6 +90,35 @@ export type ColoringBookProductionState = {
   pairSemanticReasons: string[]
   pairFinalizedAt: string | null
   history: ColoringBookHistoryItem[]
+}
+
+export type ColoringBookCoverState = {
+  order: number
+  bookSlug: string
+  title: string
+  prompt: string
+  sourceRef: string | null
+  imagePath: string
+  status: string
+  renderedPath: string | null
+  renderedUrl: string | null
+  artImageId: number | null
+  renderSeed: number | null
+  renderEngine: string | null
+  completedAt: string | null
+  semanticScore: number | null
+  semanticVerdict: string | null
+  semanticReasons: string[]
+  rejectedPath: string | null
+  rejectedUrl: string | null
+  acceptedPath: string | null
+  acceptedUrl: string | null
+  approvedAt: string | null
+  finalPath: string | null
+  finalUrl: string | null
+  finalizedAt: string | null
+  revisionHistory: ColoringBookCoverHistoryItem[]
+  notes: string[]
 }
 
 export type ColoringBookProposal = {
@@ -129,6 +171,7 @@ export type ColoringBookStudioData = {
 
 export type ColoringBookProductionData = {
   states: Record<string, ColoringBookProductionState>
+  covers: Record<string, ColoringBookCoverState>
   fetchedAt: string
 }
 
@@ -138,10 +181,15 @@ export type ColoringBookPromptUpdate = {
   prompt: string
 }
 
+export type ColoringBookCoverPromptUpdate = {
+  bookSlug: string
+  prompt: string
+}
+
 export type ColoringBookRenderRequest = {
   operation?: ColoringBookStudioOperation
   bookSlug: string
-  proposalId: string
+  proposalId?: string
   sourcePath?: string
   force?: boolean
   note?: string

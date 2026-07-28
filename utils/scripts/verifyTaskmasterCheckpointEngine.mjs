@@ -51,8 +51,9 @@ includesAll(storePath, [
 includesAll(pagePath, [
   'Review the practical plan',
   'The quest starts with real checkpoints',
-  'store.prepareQuest',
-  'store.startQuest()',
+  'v-else-if="store.session.status === \'draft\'"',
+  'await store.prepareQuest({',
+  '@click="store.startQuest()"',
   'Practical checkpoint plan',
   'Current action:',
   'What happened in the real world?',
@@ -66,8 +67,8 @@ includesAll(pagePath, [
 ])
 
 assert.ok(
-  page.indexOf('store.prepareQuest') < page.indexOf('store.startQuest()'),
-  'Taskmaster must prepare and review checkpoints before narration starts',
+  !page.includes('await store.beginStory('),
+  'The Taskmaster page must not skip checkpoint review by starting narration directly',
 )
 assert.ok(
   !store.includes("['pending', 'active', 'proposed-complete']"),

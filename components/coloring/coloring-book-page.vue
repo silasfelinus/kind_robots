@@ -8,6 +8,8 @@
     <template #interactive>
       <div class="flex flex-col gap-5">
         <coloring-book-readiness />
+        <coloring-book-package-readiness />
+        <coloring-book-cover-studio />
         <div id="coloring-production-actions">
           <coloring-book-production-toolbar />
         </div>
@@ -27,20 +29,20 @@ const config: ProjectFrontConfig = {
   channelKey: 'art',
   tabKey: 'coloring',
   icon: 'kind-icon:paintbrush',
-  tagline: 'Build, review, pair, and color three living books.',
+  tagline: 'Build, review, pair, package, and color three living books.',
   description:
-    'A ledger-backed production studio for Monster Recast, Hollywood Recast, and Kind Robots. Track the exact next action for all 108 interiors, review each 36-page ledger, edit canonical Conductor prompts, compare current and historical color and black-and-white versions, request targeted candidates or revisions, adopt legacy set assets, accept working masters, confirm final pairs, diagnose queue failures, and preview finished pages in the shared coloring engine.',
+    'A ledger-backed production studio for Monster Recast, Hollywood Recast, and Kind Robots. Track the exact next action for all 108 interiors and three covers, edit canonical Conductor prompts, compare current and historical color and black-and-white versions, request targeted candidates or revisions, adopt legacy set assets, accept working masters, confirm final pairs, inspect source and print-package readiness, diagnose queue failures, and preview finished pages in the shared coloring engine.',
   sections: [
     {
       key: 'production',
       title: 'One canonical production view',
-      body: 'The front end reads and updates the same proposal ledgers and production queue used by Conductor instead of maintaining unrelated prompt cards and gallery generations.',
+      body: 'The front end reads and updates the same proposal ledgers, cover queue, and package manifests used by Conductor instead of maintaining unrelated prompt cards and gallery generations.',
       icon: 'kind-icon:book',
     },
     {
       key: 'review',
       title: 'Know the next action',
-      body: 'Every interior is classified as blocked, needing generation, waiting for human acceptance, ready to finalize, or final. Open any row directly into its production controls.',
+      body: 'Every interior, cover, and publishing package is classified by its next required human or pipeline action, with source production kept separate from printer layout and export work.',
       icon: 'kind-icon:check',
     },
   ],
@@ -53,10 +55,12 @@ const config: ProjectFrontConfig = {
       'Legacy set-asset adoption without fabricated provenance',
       'Archived revision and rejection history browser',
       'Whole-book interior readiness dashboard',
+      'Canonical three-book cover source production',
+      'Vendor-neutral print-package readiness and ordered interior manifests',
     ],
     next: [
-      'Canonical cover production management',
-      'Print package validation and export',
+      'Choose printer, trim, binding, paper, bleed, and cover template',
+      'Generate interior PDFs, cover-wrap PDFs, and source archives',
       'Storefront hand-off',
     ],
   },

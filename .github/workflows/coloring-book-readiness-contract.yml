@@ -1,0 +1,37 @@
+name: Coloring Book Readiness Contract
+
+on:
+  pull_request:
+    paths:
+      - "components/coloring/coloring-book-readiness.vue"
+      - "components/coloring/coloring-book-page.vue"
+      - "utils/coloringBookReadiness.ts"
+      - "utils/scripts/verifyColoringBookReadiness.ts"
+      - ".github/workflows/coloring-book-readiness-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "components/coloring/coloring-book-readiness.vue"
+      - "components/coloring/coloring-book-page.vue"
+      - "utils/coloringBookReadiness.ts"
+      - "utils/scripts/verifyColoringBookReadiness.ts"
+      - ".github/workflows/coloring-book-readiness-contract.yml"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify readiness state machine
+        run: npx tsx utils/scripts/verifyColoringBookReadiness.ts

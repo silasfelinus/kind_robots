@@ -7,7 +7,10 @@
   >
     <template #interactive>
       <div class="flex flex-col gap-5">
-        <coloring-book-production-toolbar />
+        <coloring-book-readiness />
+        <div id="coloring-production-actions">
+          <coloring-book-production-toolbar />
+        </div>
         <coloring-book-production-history />
         <coloring-book-studio />
       </div>
@@ -26,7 +29,7 @@ const config: ProjectFrontConfig = {
   icon: 'kind-icon:paintbrush',
   tagline: 'Build, review, pair, and color three living books.',
   description:
-    'A ledger-backed production studio for Monster Recast, Hollywood Recast, and Kind Robots. Review all 36 proposal slots in each book, edit the canonical Conductor prompts, compare current color and black-and-white versions, request targeted candidates or revisions, accept working masters, confirm final pairs, inspect archived and rejected attempts, diagnose queue failures, and preview finished pages in the shared coloring engine.',
+    'A ledger-backed production studio for Monster Recast, Hollywood Recast, and Kind Robots. Track the exact next action for all 108 interiors, review each 36-page ledger, edit canonical Conductor prompts, compare current and historical color and black-and-white versions, request targeted candidates or revisions, adopt legacy set assets, accept working masters, confirm final pairs, diagnose queue failures, and preview finished pages in the shared coloring engine.',
   sections: [
     {
       key: 'production',
@@ -36,9 +39,9 @@ const config: ProjectFrontConfig = {
     },
     {
       key: 'review',
-      title: 'Prompt, render, accept, and pair',
-      body: 'Select any proposal ID, inspect current and historical candidates, save the real production prompt, request exact renders, accept color and B&W masters, and finalize a mechanically and semantically validated matched pair.',
-      icon: 'kind-icon:sparkles',
+      title: 'Know the next action',
+      body: 'Every interior is classified as blocked, needing generation, waiting for human acceptance, ready to finalize, or final. Open any row directly into its production controls.',
+      icon: 'kind-icon:check',
     },
   ],
   deliverables: {
@@ -47,12 +50,14 @@ const config: ProjectFrontConfig = {
       'Three canonical 36-proposal production ledgers in Conductor',
       'Proposal-targeted color and B&W generation with human-gated acceptance',
       'Matched-pair validation and finalization controls',
+      'Legacy set-asset adoption without fabricated provenance',
       'Archived revision and rejection history browser',
+      'Whole-book interior readiness dashboard',
     ],
     next: [
-      'Cover production management',
-      'Print-readiness checks across all 36 interior pairs',
-      'Print-ready package and storefront hand-off',
+      'Canonical cover production management',
+      'Print package validation and export',
+      'Storefront hand-off',
     ],
   },
 }

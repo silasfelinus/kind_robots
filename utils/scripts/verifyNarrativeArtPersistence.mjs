@@ -102,9 +102,15 @@ includesAll(controllerPath, [
   'retry(',
 ])
 
+const recoveryStart = controller.indexOf('async function recoverOrSubmit')
+const recoveryEnd = controller.indexOf('\n  function resume(', recoveryStart)
+const recoveryBlock = controller.slice(recoveryStart, recoveryEnd)
 assert.ok(
-  controller.indexOf('recoverExistingJob(state)') <
-    controller.indexOf('await submit(state, update)'),
+  recoveryStart >= 0 &&
+    recoveryEnd > recoveryStart &&
+    recoveryBlock.indexOf('recoverExistingJob(state)') >= 0 &&
+    recoveryBlock.indexOf('recoverExistingJob(state)') <
+      recoveryBlock.indexOf('await submit(state, update)'),
   'Interrupted sessions must attempt authenticated job recovery before re-enqueue',
 )
 

@@ -90,7 +90,12 @@ function validateImagePrompt(prompt: string): {
 }
 
 export type ArtImageGenerationEngine =
-  'a1111' | 'comfy' | 'flux' | 'kontext' | 'openai'
+  | 'a1111'
+  | 'comfy'
+  | 'flux'
+  | 'krea2'
+  | 'kontext'
+  | 'openai'
 
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
@@ -100,6 +105,14 @@ export type QueuedArtJob = {
   status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
   artImageId?: number | null
   error?: string | null
+}
+
+export type NarrativeArtEnqueueContext = {
+  product: 'storymaker' | 'taskmaster'
+  sessionId: string
+  beatId: string
+  moment: string
+  dedupeKey: string
 }
 
 export interface GenerateArtData {
@@ -126,6 +139,7 @@ export interface GenerateArtData {
   loraStrength?: number | null
   loraResourceIds?: number[] | null
   sampler?: string
+  scheduler?: string
   steps?: number
   cfg?: number
   cfgHalf?: boolean
@@ -138,6 +152,8 @@ export interface GenerateArtData {
 
   serverId?: number | null
   serverName?: string | null
+  projectSlug?: string | null
+  narrativeContext?: NarrativeArtEnqueueContext | null
 
   engine?: ArtImageGenerationEngine
   transport?: ArtImageGenerationTransport
@@ -1603,7 +1619,7 @@ export const useArtStore = defineStore('artStore', () => {
       return { provider: 'a1111', modelFamily: 'sdxl' }
     }
 
-    if (data.engine === 'comfy') {
+    if (data.engine === 'comfy' || data.engine === 'krea2') {
       return { provider: 'comfy' }
     }
 
@@ -1679,7 +1695,9 @@ export const useArtStore = defineStore('artStore', () => {
   ): boolean {
     if (engine === 'a1111') return server.serverType === 'A1111'
     if (engine === 'openai') return server.serverType === 'OPENAI'
-    if (engine === 'comfy') return server.serverType === 'COMFY'
+    if (engine === 'comfy' || engine === 'krea2') {
+      return server.serverType === 'COMFY'
+    }
     if (engine === 'flux') {
       return (
         server.serverType === 'COMFY' &&
@@ -1736,7 +1754,7 @@ export const useArtStore = defineStore('artStore', () => {
     if (server.serverType === 'OPENAI') return 'openai'
 
     throw new Error(
-      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Flux, Kontext, and OpenAI image routes.`,
+      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Krea, Flux, Kontext, and OpenAI image routes.`,
     )
   }
 
@@ -1976,6 +1994,7 @@ export const useArtStore = defineStore('artStore', () => {
       a1111: '/api/art/generate',
       comfy: '/api/comfy/sdxl/generate',
       flux: '/api/comfy/flux/generate',
+      krea2: '/api/art/enqueue',
       kontext: '/api/comfy/kontext/generate',
       openai: '/api/chats/openai/images/generate',
     }
@@ -2280,6 +2299,7 @@ export const useArtStore = defineStore('artStore', () => {
         state.artForm.sampler ||
         checkpointStore.selectedSampler?.name ||
         '',
+      scheduler: artData?.scheduler ?? state.artForm.scheduler,
       steps: artData?.steps ?? state.artForm.steps ?? 25,
       designer:
         artData?.designer ||
@@ -2297,6 +2317,9 @@ export const useArtStore = defineStore('artStore', () => {
       serverName: explicitServerNameProvided
         ? (artData?.serverName ?? null)
         : null,
+      projectSlug: artData?.projectSlug ?? state.artForm.projectSlug ?? null,
+      narrativeContext:
+        artData?.narrativeContext ?? state.artForm.narrativeContext ?? null,
 
       generationRequirement:
         artData?.generationRequirement ?? state.artForm.generationRequirement,

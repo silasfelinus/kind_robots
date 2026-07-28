@@ -1,5 +1,6 @@
 // /composables/useNarrativeArtJobs.ts
 import { useArtStore } from '@/stores/artStore'
+import { useServerStore } from '@/stores/serverStore'
 import {
   applyQueuedArtJobToNarrativeState,
   buildNarrativeArtGenerationData,
@@ -26,6 +27,19 @@ function clearPoll(dedupeKey: string): void {
 
 export function useNarrativeArtJobs() {
   const artStore = useArtStore()
+  const serverStore = useServerStore()
+
+  async function ensureQueueReady(): Promise<void> {
+    await artStore.initialize({
+      fetchRemote: false,
+      hydrateImages: false,
+      initializeServerStore: false,
+      initializeCollections: false,
+    })
+    if (!serverStore.hasLoaded) {
+      await serverStore.initialize({ fetchRemote: true })
+    }
+  }
 
   function schedulePoll(
     state: NarrativeArtJobState,
@@ -67,7 +81,9 @@ export function useNarrativeArtJobs() {
 
     if (job.status === 'DONE' && job.artImageId) {
       const image = await artStore.getArtImageById(job.artImageId, { force: true })
-      const imagePath = image?.imagePath || null
+      const imagePath =
+        image?.imagePath ||
+        ((image as { path?: string | null } | undefined)?.path ?? null)
       if (!image || !imagePath) {
         next = {
           ...next,
@@ -106,29 +122,42 @@ export function useNarrativeArtJobs() {
     state: NarrativeArtJobState,
     update: NarrativeArtUpdate,
   ): Promise<void> {
-    const result = await artStore.enqueueArtGeneration(
-      buildNarrativeArtGenerationData(state),
-    )
+    try {
+      await ensureQueueReady()
+      const result = await artStore.enqueueArtGeneration(
+        buildNarrativeArtGenerationData(state),
+      )
 
-    if (!result.success || !result.jobId) {
+      if (!result.success || !result.jobId) {
+        update({
+          ...state,
+          status: 'failed',
+          error: result.message || 'The illustration could not be queued.',
+          updatedAt: nowIso(),
+        })
+        return
+      }
+
+      const queued: NarrativeArtJobState = {
+        ...state,
+        jobId: result.jobId,
+        status: 'queued',
+        error: null,
+        updatedAt: nowIso(),
+      }
+      update(queued)
+      void poll(queued, update)
+    } catch (error) {
       update({
         ...state,
         status: 'failed',
-        error: result.message || 'The illustration could not be queued.',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'The illustration queue could not be prepared.',
         updatedAt: nowIso(),
       })
-      return
     }
-
-    const queued: NarrativeArtJobState = {
-      ...state,
-      jobId: result.jobId,
-      status: 'queued',
-      error: null,
-      updatedAt: nowIso(),
-    }
-    update(queued)
-    void poll(queued, update)
   }
 
   async function enqueue(

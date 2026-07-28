@@ -46,6 +46,7 @@ books:
 const fallback = parseColoringBookPackageData(null, packageYaml)
 assert.equal(fallback.generated, false)
 assert.equal(fallback.books.length, 1)
+assert.equal(fallback.books[0]?.order, 1)
 assert.equal(fallback.books[0]?.slug, 'kind-robots')
 assert.equal(fallback.books[0]?.missingLayoutFields.length, 11)
 assert.equal(fallback.books[0]?.missingExportFields.length, 3)
@@ -97,6 +98,7 @@ all_package_ready: false
 
 const generated = parseColoringBookPackageData(readinessYaml, packageYaml)
 assert.equal(generated.generated, true)
+assert.equal(generated.books[0]?.order, 1)
 assert.equal(generated.books[0]?.status, 'exports-needed')
 assert.equal(generated.books[0]?.sourceReady, true)
 assert.equal(generated.books[0]?.sourceIssues.coverNotFinal, false)

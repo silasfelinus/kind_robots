@@ -27,7 +27,7 @@
       v-if="isStreaming"
       class="whitespace-pre-line rounded-2xl border border-dashed border-secondary/40 bg-base-200/40 p-4 text-sm leading-relaxed"
     >
-      <template v-if="streamingText">{{ streamingText }}</template>
+      <template v-if="visibleStreamingText">{{ visibleStreamingText }}</template>
       <span v-else class="flex items-center gap-2 text-base-content/60">
         <span class="loading loading-dots loading-sm" />
         {{ streamingLabel }}
@@ -37,7 +37,9 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
+import { computed } from 'vue'
+
+const props = withDefaults(
   defineProps<{
     beats: {
       id: string
@@ -56,4 +58,18 @@ withDefaults(
     emptyLabel: 'The story will appear here once it begins.',
   },
 )
+
+const visibleStreamingText = computed(() => {
+  const text = props.streamingText
+  const marker = '[STORY_STATE]'
+  const markerIndex = text.indexOf(marker)
+  if (markerIndex >= 0) return text.slice(0, markerIndex).trimEnd()
+
+  const lastLineBreak = text.lastIndexOf('\n')
+  const partialLine = text.slice(lastLineBreak + 1).trim()
+  if (partialLine.startsWith('[') && marker.startsWith(partialLine)) {
+    return text.slice(0, Math.max(0, lastLineBreak)).trimEnd()
+  }
+  return text
+})
 </script>

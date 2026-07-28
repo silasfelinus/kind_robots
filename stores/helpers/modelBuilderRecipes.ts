@@ -111,6 +111,13 @@ export interface BuildOutputConfig {
   engine?: 'a1111' | 'comfy' | 'flux' | 'kontext' | 'openai'
   // Selected by default when the recipe is chosen.
   defaultOn?: boolean
+  // Restricts which source types may pick this output. Only meaningful for
+  // action: 'CREATE' outputs, where the created record links back to the
+  // source via a real Prisma relation (see linkSourceToTarget in
+  // server/api/model-builder/items/[id]/commit.post.ts and the coverage
+  // check in utils/scripts/verifyModelBuilderLinkCoverage.ts). Omit for
+  // outputs valid across every source type the recipe already allows.
+  sourceTypes?: SourceTypeKey[]
 }
 
 // ---------------------------------------------------------------------------
@@ -300,12 +307,21 @@ export const OUTPUT_CATALOG: BuildOutputConfig[] = [
   { key: 'missing-asset-repair', label: 'Missing-asset repair', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', description: 'Fill only the assets this model is missing.' },
 
   // Relationship Expansion ----------------------------------------------------
-  { key: 'expand-characters', label: 'Characters', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting characters, each an independent build item.' },
-  { key: 'expand-rewards', label: 'Rewards', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting rewards.' },
-  { key: 'expand-scenarios', label: 'Scenarios', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting scenarios.' },
-  { key: 'expand-narrator-bot', label: 'Narrator bot', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', description: 'Optional narrator bot for a dream.' },
-  { key: 'expand-manager-bot', label: 'Manager bot', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', description: 'Optional manager bot for a project.' },
-  { key: 'expand-signature-rewards', label: 'Signature rewards', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Signature rewards for a character.' },
+  // sourceTypes below mirror the real (sourceType, targetType) relation pairs
+  // linkSourceToTarget actually handles in
+  // server/api/model-builder/items/[id]/commit.post.ts (the same pairs t-032's
+  // utils/scripts/verifyModelBuilderLinkCoverage.ts derives from
+  // prisma/schema.prisma and asserts stay in sync with CREATE_TARGETS).
+  // expand-manager-bot / expand-narrator-bot both create a Bot, but link
+  // through different fields (Project.managerBotId vs Dream.narratorId), so
+  // each keeps only the source type its field actually applies to; expand-
+  // rewards / expand-signature-rewards are the same split for Reward.
+  { key: 'expand-characters', label: 'Characters', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting characters, each an independent build item.', sourceTypes: ['Dream', 'Reward', 'Scenario'] },
+  { key: 'expand-rewards', label: 'Rewards', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting rewards.', sourceTypes: ['Dream', 'Character'] },
+  { key: 'expand-scenarios', label: 'Scenarios', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting scenarios.', sourceTypes: ['Dream', 'Character'] },
+  { key: 'expand-narrator-bot', label: 'Narrator bot', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', description: 'Optional narrator bot for a dream.', sourceTypes: ['Dream'] },
+  { key: 'expand-manager-bot', label: 'Manager bot', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', description: 'Optional manager bot for a project.', sourceTypes: ['Project'] },
+  { key: 'expand-signature-rewards', label: 'Signature rewards', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Signature rewards for a character.', sourceTypes: ['Character'] },
 ]
 
 // ---------------------------------------------------------------------------
@@ -328,8 +344,15 @@ export function getRecipesForSource(sourceKey: SourceTypeKey): RecipeConfig[] {
     .filter((recipe): recipe is RecipeConfig => Boolean(recipe))
 }
 
-export function getOutputsForRecipe(recipeKey: RecipeKey): BuildOutputConfig[] {
-  return OUTPUT_CATALOG.filter((output) => output.recipe === recipeKey)
+export function getOutputsForRecipe(
+  recipeKey: RecipeKey,
+  sourceType?: SourceTypeKey | null,
+): BuildOutputConfig[] {
+  return OUTPUT_CATALOG.filter((output) => {
+    if (output.recipe !== recipeKey) return false
+    if (!output.sourceTypes || !sourceType) return true
+    return output.sourceTypes.includes(sourceType)
+  })
 }
 
 export function getOutput(key: string): BuildOutputConfig | undefined {

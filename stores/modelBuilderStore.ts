@@ -412,7 +412,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   )
 
   const recipeOutputs = computed<BuildOutputConfig[]>(() =>
-    state.recipeKey ? getOutputsForRecipe(state.recipeKey) : [],
+    state.recipeKey ? getOutputsForRecipe(state.recipeKey, state.sourceType) : [],
   )
 
   const selectedOutputCount = computed(
@@ -505,7 +505,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function selectRecipe(key: RecipeKey): void {
     state.recipeKey = key
     const selections: Record<string, OutputSelection> = {}
-    for (const output of getOutputsForRecipe(key)) {
+    for (const output of getOutputsForRecipe(key, state.sourceType)) {
       selections[output.key] = {
         on: Boolean(output.defaultOn),
         quantity: output.quantity ? 3 : 1,

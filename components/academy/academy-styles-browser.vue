@@ -370,6 +370,7 @@ const filteredStyles = computed<AcademyStyle[]>(() => {
       (lessonFilter.value === 'new' && !isViewed)
 
     if (!matchesProgress) return false
+    if (style.slug === expandedSlug.value) return true
     if (!query) return true
 
     return [

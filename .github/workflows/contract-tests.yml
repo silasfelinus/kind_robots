@@ -133,6 +133,9 @@ jobs:
       - name: Tutorial channel resolver contract
         run: npm run test:tutorial-channel-resolver
 
+      - name: Model Builder link-coverage contract
+        run: npm run test:model-builder-link-coverage
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -139,6 +139,12 @@ jobs:
       - name: Model Builder link-coverage contract
         run: npm run test:model-builder-link-coverage
 
+      - name: Model Builder completion-gate checker self-test
+        run: npm run test:model-builder-completion-gate-selftest
+
+      - name: Model Builder completion-gate contract
+        run: npm run test:model-builder-completion-gate
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -696,6 +696,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
+  // Same race as finishGenerateAssets, applied to COMMIT: commitItem's POST
+  // can be in flight when an upstream edit reopens an earlier stage, which
+  // marks COMMIT 'stale' via markDownstreamStale. The commit response landing
+  // afterward must not silently overwrite that back to 'approved' — the
+  // record it just wrote reflects the pre-edit fields, so 'stale' (needing
+  // re-review) is the correct outcome, not a false 'approved'.
+  function finishCommit(item: BuildItem, next: StageState): void {
+    if (item.stages.COMMIT.status === 'in-progress') {
+      item.stages.COMMIT = next
+    }
+  }
+
   // Stale-invalidation: editing an upstream stage marks every downstream stage
   // stale (unless still locked). Commit is always downstream of everything.
   function markDownstreamStale(item: BuildItem, fromStage: BuildStageKey): void {
@@ -1199,6 +1211,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
     committingItemSingleton.claim(item.id)
     item.error = null
+    item.stages.COMMIT = { status: 'in-progress' }
     clearStatus()
 
     try {
@@ -1217,10 +1230,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }
 
       const target = response.data?.target ?? null
-      item.stages.COMMIT = {
+      finishCommit(item, {
         status: 'approved',
         note: target ? `Committed → ${target.type} #${target.id}` : 'Committed.',
-      }
+      })
       if (target) {
         item.targetType = target.type
         item.targetId = target.id
@@ -1235,6 +1248,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     } catch (error) {
       handleError(error, 'committing build item')
       item.error = error instanceof Error ? error.message : 'Commit failed.'
+      finishCommit(item, { status: 'ready', note: item.error })
       setStatus('error', item.error)
       return false
     } finally {

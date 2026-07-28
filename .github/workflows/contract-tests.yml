@@ -55,6 +55,9 @@ jobs:
       - name: Database pool defaults contract
         run: npm run test:database-pool-defaults
 
+      - name: Maturity and privacy generation contract
+        run: npx tsx utils/scripts/verifyMaturityPrivacyContract.ts
+
       - name: Dream store fetch merge contract
         run: npx tsx utils/scripts/verifyDreamStoreFetchMerge.ts
 

@@ -1,4 +1,8 @@
 import { defineEventHandler } from 'h3'
+import type {
+  ColoringBookProposal,
+  ColoringBookVariant,
+} from '~/types/coloringBookStudio'
 import { errorHandler } from '@/server/utils/error'
 import { conductorGet } from '@/server/utils/conductor-github'
 import {
@@ -6,6 +10,22 @@ import {
   COLORING_BOOK_CONFIG,
   COLORING_BOOK_QUEUE_PATH,
 } from '@/server/utils/coloringBookStudio'
+
+function selectedAssetPath(
+  proposal: ColoringBookProposal,
+  variant: ColoringBookVariant,
+): string | null {
+  const explicit = proposal.final[variant] || proposal.accepted[variant]
+  if (explicit) return explicit
+  if (variant === 'color' && proposal.queue.renderedPath) {
+    return proposal.queue.renderedPath
+  }
+  return (
+    proposal.inspirations.find((asset) =>
+      asset.kind.toLowerCase().includes(variant),
+    )?.path ?? null
+  )
+}
 
 export default defineEventHandler(async (event) => {
   try {
@@ -38,6 +58,13 @@ export default defineEventHandler(async (event) => {
         sourcePairs.map(({ config, prompt }) => [config.slug, prompt]),
       ),
     })
+
+    for (const book of data.books) {
+      for (const proposal of book.proposals) {
+        proposal.colorPath = selectedAssetPath(proposal, 'color')
+        proposal.bwPath = selectedAssetPath(proposal, 'bw')
+      }
+    }
 
     return {
       success: true,

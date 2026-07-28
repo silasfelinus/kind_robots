@@ -1,5 +1,12 @@
 export type ColoringBookVariant = 'color' | 'bw'
 
+export type ColoringBookStudioOperation =
+  | 'generate-color-proposals'
+  | 'accept-color'
+  | 'generate-bw'
+  | 'accept-bw'
+  | 'finalize-pair'
+
 export type ColoringBookAsset = {
   path: string
   kind: string
@@ -23,6 +30,30 @@ export type ColoringBookQueueState = {
   completedAt: string | null
   renderEngine: string | null
   revisionCount: number
+}
+
+export type ColoringBookProductionState = {
+  bookSlug: string
+  proposalId: string
+  colorStatus: string
+  colorRenderedPath: string | null
+  colorArtImageId: number | null
+  colorApprovedAt: string | null
+  seedLocked: boolean
+  bwStatus: string
+  bwRenderedPath: string | null
+  bwUrl: string | null
+  bwArtImageId: number | null
+  bwSemanticScore: number | null
+  bwSemanticVerdict: string | null
+  bwSemanticReasons: string[]
+  bwRejectedPath: string | null
+  bwCompletedAt: string | null
+  bwRevisionCount: number
+  pairStatus: string | null
+  pairSemanticScore: number | null
+  pairSemanticReasons: string[]
+  pairFinalizedAt: string | null
 }
 
 export type ColoringBookProposal = {
@@ -71,6 +102,11 @@ export type ColoringBookStudioData = {
   sourceRef: string
 }
 
+export type ColoringBookProductionData = {
+  states: Record<string, ColoringBookProductionState>
+  fetchedAt: string
+}
+
 export type ColoringBookPromptUpdate = {
   bookSlug: string
   proposalId: string
@@ -78,6 +114,7 @@ export type ColoringBookPromptUpdate = {
 }
 
 export type ColoringBookRenderRequest = {
+  operation?: ColoringBookStudioOperation
   bookSlug: string
   proposalId: string
   force?: boolean

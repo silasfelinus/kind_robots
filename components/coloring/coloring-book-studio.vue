@@ -1,7 +1,7 @@
 <template>
   <section class="flex flex-col gap-5">
-    <div
-      class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between"
+    <header
+      class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between"
     >
       <div>
         <div class="flex items-center gap-2">
@@ -9,12 +9,11 @@
           <h3 class="text-2xl font-black">Coloring Book Production Studio</h3>
         </div>
         <p class="mt-1 max-w-3xl text-sm text-base-content/60">
-          The three canonical Conductor books, their 36 proposal slots, production
-          prompts, current color masters, black-and-white pairs, queue state, and
-          revision requests in one place.
+          Three canonical books, 108 proposal slots, real Conductor prompts, paired
+          art, queue state, and targeted revision requests. Finally, the front end
+          knows what the backend is talking about.
         </p>
       </div>
-
       <button
         type="button"
         class="btn btn-outline rounded-2xl"
@@ -25,28 +24,20 @@
         <icon v-else name="kind-icon:refresh" class="size-5" />
         Refresh Conductor
       </button>
-    </div>
+    </header>
 
-    <div
-      v-if="studio.error"
-      class="alert alert-error rounded-2xl"
-      role="alert"
-    >
+    <div v-if="studio.error" class="alert alert-error rounded-2xl" role="alert">
       <icon name="kind-icon:alert" class="size-5" />
       <span>{{ studio.error }}</span>
-      <button class="btn btn-ghost btn-sm" type="button" @click="studio.clearNotice()">
+      <button type="button" class="btn btn-ghost btn-sm" @click="studio.clearNotice()">
         Dismiss
       </button>
     </div>
 
-    <div
-      v-if="studio.message"
-      class="alert alert-success rounded-2xl"
-      role="status"
-    >
+    <div v-if="studio.message" class="alert alert-success rounded-2xl" role="status">
       <icon name="kind-icon:check" class="size-5" />
       <span>{{ studio.message }}</span>
-      <button class="btn btn-ghost btn-sm" type="button" @click="studio.clearNotice()">
+      <button type="button" class="btn btn-ghost btn-sm" @click="studio.clearNotice()">
         Dismiss
       </button>
     </div>
@@ -64,7 +55,7 @@
           v-for="book in studio.books"
           :key="book.slug"
           type="button"
-          class="flex flex-col gap-3 rounded-3xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+          class="rounded-3xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md"
           :class="
             studio.selectedBookSlug === book.slug
               ? 'border-primary bg-primary/10 shadow-sm'
@@ -81,30 +72,16 @@
             </div>
             <span class="badge badge-outline rounded-2xl">{{ book.status }}</span>
           </div>
-
           <progress
-            class="progress progress-primary w-full"
+            class="progress progress-primary my-3 w-full"
             :value="book.counts.finalPairs"
             :max="book.targetProposals"
           />
-
           <div class="grid grid-cols-4 gap-2 text-center text-xs">
-            <div class="rounded-2xl bg-base-200 p-2">
-              <strong class="block text-base">{{ book.counts.prompts }}</strong>
-              prompts
-            </div>
-            <div class="rounded-2xl bg-base-200 p-2">
-              <strong class="block text-base">{{ book.counts.rendered }}</strong>
-              rendered
-            </div>
-            <div class="rounded-2xl bg-base-200 p-2">
-              <strong class="block text-base">{{ book.counts.acceptedPairs }}</strong>
-              accepted
-            </div>
-            <div class="rounded-2xl bg-base-200 p-2">
-              <strong class="block text-base">{{ book.counts.finalPairs }}</strong>
-              final
-            </div>
+            <metric-chip label="Prompts" :value="book.counts.prompts" />
+            <metric-chip label="Rendered" :value="book.counts.rendered" />
+            <metric-chip label="Pairs" :value="book.counts.acceptedPairs" />
+            <metric-chip label="Final" :value="book.counts.finalPairs" />
           </div>
         </button>
       </div>
@@ -130,7 +107,7 @@
           :key="book.slug"
           class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
         >
-          <div class="flex items-center justify-between gap-3">
+          <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
                 {{ book.slug }}
@@ -138,14 +115,14 @@
               <h4 class="text-2xl font-black">{{ book.title }}</h4>
             </div>
             <span class="badge badge-primary rounded-2xl">
-              {{ book.counts.total }}/{{ book.targetProposals }} slots
+              {{ book.counts.total }}/{{ book.targetProposals }}
             </span>
           </div>
 
           <dl class="grid grid-cols-2 gap-3 text-sm">
             <div class="rounded-2xl bg-base-200 p-3">
-              <dt class="text-base-content/50">Color queue</dt>
-              <dd class="text-lg font-black">{{ book.counts.pending }} pending</dd>
+              <dt class="text-base-content/50">Pending color</dt>
+              <dd class="text-lg font-black">{{ book.counts.pending }}</dd>
             </div>
             <div class="rounded-2xl bg-base-200 p-3">
               <dt class="text-base-content/50">Needs attention</dt>
@@ -169,7 +146,7 @@
             @click="openBook(book.slug)"
           >
             <icon name="kind-icon:gallery" class="size-5" />
-            Open 36-page ledger
+            Open page ledger
           </button>
         </article>
       </div>
@@ -181,7 +158,7 @@
           <div>
             <h4 class="text-xl font-black">{{ studio.selectedBook?.title }}</h4>
             <p class="text-sm text-base-content/50">
-              Every proposal slot, with its strongest current color and line-art version.
+              Side-by-side production candidates for every proposal slot.
             </p>
           </div>
           <select
@@ -211,34 +188,20 @@
             @click="openProposal(proposal.id)"
           >
             <div class="grid aspect-[4/3] grid-cols-2 bg-base-200">
-              <div class="relative border-r border-base-300">
-                <img
-                  v-if="proposal.colorUrl"
-                  :src="proposal.colorUrl"
-                  :alt="`${proposal.title} color candidate`"
-                  class="size-full object-cover"
-                  loading="lazy"
-                />
-                <div v-else class="flex size-full items-center justify-center text-base-content/30">
-                  <icon name="kind-icon:palette" class="size-10" />
-                </div>
-                <span class="badge badge-sm absolute bottom-2 left-2 rounded-2xl">Color</span>
-              </div>
-              <div class="relative">
-                <img
-                  v-if="proposal.bwUrl"
-                  :src="proposal.bwUrl"
-                  :alt="`${proposal.title} black-and-white page`"
-                  class="size-full object-cover grayscale"
-                  loading="lazy"
-                />
-                <div v-else class="flex size-full items-center justify-center text-base-content/30">
-                  <icon name="kind-icon:pencil" class="size-10" />
-                </div>
-                <span class="badge badge-sm absolute bottom-2 left-2 rounded-2xl">B&amp;W</span>
-              </div>
+              <preview-cell
+                label="Color"
+                :url="proposal.colorUrl"
+                :alt="`${proposal.title} color candidate`"
+                icon="kind-icon:palette"
+              />
+              <preview-cell
+                label="B&W"
+                :url="proposal.bwUrl"
+                :alt="`${proposal.title} black-and-white page`"
+                icon="kind-icon:pencil"
+                grayscale
+              />
             </div>
-
             <div class="flex flex-col gap-2 p-4">
               <div class="flex items-start justify-between gap-3">
                 <div>
@@ -263,7 +226,7 @@
         v-if="activeMode === 'editor' && studio.selectedProposal"
         class="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]"
       >
-        <div class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5">
+        <article class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p class="text-xs font-black uppercase tracking-widest text-base-content/40">
@@ -272,69 +235,46 @@
               </p>
               <h4 class="text-2xl font-black">{{ studio.selectedProposal.title }}</h4>
             </div>
-            <span
-              class="badge rounded-2xl"
-              :class="statusBadge(studio.selectedProposal.queue.status)"
-            >
+            <span class="badge rounded-2xl" :class="statusBadge(studio.selectedProposal.queue.status)">
               {{ studio.selectedProposal.queue.status }}
             </span>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <figure class="overflow-hidden rounded-3xl border border-base-300 bg-base-200">
-              <div class="aspect-[2/3]">
-                <img
-                  v-if="studio.selectedProposal.colorUrl"
-                  :src="studio.selectedProposal.colorUrl"
-                  :alt="`${studio.selectedProposal.title} current color version`"
-                  class="size-full object-contain"
-                />
-                <div class="flex size-full flex-col items-center justify-center gap-2 text-base-content/35">
-                  <icon name="kind-icon:palette" class="size-14" />
-                  <span>No color candidate</span>
-                </div>
-              </div>
-              <figcaption class="border-t border-base-300 p-3 text-center font-black">
-                Current color master
-              </figcaption>
-            </figure>
-
-            <figure class="overflow-hidden rounded-3xl border border-base-300 bg-base-200">
-              <div class="aspect-[2/3]">
-                <img
-                  v-if="studio.selectedProposal.bwUrl"
-                  :src="studio.selectedProposal.bwUrl"
-                  :alt="`${studio.selectedProposal.title} current black-and-white version`"
-                  class="size-full object-contain grayscale"
-                />
-                <div class="flex size-full flex-col items-center justify-center gap-2 text-base-content/35">
-                  <icon name="kind-icon:pencil" class="size-14" />
-                  <span>No line-art pair</span>
-                </div>
-              </div>
-              <figcaption class="border-t border-base-300 p-3 text-center font-black">
-                Current black &amp; white
-              </figcaption>
-            </figure>
+            <preview-figure
+              title="Current color master"
+              :url="studio.selectedProposal.colorUrl"
+              :alt="`${studio.selectedProposal.title} current color version`"
+              icon="kind-icon:palette"
+              empty-text="No color candidate"
+            />
+            <preview-figure
+              title="Current black & white"
+              :url="studio.selectedProposal.bwUrl"
+              :alt="`${studio.selectedProposal.title} current black-and-white version`"
+              icon="kind-icon:pencil"
+              empty-text="No line-art pair"
+              grayscale
+            />
           </div>
 
           <div class="grid gap-3 sm:grid-cols-3">
-            <div class="rounded-2xl bg-base-200 p-3 text-sm">
-              <span class="block text-xs text-base-content/45">Semantic score</span>
-              <strong>{{ studio.selectedProposal.queue.semanticScore ?? '—' }}</strong>
-            </div>
-            <div class="rounded-2xl bg-base-200 p-3 text-sm">
-              <span class="block text-xs text-base-content/45">Render engine</span>
-              <strong>{{ studio.selectedProposal.queue.renderEngine ?? '—' }}</strong>
-            </div>
-            <div class="rounded-2xl bg-base-200 p-3 text-sm">
-              <span class="block text-xs text-base-content/45">Archived revisions</span>
-              <strong>{{ studio.selectedProposal.queue.revisionCount }}</strong>
-            </div>
+            <metric-card
+              label="Semantic score"
+              :value="studio.selectedProposal.queue.semanticScore ?? '—'"
+            />
+            <metric-card
+              label="Render engine"
+              :value="studio.selectedProposal.queue.renderEngine ?? '—'"
+            />
+            <metric-card
+              label="Archived revisions"
+              :value="studio.selectedProposal.queue.revisionCount"
+            />
           </div>
-        </div>
+        </article>
 
-        <div class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5">
+        <aside class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5">
           <div>
             <h4 class="text-xl font-black">Canonical production prompt</h4>
             <p class="mt-1 break-all text-xs text-base-content/45">
@@ -400,26 +340,25 @@
           </div>
 
           <div class="rounded-2xl border border-info/30 bg-info/10 p-3 text-xs leading-relaxed">
-            Black-and-white generation intentionally waits for an accepted color composition.
-            The studio shows existing pairs now; a proposal-targeted B&amp;W conversion action belongs
-            in the next pipeline slice rather than faking it with unrelated generic generation.
+            Black-and-white generation remains color-first. Existing pairs are visible now;
+            targeted B&amp;W conversion follows after a color composition is accepted.
           </div>
-        </div>
+        </aside>
       </div>
 
       <div v-if="activeMode === 'queue'" class="flex flex-col gap-4">
-        <div class="rounded-3xl border border-base-300 bg-base-100 p-5">
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h4 class="text-xl font-black">Queue &amp; review problems</h4>
-              <p class="text-sm text-base-content/50">
-                Semantic gate failures and proposals that exhausted automatic retries.
-              </p>
-            </div>
-            <span class="badge badge-warning rounded-2xl">
-              {{ studio.queueProblems.length }} need attention
-            </span>
+        <div
+          class="flex flex-col gap-2 rounded-3xl border border-base-300 bg-base-100 p-5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h4 class="text-xl font-black">Queue &amp; review problems</h4>
+            <p class="text-sm text-base-content/50">
+              Semantic gate failures and proposals that exhausted automatic retries.
+            </p>
           </div>
+          <span class="badge badge-warning rounded-2xl">
+            {{ studio.queueProblems.length }} need attention
+          </span>
         </div>
 
         <div
@@ -461,8 +400,7 @@
         <div class="mb-4">
           <h4 class="text-xl font-black">End-user coloring preview</h4>
           <p class="text-sm text-base-content/50">
-            The existing coloring engine remains available here, but it is no longer pretending
-            to be the production manager.
+            The existing coloring engine lives here without pretending to be the production manager.
           </p>
         </div>
         <coloring-book-manager />
@@ -472,12 +410,85 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, defineComponent, h, onMounted, ref, watch } from 'vue'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
 import { useUserStore } from '@/stores/userStore'
 
 type StudioMode = 'books' | 'pages' | 'editor' | 'queue' | 'color'
 type PageFilter = 'all' | 'pending' | 'rendered' | 'review' | 'paired'
+
+const MetricChip = defineComponent({
+  props: { label: { type: String, required: true }, value: { type: [String, Number], required: true } },
+  setup: (props) => () =>
+    h('div', { class: 'rounded-2xl bg-base-200 p-2' }, [
+      h('strong', { class: 'block text-base' }, String(props.value)),
+      props.label,
+    ]),
+})
+
+const MetricCard = defineComponent({
+  props: { label: { type: String, required: true }, value: { type: [String, Number], required: true } },
+  setup: (props) => () =>
+    h('div', { class: 'rounded-2xl bg-base-200 p-3 text-sm' }, [
+      h('span', { class: 'block text-xs text-base-content/45' }, props.label),
+      h('strong', String(props.value)),
+    ]),
+})
+
+const PreviewCell = defineComponent({
+  props: {
+    label: { type: String, required: true },
+    url: { type: String, default: '' },
+    alt: { type: String, required: true },
+    icon: { type: String, required: true },
+    grayscale: { type: Boolean, default: false },
+  },
+  setup: (props) => () =>
+    h('div', { class: 'relative overflow-hidden border-r border-base-300 last:border-r-0' }, [
+      props.url
+        ? h('img', {
+            src: props.url,
+            alt: props.alt,
+            loading: 'lazy',
+            class: ['size-full object-cover', props.grayscale ? 'grayscale' : ''],
+          })
+        : h('div', { class: 'flex size-full items-center justify-center text-base-content/30' }, [
+            h(resolveIcon(), { name: props.icon, class: 'size-10' }),
+          ]),
+      h('span', { class: 'badge badge-sm absolute bottom-2 left-2 rounded-2xl' }, props.label),
+    ]),
+})
+
+const PreviewFigure = defineComponent({
+  props: {
+    title: { type: String, required: true },
+    url: { type: String, default: '' },
+    alt: { type: String, required: true },
+    icon: { type: String, required: true },
+    emptyText: { type: String, required: true },
+    grayscale: { type: Boolean, default: false },
+  },
+  setup: (props) => () =>
+    h('figure', { class: 'overflow-hidden rounded-3xl border border-base-300 bg-base-200' }, [
+      h('div', { class: 'aspect-[2/3]' }, [
+        props.url
+          ? h('img', {
+              src: props.url,
+              alt: props.alt,
+              class: ['size-full object-contain', props.grayscale ? 'grayscale' : ''],
+            })
+          : h('div', { class: 'flex size-full flex-col items-center justify-center gap-2 text-base-content/35' }, [
+              h(resolveIcon(), { name: props.icon, class: 'size-14' }),
+              h('span', props.emptyText),
+            ]),
+      ]),
+      h('figcaption', { class: 'border-t border-base-300 p-3 text-center font-black' }, props.title),
+    ]),
+})
+
+function resolveIcon() {
+  return resolveComponent('icon')
+}
 
 const studio = useColoringBookStudioStore()
 const userStore = useUserStore()
@@ -496,17 +507,11 @@ const modes: { key: StudioMode; label: string; icon: string }[] = [
 
 const filteredProposals = computed(() => {
   const proposals = studio.selectedBook?.proposals ?? []
-  if (pageFilter.value === 'pending') {
-    return proposals.filter((proposal) => proposal.queue.status === 'pending')
-  }
-  if (pageFilter.value === 'rendered') {
-    return proposals.filter((proposal) => Boolean(proposal.colorUrl))
-  }
+  if (pageFilter.value === 'pending') return proposals.filter((proposal) => proposal.queue.status === 'pending')
+  if (pageFilter.value === 'rendered') return proposals.filter((proposal) => Boolean(proposal.colorUrl))
   if (pageFilter.value === 'review') {
     return proposals.filter(
-      (proposal) =>
-        proposal.queue.status === 'needs_review' ||
-        Boolean(proposal.queue.semanticGateError),
+      (proposal) => proposal.queue.status === 'needs_review' || Boolean(proposal.queue.semanticGateError),
     )
   }
   if (pageFilter.value === 'paired') {
@@ -525,8 +530,7 @@ const promptDirty = computed(
 
 const requestNeedsForce = computed(() => {
   const proposal = studio.selectedProposal
-  if (!proposal) return false
-  return proposal.queue.status !== 'pending' || Boolean(proposal.colorUrl)
+  return Boolean(proposal && (proposal.queue.status !== 'pending' || proposal.colorUrl))
 })
 
 watch(

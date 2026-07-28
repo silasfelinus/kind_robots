@@ -17,6 +17,7 @@ import {
   applyArtJobOverrides,
   type ArtJobOverrides,
 } from '../../../../utils/artJobRetry'
+import { applyArtJobVisibility } from '../../../../utils/artJobVisibility'
 import {
   applyArtFacetsToPayload,
   readArtFacetIds,
@@ -29,10 +30,15 @@ import {
   resolvePresetEngine,
 } from '../../../comfy/utils/engineWorkflow'
 
+type VisibilityOverrides = ArtJobOverrides & {
+  isMature?: boolean | null
+  isPublic?: boolean | null
+}
+
 type EditBody = {
   refreshSeed?: boolean
   preset?: string | null
-  overrides?: ArtJobOverrides | null
+  overrides?: VisibilityOverrides | null
 }
 
 function randomSeed(): number {
@@ -129,6 +135,7 @@ export default defineEventHandler(async (event) => {
     delete renderOverrides.facetIds
     delete renderOverrides.basePromptString
     const updatedPayload = applyArtJobOverrides(payload, renderOverrides)
+    applyArtJobVisibility(updatedPayload, body?.overrides)
     applyArtFacetsToPayload(updatedPayload, basePrompt, facets)
     updatedPayload.queueEdit = {
       editedAt: new Date().toISOString(),

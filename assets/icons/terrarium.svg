@@ -1,0 +1,9 @@
+<!-- /assets/icons/terrarium.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="8" y="4" width="8" height="2" rx="1" />
+  <path d="M10 6v2.5M14 6v2.5" />
+  <path d="M8.5 8.5c-1.6 1.6-2.5 3.6-2.5 5.8 0 3.7 2.7 6.7 6 6.7s6-3 6-6.7c0-2.2-.9-4.2-2.5-5.8z" />
+  <path d="M12 19v-6" />
+  <path d="M12 15c0-1.4 1.1-2.5 2.5-2.5" />
+  <path d="M12 17c0-1.1-.9-2-2-2" />
+</svg>

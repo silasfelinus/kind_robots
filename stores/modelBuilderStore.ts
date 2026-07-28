@@ -1137,14 +1137,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function previewCommit(itemId: string): CommitPreview | null {
     const item = findItem(itemId)
     if (!item || !state.run) return null
+    const targetType =
+      item.action === 'ASSET_ONLY'
+        ? 'ArtImage'
+        : resolveTargetModel(item.action, item.outputKey, state.run.sourceType)
     return {
       itemId: item.id,
       action: item.action,
-      targetType: item.action === 'ASSET_ONLY' ? 'ArtImage' : state.run.sourceType,
+      targetType,
       summary:
         item.action === 'ASSET_ONLY'
           ? `Promote generated asset for ${item.label} to ${state.run.sourceLabel}.`
-          : `${item.action} ${state.run.sourceType} from ${item.label}.`,
+          : `${item.action} ${targetType} from ${item.label}.`,
       fields: item.fieldsDraft,
       artImageId: item.artImageId,
     }

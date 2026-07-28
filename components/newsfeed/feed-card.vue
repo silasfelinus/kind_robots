@@ -19,12 +19,13 @@
         loading="lazy"
         @error="imageFailed = true"
       />
-      <div
+      <img
         v-else
-        class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/20 via-secondary/10 to-accent/20 text-primary"
-      >
-        <Icon name="kind-icon:news" class="h-10 w-10 opacity-70" />
-      </div>
+        :src="fallbackImageSrc"
+        :alt="item.title"
+        class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
+        loading="lazy"
+      />
 
       <span
         v-if="primaryCategory"
@@ -110,6 +111,20 @@ const imageFailed = ref(false)
 
 const imageSrc = computed(() => props.item.image || '')
 const primaryCategory = computed(() => props.item.category?.[0] || '')
+
+// A repeating flat icon on every image-less card reads as "a sea of empty
+// boxes" (Silas, 2026-07-25) -- pick one of 8 default illustrations per item
+// instead, deterministic on item.id so a given item's card doesn't flicker
+// between defaults across re-renders.
+const DEFAULT_IMAGE_COUNT = 8
+const fallbackImageSrc = computed(() => {
+  let hash = 0
+  for (let i = 0; i < props.item.id.length; i++) {
+    hash = (hash * 31 + props.item.id.charCodeAt(i)) | 0
+  }
+  const index = (Math.abs(hash) % DEFAULT_IMAGE_COUNT) + 1
+  return `/images/newsfeed/defaults/default-${String(index).padStart(2, '0')}.webp`
+})
 
 // "show or hide perspective labels" (BIAS-CONTROLS.md) -- never shown when
 // no source-level rating exists ("unrated sources remain usable and

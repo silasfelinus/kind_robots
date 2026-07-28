@@ -15,4 +15,4 @@ loadingMessage: Threading the loom...
 refreshLabel: Refresh Storymaker
 ---
 
-:storymaker-page
+:storymaker-library-page

@@ -18,7 +18,7 @@ jobs:
         with:
           ref: codex/narrative-scene-art-persistence
           fetch-depth: 0
-      - name: Move narrative dedupe before mana gate
+      - name: Apply pre-gate idempotency migration
         run: python utils/scripts/moveNarrativeArtDedupeBeforeMana.py
       - name: Remove one-time migration machinery
         run: |

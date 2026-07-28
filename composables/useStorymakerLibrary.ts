@@ -3,10 +3,15 @@ import { computed, ref, watch } from 'vue'
 import {
   useStorymakerStore,
   type StorymakerBible,
-  type StorymakerExport,
   type StorymakerSession,
 } from '@/stores/storymakerStore'
 import { useUserStore } from '@/stores/userStore'
+
+export type StorymakerLibraryExport = {
+  filename: string
+  mimeType: 'text/markdown' | 'application/json'
+  content: string
+}
 
 const LIBRARY_STORAGE_KEY = 'storymaker-session-library-v1'
 const MAX_LIBRARY_SESSIONS = 20
@@ -210,7 +215,7 @@ export function useStorymakerLibrary() {
   function buildExport(
     sessionId = storyStore.session?.id,
     format: 'markdown' | 'json' = 'markdown',
-  ): StorymakerExport | null {
+  ): StorymakerLibraryExport | null {
     if (!sessionId) return null
     const source =
       storyStore.session?.id === sessionId
@@ -250,7 +255,9 @@ export function useStorymakerLibrary() {
       if (beat.art?.status === 'done' && beat.art.imagePath) {
         lines.push(`![Scene ${index + 1} illustration](${beat.art.imagePath})`, '')
       }
-      if (beat.answer?.text) lines.push(`**Reader choice:** ${beat.answer.text}`, '')
+      if (beat.answer?.text) {
+        lines.push(`**Reader choice:** ${beat.answer.text}`, '')
+      }
     })
 
     lines.push(

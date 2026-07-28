@@ -144,6 +144,12 @@
       :engine="engine"
     />
 
+    <content-visibility-controls
+      v-model:is-mature="isMature"
+      v-model:is-public="isPublic"
+      :disabled="videoStore.isBusy"
+    />
+
     <!-- Controls -->
     <section class="grid gap-4 sm:grid-cols-3">
       <div class="space-y-1">
@@ -319,6 +325,8 @@ const prompt = ref(WINK_PRESET)
 const negativePrompt = ref('')
 const loraResourceId = ref<number | null>(null)
 const loraStrength = ref(1)
+const isMature = ref(false)
+const isPublic = ref(true)
 const durationSeconds = ref(4)
 const fps = ref(24)
 const loop = ref(true)
@@ -404,6 +412,8 @@ async function generate() {
     seed,
     loraResourceIds: loraResourceId.value ? [loraResourceId.value] : undefined,
     loraStrength: loraResourceId.value ? loraStrength.value : undefined,
+    isMature: isMature.value,
+    isPublic: isPublic.value,
   })
 }
 </script>

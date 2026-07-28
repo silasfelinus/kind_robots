@@ -423,13 +423,32 @@ type MediaEntryStatsResponse = {
   data: MediaEntryStats
 }
 
-const MEDIA_TYPE_CHIPS: { value: MediaType; label: string }[] = [
-  { value: 'MOVIE', label: 'Movies' },
-  { value: 'TV', label: 'TV' },
-  { value: 'BOOK', label: 'Books' },
-  { value: 'COMIC', label: 'Comics' },
-  { value: 'AUDIOBOOK', label: 'Audiobooks' },
-  { value: 'VIDEO_GAME', label: 'Games' },
+// media-watchlist/t-016: every chip's `group` is the full set of MediaType
+// values it filters for, so all 12 enum values are reachable from the Browse
+// filters -- not just the 6 that get their own chip. Grouping mirrors the
+// icon-sibling judgment calls in MEDIA_TYPE_ICON below (NOVELLA -> Books,
+// ANIME -> TV, PODCAST -> Audiobooks, SHORT -> Movies, VIDEO_GAME_SHORT ->
+// Games); THEATRE gets its own chip since it has no icon sibling.
+const MEDIA_TYPE_CHIPS: {
+  value: MediaType
+  label: string
+  group: MediaType[]
+}[] = [
+  { value: 'MOVIE', label: 'Movies', group: ['MOVIE', 'SHORT'] },
+  { value: 'TV', label: 'TV', group: ['TV', 'ANIME'] },
+  { value: 'BOOK', label: 'Books', group: ['BOOK', 'NOVELLA'] },
+  { value: 'COMIC', label: 'Comics', group: ['COMIC'] },
+  {
+    value: 'AUDIOBOOK',
+    label: 'Audiobooks',
+    group: ['AUDIOBOOK', 'PODCAST'],
+  },
+  {
+    value: 'VIDEO_GAME',
+    label: 'Games',
+    group: ['VIDEO_GAME', 'VIDEO_GAME_SHORT'],
+  },
+  { value: 'THEATRE', label: 'Theatre', group: ['THEATRE'] },
 ]
 
 // Recent-entries grouping (media-watchlist/t-015, BROWSE-UX.md §1). Covers
@@ -550,6 +569,22 @@ function toggleType(type: MediaType) {
   activeTypes.value = next
 }
 
+// media-watchlist/t-016: activeTypes stores chip values (e.g. 'TV'), but each
+// chip's group can cover more than one MediaType (e.g. TV + ANIME) -- expand
+// before sending to the API so a folded-in sibling type is actually matched.
+const CHIP_GROUP_BY_VALUE = new Map(
+  MEDIA_TYPE_CHIPS.map((chip) => [chip.value, chip.group]),
+)
+function expandActiveTypes(active: Set<MediaType>): MediaType[] {
+  const expanded = new Set<MediaType>()
+  for (const value of active) {
+    for (const type of CHIP_GROUP_BY_VALUE.get(value) ?? [value]) {
+      expanded.add(type)
+    }
+  }
+  return Array.from(expanded)
+}
+
 function toggleMonth(month: number) {
   const next = new Set(activeMonths.value)
   if (next.has(month)) next.delete(month)
@@ -604,7 +639,7 @@ async function loadEntries(): Promise<void> {
           search: search.value || undefined,
           year: activeYear.value || undefined,
           mediaType: activeTypes.value.size
-            ? Array.from(activeTypes.value).join(',')
+            ? expandActiveTypes(activeTypes.value).join(',')
             : undefined,
           starred: starredOnly.value ? 'true' : undefined,
           month: activeMonths.value.size
@@ -668,7 +703,7 @@ function exportCsv() {
   if (search.value) params.set('search', search.value)
   if (activeYear.value) params.set('year', String(activeYear.value))
   if (activeTypes.value.size) {
-    params.set('mediaType', Array.from(activeTypes.value).join(','))
+    params.set('mediaType', expandActiveTypes(activeTypes.value).join(','))
   }
   if (starredOnly.value) params.set('starred', 'true')
   if (activeMonths.value.size) {

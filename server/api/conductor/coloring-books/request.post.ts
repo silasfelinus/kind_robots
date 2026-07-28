@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import { createError, defineEventHandler, readBody } from 'h3'
-import type { ColoringBookRenderRequest } from '~/types/coloringBookStudio'
+import type {
+  ColoringBookRenderRequest,
+  ColoringBookStudioOperation,
+} from '~/types/coloringBookStudio'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import {
@@ -12,14 +15,39 @@ import {
   proposalBelongsToBook,
 } from '@/server/utils/coloringBookStudio'
 
+const OPERATIONS = new Set<ColoringBookStudioOperation>([
+  'generate-color-proposals',
+  'accept-color',
+  'generate-bw',
+  'accept-bw',
+  'finalize-pair',
+])
+
+const OPERATION_LABELS: Record<ColoringBookStudioOperation, string> = {
+  'generate-color-proposals': 'color candidate',
+  'accept-color': 'color acceptance',
+  'generate-bw': 'B&W counterpart',
+  'accept-bw': 'B&W acceptance',
+  'finalize-pair': 'pair finalization',
+}
+
 function compact(value: string): string {
   return value.replace(/\r/g, '').replace(/\s+/g, ' ').trim()
+}
+
+function normalizeOperation(value: unknown): ColoringBookStudioOperation {
+  const operation = compact(String(value || 'generate-color-proposals')).toLowerCase()
+  if (!OPERATIONS.has(operation as ColoringBookStudioOperation)) {
+    throw createError({ statusCode: 400, message: 'Invalid coloring-book operation.' })
+  }
+  return operation as ColoringBookStudioOperation
 }
 
 export default defineEventHandler(async (event) => {
   try {
     await requireAdminApiUser(event)
     const body = (await readBody(event)) as Partial<ColoringBookRenderRequest> | null
+    const operation = normalizeOperation(body?.operation)
     const bookSlug = compact(String(body?.bookSlug || '')).toLowerCase()
     const proposalId = compact(String(body?.proposalId || '')).toLowerCase()
     const force = body?.force === true
@@ -27,6 +55,12 @@ export default defineEventHandler(async (event) => {
 
     if (!coloringBookConfig(bookSlug) || !proposalBelongsToBook(bookSlug, proposalId)) {
       throw createError({ statusCode: 400, message: 'Invalid book or proposal id.' })
+    }
+    if (force && operation !== 'generate-color-proposals' && operation !== 'generate-bw') {
+      throw createError({
+        statusCode: 400,
+        message: 'Forced revisions are supported only for color and B&W generation.',
+      })
     }
 
     const eventFiles = (await conductorList('color-art-events')) ?? []
@@ -36,17 +70,21 @@ export default defineEventHandler(async (event) => {
     if (alreadyQueued) {
       throw createError({
         statusCode: 409,
-        message: `${proposalId} already has a queued Coloring Book Studio request.`,
+        message: `${proposalId} already has a queued Coloring Book Studio action.`,
       })
     }
 
     const requestedAt = new Date()
     const stamp = requestedAt.toISOString().replace(/[-:.]/g, '').replace('Z', 'Z')
     const suffix = randomUUID().slice(0, 8)
-    const path = `color-art-events/${stamp}-${proposalId}-${suffix}.yaml`
+    const path = `color-art-events/${stamp}-${proposalId}-${operation}-${suffix}.yaml`
+    const label = OPERATION_LABELS[operation]
+    const defaultNote = force
+      ? `${proposalId} ${label} revision requested from the production studio.`
+      : `${proposalId} ${label} requested from the production studio.`
     const content = [
       'version: 1',
-      'operation: generate-color-proposals',
+      `operation: ${operation}`,
       `book: ${bookSlug}`,
       'proposal_ids:',
       `  - ${proposalId}`,
@@ -54,20 +92,20 @@ export default defineEventHandler(async (event) => {
       `force: ${force ? 'true' : 'false'}`,
       'requested_by: kind-robots-coloring-studio',
       'task: coloring-book/t-028',
-      `note: ${JSON.stringify(note || `${force ? 'Revision' : 'Color candidate'} requested from the production studio.`)}`,
+      `note: ${JSON.stringify(note || defaultNote)}`,
       '',
     ].join('\n')
 
     await conductorPut(
       path,
       content,
-      `coloring-book: request ${proposalId} ${force ? 'revision' : 'color candidate'}`,
+      `coloring-book: request ${proposalId} ${label}${force ? ' revision' : ''}`,
     )
 
     return {
       success: true,
-      message: `${proposalId} ${force ? 'revision' : 'color candidate'} queued in Conductor.`,
-      data: { bookSlug, proposalId, force, eventPath: path },
+      message: `${proposalId} ${label}${force ? ' revision' : ''} queued in Conductor.`,
+      data: { operation, bookSlug, proposalId, force, eventPath: path },
       statusCode: 201,
     }
   } catch (error: unknown) {
@@ -76,7 +114,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = statusCode
     return {
       success: false,
-      message: handled.message || 'Failed to request a coloring-book render.',
+      message: handled.message || 'Failed to request a coloring-book action.',
       statusCode,
     }
   }

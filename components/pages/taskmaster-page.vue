@@ -20,11 +20,15 @@
           Turn the next real thing into an adventure
         </h2>
         <p class="mt-1 text-sm leading-relaxed text-base-content/70">
-          Choose the kind of story you want to inhabit. Taskmaster handles the
-          narration and art direction while keeping the actual work visible.
+          Name the real objective, choose the kind of story you want to inhabit,
+          and make one honest move at a time. Taskmaster handles narration and
+          art direction automatically.
         </p>
       </div>
-      <div v-if="store.session" class="flex shrink-0 flex-wrap justify-end gap-2">
+      <div
+        v-if="store.session"
+        class="flex shrink-0 flex-wrap justify-end gap-2"
+      >
         <button
           v-if="store.canClose"
           type="button"
@@ -46,17 +50,59 @@
 
     <div
       v-if="!store.session"
-      class="space-y-4 rounded-2xl border border-secondary/20 bg-secondary/5 p-4"
+      class="space-y-5 rounded-2xl border border-secondary/20 bg-secondary/5 p-4"
     >
       <div>
         <h3 class="text-xs font-bold uppercase tracking-wide text-secondary/70">
           Build the quest
         </h3>
         <p class="mt-1 text-xs leading-relaxed text-base-content/55">
-          These choices direct the story automatically. There are no model,
-          sampler, step-count, or other image-generator controls here.
+          Story choices direct the art automatically. Model, sampler, step-count,
+          and other generator controls stay out of the way.
         </p>
       </div>
+
+      <label class="form-control w-full">
+        <div class="label py-1">
+          <span class="label-text text-xs font-bold uppercase tracking-wide">
+            What do you need to accomplish?
+          </span>
+        </div>
+        <textarea
+          v-model="taskInput"
+          rows="2"
+          class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
+          placeholder="Clean the garage, finish the proposal, decide which feature ships next…"
+          :disabled="store.isWeaving"
+        />
+        <div class="label py-1">
+          <span class="label-text-alt text-base-content/45">
+            You can enter a task directly, link a project below, or use both.
+          </span>
+        </div>
+      </label>
+
+      <label class="form-control w-full max-w-xl">
+        <div class="label py-1">
+          <span class="label-text text-xs font-bold uppercase tracking-wide">
+            Project or task source (optional)
+          </span>
+        </div>
+        <select
+          v-model="selectedProjectSlug"
+          class="select select-bordered w-full rounded-xl"
+          :disabled="store.isWeaving"
+        >
+          <option value="">No linked project</option>
+          <option
+            v-for="project in projectStore.activeProjects"
+            :key="project.slug ?? project.id"
+            :value="project.slug"
+          >
+            {{ project.title || project.slug }}
+          </option>
+        </select>
+      </label>
 
       <div class="space-y-2">
         <p class="text-xs font-bold uppercase tracking-wide text-base-content/50">
@@ -164,28 +210,6 @@
         </div>
       </div>
 
-      <label class="form-control w-full max-w-xl">
-        <div class="label py-1">
-          <span class="label-text text-xs font-bold uppercase tracking-wide">
-            Project or task source
-          </span>
-        </div>
-        <select
-          v-model="selectedProjectSlug"
-          class="select select-bordered w-full rounded-xl"
-          :disabled="store.isWeaving"
-        >
-          <option value="">A personal quest with no linked project</option>
-          <option
-            v-for="project in projectStore.activeProjects"
-            :key="project.slug ?? project.id"
-            :value="project.slug"
-          >
-            {{ project.title || project.slug }}
-          </option>
-        </select>
-      </label>
-
       <label class="form-control w-full">
         <div class="label py-1">
           <span class="label-text text-xs font-bold uppercase tracking-wide">
@@ -209,7 +233,7 @@
         <button
           type="button"
           class="btn btn-secondary rounded-xl"
-          :disabled="store.isWeaving"
+          :disabled="store.isWeaving || !canBegin"
           @click="begin(false)"
         >
           <span
@@ -223,15 +247,30 @@
         <button
           type="button"
           class="btn btn-ghost rounded-xl border border-base-300"
-          :disabled="store.isWeaving"
+          :disabled="store.isWeaving || !canBegin"
           @click="begin(true)"
         >
           <Icon name="kind-icon:wand" class="size-4" /> Surprise me
         </button>
+        <p v-if="!canBegin" class="text-xs text-base-content/50">
+          Enter an objective or choose a linked project to begin.
+        </p>
       </div>
     </div>
 
     <div v-else class="flex min-h-0 flex-1 flex-col gap-3">
+      <div
+        v-if="store.session.seed.taskTitle"
+        class="rounded-2xl border border-info/30 bg-info/5 p-3"
+      >
+        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-info/80">
+          Real objective
+        </p>
+        <p class="mt-1 text-sm font-semibold">
+          {{ store.session.seed.taskTitle }}
+        </p>
+      </div>
+
       <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
         <article
           v-for="beat in store.session.beats"
@@ -272,14 +311,14 @@
           />
           <div class="min-w-0 flex-1 text-xs leading-relaxed">
             <p class="font-bold text-info">
-              Real objective:
+              This scene connects to:
               <span class="font-normal text-base-content/80">
                 {{ store.currentHookContext.title }}
               </span>
             </p>
             <p class="mt-0.5 text-base-content/50">
-              Your answer is held for review. Taskmaster never marks work done or
-              approves a decision automatically.
+              Taskmaster never marks work done or approves a decision merely
+              because you answered the story.
             </p>
           </div>
         </div>
@@ -410,6 +449,7 @@ const dreamStore = useDreamStore()
 const facetStore = useFacetStore()
 const projectStore = useProjectStore()
 
+const taskInput = ref('')
 const selectedTone = ref<TaskmasterTone>('adventurous')
 const selectedLocationSlug = ref<string | null>(null)
 const selectedGrammarSlug = ref<string | null>(null)
@@ -417,11 +457,16 @@ const selectedProjectSlug = ref('')
 const vibeInput = ref('')
 const answerInput = ref('')
 
+const canBegin = computed(
+  () => Boolean(taskInput.value.trim() || selectedProjectSlug.value),
+)
+
 const locationDreams = computed(() =>
   dreamStore.dreams.filter(
     (dream) => dream.dreamType === 'LOCATION' && dream.isActive && dream.slug,
   ),
 )
+
 const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])
 const genreFacets = computed(() =>
   facetStore.activeFacets.filter(
@@ -432,6 +477,7 @@ const genreFacets = computed(() =>
 const sessionRecap = computed(() => {
   const active = store.session
   if (!active || active.status !== 'complete') return []
+
   const answered = active.beats.filter((beat) => beat.answer?.text)
   const realThreadCount = answered.filter(
     (beat) => beat.question.realWorldKind !== 'preference',
@@ -439,15 +485,21 @@ const sessionRecap = computed(() => {
   const items: { label: string; value: string }[] = [
     { label: 'Tone', value: active.seed.tone },
   ]
-  if (active.location) items.push({ label: 'Setting', value: active.location.title })
+
+  if (active.seed.taskTitle) {
+    items.unshift({ label: 'Objective', value: active.seed.taskTitle })
+  }
+  if (active.location) {
+    items.push({ label: 'Setting', value: active.location.title })
+  }
   if (active.genre) items.push({ label: 'Genre', value: active.genre.title })
   if (active.seed.vibeTags.length) {
     items.push({ label: 'Flavor', value: active.seed.vibeTags.join(', ') })
   }
   if (realThreadCount) {
     items.push({
-      label: 'Real objectives',
-      value: `${realThreadCount} answer${realThreadCount === 1 ? '' : 's'} held for review`,
+      label: 'Real threads',
+      value: `${realThreadCount} answer${realThreadCount === 1 ? '' : 's'} captured`,
     })
   }
   return items
@@ -483,6 +535,8 @@ function parseVibes(): string[] {
 }
 
 async function begin(surprise: boolean) {
+  if (!canBegin.value) return
+
   const tone = surprise
     ? (TASKMASTER_TONES[
         Math.floor(Math.random() * TASKMASTER_TONES.length)
@@ -502,8 +556,10 @@ async function begin(surprise: boolean) {
           (facet) => facet.slug === selectedGrammarSlug.value,
         ),
       )
+
   await store.beginStory({
     tone,
+    taskTitle: taskInput.value.trim() || undefined,
     vibeTags: parseVibes(),
     surprise,
     location,

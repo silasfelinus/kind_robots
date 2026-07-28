@@ -1,10 +1,13 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type {
+  ColoringBookProductionData,
+  ColoringBookProductionState,
   ColoringBookPromptUpdate,
   ColoringBookRenderRequest,
   ColoringBookStudioBook,
   ColoringBookStudioData,
+  ColoringBookStudioOperation,
 } from '~/types/coloringBookStudio'
 import { performFetch } from '@/stores/utils'
 
@@ -12,11 +15,12 @@ export const useColoringBookStudioStore = defineStore(
   'coloringBookStudioStore',
   () => {
     const books = ref<ColoringBookStudioBook[]>([])
+    const productionStates = ref<Record<string, ColoringBookProductionState>>({})
     const selectedBookSlug = ref('monster-recast')
     const selectedProposalId = ref('')
     const loading = ref(false)
     const savingPrompt = ref(false)
-    const requestingRender = ref(false)
+    const requestingAction = ref(false)
     const error = ref<string | null>(null)
     const message = ref<string | null>(null)
     const fetchedAt = ref<string | null>(null)
@@ -40,14 +44,27 @@ export const useColoringBookStudioStore = defineStore(
       )
     })
 
+    const selectedProductionState = computed<ColoringBookProductionState | null>(() => {
+      const book = selectedBook.value
+      const proposal = selectedProposal.value
+      if (!book || !proposal) return null
+      return productionStates.value[`${book.slug}:${proposal.id}`] ?? null
+    })
+
+    const requestingRender = computed(() => requestingAction.value)
+
     const queueProblems = computed(() =>
       books.value.flatMap((book) =>
         book.proposals
-          .filter(
-            (proposal) =>
+          .filter((proposal) => {
+            const production = productionStates.value[`${book.slug}:${proposal.id}`]
+            return Boolean(
               proposal.queue.semanticGateError ||
-              proposal.queue.status === 'needs_review',
-          )
+                proposal.queue.status === 'needs_review' ||
+                production?.bwStatus === 'needs_review' ||
+                production?.pairStatus === 'needs_review',
+            )
+          })
           .map((proposal) => ({
             bookSlug: book.slug,
             bookTitle: book.title,
@@ -75,15 +92,26 @@ export const useColoringBookStudioStore = defineStore(
       loading.value = true
       error.value = null
       try {
-        const response = await performFetch<ColoringBookStudioData>(
-          '/api/conductor/coloring-books',
-        )
-        if (!response.success || !response.data) {
-          error.value = response.message || 'Failed to load the Coloring Book Studio.'
+        const [studioResponse, productionResponse] = await Promise.all([
+          performFetch<ColoringBookStudioData>('/api/conductor/coloring-books'),
+          performFetch<ColoringBookProductionData>(
+            '/api/conductor/coloring-books/production',
+          ),
+        ])
+        if (!studioResponse.success || !studioResponse.data) {
+          error.value =
+            studioResponse.message || 'Failed to load the Coloring Book Studio.'
           return false
         }
-        books.value = response.data.books
-        fetchedAt.value = response.data.fetchedAt
+        if (!productionResponse.success || !productionResponse.data) {
+          error.value =
+            productionResponse.message ||
+            'Failed to load coloring-book production actions.'
+          return false
+        }
+        books.value = studioResponse.data.books
+        productionStates.value = productionResponse.data.states
+        fetchedAt.value = studioResponse.data.fetchedAt
         if (
           !books.value.some((book) => book.slug === selectedBookSlug.value)
         ) {
@@ -139,39 +167,60 @@ export const useColoringBookStudioStore = defineStore(
       }
     }
 
-    async function requestColorRender(
-      force = false,
-      note = '',
+    async function requestProductionAction(
+      operation: ColoringBookStudioOperation,
+      options: { force?: boolean; note?: string } = {},
     ): Promise<boolean> {
       const book = selectedBook.value
       const proposal = selectedProposal.value
-      if (!book || !proposal || requestingRender.value) return false
+      if (!book || !proposal || requestingAction.value) return false
 
-      requestingRender.value = true
+      requestingAction.value = true
       error.value = null
       message.value = null
       try {
         const body: ColoringBookRenderRequest = {
+          operation,
           bookSlug: book.slug,
           proposalId: proposal.id,
-          force,
-          note,
+          force: options.force === true,
+          note: options.note || '',
         }
         const response = await performFetch<ColoringBookRenderRequest>(
           '/api/conductor/coloring-books/request',
           { method: 'POST', body: JSON.stringify(body) },
         )
         if (!response.success) {
-          error.value = response.message || 'Failed to request the render.'
+          error.value = response.message || 'Failed to request the production action.'
           return false
         }
         message.value =
-          response.message || `${proposal.id} render request queued.`
+          response.message || `${proposal.id} production action queued.`
         await fetchStudio()
         return true
       } finally {
-        requestingRender.value = false
+        requestingAction.value = false
       }
+    }
+
+    function requestColorRender(force = false, note = ''): Promise<boolean> {
+      return requestProductionAction('generate-color-proposals', { force, note })
+    }
+
+    function acceptColor(note = ''): Promise<boolean> {
+      return requestProductionAction('accept-color', { note })
+    }
+
+    function requestBw(force = false, note = ''): Promise<boolean> {
+      return requestProductionAction('generate-bw', { force, note })
+    }
+
+    function acceptBw(note = ''): Promise<boolean> {
+      return requestProductionAction('accept-bw', { note })
+    }
+
+    function finalizePair(note = ''): Promise<boolean> {
+      return requestProductionAction('finalize-pair', { note })
     }
 
     function clearNotice(): void {
@@ -181,13 +230,16 @@ export const useColoringBookStudioStore = defineStore(
 
     return {
       books,
+      productionStates,
       selectedBookSlug,
       selectedProposalId,
       selectedBook,
       selectedProposal,
+      selectedProductionState,
       queueProblems,
       loading,
       savingPrompt,
+      requestingAction,
       requestingRender,
       error,
       message,
@@ -196,7 +248,12 @@ export const useColoringBookStudioStore = defineStore(
       selectBook,
       selectProposal,
       savePrompt,
+      requestProductionAction,
       requestColorRender,
+      acceptColor,
+      requestBw,
+      acceptBw,
+      finalizePair,
       clearNotice,
     }
   },

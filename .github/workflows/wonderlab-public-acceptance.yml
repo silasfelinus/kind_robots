@@ -79,9 +79,9 @@ jobs:
           assert.match(config, /supportFile:\s*false/)
 
           for (const required of [
-            '/wonderlab',
-            '/memory',
-            '/screenfx',
+            '/plan/wonderlab',
+            '/play/memory',
+            '/play/screenfx',
             '1440',
             '390',
             'expectNoHorizontalOverflow',

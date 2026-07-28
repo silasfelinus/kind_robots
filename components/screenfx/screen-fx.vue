@@ -23,7 +23,7 @@
           <span class="fx-total-label">
             {{ animationStore.effects.length }} effects
           </span>
-          <NuxtLink to="/animation-manager" class="fx-manage-link">
+          <NuxtLink to="/build/animation-manager" class="fx-manage-link">
             <Icon name="kind-icon:trophy" class="h-3.5 w-3.5" />
             Manage builds
           </NuxtLink>

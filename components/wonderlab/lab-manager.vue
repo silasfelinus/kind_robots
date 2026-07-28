@@ -77,10 +77,10 @@ const activeTab = computed<LabTab>(() => {
 
   // Explicit routes are authoritative. Remembered dashboard state is only a
   // fallback for embedded/global Lab surfaces and must never hijack a URL.
-  if (routePath === '/wonderlab') return 'wonder-lab'
-  if (routePath === '/memory') return 'memory-dungeon'
-  if (routePath === '/screenfx') return 'screen-fx'
-  if (routePath === '/animation-manager') return 'animation-manager'
+  if (routePath === '/plan/wonderlab') return 'wonder-lab'
+  if (routePath === '/play/memory') return 'memory-dungeon'
+  if (routePath === '/play/screenfx') return 'screen-fx'
+  if (routePath === '/build/animation-manager') return 'animation-manager'
 
   const selectedTab = navStore.getDashboardTab(dashboardKey)
 

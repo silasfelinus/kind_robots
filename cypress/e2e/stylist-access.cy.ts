@@ -10,10 +10,10 @@ describe('Superkate services and Hair Studio access', () => {
     cy.contains('Hair Studio').should('not.exist')
   })
 
-  it('serves Hair Studio as a public Lab page', () => {
-    cy.visit('/hair-studio')
+  it('serves Hair Studio as a public Build page', () => {
+    cy.visit('/build/hair-studio')
 
-    cy.location('pathname', { timeout: 15000 }).should('eq', '/hair-studio')
+    cy.location('pathname', { timeout: 15000 }).should('eq', '/build/hair-studio')
     cy.contains('Hair Studio').should('exist')
     cy.contains('Preview a new color or cut').should('exist')
   })

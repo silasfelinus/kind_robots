@@ -1,7 +1,7 @@
 <!-- /components/conductor/challenge-center-page.vue -->
 <!--
-  Public Challenge Center browser. The content route at /challenges renders this
-  component; individual cards link to the dedicated /challenges/[slug] arena.
+  Public Challenge Center browser. The content route at /play/challenges renders this
+  component; individual cards link to the dedicated /play/challenges/[slug] arena.
 -->
 <template>
   <ProjectFrontPage slug="challenge-center" :fallback="config">
@@ -43,7 +43,7 @@
 
             <div class="flex gap-2">
               <NuxtLink
-                to="/challenges/leaderboard"
+                to="/play/challenges/leaderboard"
                 class="btn btn-outline btn-sm rounded-xl"
               >
                 <Icon name="kind-icon:trophy" class="size-4" />
@@ -140,7 +140,7 @@
             <NuxtLink
               v-for="(challenge, index) in challenges"
               :key="challenge.id"
-              :to="`/challenges/${challenge.slug}`"
+              :to="`/play/challenges/${challenge.slug}`"
               class="group relative flex min-h-64 flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             >
               <div

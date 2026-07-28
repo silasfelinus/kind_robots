@@ -15,6 +15,10 @@
   The "most active month" line (media-watchlist/t-013, BROWSE-UX.md §1) reuses
   the same stats.get.ts countByMonth breakdown that already powers the Month
   filter chips -- no backend change needed, just picking the max and naming it.
+  "Recent entries" (media-watchlist/t-015, BROWSE-UX.md §1's last gap) is a
+  fixed, unfiltered global view -- a separate GET /api/media-entries?take=10&
+  sort=date_desc call that ignores the active search/year/type/starred/month/
+  season state entirely, per that spec.
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -37,6 +41,34 @@
         You consumed the most in {{ mostActiveMonth.label }}:
         {{ mostActiveMonth.count }} entries
       </p>
+
+      <!-- Recent entries (BROWSE-UX.md §1) -- fixed global view, no filters -->
+      <div
+        v-if="recentEntries.length"
+        class="rounded-3xl border border-base-300 bg-base-100 p-4"
+      >
+        <p class="mb-2 text-xs font-semibold uppercase text-base-content/50">
+          Recent entries
+        </p>
+        <ul class="flex flex-col gap-1">
+          <li
+            v-for="entry in recentEntries"
+            :key="`recent-${entry.id}`"
+            class="flex items-center gap-2 text-sm"
+          >
+            <Icon
+              :name="MEDIA_TYPE_ICON[entry.mediaType]"
+              class="size-3.5 shrink-0 text-base-content/50"
+            />
+            <span class="truncate font-semibold text-base-content">{{
+              entry.title
+            }}</span>
+            <span class="ml-auto shrink-0 text-xs text-base-content/50">{{
+              formatDate(entry)
+            }}</span>
+          </li>
+        </ul>
+      </div>
 
       <!-- Stats strip -->
       <div
@@ -400,6 +432,26 @@ const MEDIA_TYPE_CHIPS: { value: MediaType; label: string }[] = [
   { value: 'VIDEO_GAME', label: 'Games' },
 ]
 
+// Recent-entries grouping (media-watchlist/t-015, BROWSE-UX.md §1). Covers
+// every MediaType (not just the MEDIA_TYPE_CHIPS subset), grouping the rarer
+// types under the closest visual sibling since there's no dedicated icon:
+// NOVELLA -> book, ANIME -> video (TV), PODCAST -> microphone (AUDIOBOOK),
+// SHORT -> movie, VIDEO_GAME_SHORT -> dice (VIDEO_GAME).
+const MEDIA_TYPE_ICON: Record<MediaType, string> = {
+  MOVIE: 'kind-icon:movie',
+  TV: 'kind-icon:video',
+  BOOK: 'kind-icon:book',
+  NOVELLA: 'kind-icon:book',
+  AUDIOBOOK: 'kind-icon:microphone',
+  COMIC: 'kind-icon:menu-book',
+  VIDEO_GAME: 'kind-icon:dice',
+  ANIME: 'kind-icon:video',
+  PODCAST: 'kind-icon:microphone',
+  THEATRE: 'kind-icon:theater',
+  SHORT: 'kind-icon:movie',
+  VIDEO_GAME_SHORT: 'kind-icon:dice',
+}
+
 const MONTH_LABELS: { value: number; label: string }[] = [
   { value: 1, label: 'Jan' },
   { value: 2, label: 'Feb' },
@@ -436,6 +488,7 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const stats = ref<MediaEntryStats | null>(null)
 const selectedId = ref<number | null>(null)
+const recentEntries = ref<MediaEntrySummary[]>([])
 
 // BROWSE-UX.md §1: "Most active month: 'You consumed the most in [Month]: N
 // entries'". countByMonth is keyed by month number as a string (1-12); pick
@@ -478,6 +531,16 @@ function handleEntryUpdated(updated: MediaEntryDetail) {
   const index = entries.value.findIndex((entry) => entry.id === updated.id)
   if (index !== -1)
     entries.value[index] = { ...entries.value[index], ...updated }
+
+  const recentIndex = recentEntries.value.findIndex(
+    (entry) => entry.id === updated.id,
+  )
+  if (recentIndex !== -1) {
+    recentEntries.value[recentIndex] = {
+      ...recentEntries.value[recentIndex],
+      ...updated,
+    }
+  }
 }
 
 function toggleType(type: MediaType) {
@@ -512,6 +575,20 @@ async function loadStats(): Promise<void> {
     if (res?.success) stats.value = res.data
   } catch {
     /* stats strip is non-critical; leave it hidden on failure */
+  }
+}
+
+// Fixed global view (BROWSE-UX.md §1) -- intentionally ignores the active
+// search/year/type/starred/month/season filters, unlike loadEntries().
+async function loadRecentEntries(): Promise<void> {
+  try {
+    const res = await $fetch<MediaEntriesResponse, string>(
+      '/api/media-entries',
+      { query: { take: 10, sort: 'date_desc' } },
+    )
+    if (res?.success) recentEntries.value = res.data
+  } catch {
+    /* recent-entries strip is non-critical; leave it hidden on failure */
   }
 }
 
@@ -619,5 +696,6 @@ onMounted(() => {
   if (!isAdmin.value) return
   void loadStats()
   void loadEntries()
+  void loadRecentEntries()
 })
 </script>

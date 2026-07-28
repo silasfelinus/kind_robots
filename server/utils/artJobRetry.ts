@@ -3,6 +3,8 @@ import {
   parseArtJobPayload,
   type ArtJobPayloadRecord,
 } from './artJobPayload'
+import { ltxFrameCount } from '../api/comfy/ltx/utils/imageToVideoWorkflow'
+import { wanFrameCount } from '../api/comfy/wan/utils/imageToVideoWorkflow'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -95,6 +97,9 @@ export type ArtJobOverrides = {
   sampler?: string | null
   scheduler?: string | null
   checkpoint?: string | null
+  durationSeconds?: number | null
+  fps?: number | null
+  loop?: boolean | null
 }
 
 const SAMPLER_NODE_TYPES = new Set([
@@ -103,9 +108,57 @@ const SAMPLER_NODE_TYPES = new Set([
   'SamplerCustom',
 ])
 const CHECKPOINT_KEYS = ['ckpt_name', 'unet_name', 'model_name']
+const VIDEO_NODE_TYPES = new Set([
+  'LTXVConditioning',
+  'LTXVImgToVideo',
+  'WanImageToVideo',
+  'ImageResize+',
+  'CreateVideo',
+])
 
 function num(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
+}
+
+function stringValue(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function resolveVideoModel(
+  payload: ArtJobPayloadRecord,
+  workflow: ArtJobPayloadRecord,
+): 'ltx' | 'wan' | null {
+  const video = asRecord(payload.video)
+  const model = stringValue(video.model).toLowerCase()
+  if (model === 'ltx' || model === 'wan') return model
+  for (const node of Object.values(workflow)) {
+    const classType = stringValue(asRecord(node).class_type)
+    if (classType === 'WanImageToVideo') return 'wan'
+    if (classType === 'LTXVImgToVideo') return 'ltx'
+  }
+  return String(payload.media || '').toLowerCase() === 'video' ? 'ltx' : null
+}
+
+function workflowVideoNumber(
+  workflow: ArtJobPayloadRecord,
+  classTypes: Set<string>,
+  keys: string[],
+): number | null {
+  for (const node of Object.values(workflow)) {
+    const record = asRecord(node)
+    const classType = stringValue(record.class_type)
+    if (!classTypes.has(classType)) continue
+    const inputs = asRecord(record.inputs)
+    for (const key of keys) {
+      const value = num(inputs[key])
+      if (value !== null) return value
+    }
+  }
+  return null
 }
 
 export function applyArtJobOverrides(
@@ -114,7 +167,8 @@ export function applyArtJobOverrides(
 ): ArtJobPayloadRecord {
   if (!overrides) return payload
 
-  const promptString = overrides.promptString?.replace(/\s+/g, ' ').trim() || null
+  const promptString =
+    overrides.promptString?.replace(/\s+/g, ' ').trim() || null
   const negativePrompt =
     typeof overrides.negativePrompt === 'string'
       ? overrides.negativePrompt
@@ -129,6 +183,10 @@ export function applyArtJobOverrides(
   const sampler = overrides.sampler?.trim() || null
   const scheduler = overrides.scheduler?.trim() || null
   const checkpoint = overrides.checkpoint?.trim() || null
+  const durationOverride = num(overrides.durationSeconds)
+  const fpsOverride = num(overrides.fps)
+  const loopOverride =
+    typeof overrides.loop === 'boolean' ? overrides.loop : null
 
   if (promptString) {
     const oldPrompt = String(payload.promptString || '')
@@ -141,6 +199,28 @@ export function applyArtJobOverrides(
 
   const workflow = asRecord(payload.workflow)
   const hasWorkflow = Object.keys(workflow).length > 0
+  const video = asRecord(payload.video)
+  const videoModel = resolveVideoModel(payload, workflow)
+  const currentFps =
+    num(video.fps) ??
+    workflowVideoNumber(
+      workflow,
+      new Set(['LTXVConditioning', 'CreateVideo']),
+      ['frame_rate', 'fps'],
+    )
+  const currentDuration = num(video.durationSeconds)
+  const nextFps =
+    fpsOverride !== null ? clamp(fpsOverride, 1, 60) : currentFps
+  const nextDuration =
+    durationOverride !== null
+      ? clamp(durationOverride, 0.25, 30)
+      : currentDuration
+  const nextFrames =
+    videoModel && nextFps !== null && nextDuration !== null
+      ? videoModel === 'wan'
+        ? wanFrameCount(nextDuration, nextFps)
+        : ltxFrameCount(nextDuration, nextFps)
+      : null
 
   if (hasWorkflow) {
     for (const node of Object.values(workflow)) {
@@ -154,20 +234,51 @@ export function applyArtJobOverrides(
         if (height !== null && 'height' in inputs) inputs.height = height
       }
 
+      if (videoModel && VIDEO_NODE_TYPES.has(classType)) {
+        if (width !== null && 'width' in inputs) inputs.width = width
+        if (height !== null && 'height' in inputs) inputs.height = height
+      }
+
+      if (nextFps !== null) {
+        if (classType === 'LTXVConditioning' && 'frame_rate' in inputs) {
+          inputs.frame_rate = nextFps
+        }
+        if (classType === 'CreateVideo' && 'fps' in inputs) {
+          inputs.fps = nextFps
+        }
+      }
+
+      if (
+        nextFrames !== null &&
+        (classType === 'LTXVImgToVideo' ||
+          classType === 'WanImageToVideo') &&
+        'length' in inputs
+      ) {
+        inputs.length = nextFrames
+      }
+
       if (SAMPLER_NODE_TYPES.has(classType)) {
         if (steps !== null && 'steps' in inputs) inputs.steps = steps
         if (cfg !== null && 'cfg' in inputs) inputs.cfg = cfg
         if (seed !== null && 'seed' in inputs) inputs.seed = seed
-        if (sampler && 'sampler_name' in inputs) inputs.sampler_name = sampler
+        if (sampler && 'sampler_name' in inputs) {
+          inputs.sampler_name = sampler
+        }
         if (scheduler && 'scheduler' in inputs) inputs.scheduler = scheduler
         if (denoise !== null && 'denoise' in inputs) inputs.denoise = denoise
       }
 
-      if (steps !== null && 'steps' in inputs && classType === 'BasicScheduler') {
+      if (
+        steps !== null &&
+        'steps' in inputs &&
+        classType === 'BasicScheduler'
+      ) {
         inputs.steps = steps
       }
       if (seed !== null && 'noise_seed' in inputs) inputs.noise_seed = seed
-      if (guidance !== null && 'guidance' in inputs) inputs.guidance = guidance
+      if (guidance !== null && 'guidance' in inputs) {
+        inputs.guidance = guidance
+      }
       if (denoise !== null && 'denoise' in inputs) inputs.denoise = denoise
 
       if (checkpoint) {
@@ -202,6 +313,18 @@ export function applyArtJobOverrides(
   if (scheduler) payload.scheduler = scheduler
   if (checkpoint) payload.checkpoint = checkpoint
   if (negativePrompt !== null) payload.negativePrompt = negativePrompt
+
+  if (videoModel) {
+    payload.media = 'video'
+    video.model = videoModel
+    if (width !== null) video.width = width
+    if (height !== null) video.height = height
+    if (nextFps !== null) video.fps = nextFps
+    if (nextDuration !== null) video.durationSeconds = nextDuration
+    if (nextFrames !== null) video.frames = nextFrames
+    if (loopOverride !== null) video.loop = loopOverride
+    payload.video = video
+  }
 
   return payload
 }

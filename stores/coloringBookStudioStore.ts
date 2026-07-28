@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import type { ColoringBookPackageData } from '~/types/coloringBookPackage'
 import type {
   ColoringBookCoverPromptUpdate,
   ColoringBookCoverState,
@@ -12,6 +13,7 @@ import type {
   ColoringBookStudioOperation,
 } from '~/types/coloringBookStudio'
 import { performFetch } from '@/stores/utils'
+import { reconcileColoringBookPackageData } from '@/utils/coloringBookPackage'
 
 const COVER_OPERATIONS = new Set<ColoringBookStudioOperation>([
   'generate-cover',
@@ -25,6 +27,7 @@ export const useColoringBookStudioStore = defineStore(
     const books = ref<ColoringBookStudioBook[]>([])
     const productionStates = ref<Record<string, ColoringBookProductionState>>({})
     const coverStates = ref<Record<string, ColoringBookCoverState>>({})
+    const packageData = ref<ColoringBookPackageData | null>(null)
     const selectedBookSlug = ref('monster-recast')
     const selectedProposalId = ref('')
     const loading = ref(false)
@@ -65,6 +68,12 @@ export const useColoringBookStudioStore = defineStore(
       selectedBook.value
         ? (coverStates.value[selectedBook.value.slug] ?? null)
         : null,
+    )
+
+    const selectedPackage = computed(() =>
+      packageData.value?.books.find(
+        (book) => book.slug === selectedBookSlug.value,
+      ) ?? null,
     )
 
     const requestingRender = computed(() => requestingAction.value)
@@ -108,10 +117,13 @@ export const useColoringBookStudioStore = defineStore(
       loading.value = true
       error.value = null
       try {
-        const [studioResponse, productionResponse] = await Promise.all([
+        const [studioResponse, productionResponse, packageResponse] = await Promise.all([
           performFetch<ColoringBookStudioData>('/api/conductor/coloring-books'),
           performFetch<ColoringBookProductionData>(
             '/api/conductor/coloring-books/production',
+          ),
+          performFetch<ColoringBookPackageData>(
+            '/api/conductor/coloring-books/package',
           ),
         ])
         if (!studioResponse.success || !studioResponse.data) {
@@ -128,6 +140,15 @@ export const useColoringBookStudioStore = defineStore(
         books.value = studioResponse.data.books
         productionStates.value = productionResponse.data.states
         coverStates.value = productionResponse.data.covers ?? {}
+        packageData.value =
+          packageResponse.success && packageResponse.data
+            ? reconcileColoringBookPackageData(
+                packageResponse.data,
+                books.value,
+                coverStates.value,
+                productionStates.value,
+              )
+            : null
         fetchedAt.value = studioResponse.data.fetchedAt
         if (
           !books.value.some((book) => book.slug === selectedBookSlug.value)
@@ -292,12 +313,14 @@ export const useColoringBookStudioStore = defineStore(
       books,
       productionStates,
       coverStates,
+      packageData,
       selectedBookSlug,
       selectedProposalId,
       selectedBook,
       selectedProposal,
       selectedProductionState,
       selectedCover,
+      selectedPackage,
       queueProblems,
       loading,
       savingPrompt,

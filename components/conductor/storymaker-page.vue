@@ -31,13 +31,25 @@
         >
           <Icon name="kind-icon:moon" class="size-4" /> Finish this tale
         </button>
+        <!-- New story — arms on first click, fires on second, so an in-progress
+             or finished tale can't be discarded by a single stray click. -->
         <button
+          v-if="!newStoryArmed"
           type="button"
           class="btn btn-ghost btn-sm rounded-xl border border-base-300"
           :disabled="store.isWeaving"
-          @click="startAnother"
+          @click="newStoryArmed = true"
         >
           <Icon name="kind-icon:plus" class="size-4" /> New story
+        </button>
+        <button
+          v-else
+          type="button"
+          class="btn btn-warning btn-sm rounded-xl"
+          @click="startAnother"
+          @blur="newStoryArmed = false"
+        >
+          <Icon name="kind-icon:alert" class="size-4" /> Discard this tale?
         </button>
       </div>
     </header>
@@ -436,6 +448,7 @@ const facetStore = useFacetStore()
 const setupStep = ref(0)
 const furthestStep = ref(0)
 const answerInput = ref('')
+const newStoryArmed = ref(false)
 const setupSteps = [
   { label: 'Premise' },
   { label: 'Cast' },
@@ -587,6 +600,7 @@ async function submitAnswer(value: string) {
 
 function startAnother() {
   if (store.isWeaving) return
+  newStoryArmed.value = false
   store.resetSession()
   setupStep.value = 0
   furthestStep.value = 0

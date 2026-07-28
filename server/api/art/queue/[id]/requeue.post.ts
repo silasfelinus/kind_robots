@@ -10,6 +10,11 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
+import {
+  parseArtJobPayload,
+  serializeArtJobPayload,
+} from '../../../../utils/artJobPayload'
+import { applyArtJobOverrides } from '../../../../utils/artJobRetry'
 
 type RequeueBody = {
   resetAttempts?: boolean
@@ -33,7 +38,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = (await readBody(event).catch(() => null)) as RequeueBody | null
-    const resetAttempts = body?.resetAttempts !== false // default true
+    const resetAttempts = body?.resetAttempts !== false
 
     const job = await prisma.artJob.findUnique({ where: { id } })
 
@@ -48,9 +53,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const payload = applyArtJobOverrides(
+      structuredClone(parseArtJobPayload(job.payload)),
+      null,
+    )
     const updated = await prisma.artJob.update({
       where: { id },
       data: {
+        payload: serializeArtJobPayload(payload),
         status: 'PENDING',
         claimedAt: null,
         claimedBy: null,

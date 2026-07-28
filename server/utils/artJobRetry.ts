@@ -14,6 +14,8 @@ export const ART_JOB_RETRY_MODES = new Set<ArtJobRetryMode>([
 ])
 
 const SEED_KEYS = new Set(['seed', 'noise_seed'])
+const CURRENT_FLUX_T5 = 't5xxl_fp8_e4m3fn_scaled.safetensors'
+const CURRENT_FLUX_CLIP_L = 'clip_l.safetensors'
 
 function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
@@ -113,6 +115,7 @@ const VIDEO_NODE_TYPES = new Set([
   'LTXVImgToVideo',
   'WanImageToVideo',
   'ImageResize+',
+  'ImageScale',
   'CreateVideo',
 ])
 
@@ -161,10 +164,60 @@ function workflowVideoNumber(
   return null
 }
 
+function normalizeLegacyComfyWorkflow(
+  payload: ArtJobPayloadRecord,
+): ArtJobPayloadRecord {
+  const workflow = asRecord(payload.workflow)
+  if (!Object.keys(workflow).length) return payload
+
+  for (const node of Object.values(workflow)) {
+    const record = asRecord(node)
+    const classType = stringValue(record.class_type)
+    const inputs = asRecord(record.inputs)
+    const meta = asRecord(record._meta)
+
+    if (
+      classType === 'PrimitiveStringMultiline' &&
+      stringValue(meta.title).toLowerCase() === 'prompt'
+    ) {
+      const prompt = stringValue(inputs.value) || stringValue(payload.promptString)
+      if (prompt) {
+        meta.prompt = prompt
+        record._meta = meta
+      }
+    }
+
+    if (classType === 'ImageResize+') {
+      record.class_type = 'ImageScale'
+      record.inputs = {
+        image: inputs.image,
+        upscale_method: stringValue(inputs.interpolation) || 'lanczos',
+        width: num(inputs.width) ?? 0,
+        height: num(inputs.height) ?? 0,
+        crop: 'disabled',
+      }
+      continue
+    }
+
+    if (
+      classType === 'DualCLIPLoader' &&
+      stringValue(inputs.type).toLowerCase() === 'flux'
+    ) {
+      inputs.clip_name1 = CURRENT_FLUX_T5
+      inputs.clip_name2 = CURRENT_FLUX_CLIP_L
+      record.inputs = inputs
+    }
+  }
+
+  payload.workflow = workflow
+  return payload
+}
+
 export function applyArtJobOverrides(
   payload: ArtJobPayloadRecord,
   overrides: ArtJobOverrides | null | undefined,
 ): ArtJobPayloadRecord {
+  normalizeLegacyComfyWorkflow(payload)
   if (!overrides) return payload
 
   const promptString =
@@ -336,7 +389,9 @@ export function prepareArtJobRetryPayload(
   mode: ArtJobRetryMode,
   refreshSeed: boolean,
 ): ArtJobPayloadRecord {
-  const cloned = structuredClone(parseArtJobPayload(rawPayload))
+  const cloned = normalizeLegacyComfyWorkflow(
+    structuredClone(parseArtJobPayload(rawPayload)),
+  )
   const previousRetry = asRecord(cloned.retry)
   const rootJobId = Number(previousRetry.rootJobId) || sourceJobId
 

@@ -148,15 +148,13 @@ export function buildLtxImageToVideoWorkflow(
     },
     img_scale: {
       inputs: {
+        image: ['img_first', 0],
+        upscale_method: 'lanczos',
         width,
         height,
-        interpolation: 'lanczos',
-        method: 'stretch',
-        condition: 'always',
-        multiple_of: 0,
-        image: ['img_first', 0],
+        crop: 'disabled',
       },
-      class_type: 'ImageResize+',
+      class_type: 'ImageScale',
       _meta: { title: 'Resize First Image' },
     },
     // LTXVImgToVideo bakes the start frame into the latent + conditioning.
@@ -192,15 +190,13 @@ export function buildLtxImageToVideoWorkflow(
     }
     workflow['img_last_scale'] = {
       inputs: {
+        image: ['img_last', 0],
+        upscale_method: 'lanczos',
         width,
         height,
-        interpolation: 'lanczos',
-        method: 'stretch',
-        condition: 'always',
-        multiple_of: 0,
-        image: ['img_last', 0],
+        crop: 'disabled',
       },
-      class_type: 'ImageResize+',
+      class_type: 'ImageScale',
       _meta: { title: 'Resize Last Image' },
     }
     workflow['ltxv_guide'] = {

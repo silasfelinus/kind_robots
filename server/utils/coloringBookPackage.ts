@@ -48,6 +48,12 @@ function scalar(block: string, key: string, spaces: number): string | null {
   )
 }
 
+function listItemScalar(block: string, key: string): string | null {
+  return yamlValue(
+    capture(block, new RegExp(`^-\\s+${key}:\\s*(.*?)\\s*$`, 'm')),
+  )
+}
+
 function yamlNumber(value: string | null, fallback = 0): number {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : fallback
@@ -150,7 +156,7 @@ function readinessBook(block: string): ColoringBookPackageBook {
   const sourceBlock = nestedSection(block, 'source_issues', 2)
   const exportBlock = nestedSection(block, 'export_exists', 2)
   return {
-    order: yamlNumber(scalar(block, 'order', 0), 999),
+    order: yamlNumber(listItemScalar(block, 'order'), 999),
     slug: scalar(block, 'slug', 2) ?? '',
     title: scalar(block, 'title', 2) ?? '',
     status: statusValue(scalar(block, 'status', 2)),
@@ -203,7 +209,7 @@ function packageBook(block: string, expectedInteriors: number): ColoringBookPack
     (field) => scalar(exportsBlock, field, 4) === null,
   )
   return {
-    order: yamlNumber(scalar(block, 'order', 0), 999),
+    order: yamlNumber(listItemScalar(block, 'order'), 999),
     slug: scalar(block, 'slug', 2) ?? '',
     title: scalar(block, 'title', 2) ?? '',
     status: 'source-production',

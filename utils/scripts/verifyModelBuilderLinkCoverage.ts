@@ -193,11 +193,13 @@ export function extractOutputCatalogEntries(
   for (const objMatch of match[1]!.matchAll(/\{[^{}]*\}/g)) {
     const obj = objMatch[0]
     const keyMatch = obj.match(/key:\s*'([\w-]+)'/)
+    if (!keyMatch) continue
     const actionMatch = obj.match(/action:\s*'(\w+)'/)
-    if (!keyMatch || !actionMatch) continue
+    if (!actionMatch) continue
     const sourceTypesMatch = obj.match(/sourceTypes:\s*\[([^\]]*)\]/)
-    const sourceTypes = sourceTypesMatch
-      ? [...sourceTypesMatch[1]!.matchAll(/'(\w+)'/g)].map((m) => m[1]!)
+    const sourceTypesRaw = sourceTypesMatch?.[1] ?? null
+    const sourceTypes = sourceTypesRaw
+      ? [...sourceTypesRaw.matchAll(/'(\w+)'/g)].map((m) => m[1]!)
       : null
     entries.push({ key: keyMatch[1]!, action: actionMatch[1]!, sourceTypes })
   }

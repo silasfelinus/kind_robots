@@ -33,19 +33,7 @@
 
     <div class="min-h-0 flex-1">
       <lora-gallery v-if="activeTab === 'library'" />
-
-      <section
-        v-else
-        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200 p-8 text-center"
-      >
-        <Icon name="kind-icon:search" class="h-12 w-12 text-base-content/40" />
-        <h2 class="text-lg font-bold">Discover is coming soon</h2>
-        <p class="max-w-md text-sm text-base-content/60">
-          Browse Civitai and CivArchive, hide LoRAs you already own, and
-          one-click download new ones straight into your library. Landing in
-          Phase 3 alongside the download queue.
-        </p>
-      </section>
+      <lora-discover v-else />
     </div>
   </div>
 </template>

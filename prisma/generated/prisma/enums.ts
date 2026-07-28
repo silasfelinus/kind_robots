@@ -68,6 +68,25 @@ export const ModelBuildReviewState = {
 export type ModelBuildReviewState = (typeof ModelBuildReviewState)[keyof typeof ModelBuildReviewState]
 
 
+export const DownloadSource = {
+  CIVITAI: 'CIVITAI',
+  CIVARCHIVE: 'CIVARCHIVE',
+  URL: 'URL'
+} as const
+
+export type DownloadSource = (typeof DownloadSource)[keyof typeof DownloadSource]
+
+
+export const DownloadStatus = {
+  PENDING: 'PENDING',
+  CLAIMED: 'CLAIMED',
+  DONE: 'DONE',
+  FAILED: 'FAILED'
+} as const
+
+export type DownloadStatus = (typeof DownloadStatus)[keyof typeof DownloadStatus]
+
+
 export const DreamRelationType = {
   IS_A: 'IS_A',
   APPEARS_IN: 'APPEARS_IN',

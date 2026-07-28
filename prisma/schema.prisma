@@ -1520,6 +1520,49 @@ model QueueControl {
   updatedAt DateTime  @default(now()) @updatedAt
 }
 
+enum DownloadSource {
+  CIVITAI
+  CIVARCHIVE
+  URL
+}
+
+enum DownloadStatus {
+  PENDING
+  CLAIMED
+  DONE
+  FAILED
+}
+
+/// Pull-queue for LoRA downloads, mirroring the ArtJob queue. A front-end user
+/// enqueues a request (from the Discover browser); the home import agent claims
+/// it, fetches the file into Lora/import — where the existing watcher catalogs
+/// and Resources it — then marks it DONE. userId is a plain column (no FK) since
+/// this is an ephemeral job row, not owned content. resourceId links the created
+/// Resource once known. civitaiModelVersionId lets the browser hide owned rows.
+model DownloadRequest {
+  id                    Int            @id @default(autoincrement())
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime?      @default(now()) @updatedAt
+  status                DownloadStatus @default(PENDING)
+  source                DownloadSource @default(CIVITAI)
+  civitaiModelId        Int?
+  civitaiModelVersionId Int?
+  downloadUrl           String?        @db.Text
+  fileName              String?        @db.VarChar(512)
+  label                 String?        @db.VarChar(512)
+  isMature              Boolean        @default(false)
+  attempts              Int            @default(0)
+  claimedAt             DateTime?
+  claimedBy             String?        @db.VarChar(255)
+  resourceId            Int?
+  error                 String?        @db.Text
+  userId                Int
+
+  @@index([status, id])
+  @@index([userId])
+  @@index([civitaiModelVersionId])
+}
+
 /// Economy: karma ledger — separate from mana, tracks community contribution score
 model KarmaTransaction {
   id           Int         @id @default(autoincrement())

@@ -19,6 +19,7 @@ const jobsPath = 'utils/narrativeArtJobs.ts'
 const controllerPath = 'composables/useNarrativeArtJobs.ts'
 const artStorePath = 'stores/artStore.ts'
 const enqueuePath = 'server/api/art/enqueue.post.ts'
+const recoveryPath = 'server/api/art/queue/narrative.get.ts'
 const storyStorePath = 'stores/storymakerStore.ts'
 const taskStorePath = 'stores/taskmasterStore.ts'
 const transcriptPath = 'components/narrative/narrative-transcript.vue'
@@ -28,7 +29,6 @@ const taskPagePath = 'components/pages/taskmaster-page.vue'
 
 const profiles = source(profilesPath)
 const controller = source(controllerPath)
-const enqueue = source(enqueuePath)
 const storyStore = source(storyStorePath)
 const taskStore = source(taskStorePath)
 
@@ -79,25 +79,34 @@ includesAll(enqueuePath, [
   'deduplicated: false',
 ])
 
-const authOnlyDedupe = enqueue.indexOf(
-  'const { user } = await requireMachineUser(event)',
-)
-const costGate = enqueue.indexOf('const gate = await authAndGate(event')
-assert.ok(
-  authOnlyDedupe >= 0 && costGate >= 0 && authOnlyDedupe < costGate,
-  'Narrative idempotency must reuse an existing job before the mana affordability gate',
-)
+includesAll(recoveryPath, [
+  'requireMachineUser(event)',
+  'const expectedKey = [product, sessionId, beatId, moment].join(\':\')',
+  "status: { notIn: ['FAILED', 'CANCELLED'] }",
+  'Existing narrative art job found.',
+  'No existing narrative art job found.',
+  'data: { job }',
+])
 
 includesAll(controllerPath, [
   'ensureQueueReady',
   'serverStore.initialize({ fetchRemote: true })',
+  'recoverExistingJob',
+  '/api/art/queue/narrative?',
+  'recoverOrSubmit',
+  'Recover the already-paid job before invoking the mana-gated enqueue path.',
   'artStore.enqueueArtGeneration',
   'artStore.getArtJobStatus',
   'artStore.getArtImageById',
-  'server-side dedupe key makes this re-submit safe and charge-free',
   'resume(',
   'retry(',
 ])
+
+assert.ok(
+  controller.indexOf('recoverExistingJob(state)') <
+    controller.indexOf('await submit(state, update)'),
+  'Interrupted sessions must attempt authenticated job recovery before re-enqueue',
+)
 
 for (const storePath of [storyStorePath, taskStorePath]) {
   includesAll(storePath, [
@@ -155,5 +164,5 @@ assert.ok(
 )
 
 console.log(
-  'Narrative art persistence contract passed: centralized four-step Krea profiles, server idempotency, non-blocking beat jobs, resume/retry state, and shared UI are present.',
+  'Narrative art persistence contract passed: centralized four-step Krea profiles, authenticated recovery, enqueue idempotency, non-blocking beat jobs, resume/retry state, and shared UI are present.',
 )

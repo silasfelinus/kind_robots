@@ -91,9 +91,9 @@ export type ColoringBookProposal = {
   final: ColoringBookPair
   notes: string[]
   queue: ColoringBookQueueState
-  colorPath: string | null
+  colorPath?: string | null
   colorUrl: string | null
-  bwPath: string | null
+  bwPath?: string | null
   bwUrl: string | null
 }
 

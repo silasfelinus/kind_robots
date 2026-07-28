@@ -1,0 +1,33 @@
+name: Apply Taskmaster Checkpoint Slice
+
+on:
+  push:
+    branches:
+      - codex/taskmaster-checkpoint-engine
+    paths:
+      - .github/workflows/apply-taskmaster-checkpoint-slice.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/taskmaster-checkpoint-engine
+          fetch-depth: 0
+      - name: Apply checkpoint migration
+        run: python utils/scripts/applyTaskmasterCheckpointSlice.py
+      - name: Remove one-time migration machinery
+        run: |
+          rm utils/scripts/applyTaskmasterCheckpointSlice.py
+          rm .github/workflows/apply-taskmaster-checkpoint-slice.yml
+      - name: Commit migrated source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stores/taskmasterStore.ts components/pages/taskmaster-page.vue utils/scripts/applyTaskmasterCheckpointSlice.py .github/workflows/apply-taskmaster-checkpoint-slice.yml
+          git commit -m "feat: add Taskmaster checkpoint planning engine"
+          git push origin HEAD:codex/taskmaster-checkpoint-engine

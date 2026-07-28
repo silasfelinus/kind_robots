@@ -12,7 +12,6 @@ export const COLORING_BOOK_REPO = 'silasfelinus/conductor'
 export const COLORING_BOOK_REF = 'main'
 export const COLORING_BOOK_ROOT = 'projects/coloring-book'
 export const COLORING_BOOK_QUEUE_PATH = `${COLORING_BOOK_ROOT}/color-art-jobs.yaml`
-export const COLORING_BOOK_WORKFLOW = 'process-color-art-events.yml'
 
 export const COLORING_BOOK_CONFIG = [
   {
@@ -50,12 +49,20 @@ type QueueEntry = ColoringBookQueueState & {
   sourceRef: string | null
 }
 
+function capture(
+  text: string,
+  pattern: RegExp,
+  group = 1,
+): string | undefined {
+  return pattern.exec(text)?.[group]
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function indentation(line: string): number {
-  return line.match(/^\s*/)?.[0].length ?? 0
+  return /^\s*/.exec(line)?.[0].length ?? 0
 }
 
 function yamlValue(value: string | undefined): string | null {
@@ -75,10 +82,12 @@ function yamlNumber(value: string | null, fallback = 0): number {
 }
 
 function scalar(block: string, key: string, spaces = 2): string | null {
-  const match = block.match(
-    new RegExp(`^\\s{${spaces}}${escapeRegExp(key)}:\\s*(.*?)\\s*$`, 'm'),
+  return yamlValue(
+    capture(
+      block,
+      new RegExp(`^\\s{${spaces}}${escapeRegExp(key)}:\\s*(.*?)\\s*$`, 'm'),
+    ),
   )
-  return yamlValue(match?.[1])
 }
 
 function collectYamlText(
@@ -88,7 +97,7 @@ function collectYamlText(
 ): string {
   const line = lines[index] ?? ''
   const colon = line.indexOf(':')
-  let first = colon >= 0 ? line.slice(colon + 1).trim() : ''
+  const first = colon >= 0 ? line.slice(colon + 1).trim() : ''
   const values: string[] = []
 
   if (first && first !== '>' && first !== '|') values.push(first)
@@ -105,13 +114,13 @@ function promptFromProposalBlock(block: string): {
   text: string
   ref: string | null
 } {
-  const inline = block.match(
-    /^  prompt:\s*\{text:\s*(.*?),\s*ref:\s*(.*?)\}\s*$/m,
-  )
-  if (inline) {
+  const inlinePattern =
+    /^  prompt:\s*\{text:\s*(.*?),\s*ref:\s*(.*?)\}\s*$/m
+  const inlineText = capture(block, inlinePattern, 1)
+  if (inlineText !== undefined) {
     return {
-      text: yamlValue(inline[1]) ?? '',
-      ref: yamlValue(inline[2]),
+      text: yamlValue(inlineText) ?? '',
+      ref: yamlValue(capture(block, inlinePattern, 2)),
     }
   }
 
@@ -128,27 +137,30 @@ function promptFromProposalBlock(block: string): {
 
   return {
     text: textIndex >= 0 ? collectYamlText(lines, textIndex, 4) : '',
-    ref: refIndex >= 0 ? yamlValue(lines[refIndex]?.split(':').slice(1).join(':')) : null,
+    ref:
+      refIndex >= 0
+        ? yamlValue(lines[refIndex]?.split(':').slice(1).join(':'))
+        : null,
   }
 }
 
 function parsePair(block: string, key: 'accepted' | 'final'): ColoringBookPair {
-  const inline = block.match(
-    new RegExp(
-      `^  ${key}:\\s*\\{color:\\s*(.*?),\\s*bw:\\s*(.*?)\\}\\s*$`,
-      'm',
-    ),
+  const inlinePattern = new RegExp(
+    `^  ${key}:\\s*\\{color:\\s*(.*?),\\s*bw:\\s*(.*?)\\}\\s*$`,
+    'm',
   )
-  if (inline) {
+  const inlineColor = capture(block, inlinePattern, 1)
+  if (inlineColor !== undefined) {
     return {
-      color: yamlValue(inline[1]),
-      bw: yamlValue(inline[2]),
+      color: yamlValue(inlineColor),
+      bw: yamlValue(capture(block, inlinePattern, 2)),
     }
   }
 
-  const section = block.match(
-    new RegExp(`^  ${key}:\\s*$([\\s\\S]*?)(?=^  [a-z_]+:|\\Z)`, 'm'),
-  )?.[1]
+  const section = capture(
+    block,
+    new RegExp(`^  ${key}:\\s*$([\\s\\S]*?)(?=^  [a-z_]+:|$(?![\\s\\S]))`, 'm'),
+  )
   if (!section) return { color: null, bw: null }
 
   return {
@@ -167,26 +179,28 @@ function rawAssetUrl(path: string, bookSlug: string): string | null {
 }
 
 function parseInspirations(block: string, bookSlug: string): ColoringBookAsset[] {
-  const section = block.match(
-    /^  inspirations:\s*(?:\[\])?\s*$([\s\S]*?)(?=^  accepted:|\Z)/m,
-  )?.[1]
+  const section = capture(
+    block,
+    /^  inspirations:\s*(?:\[\])?\s*$([\s\S]*?)(?=^  accepted:|$(?![\s\S]))/m,
+  )
   if (!section) return []
 
   const assets: ColoringBookAsset[] = []
-  for (const inline of section.matchAll(
+  for (const match of section.matchAll(
     /^  -\s*\{path:\s*([^,}]+),\s*kind:\s*([^}]+)\}\s*$/gm,
   )) {
-    const path = yamlValue(inline[1]) ?? ''
-    const kind = yamlValue(inline[2]) ?? 'inspiration'
+    const path = yamlValue(match?.[1]) ?? ''
+    const kind = yamlValue(match?.[2]) ?? 'inspiration'
     if (path) assets.push({ path, kind, url: rawAssetUrl(path, bookSlug) })
   }
 
-  const blocks = section
+  const entries = section
     .split(/(?=^  - path:)/m)
     .filter((entry) => entry.startsWith('  - path:'))
-  for (const entry of blocks) {
-    const path = yamlValue(entry.match(/^  - path:\s*(.*?)\s*$/m)?.[1]) ?? ''
-    const kind = yamlValue(entry.match(/^    kind:\s*(.*?)\s*$/m)?.[1]) ?? 'inspiration'
+  for (const entry of entries) {
+    const path = yamlValue(capture(entry, /^  - path:\s*(.*?)\s*$/m)) ?? ''
+    const kind =
+      yamlValue(capture(entry, /^    kind:\s*(.*?)\s*$/m)) ?? 'inspiration'
     if (path && !assets.some((asset) => asset.path === path && asset.kind === kind)) {
       assets.push({ path, kind, url: rawAssetUrl(path, bookSlug) })
     }
@@ -196,10 +210,10 @@ function parseInspirations(block: string, bookSlug: string): ColoringBookAsset[]
 }
 
 function parseNotes(block: string): string[] {
-  const section = block.match(/^  notes:\s*(?:\[\])?\s*$([\s\S]*?)\Z/m)?.[1]
-  if (!section) return []
-  return [...section.matchAll(/^  -\s*(.*?)\s*$/gm)]
-    .map((match) => yamlValue(match[1]) ?? '')
+  const notesStart = block.search(/^  notes:\s*(?:\[\])?\s*$/m)
+  if (notesStart < 0) return []
+  return [...block.slice(notesStart).matchAll(/^  -\s*(.*?)\s*$/gm)]
+    .map((match) => yamlValue(match?.[1]) ?? '')
     .filter(Boolean)
 }
 
@@ -210,7 +224,7 @@ function parseMonsterPromptMap(content: string): Record<string, string> {
     .filter((block) => block.startsWith('    - id:'))
 
   for (const block of blocks) {
-    const id = yamlValue(block.match(/^    - id:\s*(.*?)\s*$/m)?.[1])
+    const id = yamlValue(capture(block, /^    - id:\s*(.*?)\s*$/m))
     if (!id) continue
     const lines = block.split('\n')
     const promptIndex = lines.findIndex((line) => /^      prompt:/.test(line))
@@ -237,22 +251,22 @@ function parseQueue(content: string): Record<string, QueueEntry> {
       const id = scalar(block, 'id', 4)
       if (!id) continue
       const errorLines = block.split('\n')
-      const errorIndex = errorLines.findIndex((line) => /^    semantic_gate_error:/.test(line))
-      const revisionSection = block.match(
-        /^    studio_revision_history:\s*$([\s\S]*?)(?=^    [a-z_]+:|\Z)/m,
-      )?.[1]
+      const errorIndex = errorLines.findIndex((line) =>
+        /^    semantic_gate_error:/.test(line),
+      )
+      const revisionSection = capture(
+        block,
+        /^    studio_revision_history:\s*$([\s\S]*?)(?=^    [a-z_]+:|$(?![\s\S]))/m,
+      )
+      const artImageId = scalar(block, 'art_image_id', 4)
+      const semanticScore = scalar(block, 'semantic_score', 4)
       result[`${bookSlug}:${id}`] = {
         status: scalar(block, 'status', 4) ?? 'unknown',
         imagePath: scalar(block, 'image_path', 4),
         renderedPath: scalar(block, 'rendered_path', 4),
-        artImageId: (() => {
-          const value = scalar(block, 'art_image_id', 4)
-          return value === null ? null : yamlNumber(value, 0) || null
-        })(),
-        semanticScore: (() => {
-          const value = scalar(block, 'semantic_score', 4)
-          return value === null ? null : yamlNumber(value, 0)
-        })(),
+        artImageId: artImageId === null ? null : yamlNumber(artImageId, 0) || null,
+        semanticScore:
+          semanticScore === null ? null : yamlNumber(semanticScore, 0),
         semanticVerdict: scalar(block, 'semantic_verdict', 4),
         semanticAttempts: yamlNumber(scalar(block, 'semantic_attempts', 4), 0),
         semanticGateError:
@@ -287,16 +301,22 @@ function emptyQueueState(): ColoringBookQueueState {
 }
 
 function selectAssetPath(
-  proposal: Pick<ColoringBookProposal, 'final' | 'accepted' | 'inspirations' | 'queue'>,
+  proposal: Pick<
+    ColoringBookProposal,
+    'final' | 'accepted' | 'inspirations' | 'queue'
+  >,
   variant: 'color' | 'bw',
 ): string | null {
   const explicit = proposal.final[variant] || proposal.accepted[variant]
   if (explicit) return explicit
-  if (variant === 'color' && proposal.queue.renderedPath) return proposal.queue.renderedPath
-  const candidate = proposal.inspirations.find((asset) =>
-    asset.kind.toLowerCase().includes(variant),
+  if (variant === 'color' && proposal.queue.renderedPath) {
+    return proposal.queue.renderedPath
+  }
+  return (
+    proposal.inspirations.find((asset) =>
+      asset.kind.toLowerCase().includes(variant),
+    )?.path ?? null
   )
-  return candidate?.path ?? null
 }
 
 function countsFor(proposals: ColoringBookProposal[]): ColoringBookCounts {
@@ -312,9 +332,12 @@ function countsFor(proposals: ColoringBookProposal[]): ColoringBookCounts {
     finalPairs: proposals.filter(
       (proposal) => Boolean(proposal.final.color && proposal.final.bw),
     ).length,
-    needsReview: proposals.filter((proposal) => proposal.queue.status === 'needs_review')
-      .length,
-    blocked: proposals.filter((proposal) => Boolean(proposal.queue.semanticGateError)).length,
+    needsReview: proposals.filter(
+      (proposal) => proposal.queue.status === 'needs_review',
+    ).length,
+    blocked: proposals.filter((proposal) =>
+      Boolean(proposal.queue.semanticGateError),
+    ).length,
   }
 }
 
@@ -324,11 +347,15 @@ function parseLedger(
   promptContent: string,
   queue: Record<string, QueueEntry>,
 ): ColoringBookStudioBook {
-  const bookSection = content.match(/^book:\s*$([\s\S]*?)(?=^[a-z_]+:|\Z)/m)?.[1] ?? ''
+  const bookSection =
+    capture(content, /^book:\s*$([\s\S]*?)(?=^[a-z_]+:|$(?![\s\S]))/m) ?? ''
   const order = yamlNumber(scalar(bookSection, 'order', 2), config.order)
   const slug = scalar(bookSection, 'slug', 2) ?? config.slug
   const title = scalar(bookSection, 'title', 2) ?? config.title
-  const targetProposals = yamlNumber(scalar(bookSection, 'target_proposals', 2), 36)
+  const targetProposals = yamlNumber(
+    scalar(bookSection, 'target_proposals', 2),
+    36,
+  )
   const coverIsSeparate = scalar(bookSection, 'cover_is_separate', 2) !== 'false'
   const status = scalar(bookSection, 'status', 2) ?? 'unknown'
   const monsterPrompts =
@@ -339,10 +366,7 @@ function parseLedger(
     .filter((block) => block.startsWith('- slot:'))
 
   const proposals = proposalBlocks.map((block): ColoringBookProposal => {
-    const slot = yamlNumber(
-      yamlValue(block.match(/^- slot:\s*(.*?)\s*$/m)?.[1]),
-      0,
-    )
+    const slot = yamlNumber(yamlValue(capture(block, /^- slot:\s*(.*?)\s*$/m)), 0)
     const id = scalar(block, 'id', 2) ?? `${slug}-${slot}`
     const promptData = promptFromProposalBlock(block)
     const queueEntry = queue[`${slug}:${id}`]
@@ -364,14 +388,12 @@ function parseLedger(
     const inspirations = parseInspirations(block, slug)
     const accepted = parsePair(block, 'accepted')
     const final = parsePair(block, 'final')
-    const prompt = monsterPrompts[id] || promptData.text
-    const promptRef = queueEntry?.sourceRef || promptData.ref
     const proposal: ColoringBookProposal = {
       slot,
       id,
       title: scalar(block, 'title', 2) ?? id,
-      prompt,
-      promptRef,
+      prompt: monsterPrompts[id] || promptData.text,
+      promptRef: queueEntry?.sourceRef || promptData.ref,
       promptSourcePath: config.promptPath,
       inspirations,
       accepted,
@@ -450,11 +472,9 @@ export function replaceColoringBookPrompt(
   if (!cleanPrompt) throw new Error('Prompt cannot be empty.')
 
   if (config.slug === 'monster-recast') {
-    const startPattern = new RegExp(
-      `^    - id:\\s*${escapeRegExp(proposalId)}\\s*$`,
-      'm',
+    const start = content.search(
+      new RegExp(`^    - id:\\s*${escapeRegExp(proposalId)}\\s*$`, 'm'),
     )
-    const start = content.search(startPattern)
     if (start < 0) throw new Error(`Prompt source not found for ${proposalId}.`)
     const tail = content.slice(start)
     const next = tail.slice(1).search(/^    - id:/m)
@@ -462,10 +482,11 @@ export function replaceColoringBookPrompt(
     const block = content.slice(start, end)
     const promptMatch = /^      prompt:.*$/m.exec(block)
     if (!promptMatch) throw new Error(`Prompt field not found for ${proposalId}.`)
-    const promptStart = start + (promptMatch.index ?? 0)
-    const afterPromptLine = promptStart + promptMatch[0].length
+    const promptStart = start + (promptMatch?.index ?? 0)
+    const promptLineLength = promptMatch?.[0]?.length ?? 0
+    const afterPromptLine = promptStart + promptLineLength
     const remaining = content.slice(afterPromptLine, end)
-    const continuation = remaining.match(/^(?:\n        .*|\n\s*)*/)?.[0] ?? ''
+    const continuation = capture(remaining, /^((?:\n        .*|\n\s*)*)/) ?? ''
     const promptEnd = afterPromptLine + continuation.length
     const replacement = [
       '      prompt: >',
@@ -492,8 +513,8 @@ export function replaceColoringBookPrompt(
   if (!promptStartMatch || !inspirationMatch) {
     throw new Error(`Prompt section not found for ${proposalId}.`)
   }
-  const promptStart = start + (promptStartMatch.index ?? 0)
-  const promptEnd = start + (inspirationMatch.index ?? block.length)
+  const promptStart = start + (promptStartMatch?.index ?? 0)
+  const promptEnd = start + (inspirationMatch?.index ?? block.length)
   const current = promptFromProposalBlock(block)
   const ref = current.ref ? JSON.stringify(current.ref) : 'null'
   const replacement = [
@@ -510,7 +531,10 @@ export function coloringBookConfig(bookSlug: string): ColoringBookConfig | null 
   return COLORING_BOOK_CONFIG.find((config) => config.slug === bookSlug) ?? null
 }
 
-export function proposalBelongsToBook(bookSlug: string, proposalId: string): boolean {
+export function proposalBelongsToBook(
+  bookSlug: string,
+  proposalId: string,
+): boolean {
   if (bookSlug === 'monster-recast') {
     return /^(?:mr-\d{3}|mr-group-\d{3})$/.test(proposalId)
   }

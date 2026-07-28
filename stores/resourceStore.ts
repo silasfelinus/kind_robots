@@ -1,6 +1,7 @@
 // /stores/resourceStore.ts
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useUserStore } from './userStore'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { resourceData } from './../stores/seeds/seedResources'
@@ -655,8 +656,24 @@ export const useResourceStore = defineStore('resourceStore', () => {
     currentResource.value = null
   }
 
+  // LoRA/LyCORIS resources, with account-level maturity gating applied (mirrors
+  // checkpointStore.visibleCheckpoints). When the user hasn't opted into mature
+  // content, mature LoRAs are filtered out entirely rather than blurred.
+  const visibleLoras = computed<Resource[]>(() => {
+    const userStore = useUserStore()
+    const showMature = userStore.showMature
+
+    return resources.value.filter((resource) => {
+      const type = String(resource.resourceType || '').toUpperCase()
+      if (type !== 'LORA' && type !== 'LYCORIS') return false
+      if (!showMature && (resource.isMature ?? false)) return false
+      return true
+    })
+  })
+
   return {
     resources,
+    visibleLoras,
     usingSnapshot,
     currentResource,
     isInitialized,

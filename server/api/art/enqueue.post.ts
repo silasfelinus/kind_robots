@@ -48,6 +48,14 @@ type EnqueueEngine =
 
 type JsonRecord = Record<string, unknown>
 
+type NarrativeEnqueueContext = {
+  product: 'storymaker' | 'taskmaster'
+  sessionId: string
+  beatId: string
+  moment: string
+  dedupeKey: string
+}
+
 type ArtEnqueueRequest = {
   engine?: string | null
   promptString?: string | null
@@ -80,6 +88,7 @@ type ArtEnqueueRequest = {
   serverName?: string | null
   projectSlug?: string | null
   priority?: number | null
+  narrativeContext?: NarrativeEnqueueContext | null
   sourceImageBase64?: string | null
   firstImageBase64?: string | null
   secondImageBase64?: string | null
@@ -129,6 +138,56 @@ function asRecord(value: unknown): JsonRecord {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? (value as JsonRecord)
     : {}
+}
+
+function narrativeRequest(
+  body: ArtEnqueueRequest | null,
+): NarrativeEnqueueContext | null {
+  const raw = asRecord(body?.narrativeContext)
+  if (!Object.keys(raw).length) return null
+
+  const product = String(raw.product || '')
+  const sessionId = String(raw.sessionId || '').trim()
+  const beatId = String(raw.beatId || '').trim()
+  const moment = String(raw.moment || '').trim()
+  const dedupeKey = String(raw.dedupeKey || '').trim()
+  const allowedMoments = new Set([
+    'opening',
+    'chapter',
+    'location',
+    'character-introduction',
+    'pivotal-event',
+    'finale',
+  ])
+
+  if (product !== 'storymaker' && product !== 'taskmaster') {
+    throw createError({ statusCode: 400, message: 'Invalid narrative product.' })
+  }
+  if (!sessionId || sessionId.length > 160 || !beatId || beatId.length > 160) {
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid narrative session or beat identity.',
+    })
+  }
+  if (!allowedMoments.has(moment)) {
+    throw createError({ statusCode: 400, message: 'Invalid narrative art moment.' })
+  }
+
+  const expectedKey = [product, sessionId, beatId, moment].join(':')
+  if (dedupeKey !== expectedKey || dedupeKey.length > 400) {
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid narrative art dedupe key.',
+    })
+  }
+
+  return {
+    product,
+    sessionId,
+    beatId,
+    moment,
+    dedupeKey,
+  }
 }
 
 function facetRequest(body: ArtEnqueueRequest | null): {
@@ -184,6 +243,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const projectSlug = body?.projectSlug?.trim().toLowerCase() || null
+    if (projectSlug && !SLUG_PATTERN.test(projectSlug)) {
+      throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
+    }
+    const narrativeContext = narrativeRequest(body)
+
     const videoFrames = VIDEO_ENGINES.has(engine)
       ? resolveVideoFrames(engine, body)
       : null
@@ -196,6 +261,36 @@ export default defineEventHandler(async (event) => {
       serverId: body?.serverId ?? null,
     })
     const isAdmin = Boolean((gate.user as { isAdmin?: boolean }).isAdmin)
+
+    if (narrativeContext) {
+      const existingJob = await prisma.artJob.findFirst({
+        where: {
+          userId: gate.user.id,
+          projectSlug,
+          status: { notIn: ['FAILED', 'CANCELLED'] },
+          payload: {
+            contains: `"dedupeKey":"${narrativeContext.dedupeKey}"`,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      if (existingJob) {
+        event.node.res.statusCode = 200
+        return {
+          success: true,
+          message: 'Existing narrative art job reused.',
+          statusCode: 200,
+          data: {
+            jobId: existingJob.id,
+            status: existingJob.status,
+            deduplicated: true,
+            mana: { charged: 0 },
+          },
+        }
+      }
+    }
+
     const resolvedLora = await resolveEnqueueLoraResource({
       body: (body ?? {}) as ArtEnqueueRequest & Record<string, unknown>,
       engine,
@@ -225,11 +320,6 @@ export default defineEventHandler(async (event) => {
       facets,
     )
 
-    const projectSlug =
-      resolvedBody.projectSlug?.trim().toLowerCase() || null
-    if (projectSlug && !SLUG_PATTERN.test(projectSlug)) {
-      throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
-    }
     const priority = Number.isInteger(resolvedBody.priority)
       ? Number(resolvedBody.priority)
       : 0
@@ -240,6 +330,7 @@ export default defineEventHandler(async (event) => {
       save,
     })
     applyArtFacetsToPayload(payload, basePromptString, facets)
+    if (narrativeContext) payload.narrativeContext = narrativeContext
 
     const provenanceResources = {
       checkpointResourceId:
@@ -278,6 +369,7 @@ export default defineEventHandler(async (event) => {
       data: {
         jobId: job.id,
         status: job.status,
+        deduplicated: false,
         mana: { balance, charged: gate.cost },
       },
     }

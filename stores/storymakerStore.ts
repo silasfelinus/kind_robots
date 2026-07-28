@@ -3,8 +3,11 @@
 // task write-back behavior; the two products share presentation only.
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
+import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
 export type StorymakerStructure = 'short-story' | 'chaptered' | 'episodic'
 export type StorymakerNarratorStyle =
@@ -69,6 +72,7 @@ export type StorymakerBeat = {
   narrative: string
   question: string
   answer?: StorymakerAnswer
+  art?: NarrativeArtJobState
   stateDelta: StorymakerStateDelta
   createdAt: string
 }
@@ -278,6 +282,7 @@ function normalizeRestoredSession(value: StorymakerSession): StorymakerSession {
 export const useStorymakerStore = defineStore('storymakerStore', () => {
   const chatStore = useChatStore()
   const userStore = useUserStore()
+  const narrativeArtJobs = useNarrativeArtJobs()
 
   const setupDraft = ref<StorymakerSetupDraft>(defaultDraft())
   const session = ref<StorymakerSession | null>(null)
@@ -336,11 +341,64 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
         session.value = normalizeRestoredSession(
           JSON.parse(sessionRaw) as StorymakerSession,
         )
+        resumeNarrativeArtJobs()
       }
     } catch {
       localStorage.removeItem(DRAFT_STORAGE_KEY)
       localStorage.removeItem(STORAGE_KEY)
     }
+  }
+
+  function updateBeatArt(beatId: string, art: NarrativeArtJobState): void {
+    const beat = session.value?.beats.find((entry) => entry.id === beatId)
+    if (!beat) return
+    beat.art = art
+    if (session.value) session.value.updatedAt = nowIso()
+    persist()
+  }
+
+  function narrativeArtContext(
+    beat: StorymakerBeat,
+    moment: NarrativeArtMoment,
+  ) {
+    const active = session.value
+    if (!active) return null
+    return {
+      product: 'storymaker' as const,
+      sessionId: active.id,
+      beatId: beat.id,
+      moment,
+      narrative: beat.narrative,
+      title: active.bible.title,
+      location: active.bible.location
+        ? ingredientDescription(active.bible.location)
+        : null,
+      cast: active.bible.cast.map(ingredientDescription),
+      facets: active.bible.facets.map(ingredientDescription),
+    }
+  }
+
+  function requestBeatArt(
+    beat: StorymakerBeat,
+    moment: NarrativeArtMoment,
+  ): void {
+    if (beat.art) return
+    const context = narrativeArtContext(beat, moment)
+    if (!context) return
+    void narrativeArtJobs.enqueue(context, (art) => updateBeatArt(beat.id, art))
+  }
+
+  function resumeNarrativeArtJobs(): void {
+    for (const beat of session.value?.beats ?? []) {
+      if (!beat.art) continue
+      narrativeArtJobs.resume(beat.art, (art) => updateBeatArt(beat.id, art))
+    }
+  }
+
+  function retryBeatArt(beatId: string): void {
+    const beat = session.value?.beats.find((entry) => entry.id === beatId)
+    if (!beat?.art) return
+    narrativeArtJobs.retry(beat.art, (art) => updateBeatArt(beat.id, art))
   }
 
   function resetSetup() {
@@ -554,18 +612,26 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
       }
 
       const beatId = makeId()
-      active.beats.push({
+      const beat: StorymakerBeat = {
         id: beatId,
         sessionId: active.id,
         narrative: parsed.narrative,
         question: closing ? '' : extractQuestion(parsed.narrative),
         stateDelta: parsed.stateDelta,
         createdAt: nowIso(),
-      })
+      }
+      active.beats.push(beat)
       applyStateDelta(active, beatId, parsed.stateDelta)
       if (closing) active.status = 'complete'
       active.updatedAt = nowIso()
       persist()
+
+      const artMoment: NarrativeArtMoment | null = closing
+        ? 'finale'
+        : active.beats.length === 1
+          ? 'opening'
+          : null
+      if (artMoment) requestBeatArt(beat, artMoment)
       return true
     } catch (error) {
       errorMessage.value =
@@ -641,6 +707,8 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
     restoreFromLocalStorage,
     resetSetup,
     resetSession,
+    resumeNarrativeArtJobs,
+    retryBeatArt,
     beginStory,
     answerCurrentBeat,
     finishStory,

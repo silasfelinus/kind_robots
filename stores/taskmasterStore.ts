@@ -3,11 +3,14 @@
 // behind an explicit per-item Apply action; conductor roadmap YAML is read-only.
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
 import { useChatStore } from '@/stores/chatStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { useTodoStore } from '@/stores/todoStore'
 import { useUserStore } from '@/stores/userStore'
+import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
+import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
 export type TaskmasterTone =
   | 'cozy'
@@ -104,6 +107,7 @@ export type TaskmasterBeat = {
   narrative: string
   question: TaskmasterQuestion
   answer?: TaskmasterAnswer
+  art?: NarrativeArtJobState
   createdAt: string
 }
 
@@ -175,6 +179,7 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   const projectStore = useProjectStore()
   const todoStore = useTodoStore()
   const userStore = useUserStore()
+  const narrativeArtJobs = useNarrativeArtJobs()
 
   const session = ref<TaskmasterSession | null>(null)
   const isWeaving = ref(false)
@@ -578,9 +583,63 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
           : []
       }
       session.value = restored
+      resumeNarrativeArtJobs()
     } catch {
       localStorage.removeItem(STORAGE_KEY)
     }
+  }
+
+  function updateBeatArt(beatId: string, art: NarrativeArtJobState): void {
+    const beat = session.value?.beats.find((entry) => entry.id === beatId)
+    if (!beat) return
+    beat.art = art
+    if (session.value) session.value.updatedAt = nowIso()
+    saveToLocalStorage()
+  }
+
+  function narrativeArtContext(
+    beat: TaskmasterBeat,
+    moment: NarrativeArtMoment,
+  ) {
+    const active = session.value
+    if (!active) return null
+    return {
+      product: 'taskmaster' as const,
+      sessionId: active.id,
+      beatId: beat.id,
+      moment,
+      narrative: beat.narrative,
+      title: active.seed.taskTitle || 'Taskmaster quest',
+      objective: active.seed.taskTitle,
+      location: active.location ? describeIngredient(active.location) : null,
+      facets: [
+        active.genre ? describeIngredient(active.genre) : '',
+        ...active.seed.vibeTags,
+      ].filter(Boolean),
+    }
+  }
+
+  function requestBeatArt(
+    beat: TaskmasterBeat,
+    moment: NarrativeArtMoment,
+  ): void {
+    if (beat.art) return
+    const context = narrativeArtContext(beat, moment)
+    if (!context) return
+    void narrativeArtJobs.enqueue(context, (art) => updateBeatArt(beat.id, art))
+  }
+
+  function resumeNarrativeArtJobs(): void {
+    for (const beat of session.value?.beats ?? []) {
+      if (!beat.art) continue
+      narrativeArtJobs.resume(beat.art, (art) => updateBeatArt(beat.id, art))
+    }
+  }
+
+  function retryBeatArt(beatId: string): void {
+    const beat = session.value?.beats.find((entry) => entry.id === beatId)
+    if (!beat?.art) return
+    narrativeArtJobs.retry(beat.art, (art) => updateBeatArt(beat.id, art))
   }
 
   function resetSession() {
@@ -792,6 +851,13 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
       active.beats.push(beat)
       active.updatedAt = nowIso()
       saveToLocalStorage()
+
+      const artMoment: NarrativeArtMoment | null = closing
+        ? 'finale'
+        : active.beats.length === 1
+          ? 'opening'
+          : null
+      if (artMoment) requestBeatArt(beat, artMoment)
       return true
     } catch (error) {
       errorMessage.value =
@@ -922,6 +988,8 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     loadRealSurfaces,
     restoreFromLocalStorage,
     resetSession,
+    resumeNarrativeArtJobs,
+    retryBeatArt,
     prepareQuest,
     startQuest,
     beginStory,

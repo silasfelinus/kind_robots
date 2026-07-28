@@ -2,7 +2,7 @@
 <template>
   <button
     type="button"
-    class="group relative flex min-h-32 w-full overflow-hidden rounded-2xl border text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50"
+    class="group relative flex min-h-32 w-full overflow-hidden rounded-2xl border text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none"
     :class="
       selected
         ? 'border-secondary bg-secondary/10 ring-1 ring-secondary/40'
@@ -10,17 +10,19 @@
     "
     :aria-pressed="selected"
     :aria-label="`${selected ? 'Selected' : 'Select'} ${item.title}`"
+    :aria-describedby="descriptionId"
     :disabled="disabled"
     @click="emit('select', item.slug)"
   >
     <span
       class="relative flex w-28 shrink-0 items-center justify-center overflow-hidden bg-base-200 sm:w-32"
+      aria-hidden="true"
     >
       <img
         v-if="artwork"
         :src="artwork"
-        :alt="`${item.title} artwork`"
-        class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105"
+        alt=""
+        class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
       />
       <Icon
         v-else
@@ -44,15 +46,17 @@
           v-if="selected"
           name="kind-icon:check"
           class="mt-0.5 size-4 shrink-0 text-secondary"
+          aria-hidden="true"
         />
       </span>
       <span
         v-if="summary"
+        :id="descriptionId"
         class="line-clamp-3 text-xs leading-relaxed text-base-content/60"
       >
         {{ summary }}
       </span>
-      <span v-else class="text-xs text-base-content/35">
+      <span v-else :id="descriptionId" class="text-xs text-base-content/35">
         Add this ingredient to the narrative.
       </span>
     </span>
@@ -60,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import {
   narrativeIngredientArtwork,
   narrativeIngredientSummary,
@@ -83,6 +87,8 @@ const emit = defineEmits<{
   select: [slug: string]
 }>()
 
+const cardId = useId()
+const descriptionId = `${cardId}-description`
 const artwork = computed(() => narrativeIngredientArtwork(props.item))
 const summary = computed(() => narrativeIngredientSummary(props.item))
 </script>

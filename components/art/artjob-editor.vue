@@ -224,6 +224,12 @@
               </dl>
             </div>
 
+            <content-visibility-controls
+              v-model:is-mature="form.isMature"
+              v-model:is-public="form.isPublic"
+              :disabled="saving"
+            />
+
             <div
               class="rounded-2xl border border-info/30 bg-info/10 p-3 text-xs leading-relaxed"
             >
@@ -247,6 +253,18 @@
                   {{ form.sampler || 'sampler default' }}
                 </span>
                 <span
+                  class="badge badge-sm rounded-2xl"
+                  :class="form.isMature ? 'badge-warning' : 'badge-outline'"
+                >
+                  {{ form.isMature ? 'Mature' : 'General' }}
+                </span>
+                <span
+                  class="badge badge-sm rounded-2xl"
+                  :class="form.isPublic ? 'badge-success badge-outline' : 'badge-neutral'"
+                >
+                  {{ form.isPublic ? 'Public' : 'Private' }}
+                </span>
+                <span
                   v-if="isVideoJob"
                   class="badge badge-accent badge-outline badge-sm rounded-2xl"
                 >
@@ -268,8 +286,8 @@
         class="flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-4"
       >
         <p class="text-xs text-base-content/50">
-          Blank seed creates a fresh random seed. Facets and video settings are
-          persisted as canonical ArtJob provenance.
+          Blank seed creates a fresh random seed. Facets, visibility, and video
+          settings are persisted as canonical ArtJob provenance.
         </p>
         <div class="flex gap-2">
           <button
@@ -325,6 +343,7 @@ import {
   type ArtJobRecord,
   type ArtJobRetryMode,
 } from '@/stores/artJobStore'
+import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
 
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 type JsonRecord = Record<string, unknown>
@@ -343,6 +362,8 @@ type FacetAwareOverrides = ArtJobOverrides & {
   durationSeconds?: number | null
   fps?: number | null
   loop?: boolean | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
 }
 type Preset = {
   value: string
@@ -522,6 +543,7 @@ function resolveVideoModel(): VideoModel {
 }
 
 const payload = computed(() => asRecord(props.job.payload))
+const visibility = resolveMaturityPrivacy(asRecord(payload.value.save))
 const isVideoJob = computed(
   () =>
     String(payload.value.media || '').toLowerCase() === 'video' ||
@@ -558,6 +580,8 @@ const form = reactive({
   durationSeconds: videoScalar(['durationSeconds']) || '4',
   fps: videoScalar(['fps']) || '24',
   loop: booleanValue(asRecord(payload.value.video).loop, true),
+  isMature: visibility.isMature,
+  isPublic: visibility.isPublic,
 })
 
 const numericFields: Array<{
@@ -666,6 +690,8 @@ async function save(): Promise<void> {
     basePromptString: prompt,
     facetIds: [...facetIds.value],
     negativePrompt: form.negativePrompt.trim(),
+    isMature: form.isMature,
+    isPublic: form.isPublic,
   }
   const numeric: Array<[keyof ArtJobOverrides, string]> = [
     ['width', form.width],
@@ -687,7 +713,11 @@ async function save(): Promise<void> {
   if (isVideoJob.value) {
     const durationSeconds = numberValue(form.durationSeconds)
     const fps = numberValue(form.fps)
-    if (durationSeconds === null || durationSeconds < 0.25 || durationSeconds > 30) {
+    if (
+      durationSeconds === null ||
+      durationSeconds < 0.25 ||
+      durationSeconds > 30
+    ) {
       localError.value = 'Video duration must be between 0.25 and 30 seconds.'
       return
     }

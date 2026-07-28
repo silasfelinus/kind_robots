@@ -346,7 +346,7 @@
           >
             <div class="flex min-w-0 gap-3">
               <a
-                v-if="jobImageSrc(job)"
+                v-if="jobImageSrc(job) && canShowJobContent(job)"
                 :href="jobImageSrc(job)"
                 target="_blank"
                 rel="noopener"
@@ -362,9 +362,9 @@
               </a>
               <div
                 v-else
-                class="flex h-28 w-24 shrink-0 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 text-center text-[10px] font-semibold uppercase text-base-content/40"
+                class="flex h-28 w-24 shrink-0 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 px-2 text-center text-[10px] font-semibold uppercase text-base-content/40"
               >
-                {{ job.status }}
+                {{ canShowJobContent(job) ? job.status : 'Mature hidden' }}
               </div>
 
               <div class="min-w-0 flex-1">
@@ -382,6 +382,26 @@
                     job.engine
                   }}</span>
                   <span
+                    class="badge badge-xs rounded-2xl"
+                    :class="
+                      jobVisibility(job).isMature
+                        ? 'badge-warning'
+                        : 'badge-outline'
+                    "
+                  >
+                    {{ jobVisibility(job).isMature ? 'Mature' : 'General' }}
+                  </span>
+                  <span
+                    class="badge badge-xs rounded-2xl"
+                    :class="
+                      jobVisibility(job).isPublic
+                        ? 'badge-success badge-outline'
+                        : 'badge-neutral'
+                    "
+                  >
+                    {{ jobVisibility(job).isPublic ? 'Public' : 'Private' }}
+                  </span>
+                  <span
                     v-if="job.projectSlug"
                     class="badge badge-secondary badge-xs rounded-2xl"
                   >
@@ -389,9 +409,16 @@
                   </span>
                 </div>
                 <p
+                  v-if="canShowJobContent(job)"
                   class="mt-2 line-clamp-5 whitespace-pre-wrap text-sm font-medium leading-relaxed"
                 >
                   {{ jobPrompt(job) || 'Prompt unavailable.' }}
+                </p>
+                <p
+                  v-else
+                  class="mt-2 rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs text-warning-content"
+                >
+                  Mature prompt and preview are hidden by your account setting.
                 </p>
                 <div class="mt-2 flex flex-wrap gap-1">
                   <span
@@ -423,35 +450,44 @@
               <div
                 class="flex flex-col gap-3 border-t border-base-300 p-3 text-xs"
               >
-                <div>
-                  <div
-                    class="font-semibold uppercase tracking-wide text-base-content/50"
-                  >
-                    Prompt
+                <div
+                  v-if="!canShowJobContent(job)"
+                  class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-warning-content"
+                >
+                  Enable mature content in your account settings to view or edit
+                  this job's prompt and preview.
+                </div>
+                <template v-else>
+                  <div>
+                    <div
+                      class="font-semibold uppercase tracking-wide text-base-content/50"
+                    >
+                      Prompt
+                    </div>
+                    <p class="mt-1 whitespace-pre-wrap leading-relaxed">
+                      {{ jobPrompt(job) }}
+                    </p>
                   </div>
-                  <p class="mt-1 whitespace-pre-wrap leading-relaxed">
-                    {{ jobPrompt(job) }}
-                  </p>
-                </div>
-                <div>
-                  <div
-                    class="font-semibold uppercase tracking-wide text-base-content/50"
-                  >
-                    Negative prompt
+                  <div>
+                    <div
+                      class="font-semibold uppercase tracking-wide text-base-content/50"
+                    >
+                      Negative prompt
+                    </div>
+                    <p class="mt-1 whitespace-pre-wrap text-base-content/70">
+                      {{ jobNegativePrompt(job) || 'None' }}
+                    </p>
                   </div>
-                  <p class="mt-1 whitespace-pre-wrap text-base-content/70">
-                    {{ jobNegativePrompt(job) || 'None' }}
-                  </p>
-                </div>
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="setting in jobSettings(job)"
-                    :key="setting"
-                    class="badge badge-outline badge-sm h-auto rounded-2xl py-1 text-[10px]"
-                  >
-                    {{ setting }}
-                  </span>
-                </div>
+                  <div class="flex flex-wrap gap-1">
+                    <span
+                      v-for="setting in jobSettings(job)"
+                      :key="setting"
+                      class="badge badge-outline badge-sm h-auto rounded-2xl py-1 text-[10px]"
+                    >
+                      {{ setting }}
+                    </span>
+                  </div>
+                </template>
               </div>
             </details>
 
@@ -459,7 +495,12 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-xs rounded-2xl"
-                :disabled="!jobPrompt(job)"
+                :disabled="!jobPrompt(job) || !canShowJobContent(job)"
+                :title="
+                  canShowJobContent(job)
+                    ? 'Copy prompt'
+                    : 'Enable mature content to reveal this prompt'
+                "
                 @click="copyPrompt(job)"
               >
                 {{ copiedJobId === job.id ? 'Copied' : 'Copy prompt' }}
@@ -470,6 +511,7 @@
                   v-if="isEditableInPlace(job)"
                   type="button"
                   class="btn btn-primary btn-xs rounded-2xl"
+                  :disabled="!canShowJobContent(job)"
                   @click="openEditor(job, 'EDIT')"
                 >
                   Edit & queue
@@ -478,6 +520,7 @@
                   v-else-if="job.status === 'RUNNING'"
                   type="button"
                   class="btn btn-primary btn-xs rounded-2xl"
+                  :disabled="!canShowJobContent(job)"
                   @click="openEditor(job, 'NEW_OUTPUT')"
                 >
                   Edit as new job
@@ -486,6 +529,7 @@
                   v-if="job.status === 'DONE'"
                   type="button"
                   class="btn btn-primary btn-xs rounded-2xl"
+                  :disabled="!canShowJobContent(job)"
                   @click="openEditor(job, 'NEW_OUTPUT')"
                 >
                   Edited output
@@ -494,6 +538,7 @@
                   v-if="job.status === 'DONE' && job.artImageId"
                   type="button"
                   class="btn btn-warning btn-xs rounded-2xl"
+                  :disabled="!canShowJobContent(job)"
                   @click="openEditor(job, 'OVERWRITE')"
                 >
                   Edit & replace
@@ -510,7 +555,7 @@
                   v-if="job.status === 'DONE' && job.artImageId"
                   type="button"
                   class="btn btn-ghost btn-xs rounded-2xl"
-                  :disabled="curationRequested(job)"
+                  :disabled="curationRequested(job) || !canShowJobContent(job)"
                   @click="requestCuration(job)"
                 >
                   {{ curationRequested(job) ? 'Curation requested' : 'Curate' }}
@@ -588,14 +633,17 @@ import {
   type UptimeSample,
   type WeakPromptRepairResult,
 } from '@/stores/artJobStore'
+import { useArtStore } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
 import type { Server } from '@/stores/serverStore'
 
 type JsonRecord = Record<string, unknown>
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 
 const artJobStore = useArtJobStore()
+const artStore = useArtStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
 
@@ -746,6 +794,14 @@ function jobNegativePrompt(job: ArtJobRecord): string {
   )
 }
 
+function jobVisibility(job: ArtJobRecord) {
+  return resolveMaturityPrivacy(asRecord(asRecord(job.payload).save))
+}
+
+function canShowJobContent(job: ArtJobRecord): boolean {
+  return !jobVisibility(job).isMature || artStore.showMature
+}
+
 function jobSettings(job: ArtJobRecord): string[] {
   const values = [
     [
@@ -877,6 +933,7 @@ function isEditableInPlace(job: ArtJobRecord): boolean {
 }
 
 function openEditor(job: ArtJobRecord, action: EditorAction): void {
+  if (!canShowJobContent(job)) return
   editorJob.value = job
   editorAction.value = action
 }
@@ -918,6 +975,7 @@ async function runWeakPromptRepair(): Promise<void> {
 }
 
 async function requestCuration(job: ArtJobRecord): Promise<void> {
+  if (!canShowJobContent(job)) return
   await artJobStore.requestCuration(job.id)
 }
 
@@ -929,6 +987,7 @@ function curationRequested(job: ArtJobRecord): boolean {
 }
 
 async function copyPrompt(job: ArtJobRecord): Promise<void> {
+  if (!canShowJobContent(job)) return
   const prompt = jobPrompt(job)
   if (!prompt || !navigator.clipboard) return
   await navigator.clipboard.writeText(prompt)

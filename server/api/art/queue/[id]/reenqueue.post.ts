@@ -19,6 +19,7 @@ import {
   type ArtJobOverrides,
   type ArtJobRetryMode,
 } from '../../../../utils/artJobRetry'
+import { applyArtJobVisibility } from '../../../../utils/artJobVisibility'
 import {
   applyArtFacetsToPayload,
   readArtFacetIds,
@@ -31,11 +32,16 @@ import {
   resolvePresetEngine,
 } from '../../../comfy/utils/engineWorkflow'
 
+type VisibilityOverrides = ArtJobOverrides & {
+  isMature?: boolean | null
+  isPublic?: boolean | null
+}
+
 type ReenqueueBody = {
   mode?: string | null
   refreshSeed?: boolean
   preset?: string | null
-  overrides?: ArtJobOverrides | null
+  overrides?: VisibilityOverrides | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -145,6 +151,7 @@ export default defineEventHandler(async (event) => {
     delete renderOverrides.facetIds
     delete renderOverrides.basePromptString
     const payload = applyArtJobOverrides(prepared, renderOverrides)
+    applyArtJobVisibility(payload, body?.overrides)
     applyArtFacetsToPayload(payload, basePrompt, facets)
     const jobEngine = presetEngine ? 'COMFY' : source.engine
 

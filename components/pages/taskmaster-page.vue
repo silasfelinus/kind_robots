@@ -105,7 +105,7 @@
       </label>
 
       <div class="space-y-2">
-        <p class="text-xs font-bold uppercase tracking-wide text-base-content/50">
+        <p class="text-xs font-bold uppercase tracking-wide text-base-content/55">
           Tone
         </p>
         <div class="flex flex-wrap gap-2">
@@ -117,8 +117,9 @@
             :class="
               tone === selectedTone
                 ? 'btn-secondary'
-                : 'btn-ghost border border-base-300'
+                : 'btn-ghost border border-base-300 bg-base-100'
             "
+            :aria-pressed="tone === selectedTone"
             @click="selectedTone = tone"
           >
             {{ tone }}
@@ -126,89 +127,35 @@
         </div>
       </div>
 
-      <div v-if="locationDreams.length" class="space-y-2">
-        <div class="flex items-center gap-2">
-          <span
-            class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-          >
-            Setting
-          </span>
-          <span class="text-[0.7rem] text-base-content/40">
-            from LOCATION Dreams
-          </span>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            class="btn btn-sm rounded-xl"
-            :class="
-              !selectedLocationSlug
-                ? 'btn-secondary'
-                : 'btn-ghost border border-base-300'
-            "
-            @click="selectedLocationSlug = null"
-          >
-            Anywhere
-          </button>
-          <button
-            v-for="dream in locationDreams"
-            :key="dream.slug ?? dream.id"
-            type="button"
-            class="btn btn-sm rounded-xl"
-            :class="
-              dream.slug === selectedLocationSlug
-                ? 'btn-secondary'
-                : 'btn-ghost border border-base-300'
-            "
-            :title="dream.flavorText ?? dream.description ?? undefined"
-            @click="selectedLocationSlug = dream.slug"
-          >
-            {{ dream.title }}
-          </button>
-        </div>
-      </div>
+      <NarrativeIngredientPicker
+        v-model="selectedLocationSlug"
+        :items="locationOptions"
+        label="Setting"
+        helper="Choose a reusable LOCATION Dream. Artwork is shown when the location already has it."
+        empty-label="Anywhere"
+        empty-description="Let Taskmaster choose a setting that fits the objective and tone."
+        empty-icon="kind-icon:dream"
+        empty-state="No active LOCATION Dreams are available yet."
+        :disabled="store.isWeaving"
+        :loading="dreamStore.loading"
+        :error="dreamStore.error"
+        :initial-limit="5"
+      />
 
-      <div v-if="genreFacets.length" class="space-y-2">
-        <div class="flex items-center gap-2">
-          <span
-            class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-          >
-            Genre and style
-          </span>
-          <span class="text-[0.7rem] text-base-content/40">
-            from reusable Facets
-          </span>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            class="btn btn-sm rounded-xl"
-            :class="
-              !selectedGrammarSlug
-                ? 'btn-secondary'
-                : 'btn-ghost border border-base-300'
-            "
-            @click="selectedGrammarSlug = null"
-          >
-            Any adventure
-          </button>
-          <button
-            v-for="facet in genreFacets"
-            :key="facet.slug ?? facet.id"
-            type="button"
-            class="btn btn-sm rounded-xl"
-            :class="
-              facet.slug === selectedGrammarSlug
-                ? 'btn-secondary'
-                : 'btn-ghost border border-base-300'
-            "
-            :title="facet.flavorText ?? facet.description ?? undefined"
-            @click="selectedGrammarSlug = facet.slug"
-          >
-            {{ facet.title }}
-          </button>
-        </div>
-      </div>
+      <NarrativeIngredientPicker
+        v-model="selectedGrammarSlug"
+        :items="grammarOptions"
+        label="Genre, mood, and style"
+        helper="Choose from the canonical Facet library. Cards use Facet artwork first and fall back to the Facet icon."
+        empty-label="Any adventure"
+        empty-description="Let Taskmaster choose the genre and story grammar automatically."
+        empty-icon="kind-icon:story"
+        empty-state="No active narrative Facets are available yet."
+        :disabled="store.isWeaving"
+        :loading="facetStore.loading"
+        :error="facetStore.error"
+        :initial-limit="8"
+      />
 
       <label class="form-control w-full">
         <div class="label py-1">
@@ -220,7 +167,7 @@
           v-model="vibeInput"
           type="text"
           placeholder="storm-lit, clockwork, defiant"
-          class="input input-bordered w-full rounded-xl"
+          class="input input-bordered w-full rounded-xl bg-base-100"
           :disabled="store.isWeaving"
         />
       </label>
@@ -246,7 +193,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-ghost rounded-xl border border-base-300"
+          class="btn btn-ghost rounded-xl border border-base-300 bg-base-100"
           :disabled="store.isWeaving || !canBegin"
           @click="begin(true)"
         >
@@ -272,34 +219,13 @@
       </div>
 
       <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
-        <article
-          v-for="beat in store.session.beats"
-          :key="beat.id"
-          class="space-y-2"
-        >
-          <div
-            class="whitespace-pre-line rounded-2xl border border-base-300 bg-base-200/60 p-4 text-sm leading-relaxed"
-          >
-            {{ beat.narrative }}
-          </div>
-          <div
-            v-if="beat.answer"
-            class="ml-8 rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm leading-relaxed"
-          >
-            {{ beat.answer.text }}
-          </div>
-        </article>
-
-        <div
-          v-if="store.isWeaving"
-          class="whitespace-pre-line rounded-2xl border border-dashed border-secondary/40 bg-base-200/40 p-4 text-sm leading-relaxed"
-        >
-          <template v-if="store.streamingText">{{ store.streamingText }}</template>
-          <span v-else class="flex items-center gap-2 text-base-content/60">
-            <span class="loading loading-dots loading-sm" />
-            Taskmaster is building the next scene…
-          </span>
-        </div>
+        <NarrativeTranscript
+          :beats="store.session.beats"
+          :is-streaming="store.isWeaving"
+          :streaming-text="store.streamingText"
+          streaming-label="Taskmaster is building the next scene…"
+          empty-label="Taskmaster is preparing the opening scene."
+        />
 
         <div
           v-if="store.currentHookContext && store.awaitingAnswer"
@@ -403,39 +329,29 @@
         </div>
       </div>
 
-      <form
+      <NarrativeResponseComposer
         v-if="!store.isComplete"
-        class="flex items-end gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-3"
-        @submit.prevent="submitAnswer"
-      >
-        <textarea
-          v-model="answerInput"
-          rows="2"
-          class="textarea textarea-bordered min-h-0 w-full flex-1 rounded-xl text-sm leading-relaxed"
-          :placeholder="
-            store.awaitingAnswer
-              ? 'What do you do?'
-              : 'Taskmaster is building the next scene…'
-          "
-          :disabled="!store.awaitingAnswer"
-          @keydown.enter.exact.prevent="submitAnswer"
-        />
-        <button
-          type="submit"
-          class="btn btn-secondary rounded-xl"
-          :disabled="!store.awaitingAnswer || !answerInput.trim()"
-        >
-          <Icon name="kind-icon:sparkles" class="size-4" /> Continue
-        </button>
-      </form>
+        v-model="answerInput"
+        :options="store.currentBeat?.question.options ?? []"
+        :disabled="!store.awaitingAnswer"
+        :loading="store.isWeaving"
+        :placeholder="
+          store.awaitingAnswer
+            ? 'What do you do?'
+            : 'Taskmaster is building the next scene…'
+        "
+        button-label="Continue"
+        hint="Story answers become proposed progress first. Real task changes still require an explicit Apply action."
+        @submit="submitAnswer"
+      />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
-import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
+import { useDreamStore } from '@/stores/dreamStore'
+import { useFacetStore } from '@/stores/facetStore'
 import { useProjectStore } from '@/stores/projectStore'
 import {
   TASKMASTER_TONES,
@@ -443,6 +359,11 @@ import {
   type TaskmasterIngredient,
   type TaskmasterTone,
 } from '@/stores/taskmasterStore'
+import {
+  parseNarrativeTags,
+  pickRandomNarrativeIngredient,
+  type NarrativeIngredientOption,
+} from '@/utils/narrativeIngredients'
 
 const store = useTaskmasterStore()
 const dreamStore = useDreamStore()
@@ -467,11 +388,43 @@ const locationDreams = computed(() =>
   ),
 )
 
+const locationOptions = computed<NarrativeIngredientOption[]>(() =>
+  locationDreams.value.map((dream) => ({
+    id: dream.id,
+    slug: dream.slug || String(dream.id),
+    title: dream.title || 'Untitled location',
+    description: dream.description,
+    flavorText: dream.flavorText,
+    imagePath:
+      dream.imagePath ||
+      dream.highlightImage ||
+      dream.ArtImage?.imagePath ||
+      null,
+    icon: 'kind-icon:dream',
+    badge: 'Location',
+  })),
+)
+
 const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])
-const genreFacets = computed(() =>
+const grammarFacets = computed(() =>
   facetStore.activeFacets.filter(
     (facet) => storyGrammarKinds.has(facet.kind) && facet.slug,
   ),
+)
+
+const grammarOptions = computed<NarrativeIngredientOption[]>(() =>
+  grammarFacets.value.map((facet) => ({
+    id: facet.id,
+    slug: facet.slug,
+    title: facet.title,
+    description: facet.description,
+    flavorText: facet.flavorText,
+    imagePath: facet.imagePath,
+    cardPath: facet.cardPath,
+    heroPath: facet.heroPath,
+    icon: facet.icon,
+    badge: taxonomyLabel(facet.taxonomy),
+  })),
 )
 
 const sessionRecap = computed(() => {
@@ -505,33 +458,23 @@ const sessionRecap = computed(() => {
   return items
 })
 
-type IngredientSource =
-  | Pick<DreamWithRelations, 'slug' | 'title' | 'description' | 'flavorText'>
-  | Pick<FacetWithAliases, 'slug' | 'title' | 'description' | 'flavorText'>
+function taxonomyLabel(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
 
 function toIngredient(
-  source: IngredientSource | undefined,
+  option: NarrativeIngredientOption | undefined,
 ): TaskmasterIngredient | undefined {
-  if (!source?.slug) return undefined
+  if (!option) return undefined
   return {
-    slug: source.slug,
-    title: source.title,
-    description: source.description,
-    flavorText: source.flavorText,
+    slug: option.slug,
+    title: option.title,
+    description: option.description,
+    flavorText: option.flavorText,
   }
-}
-
-function pickRandom<T>(items: T[]): T | undefined {
-  if (!items.length) return undefined
-  return items[Math.floor(Math.random() * items.length)]
-}
-
-function parseVibes(): string[] {
-  return vibeInput.value
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean)
-    .slice(0, 6)
 }
 
 async function begin(surprise: boolean) {
@@ -543,24 +486,24 @@ async function begin(surprise: boolean) {
       ] ?? 'surprising')
     : selectedTone.value
   const location = surprise
-    ? toIngredient(pickRandom(locationDreams.value))
+    ? toIngredient(pickRandomNarrativeIngredient(locationOptions.value))
     : toIngredient(
-        locationDreams.value.find(
-          (dream) => dream.slug === selectedLocationSlug.value,
+        locationOptions.value.find(
+          (item) => item.slug === selectedLocationSlug.value,
         ),
       )
   const genre = surprise
-    ? toIngredient(pickRandom(genreFacets.value))
+    ? toIngredient(pickRandomNarrativeIngredient(grammarOptions.value))
     : toIngredient(
-        genreFacets.value.find(
-          (facet) => facet.slug === selectedGrammarSlug.value,
+        grammarOptions.value.find(
+          (item) => item.slug === selectedGrammarSlug.value,
         ),
       )
 
   await store.beginStory({
     tone,
     taskTitle: taskInput.value.trim() || undefined,
-    vibeTags: parseVibes(),
+    vibeTags: parseNarrativeTags(vibeInput.value),
     surprise,
     location,
     genre,
@@ -568,8 +511,8 @@ async function begin(surprise: boolean) {
   })
 }
 
-async function submitAnswer() {
-  const text = answerInput.value.trim()
+async function submitAnswer(value: string) {
+  const text = value.trim()
   if (!text || !store.awaitingAnswer) return
   answerInput.value = ''
   await store.answerCurrentBeat(text)

@@ -3,7 +3,7 @@ contentType: tab
 channelKey: play
 tabKey: taskmaster
 dashboardKey: scenario
-dashboardTab: taskmaster
+dashboardTab: serendipity
 label: Taskmaster
 title: Taskmaster
 subtitle: Make the next task an adventure

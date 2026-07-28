@@ -1,5 +1,5 @@
 // /composables/useStorymakerLibrary.ts
-import { computed, ref, watch } from 'vue'
+import { computed, proxyRefs, ref, watch } from 'vue'
 import {
   useStorymakerStore,
   type StorymakerBible,
@@ -292,7 +292,7 @@ export function useStorymakerLibrary() {
     { deep: true },
   )
 
-  return {
+  return proxyRefs({
     library,
     recentStories,
     initialize,
@@ -301,5 +301,5 @@ export function useStorymakerLibrary() {
     duplicateStory,
     restartStory,
     buildExport,
-  }
+  })
 }

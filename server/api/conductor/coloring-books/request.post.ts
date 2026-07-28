@@ -21,6 +21,15 @@ const OPERATIONS = new Set<ColoringBookStudioOperation>([
   'generate-bw',
   'accept-bw',
   'finalize-pair',
+  'generate-cover',
+  'accept-cover',
+  'finalize-cover',
+])
+
+const COVER_OPERATIONS = new Set<ColoringBookStudioOperation>([
+  'generate-cover',
+  'accept-cover',
+  'finalize-cover',
 ])
 
 const OPERATION_LABELS: Record<ColoringBookStudioOperation, string> = {
@@ -29,6 +38,9 @@ const OPERATION_LABELS: Record<ColoringBookStudioOperation, string> = {
   'generate-bw': 'B&W counterpart',
   'accept-bw': 'B&W acceptance',
   'finalize-pair': 'pair finalization',
+  'generate-cover': 'cover candidate',
+  'accept-cover': 'cover acceptance',
+  'finalize-cover': 'cover finalization',
 }
 
 const IMAGE_PATH = /\.(?:webp|png|jpe?g)$/i
@@ -52,10 +64,14 @@ function normalizeSourcePath(
 ): string | null {
   const raw = String(value || '').trim().replace(/\\/g, '/')
   if (!raw) return null
-  if (operation !== 'accept-color' && operation !== 'accept-bw') {
+  if (
+    operation !== 'accept-color' &&
+    operation !== 'accept-bw' &&
+    operation !== 'accept-cover'
+  ) {
     throw createError({
       statusCode: 400,
-      message: 'Existing asset paths are supported only for color or B&W acceptance.',
+      message: 'Existing asset paths are supported only for color, B&W, or cover acceptance.',
     })
   }
 
@@ -84,19 +100,36 @@ export default defineEventHandler(async (event) => {
     await requireAdminApiUser(event)
     const body = (await readBody(event)) as Partial<ColoringBookRenderRequest> | null
     const operation = normalizeOperation(body?.operation)
+    const coverOperation = COVER_OPERATIONS.has(operation)
     const bookSlug = compact(String(body?.bookSlug || '')).toLowerCase()
     const proposalId = compact(String(body?.proposalId || '')).toLowerCase()
     const force = body?.force === true
     const note = compact(String(body?.note || '')).slice(0, 500)
+    const config = coloringBookConfig(bookSlug)
 
-    if (!coloringBookConfig(bookSlug) || !proposalBelongsToBook(bookSlug, proposalId)) {
+    if (!config) {
+      throw createError({ statusCode: 400, message: 'Invalid coloring-book slug.' })
+    }
+    if (!coverOperation && !proposalBelongsToBook(bookSlug, proposalId)) {
       throw createError({ statusCode: 400, message: 'Invalid book or proposal id.' })
     }
-    const sourcePath = normalizeSourcePath(body?.sourcePath, bookSlug, operation)
-    if (force && operation !== 'generate-color-proposals' && operation !== 'generate-bw') {
+    if (coverOperation && proposalId) {
       throw createError({
         statusCode: 400,
-        message: 'Forced revisions are supported only for color and B&W generation.',
+        message: 'Cover operations target the selected book and do not accept a proposal id.',
+      })
+    }
+
+    const sourcePath = normalizeSourcePath(body?.sourcePath, bookSlug, operation)
+    if (
+      force &&
+      operation !== 'generate-color-proposals' &&
+      operation !== 'generate-bw' &&
+      operation !== 'generate-cover'
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Forced revisions are supported only for color, B&W, and cover generation.',
       })
     }
     if (force && sourcePath) {
@@ -106,32 +139,32 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const targetKey = coverOperation ? `${bookSlug}-cover` : proposalId
+    const targetLabel = coverOperation ? `${config.title} cover` : proposalId
     const eventFiles = (await conductorList('color-art-events')) ?? []
     const alreadyQueued = eventFiles.some(
-      (entry) => entry.type === 'file' && entry.name.includes(`-${proposalId}-`),
+      (entry) => entry.type === 'file' && entry.name.includes(`-${targetKey}-`),
     )
     if (alreadyQueued) {
       throw createError({
         statusCode: 409,
-        message: `${proposalId} already has a queued Coloring Book Studio action.`,
+        message: `${targetLabel} already has a queued Coloring Book Studio action.`,
       })
     }
 
-    const requestedAt = new Date()
-    const stamp = requestedAt.toISOString().replace(/[-:.]/g, '').replace('Z', 'Z')
+    const stamp = new Date().toISOString().replace(/[-:.]/g, '').replace('Z', 'Z')
     const suffix = randomUUID().slice(0, 8)
-    const path = `color-art-events/${stamp}-${proposalId}-${operation}-${suffix}.yaml`
+    const path = `color-art-events/${stamp}-${targetKey}-${operation}-${suffix}.yaml`
     const label = OPERATION_LABELS[operation]
     const sourceLabel = sourcePath ? ` from ${sourcePath}` : ''
     const defaultNote = force
-      ? `${proposalId} ${label} revision requested from the production studio.`
-      : `${proposalId} ${label}${sourceLabel} requested from the production studio.`
+      ? `${targetLabel} ${label} revision requested from the production studio.`
+      : `${targetLabel} ${label}${sourceLabel} requested from the production studio.`
     const content = [
       'version: 1',
       `operation: ${operation}`,
       `book: ${bookSlug}`,
-      'proposal_ids:',
-      `  - ${proposalId}`,
+      ...(!coverOperation ? ['proposal_ids:', `  - ${proposalId}`] : []),
       ...(sourcePath ? [`source_path: ${JSON.stringify(sourcePath)}`] : []),
       'timeout: 600',
       `force: ${force ? 'true' : 'false'}`,
@@ -144,16 +177,16 @@ export default defineEventHandler(async (event) => {
     await conductorPut(
       path,
       content,
-      `coloring-book: request ${proposalId} ${label}${force ? ' revision' : sourceLabel}`,
+      `coloring-book: request ${targetLabel} ${label}${force ? ' revision' : sourceLabel}`,
     )
 
     return {
       success: true,
-      message: `${proposalId} ${label}${force ? ' revision' : sourceLabel} queued in Conductor.`,
+      message: `${targetLabel} ${label}${force ? ' revision' : sourceLabel} queued in Conductor.`,
       data: {
         operation,
         bookSlug,
-        proposalId,
+        proposalId: coverOperation ? undefined : proposalId,
         sourcePath,
         force,
         eventPath: path,

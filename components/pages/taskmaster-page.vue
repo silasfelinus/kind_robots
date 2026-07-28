@@ -332,7 +332,15 @@
           :streaming-text="store.streamingText"
           streaming-label="Taskmaster is building the next scene…"
           empty-label="Taskmaster is preparing the opening scene."
-        />
+        >
+          <template #after-beat="{ beat }">
+            <NarrativeArtStatus
+              :art="beat.art"
+              :label="`Illustration for ${store.session?.seed.taskTitle || 'this quest'}`"
+              @retry="store.retryBeatArt(beat.id)"
+            />
+          </template>
+        </NarrativeTranscript>
 
         <div
           v-if="store.currentHookContext && store.awaitingAnswer"

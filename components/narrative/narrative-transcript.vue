@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 
 const props = withDefaults(
   defineProps<{
@@ -45,6 +46,7 @@ const props = withDefaults(
       id: string
       narrative: string
       answer?: { text: string } | null
+      art?: NarrativeArtJobState | null
     }[]
     isStreaming?: boolean
     streamingText?: string

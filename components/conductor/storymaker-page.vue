@@ -420,7 +420,15 @@
           :streaming-text="store.streamingText"
           streaming-label="Storymaker is weaving the next scene…"
           empty-label="Storymaker is preparing the opening scene."
-        />
+        >
+          <template #after-beat="{ beat }">
+            <NarrativeArtStatus
+              :art="beat.art"
+              :label="`Illustration from ${store.session?.bible.title || 'this story'}`"
+              @retry="store.retryBeatArt(beat.id)"
+            />
+          </template>
+        </NarrativeTranscript>
 
         <p v-if="store.errorMessage" class="text-xs text-error">
           {{ store.errorMessage }}

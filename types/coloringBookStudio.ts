@@ -7,10 +7,32 @@ export type ColoringBookStudioOperation =
   | 'accept-bw'
   | 'finalize-pair'
 
+export type ColoringBookHistoryKind =
+  | 'revision'
+  | 'semantic-rejection'
+  | 'mechanical-rejection'
+  | 'unverified'
+
 export type ColoringBookAsset = {
   path: string
   kind: string
   url: string | null
+}
+
+export type ColoringBookHistoryItem = {
+  id: string
+  variant: ColoringBookVariant
+  kind: ColoringBookHistoryKind
+  path: string | null
+  url: string | null
+  createdAt: string | null
+  status: string | null
+  score: number | null
+  verdict: string | null
+  reasons: string[]
+  artImageId: number | null
+  seed: number | null
+  engine: string | null
 }
 
 export type ColoringBookPair = {
@@ -54,6 +76,7 @@ export type ColoringBookProductionState = {
   pairSemanticScore: number | null
   pairSemanticReasons: string[]
   pairFinalizedAt: string | null
+  history: ColoringBookHistoryItem[]
 }
 
 export type ColoringBookProposal = {

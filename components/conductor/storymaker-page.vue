@@ -196,8 +196,8 @@
         <div>
           <h2 class="text-lg font-black">The world and its flavor</h2>
           <p class="mt-1 text-xs leading-relaxed text-base-content/55">
-            Use canonical Dreams and Facets as ingredients. Their artwork becomes
-            part of the setup surface while technical art direction remains automatic.
+            Use canonical Dreams, Facets, and Rewards as ingredients. Their artwork
+            becomes part of the setup surface while technical art direction remains automatic.
           </p>
         </div>
 
@@ -225,6 +225,18 @@
           :error="facetStore.error"
           :initial-limit="9"
           :max-selections="5"
+        />
+
+        <NarrativeIngredientMultiPicker
+          v-model="store.setupDraft.rewardSlugs"
+          :items="rewardOptions"
+          label="Possible story Rewards"
+          helper="Choose up to three reusable Rewards the fiction may discover, grant, spend, or lose."
+          empty-state="No active Rewards are available yet. The story can continue without inventory."
+          :loading="rewardStore.isLoading || rewardStore.isInitializing"
+          :error="rewardStore.error"
+          :initial-limit="9"
+          :max-selections="3"
         />
 
         <label class="form-control w-full">
@@ -282,6 +294,12 @@
             <dt class="text-xs font-bold text-base-content/55">Facets</dt>
             <dd class="mt-1 text-sm">
               {{ selectedFacets.length ? selectedFacets.map((item) => item.title).join(', ') : 'None selected' }}
+            </dd>
+          </div>
+          <div class="rounded-2xl border border-base-300 bg-base-100 p-3 md:col-span-2">
+            <dt class="text-xs font-bold text-base-content/55">Possible Rewards</dt>
+            <dd class="mt-1 text-sm">
+              {{ selectedRewards.length ? selectedRewards.map((item) => item.title).join(', ') : 'No curated inventory pool' }}
             </dd>
           </div>
           <div
@@ -370,12 +388,18 @@
             <span class="font-bold">World:</span>
             {{ store.session.bible.location?.title || 'Invented from the premise' }}
           </p>
-          <p class="rounded-xl border border-base-300 bg-base-100 p-3 sm:col-span-2">
+          <p class="rounded-xl border border-base-300 bg-base-100 p-3">
             <span class="font-bold">Facets:</span>
             {{ store.session.bible.facets.map((item) => item.title).join(', ') || 'None selected' }}
           </p>
+          <p class="rounded-xl border border-base-300 bg-base-100 p-3">
+            <span class="font-bold">Reward pool:</span>
+            {{ store.session.bible.rewards.map((item) => item.title).join(', ') || 'None selected' }}
+          </p>
         </div>
       </details>
+
+      <StorymakerStatePanel :session="store.session" />
 
       <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
         <NarrativeTranscript
@@ -420,6 +444,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
+import { useRewardStore } from '@/stores/rewardStore'
 import {
   STORYMAKER_NARRATOR_STYLES,
   STORYMAKER_STRUCTURES,
@@ -432,6 +457,7 @@ const store = useStorymakerStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
 const facetStore = useFacetStore()
+const rewardStore = useRewardStore()
 
 const setupStep = ref(0)
 const furthestStep = ref(0)
@@ -505,6 +531,21 @@ const facetOptions = computed<NarrativeIngredientOption[]>(() =>
     })),
 )
 
+const rewardOptions = computed<NarrativeIngredientOption[]>(() =>
+  rewardStore.rewards
+    .filter((reward) => reward.isActive && reward.slug)
+    .map((reward) => ({
+      id: reward.id,
+      slug: reward.slug || String(reward.id),
+      title: reward.name || `Reward ${reward.id}`,
+      description: reward.description || reward.effect,
+      flavorText: reward.flavorText,
+      imagePath: reward.imagePath,
+      icon: reward.icon || 'kind-icon:gift',
+      badge: `${rarityLabel(reward.rarity)} ${reward.rewardType.toLowerCase()}`,
+    })),
+)
+
 const selectedCast = computed(() =>
   characterOptions.value.filter((item) =>
     store.setupDraft.castSlugs.includes(item.slug),
@@ -518,6 +559,11 @@ const selectedLocation = computed(() =>
 const selectedFacets = computed(() =>
   facetOptions.value.filter((item) =>
     store.setupDraft.facetSlugs.includes(item.slug),
+  ),
+)
+const selectedRewards = computed(() =>
+  rewardOptions.value.filter((item) =>
+    store.setupDraft.rewardSlugs.includes(item.slug),
   ),
 )
 const reviewTitle = computed(
@@ -541,7 +587,14 @@ function taxonomyLabel(value: string): string {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
+function rarityLabel(value: string): string {
+  return value.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
 function toIngredient(option: NarrativeIngredientOption): StorymakerIngredient {
+  const reward = rewardStore.rewards.find(
+    (item) => item.slug === option.slug,
+  )
   return {
     id: option.id,
     slug: option.slug,
@@ -549,6 +602,9 @@ function toIngredient(option: NarrativeIngredientOption): StorymakerIngredient {
     description: option.description,
     flavorText: option.flavorText,
     imagePath: option.cardPath || option.imagePath || option.heroPath || null,
+    icon: option.icon,
+    rarity: reward?.rarity || null,
+    effect: reward?.effect || null,
   }
 }
 
@@ -576,6 +632,7 @@ async function beginStory() {
       ? toIngredient(selectedLocation.value)
       : undefined,
     facets: selectedFacets.value.map(toIngredient),
+    rewards: selectedRewards.value.map(toIngredient),
     notes: store.setupDraft.notes,
   })
 }
@@ -602,5 +659,6 @@ onMounted(() => {
     void dreamStore.fetchDreams({ dreamType: 'LOCATION', limit: 200 })
   }
   if (!facetStore.loaded) void facetStore.fetchFacets({ take: 250 })
+  void rewardStore.initialize({ fetchRemote: true })
 })
 </script>

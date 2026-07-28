@@ -6,7 +6,7 @@
     <header class="flex flex-wrap items-start justify-between gap-2">
       <div class="flex min-w-0 flex-col gap-1">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-2xl leading-none">🏛️</span>
+          <span class="text-2xl leading-none" aria-hidden="true">🏛️</span>
           <h3 class="text-lg font-black text-base-content">
             {{ lesson.name }}
           </h3>
@@ -29,6 +29,7 @@
         type="button"
         class="btn btn-circle btn-ghost btn-sm"
         title="Close lesson"
+        aria-label="Close lesson"
         @click="emit('close')"
       >
         <Icon name="mdi:close" class="h-4 w-4" />

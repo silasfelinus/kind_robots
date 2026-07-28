@@ -47,7 +47,7 @@
           v-else
           class="flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-6 text-center"
         >
-          <span class="text-3xl">🏛️</span>
+          <span class="text-3xl" aria-hidden="true">🏛️</span>
           <p class="text-sm font-semibold text-base-content/60">
             Select a style to see its story
           </p>

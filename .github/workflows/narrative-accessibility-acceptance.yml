@@ -1,0 +1,98 @@
+name: Narrative Accessibility Acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/narrative-accessibility-acceptance.yml'
+      - 'components/narrative/**'
+      - 'cypress/public/narrative-accessibility.cy.ts'
+      - 'utils/scripts/verifyNarrativeAccessibility.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/narrative-accessibility-acceptance.yml'
+      - 'components/narrative/**'
+      - 'cypress/public/narrative-accessibility.cy.ts'
+      - 'utils/scripts/verifyNarrativeAccessibility.mjs'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Deployed base URL to verify'
+        required: false
+        default: 'https://kind-robots.vercel.app'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: narrative-accessibility-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  accessibility-contract:
+    name: Narrative accessibility contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify shared accessibility and read-only journey boundary
+        run: node utils/scripts/verifyNarrativeAccessibility.mjs
+
+      - name: Verify public Cypress configuration
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs')
+          const assert = require('node:assert').strict
+          const config = fs.readFileSync('cypress.public.config.ts', 'utf8')
+          assert.match(config, /process\.env\.CYPRESS_BASE_URL/)
+          assert.match(config, /specPattern:\s*'cypress\/public\/\*\*\/\*\.cy\.ts'/)
+          assert.match(config, /supportFile:\s*false/)
+          console.log('Public Cypress configuration boundary passed.')
+          NODE
+
+  deployed-browser:
+    name: Deployed narrative keyboard and resume acceptance
+    if: github.event_name == 'workflow_dispatch'
+    needs: accessibility-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run read-only narrative acceptance
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          config-file: cypress.public.config.ts
+          spec: cypress/public/narrative-accessibility.cy.ts
+        env:
+          CYPRESS_BASE_URL: ${{ inputs.base_url || 'https://kind-robots.vercel.app' }}
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narrative-accessibility-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

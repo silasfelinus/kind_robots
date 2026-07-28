@@ -74,6 +74,42 @@
     </header>
 
     <div
+      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-sm font-bold text-base-content">
+            {{ progressHeadline }}
+          </p>
+          <span class="text-xs font-semibold text-base-content/50">
+            {{ progressPercent }}%
+          </span>
+        </div>
+        <progress
+          class="progress progress-primary mt-2 w-full"
+          :value="academyStore.viewedLessons.length"
+          :max="academyStore.timeline.length || 1"
+          :aria-label="`${academyStore.viewedLessons.length} of ${academyStore.timeline.length} Academy lessons explored`"
+        />
+        <p class="mt-1 text-xs text-base-content/60">
+          {{ progressMessage }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm shrink-0"
+        @click="openNextLesson"
+      >
+        <Icon
+          :name="nextLesson ? 'kind-icon:arrow-right' : 'kind-icon:refresh'"
+          class="h-4 w-4"
+          aria-hidden="true"
+        />
+        {{ nextLesson ? 'Continue learning' : 'Review from the start' }}
+      </button>
+    </div>
+
+    <div
       v-if="expandedStyle"
       :id="`academy-style-detail-${expandedStyle.slug}`"
       ref="detailPanelRef"
@@ -258,6 +294,13 @@ function resetFilters() {
   nextTick(() => searchInputRef.value?.focus())
 }
 
+function openNextLesson() {
+  searchQuery.value = ''
+  lessonFilter.value = 'all'
+  expandedSlug.value =
+    nextLesson.value?.slug ?? academyStore.timeline[0]?.slug ?? null
+}
+
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape' && expandedSlug.value) {
     closeStyle()
@@ -282,6 +325,37 @@ const expandedStyle = computed<AcademyStyle | null>(() => {
     academyStore.styles.find((style) => style.slug === expandedSlug.value) ??
     null
   )
+})
+
+const nextLesson = computed<AcademyStyle | null>(() => {
+  return (
+    academyStore.timeline.find(
+      (style) => !academyStore.viewedLessons.includes(style.slug),
+    ) ?? null
+  )
+})
+
+const progressPercent = computed(() => {
+  const total = academyStore.timeline.length
+  if (!total) return 0
+  return Math.round((academyStore.viewedLessons.length / total) * 100)
+})
+
+const progressHeadline = computed(() => {
+  if (!academyStore.timeline.length) return 'Lessons are loading'
+  if (!nextLesson.value) return 'Gallery complete'
+  if (!academyStore.viewedLessons.length) return 'Start your art-history tour'
+  return 'Keep your gallery streak going'
+})
+
+const progressMessage = computed(() => {
+  if (!academyStore.timeline.length) {
+    return 'The Academy is gathering its lesson collection.'
+  }
+  if (!nextLesson.value) {
+    return 'You explored every lesson. Revisit any movement whenever inspiration gets suspiciously quiet.'
+  }
+  return `Up next: ${nextLesson.value.name} · ${nextLesson.value.era}`
 })
 
 const filteredStyles = computed<AcademyStyle[]>(() => {

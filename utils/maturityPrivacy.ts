@@ -8,6 +8,11 @@ export type MaturityPrivacy = {
   isPublic: boolean
 }
 
+function asInput(value: unknown): MaturityPrivacyInput {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  return value as MaturityPrivacyInput
+}
+
 function booleanOrUndefined(value: unknown): boolean | undefined {
   return typeof value === 'boolean' ? value : undefined
 }
@@ -19,16 +24,18 @@ function booleanOrUndefined(value: unknown): boolean | undefined {
  * mature work defaults private and general-audience work defaults public.
  */
 export function resolveMaturityPrivacy(
-  input: MaturityPrivacyInput | null | undefined,
-  fallback?: MaturityPrivacyInput | null,
+  input: unknown,
+  fallback?: unknown,
 ): MaturityPrivacy {
+  const source = asInput(input)
+  const fallbackSource = asInput(fallback)
   const isMature =
-    booleanOrUndefined(input?.isMature) ??
-    booleanOrUndefined(fallback?.isMature) ??
+    booleanOrUndefined(source.isMature) ??
+    booleanOrUndefined(fallbackSource.isMature) ??
     false
   const isPublic =
-    booleanOrUndefined(input?.isPublic) ??
-    booleanOrUndefined(fallback?.isPublic) ??
+    booleanOrUndefined(source.isPublic) ??
+    booleanOrUndefined(fallbackSource.isPublic) ??
     !isMature
 
   return { isMature, isPublic }

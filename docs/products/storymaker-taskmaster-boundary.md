@@ -14,9 +14,17 @@ Storymaker must not inherit HONEYDO completion, project-task write-back, needs-h
 
 **Taskmaster uses stories to finish tasks.**
 
-Taskmaster owns real task intake, project and HONEYDO selection, practical checkpoints, narrative framing, blocked/deferred outcomes, explicit progress review, and confirmed write-back.
+Taskmaster owns direct objective entry, project and HONEYDO selection, practical checkpoints, narrative framing, blocked/deferred outcomes, explicit progress review, and confirmed write-back.
 
 Taskmaster may reuse narrative presentation primitives, Facet selectors, entity cards, transcript components, and art infrastructure, but its store and state machine remain separate from Storymaker.
+
+## Permanent implementation invariants
+
+- Taskmaster owns its Pinia store, session types, prompt persona, and `taskmaster-session` persistence key.
+- Direct objectives remain visible alongside the fiction.
+- Project and HONEYDO answers are proposals until the user explicitly applies them.
+- Conductor roadmap YAML is never modified by a Taskmaster story answer.
+- Dashboard, tutorial, channel, placement, content, component, and store identities use Taskmaster directly rather than runtime aliases.
 
 ## Serendipity name
 

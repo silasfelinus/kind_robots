@@ -171,7 +171,7 @@ export type ColoringBookStudioData = {
 
 export type ColoringBookProductionData = {
   states: Record<string, ColoringBookProductionState>
-  covers: Record<string, ColoringBookCoverState>
+  covers?: Record<string, ColoringBookCoverState>
   fetchedAt: string
 }
 

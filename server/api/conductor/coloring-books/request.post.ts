@@ -31,6 +31,8 @@ const OPERATION_LABELS: Record<ColoringBookStudioOperation, string> = {
   'finalize-pair': 'pair finalization',
 }
 
+const IMAGE_PATH = /\.(?:webp|png|jpe?g)$/i
+
 function compact(value: string): string {
   return value.replace(/\r/g, '').replace(/\s+/g, ' ').trim()
 }
@@ -41,6 +43,40 @@ function normalizeOperation(value: unknown): ColoringBookStudioOperation {
     throw createError({ statusCode: 400, message: 'Invalid coloring-book operation.' })
   }
   return operation as ColoringBookStudioOperation
+}
+
+function normalizeSourcePath(
+  value: unknown,
+  bookSlug: string,
+  operation: ColoringBookStudioOperation,
+): string | null {
+  const raw = String(value || '').trim().replace(/\\/g, '/')
+  if (!raw) return null
+  if (operation !== 'accept-color' && operation !== 'accept-bw') {
+    throw createError({
+      statusCode: 400,
+      message: 'Existing asset paths are supported only for color or B&W acceptance.',
+    })
+  }
+
+  const prefix = `projects/coloring-book/sets/${bookSlug}/`
+  const path = raw.startsWith(prefix) ? raw.slice(prefix.length) : raw
+  if (raw.startsWith('projects/') && !raw.startsWith(prefix)) {
+    throw createError({ statusCode: 400, message: 'The selected asset belongs to another set.' })
+  }
+  if (
+    !path ||
+    path.startsWith('/') ||
+    path.includes(':') ||
+    path.split('/').includes('..') ||
+    !IMAGE_PATH.test(path)
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: 'The selected asset path is not a safe image inside this book set.',
+    })
+  }
+  return path
 }
 
 export default defineEventHandler(async (event) => {
@@ -56,10 +92,17 @@ export default defineEventHandler(async (event) => {
     if (!coloringBookConfig(bookSlug) || !proposalBelongsToBook(bookSlug, proposalId)) {
       throw createError({ statusCode: 400, message: 'Invalid book or proposal id.' })
     }
+    const sourcePath = normalizeSourcePath(body?.sourcePath, bookSlug, operation)
     if (force && operation !== 'generate-color-proposals' && operation !== 'generate-bw') {
       throw createError({
         statusCode: 400,
         message: 'Forced revisions are supported only for color and B&W generation.',
+      })
+    }
+    if (force && sourcePath) {
+      throw createError({
+        statusCode: 400,
+        message: 'Existing asset adoption cannot be combined with a forced revision.',
       })
     }
 
@@ -79,15 +122,17 @@ export default defineEventHandler(async (event) => {
     const suffix = randomUUID().slice(0, 8)
     const path = `color-art-events/${stamp}-${proposalId}-${operation}-${suffix}.yaml`
     const label = OPERATION_LABELS[operation]
+    const sourceLabel = sourcePath ? ` from ${sourcePath}` : ''
     const defaultNote = force
       ? `${proposalId} ${label} revision requested from the production studio.`
-      : `${proposalId} ${label} requested from the production studio.`
+      : `${proposalId} ${label}${sourceLabel} requested from the production studio.`
     const content = [
       'version: 1',
       `operation: ${operation}`,
       `book: ${bookSlug}`,
       'proposal_ids:',
       `  - ${proposalId}`,
+      ...(sourcePath ? [`source_path: ${JSON.stringify(sourcePath)}`] : []),
       'timeout: 600',
       `force: ${force ? 'true' : 'false'}`,
       'requested_by: kind-robots-coloring-studio',
@@ -99,13 +144,20 @@ export default defineEventHandler(async (event) => {
     await conductorPut(
       path,
       content,
-      `coloring-book: request ${proposalId} ${label}${force ? ' revision' : ''}`,
+      `coloring-book: request ${proposalId} ${label}${force ? ' revision' : sourceLabel}`,
     )
 
     return {
       success: true,
-      message: `${proposalId} ${label}${force ? ' revision' : ''} queued in Conductor.`,
-      data: { operation, bookSlug, proposalId, force, eventPath: path },
+      message: `${proposalId} ${label}${force ? ' revision' : sourceLabel} queued in Conductor.`,
+      data: {
+        operation,
+        bookSlug,
+        proposalId,
+        sourcePath,
+        force,
+        eventPath: path,
+      },
       statusCode: 201,
     }
   } catch (error: unknown) {

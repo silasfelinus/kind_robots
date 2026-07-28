@@ -10,7 +10,9 @@
     <div
       class="flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-2xl"
     >
-      <header class="flex items-start justify-between gap-3 border-b border-base-300 p-4">
+      <header
+        class="flex items-start justify-between gap-3 border-b border-base-300 p-4"
+      >
         <div>
           <h3 id="artjob-editor-title" class="text-lg font-semibold">
             {{ editorTitle }}
@@ -35,7 +37,9 @@
           {{ localError }}
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]">
+        <div
+          class="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]"
+        >
           <div class="flex min-w-0 flex-col gap-4">
             <label class="flex flex-col gap-1 text-sm">
               <span class="font-semibold">Base prompt</span>
@@ -46,7 +50,8 @@
                 placeholder="Describe the visible subject, action, setting, composition, mood, and concrete rendering style."
               />
               <span class="text-[11px] text-base-content/50">
-                Facet direction is rebuilt separately, so adding or removing chips never duplicates prompt text.
+                Facet direction is rebuilt separately, so adding or removing
+                chips never duplicates prompt text.
               </span>
             </label>
 
@@ -101,6 +106,69 @@
               </label>
             </div>
 
+            <section
+              v-if="isVideoJob"
+              class="rounded-2xl border border-accent/30 bg-accent/5 p-3"
+            >
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h4 class="text-sm font-semibold">Video options</h4>
+                  <p class="mt-1 text-xs text-base-content/55">
+                    These values update both the ArtJob metadata and the Comfy
+                    workflow used by the relay.
+                  </p>
+                </div>
+                <span class="badge badge-accent badge-outline rounded-xl">
+                  {{ videoModel.toUpperCase() }}
+                </span>
+              </div>
+
+              <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                <label class="flex flex-col gap-1 text-xs">
+                  <span class="font-semibold">Duration (seconds)</span>
+                  <input
+                    v-model="form.durationSeconds"
+                    type="number"
+                    min="0.25"
+                    max="30"
+                    step="0.25"
+                    class="input input-bordered input-sm rounded-xl"
+                  />
+                </label>
+
+                <label class="flex flex-col gap-1 text-xs">
+                  <span class="font-semibold">FPS</span>
+                  <input
+                    v-model="form.fps"
+                    type="number"
+                    min="1"
+                    max="60"
+                    step="1"
+                    class="input input-bordered input-sm rounded-xl"
+                  />
+                </label>
+
+                <label class="flex flex-col gap-1 text-xs">
+                  <span class="font-semibold">Playback</span>
+                  <span
+                    class="flex h-8 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3"
+                  >
+                    <input
+                      v-model="form.loop"
+                      type="checkbox"
+                      class="toggle toggle-accent toggle-sm"
+                    />
+                    <span>{{ form.loop ? 'Loop' : 'Play once' }}</span>
+                  </span>
+                </label>
+              </div>
+
+              <p class="mt-2 text-[11px] text-base-content/50">
+                Estimated output: {{ estimatedVideoFrames }} frames. WAN frame
+                counts are snapped to 4n+1.
+              </p>
+            </section>
+
             <label class="flex flex-col gap-1 text-sm">
               <span class="font-semibold">Checkpoint / diffusion model</span>
               <input
@@ -119,10 +187,11 @@
                 <select
                   v-model="preset"
                   class="select select-bordered rounded-2xl"
+                  :disabled="isVideoJob"
                   @change="applyPreset"
                 >
                   <option
-                    v-for="option in enginePresets"
+                    v-for="option in availableEnginePresets"
                     :key="option.value"
                     :value="option.value"
                   >
@@ -131,7 +200,7 @@
                 </select>
               </label>
               <p class="mt-2 text-xs leading-relaxed text-base-content/60">
-                {{ selectedPreset.hint }}
+                {{ selectedPresetHint }}
               </p>
               <dl class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
                 <div class="rounded-xl bg-base-100 p-2">
@@ -155,7 +224,9 @@
               </dl>
             </div>
 
-            <div class="rounded-2xl border border-info/30 bg-info/10 p-3 text-xs leading-relaxed">
+            <div
+              class="rounded-2xl border border-info/30 bg-info/10 p-3 text-xs leading-relaxed"
+            >
               <strong>{{ actionLabel }}</strong>
               <p class="mt-1">{{ actionDescription }}</p>
             </div>
@@ -175,15 +246,30 @@
                 <span class="badge badge-outline badge-sm rounded-2xl">
                   {{ form.sampler || 'sampler default' }}
                 </span>
+                <span
+                  v-if="isVideoJob"
+                  class="badge badge-accent badge-outline badge-sm rounded-2xl"
+                >
+                  {{ form.durationSeconds }}s · {{ form.fps }}fps
+                </span>
+                <span
+                  v-if="isVideoJob"
+                  class="badge badge-accent badge-outline badge-sm rounded-2xl"
+                >
+                  {{ form.loop ? 'loop' : 'play once' }}
+                </span>
               </div>
             </div>
           </aside>
         </div>
       </div>
 
-      <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-4">
+      <footer
+        class="flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-4"
+      >
         <p class="text-xs text-base-content/50">
-          Blank seed creates a fresh random seed. Facets are persisted as canonical ArtJob provenance.
+          Blank seed creates a fresh random seed. Facets and video settings are
+          persisted as canonical ArtJob provenance.
         </p>
         <div class="flex gap-2">
           <button
@@ -250,9 +336,13 @@ type FormKey =
   | 'guidance'
   | 'denoise'
   | 'seed'
+type VideoModel = 'ltx' | 'wan'
 type FacetAwareOverrides = ArtJobOverrides & {
   basePromptString?: string | null
   facetIds?: number[] | null
+  durationSeconds?: number | null
+  fps?: number | null
+  loop?: boolean | null
 }
 type Preset = {
   value: string
@@ -341,11 +431,17 @@ function asRecord(value: unknown): JsonRecord {
     ? (value as JsonRecord)
     : {}
 }
+
 function scalar(value: unknown): string {
   if (typeof value === 'string') return value.trim()
   if (typeof value === 'number' && Number.isFinite(value)) return String(value)
   return ''
 }
+
+function booleanValue(value: unknown, fallback = false): boolean {
+  return typeof value === 'boolean' ? value : fallback
+}
+
 function nestedScalar(value: unknown, keys: string[], depth = 0): string {
   if (depth > 6 || value == null) return ''
   if (Array.isArray(value)) {
@@ -366,6 +462,7 @@ function nestedScalar(value: unknown, keys: string[], depth = 0): string {
   }
   return ''
 }
+
 function payloadScalar(keys: string[]): string {
   const payload = asRecord(props.job.payload)
   for (const key of keys) {
@@ -374,6 +471,16 @@ function payloadScalar(keys: string[]): string {
   }
   return nestedScalar(payload.workflow, keys)
 }
+
+function videoScalar(keys: string[]): string {
+  const video = asRecord(asRecord(props.job.payload).video)
+  for (const key of keys) {
+    const direct = scalar(video[key])
+    if (direct) return direct
+  }
+  return ''
+}
+
 function workflowPrompt(kind: 'positive' | 'negative'): string {
   const workflow = asRecord(asRecord(props.job.payload).workflow)
   for (const value of Object.values(workflow)) {
@@ -395,6 +502,7 @@ function workflowPrompt(kind: 'positive' | 'negative'): string {
   }
   return ''
 }
+
 function payloadFacetIds(): number[] {
   const facets = asRecord(props.job.payload).facets
   if (!Array.isArray(facets)) return []
@@ -407,6 +515,22 @@ function payloadFacetIds(): number[] {
   ]
 }
 
+function resolveVideoModel(): VideoModel {
+  const raw = videoScalar(['model']).toLowerCase()
+  if (raw === 'wan') return 'wan'
+  return 'ltx'
+}
+
+const payload = computed(() => asRecord(props.job.payload))
+const isVideoJob = computed(
+  () =>
+    String(payload.value.media || '').toLowerCase() === 'video' ||
+    Object.keys(asRecord(payload.value.video)).length > 0,
+)
+const videoModel = computed(resolveVideoModel)
+const availableEnginePresets = computed(() =>
+  isVideoJob.value ? enginePresets.slice(0, 1) : enginePresets,
+)
 const facetIds = ref<number[]>(payloadFacetIds())
 const form = reactive({
   promptString:
@@ -416,8 +540,8 @@ const form = reactive({
   negativePrompt:
     payloadScalar(['negativePrompt', 'negative_prompt', 'negative']) ||
     workflowPrompt('negative'),
-  width: payloadScalar(['width']),
-  height: payloadScalar(['height']),
+  width: videoScalar(['width']) || payloadScalar(['width']),
+  height: videoScalar(['height']) || payloadScalar(['height']),
   steps: payloadScalar(['steps']),
   cfg: payloadScalar(['cfg', 'cfg_scale']),
   guidance: payloadScalar(['guidance']),
@@ -431,6 +555,9 @@ const form = reactive({
     'unet_name',
     'model_name',
   ]),
+  durationSeconds: videoScalar(['durationSeconds']) || '4',
+  fps: videoScalar(['fps']) || '24',
+  loop: booleanValue(asRecord(payload.value.video).loop, true),
 })
 
 const numericFields: Array<{
@@ -451,8 +578,26 @@ const numericFields: Array<{
 ]
 
 const selectedPreset = computed(
-  () => enginePresets.find((option) => option.value === preset.value) ?? enginePresets[0]!,
+  () =>
+    availableEnginePresets.value.find(
+      (option) => option.value === preset.value,
+    ) ?? availableEnginePresets.value[0]!,
 )
+const selectedPresetHint = computed(() =>
+  isVideoJob.value
+    ? 'Video jobs keep their LTX or WAN graph. Use the video controls to update duration, FPS, loop behavior, and frame count.'
+    : selectedPreset.value.hint,
+)
+const estimatedVideoFrames = computed(() => {
+  const duration = Number(form.durationSeconds)
+  const fps = Number(form.fps)
+  if (!Number.isFinite(duration) || !Number.isFinite(fps)) return '—'
+  if (videoModel.value === 'wan') {
+    const raw = Math.round(duration * fps)
+    return Math.max(5, Math.round((raw - 1) / 4) * 4 + 1)
+  }
+  return Math.max(2, Math.round(duration * fps) + 1)
+})
 const saving = computed(
   () =>
     artJobStore.editingJobIds.includes(props.job.id) ||
@@ -501,6 +646,7 @@ function applyPreset(): void {
   form.scheduler = selected.scheduler
   form.seed = ''
 }
+
 function numberValue(value: string): number | null {
   if (!value.trim()) return null
   const parsed = Number(value)
@@ -538,9 +684,26 @@ async function save(): Promise<void> {
   if (form.scheduler.trim()) overrides.scheduler = form.scheduler.trim()
   if (form.checkpoint.trim()) overrides.checkpoint = form.checkpoint.trim()
 
+  if (isVideoJob.value) {
+    const durationSeconds = numberValue(form.durationSeconds)
+    const fps = numberValue(form.fps)
+    if (durationSeconds === null || durationSeconds < 0.25 || durationSeconds > 30) {
+      localError.value = 'Video duration must be between 0.25 and 30 seconds.'
+      return
+    }
+    if (fps === null || fps < 1 || fps > 60) {
+      localError.value = 'Video FPS must be between 1 and 60.'
+      return
+    }
+    overrides.durationSeconds = durationSeconds
+    overrides.fps = fps
+    overrides.loop = form.loop
+  }
+
   const options = {
     refreshSeed: !form.seed.trim(),
-    preset: preset.value === 'keep' ? null : preset.value,
+    preset:
+      isVideoJob.value || preset.value === 'keep' ? null : preset.value,
     overrides,
   }
   let success = false
@@ -549,7 +712,9 @@ async function save(): Promise<void> {
   } else {
     const mode: ArtJobRetryMode =
       props.action === 'OVERWRITE' ? 'OVERWRITE' : 'NEW_OUTPUT'
-    success = Boolean(await artJobStore.reenqueueJob(props.job.id, mode, options))
+    success = Boolean(
+      await artJobStore.reenqueueJob(props.job.id, mode, options),
+    )
   }
 
   if (success) {

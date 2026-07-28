@@ -477,6 +477,10 @@ async function linkSourceToTarget(
     await tx.character.update({ where: { id: sourceId }, data: { Rewards: { connect: { id: targetId } } } })
     return true
   }
+  if (sourceType === 'Reward' && targetType === 'Character') {
+    await tx.reward.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
+    return true
+  }
   if (sourceType === 'Scenario' && targetType === 'Character') {
     await tx.scenario.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
     return true

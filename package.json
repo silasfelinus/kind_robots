@@ -95,6 +95,7 @@
     "test:newsfeed-filters": "tsx utils/scripts/verifyNewsfeedFilters.ts",
     "test:newsfeed-perspective-balance": "tsx utils/scripts/verifyNewsfeedPerspectiveBalance.ts",
     "test:tutorial-channel-resolver": "tsx utils/scripts/verifyTutorialChannelResolver.ts",
+    "test:model-builder-link-coverage": "tsx utils/scripts/verifyModelBuilderLinkCoverage.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",

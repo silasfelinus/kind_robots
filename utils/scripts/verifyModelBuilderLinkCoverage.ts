@@ -82,7 +82,8 @@ export function extractLinkedPairs(commitRouteContent: string): LinkPair[] {
 
 function findModelBlock(schema: string, modelName: string): string | null {
   const match = schema.match(new RegExp(`^model\\s+${modelName}\\s*\\{`, 'm'))
-  if (!match || match.index === undefined) return null
+  if (!match) return null
+  if (match.index === undefined) return null
   const start = match.index + match[0].length
   const end = schema.indexOf('\n}', start)
   if (end === -1) return null

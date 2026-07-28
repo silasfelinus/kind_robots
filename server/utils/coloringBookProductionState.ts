@@ -8,8 +8,6 @@ import {
   COLORING_BOOK_ROOT,
 } from '@/server/utils/coloringBookStudio'
 
-type JsonRecord = Record<string, unknown>
-
 function capture(text: string, pattern: RegExp, group = 1): string | undefined {
   return pattern.exec(text)?.[group]
 }
@@ -37,10 +35,7 @@ function yamlBoolean(value: string | null): boolean {
 
 function scalar(block: string, key: string, spaces = 4): string | null {
   return yamlValue(
-    capture(
-      block,
-      new RegExp(`^\\s{${spaces}}${key.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}:\\s*(.*?)\\s*$`, 'm'),
-    ),
+    capture(block, new RegExp(`^\\s{${spaces}}${key}:\\s*(.*?)\\s*$`, 'm')),
   )
 }
 
@@ -49,7 +44,10 @@ function listValues(block: string, key: string): string[] {
   if (inline === '[]') return []
   const section = capture(
     block,
-    new RegExp(`^    ${key}:\\s*(?:\\[\\])?\\s*$([\\s\\S]*?)(?=^    [a-z_]+:|$(?![\\s\\S]))`, 'm'),
+    new RegExp(
+      `^    ${key}:\\s*(?:\\[\\])?\\s*$([\\s\\S]*?)(?=^    [a-z_]+:|$(?![\\s\\S]))`,
+      'm',
+    ),
   )
   if (!section) return []
   return [...section.matchAll(/^\s*-\s*(.*?)\s*$/gm)]
@@ -60,7 +58,10 @@ function listValues(block: string, key: string): string[] {
 function historyCount(block: string, key: string): number {
   const section = capture(
     block,
-    new RegExp(`^    ${key}:\\s*$([\\s\\S]*?)(?=^    [a-z_]+:|$(?![\\s\\S]))`, 'm'),
+    new RegExp(
+      `^    ${key}:\\s*$([\\s\\S]*?)(?=^    [a-z_]+:|$(?![\\s\\S]))`,
+      'm',
+    ),
   )
   return section ? [...section.matchAll(/requested_at:/g)].length : 0
 }
@@ -146,10 +147,4 @@ export function buildColoringBookProductionData(
     states,
     fetchedAt: new Date().toISOString(),
   }
-}
-
-export function productionStateRecord(value: unknown): JsonRecord {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? (value as JsonRecord)
-    : {}
 }

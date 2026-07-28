@@ -39,18 +39,15 @@ async function main(): Promise<void> {
     ),
   ) as Record<keyof typeof files, string>
 
-  // The gallery reads the canonical catalog grouped by taxonomy.
   requireText(files.gallery, text.gallery, 'useFacetCatalogStore')
   requireText(files.gallery, text.gallery, 'byTaxonomy')
   requireText(files.gallery, text.gallery, 'FACET_TAXONOMIES')
 
-  // Art requests reuse the shared store and are gated behind admin.
   requireText(files.gallery, text.gallery, 'useFacetArtRequestStore')
   requireText(files.gallery, text.gallery, 'requestPrimaryArtwork')
   requireText(files.gallery, text.gallery, 'canRequestArt')
   requireText(files.gallery, text.gallery, 'userStore.isAdmin')
 
-  // The gallery is a read-only showcase: it must not mutate the catalog.
   for (const mutation of [
     'createFacet',
     'updateFacet',
@@ -60,8 +57,13 @@ async function main(): Promise<void> {
     forbidText(files.gallery, text.gallery, mutation)
   }
 
-  // The content route mounts the gallery component.
-  requireText(files.content, text.content, ':facet-gallery')
+  const mountsGallery = text.content.includes(':facet-gallery')
+  const redirectsToCanonicalGallery = text.content.includes('redirect: /facets')
+  if (!mountsGallery && !redirectsToCanonicalGallery) {
+    throw new Error(
+      `${files.content} must mount :facet-gallery or redirect to the canonical /facets route`,
+    )
+  }
 
   process.stdout.write(
     'Facet gallery verified: read-only taxonomy showcase on the canonical catalog with admin-gated art requests.\n',

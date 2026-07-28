@@ -12,6 +12,9 @@
   (TV only), and the two extra stats tiles (comics read, TV seasons) close
   the BROWSE-UX.md §2/§4 gaps -- the API already computed/accepted this
   data, it just wasn't wired into the UI yet (media-watchlist/t-006, t-012).
+  The "most active month" line (media-watchlist/t-013, BROWSE-UX.md §1) reuses
+  the same stats.get.ts countByMonth breakdown that already powers the Month
+  filter chips -- no backend change needed, just picking the max and naming it.
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -26,6 +29,15 @@
     </div>
 
     <template v-else>
+      <!-- Most active month (BROWSE-UX.md §1) -->
+      <p
+        v-if="mostActiveMonth"
+        class="rounded-2xl border border-base-300 bg-base-100 px-4 py-2 text-center text-sm font-semibold text-base-content/70"
+      >
+        You consumed the most in {{ mostActiveMonth.label }}:
+        {{ mostActiveMonth.count }} entries
+      </p>
+
       <!-- Stats strip -->
       <div
         v-if="stats"
@@ -366,6 +378,7 @@ type MediaEntryStats = {
   years: number[]
   totalCount: number
   starredCount: number
+  countByMonth: Record<string, number>
   audiobookHours: number
   pagesRead: number
   comicIssuesRead: number
@@ -423,6 +436,28 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const stats = ref<MediaEntryStats | null>(null)
 const selectedId = ref<number | null>(null)
+
+// BROWSE-UX.md §1: "Most active month: 'You consumed the most in [Month]: N
+// entries'". countByMonth is keyed by month number as a string (1-12); pick
+// the highest count and name it. No entry -> hide the line rather than
+// showing a false "January: 0".
+const mostActiveMonth = computed(() => {
+  const counts = stats.value?.countByMonth
+  if (!counts) return null
+  let bestMonth: number | null = null
+  let bestCount = 0
+  for (const [monthKey, count] of Object.entries(counts)) {
+    if (count > bestCount) {
+      bestCount = count
+      bestMonth = Number(monthKey)
+    }
+  }
+  if (bestMonth === null) return null
+  const label = new Date(2000, bestMonth - 1, 1).toLocaleString('en-US', {
+    month: 'long',
+  })
+  return { label, count: bestCount }
+})
 
 const canShowMore = computed(() => entries.value.length < total.value)
 const selectedEntry = computed(

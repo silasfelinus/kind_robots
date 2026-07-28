@@ -70,7 +70,7 @@ assert.ok(
 
 includesAll('components/narrative/narrative-ingredient-multi-picker.vue', [
   '<NarrativeIngredientCard',
-  ':max-selections',
+  'maxSelections',
   "emit('update:modelValue'",
 ])
 

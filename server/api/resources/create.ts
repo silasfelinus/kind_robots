@@ -43,6 +43,8 @@ export const resourceCreateFields = new Set<string>([
   'defaultTrigger',
   'hash',
   'previewImageUrl',
+  'civitaiModelId',
+  'civitaiModelVersionId',
   'imagePath',
   'slug',
   // relation-alias inputs the builder understands
@@ -284,6 +286,10 @@ export async function buildResourceCreateInput(options: {
     defaultTrigger: nullableText(entry.defaultTrigger),
     hash: nullableText(entry.hash),
     previewImageUrl: nullableText(entry.previewImageUrl),
+    civitaiModelId: optionalPositiveId(entry.civitaiModelId, 'civitaiModelId') ?? null,
+    civitaiModelVersionId:
+      optionalPositiveId(entry.civitaiModelVersionId, 'civitaiModelVersionId') ??
+      null,
     isMature: booleanValue(entry.isMature, false),
     isPublic: booleanValue(entry.isPublic, false),
     isActive: booleanValue(entry.isActive, true),

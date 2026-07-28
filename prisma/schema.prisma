@@ -1104,6 +1104,11 @@ model Resource {
   defaultTrigger  String?         @db.Text
   hash            String?         @db.VarChar(64)
   previewImageUrl String?         @db.Text
+  /// Civitai model + version ids, when this row was resolved from Civitai
+  /// (populated by scan_loras.py's hash lookup). Used to hide already-owned
+  /// LoRAs in the Discover browser and to detect newer upstream versions.
+  civitaiModelId        Int?
+  civitaiModelVersionId Int?
   imagePath       String?
   slug            String?         @unique @db.VarChar(255)
   /// Whether the checkpoint/LoRA this row represents is licensed for
@@ -1121,6 +1126,8 @@ model Resource {
 
   @@index([userId], map: "Resource_userId_fkey")
   @@index([artImageId], map: "Resource_artImageId_fkey")
+  @@index([civitaiModelId], map: "Resource_civitaiModelId_idx")
+  @@index([civitaiModelVersionId], map: "Resource_civitaiModelVersionId_idx")
 }
 
 /// Rewards are skills, items, pets, and other collectibles used in storytelling

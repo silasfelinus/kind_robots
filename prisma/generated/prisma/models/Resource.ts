@@ -30,12 +30,16 @@ export type ResourceAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   artImageId: number | null
+  civitaiModelId: number | null
+  civitaiModelVersionId: number | null
 }
 
 export type ResourceSumAggregateOutputType = {
   id: number | null
   userId: number | null
   artImageId: number | null
+  civitaiModelId: number | null
+  civitaiModelVersionId: number | null
 }
 
 export type ResourceMinAggregateOutputType = {
@@ -63,6 +67,8 @@ export type ResourceMinAggregateOutputType = {
   defaultTrigger: string | null
   hash: string | null
   previewImageUrl: string | null
+  civitaiModelId: number | null
+  civitaiModelVersionId: number | null
   imagePath: string | null
   slug: string | null
   commercialSafe: boolean | null
@@ -93,6 +99,8 @@ export type ResourceMaxAggregateOutputType = {
   defaultTrigger: string | null
   hash: string | null
   previewImageUrl: string | null
+  civitaiModelId: number | null
+  civitaiModelVersionId: number | null
   imagePath: string | null
   slug: string | null
   commercialSafe: boolean | null
@@ -123,6 +131,8 @@ export type ResourceCountAggregateOutputType = {
   defaultTrigger: number
   hash: number
   previewImageUrl: number
+  civitaiModelId: number
+  civitaiModelVersionId: number
   imagePath: number
   slug: number
   commercialSafe: number
@@ -134,12 +144,16 @@ export type ResourceAvgAggregateInputType = {
   id?: true
   userId?: true
   artImageId?: true
+  civitaiModelId?: true
+  civitaiModelVersionId?: true
 }
 
 export type ResourceSumAggregateInputType = {
   id?: true
   userId?: true
   artImageId?: true
+  civitaiModelId?: true
+  civitaiModelVersionId?: true
 }
 
 export type ResourceMinAggregateInputType = {
@@ -167,6 +181,8 @@ export type ResourceMinAggregateInputType = {
   defaultTrigger?: true
   hash?: true
   previewImageUrl?: true
+  civitaiModelId?: true
+  civitaiModelVersionId?: true
   imagePath?: true
   slug?: true
   commercialSafe?: true
@@ -197,6 +213,8 @@ export type ResourceMaxAggregateInputType = {
   defaultTrigger?: true
   hash?: true
   previewImageUrl?: true
+  civitaiModelId?: true
+  civitaiModelVersionId?: true
   imagePath?: true
   slug?: true
   commercialSafe?: true
@@ -227,6 +245,8 @@ export type ResourceCountAggregateInputType = {
   defaultTrigger?: true
   hash?: true
   previewImageUrl?: true
+  civitaiModelId?: true
+  civitaiModelVersionId?: true
   imagePath?: true
   slug?: true
   commercialSafe?: true
@@ -344,6 +364,8 @@ export type ResourceGroupByOutputType = {
   defaultTrigger: string | null
   hash: string | null
   previewImageUrl: string | null
+  civitaiModelId: number | null
+  civitaiModelVersionId: number | null
   imagePath: string | null
   slug: string | null
   commercialSafe: boolean
@@ -397,6 +419,8 @@ export type ResourceWhereInput = {
   defaultTrigger?: Prisma.StringNullableFilter<"Resource"> | string | null
   hash?: Prisma.StringNullableFilter<"Resource"> | string | null
   previewImageUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
+  civitaiModelId?: Prisma.IntNullableFilter<"Resource"> | number | null
+  civitaiModelVersionId?: Prisma.IntNullableFilter<"Resource"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Resource"> | string | null
   slug?: Prisma.StringNullableFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolFilter<"Resource"> | boolean
@@ -433,6 +457,8 @@ export type ResourceOrderByWithRelationInput = {
   defaultTrigger?: Prisma.SortOrderInput | Prisma.SortOrder
   hash?: Prisma.SortOrderInput | Prisma.SortOrder
   previewImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
@@ -474,6 +500,8 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   defaultTrigger?: Prisma.StringNullableFilter<"Resource"> | string | null
   hash?: Prisma.StringNullableFilter<"Resource"> | string | null
   previewImageUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
+  civitaiModelId?: Prisma.IntNullableFilter<"Resource"> | number | null
+  civitaiModelVersionId?: Prisma.IntNullableFilter<"Resource"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolFilter<"Resource"> | boolean
   ArtImages?: Prisma.ArtImageListRelationFilter
@@ -509,6 +537,8 @@ export type ResourceOrderByWithAggregationInput = {
   defaultTrigger?: Prisma.SortOrderInput | Prisma.SortOrder
   hash?: Prisma.SortOrderInput | Prisma.SortOrder
   previewImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
@@ -547,6 +577,8 @@ export type ResourceScalarWhereWithAggregatesInput = {
   defaultTrigger?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   hash?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   previewImageUrl?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
+  civitaiModelId?: Prisma.IntNullableWithAggregatesFilter<"Resource"> | number | null
+  civitaiModelVersionId?: Prisma.IntNullableWithAggregatesFilter<"Resource"> | number | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   slug?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
@@ -574,6 +606,8 @@ export type ResourceCreateInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -610,6 +644,8 @@ export type ResourceUncheckedCreateInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -641,6 +677,8 @@ export type ResourceUpdateInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -677,6 +715,8 @@ export type ResourceUncheckedUpdateInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -711,6 +751,8 @@ export type ResourceCreateManyInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -738,6 +780,8 @@ export type ResourceUpdateManyMutationInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -768,6 +812,8 @@ export type ResourceUncheckedUpdateManyInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -819,6 +865,8 @@ export type ResourceCountOrderByAggregateInput = {
   defaultTrigger?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   previewImageUrl?: Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
@@ -828,6 +876,8 @@ export type ResourceAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrder
 }
 
 export type ResourceMaxOrderByAggregateInput = {
@@ -855,6 +905,8 @@ export type ResourceMaxOrderByAggregateInput = {
   defaultTrigger?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   previewImageUrl?: Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
@@ -885,6 +937,8 @@ export type ResourceMinOrderByAggregateInput = {
   defaultTrigger?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   previewImageUrl?: Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
@@ -894,6 +948,8 @@ export type ResourceSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  civitaiModelId?: Prisma.SortOrder
+  civitaiModelVersionId?: Prisma.SortOrder
 }
 
 export type ResourceCreateNestedOneWithoutArtImagesInput = {
@@ -1118,6 +1174,8 @@ export type ResourceCreateWithoutArtImagesInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1153,6 +1211,8 @@ export type ResourceUncheckedCreateWithoutArtImagesInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1188,6 +1248,8 @@ export type ResourceCreateWithoutArtImageInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1222,6 +1284,8 @@ export type ResourceUncheckedCreateWithoutArtImageInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1263,6 +1327,8 @@ export type ResourceCreateWithoutUsedInImagesInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1298,6 +1364,8 @@ export type ResourceUncheckedCreateWithoutUsedInImagesInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1344,6 +1412,8 @@ export type ResourceUpdateWithoutArtImagesInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1379,6 +1449,8 @@ export type ResourceUncheckedUpdateWithoutArtImagesInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1431,6 +1503,8 @@ export type ResourceScalarWhereInput = {
   defaultTrigger?: Prisma.StringNullableFilter<"Resource"> | string | null
   hash?: Prisma.StringNullableFilter<"Resource"> | string | null
   previewImageUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
+  civitaiModelId?: Prisma.IntNullableFilter<"Resource"> | number | null
+  civitaiModelVersionId?: Prisma.IntNullableFilter<"Resource"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Resource"> | string | null
   slug?: Prisma.StringNullableFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolFilter<"Resource"> | boolean
@@ -1474,6 +1548,8 @@ export type ResourceCreateWithoutReactionsInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1509,6 +1585,8 @@ export type ResourceUncheckedCreateWithoutReactionsInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1555,6 +1633,8 @@ export type ResourceUpdateWithoutReactionsInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1590,6 +1670,8 @@ export type ResourceUncheckedUpdateWithoutReactionsInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1620,6 +1702,8 @@ export type ResourceCreateWithoutServersInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1655,6 +1739,8 @@ export type ResourceUncheckedCreateWithoutServersInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1706,6 +1792,8 @@ export type ResourceCreateWithoutUserInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1740,6 +1828,8 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1799,6 +1889,8 @@ export type ResourceCreateManyArtImageInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -1826,6 +1918,8 @@ export type ResourceUpdateWithoutArtImageInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1860,6 +1954,8 @@ export type ResourceUncheckedUpdateWithoutArtImageInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1893,6 +1989,8 @@ export type ResourceUncheckedUpdateManyWithoutArtImageInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1920,6 +2018,8 @@ export type ResourceUpdateWithoutUsedInImagesInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1955,6 +2055,8 @@ export type ResourceUncheckedUpdateWithoutUsedInImagesInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1988,6 +2090,8 @@ export type ResourceUncheckedUpdateManyWithoutUsedInImagesInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2015,6 +2119,8 @@ export type ResourceUpdateWithoutServersInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2050,6 +2156,8 @@ export type ResourceUncheckedUpdateWithoutServersInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2083,6 +2191,8 @@ export type ResourceUncheckedUpdateManyWithoutServersInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2112,6 +2222,8 @@ export type ResourceCreateManyUserInput = {
   defaultTrigger?: string | null
   hash?: string | null
   previewImageUrl?: string | null
+  civitaiModelId?: number | null
+  civitaiModelVersionId?: number | null
   imagePath?: string | null
   slug?: string | null
   commercialSafe?: boolean
@@ -2139,6 +2251,8 @@ export type ResourceUpdateWithoutUserInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2173,6 +2287,8 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2206,6 +2322,8 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
   defaultTrigger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previewImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2294,6 +2412,8 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   defaultTrigger?: boolean
   hash?: boolean
   previewImageUrl?: boolean
+  civitaiModelId?: boolean
+  civitaiModelVersionId?: boolean
   imagePath?: boolean
   slug?: boolean
   commercialSafe?: boolean
@@ -2333,12 +2453,14 @@ export type ResourceSelectScalar = {
   defaultTrigger?: boolean
   hash?: boolean
   previewImageUrl?: boolean
+  civitaiModelId?: boolean
+  civitaiModelVersionId?: boolean
   imagePath?: boolean
   slug?: boolean
   commercialSafe?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isMature" | "resourceType" | "userId" | "artImageId" | "generation" | "supportedServer" | "isPublic" | "isActive" | "artPrompt" | "triggerWords" | "defaultTrigger" | "hash" | "previewImageUrl" | "imagePath" | "slug" | "commercialSafe", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isMature" | "resourceType" | "userId" | "artImageId" | "generation" | "supportedServer" | "isPublic" | "isActive" | "artPrompt" | "triggerWords" | "defaultTrigger" | "hash" | "previewImageUrl" | "civitaiModelId" | "civitaiModelVersionId" | "imagePath" | "slug" | "commercialSafe", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImages?: boolean | Prisma.Resource$ArtImagesArgs<ExtArgs>
   Reactions?: boolean | Prisma.Resource$ReactionsArgs<ExtArgs>
@@ -2384,6 +2506,13 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     defaultTrigger: string | null
     hash: string | null
     previewImageUrl: string | null
+    /**
+     * Civitai model + version ids, when this row was resolved from Civitai
+     * (populated by scan_loras.py's hash lookup). Used to hide already-owned
+     * LoRAs in the Discover browser and to detect newer upstream versions.
+     */
+    civitaiModelId: number | null
+    civitaiModelVersionId: number | null
     imagePath: string | null
     slug: string | null
     /**
@@ -2793,6 +2922,8 @@ export interface ResourceFieldRefs {
   readonly defaultTrigger: Prisma.FieldRef<"Resource", 'String'>
   readonly hash: Prisma.FieldRef<"Resource", 'String'>
   readonly previewImageUrl: Prisma.FieldRef<"Resource", 'String'>
+  readonly civitaiModelId: Prisma.FieldRef<"Resource", 'Int'>
+  readonly civitaiModelVersionId: Prisma.FieldRef<"Resource", 'Int'>
   readonly imagePath: Prisma.FieldRef<"Resource", 'String'>
   readonly slug: Prisma.FieldRef<"Resource", 'String'>
   readonly commercialSafe: Prisma.FieldRef<"Resource", 'Boolean'>

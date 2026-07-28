@@ -1063,6 +1063,8 @@ export const ResourceScalarFieldEnum = {
   defaultTrigger: 'defaultTrigger',
   hash: 'hash',
   previewImageUrl: 'previewImageUrl',
+  civitaiModelId: 'civitaiModelId',
+  civitaiModelVersionId: 'civitaiModelVersionId',
   imagePath: 'imagePath',
   slug: 'slug',
   commercialSafe: 'commercialSafe'

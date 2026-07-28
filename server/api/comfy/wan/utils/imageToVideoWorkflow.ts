@@ -40,6 +40,8 @@ export type WanImageToVideoInput = {
   cfg?: number | null
   sampler?: string | null
   scheduler?: string | null
+  loraName?: string | null
+  loraStrength?: number | null
   // Fraction of the total steps handled by the high-noise expert before the
   // low-noise expert takes over (0–1). Defaults to WAN_DEFAULT_BOUNDARY.
   boundary?: number | null
@@ -152,6 +154,32 @@ export function buildWanImageToVideoWorkflow(
     },
   }
 
+  let highModelRef: [string, number] = ['unet_high', 0]
+  let lowModelRef: [string, number] = ['unet_low', 0]
+  const loraName = input.loraName?.trim()
+  if (loraName) {
+    workflow['lora_high'] = {
+      inputs: {
+        lora_name: loraName,
+        strength_model: input.loraStrength ?? 1,
+        model: highModelRef,
+      },
+      class_type: 'LoraLoaderModelOnly',
+      _meta: { title: 'Load Selected WAN LoRA (High Noise)' },
+    }
+    workflow['lora_low'] = {
+      inputs: {
+        lora_name: loraName,
+        strength_model: input.loraStrength ?? 1,
+        model: lowModelRef,
+      },
+      class_type: 'LoraLoaderModelOnly',
+      _meta: { title: 'Load Selected WAN LoRA (Low Noise)' },
+    }
+    highModelRef = ['lora_high', 0]
+    lowModelRef = ['lora_low', 0]
+  }
+
   // WanImageToVideo emits conditioning + the seed latent from the start frame.
   // An optional end frame (WAN 2.2 first-last-frame) pins the final frame.
   const i2vInputs: Record<string, unknown> = {
@@ -194,7 +222,7 @@ export function buildWanImageToVideoWorkflow(
       start_at_step: 0,
       end_at_step: split,
       return_with_leftover_noise: 'enable',
-      model: ['unet_high', 0],
+      model: highModelRef,
       positive: ['wan_i2v', 0],
       negative: ['wan_i2v', 1],
       latent_image: ['wan_i2v', 2],
@@ -215,7 +243,7 @@ export function buildWanImageToVideoWorkflow(
       start_at_step: split,
       end_at_step: 10_000,
       return_with_leftover_noise: 'disable',
-      model: ['unet_low', 0],
+      model: lowModelRef,
       positive: ['wan_i2v', 0],
       negative: ['wan_i2v', 1],
       latent_image: ['sampler_high', 0],

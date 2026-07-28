@@ -37,7 +37,11 @@ export type LtxImageToVideoInput = {
   cfg?: number | null
   sampler?: string | null
   sigmas?: string | null
+  // Strength for LTX's required distilled acceleration LoRA.
   loraStrength?: number | null
+  // Optional user-selected Resource LoRA, applied after the required LTX LoRA.
+  styleLoraName?: string | null
+  styleLoraStrength?: number | null
   tileSize?: number | null
   tileOverlap?: number | null
   temporalSize?: number | null
@@ -110,7 +114,7 @@ export function buildLtxImageToVideoWorkflow(
         model: ['317', 0],
       },
       class_type: 'LoraLoaderModelOnly',
-      _meta: { title: 'Load LoRA' },
+      _meta: { title: 'Load Required LTX Distilled LoRA' },
     },
 
     // --- Prompt conditioning -----------------------------------------------
@@ -175,6 +179,21 @@ export function buildLtxImageToVideoWorkflow(
     },
   }
 
+  let sampledModelRef: [string, number] = ['293', 0]
+  const styleLoraName = input.styleLoraName?.trim()
+  if (styleLoraName) {
+    workflow['video_lora'] = {
+      inputs: {
+        lora_name: styleLoraName,
+        strength_model: input.styleLoraStrength ?? 1,
+        model: sampledModelRef,
+      },
+      class_type: 'LoraLoaderModelOnly',
+      _meta: { title: 'Load Selected LTX LoRA' },
+    }
+    sampledModelRef = ['video_lora', 0]
+  }
+
   // Node ids that feed the sampler. Default: straight off LTXVImgToVideo.
   let positiveRef: [string, number] = ['ltxv_i2v', 0]
   let negativeRef: [string, number] = ['ltxv_i2v', 1]
@@ -237,7 +256,7 @@ export function buildLtxImageToVideoWorkflow(
   workflow['315'] = {
     inputs: {
       cfg: input.cfg ?? LTX_DEFAULT_CFG,
-      model: ['293', 0],
+      model: sampledModelRef,
       positive: positiveRef,
       negative: negativeRef,
     },

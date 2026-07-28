@@ -3,6 +3,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { authAndGate } from '../../utils/comfyGate'
+import { resolveEnqueueLoraResource } from '../../utils/artLoraResource'
 import { buildDefaultComfyWorkflow } from '../comfy/sdxl/utils/workflow'
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
 import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
@@ -177,7 +178,10 @@ export default defineEventHandler(async (event) => {
       body?.promptString || body?.artPrompt || body?.prompt || '',
     ).trim()
     if (!requestedPrompt) {
-      throw createError({ statusCode: 400, message: 'Missing required field: "promptString".' })
+      throw createError({
+        statusCode: 400,
+        message: 'Missing required field: "promptString".',
+      })
     }
 
     const videoFrames = VIDEO_ENGINES.has(engine)
@@ -191,20 +195,28 @@ export default defineEventHandler(async (event) => {
       frames: videoFrames,
       serverId: body?.serverId ?? null,
     })
+    const isAdmin = Boolean((gate.user as { isAdmin?: boolean }).isAdmin)
+    const resolvedLora = await resolveEnqueueLoraResource({
+      body: (body ?? {}) as ArtEnqueueRequest & Record<string, unknown>,
+      engine,
+      userId: gate.user.id,
+      isAdmin,
+    })
+    const resolvedBody = resolvedLora.body as ArtEnqueueRequest
 
-    const requestedFacets = facetRequest(body)
+    const requestedFacets = facetRequest(resolvedBody)
     const basePromptString = requestedFacets.basePromptString || requestedPrompt
     const facets = await resolveArtFacetSelection({
       facetIds: requestedFacets.facetIds,
       userId: gate.user.id,
-      isAdmin: Boolean((gate.user as { isAdmin?: boolean }).isAdmin),
-      includeMature: Boolean(body?.isMature),
+      isAdmin,
+      includeMature: Boolean(resolvedBody.isMature),
     })
 
     const save = {
-      isPublic: body?.isPublic ?? true,
-      isMature: body?.isMature ?? false,
-      designer: body?.designer?.trim() || null,
+      isPublic: resolvedBody.isPublic ?? true,
+      isMature: resolvedBody.isMature ?? false,
+      designer: resolvedBody.designer?.trim() || null,
     }
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(
@@ -213,14 +225,17 @@ export default defineEventHandler(async (event) => {
       facets,
     )
 
-    const projectSlug = body?.projectSlug?.trim().toLowerCase() || null
+    const projectSlug =
+      resolvedBody.projectSlug?.trim().toLowerCase() || null
     if (projectSlug && !SLUG_PATTERN.test(projectSlug)) {
       throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
     }
-    const priority = Number.isInteger(body?.priority) ? Number(body?.priority) : 0
+    const priority = Number.isInteger(resolvedBody.priority)
+      ? Number(resolvedBody.priority)
+      : 0
 
     const { jobEngine, payload } = buildJobPayload(engine, {
-      body: body ?? {},
+      body: resolvedBody,
       promptString,
       save,
     })
@@ -228,21 +243,13 @@ export default defineEventHandler(async (event) => {
 
     const provenanceResources = {
       checkpointResourceId:
-        Number.isInteger(body?.checkpointResourceId) &&
-        Number(body?.checkpointResourceId) > 0
-          ? Number(body?.checkpointResourceId)
+        Number.isInteger(resolvedBody.checkpointResourceId) &&
+        Number(resolvedBody.checkpointResourceId) > 0
+          ? Number(resolvedBody.checkpointResourceId)
           : null,
-      loraResourceIds: Array.isArray(body?.loraResourceIds)
-        ? [
-            ...new Set(
-              body.loraResourceIds
-                .map(Number)
-                .filter((id) => Number.isInteger(id) && id > 0),
-            ),
-          ]
-        : [],
-      checkpointName: body?.checkpoint?.trim() || null,
-      loraNames: body?.loraName?.trim() ? [body.loraName.trim()] : [],
+      loraResourceIds: resolvedLora.resourceIds,
+      checkpointName: resolvedBody.checkpoint?.trim() || null,
+      loraNames: resolvedLora.resourceName ? [resolvedLora.resourceName] : [],
     }
     if (
       provenanceResources.checkpointResourceId ||
@@ -308,7 +315,9 @@ function buildJobPayload(
       },
     }
   }
-  if (engine === 'ltx' || engine === 'wan') return buildVideoJobPayload(engine, ctx)
+  if (engine === 'ltx' || engine === 'wan') {
+    return buildVideoJobPayload(engine, ctx)
+  }
 
   if (engine === 'flux') {
     const { workflow } = buildFluxWorkflowFromRequest({
@@ -490,6 +499,10 @@ function buildVideoJobPayload(
     30,
   )
   const negativePrompt = body.negativePrompt?.trim() || DEFAULT_VIDEO_NEGATIVE
+  const loraName = body.loraName?.trim() || null
+  const loraStrength = loraName
+    ? clampNumber(body.loraStrength, 1, -2, 2)
+    : null
   const images: QueuedImage[] = []
   let firstImageName: string | null = null
   let lastImageName: string | null = null
@@ -530,6 +543,8 @@ function buildVideoJobPayload(
         cfg: body.cfg ?? null,
         sampler: body.sampler ?? null,
         scheduler: body.scheduler ?? null,
+        loraName,
+        loraStrength,
       })
     : buildLtxImageToVideoWorkflow({
         prompt: promptString,
@@ -544,6 +559,8 @@ function buildVideoJobPayload(
         steps: body.steps ?? null,
         cfg: body.cfg ?? null,
         sampler: body.sampler ?? null,
+        styleLoraName: loraName,
+        styleLoraStrength: loraStrength,
       })
 
   return {
@@ -563,6 +580,8 @@ function buildVideoJobPayload(
         height,
         hasFirstImage: Boolean(firstImageName),
         hasLastImage: Boolean(lastImageName),
+        hasLora: Boolean(loraName),
+        loraStrength,
       },
       save,
     },

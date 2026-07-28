@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-6 max-w-5xl mx-auto">
+  <div class="mx-auto max-w-5xl space-y-6 p-6">
     <header class="space-y-1">
       <h1 class="text-2xl font-bold">🎬 Video Generator</h1>
       <p class="text-sm opacity-70">
@@ -35,7 +35,7 @@
     <!-- Images -->
     <section class="grid gap-4 md:grid-cols-2">
       <!-- First image (required) -->
-      <div class="space-y-2 p-3 rounded-lg border border-base-300">
+      <div class="space-y-2 rounded-lg border border-base-300 p-3">
         <div class="flex items-center justify-between">
           <label class="font-semibold"
             >First image <span class="text-error">*</span></label
@@ -51,17 +51,17 @@
         <input
           type="file"
           accept="image/*"
-          class="file-input file-input-sm file-input-bordered w-full"
+          class="file-input file-input-bordered file-input-sm w-full"
           @change="(e) => onFileChange(e, 'first')"
         />
         <div
           v-if="firstImage"
-          class="relative aspect-video bg-base-200 rounded overflow-hidden flex items-center justify-center"
+          class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
         >
           <img :src="firstImage" class="max-h-full max-w-full object-contain" />
           <button
             type="button"
-            class="btn btn-xs btn-circle btn-error absolute top-1 right-1"
+            class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
             title="Clear"
             @click="firstImage = ''"
           >
@@ -74,19 +74,19 @@
       </div>
 
       <!-- Second image (optional) -->
-      <div class="space-y-2 p-3 rounded-lg border border-base-300">
+      <div class="space-y-2 rounded-lg border border-base-300 p-3">
         <label class="font-semibold"
           >End image <span class="opacity-50">(optional)</span></label
         >
         <input
           type="file"
           accept="image/*"
-          class="file-input file-input-sm file-input-bordered w-full"
+          class="file-input file-input-bordered file-input-sm w-full"
           @change="(e) => onFileChange(e, 'second')"
         />
         <div
           v-if="secondImage"
-          class="relative aspect-video bg-base-200 rounded overflow-hidden flex items-center justify-center"
+          class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
         >
           <img
             :src="secondImage"
@@ -94,7 +94,7 @@
           />
           <button
             type="button"
-            class="btn btn-xs btn-circle btn-error absolute top-1 right-1"
+            class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
             title="Clear"
             @click="secondImage = ''"
           >
@@ -132,16 +132,22 @@
         <textarea
           v-model="negativePrompt"
           rows="2"
-          class="textarea textarea-bordered w-full mt-2"
+          class="textarea textarea-bordered mt-2 w-full"
           placeholder="Leave blank for the sensible default."
         />
       </details>
     </section>
 
+    <video-lora-picker
+      v-model="loraResourceId"
+      v-model:strength="loraStrength"
+      :engine="engine"
+    />
+
     <!-- Controls -->
     <section class="grid gap-4 sm:grid-cols-3">
       <div class="space-y-1">
-        <label class="font-semibold text-sm">Time (seconds)</label>
+        <label class="text-sm font-semibold">Time (seconds)</label>
         <input
           v-model.number="durationSeconds"
           type="number"
@@ -152,7 +158,7 @@
         />
       </div>
       <div class="space-y-1">
-        <label class="font-semibold text-sm">FPS</label>
+        <label class="text-sm font-semibold">FPS</label>
         <input
           v-model.number="fps"
           type="number"
@@ -163,8 +169,8 @@
         />
       </div>
       <div class="space-y-1">
-        <label class="font-semibold text-sm">Loop</label>
-        <label class="cursor-pointer flex items-center gap-2 h-12">
+        <label class="text-sm font-semibold">Loop</label>
+        <label class="flex h-12 cursor-pointer items-center gap-2">
           <input v-model="loop" type="checkbox" class="toggle toggle-accent" />
           <span class="text-sm opacity-70">{{
             loop ? 'Seamless loop' : 'Play once'
@@ -177,7 +183,7 @@
       <summary class="cursor-pointer opacity-70">
         Advanced (size &amp; seed)
       </summary>
-      <div class="grid gap-4 sm:grid-cols-3 mt-2">
+      <div class="mt-2 grid gap-4 sm:grid-cols-3">
         <div class="space-y-1">
           <label class="text-sm">Width</label>
           <input
@@ -210,7 +216,7 @@
           />
         </div>
       </div>
-      <p class="text-xs opacity-50 mt-1">
+      <p class="mt-1 text-xs opacity-50">
         Estimated frames: {{ estimatedFrames }} ({{ durationSeconds }}s ×
         {{ fps }}fps)
       </p>
@@ -233,7 +239,7 @@
 
       <div
         v-if="videoStore.state.message"
-        class="text-sm opacity-70 text-center"
+        class="text-center text-sm opacity-70"
       >
         {{ videoStore.state.message }}
         <span v-if="videoStore.state.jobId" class="opacity-50">
@@ -274,7 +280,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -311,6 +317,8 @@ const firstImage = ref('')
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
 const negativePrompt = ref('')
+const loraResourceId = ref<number | null>(null)
+const loraStrength = ref(1)
 const durationSeconds = ref(4)
 const fps = ref(24)
 const loop = ref(true)
@@ -394,6 +402,8 @@ async function generate() {
     width: width.value,
     height: height.value,
     seed,
+    loraResourceIds: loraResourceId.value ? [loraResourceId.value] : undefined,
+    loraStrength: loraResourceId.value ? loraStrength.value : undefined,
   })
 }
 </script>

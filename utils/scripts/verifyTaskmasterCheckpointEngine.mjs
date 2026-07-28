@@ -36,6 +36,7 @@ includesAll(storePath, [
   "'needs-info'",
   "'proposed-complete'",
   'Practical checkpoint ledger:',
+  'await loadRealSurfaces()',
 ])
 
 includesAll(storePath, [
@@ -44,6 +45,7 @@ includesAll(storePath, [
   "checkpoint?.status === 'proposed-complete'",
   "checkpoint.status = 'completed'",
   'if (!hook) return true',
+  "['pending', 'active'].includes(checkpoint.status)",
 ])
 
 includesAll(pagePath, [
@@ -60,13 +62,17 @@ includesAll(pagePath, [
   "value: 'deferred'",
   "value: 'needs-info'",
   'All checkpoints have an outcome',
+  'Review any optional Apply',
 ])
 
 assert.ok(
   page.indexOf('store.prepareQuest') < page.indexOf('store.startQuest()'),
   'Taskmaster must prepare and review checkpoints before narration starts',
 )
-
+assert.ok(
+  !store.includes("['pending', 'active', 'proposed-complete']"),
+  'A proposed external write-back must not prevent the user from finishing the quest',
+)
 assert.ok(
   !store.includes('task.status ='),
   'Taskmaster must not directly mutate Conductor roadmap tasks',
@@ -81,5 +87,5 @@ assert.ok(
 )
 
 console.log(
-  'Taskmaster checkpoint-engine contract passed: reviewed plans, persistent checkpoint state, honest outcomes, practical finale guidance, and explicit write-back gates are present.',
+  'Taskmaster checkpoint-engine contract passed: reviewed plans, persistent checkpoint state, honest outcomes, optional write-back gates, and practical finale guidance are present.',
 )

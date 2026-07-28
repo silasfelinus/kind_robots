@@ -238,6 +238,17 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'ink-oracle',
+    label: 'Ink Oracle',
+    reveal: 'The ink remembers nothing',
+    icon: 'kind-icon:crystal-ball',
+    tooltip:
+      'Drifting ink folds into shapes that never quite settle; move the pointer to bend the currents, click to open a clear space 🔮',
+    color: '#4338ca',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

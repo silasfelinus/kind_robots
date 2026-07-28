@@ -37,10 +37,10 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'appmaker',
     route: '/appmaker',
   },
-  serendipity: {
+  taskmaster: {
     channelKey: 'play',
-    tabKey: 'serendipity',
-    route: '/serendipity',
+    tabKey: 'taskmaster',
+    route: '/taskmaster',
   },
   'mermaids-of-venice': {
     channelKey: 'sanctuary',

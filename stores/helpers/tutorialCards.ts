@@ -132,10 +132,11 @@ export const tutorialChannels = {
         image: tutorialImage('scenario', 'add'),
       },
       {
-        key: 'serendipity',
-        title: 'Serendipity',
-        body: 'Step into a second-person story woven by the Serendipity bot: pick a tone, open the door, and answer honestly — the questions it asks quietly advance your real honey-dos and human-gated tasks along the way.',
-        image: tutorialImage('scenario', 'serendipity'),
+        key: 'taskmaster',
+        title: 'Taskmaster',
+        body: 'Choose a project or enter an objective, select narrative ingredients, and advance real work through a playful second-person quest. Taskmaster directs story art automatically and never applies real-world changes without review.',
+        // Shared temporarily until the dedicated Taskmaster tutorial art lands.
+        image: tutorialImage('scenario', 'storymaker'),
       },
       {
         key: 'storymaker',

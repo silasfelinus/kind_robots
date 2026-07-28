@@ -912,16 +912,16 @@ export const dashboardConfigs = {
         route: '/storymaker',
       },
       {
-        key: 'serendipity',
-        label: 'Serendipity',
-        icon: 'kind-icon:sparkles',
-        title: 'Serendipity',
-        summary:
-          'A second-person story that quietly helps your real projects along.',
-        image: tabImage('scenario', 'serendipity'),
+        key: 'taskmaster',
+        label: 'Taskmaster',
+        icon: 'kind-icon:gearhammer',
+        title: 'Taskmaster',
+        summary: 'Turn real objectives into a choice-driven adventure.',
+        // Shared temporarily until the dedicated Taskmaster art set lands.
+        image: tabImage('scenario', 'storymaker'),
         narrative:
-          'Step through the Story Door: a second-person adventure woven by the Serendipity bot whose gentle questions nudge your real to-dos forward while you play.',
-        route: '/serendipity',
+          'Taskmaster wraps real work in a second-person quest while keeping the actual objective visible and every write-back explicit.',
+        route: '/taskmaster',
       },
       {
         key: 'serendipity-voice',

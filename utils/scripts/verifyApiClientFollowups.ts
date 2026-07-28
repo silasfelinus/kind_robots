@@ -65,11 +65,13 @@ assert.match(
 )
 assert.match(scenarioStore, /updateScenario\(scenarioId, data\)/)
 
-const serendipityStore = read('stores/serendipityStore.ts')
+const taskmasterStore = read('stores/taskmasterStore.ts')
 assert.match(
-  serendipityStore,
-  /export type SerendipitySession = \{[\s\S]*?userId: number \| null/,
+  taskmasterStore,
+  /export type TaskmasterSession = \{[\s\S]*?userId: number \| null/,
 )
+assert.match(taskmasterStore, /const STORAGE_KEY = 'taskmaster-session'/)
+assert.doesNotMatch(taskmasterStore, /serendipity/i)
 
 const promptStore = read('stores/promptStore.ts')
 const promptCreate = promptStore.slice(
@@ -135,5 +137,5 @@ assert.match(artStore, /includeImageData:\s*true/)
 assert.match(artStore, /saveBrowserGeneratedArtImage[\s\S]*getArtImageById/)
 
 console.log(
-  `API client follow-ups verified: no fallback mutation owners; lean sample ${leanBytes} bytes vs ${fullBytes} bytes; hydrated media survives lean merges.`,
+  `API client follow-ups verified: no fallback mutation owners; Taskmaster uses authenticated nullable ownership; lean sample ${leanBytes} bytes vs ${fullBytes} bytes; hydrated media survives lean merges.`,
 )

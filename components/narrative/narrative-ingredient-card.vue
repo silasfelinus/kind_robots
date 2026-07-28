@@ -29,7 +29,7 @@
       />
       <span
         v-if="item.badge"
-        class="badge badge-sm absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-xl border-base-100/60 bg-base-100/90 text-[0.65rem] font-bold shadow-sm"
+        class="badge badge-sm absolute left-2 top-2 max-w-[calc(100%_-_1rem)] truncate rounded-xl border-base-100/60 bg-base-100/90 text-[0.65rem] font-bold shadow-sm"
       >
         {{ item.badge }}
       </span>

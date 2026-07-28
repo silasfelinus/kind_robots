@@ -10,7 +10,7 @@ amiTip: A to-do list may wear armor, but Taskmaster still shows you what needs d
 channelKey: play
 tabKey: taskmaster
 dashboardKey: scenario
-dashboardTab: taskmaster
+dashboardTab: serendipity
 cards: navCards
 ---
 

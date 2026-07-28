@@ -1672,6 +1672,121 @@ export const academyStyles: AcademyStyle[] = [
         'Recompose this image as an early twentieth-century American Precisionist scene: reduce structures and objects to crisp geometric masses, flatten incidental detail, use controlled daylight and exact-edged shadows, compress depth, remove visual clutter, and preserve the source composition',
     },
   },
+  {
+    slug: 'pre-raphaelite',
+    name: 'Pre-Raphaelite Brotherhood',
+    era: 'c. 1848–1900',
+    sortYear: 1848,
+    previewImageSrc: '/images/academy/styles/pre-raphaelite.webp',
+    region: 'United Kingdom',
+    keyIdeas:
+      'Founded in 1848 by a group of London art students in deliberate reaction against the Royal Academy\'s Raphael-descended convention (soft "brown sauce" glazing, idealized generalized figures), the Pre-Raphaelite Brotherhood painted instead with thin glazes over a wet white ground to recover the jewel-bright color and obsessive, un-idealized natural detail they associated with art before Raphael. The lesson gives learners a useful contrast case against `renaissance` and `romanticism`: it shows a rejection movement built from a return-to-the-past idea, and a case where hyper-detailed naturalism serves symbolic and literary storytelling rather than documentary observation. Subjects draw heavily on medieval legend, Shakespeare, Dante, Keats, and Tennyson, and on Biblical scenes staged with contemporary models and props rather than generalized idealized bodies — a working method the movement itself considered scandalously "ugly" and true-to-life when first exhibited.',
+    recognitionCues: [
+      'Saturated, jewel-toned color (deep reds, greens, blues) rather than the muted brown glazes of prior academic painting',
+      'Crisp, high-fidelity detail on hair, fabric, and foliage — every leaf and strand rendered rather than suggested',
+      'Flowing, often flame-red or auburn hair on female figures; medieval or Renaissance-inspired dress',
+      'Medieval, literary (Shakespeare, Dante, Keats, Tennyson), or Biblical subject matter staged with specific, individualized models rather than idealized generic figures',
+      'Densely symbolic objects and flowers placed with deliberate meaning rather than as incidental still-life',
+      'Flattened, shallow pictorial space inherited from Quattrocento models, avoiding Raphael-era illusionistic depth',
+    ],
+    artists: [
+      {
+        name: 'John Everett Millais',
+        years: '1829–1896',
+        note: "Co-founder; combined the Brotherhood's obsessive natural detail with theatrical, often tragic narrative staging.",
+      },
+      {
+        name: 'William Holman Hunt',
+        years: '1827–1910',
+        note: 'Co-founder; the most doctrinally committed member, painting directly from nature (including expeditions to the Holy Land) in pursuit of literal truth-to-detail.',
+      },
+      {
+        name: 'Dante Gabriel Rossetti',
+        years: '1828–1882',
+        note: 'Co-founder, poet-painter; shifted the Brotherhood\'s early hyper-detailed naturalism toward moody, symbol-laden single-figure "stunner" portraits in his later work.',
+      },
+    ],
+    failureMode:
+      'Likely under-cooks toward a generic "old oil painting" filter with warm varnish tone rather than the movement\'s actual saturated jewel color and hyper-detailed hair/fabric/foliage; lean on the remix template\'s explicit "saturated jewel-toned color" to keep it vivid rather than sepia-toned, and discuss how symbolic objects (not incidental still-life) drive the composition',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Recompose this image as a mid-nineteenth-century Pre-Raphaelite Brotherhood painting: saturated jewel-toned color, crisp high-fidelity detail on hair, fabric, and foliage, flowing hair on female figures, densely symbolic objects placed with deliberate meaning, flattened shallow pictorial space, and preserve the source composition',
+    },
+  },
+  {
+    slug: 'arts-and-crafts',
+    name: 'Arts and Crafts Movement',
+    era: 'c. 1860–1914',
+    sortYear: 1860,
+    previewImageSrc: '/images/academy/styles/arts-and-crafts.webp',
+    region: 'Britain, later international',
+    keyIdeas:
+      'The Arts and Crafts movement gives learners a lesson about design ethics rather than a single painting look: it answered industrial mass production with visible handwork, honest materials, integrated interiors, and the belief that useful objects could also be beautiful. It connects the curriculum\'s `gothic`, `art-nouveau`, and `bauhaus` entries while explaining why those movements disagree about ornament and machines. The movement did not enforce one visual style, so the lesson teaches a family of recognition cues and a design philosophy rather than treating every Arts and Crafts object as identical to William Morris wallpaper. The lesson presents the movement\'s central contradiction honestly: reformers wanted dignified labor and beautiful everyday surroundings, but labor-intensive handmade objects were often too expensive for the workers whose lives the movement hoped to improve — a useful prompt for discussing what "handmade" costs versus what it promises.',
+    recognitionCues: [
+      'Repeating botanical or animal motifs organized into dense, readable rhythms',
+      'Flat or shallow space, with outlines and simplified natural forms rather than illusionistic depth',
+      'Visible evidence of process: block printing, embroidery, joinery, hammered metal, woven structure, or hand-set type',
+      'Materials and construction treated as part of the design instead of hidden beneath surface decoration',
+      'Domestic-scale objects and integrated rooms — wallpaper, textiles, books, furniture, stained glass, and metalwork designed as a coherent environment',
+      'Medieval and vernacular references used as an alternative to anonymous industrial production',
+    ],
+    artists: [
+      {
+        name: 'William Morris',
+        years: '1834–1896',
+        note: "Movement's best-known designer and organizer; argued for reuniting design and making, producing wallpapers, textiles, furniture, stained glass, and books through Morris & Company.",
+      },
+      {
+        name: 'May Morris',
+        years: '1862–1938',
+        note: "Designer, embroiderer, and leader of the Morris & Co. embroidery workshop, plus lecturer and historian of her father's work; named independently here, not merely as William Morris's daughter, to keep the lesson from collapsing a collaborative decorative-arts movement into one famous man.",
+      },
+      {
+        name: 'Walter Crane',
+        years: '1845–1915',
+        note: "Named as historical context for the movement's illustration and guild-workshop branches, alongside C. R. Ashbee (1863–1942); no example works by either are exhibited.",
+      },
+    ],
+    failureMode:
+      'The model must invent a plausible botanical/animal repeat where the source photo has none while keeping visible "hand-process" texture; likely fails toward a generic flat decorative-pattern filter that skips block-print/embroidery/joinery texture — lean on the remix template\'s explicit "visible craft structure" and "natural materials," and discuss the movement\'s affordability contradiction (dignified-labor ideals vs. expensive handmade objects) honestly',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Redesign this image as an Arts and Crafts decorative composition: hand-drawn botanical forms, rhythmic repeating pattern, honest natural materials, flattened color, and visible craft structure rather than a glossy machine-perfect finish, and preserve the source composition',
+    },
+  },
+  {
+    slug: 'italian-futurism',
+    name: 'Italian Futurism',
+    era: 'c. 1909–1916',
+    sortYear: 1909,
+    previewImageSrc: '/images/academy/styles/italian-futurism.webp',
+    region: 'Italy',
+    keyIdeas:
+      "Futurism gives learners a lesson distinct from every movement already in the curriculum: instead of restyling a static subject, it tries to depict motion, speed, and simultaneity — a subject shown as if several instants of its own movement were compressed into one image. Where Cubism fractures a static subject into multiple viewpoints at once, Futurism fractures a moving one into multiple instants — a related but distinct device worth teaching alongside Cubism rather than folded into it. The lesson addresses the movement's history honestly: several of its founders, Marinetti chief among them, later aligned with Italian Fascism, and the 1909 founding manifesto explicitly glorified speed, machinery, youth, and violence. Teaching the movement's formal innovations does not mean teaching that stance as neutral.",
+    recognitionCues: [
+      'Overlapping, semi-transparent repetitions of a single form suggesting successive instants of motion',
+      'Sharp diagonal "force lines" radiating from or trailing a moving subject',
+      'Fragmented, crystalline facets organized around implied motion and energy, rather than a single fixed viewpoint',
+      'Subjects drawn from modern speed and industry — automobiles, trains, crowds, machinery, urban street scenes',
+      'Dynamic, unstable compositions with no single resting point for the eye',
+    ],
+    artists: [
+      {
+        name: 'Umberto Boccioni',
+        years: '1882–1916',
+        note: "Futurism's leading painter and sculptor; the only 1910 Futurist-manifesto co-signer whose death (1916, from injuries sustained falling from a horse during military training) clears the Academy's 1956 public-domain cutoff. Giacomo Balla, Carlo Carrà, and Gino Severini are commonly discussed alongside him but all died after 1956 and are not named as generation-style targets.",
+      },
+    ],
+    failureMode:
+      'Likely collapses into either a static faceted image (losing the motion) or a generic photographic motion-blur filter (losing the constructed force-line/facet structure); lean on the remix template\'s explicit "overlapping, semi-transparent repetitions" and "sharp diagonal force lines" to check for constructed dynamism rather than a blur effect, and discuss the movement\'s later alignment with Fascism and the manifesto\'s glorification of violence honestly rather than teaching speed/machinery worship as neutral',
+    remix: {
+      mode: 'prompt',
+      template:
+        "Recompose this image to depict dynamism and motion in the Italian Futurist manner: overlapping, semi-transparent repetitions of the subject's form suggesting successive instants of movement, sharp diagonal force lines, and fragmented crystalline facets organized around implied energy rather than a fixed viewpoint, and preserve the source subject's identity and general pose",
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

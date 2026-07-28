@@ -41,7 +41,7 @@ includesAll(storePath, [
 includesAll(storePath, [
   "beat.answer.writeBackStatus !== 'pending-human-gate'",
   "question.realWorldKind === 'honeydo' && outcome === 'completed'",
-  "checkpoint.status === 'proposed-complete'",
+  "checkpoint?.status === 'proposed-complete'",
   "checkpoint.status = 'completed'",
   'if (!hook) return true',
 ])

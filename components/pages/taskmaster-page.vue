@@ -287,7 +287,8 @@
                 Current action: {{ store.currentCheckpoint.title }}
               </p>
               <p v-else class="mt-1 text-xs text-base-content/55">
-                All planned checkpoints have an outcome. The quest can now close.
+                All planned checkpoints have an outcome. Review any optional Apply
+                actions, then finish the quest.
               </p>
             </div>
             <span class="badge badge-secondary badge-sm rounded-xl">

@@ -209,7 +209,7 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   const remainingCheckpoints = computed(
     () =>
       session.value?.checkpoints.filter((checkpoint) =>
-        ['pending', 'active', 'proposed-complete'].includes(checkpoint.status),
+        ['pending', 'active'].includes(checkpoint.status),
       ) ?? [],
   )
 
@@ -813,6 +813,7 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     location?: TaskmasterIngredient
     genre?: TaskmasterIngredient
   }): Promise<boolean> {
+    await loadRealSurfaces()
     const seed: TaskmasterStorySeed = {
       userId: userStore.authenticatedUserId,
       taskTitle: input.taskTitle?.trim() || undefined,

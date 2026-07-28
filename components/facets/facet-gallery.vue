@@ -6,7 +6,7 @@
     >
       <Icon name="kind-icon:tag" class="size-6 text-secondary" />
       <div class="min-w-0 flex-1">
-        <h1 class="text-xl font-black">Facet Gallery</h1>
+        <h1 class="text-xl font-black">Facets</h1>
         <p class="text-sm text-base-content/60">
           Browse the canonical creative building blocks — genres, species,
           archetypes, moods, styles and more — shared across Characters, Bots,

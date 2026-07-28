@@ -67,7 +67,7 @@
       v-if="colorUsesLegacyAsset || bwUsesLegacyAsset"
       class="alert alert-info rounded-2xl"
     >
-      <icon name="kind-icon:archive" class="size-5" />
+      <icon name="kind-icon:gallery" class="size-5" />
       <span>
         The displayed {{ legacyAssetLabel }} predates the current ArtJob queue. Adopting it
         keeps the existing Conductor file and does not fabricate missing generation metadata.
@@ -217,11 +217,16 @@ const hasBwScore = computed(
 
 function adoptablePath(value: string | null | undefined): string {
   const path = String(value || '').trim().replace(/\\/g, '/')
+  const prefix = book.value
+    ? `projects/coloring-book/sets/${book.value.slug}/`
+    : ''
   if (
     !path ||
     path.startsWith('/') ||
     path.includes(':') ||
+    path.startsWith('user-attachment') ||
     path.split('/').includes('..') ||
+    (path.startsWith('projects/') && (!prefix || !path.startsWith(prefix))) ||
     !/\.(?:webp|png|jpe?g)$/i.test(path)
   ) {
     return ''

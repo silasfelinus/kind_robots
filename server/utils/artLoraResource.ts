@@ -23,10 +23,18 @@ type LoraResourceRecord = {
 }
 
 const LORA_TYPES = [ResourceType.LORA, ResourceType.LYCORIS]
-const RESOURCE_RESOLVED_ENGINES = new Set(['kontext', 'krea2', 'flux2'])
+const RESOURCE_RESOLVED_ENGINES = new Set([
+  'kontext',
+  'krea2',
+  'flux2',
+  'ltx',
+  'wan',
+])
 
 function normalizeText(value: unknown): string {
-  return typeof value === 'string' ? value.trim().replaceAll('\\', '/').toLowerCase() : ''
+  return typeof value === 'string'
+    ? value.trim().replaceAll('\\', '/').toLowerCase()
+    : ''
 }
 
 function pathBasename(value: unknown): string {
@@ -79,10 +87,12 @@ function matchingResources(
   if (exactIdentity.length) return exactIdentity
 
   const exactSource = resources.filter((resource) =>
-    [resource.customUrl, resource.civitaiUrl, resource.huggingUrl].some((value) => {
-      const normalized = normalizeText(value)
-      return normalized === requested || normalized.endsWith(`/${requested}`)
-    }),
+    [resource.customUrl, resource.civitaiUrl, resource.huggingUrl].some(
+      (value) => {
+        const normalized = normalizeText(value)
+        return normalized === requested || normalized.endsWith(`/${requested}`)
+      },
+    ),
   )
   if (exactSource.length) return exactSource
 
@@ -125,6 +135,16 @@ function compatibilityRank(
   if (engine === 'krea2' || engine === 'flux2') {
     if (resource.supportedServer === SupportedServer.FLUX) return 30
     if (resource.supportedServer === SupportedServer.KONTEXT) return 20
+    if (resource.supportedServer === SupportedServer.GENERIC) return 10
+  }
+
+  if (engine === 'ltx') {
+    if (resource.supportedServer === SupportedServer.LTX) return 30
+    if (resource.supportedServer === SupportedServer.GENERIC) return 10
+  }
+
+  if (engine === 'wan') {
+    if (resource.supportedServer === SupportedServer.WAN) return 30
     if (resource.supportedServer === SupportedServer.GENERIC) return 10
   }
 
@@ -248,6 +268,16 @@ export async function resolveEnqueueLoraResource(input: {
         message: `LoRA "${requestedName}" does not resolve to an active Resource.`,
       })
     }
+  }
+
+  if (
+    (input.engine === 'ltx' || input.engine === 'wan') &&
+    compatibilityRank(resource, input.engine) === 0
+  ) {
+    throw createError({
+      statusCode: 409,
+      message: `LoRA Resource ${resource.id} is marked ${resource.supportedServer}, not ${input.engine.toUpperCase()}-compatible.`,
+    })
   }
 
   const localPath = String(resource.localPath || '').trim()

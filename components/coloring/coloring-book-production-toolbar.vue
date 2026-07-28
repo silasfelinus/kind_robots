@@ -31,35 +31,35 @@
     </header>
 
     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      <stage-card
+      <ProductionStageCard
         label="Color candidate"
         :done="Boolean(proposal.colorUrl)"
         :detail="colorCandidateDetail"
-        icon="kind-icon:palette"
+        icon-name="kind-icon:palette"
       />
-      <stage-card
+      <ProductionStageCard
         label="Accepted color"
         :done="Boolean(proposal.accepted.color)"
         :detail="proposal.accepted.color || 'Awaiting human acceptance'"
-        icon="kind-icon:check"
+        icon-name="kind-icon:check"
       />
-      <stage-card
+      <ProductionStageCard
         label="B&W candidate"
         :done="Boolean(production?.bwRenderedPath)"
         :detail="bwCandidateDetail"
-        icon="kind-icon:pencil"
+        icon-name="kind-icon:pencil"
       />
-      <stage-card
+      <ProductionStageCard
         label="Accepted B&W"
         :done="Boolean(proposal.accepted.bw)"
         :detail="proposal.accepted.bw || 'Awaiting human acceptance'"
-        icon="kind-icon:check"
+        icon-name="kind-icon:check"
       />
-      <stage-card
+      <ProductionStageCard
         label="Final pair"
         :done="isFinalPair"
         :detail="isFinalPair ? 'Confirmed print-ready pair' : 'Not finalized'"
-        icon="kind-icon:book"
+        icon-name="kind-icon:book"
       />
     </div>
 
@@ -78,7 +78,7 @@
           {{ production?.bwRenderedPath || proposal.accepted.bw || proposal.final.bw }}
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
-          <span v-if="production?.bwSemanticScore !== null" class="badge badge-info rounded-2xl">
+          <span v-if="hasBwScore" class="badge badge-info rounded-2xl">
             Pair score {{ production?.bwSemanticScore }}
           </span>
           <span v-if="production?.bwSemanticVerdict" class="badge badge-outline rounded-2xl">
@@ -108,10 +108,10 @@
       />
 
       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <action-button
+        <ProductionActionButton
           label="Accept color master"
           confirm-label="Confirm color acceptance"
-          icon="kind-icon:palette"
+          icon-name="kind-icon:palette"
           :enabled="canAcceptColor"
           :armed="armedAction === 'accept-color'"
           :busy="studio.requestingAction"
@@ -130,20 +130,20 @@
           Generate B&amp;W counterpart
         </button>
 
-        <action-button
+        <ProductionActionButton
           label="Accept B&W master"
           confirm-label="Confirm B&W acceptance"
-          icon="kind-icon:check"
+          icon-name="kind-icon:check"
           :enabled="canAcceptBw"
           :armed="armedAction === 'accept-bw'"
           :busy="studio.requestingAction"
           @click="runHumanAction('accept-bw')"
         />
 
-        <action-button
+        <ProductionActionButton
           label="Finalize matched pair"
           confirm-label="Confirm final pair"
-          icon="kind-icon:book"
+          icon-name="kind-icon:book"
           :enabled="canFinalizePair"
           :armed="armedAction === 'finalize-pair'"
           :busy="studio.requestingAction"
@@ -177,6 +177,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { ColoringBookStudioOperation } from '~/types/coloringBookStudio'
+import ProductionActionButton from './production-action-button.vue'
+import ProductionStageCard from './production-stage-card.vue'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -191,6 +193,10 @@ const production = computed(() => studio.selectedProductionState)
 
 const isFinalPair = computed(() =>
   Boolean(proposal.value?.final.color && proposal.value?.final.bw),
+)
+
+const hasBwScore = computed(
+  () => typeof production.value?.bwSemanticScore === 'number',
 )
 
 const canAcceptColor = computed(() =>
@@ -234,16 +240,16 @@ const canFinalizePair = computed(() =>
 
 const colorCandidateDetail = computed(() => {
   if (proposal.value?.accepted.color) return 'Accepted master recorded'
-  if (proposal.value?.queue.semanticScore !== null) {
-    return `Semantic score ${proposal.value?.queue.semanticScore}`
+  if (typeof proposal.value?.queue.semanticScore === 'number') {
+    return `Semantic score ${proposal.value.queue.semanticScore}`
   }
   return proposal.value?.queue.status || 'No candidate'
 })
 
 const bwCandidateDetail = computed(() => {
   if (proposal.value?.accepted.bw) return 'Accepted master recorded'
-  if (production.value?.bwSemanticScore !== null) {
-    return `Pair score ${production.value?.bwSemanticScore}`
+  if (typeof production.value?.bwSemanticScore === 'number') {
+    return `Pair score ${production.value.bwSemanticScore}`
   }
   return production.value?.bwStatus || 'No candidate'
 })
@@ -277,57 +283,4 @@ async function requestBw(force: boolean): Promise<void> {
   const success = await studio.requestBw(force, actionNote.value)
   if (success) actionNote.value = ''
 }
-</script>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  components: {
-    StageCard: defineComponent({
-      props: {
-        label: { type: String, required: true },
-        detail: { type: String, required: true },
-        icon: { type: String, required: true },
-        done: { type: Boolean, default: false },
-      },
-      template: `
-        <article class="flex min-h-28 flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-3">
-          <div class="flex items-center justify-between gap-2">
-            <icon :name="icon" class="size-5" :class="done ? 'text-success' : 'text-base-content/40'" />
-            <span class="badge badge-sm rounded-2xl" :class="done ? 'badge-success' : 'badge-ghost'">
-              {{ done ? 'Ready' : 'Waiting' }}
-            </span>
-          </div>
-          <h4 class="text-sm font-black">{{ label }}</h4>
-          <p class="line-clamp-2 break-all text-xs text-base-content/50">{{ detail }}</p>
-        </article>
-      `,
-    }),
-    ActionButton: defineComponent({
-      emits: ['click'],
-      props: {
-        label: { type: String, required: true },
-        confirmLabel: { type: String, required: true },
-        icon: { type: String, required: true },
-        enabled: { type: Boolean, default: false },
-        armed: { type: Boolean, default: false },
-        busy: { type: Boolean, default: false },
-      },
-      template: `
-        <button
-          type="button"
-          class="btn rounded-2xl"
-          :class="armed ? 'btn-warning' : enabled ? 'btn-primary' : 'btn-disabled'"
-          :disabled="!enabled || busy"
-          @click="$emit('click')"
-        >
-          <span v-if="busy" class="loading loading-spinner loading-sm" />
-          <icon v-else :name="icon" class="size-5" />
-          {{ armed ? confirmLabel : label }}
-        </button>
-      `,
-    }),
-  },
-})
 </script>

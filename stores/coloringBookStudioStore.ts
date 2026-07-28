@@ -169,7 +169,7 @@ export const useColoringBookStudioStore = defineStore(
 
     async function requestProductionAction(
       operation: ColoringBookStudioOperation,
-      options: { force?: boolean; note?: string } = {},
+      options: { force?: boolean; note?: string; sourcePath?: string } = {},
     ): Promise<boolean> {
       const book = selectedBook.value
       const proposal = selectedProposal.value
@@ -183,6 +183,7 @@ export const useColoringBookStudioStore = defineStore(
           operation,
           bookSlug: book.slug,
           proposalId: proposal.id,
+          sourcePath: options.sourcePath || undefined,
           force: options.force === true,
           note: options.note || '',
         }
@@ -207,16 +208,16 @@ export const useColoringBookStudioStore = defineStore(
       return requestProductionAction('generate-color-proposals', { force, note })
     }
 
-    function acceptColor(note = ''): Promise<boolean> {
-      return requestProductionAction('accept-color', { note })
+    function acceptColor(note = '', sourcePath = ''): Promise<boolean> {
+      return requestProductionAction('accept-color', { note, sourcePath })
     }
 
     function requestBw(force = false, note = ''): Promise<boolean> {
       return requestProductionAction('generate-bw', { force, note })
     }
 
-    function acceptBw(note = ''): Promise<boolean> {
-      return requestProductionAction('accept-bw', { note })
+    function acceptBw(note = '', sourcePath = ''): Promise<boolean> {
+      return requestProductionAction('accept-bw', { note, sourcePath })
     }
 
     function finalizePair(note = ''): Promise<boolean> {

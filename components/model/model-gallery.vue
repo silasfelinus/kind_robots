@@ -19,6 +19,15 @@
             {{ summaryText }}
           </p>
         </div>
+
+        <button
+          class="btn btn-sm btn-primary rounded-xl"
+          type="button"
+          @click="openAdd"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add
+        </button>
       </div>
 
       <div class="grid gap-2 md:grid-cols-[1fr_auto_auto_auto]">
@@ -47,6 +56,13 @@
         </select>
       </div>
     </header>
+
+    <add-model
+      v-if="showForm"
+      :model="editing"
+      @saved="handleSaved"
+      @close="closeForm"
+    />
 
     <div
       v-if="!filteredModels.length"
@@ -80,7 +96,7 @@
             :key="model.id || model.name"
             :model="model"
             :show-mature="showMature"
-            :show-edit="false"
+            @edit="openEdit"
           />
         </div>
       </div>
@@ -107,7 +123,7 @@
               :key="model.id || model.name"
               :model="model"
               :show-mature="showMature"
-              :show-edit="false"
+              @edit="openEdit"
             />
           </div>
         </div>
@@ -128,6 +144,9 @@ const searchQuery = ref('')
 const selectedBase = ref<string>('all')
 const maturityFilter = ref<'all' | 'sfw' | 'mature'>('all')
 const sortBy = ref<'name' | 'newest'>('name')
+
+const showForm = ref(false)
+const editing = ref<Partial<Resource> | null>(null)
 
 const showMature = computed(() => userStore.showMature)
 
@@ -233,6 +252,25 @@ const summaryText = computed(() => {
   if (shown === total) return `${total} model${total === 1 ? '' : 's'}`
   return `${shown} of ${total} models`
 })
+
+function openAdd() {
+  editing.value = null
+  showForm.value = true
+}
+
+function openEdit(model: Partial<Resource>) {
+  editing.value = model
+  showForm.value = true
+}
+
+function closeForm() {
+  showForm.value = false
+  editing.value = null
+}
+
+function handleSaved() {
+  closeForm()
+}
 
 onMounted(() => {
   resourceStore.loadStore()

@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
@@ -37,6 +37,7 @@ import { useServerStore } from '@/stores/serverStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
+import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 
 const errorStore = useErrorStore()
@@ -63,17 +64,66 @@ const randomStore = useRandomStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
 const butterflyStore = useButterflyStore()
+const startupStore = useStartupAnimationStore()
 
 const emit = defineEmits<{
   covered: []
   pageReady: [boolean]
 }>()
 
-const showOverlay = ref(true)
+const STARTUP_STORAGE_KEY = 'kind-robots-last-startup-animation-v1'
+const STARTUP_STALE_MS = 12 * 60 * 60 * 1000
+
+function isReloadNavigation(): boolean {
+  if (!import.meta.client) return false
+
+  const navigation = performance.getEntriesByType(
+    'navigation',
+  )[0] as PerformanceNavigationTiming | undefined
+
+  return navigation?.type === 'reload'
+}
+
+function shouldShowStartupSequence(): boolean {
+  if (!import.meta.client) return true
+
+  try {
+    const stored = localStorage.getItem(STARTUP_STORAGE_KEY)
+    if (!stored) return !isReloadNavigation()
+
+    const lastShownAt = Number(stored)
+    if (!Number.isFinite(lastShownAt)) return true
+
+    return Date.now() - lastShownAt >= STARTUP_STALE_MS
+  } catch {
+    return !isReloadNavigation()
+  }
+}
+
+function markStartupSequenceSeen(): void {
+  if (!import.meta.client) return
+
+  try {
+    localStorage.setItem(STARTUP_STORAGE_KEY, String(Date.now()))
+  } catch {
+    return
+  }
+}
+
+const showStartupSequence = ref(shouldShowStartupSequence())
+const showOverlay = ref(showStartupSequence.value)
 const storesReady = ref(false)
 const pageReadyEmitted = ref(false)
-
 const coveredEmitted = ref(false)
+
+let initializationPromise: Promise<void> | null = null
+
+startupStore.reset()
+butterflyStore.setShowSwarm(showStartupSequence.value)
+
+if (showStartupSequence.value) {
+  markStartupSequenceSeen()
+}
 
 function handleOverlayCovered() {
   if (coveredEmitted.value) return
@@ -97,8 +147,6 @@ function handleOverlayHidden() {
   emitReadyOnce()
 }
 
-// Run a batch of store inits in parallel. allSettled (not all) so one
-// rejecting store never aborts its siblings or the rest of the boot.
 async function runWave(
   label: string,
   tasks: Array<Promise<unknown> | void | undefined>,
@@ -125,8 +173,6 @@ async function runWave(
 }
 
 async function initializeServerAndCheckpoints() {
-  // Servers must fully load before checkpoints can resolve their active server.
-  // This is the single place both are initialized — galleries must not re-fetch.
   await errorStore.handleError(
     async () => {
       if (
@@ -141,7 +187,6 @@ async function initializeServerAndCheckpoints() {
     'Error initializing server store',
   )
 
-  // Checkpoints depend on servers being present so they can resolve activeArtServer.
   await errorStore.handleError(
     async () => {
       checkpointStore.initialize()
@@ -153,8 +198,6 @@ async function initializeServerAndCheckpoints() {
 
 async function initializeStores() {
   try {
-    // Synchronous, order-independent: only touches the module-level builder
-    // registry. Done first so any builder UI in the first paint has configs.
     ensureBuildersRegistered()
 
     if (!displayStore.isInitialized) {
@@ -165,8 +208,6 @@ async function initializeStores() {
       )
     }
 
-    // First wave: user identity (session-restore from stored token) and UI
-    // chrome. Everything downstream depends on these.
     await runWave('identity + chrome', [
       userStore.initialize?.(),
       pageStore.initialize?.(),
@@ -180,17 +221,14 @@ async function initializeStores() {
       themeStore.initialize({ fetchShared: true }),
     ])
 
-    // Servers + checkpoints are sequential: checkpoints need a loaded server array.
     await initializeServerAndCheckpoints()
 
-    // Second wave: content stores that may reference servers but don't block server init.
     await runWave('content stores', [
       artStore.initialize?.(),
       botStore.initialize?.(),
       chatStore.initialize?.(),
     ])
 
-    // Third wave: everything else.
     await runWave('remaining stores', [
       characterStore.initialize?.(),
       promptStore.initialize?.(),
@@ -214,12 +252,25 @@ async function initializeStores() {
   }
 }
 
-onMounted(async () => {
-  await initializeStores()
+function ensureStoresInitialized(): Promise<void> {
+  if (!initializationPromise) {
+    initializationPromise = initializeStores()
+  }
+
+  return initializationPromise
+}
+
+onBeforeMount(() => {
+  if (showStartupSequence.value) return
+
+  void ensureStoresInitialized()
+  handleOverlayCovered()
+  emitReadyOnce()
 })
 
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
+onMounted(async () => {
+  if (!showStartupSequence.value) return
+  await ensureStoresInitialized()
 })
 </script>
 

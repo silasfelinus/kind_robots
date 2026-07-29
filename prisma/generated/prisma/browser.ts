@@ -381,6 +381,16 @@ export type ArtJob = Prisma.ArtJobModel
  */
 export type QueueControl = Prisma.QueueControlModel
 /**
+ * Model DownloadRequest
+ * Pull-queue for LoRA downloads, mirroring the ArtJob queue. A front-end user
+ * enqueues a request (from the Discover browser); the home import agent claims
+ * it, fetches the file into Lora/import — where the existing watcher catalogs
+ * and Resources it — then marks it DONE. userId is a plain column (no FK) since
+ * this is an ephemeral job row, not owned content. resourceId links the created
+ * Resource once known. civitaiModelVersionId lets the browser hide owned rows.
+ */
+export type DownloadRequest = Prisma.DownloadRequestModel
+/**
  * Model KarmaTransaction
  * Economy: karma ledger — separate from mana, tracks community contribution score
  */

@@ -205,6 +205,8 @@ class LoraEntry:
     defaultTrigger: str = ""    # the string to inject (seeded == triggerWords, editable)
     description: str = ""
     slug: str = ""
+    civitaiModelId: int = 0     # Civitai model id, when matched by hash
+    civitaiModelVersionId: int = 0  # Civitai model-version id, when matched
 
     # sort target
     group: str = ""             # base-model sort folder
@@ -392,6 +394,10 @@ def apply_civitai(entry: LoraEntry, data: Any) -> bool:
     entry.civitai_matched = True
     model = data.get("model") or {}
     model_id, version_id = data.get("modelId"), data.get("id")
+    if isinstance(model_id, int):
+        entry.civitaiModelId = model_id
+    if isinstance(version_id, int):
+        entry.civitaiModelVersionId = version_id
     if model_id:
         url = f"https://civitai.com/models/{model_id}"
         if version_id:
@@ -433,6 +439,10 @@ def apply_civarchive(entry: LoraEntry, data: Any) -> bool:
     entry.archive_matched = True
     version = model.get("version") or {}
     model_id, version_id = model.get("id"), version.get("id")
+    if isinstance(model_id, int) and not entry.civitaiModelId:
+        entry.civitaiModelId = model_id
+    if isinstance(version_id, int) and not entry.civitaiModelVersionId:
+        entry.civitaiModelVersionId = version_id
     if model_id:
         url = f"https://civitaiarchive.com/models/{model_id}"
         if version_id:
@@ -620,6 +630,8 @@ def to_resource(entry: LoraEntry) -> dict:
         "triggerWords": entry.triggerWords or None,
         "defaultTrigger": entry.defaultTrigger or None,
         "artPrompt": entry.defaultTrigger or None,
+        "civitaiModelId": entry.civitaiModelId or None,
+        "civitaiModelVersionId": entry.civitaiModelVersionId or None,
         "description": entry.description or None,
         "slug": entry.slug,
         "isPublic": False,

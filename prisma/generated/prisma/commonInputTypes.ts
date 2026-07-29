@@ -1000,6 +1000,40 @@ export type EnumArtJobStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
 }
 
+export type EnumDownloadStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadStatus | Prisma.EnumDownloadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadStatus[]
+  notIn?: $Enums.DownloadStatus[]
+  not?: Prisma.NestedEnumDownloadStatusFilter<$PrismaModel> | $Enums.DownloadStatus
+}
+
+export type EnumDownloadSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadSource | Prisma.EnumDownloadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadSource[]
+  notIn?: $Enums.DownloadSource[]
+  not?: Prisma.NestedEnumDownloadSourceFilter<$PrismaModel> | $Enums.DownloadSource
+}
+
+export type EnumDownloadStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadStatus | Prisma.EnumDownloadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadStatus[]
+  notIn?: $Enums.DownloadStatus[]
+  not?: Prisma.NestedEnumDownloadStatusWithAggregatesFilter<$PrismaModel> | $Enums.DownloadStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDownloadStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDownloadStatusFilter<$PrismaModel>
+}
+
+export type EnumDownloadSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadSource | Prisma.EnumDownloadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadSource[]
+  notIn?: $Enums.DownloadSource[]
+  not?: Prisma.NestedEnumDownloadSourceWithAggregatesFilter<$PrismaModel> | $Enums.DownloadSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDownloadSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDownloadSourceFilter<$PrismaModel>
+}
+
 export type EnumKarmaReasonFilter<$PrismaModel = never> = {
   equals?: $Enums.KarmaReason | Prisma.EnumKarmaReasonFieldRefInput<$PrismaModel>
   in?: $Enums.KarmaReason[]
@@ -2268,6 +2302,40 @@ export type NestedEnumArtJobStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumArtJobStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumDownloadStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadStatus | Prisma.EnumDownloadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadStatus[]
+  notIn?: $Enums.DownloadStatus[]
+  not?: Prisma.NestedEnumDownloadStatusFilter<$PrismaModel> | $Enums.DownloadStatus
+}
+
+export type NestedEnumDownloadSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadSource | Prisma.EnumDownloadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadSource[]
+  notIn?: $Enums.DownloadSource[]
+  not?: Prisma.NestedEnumDownloadSourceFilter<$PrismaModel> | $Enums.DownloadSource
+}
+
+export type NestedEnumDownloadStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadStatus | Prisma.EnumDownloadStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadStatus[]
+  notIn?: $Enums.DownloadStatus[]
+  not?: Prisma.NestedEnumDownloadStatusWithAggregatesFilter<$PrismaModel> | $Enums.DownloadStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDownloadStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDownloadStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumDownloadSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DownloadSource | Prisma.EnumDownloadSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DownloadSource[]
+  notIn?: $Enums.DownloadSource[]
+  not?: Prisma.NestedEnumDownloadSourceWithAggregatesFilter<$PrismaModel> | $Enums.DownloadSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDownloadSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDownloadSourceFilter<$PrismaModel>
 }
 
 export type NestedEnumKarmaReasonFilter<$PrismaModel = never> = {

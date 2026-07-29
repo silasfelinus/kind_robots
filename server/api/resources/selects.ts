@@ -21,6 +21,12 @@ export const resourceMutationSelect = {
   isPublic: true,
   isActive: true,
   artPrompt: true,
+  triggerWords: true,
+  defaultTrigger: true,
+  hash: true,
+  previewImageUrl: true,
+  civitaiModelId: true,
+  civitaiModelVersionId: true,
   imagePath: true,
   slug: true,
 } satisfies Prisma.ResourceSelect

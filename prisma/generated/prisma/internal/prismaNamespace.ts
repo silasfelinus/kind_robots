@@ -440,6 +440,7 @@ export const ModelName = {
   StylistAppointment: 'StylistAppointment',
   ArtJob: 'ArtJob',
   QueueControl: 'QueueControl',
+  DownloadRequest: 'DownloadRequest',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
@@ -477,7 +478,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4177,6 +4178,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DownloadRequest: {
+      payload: Prisma.$DownloadRequestPayload<ExtArgs>
+      fields: Prisma.DownloadRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DownloadRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DownloadRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.DownloadRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DownloadRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>
+        }
+        findMany: {
+          args: Prisma.DownloadRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>[]
+        }
+        create: {
+          args: Prisma.DownloadRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>
+        }
+        createMany: {
+          args: Prisma.DownloadRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.DownloadRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>
+        }
+        update: {
+          args: Prisma.DownloadRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.DownloadRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DownloadRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.DownloadRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DownloadRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.DownloadRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDownloadRequest>
+        }
+        groupBy: {
+          args: Prisma.DownloadRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DownloadRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DownloadRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DownloadRequestCountAggregateOutputType> | number
+        }
+      }
+    }
     KarmaTransaction: {
       payload: Prisma.$KarmaTransactionPayload<ExtArgs>
       fields: Prisma.KarmaTransactionFieldRefs
@@ -6584,6 +6651,8 @@ export const ResourceScalarFieldEnum = {
   defaultTrigger: 'defaultTrigger',
   hash: 'hash',
   previewImageUrl: 'previewImageUrl',
+  civitaiModelId: 'civitaiModelId',
+  civitaiModelVersionId: 'civitaiModelVersionId',
   imagePath: 'imagePath',
   slug: 'slug',
   commercialSafe: 'commercialSafe'
@@ -6874,6 +6943,29 @@ export const QueueControlScalarFieldEnum = {
 } as const
 
 export type QueueControlScalarFieldEnum = (typeof QueueControlScalarFieldEnum)[keyof typeof QueueControlScalarFieldEnum]
+
+
+export const DownloadRequestScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  source: 'source',
+  civitaiModelId: 'civitaiModelId',
+  civitaiModelVersionId: 'civitaiModelVersionId',
+  downloadUrl: 'downloadUrl',
+  fileName: 'fileName',
+  label: 'label',
+  isMature: 'isMature',
+  attempts: 'attempts',
+  claimedAt: 'claimedAt',
+  claimedBy: 'claimedBy',
+  resourceId: 'resourceId',
+  error: 'error',
+  userId: 'userId'
+} as const
+
+export type DownloadRequestScalarFieldEnum = (typeof DownloadRequestScalarFieldEnum)[keyof typeof DownloadRequestScalarFieldEnum]
 
 
 export const KarmaTransactionScalarFieldEnum = {
@@ -7949,6 +8041,17 @@ export const QueueControlOrderByRelevanceFieldEnum = {
 export type QueueControlOrderByRelevanceFieldEnum = (typeof QueueControlOrderByRelevanceFieldEnum)[keyof typeof QueueControlOrderByRelevanceFieldEnum]
 
 
+export const DownloadRequestOrderByRelevanceFieldEnum = {
+  downloadUrl: 'downloadUrl',
+  fileName: 'fileName',
+  label: 'label',
+  claimedBy: 'claimedBy',
+  error: 'error'
+} as const
+
+export type DownloadRequestOrderByRelevanceFieldEnum = (typeof DownloadRequestOrderByRelevanceFieldEnum)[keyof typeof DownloadRequestOrderByRelevanceFieldEnum]
+
+
 export const KarmaTransactionOrderByRelevanceFieldEnum = {
   refId: 'refId',
   note: 'note'
@@ -8485,6 +8588,20 @@ export type EnumArtJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'DownloadStatus'
+ */
+export type EnumDownloadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DownloadStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DownloadSource'
+ */
+export type EnumDownloadSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DownloadSource'>
+    
+
+
+/**
  * Reference to a field of type 'KarmaReason'
  */
 export type EnumKarmaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KarmaReason'>
@@ -8775,6 +8892,7 @@ export type GlobalOmitConfig = {
   stylistAppointment?: Prisma.StylistAppointmentOmit
   artJob?: Prisma.ArtJobOmit
   queueControl?: Prisma.QueueControlOmit
+  downloadRequest?: Prisma.DownloadRequestOmit
   karmaTransaction?: Prisma.KarmaTransactionOmit
   referral?: Prisma.ReferralOmit
   userRelation?: Prisma.UserRelationOmit

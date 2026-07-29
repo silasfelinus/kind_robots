@@ -107,6 +107,7 @@ export const ModelName = {
   StylistAppointment: 'StylistAppointment',
   ArtJob: 'ArtJob',
   QueueControl: 'QueueControl',
+  DownloadRequest: 'DownloadRequest',
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
@@ -1063,6 +1064,8 @@ export const ResourceScalarFieldEnum = {
   defaultTrigger: 'defaultTrigger',
   hash: 'hash',
   previewImageUrl: 'previewImageUrl',
+  civitaiModelId: 'civitaiModelId',
+  civitaiModelVersionId: 'civitaiModelVersionId',
   imagePath: 'imagePath',
   slug: 'slug',
   commercialSafe: 'commercialSafe'
@@ -1353,6 +1356,29 @@ export const QueueControlScalarFieldEnum = {
 } as const
 
 export type QueueControlScalarFieldEnum = (typeof QueueControlScalarFieldEnum)[keyof typeof QueueControlScalarFieldEnum]
+
+
+export const DownloadRequestScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  source: 'source',
+  civitaiModelId: 'civitaiModelId',
+  civitaiModelVersionId: 'civitaiModelVersionId',
+  downloadUrl: 'downloadUrl',
+  fileName: 'fileName',
+  label: 'label',
+  isMature: 'isMature',
+  attempts: 'attempts',
+  claimedAt: 'claimedAt',
+  claimedBy: 'claimedBy',
+  resourceId: 'resourceId',
+  error: 'error',
+  userId: 'userId'
+} as const
+
+export type DownloadRequestScalarFieldEnum = (typeof DownloadRequestScalarFieldEnum)[keyof typeof DownloadRequestScalarFieldEnum]
 
 
 export const KarmaTransactionScalarFieldEnum = {
@@ -2426,6 +2452,17 @@ export const QueueControlOrderByRelevanceFieldEnum = {
 } as const
 
 export type QueueControlOrderByRelevanceFieldEnum = (typeof QueueControlOrderByRelevanceFieldEnum)[keyof typeof QueueControlOrderByRelevanceFieldEnum]
+
+
+export const DownloadRequestOrderByRelevanceFieldEnum = {
+  downloadUrl: 'downloadUrl',
+  fileName: 'fileName',
+  label: 'label',
+  claimedBy: 'claimedBy',
+  error: 'error'
+} as const
+
+export type DownloadRequestOrderByRelevanceFieldEnum = (typeof DownloadRequestOrderByRelevanceFieldEnum)[keyof typeof DownloadRequestOrderByRelevanceFieldEnum]
 
 
 export const KarmaTransactionOrderByRelevanceFieldEnum = {

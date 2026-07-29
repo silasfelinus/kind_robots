@@ -76,6 +76,8 @@ export default defineEventHandler(async (event) => {
               defaultTrigger: data.defaultTrigger,
               hash: data.hash,
               previewImageUrl: data.previewImageUrl,
+              civitaiModelId: data.civitaiModelId,
+              civitaiModelVersionId: data.civitaiModelVersionId,
               isMature: data.isMature,
               resourceType: data.resourceType,
               supportedServer: data.supportedServer,

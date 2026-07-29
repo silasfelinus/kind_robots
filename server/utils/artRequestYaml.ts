@@ -38,6 +38,10 @@ export type ArtQueueEntry = {
   project_field?: string
 }
 
+export type AppendRequestOptions = {
+  allowDuplicate?: boolean
+}
+
 export function yamlQuoted(value: string): string {
   return JSON.stringify(value)
 }
@@ -55,7 +59,7 @@ export function yamlFolded(
 function normalizedEngine(entry: ArtQueueEntry): string | undefined {
   const explicit = entry.engine?.trim()
   if (explicit) return explicit
-  return entry.variant === 'image' ? undefined : 'flux'
+  return entry.variant === 'image' ? undefined : 'krea2'
 }
 
 export function normalizeArtQueueEntry(entry: ArtQueueEntry): ArtQueueEntry {
@@ -149,9 +153,15 @@ export function requestAlreadyQueued(
   })
 }
 
-export function appendRequest(content: string, entry: ArtQueueEntry): string {
+export function appendRequest(
+  content: string,
+  entry: ArtQueueEntry,
+  options: AppendRequestOptions = {},
+): string {
   const normalized = normalizeArtQueueEntry(entry)
-  if (requestAlreadyQueued(content, normalized)) return content
+  if (!options.allowDuplicate && requestAlreadyQueued(content, normalized)) {
+    return content
+  }
 
   const serialized = renderRequestEntry(normalized)
   const trimmed = content.trimEnd()

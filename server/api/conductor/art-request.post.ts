@@ -1,28 +1,27 @@
 // /server/api/conductor/art-request.post.ts
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
-import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '@/server/utils/error'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { userIsAdmin } from '@/server/utils/authUser'
-import { validateApiKey } from '@/server/utils/validateKey'
 import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
+import { errorHandler } from '@/server/utils/error'
 import {
+  appendRequest,
   type ArtQueueEntry,
   type ArtVariant,
-  appendRequest,
 } from '@/server/utils/artRequestYaml'
+import { validateApiKey } from '@/server/utils/validateKey'
 
 const GITHUB_API = 'https://api.github.com'
 const KIND_ROBOTS_REPO = 'silasfelinus/kind_robots'
 const CONDUCTOR_REPO = 'silasfelinus/conductor'
 const ART_PROMPTS_PATH = 'projects/art-prompts.yaml'
 const DEFAULT_BRANCH = 'main'
+
 // Kind Robots images live on the self-hosted media host, not in the repo
-// (public/images/** is git-ignored). The GitHub existence check below can
-// therefore NEVER see a kind_robots card/hero/icon that already exists on the
-// mount, so on its own it re-requests art we already have. Probe the media
-// host too. Same origin convention as utils/scripts/mediaContractSource.ts and
-// Conductor's media_direct_consumer.py.
+// (public/images/** is git-ignored). Probe the media host as well as GitHub before
+// creating an ordinary missing-image request. Explicit admin retries bypass this
+// check because their purpose is to replace an existing but unsatisfactory asset.
 const MEDIA_ORIGIN = (
   process.env.MEDIA_ORIGIN?.trim() || 'https://media.acrocatranch.com'
 ).replace(/\/+$/, '')
@@ -52,6 +51,8 @@ type MissingArtRequestBody = {
   variant?: string
   size?: string
   prompt?: string
+  engine?: string
+  force?: boolean
   pageTitle?: string
   pageDescription?: string
   nearestHeading?: string
@@ -137,7 +138,6 @@ function inferVariant(path: string, requested?: string): ArtVariant {
   if (/(^|-|_)icon\./.test(basename)) return 'icon'
   if (/(^|-|_)card\./.test(basename)) return 'card'
   if (/(^|-|_)hero\./.test(basename)) return 'hero'
-
   return 'image'
 }
 
@@ -159,11 +159,9 @@ function normalizeSourceUrl(body: MissingArtRequestBody): string {
 
 function targetFromSource(body: MissingArtRequestBody): ImageTarget {
   const sourceUrl = normalizeSourceUrl(body)
-
   if (!sourceUrl) {
     throw createError({ statusCode: 400, message: 'Missing image source.' })
   }
-
   if (/^(data|blob):/i.test(sourceUrl)) {
     throw createError({
       statusCode: 400,
@@ -187,7 +185,6 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
     const parts = rawPath.split('/').filter(Boolean)
     const [owner, repo, ref, ...fileParts] = parts
     const imagePath = fileParts.join('/')
-
     if (!owner || !repo || !ref || !imagePath || !isImagePath(imagePath)) {
       throw createError({
         statusCode: 400,
@@ -197,8 +194,6 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
 
     const variant = inferVariant(imagePath, body.variant)
     const basename = imagePath.split('/').pop() ?? imagePath
-    const slug = stripVariantFromSlug(slugify(basename), variant)
-
     return {
       sourceUrl,
       targetRepo: `${owner}/${repo}`,
@@ -207,7 +202,7 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
       publicPath: sourceUrl,
       variant,
       size: cleanString(body.size) || VARIANT_SIZES[variant],
-      slug,
+      slug: stripVariantFromSlug(slugify(basename), variant),
     }
   }
 
@@ -223,8 +218,6 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
     : `public${rawPath}`
   const variant = inferVariant(imagePath, body.variant)
   const basename = imagePath.split('/').pop() ?? imagePath
-  const slug = stripVariantFromSlug(slugify(basename), variant)
-
   return {
     sourceUrl,
     targetRepo: KIND_ROBOTS_REPO,
@@ -233,7 +226,7 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
     publicPath: rawPath,
     variant,
     size: cleanString(body.size) || VARIANT_SIZES[variant],
-    slug,
+    slug: stripVariantFromSlug(slugify(basename), variant),
   }
 }
 
@@ -254,30 +247,27 @@ async function fetchGithubFile(
 ): Promise<GitHubFile | null> {
   const url = `${GITHUB_API}/repos/${repo}/contents/${encodePath(path)}?ref=${encodeURIComponent(ref)}`
   const res = await fetch(url, { headers: githubHeaders(token) })
-
   if (res.status === 404) return null
-  if (!res.ok)
+  if (!res.ok) {
     throw new Error(`GitHub ${res.status} while fetching ${repo}/${path}`)
-
-  const data = (await res.json()) as GitHubFile
-  return data
+  }
+  return (await res.json()) as GitHubFile
 }
 
 async function githubFileExists(
   target: ImageTarget,
   token: string,
 ): Promise<boolean> {
-  const file = await fetchGithubFile(
-    target.targetRepo,
-    target.imagePath,
-    token,
-    target.targetRef,
+  return Boolean(
+    await fetchGithubFile(
+      target.targetRepo,
+      target.imagePath,
+      token,
+      target.targetRef,
+    ),
   )
-  return Boolean(file)
 }
 
-// public/images/foo.webp -> https://media.acrocatranch.com/images/foo.webp
-// (strip the leading `public/`, same as the Conductor consumer's _media_url).
 function mediaUrlForTarget(target: ImageTarget): string | null {
   if (target.targetRepo !== KIND_ROBOTS_REPO) return null
   const relative = target.imagePath.replace(/^public\//, '')
@@ -286,9 +276,6 @@ function mediaUrlForTarget(target: ImageTarget): string | null {
   return `${MEDIA_ORIGIN}/${encoded}`
 }
 
-// HEAD the media host to see if the asset is already served. Best-effort: any
-// network/timeout error resolves false so we fall through to the GitHub check
-// and (worst case) queue a request rather than wrongly suppress one.
 async function mediaFileExists(target: ImageTarget): Promise<boolean> {
   const url = mediaUrlForTarget(target)
   if (!url) return false
@@ -304,9 +291,6 @@ async function mediaFileExists(target: ImageTarget): Promise<boolean> {
   }
 }
 
-// A target is "already satisfied" if it exists in the repo OR on the media host.
-// GitHub covers conductor-committed art; media covers the git-ignored
-// kind_robots mount. Check media first (cheap HEAD, no token) and short-circuit.
 async function imageAlreadyExists(
   target: ImageTarget,
   token: string,
@@ -334,19 +318,15 @@ function buildFallbackPrompt(
 
   const label =
     cleanString(body.alt || body.label) || titleFromSlug(target.slug)
-
   if (target.variant === 'icon') {
     return `flat minimal app icon for ${label}, bold clean vector shapes, square composition, no text`
   }
-
   if (target.variant === 'card') {
     return `polished portrait illustration for ${label}, centered subject, rich Kind Robots visual style, no text, 2:3 portrait composition`
   }
-
   if (target.variant === 'hero') {
     return `wide cinematic hero image for ${label}, expressive scene with clear atmosphere and personality, no text, 16:9 landscape composition`
   }
-
   return `polished web illustration for ${label}, clear subject, cohesive Kind Robots visual style, no text`
 }
 
@@ -363,6 +343,7 @@ async function buildEntry(
   const id = `${slugify(`${repoName}-${target.slug}-${target.variant}`)}-${hash}-${attempt}`
   const fallbackPrompt = buildFallbackPrompt(body, target)
   const prompt = await buildContextualArtPrompt(body, target, fallbackPrompt)
+  const engine = cleanString(body.engine)
 
   return {
     id,
@@ -376,6 +357,7 @@ async function buildEntry(
     size: target.size,
     label: cleanString(body.alt || body.label) || titleFromSlug(target.slug),
     prompt,
+    ...(engine ? { engine } : {}),
     ...(Number.isInteger(Number(body.projectId)) && Number(body.projectId) > 0
       ? { project_id: Number(body.projectId) }
       : {}),
@@ -390,7 +372,11 @@ async function buildEntry(
   }
 }
 
-async function updateConductorQueue(entry: ArtQueueEntry, token: string) {
+async function updateConductorQueue(
+  entry: ArtQueueEntry,
+  token: string,
+  force: boolean,
+) {
   const branch = getConductorBranch()
   const file = await fetchGithubFile(
     CONDUCTOR_REPO,
@@ -398,7 +384,6 @@ async function updateConductorQueue(entry: ArtQueueEntry, token: string) {
     token,
     branch,
   )
-
   if (!file) {
     throw createError({
       statusCode: 404,
@@ -407,11 +392,8 @@ async function updateConductorQueue(entry: ArtQueueEntry, token: string) {
   }
 
   const current = decodeGithubContent(file)
-  const next = appendRequest(current, entry)
-
-  if (next === current) {
-    return { created: false, branch }
-  }
+  const next = appendRequest(current, entry, { allowDuplicate: force })
+  if (next === current) return { created: false, branch }
 
   const res = await fetch(
     `${GITHUB_API}/repos/${CONDUCTOR_REPO}/contents/${encodePath(ART_PROMPTS_PATH)}`,
@@ -419,33 +401,29 @@ async function updateConductorQueue(entry: ArtQueueEntry, token: string) {
       method: 'PUT',
       headers: githubHeaders(token),
       body: JSON.stringify({
-        message: `art: request ${entry.image_path}`,
+        message: `${force ? 'art: retry' : 'art: request'} ${entry.image_path}`,
         content: encodeGithubContent(next),
         sha: file.sha,
         branch,
       }),
     },
   )
-
   if (!res.ok) {
     const detail = await res.text().catch(() => '')
     throw new Error(`GitHub ${res.status} while updating art queue: ${detail}`)
   }
-
   return { created: true, branch }
 }
 
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
-
     if (!userIsAdmin(user)) {
       throw createError({ statusCode: 403, message: 'Admin access required.' })
     }
@@ -459,37 +437,42 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<MissingArtRequestBody>(event)
+    const force = body.force === true
     const target = targetFromSource(body)
 
-    if (await imageAlreadyExists(target, token)) {
+    if (!force && (await imageAlreadyExists(target, token))) {
       return {
         success: true,
         message:
           'Image already exists in the target repo or on media; no request created.',
-        data: { created: false, target },
+        data: { created: false, forced: false, target },
         statusCode: 200,
       }
     }
 
     const entry = await buildEntry(body, target)
-    const result = await updateConductorQueue(entry, token)
-
+    const result = await updateConductorQueue(entry, token, force)
     event.node.res.statusCode = result.created ? 201 : 200
 
     return {
       success: true,
       message: result.created
-        ? 'Art request added to Conductor.'
+        ? force
+          ? 'Replacement art request added to Conductor.'
+          : 'Art request added to Conductor.'
         : 'Art request was already queued.',
-      data: { created: result.created, branch: result.branch, entry },
+      data: {
+        created: result.created,
+        forced: force,
+        branch: result.branch,
+        entry,
+      },
       statusCode: result.created ? 201 : 200,
     }
   } catch (error: unknown) {
     const handled = errorHandler(error)
     const statusCode = handled.statusCode || 500
-
     event.node.res.statusCode = statusCode
-
     return {
       success: false,
       message: handled.message || 'Failed to create Conductor art request.',

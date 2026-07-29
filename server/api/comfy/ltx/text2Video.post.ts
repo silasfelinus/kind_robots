@@ -436,7 +436,7 @@ function buildLtxTextToVideoWorkflow(input: {
     },
     '340:317': {
       inputs: {
-        ckpt_name: 'ltx\\ltx-2.3-22b-dev-fp8.safetensors',
+        ckpt_name: 'ltx/ltx-2.3-22b-dev-fp8.safetensors',
       },
       class_type: 'CheckpointLoaderSimple',
       _meta: {
@@ -446,7 +446,7 @@ function buildLtxTextToVideoWorkflow(input: {
     '340:318': {
       inputs: {
         text_encoder: 'gemma_3_12B_it_fp4_mixed.safetensors',
-        ckpt_name: 'ltx\\ltx-2.3-22b-dev-fp8.safetensors',
+        ckpt_name: 'ltx/ltx-2.3-22b-dev-fp8.safetensors',
         device: 'default',
       },
       class_type: 'LTXAVTextEncoderLoader',

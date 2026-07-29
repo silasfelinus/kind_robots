@@ -247,7 +247,7 @@ function buildHunyuan3dWorkflow(input: {
     },
     '54': {
       inputs: {
-        ckpt_name: '3d\\hunyuan_3d_v2.1.safetensors',
+        ckpt_name: '3d/hunyuan_3d_v2.1.safetensors',
       },
       class_type: 'ImageOnlyCheckpointLoader',
       _meta: {

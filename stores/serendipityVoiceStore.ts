@@ -65,6 +65,8 @@ export const useSerendipityVoiceStore = defineStore(
     const relayBaseUrl = ref<string>(DEFAULT_RELAY_URL)
     const connected = ref(false)
     const polling = ref(false)
+    const pollInFlight = ref(false)
+    const sending = ref(false)
     const lastError = ref<string | null>(null)
     const lastAppliedText = ref<string | null>(null)
 
@@ -241,6 +243,12 @@ export const useSerendipityVoiceStore = defineStore(
 
     async function pollOnce(): Promise<void> {
       if (!isClient()) return
+      // Guard against overlap between the interval timer and a manual poll
+      // triggered by sendVoiceText — without this, two in-flight polls can
+      // both read the same cursor, both receive the same command batch, and
+      // both apply it (e.g. double-toggling an effect back off).
+      if (pollInFlight.value) return
+      pollInFlight.value = true
 
       try {
         const [commandsRes, messagesRes] = await Promise.all([
@@ -280,6 +288,8 @@ export const useSerendipityVoiceStore = defineStore(
         connected.value = false
         lastError.value =
           error instanceof Error ? error.message : 'Relay poll failed'
+      } finally {
+        pollInFlight.value = false
       }
     }
 
@@ -303,7 +313,8 @@ export const useSerendipityVoiceStore = defineStore(
     // Simulate an Echo utterance from the page: routes through the same relay
     // dispatcher the Alexa endpoint uses, so testing needs no physical device.
     async function sendVoiceText(text: string): Promise<void> {
-      if (!isClient() || !text.trim()) return
+      if (!isClient() || !text.trim() || sending.value) return
+      sending.value = true
 
       try {
         const response = await fetch(`${relayBaseUrl.value}/api/handle`, {
@@ -316,6 +327,8 @@ export const useSerendipityVoiceStore = defineStore(
         await pollOnce()
       } catch (error) {
         lastError.value = error instanceof Error ? error.message : 'Send failed'
+      } finally {
+        sending.value = false
       }
     }
 
@@ -336,6 +349,7 @@ export const useSerendipityVoiceStore = defineStore(
       relayBaseUrl,
       connected,
       polling,
+      sending,
       lastError,
       lastAppliedText,
       messages,

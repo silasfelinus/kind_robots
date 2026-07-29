@@ -119,6 +119,7 @@ const validTabs: AcademyTab[] = ['timeline', 'styles', 'remix', 'stylelab']
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
+const hasConfiguredUploadTarget = ref(false)
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -159,6 +160,7 @@ function configureStyleLabUploadTarget() {
     icon: 'kind-icon:image',
     showPreview: true,
   })
+  hasConfiguredUploadTarget.value = true
 }
 
 watch(
@@ -201,6 +203,12 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  uploadStore.clearTarget()
+  // Only clear the target if this component actually set one (i.e. the user
+  // opened the stylelab tab) -- otherwise leaving Academy without ever
+  // visiting Style Lab wipes out whatever unrelated page (add-bot,
+  // art-maker, ...) had configured before the user arrived here.
+  if (hasConfiguredUploadTarget.value) {
+    uploadStore.clearTarget()
+  }
 })
 </script>

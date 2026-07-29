@@ -145,6 +145,12 @@ jobs:
       - name: Model Builder completion-gate contract
         run: npm run test:model-builder-completion-gate
 
+      - name: Model Builder commit cancelled-run guard checker self-test
+        run: npm run test:model-builder-commit-cancelled-run-guard-selftest
+
+      - name: Model Builder commit cancelled-run guard contract
+        run: npm run test:model-builder-commit-cancelled-run-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

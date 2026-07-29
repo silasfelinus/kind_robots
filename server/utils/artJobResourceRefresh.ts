@@ -6,7 +6,6 @@ import {
   type ArtJobPayloadRecord,
 } from './artJobPayload'
 import { applyArtJobOverrides } from './artJobRetry'
-import prisma from './prisma'
 
 const LORA_TYPES = [ResourceType.LORA, ResourceType.LYCORIS]
 
@@ -115,6 +114,7 @@ export async function refreshArtJobLoraResources(
   }
 
   const resourceId = loraResourceIds[0]!
+  const { default: prisma } = await import('./prisma')
   const resource = await prisma.resource.findFirst({
     where: {
       id: resourceId,

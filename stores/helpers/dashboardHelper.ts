@@ -917,8 +917,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:gearhammer',
         title: 'Taskmaster',
         summary: 'Turn real objectives into a choice-driven adventure.',
-        // Shared temporarily until the dedicated Taskmaster art set lands.
-        image: tabImage('scenario', 'storymaker'),
+        image: tabImage('scenario', 'taskmaster'),
         narrative:
           'Taskmaster wraps real work in a second-person quest while keeping the actual objective visible and every write-back explicit.',
         route: '/taskmaster',

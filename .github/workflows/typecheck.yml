@@ -30,10 +30,9 @@ jobs:
       - name: Apply canonical route and identities
         run: python utils/scripts/applySerendipityRouteCutover.py
 
-      - name: Remove temporary bootstrap machinery
+      - name: Exclude workflow changes from generated commit
         run: |
-          git checkout origin/main -- .github/workflows/typecheck.yml
-          rm -f .github/workflows/serendipity-route-cutover.yml
+          rm -f .github/workflows/serendipity-route-contract.yml
           rm -f utils/scripts/applySerendipityRouteCutover.py
 
       - name: Commit cutover

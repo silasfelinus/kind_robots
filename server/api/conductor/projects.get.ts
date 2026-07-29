@@ -7,7 +7,6 @@ import {
   conductorPriorityToProjectPriority,
   conductorStatusToProjectStatus,
   parseConductorProjectOverrides,
-  type ConductorProjectKind,
   type ConductorProjectPriority,
   type ConductorProjectStatus,
   type ProjectLifecyclePriority,
@@ -52,10 +51,10 @@ export interface ConductorProject {
   slug: string
   name: string
   kind: string
-  status: ProjectLifecycleStatus
-  priority: ProjectLifecyclePriority
-  conductorStatus: ConductorProjectStatus
-  conductorPriority: ConductorProjectPriority
+  status?: ProjectLifecycleStatus
+  priority?: ProjectLifecyclePriority
+  conductorStatus?: ConductorProjectStatus
+  conductorPriority?: ConductorProjectPriority
   milestones: ConductorMilestone[]
   tasks: ConductorTask[]
   progress: number

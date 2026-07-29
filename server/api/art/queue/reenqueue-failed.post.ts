@@ -9,14 +9,13 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { normalizeFailedArtJobIds } from '../../../utils/failedArtJobScope'
-import {
-  serializeArtJobPayload,
-} from '../../../utils/artJobPayload'
+import { serializeArtJobPayload } from '../../../utils/artJobPayload'
 import {
   enrichArtJobPayload,
   readArtJobProvenance,
 } from '../../../utils/artJobProvenance'
 import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
+import { refreshArtJobLoraResources } from '../../../utils/artJobResourceRefresh'
 
 const REQUEUE_CONCURRENCY = 10
 
@@ -31,14 +30,28 @@ type RequeueResult = {
   id: number
   imagePathChanged: boolean
   promptChanged: boolean
+  loraPathChanged: boolean
+  loraResourceIds: number[]
+  loraNames: string[]
+}
+
+type RequeueFailure = {
+  id: number
+  message: string
+}
+
+function failureMessage(error: unknown): string {
+  if (error instanceof Error && error.message) return error.message
+  return String(error || 'Unknown requeue failure.')
 }
 
 async function requeueFailedJob(source: FailedJobSource): Promise<RequeueResult> {
   const normalization = normalizeQueuedArtJobPayload(source.payload)
+  const resourceRefresh = await refreshArtJobLoraResources(normalization.payload)
   const priorProvenance = readArtJobProvenance(source.payload)
   const { payload } = enrichArtJobPayload(
     source.engine,
-    normalization.payload,
+    resourceRefresh.payload,
     {
       projectSlug: source.projectSlug,
       idempotencyKey: priorProvenance?.idempotencyKey,
@@ -50,6 +63,9 @@ async function requeueFailedJob(source: FailedJobSource): Promise<RequeueResult>
     repairedAt: new Date().toISOString(),
     imagePathChanged: normalization.imagePathChanged,
     promptChanged: normalization.promptChanged,
+    loraPathChanged: resourceRefresh.changed,
+    loraResourceIds: resourceRefresh.loraResourceIds,
+    loraNames: resourceRefresh.loraNames,
   }
 
   const updated = await prisma.artJob.updateMany({
@@ -75,6 +91,9 @@ async function requeueFailedJob(source: FailedJobSource): Promise<RequeueResult>
     id: source.id,
     imagePathChanged: normalization.imagePathChanged,
     promptChanged: normalization.promptChanged,
+    loraPathChanged: resourceRefresh.changed,
+    loraResourceIds: resourceRefresh.loraResourceIds,
+    loraNames: resourceRefresh.loraNames,
   }
 }
 
@@ -121,9 +140,10 @@ export default defineEventHandler(async (event) => {
     const skippedJobIds = selectedJobIds.filter((id) => !sourcesById.has(id))
 
     const requeuedJobIds: number[] = []
-    const failedSourceJobIds: number[] = []
+    const failedJobs: RequeueFailure[] = []
     let repairedImagePathCount = 0
     let repairedPromptCount = 0
+    let repairedLoraPathCount = 0
 
     for (let index = 0; index < sources.length; index += REQUEUE_CONCURRENCY) {
       const batch = sources.slice(index, index + REQUEUE_CONCURRENCY)
@@ -139,12 +159,17 @@ export default defineEventHandler(async (event) => {
           requeuedJobIds.push(result.value.id)
           if (result.value.imagePathChanged) repairedImagePathCount += 1
           if (result.value.promptChanged) repairedPromptCount += 1
+          if (result.value.loraPathChanged) repairedLoraPathCount += 1
         } else {
-          failedSourceJobIds.push(source.id)
+          failedJobs.push({
+            id: source.id,
+            message: failureMessage(result.reason),
+          })
         }
       })
     }
 
+    const failedSourceJobIds = failedJobs.map((failure) => failure.id)
     const selectedCount = selectedJobIds.length
     const requestedCount = sources.length
     const queuedCount = requeuedJobIds.length
@@ -169,11 +194,13 @@ export default defineEventHandler(async (event) => {
         skippedCount,
         repairedImagePathCount,
         repairedPromptCount,
+        repairedLoraPathCount,
         selectedJobIds,
         sourceJobIds: sources.map((source) => source.id),
         skippedJobIds,
         queuedSourceJobIds: requeuedJobIds,
         failedSourceJobIds,
+        failedJobs,
         createdJobIds: [],
         refreshSeed: false,
         requeuedJobIds,

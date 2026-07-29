@@ -6,6 +6,7 @@
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
     "audit:checkpoints": "prisma generate && tsx utils/scripts/auditCheckpointResources.ts",
+    "repair:checkpoints": "prisma generate && tsx utils/scripts/repairCheckpointResources.ts",
     "audit:facet-data": "prisma generate && tsx utils/scripts/auditFacetCatalogData.ts",
     "triage:facet-audit": "prisma generate && tsx utils/scripts/triageFacetAudit.ts",
     "repair:facet-profiles": "prisma generate && tsx utils/scripts/repairFacetProfiles.ts",

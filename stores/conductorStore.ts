@@ -85,6 +85,7 @@ function clearLegacyVotes(): void {
 export const useConductorStore = defineStore('conductor', () => {
   const data = ref<ConductorData | null>(null)
   const pending = ref(false)
+  let inFlightFetch: Promise<void> | null = null
   const error = ref<string | null>(null)
   const pitchUpdateError = ref<string | null>(null)
   const updatingPitchSlugs = ref<string[]>([])
@@ -110,7 +111,9 @@ export const useConductorStore = defineStore('conductor', () => {
   }
 
   const pendingPitches = computed(() =>
-    pitches.value.filter((pitch) => pitchBucket(pitchStatus(pitch.slug)) === 'review'),
+    pitches.value.filter(
+      (pitch) => pitchBucket(pitchStatus(pitch.slug)) === 'review',
+    ),
   )
   const approvedPitches = computed(() =>
     pitches.value.filter(
@@ -129,30 +132,39 @@ export const useConductorStore = defineStore('conductor', () => {
   )
 
   async function fetchProjects(force = false): Promise<void> {
-    if (pending.value) return
+    // A fetch already in flight satisfies both a plain call (avoids a
+    // duplicate request) and a force=true call (it's about to get fresh
+    // data anyway) — awaiting it instead of no-op'ing keeps `force` callers
+    // from silently missing the refresh they asked for.
+    if (inFlightFetch) return inFlightFetch
     if (data.value !== null && !force) return
+
     pending.value = true
     error.value = null
-    try {
-      const response = await performFetch<ConductorData>(
-        '/api/conductor/projects',
-      )
+    inFlightFetch = (async () => {
+      try {
+        const response = await performFetch<ConductorData>(
+          '/api/conductor/projects',
+        )
 
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Conductor projects fetch failed')
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Conductor projects fetch failed')
+        }
+
+        data.value = response.data
+        clearLegacyVotes()
+      } catch (cause) {
+        error.value = fallbackProjects.length
+          ? null
+          : cause instanceof Error
+            ? cause.message
+            : String(cause)
+      } finally {
+        pending.value = false
+        inFlightFetch = null
       }
-
-      data.value = response.data
-      clearLegacyVotes()
-    } catch (cause) {
-      error.value = fallbackProjects.length
-        ? null
-        : cause instanceof Error
-          ? cause.message
-          : String(cause)
-    } finally {
-      pending.value = false
-    }
+    })()
+    return inFlightFetch
   }
 
   function replacePitchStatus(slug: string, status: PitchStatus): void {

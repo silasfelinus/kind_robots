@@ -155,6 +155,41 @@
       <p v-if="errorMessage" class="text-xs text-error">{{ errorMessage }}</p>
     </div>
 
+    <!-- Related entries -->
+    <div class="flex flex-col gap-1">
+      <h3
+        class="text-xs font-black uppercase tracking-wide text-base-content/60"
+      >
+        Related entries
+      </h3>
+      <p v-if="isLoadingRelated" class="text-xs text-base-content/45">
+        Loading…
+      </p>
+      <p
+        v-else-if="!relatedEntries.length"
+        class="text-xs text-base-content/45"
+      >
+        None
+      </p>
+      <ul v-else class="flex flex-col gap-1">
+        <li
+          v-for="related in relatedEntries"
+          :key="related.id"
+          class="flex items-center gap-2 text-xs text-base-content/70"
+        >
+          <Icon
+            v-if="related.starred"
+            name="kind-icon:star"
+            class="size-3 shrink-0 text-warning"
+          />
+          <span class="badge badge-ghost badge-sm rounded-lg">{{
+            related.mediaType
+          }}</span>
+          <span>{{ related.year ?? 'Year unknown' }}</span>
+        </li>
+      </ul>
+    </div>
+
     <!-- External links -->
     <div v-if="entry.externalUrl" class="flex flex-col gap-1">
       <h3
@@ -175,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { MediaType } from '~/prisma/generated/prisma/client'
 
 export type MediaEntryDetail = {
@@ -194,9 +229,24 @@ export type MediaEntryDetail = {
   externalUrl: string | null
 }
 
+type RelatedEntry = {
+  id: number
+  title: string
+  mediaType: MediaType
+  year: number | null
+  starred: boolean
+  watchedMonth: number | null
+  watchedDay: number | null
+}
+
 type MediaEntryPatchResponse = {
   success: boolean
   data: MediaEntryDetail
+}
+
+type MediaEntryRelatedResponse = {
+  success: boolean
+  data: RelatedEntry[]
 }
 
 const props = defineProps<{ entry: MediaEntryDetail }>()
@@ -208,14 +258,36 @@ const isPublishing = ref(false)
 const isSavingStar = ref(false)
 const isSavingRating = ref(false)
 const errorMessage = ref('')
+const relatedEntries = ref<RelatedEntry[]>([])
+const isLoadingRelated = ref(false)
+
+async function fetchRelated(id: number) {
+  isLoadingRelated.value = true
+  try {
+    const res = await $fetch<MediaEntryRelatedResponse, string>(
+      `/api/media-entries/${id}/related`,
+    )
+    relatedEntries.value = res?.success ? res.data : []
+  } catch {
+    // Related entries are non-critical; leave the section empty on failure.
+    relatedEntries.value = []
+  } finally {
+    isLoadingRelated.value = false
+  }
+}
+
+onMounted(() => {
+  void fetchRelated(props.entry.id)
+})
 
 // Reset local draft state whenever a different entry is selected.
 watch(
   () => props.entry.id,
-  () => {
+  (id) => {
     draft.value = props.entry.review ?? ''
     saveState.value = 'idle'
     errorMessage.value = ''
+    void fetchRelated(id)
   },
 )
 

@@ -1,0 +1,43 @@
+name: Taskmaster Sample Tasks Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/taskmaster-sample-tasks-contract.yml'
+      - 'components/taskmaster/taskmaster-sample-tasks.vue'
+      - 'content/taskmaster.md'
+      - 'utils/scripts/verifyTaskmasterSampleTasks.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/taskmaster-sample-tasks-contract.yml'
+      - 'components/taskmaster/taskmaster-sample-tasks.vue'
+      - 'content/taskmaster.md'
+      - 'utils/scripts/verifyTaskmasterSampleTasks.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taskmaster-sample-tasks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Taskmaster sample-task contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify samples and human-gate boundary
+        run: node utils/scripts/verifyTaskmasterSampleTasks.mjs

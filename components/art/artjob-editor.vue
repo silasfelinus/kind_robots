@@ -178,6 +178,38 @@
                 placeholder="Keep the current model or choose a preset"
               />
             </label>
+
+            <label v-if="form.loraName" class="flex flex-col gap-1 text-sm">
+              <span class="font-semibold">Style LoRA</span>
+              <input
+                v-model="form.loraName"
+                class="input input-bordered rounded-2xl font-mono text-xs"
+                placeholder="e.g. Kontext/SFW/impressionist.safetensors"
+              />
+              <span class="text-[11px] text-base-content/50">
+                Must match ComfyUI's list exactly (folder + case). Required/base
+                LoRAs aren't touched.
+              </span>
+            </label>
+
+            <details class="rounded-2xl border border-base-300 bg-base-200/40 p-3">
+              <summary
+                class="cursor-pointer text-sm font-semibold select-none"
+              >
+                Raw job JSON
+              </summary>
+              <button
+                type="button"
+                class="btn btn-xs rounded-xl mt-2"
+                @click="copyPayloadJson"
+              >
+                {{ copiedJson ? 'Copied' : 'Copy JSON' }}
+              </button>
+              <pre
+                class="mt-2 max-h-72 overflow-auto rounded-xl bg-base-100 p-3 text-[11px] leading-snug whitespace-pre"
+                >{{ prettyPayload }}</pre
+              >
+            </details>
           </div>
 
           <aside class="flex flex-col gap-3">
@@ -524,6 +556,26 @@ function workflowPrompt(kind: 'positive' | 'negative'): string {
   return ''
 }
 
+// The user-selected style LoRA baked into the workflow. Skips required/base
+// LoRAs (e.g. LTX's distilled acceleration LoRA) — builders title those
+// "... Required ..." — so the field shows the one that's actually overridable.
+function workflowStyleLora(): string {
+  const workflow = asRecord(asRecord(props.job.payload).workflow)
+  for (const value of Object.values(workflow)) {
+    const node = asRecord(value)
+    const classType = scalar(node.class_type)
+    if (classType !== 'LoraLoaderModelOnly' && classType !== 'LoraLoader') {
+      continue
+    }
+    if (scalar(asRecord(node._meta).title).toLowerCase().includes('required')) {
+      continue
+    }
+    const name = scalar(asRecord(node.inputs).lora_name)
+    if (name) return name
+  }
+  return ''
+}
+
 function payloadFacetIds(): number[] {
   const facets = asRecord(props.job.payload).facets
   if (!Array.isArray(facets)) return []
@@ -577,6 +629,7 @@ const form = reactive({
     'unet_name',
     'model_name',
   ]),
+  loraName: workflowStyleLora(),
   durationSeconds: videoScalar(['durationSeconds']) || '4',
   fps: videoScalar(['fps']) || '24',
   loop: booleanValue(asRecord(payload.value.video).loop, true),
@@ -677,6 +730,26 @@ function numberValue(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
+const prettyPayload = computed(() => {
+  try {
+    return JSON.stringify(props.job.payload, null, 2)
+  } catch {
+    return String(props.job.payload)
+  }
+})
+const copiedJson = ref(false)
+async function copyPayloadJson(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(prettyPayload.value)
+    copiedJson.value = true
+    setTimeout(() => {
+      copiedJson.value = false
+    }, 1500)
+  } catch {
+    localError.value = 'Could not copy to clipboard.'
+  }
+}
+
 async function save(): Promise<void> {
   localError.value = ''
   const prompt = form.promptString.replace(/\s+/g, ' ').trim()
@@ -709,6 +782,7 @@ async function save(): Promise<void> {
   if (form.sampler.trim()) overrides.sampler = form.sampler.trim()
   if (form.scheduler.trim()) overrides.scheduler = form.scheduler.trim()
   if (form.checkpoint.trim()) overrides.checkpoint = form.checkpoint.trim()
+  if (form.loraName.trim()) overrides.loraName = form.loraName.trim()
 
   if (isVideoJob.value) {
     const durationSeconds = numberValue(form.durationSeconds)

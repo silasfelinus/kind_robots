@@ -158,7 +158,12 @@ export type SdxlImg2ImgInput = {
 // these but the UI is expected to expose step/cfg overrides.
 export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
 const MIN_SDXL_IMG2IMG_DENOISE = 0.15
-const DEFAULT_SDXL_IMG2IMG_CHECKPOINT = 'dreamshaperXL_v21TurboDPMSDE.safetensors'
+// Subfolder-qualified, matching how ComfyUI lists a recursive checkpoints dir
+// (files live under SDXL/, Flux/, … so a bare filename would not resolve). The
+// styler is expected to pass the checkpoint Resource's real localPath; this is
+// only the fallback when none is supplied.
+const DEFAULT_SDXL_IMG2IMG_CHECKPOINT =
+  'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'
 
 function resolveSdxlSeed(seed?: number | null): number {
   if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {

@@ -1369,13 +1369,31 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     autoBuildingItemSingleton.claim(item.id)
     try {
       if (item.stages.PITCH.status !== 'approved') {
-        if (!item.pitch.trim()) await draftText(itemId, 'pitch')
+        if (!item.pitch.trim()) {
+          // draftText can fail (network error, "the model returned nothing
+          // useful", or its own isStageEditable/live-value guards) and still
+          // leave item.pitch empty. Unlike GENERATE_ASSETS below -- whose
+          // `generated` result already gates its approveStage call -- this
+          // branch used to approve PITCH unconditionally afterward, which
+          // could silently mark an empty pitch 'approved'. The single-item
+          // Approve button in model-builder-item-panel.vue treats that as
+          // impossible (`:disabled="isLocked('PITCH') || !pitch.trim()"`), so
+          // auto-build must not produce a state the manual UI itself refuses.
+          const drafted = await draftText(itemId, 'pitch')
+          if (!drafted) return false
+        }
         approveStage(itemId, 'PITCH')
       }
 
       if (item.stages.FIELDS_AND_PROMPTS.status !== 'approved') {
-        if (!isAsset) await draftText(itemId, 'fields')
-        if (wantArt) await draftText(itemId, 'artPrompt')
+        if (!isAsset) {
+          const drafted = await draftText(itemId, 'fields')
+          if (!drafted) return false
+        }
+        if (wantArt) {
+          const drafted = await draftText(itemId, 'artPrompt')
+          if (!drafted) return false
+        }
         approveStage(itemId, 'FIELDS_AND_PROMPTS')
       }
 

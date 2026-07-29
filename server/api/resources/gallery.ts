@@ -35,6 +35,8 @@ export const resourceGallerySelect = {
   defaultTrigger: true,
   hash: true,
   previewImageUrl: true,
+  civitaiModelId: true,
+  civitaiModelVersionId: true,
   imagePath: true,
   slug: true,
   commercialSafe: true,

@@ -19,16 +19,29 @@
       </div>
 
       <form
-        class="grid gap-2 md:grid-cols-[1fr_auto_auto]"
+        class="grid gap-2 md:grid-cols-[auto_1fr_auto_auto]"
         @submit.prevent="runSearch(true)"
       >
+        <select v-model="source" class="select select-bordered rounded-xl">
+          <option value="civitai">Civitai</option>
+          <option value="civarchive">CivArchive</option>
+        </select>
+
         <input
           v-model="query"
           class="input input-bordered rounded-xl"
-          placeholder="Search Civitai LoRAs"
+          :placeholder="
+            source === 'civarchive'
+              ? 'CivArchive model id or URL (recovers removed models)'
+              : 'Search Civitai LoRAs'
+          "
         />
 
-        <select v-model="baseModel" class="select select-bordered rounded-xl">
+        <select
+          v-if="source === 'civitai'"
+          v-model="baseModel"
+          class="select select-bordered rounded-xl"
+        >
           <option value="">All bases</option>
           <option value="Flux.1 D">Flux</option>
           <option value="SDXL 1.0">SDXL</option>
@@ -40,7 +53,7 @@
         <button class="btn btn-primary rounded-xl" type="submit" :disabled="loading">
           <span v-if="loading" class="loading loading-spinner loading-sm" />
           <Icon v-else name="kind-icon:search" class="h-4 w-4" />
-          Search
+          {{ source === 'civarchive' ? 'Look up' : 'Search' }}
         </button>
       </form>
 
@@ -122,7 +135,7 @@
             class="btn btn-sm mt-auto rounded-xl"
             :class="downloadButtonClass(card)"
             type="button"
-            :disabled="card.owned || isQueued(card) || queuing === card.civitaiModelVersionId"
+            :disabled="!canQueue(card) || queuing === card.civitaiModelVersionId"
             @click="queueDownload(card)"
           >
             <span
@@ -175,7 +188,9 @@ type DiscoverCard = {
   fileName: string | null
   creator: string | null
   isMature: boolean
+  source: 'CIVITAI' | 'CIVARCHIVE'
   owned: boolean
+  updatable: boolean
 }
 
 type BrowseResponse = {
@@ -186,6 +201,7 @@ type BrowseResponse = {
 const userStore = useUserStore()
 
 const query = ref('')
+const source = ref<'civitai' | 'civarchive'>('civitai')
 const baseModel = ref('')
 const includeMature = ref(false)
 const hideOwned = ref(false)
@@ -208,21 +224,35 @@ function isQueued(card: DiscoverCard): boolean {
   return queuedIds.value.has(card.civitaiModelVersionId)
 }
 
+// Civitai cards are always downloadable (the agent builds the by-version URL);
+// CivArchive cards need an explicit downloadUrl from the archive.
+function isDownloadable(card: DiscoverCard): boolean {
+  return card.source === 'CIVITAI' || Boolean(card.downloadUrl)
+}
+
+function canQueue(card: DiscoverCard): boolean {
+  return !card.owned && !isQueued(card) && isDownloadable(card)
+}
+
 function downloadButtonClass(card: DiscoverCard): string {
   if (card.owned) return 'btn-ghost'
   if (isQueued(card)) return 'btn-success btn-outline'
+  if (card.updatable) return 'btn-warning'
+  if (!isDownloadable(card)) return 'btn-ghost'
   return 'btn-primary'
 }
 
 function downloadButtonIcon(card: DiscoverCard): string {
-  if (card.owned) return 'kind-icon:check'
-  if (isQueued(card)) return 'kind-icon:check'
+  if (card.owned || isQueued(card)) return 'kind-icon:check'
+  if (card.updatable) return 'kind-icon:refresh-cw'
   return 'kind-icon:download'
 }
 
 function downloadButtonLabel(card: DiscoverCard): string {
   if (card.owned) return 'Owned'
   if (isQueued(card)) return 'Queued'
+  if (!isDownloadable(card)) return 'No link'
+  if (card.updatable) return 'Update'
   return 'Download'
 }
 
@@ -239,10 +269,13 @@ async function runSearch(reset: boolean) {
 
   try {
     const params = new URLSearchParams()
+    params.set('source', source.value)
     if (query.value.trim()) params.set('q', query.value.trim())
-    if (baseModel.value) params.set('baseModel', baseModel.value)
-    if (includeMature.value && canShowMature.value) params.set('nsfw', 'true')
-    if (!reset && nextCursor.value) params.set('cursor', nextCursor.value)
+    if (source.value === 'civitai') {
+      if (baseModel.value) params.set('baseModel', baseModel.value)
+      if (includeMature.value && canShowMature.value) params.set('nsfw', 'true')
+      if (!reset && nextCursor.value) params.set('cursor', nextCursor.value)
+    }
 
     const res = await performFetch<BrowseResponse>(
       `/api/lora/browse?${params.toString()}`,
@@ -272,7 +305,7 @@ async function queueDownload(card: DiscoverCard) {
       {
         method: 'POST',
         body: JSON.stringify({
-          source: 'CIVITAI',
+          source: card.source,
           civitaiModelId: card.civitaiModelId,
           civitaiModelVersionId: card.civitaiModelVersionId,
           downloadUrl: card.downloadUrl,

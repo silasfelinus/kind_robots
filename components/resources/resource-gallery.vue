@@ -7,6 +7,7 @@ import {
 } from '@/stores/resourceGalleryStore'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
+import type { Resource } from '@/stores/resourceStore'
 
 const RESOURCE_TYPE = {
   CHECKPOINT: 'CHECKPOINT',
@@ -26,6 +27,50 @@ const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
 const activeUploadResourceId = ref<number | null>(null)
+
+// Add/edit: only CHECKPOINT and LORA/LYCORIS have a dedicated form today.
+const showAddChoice = ref(false)
+const showForm = ref(false)
+const formKind = ref<'CHECKPOINT' | 'LORA'>('CHECKPOINT')
+const editing = ref<Partial<Resource> | null>(null)
+
+function isEditable(resource: ResourceGalleryRecord): boolean {
+  return (
+    resource.resourceType === RESOURCE_TYPE.CHECKPOINT ||
+    resource.resourceType === RESOURCE_TYPE.LORA ||
+    resource.resourceType === RESOURCE_TYPE.LYCORIS
+  )
+}
+
+function openAddChoice(): void {
+  showAddChoice.value = true
+}
+
+function startAdd(kind: 'CHECKPOINT' | 'LORA'): void {
+  formKind.value = kind
+  editing.value = null
+  showAddChoice.value = false
+  showForm.value = true
+}
+
+function openEdit(resource: ResourceGalleryRecord): void {
+  formKind.value = resource.resourceType === RESOURCE_TYPE.CHECKPOINT ? 'CHECKPOINT' : 'LORA'
+  editing.value = resource
+  showForm.value = true
+}
+
+function closeForm(): void {
+  showForm.value = false
+  showAddChoice.value = false
+  editing.value = null
+}
+
+async function handleSaved(resource: Resource): Promise<void> {
+  // Re-fetch by id so the gallery card gets the full shape (ArtImage preview,
+  // usage counts) the plain resourceStore save response doesn't carry.
+  await resourceGalleryStore.getResource(resource.id)
+  closeForm()
+}
 
 const resourceTypes = computed(() => {
   return [...new Set(resourceGalleryStore.resources.map((entry) => entry.resourceType))]
@@ -247,19 +292,30 @@ onMounted(async () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-outline btn-sm rounded-2xl"
-          :disabled="resourceGalleryStore.isLoading"
-          @click="resourceGalleryStore.loadResources()"
-        >
-          <span
-            v-if="resourceGalleryStore.isLoading"
-            class="loading loading-spinner loading-xs"
-          />
-          <icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
+        <div class="flex shrink-0 gap-2">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm rounded-2xl"
+            @click="openAddChoice"
+          >
+            <icon name="kind-icon:plus" class="h-4 w-4" />
+            Add
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline btn-sm rounded-2xl"
+            :disabled="resourceGalleryStore.isLoading"
+            @click="resourceGalleryStore.loadResources()"
+          >
+            <span
+              v-if="resourceGalleryStore.isLoading"
+              class="loading loading-spinner loading-xs"
+            />
+            <icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            Refresh
+          </button>
+        </div>
       </div>
 
       <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
@@ -303,6 +359,49 @@ onMounted(async () => {
         </label>
       </div>
     </header>
+
+    <div
+      v-if="showAddChoice"
+      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+    >
+      <p class="text-sm font-bold">What are you adding?</p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm rounded-xl"
+          @click="startAdd('CHECKPOINT')"
+        >
+          Checkpoint
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm rounded-xl"
+          @click="startAdd('LORA')"
+        >
+          LoRA / LyCORIS
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm rounded-xl"
+          @click="closeForm"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <add-model
+      v-if="showForm && formKind === 'CHECKPOINT'"
+      :model="editing"
+      @saved="handleSaved"
+      @close="closeForm"
+    />
+    <add-lora
+      v-if="showForm && formKind === 'LORA'"
+      :lora="editing"
+      @saved="handleSaved"
+      @close="closeForm"
+    />
 
     <div
       v-if="message"
@@ -433,6 +532,16 @@ onMounted(async () => {
               Upload preview
             </button>
           </div>
+
+          <button
+            v-if="isEditable(resource)"
+            type="button"
+            class="btn btn-ghost btn-sm rounded-2xl"
+            @click="openEdit(resource)"
+          >
+            <icon name="kind-icon:edit" class="h-4 w-4" />
+            Edit
+          </button>
         </div>
       </article>
     </div>

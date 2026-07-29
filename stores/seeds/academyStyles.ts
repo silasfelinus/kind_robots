@@ -1861,6 +1861,77 @@ export const academyStyles: AcademyStyle[] = [
         'Recompose this image as an early Fauvist painting: unmixed, high-key non-naturalistic color applied in loose visible brushstrokes with no attempt at local color accuracy, bold dark contour outlines holding flat color areas together, warm and cool colors in direct high-contrast juxtaposition, and preserve the source composition and subject',
     },
   },
+  {
+    slug: 'tonalism',
+    name: 'Tonalism',
+    era: 'c. 1880–1915',
+    sortYear: 1880,
+    previewImageSrc: '/images/academy/styles/tonalism.webp',
+    region: 'United States',
+    keyIdeas:
+      "Tonalism gives the curriculum a second American landscape movement alongside the Hudson River School, deliberately its counterpoint. Where Hudson River School painters used panoramic scale, fine botanical and geological detail, and theatrical light to make American land feel sublime and vast, Tonalist painters unified a scene under a single muted tone, blurred its edges toward near-silhouette, and set it at dawn, dusk, or in mist — making the same landscape tradition feel intimate, remembered, and quietly spiritual rather than spectacular. Many Tonalists, including George Inness, were influenced by Emanuel Swedenborg's mystical writings, treating a glowing dusk sky or a softened tree line as a visible trace of spiritual order beneath the physical landscape. The movement overlaps in time with American Impressionism but pushes in the opposite direction: away from broken, optically accurate color and toward thin, translucent glazes built up to a single dominant harmony.",
+    recognitionCues: [
+      'A muted, close-value palette dominated by a single unifying tone (soft gray, brown, blue, or green)',
+      'Soft, blurred edges and diffused atmospheric light rather than crisp detail',
+      'Twilight, dawn, dusk, or misty/overcast conditions as the default light',
+      'Simplified, near-silhouette forms — trees, fences, and distant farmhouses reduced to dark shapes against a glowing sky',
+      'Thin, translucent glazes of color built up in layers rather than opaque local color',
+      'A quiet, contemplative, often melancholic mood; the landscape feels remembered rather than directly observed',
+      'Minimal or no figures; when present, they are small and incidental, never the subject',
+    ],
+    artists: [
+      {
+        name: 'George Inness',
+        years: '1825–1894',
+        note: "The movement's central figure and this lesson's sole verified generation-style anchor; Dwight Tryon, Ralph Albert Blakelock, and J. Francis Murphy are also commonly cited Tonalists but have no rights-verified example work in this curriculum yet.",
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as an American Tonalist landscape: a muted, close-value palette unified by a single dominant tone (soft gray, brown, or blue-green), soft diffused atmospheric light at dawn or dusk, simplified near-silhouette forms with blurred edges, thin translucent glazes of color, and a quiet, contemplative, melancholic mood. Preserve the source composition and subject; avoid imitating any single named artwork.',
+    },
+  },
+  {
+    slug: 'barbizon-school',
+    name: 'Barbizon School',
+    era: 'c. 1830–1875',
+    sortYear: 1830,
+    previewImageSrc: '/images/academy/styles/barbizon-school.webp',
+    region: 'France',
+    keyIdeas:
+      "The Barbizon School gives the curriculum its landscape hinge point: a group of painters who settled in and around the village of Barbizon on the edge of the Fontainebleau forest and insisted that the ordinary countryside, observed directly and without myth, allegory, or historical staging, was a worthy subject on its own terms. This directly rejected the academic hierarchy that ranked history and mythological painting above landscape. Barbizon painters worked outdoors from direct observation (though most still finished canvases in the studio), favored humble, unposed rural subjects — woodcutters, gleaners, cattle, a specific stretch of forest or farmland — over idealized or composite scenery, and painted in a muted, earthy, tonally unified palette. The school is the direct hinge between academic Neoclassical/Romantic landscape convention and Impressionism: Monet, Pissarro, and their circle studied and extended the Barbizon painters' plein-air practice, but pushed its muted tonal realism toward broken, optically accurate color. This curriculum's own Tonalism entry names Barbizon's muted palette and soft atmosphere as a direct influence on American Tonalism, and Realism shares Jean-François Millet, whose peasant subjects bridge both movements.",
+    recognitionCues: [
+      'A muted, earthy palette dominated by greens, browns, and greys rather than bright or idealized color',
+      'Loose, visible, but controlled brushwork — looser than academic finish, tighter and more tonally unified than Impressionist broken color',
+      'Soft, often overcast or late-day atmospheric light rather than dramatic theatrical illumination',
+      'A specific, recognizable rural landscape (a named forest, village, or field) rather than an idealized or composite scene',
+      'Humble, unposed rural labor and rural life — woodcutters, farmers, gleaners, livestock — treated with quiet dignity rather than sentimentality or spectacle',
+      'An absence of mythological, historical, or religious staging; the landscape and its inhabitants are the entire subject',
+    ],
+    artists: [
+      {
+        name: 'Théodore Rousseau',
+        years: '1812–1867',
+        note: "The school's acknowledged leader; painted dense, specific studies of the Fontainebleau forest itself.",
+      },
+      {
+        name: 'Jean-Baptiste-Camille Corot',
+        years: '1796–1875',
+        note: 'An early and frequent visitor to Fontainebleau whose soft, silvery-toned forest and river views bridge Barbizon and his own more independent later style.',
+      },
+      {
+        name: 'Charles-François Daubigny',
+        years: '1817–1878',
+        note: "Extended Barbizon's plein-air practice along the rivers of northern France, working increasingly from a studio boat; among the most direct influences cited by the early Impressionists.",
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Barbizon School landscape: a muted, earthy palette of greens, browns, and greys, loose but controlled brushwork, soft overcast or late-day atmospheric light, direct unidealized observation of a specific rural landscape, and a quiet, humble mood with no academic or mythological staging. Preserve the source composition and subject.',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

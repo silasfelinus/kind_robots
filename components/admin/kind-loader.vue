@@ -65,38 +65,23 @@ const navStore = useNavStore()
 const themeStore = useThemeStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
+const runtimeConfig = useRuntimeConfig()
 
 const emit = defineEmits<{
   covered: []
   pageReady: [boolean]
 }>()
 
-const STARTUP_STORAGE_KEY = 'kind-robots-last-startup-animation-v1'
-const STARTUP_STALE_MS = 12 * 60 * 60 * 1000
-
-function isReloadNavigation(): boolean {
-  if (!import.meta.client) return false
-
-  const navigation = performance.getEntriesByType(
-    'navigation',
-  )[0] as PerformanceNavigationTiming | undefined
-
-  return navigation?.type === 'reload'
-}
+const STARTUP_STORAGE_KEY = 'kind-robots-startup-build-v1'
+const buildId = String(runtimeConfig.public.buildId || 'development')
 
 function shouldShowStartupSequence(): boolean {
   if (!import.meta.client) return true
 
   try {
-    const stored = localStorage.getItem(STARTUP_STORAGE_KEY)
-    if (!stored) return !isReloadNavigation()
-
-    const lastShownAt = Number(stored)
-    if (!Number.isFinite(lastShownAt)) return true
-
-    return Date.now() - lastShownAt >= STARTUP_STALE_MS
+    return localStorage.getItem(STARTUP_STORAGE_KEY) !== buildId
   } catch {
-    return !isReloadNavigation()
+    return true
   }
 }
 
@@ -104,7 +89,7 @@ function markStartupSequenceSeen(): void {
   if (!import.meta.client) return
 
   try {
-    localStorage.setItem(STARTUP_STORAGE_KEY, String(Date.now()))
+    localStorage.setItem(STARTUP_STORAGE_KEY, buildId)
   } catch {
     return
   }
@@ -280,5 +265,18 @@ onMounted(async () => {
   inset: 0;
   z-index: 40;
   pointer-events: none;
+}
+
+:global(.kr-shell.bg-black) {
+  background-color: transparent !important;
+}
+
+:global(.kr-boot-curtain) {
+  display: none !important;
+}
+
+:global(.loading-overlay),
+:global(.loading-content) {
+  pointer-events: none !important;
 }
 </style>

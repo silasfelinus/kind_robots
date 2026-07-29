@@ -63,7 +63,7 @@
               v-if="sample.id === 'conductor-gates' && gateProject"
               class="mt-2 block text-[0.68rem] font-bold uppercase tracking-wide text-warning"
             >
-              Starts with {{ gateProject.title }}
+              Starts with {{ gateProject.name }}
             </span>
           </span>
         </span>
@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import {
   useTaskmasterStore,
@@ -114,7 +114,7 @@ const sampleTasks: SampleTask[] = [
     id: 'ship-feature',
     task: 'Help me choose the next feature to ship and identify the smallest useful first step.',
     helper: 'Turn an open-ended product decision into a short, concrete sequence.',
-    icon: 'kind-icon:rocket',
+    icon: 'kind-icon:story',
     tone: 'mysterious',
     vibeTags: ['decisive', 'focused', 'small wins'],
   },
@@ -122,7 +122,7 @@ const sampleTasks: SampleTask[] = [
     id: 'reclaim-space',
     task: 'Help me turn the messiest corner of my home into a usable space.',
     helper: 'Break a physical cleanup project into approachable checkpoints.',
-    icon: 'kind-icon:home',
+    icon: 'kind-icon:dream',
     tone: 'cozy',
     vibeTags: ['gentle', 'visible progress', 'no shame'],
   },
@@ -130,14 +130,14 @@ const sampleTasks: SampleTask[] = [
     id: 'hard-conversation',
     task: 'Help me prepare for a conversation I have been putting off.',
     helper: 'Clarify the goal, gather the important facts, and plan the opening words.',
-    icon: 'kind-icon:chat',
+    icon: 'kind-icon:alert',
     tone: 'tender',
     vibeTags: ['honest', 'calm', 'respectful'],
   },
 ]
 
 const gateProject = computed(() => {
-  let best: { slug: string; title: string; gateCount: number } | null = null
+  let best: { slug: string; name: string; gateCount: number } | null = null
 
   for (const project of conductorStore.projects) {
     const gateCount = (project.tasks ?? []).filter(
@@ -148,7 +148,7 @@ const gateProject = computed(() => {
     }
     best = {
       slug: project.slug,
-      title: project.title || project.slug,
+      name: project.name || project.slug,
       gateCount,
     }
   }
@@ -156,13 +156,20 @@ const gateProject = computed(() => {
   return best
 })
 
+async function refreshConductorGates(): Promise<void> {
+  await conductorStore.fetchProjects(true)
+}
+
 async function useSample(sample: SampleTask): Promise<void> {
   if (startingId.value || taskmasterStore.isWeaving) return
 
   startingId.value = sample.id
   errorMessage.value = ''
   try {
-    await taskmasterStore.loadRealSurfaces()
+    await Promise.all([
+      taskmasterStore.loadRealSurfaces(),
+      sample.conductorGates ? refreshConductorGates() : Promise.resolve(),
+    ])
     const projectSlug = sample.conductorGates ? gateProject.value?.slug : undefined
     const prepared = await taskmasterStore.prepareQuest({
       tone: sample.tone,
@@ -185,4 +192,8 @@ async function useSample(sample: SampleTask): Promise<void> {
     startingId.value = null
   }
 }
+
+onMounted(() => {
+  void refreshConductorGates()
+})
 </script>

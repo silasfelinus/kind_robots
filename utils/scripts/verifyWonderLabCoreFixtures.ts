@@ -98,9 +98,9 @@ for (const antiPattern of [
 }
 
 assert.equal(
-  existsSync('content/channels/lab/commentary-guide.md'),
+  existsSync('content/channels/plan/commentary-guide.md'),
   false,
-  'The commentary guide route must remain intentionally unlisted from the public Lab directory.',
+  'The commentary guide route must remain intentionally unlisted from the Plan channel directory.',
 )
 
 const keys = listWonderLabPreviewFixtureKeys()

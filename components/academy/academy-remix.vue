@@ -41,6 +41,7 @@
           :lesson="academyStore.selectedStyle"
           :show-close="false"
           :show-remix-button="false"
+          :allow-mark-viewed="false"
         />
 
         <div

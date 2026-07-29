@@ -5,23 +5,41 @@
     @mouseenter="paused = true"
     @mouseleave="paused = false"
   >
-    <div class="flex min-w-0 items-center gap-2">
+    <div class="flex min-w-0 flex-wrap items-center gap-2">
       <Icon name="kind-icon:image" class="size-4 text-secondary" />
       <h4
         class="min-w-0 truncate text-xs font-bold uppercase tracking-wide text-base-content/60"
       >
-        Inspiration Gallery
+        Project Images
       </h4>
       <span
         v-if="matchedCollection"
         class="badge badge-secondary badge-xs shrink-0"
         :title="`Art collection: ${matchedCollection.label}`"
       >
-        {{ collectionSlideCount }} from collection
+        {{ collectionSlideCount }} collection
       </span>
-      <span v-if="slides.length" class="ml-auto shrink-0 text-xs text-base-content/40">
+      <span
+        v-if="projectSlides.length"
+        class="badge badge-accent badge-xs shrink-0"
+      >
+        {{ projectSlides.length }} inspiration
+      </span>
+      <span
+        v-if="slides.length"
+        class="ml-auto shrink-0 text-xs text-base-content/40"
+      >
         {{ activeIndex + 1 }} / {{ slides.length }}
       </span>
+      <button
+        v-if="canEdit && projectId"
+        type="button"
+        class="btn btn-primary btn-xs gap-1 rounded-lg"
+        @click="openReplaceForm"
+      >
+        <Icon name="kind-icon:upload" class="size-3" />
+        Submit new image
+      </button>
     </div>
 
     <div
@@ -38,11 +56,22 @@
         />
       </Transition>
 
-      <span
-        class="absolute bottom-2 left-2 badge badge-sm border-0 bg-base-100/80 font-semibold backdrop-blur"
-      >
-        {{ activeSlide.label }}
-      </span>
+      <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-base-300/85 to-transparent p-3 pt-10">
+        <span
+          class="badge badge-sm border-0 bg-base-100/85 font-semibold backdrop-blur"
+        >
+          {{ activeSlide.label }}
+        </span>
+        <button
+          v-if="canEdit && projectId && activeSlide.field"
+          type="button"
+          class="btn btn-sm gap-1 rounded-lg border-0 bg-base-100/85 shadow backdrop-blur hover:bg-base-100"
+          @click="openReplaceForm(activeSlide.field)"
+        >
+          <Icon name="kind-icon:upload" class="size-3.5" />
+          Replace {{ activeSlide.label }}
+        </button>
+      </div>
 
       <template v-if="slides.length > 1">
         <button
@@ -70,14 +99,121 @@
     >
       <Icon name="kind-icon:image" class="size-8 text-base-content/20" />
       <p class="text-xs font-semibold text-base-content/50">
-        No inspiration art yet.
+        No project images yet.
       </p>
-      <p class="max-w-xs text-xs text-base-content/35">
-        Give an art collection the slug (or name)
-        <strong class="text-base-content/60">{{ slug }}</strong> and its images
-        will slideshow here.
-      </p>
+      <button
+        v-if="canEdit && projectId"
+        type="button"
+        class="btn btn-primary btn-sm gap-1 rounded-xl"
+        @click="openReplaceForm"
+      >
+        <Icon name="kind-icon:upload" class="size-4" />
+        Submit first image
+      </button>
     </div>
+
+    <form
+      v-if="showReplaceForm"
+      class="space-y-3 rounded-xl border border-primary/25 bg-primary/5 p-3"
+      @submit.prevent="submitReplacement"
+    >
+      <div class="flex items-center gap-2">
+        <div>
+          <p class="text-sm font-bold">Upload and replace</p>
+          <p class="text-xs text-base-content/50">
+            The new image becomes the selected Project asset immediately.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs ml-auto rounded-lg"
+          :disabled="replacing"
+          @click="closeReplaceForm"
+        >
+          <Icon name="kind-icon:x" class="size-3" />
+        </button>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <label class="form-control gap-1">
+          <span class="text-xs font-semibold text-base-content/60">Replace</span>
+          <select
+            v-model="replacementField"
+            class="select select-bordered select-sm rounded-xl"
+            :disabled="replacing"
+          >
+            <option value="imagePath">Icon</option>
+            <option value="cardPath">Card</option>
+            <option value="heroPath">Hero</option>
+          </select>
+        </label>
+        <label class="form-control gap-1">
+          <span class="text-xs font-semibold text-base-content/60">New image</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="file-input file-input-bordered file-input-sm w-full rounded-xl"
+            :disabled="replacing"
+            @change="handleFileChange"
+          />
+        </label>
+      </div>
+
+      <fieldset class="space-y-1">
+        <legend class="text-xs font-semibold text-base-content/60">
+          Previous image
+        </legend>
+        <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+          <input
+            v-model="preserveOriginal"
+            type="radio"
+            :value="true"
+            class="radio radio-primary radio-sm mt-0.5"
+            :disabled="replacing"
+          />
+          <span>
+            <span class="block text-sm font-semibold">Keep as inspiration</span>
+            <span class="block text-xs text-base-content/45">
+              The previous version remains in this Project gallery.
+            </span>
+          </span>
+        </label>
+        <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+          <input
+            v-model="preserveOriginal"
+            type="radio"
+            :value="false"
+            class="radio radio-primary radio-sm mt-0.5"
+            :disabled="replacing"
+          />
+          <span>
+            <span class="block text-sm font-semibold">Remove from Project</span>
+            <span class="block text-xs text-base-content/45">
+              The previous image is not retained as an inspiration item.
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <p
+          v-if="replacementMessage"
+          class="min-w-0 flex-1 text-xs"
+          :class="replacementError ? 'text-error' : 'text-success'"
+        >
+          {{ replacementMessage }}
+        </p>
+        <button
+          type="submit"
+          class="btn btn-primary btn-sm ml-auto gap-1.5 rounded-xl"
+          :disabled="!replacementFile || replacing"
+        >
+          <span v-if="replacing" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:upload" class="size-4" />
+          Upload & replace
+        </button>
+      </div>
+    </form>
 
     <div
       v-if="slides.length > 1"
@@ -93,7 +229,8 @@
             ? 'border-primary ring-2 ring-primary/40'
             : 'border-base-300 opacity-60 hover:opacity-100'
         "
-        :aria-label="`Show image ${index + 1}`"
+        :aria-label="`Show ${slide.label}`"
+        :title="slide.label"
         @click="activeIndex = index"
       >
         <img
@@ -109,21 +246,50 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { performFetch } from '@/stores/utils'
+
+type ProjectArtField = 'imagePath' | 'cardPath' | 'heroPath'
+type Slide = {
+  src: string
+  label: string
+  field?: ProjectArtField
+}
+type ProjectArtLink = {
+  createdAt: string | Date
+  ArtImage: {
+    id: number
+    imagePath?: string | null
+    path?: string | null
+    fileName?: string | null
+    fileType?: string | null
+  }
+}
 
 const props = defineProps<{
   slug: string
+  projectId?: number | null
+  canEdit?: boolean
   heroPath?: string
   cardPath?: string
   iconPath?: string
 }>()
 
-type Slide = { src: string; label: string }
+const emit = defineEmits<{
+  replaced: [field: ProjectArtField]
+}>()
 
 const collectionStore = useCollectionStore()
-
 const activeIndex = ref(0)
 const paused = ref(false)
 const failedSrcs = ref<Set<string>>(new Set())
+const projectArtLinks = ref<ProjectArtLink[]>([])
+const showReplaceForm = ref(false)
+const replacementField = ref<ProjectArtField>('cardPath')
+const replacementFile = ref<File | null>(null)
+const preserveOriginal = ref(true)
+const replacing = ref(false)
+const replacementMessage = ref('')
+const replacementError = ref(false)
 
 function normalizeImageSrc(value: string | null | undefined): string {
   if (!value) return ''
@@ -142,10 +308,18 @@ function normalizeImageSrc(value: string | null | undefined): string {
   return `/images/${clean}`
 }
 
-// Prefer the stable slug binding; the store helper falls back to a slugified
-// label match so unslugged legacy collections still show.
+function dedupeKey(src: string): string {
+  return src.replace(/([?&])v=[^&]+(&|$)/, '$1').replace(/[?&]$/, '')
+}
+
+function artImageSrc(link: ProjectArtLink): string {
+  const image = link.ArtImage
+  return normalizeImageSrc(
+    image.imagePath || `/api/art/images/${image.id}/file`,
+  )
+}
+
 const matchedCollection = computed(() => {
-  // Touch collections so this recomputes when fetchCollections resolves.
   void collectionStore.collections
   return collectionStore.findCollectionBySlug?.(props.slug) ?? null
 })
@@ -161,35 +335,48 @@ const collectionSlides = computed<Slide[]>(() => {
           (image as { path?: string | null }).path ||
           image.fileName,
       ),
-      label: `Inspiration ${index + 1}`,
+      label: `Collection ${index + 1}`,
     }))
     .filter((slide) => Boolean(slide.src))
 })
 
 const collectionSlideCount = computed(() => collectionSlides.value.length)
 
+const projectSlides = computed<Slide[]>(() =>
+  projectArtLinks.value
+    .map((link, index) => ({
+      src: artImageSrc(link),
+      label: link.ArtImage.fileName || `Inspiration ${index + 1}`,
+    }))
+    .filter((slide) => Boolean(slide.src)),
+)
+
 const slides = computed<Slide[]>(() => {
   const out: Slide[] = []
   const seen = new Set<string>()
-  const push = (src: string | null | undefined, label: string) => {
+  const push = (
+    src: string | null | undefined,
+    label: string,
+    field?: ProjectArtField,
+  ) => {
     const normalized = normalizeImageSrc(src)
-    if (!normalized || seen.has(normalized) || failedSrcs.value.has(normalized))
-      return
-    seen.add(normalized)
-    out.push({ src: normalized, label })
+    const key = dedupeKey(normalized)
+    if (!normalized || seen.has(key) || failedSrcs.value.has(normalized)) return
+    seen.add(key)
+    out.push({ src: normalized, label, field })
   }
+
+  push(props.heroPath, 'Hero', 'heroPath')
+  push(props.cardPath, 'Card', 'cardPath')
+  push(props.iconPath, 'Icon', 'imagePath')
+  for (const slide of projectSlides.value) push(slide.src, slide.label)
   for (const slide of collectionSlides.value) push(slide.src, slide.label)
-  push(props.heroPath, 'Hero')
-  push(props.cardPath, 'Card')
-  push(props.iconPath, 'Icon')
   return out
 })
 
-const activeSlide = computed<Slide>(() => {
-  return (
-    slides.value[activeIndex.value] ?? slides.value[0] ?? { src: '', label: '' }
-  )
-})
+const activeSlide = computed<Slide>(() =>
+  slides.value[activeIndex.value] ?? slides.value[0] ?? { src: '', label: '' },
+)
 
 function step(direction: number) {
   const count = slides.value.length
@@ -201,11 +388,85 @@ function dropSlide(src: string) {
   failedSrcs.value = new Set([...failedSrcs.value, src])
 }
 
+function openReplaceForm(field?: ProjectArtField) {
+  replacementField.value = field || activeSlide.value.field || 'cardPath'
+  replacementMessage.value = ''
+  replacementError.value = false
+  showReplaceForm.value = true
+  paused.value = true
+}
+
+function closeReplaceForm() {
+  if (replacing.value) return
+  showReplaceForm.value = false
+  replacementFile.value = null
+  replacementMessage.value = ''
+  replacementError.value = false
+}
+
+function handleFileChange(event: Event) {
+  const input = event.target as HTMLInputElement | null
+  replacementFile.value = input?.files?.[0] ?? null
+  replacementMessage.value = ''
+  replacementError.value = false
+}
+
+async function fetchProjectArt(force = false) {
+  if (!props.projectId) {
+    projectArtLinks.value = []
+    return
+  }
+  const query = force ? `?refresh=${Date.now()}` : ''
+  const response = await performFetch<ProjectArtLink[]>(
+    `/api/projects/${props.projectId}/art${query}`,
+    force ? { cache: 'no-store' } : {},
+  )
+  if (response.success) projectArtLinks.value = response.data ?? []
+}
+
+async function submitReplacement() {
+  if (!props.projectId || !replacementFile.value || replacing.value) return
+  replacing.value = true
+  replacementMessage.value = ''
+  replacementError.value = false
+
+  try {
+    const form = new FormData()
+    form.append('file', replacementFile.value)
+    form.append('field', replacementField.value)
+    form.append('preserveOriginal', String(preserveOriginal.value))
+
+    const response = await performFetch(
+      `/api/projects/${props.projectId}/art/replace`,
+      { method: 'POST', body: form },
+      1,
+      30_000,
+    )
+    if (!response.success) {
+      throw new Error(response.message || 'Project image replacement failed.')
+    }
+
+    replacementMessage.value =
+      response.message || 'Project image replaced successfully.'
+    replacementFile.value = null
+    await fetchProjectArt(true)
+    emit('replaced', replacementField.value)
+  } catch (error) {
+    replacementError.value = true
+    replacementMessage.value =
+      error instanceof Error ? error.message : 'Project image replacement failed.'
+  } finally {
+    replacing.value = false
+  }
+}
+
 watch(
   () => props.slug,
   () => {
     activeIndex.value = 0
     failedSrcs.value = new Set()
+    closeReplaceForm()
+    void fetchProjectArt(true)
   },
 )
 
@@ -217,14 +478,13 @@ let advanceTimer: ReturnType<typeof setInterval> | null = null
 
 onMounted(async () => {
   advanceTimer = setInterval(() => {
-    if (!paused.value && slides.value.length > 1) step(1)
+    if (!paused.value && !showReplaceForm.value && slides.value.length > 1) step(1)
   }, 6000)
 
-  try {
-    await collectionStore.fetchCollections()
-  } catch {
-    // Collections are decorative here — the static hero/card art still shows.
-  }
+  await Promise.allSettled([
+    collectionStore.fetchCollections(),
+    fetchProjectArt(),
+  ])
 })
 
 onBeforeUnmount(() => {

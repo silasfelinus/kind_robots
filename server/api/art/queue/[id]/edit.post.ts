@@ -10,13 +10,13 @@ import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import {
   decodeArtJobPayload,
-  parseArtJobPayload,
   serializeArtJobPayload,
 } from '../../../../utils/artJobPayload'
 import {
   applyArtJobOverrides,
   type ArtJobOverrides,
 } from '../../../../utils/artJobRetry'
+import { refreshArtJobLoraResources } from '../../../../utils/artJobResourceRefresh'
 import { applyArtJobVisibility } from '../../../../utils/artJobVisibility'
 import {
   applyArtFacetsToPayload,
@@ -75,7 +75,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const payload = structuredClone(parseArtJobPayload(source.payload))
+    const resourceRefresh = await refreshArtJobLoraResources(source.payload)
+    const payload = resourceRefresh.payload
     const currentRequest = extractRenderRequest(payload)
     const currentBasePrompt = cleanArtPrompt(payload.basePromptString)
     const requestedBasePrompt = cleanArtPrompt(
@@ -141,6 +142,9 @@ export default defineEventHandler(async (event) => {
       editedAt: new Date().toISOString(),
       editedByUserId: auth.user.id,
       preset: presetEngine ?? 'keep',
+      loraPathChanged: resourceRefresh.changed,
+      loraResourceIds: resourceRefresh.loraResourceIds,
+      loraNames: resourceRefresh.loraNames,
     }
 
     const updated = await prisma.artJob.update({
@@ -158,7 +162,9 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: `Updated job ${id} and returned it to PENDING.`,
+      message: resourceRefresh.changed
+        ? `Updated job ${id}, refreshed its LoRA Resource path, and returned it to PENDING.`
+        : `Updated job ${id} and returned it to PENDING.`,
       data: { job: decodeArtJobPayload(updated) },
       statusCode: 200,
     }

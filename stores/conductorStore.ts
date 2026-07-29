@@ -1,10 +1,10 @@
 // stores/conductorStore.ts
-import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { defineStore } from 'pinia'
 import type {
   ConductorData,
-  ConductorProject,
   ConductorPitch,
+  ConductorProject,
 } from '@/server/api/conductor/projects.get'
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
@@ -22,11 +22,16 @@ export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
 const LEGACY_VOTE_KEY = 'kr.workspacePitchVotes'
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
+const FRESH_DATA_MS = 60_000
 
 const fallbackProjects: ConductorProject[] = CONDUCTOR_CARDS.map((card) => ({
   slug: card.key,
   name: card.label || card.title || card.key,
   kind: card.projectKind,
+  status: 'ACTIVE',
+  priority: 'NORMAL',
+  conductorStatus: 'active',
+  conductorPriority: 'normal',
   milestones: [],
   tasks: [
     {
@@ -99,6 +104,10 @@ export const useConductorStore = defineStore('conductor', () => {
   )
   const pitches = computed<ConductorPitch[]>(() => data.value?.pitches ?? [])
   const fetchedAt = computed(() => data.value?.fetchedAt ?? null)
+  const registryCount = computed(
+    () => data.value?.registryCount ?? liveProjects.value.length,
+  )
+  const hasLiveData = computed(() => data.value !== null)
   const hasLoaded = computed(
     () => data.value !== null || fallbackProjects.length > 0,
   )
@@ -131,20 +140,24 @@ export const useConductorStore = defineStore('conductor', () => {
     ),
   )
 
+  function dataIsFresh(): boolean {
+    if (!data.value?.fetchedAt) return false
+    const fetched = new Date(data.value.fetchedAt).getTime()
+    return Number.isFinite(fetched) && Date.now() - fetched < FRESH_DATA_MS
+  }
+
   async function fetchProjects(force = false): Promise<void> {
-    // A fetch already in flight satisfies both a plain call (avoids a
-    // duplicate request) and a force=true call (it's about to get fresh
-    // data anyway) — awaiting it instead of no-op'ing keeps `force` callers
-    // from silently missing the refresh they asked for.
     if (inFlightFetch) return inFlightFetch
-    if (data.value !== null && !force) return
+    if (data.value !== null && !force && dataIsFresh()) return
 
     pending.value = true
     error.value = null
     inFlightFetch = (async () => {
       try {
+        const query = force ? `?refresh=${Date.now()}` : ''
         const response = await performFetch<ConductorData>(
-          '/api/conductor/projects',
+          `/api/conductor/projects${query}`,
+          force ? { cache: 'no-store' } : {},
         )
 
         if (!response.success || !response.data) {
@@ -198,11 +211,9 @@ export const useConductorStore = defineStore('conductor', () => {
           body: JSON.stringify({ slug, vote: status }),
         },
       )
-
       if (!response.success) {
         throw new Error(response.message || 'Pitch status update failed')
       }
-
       replacePitchStatus(slug, status)
       return true
     } catch (cause) {
@@ -246,6 +257,8 @@ export const useConductorStore = defineStore('conductor', () => {
     projects,
     pitches,
     fetchedAt,
+    registryCount,
+    hasLiveData,
     hasLoaded,
     pendingPitches,
     approvedPitches,

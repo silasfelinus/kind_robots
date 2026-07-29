@@ -11,7 +11,7 @@
     <header class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
       <div class="min-w-0">
         <h2 class="truncate text-lg font-bold text-base-content">
-          Discover LoRAs
+          Discover {{ discoverType === 'CHECKPOINT' ? 'Checkpoints' : 'LoRAs' }}
         </h2>
         <p class="text-sm text-base-content/60">
           Search Civitai and download straight into your library.
@@ -19,9 +19,18 @@
       </div>
 
       <form
-        class="grid gap-2 md:grid-cols-[auto_1fr_auto_auto]"
+        class="grid gap-2 md:grid-cols-[auto_auto_1fr_auto_auto]"
         @submit.prevent="runSearch(true)"
       >
+        <select
+          v-model="discoverType"
+          class="select select-bordered rounded-xl"
+          aria-label="Model type"
+        >
+          <option value="LORA">LoRAs</option>
+          <option value="CHECKPOINT">Checkpoints</option>
+        </select>
+
         <select v-model="source" class="select select-bordered rounded-xl">
           <option value="civitai">Civitai</option>
           <option value="civarchive">CivArchive</option>
@@ -33,7 +42,7 @@
           :placeholder="
             source === 'civarchive'
               ? 'CivArchive model id or URL (recovers removed models)'
-              : 'Search Civitai LoRAs'
+              : `Search Civitai ${discoverType === 'CHECKPOINT' ? 'checkpoints' : 'LoRAs'}`
           "
         />
 
@@ -188,6 +197,7 @@ type DiscoverCard = {
   fileName: string | null
   creator: string | null
   isMature: boolean
+  resourceType?: 'LORA' | 'CHECKPOINT'
   source: 'CIVITAI' | 'CIVARCHIVE'
   owned: boolean
   updatable: boolean
@@ -201,6 +211,7 @@ type BrowseResponse = {
 const userStore = useUserStore()
 
 const query = ref('')
+const discoverType = ref<'LORA' | 'CHECKPOINT'>('LORA')
 const source = ref<'civitai' | 'civarchive'>('civitai')
 const baseModel = ref('')
 const includeMature = ref(false)
@@ -270,6 +281,7 @@ async function runSearch(reset: boolean) {
   try {
     const params = new URLSearchParams()
     params.set('source', source.value)
+    params.set('type', discoverType.value)
     if (query.value.trim()) params.set('q', query.value.trim())
     if (source.value === 'civitai') {
       if (baseModel.value) params.set('baseModel', baseModel.value)
@@ -306,6 +318,7 @@ async function queueDownload(card: DiscoverCard) {
         method: 'POST',
         body: JSON.stringify({
           source: card.source,
+          resourceType: card.resourceType ?? discoverType.value,
           civitaiModelId: card.civitaiModelId,
           civitaiModelVersionId: card.civitaiModelVersionId,
           downloadUrl: card.downloadUrl,

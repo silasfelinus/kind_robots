@@ -4,10 +4,7 @@
     <div
       v-if="renderEffect && currentComponent"
       class="startup-animation"
-      :class="{
-        'startup-animation--fading': isFading,
-        'startup-animation--immersive': startupStore.immersive,
-      }"
+      :class="{ 'startup-animation--fading': isFading }"
     >
       <component
         :is="currentComponent"
@@ -16,77 +13,92 @@
         aria-hidden="true"
       />
 
-      <div class="startup-animation__controls">
-        <div class="startup-animation__identity">
-          <span class="startup-animation__eyebrow">Animation</span>
+      <div
+        class="startup-animation__controls"
+        :class="{
+          'startup-animation__controls--active': startupStore.controlsActive,
+          'startup-animation__controls--compact': !startupStore.controlsActive,
+        }"
+      >
+        <template v-if="startupStore.controlsActive">
           <span class="startup-animation__name">{{ currentEffectLabel }}</span>
-        </div>
 
-        <div class="startup-animation__button-group">
+          <div class="startup-animation__button-group">
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost btn-square text-white"
+              title="Previous animation"
+              aria-label="Previous animation"
+              @click="selectPreviousEffect"
+            >
+              <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost gap-1 text-white"
+              title="Choose another random animation"
+              @click="selectRandomEffect"
+            >
+              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+              <span class="hidden sm:inline">Random</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-xs btn-ghost btn-square text-white"
+              title="Next animation"
+              aria-label="Next animation"
+              @click="selectNextEffect"
+            >
+              <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+            </button>
+          </div>
+
+          <div class="startup-animation__divider" />
+
           <button
             type="button"
-            class="btn btn-sm btn-ghost btn-square text-white"
-            title="Previous animation"
-            aria-label="Previous animation"
-            @click="selectPreviousEffect"
+            class="btn btn-xs border-white/20 bg-white/10 text-white hover:bg-white/20"
+            title="Restore the launch screen and continue loading"
+            @click="startupStore.leaveControlMode()"
           >
-            <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+            Resume
           </button>
 
           <button
             type="button"
-            class="btn btn-sm btn-ghost gap-1 text-white"
-            title="Choose another random animation"
-            @click="selectRandomEffect"
+            class="btn btn-xs btn-square border-white/20 bg-black/30 text-white hover:bg-error/70"
+            title="Leave startup animation"
+            aria-label="Leave startup animation"
+            @click="startupStore.requestExit()"
+          >
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
+        </template>
+
+        <template v-else>
+          <span class="startup-animation__compact-name">
+            {{ currentEffectLabel }}
+          </span>
+
+          <button
+            type="button"
+            class="btn btn-xs border-white/20 bg-white/10 text-white hover:bg-white/20"
+            title="Pause the launch and explore animations"
+            @click="startupStore.enterControlMode()"
           >
             <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-            <span class="hidden sm:inline">Random</span>
+            <span>Pause &amp; explore</span>
           </button>
-
-          <button
-            type="button"
-            class="btn btn-sm btn-ghost btn-square text-white"
-            title="Next animation"
-            aria-label="Next animation"
-            @click="selectNextEffect"
-          >
-            <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
-          </button>
-        </div>
-
-        <div class="startup-animation__divider" />
-
-        <button
-          type="button"
-          class="btn btn-sm border-white/20 bg-white/10 text-white hover:bg-white/20"
-          :class="{ 'border-primary/70 bg-primary/25': startupStore.immersive }"
-          :aria-pressed="startupStore.immersive"
-          :title="
-            startupStore.immersive
-              ? 'Restore the logo and loading messages'
-              : 'Hide the logo and loading messages'
-          "
-          @click="startupStore.toggleImmersive()"
-        >
-          {{ startupStore.immersive ? 'Show launch UI' : 'Animation only' }}
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-sm btn-square border-white/20 bg-black/30 text-white hover:bg-error/70"
-          title="Leave startup animation"
-          aria-label="Leave startup animation"
-          @click="startupStore.requestExit()"
-        >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
-        </button>
+        </template>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
 import type { AnimationEffectId } from '@/stores/animationCatalog'
 import { useAnimationStore } from '@/stores/animationStore'
@@ -195,6 +207,12 @@ function fadeOut(): void {
   }, FADE_MS)
 }
 
+startupStore.reset()
+
+if (import.meta.client && butterflyStore.showSwarm) {
+  selectEffect()
+}
+
 watch(
   () => butterflyStore.showSwarm,
   (visible) => {
@@ -207,14 +225,6 @@ watch(
     fadeOut()
   },
 )
-
-onMounted(() => {
-  startupStore.reset()
-
-  if (butterflyStore.showSwarm) {
-    selectEffect()
-  }
-})
 
 onBeforeUnmount(() => {
   clearFadeTimer()
@@ -248,74 +258,85 @@ onBeforeUnmount(() => {
 
 .startup-animation__controls {
   position: absolute;
-  right: 1rem;
   bottom: 1rem;
   left: 1rem;
   z-index: 100;
   display: flex;
   width: fit-content;
   max-width: calc(100vw - 2rem);
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 1rem;
-  background: rgba(0, 0, 0, 0.72);
   color: #fff;
   pointer-events: auto;
-  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(0.75rem);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0.65rem 1.75rem rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(0.7rem);
+  transition:
+    border-radius 180ms ease,
+    padding 180ms ease,
+    gap 180ms ease;
 }
 
-.startup-animation__identity {
-  display: flex;
-  min-width: 10rem;
-  max-width: min(18rem, 55vw);
-  flex-direction: column;
-  padding: 0 0.45rem;
-  line-height: 1.1;
+.startup-animation__controls--compact {
+  gap: 0.4rem;
+  padding: 0.3rem 0.35rem 0.3rem 0.65rem;
+  border-radius: 9999px;
 }
 
-.startup-animation__eyebrow {
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 0.62rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.startup-animation__controls--active {
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.42rem;
+  border-radius: 0.9rem;
+}
+
+.startup-animation__compact-name,
+.startup-animation__name {
+  overflow: hidden;
+  font-size: 0.72rem;
+  font-weight: 850;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.startup-animation__compact-name {
+  max-width: min(12rem, 42vw);
+  color: rgba(255, 255, 255, 0.76);
 }
 
 .startup-animation__name {
-  overflow: hidden;
+  max-width: min(14rem, 38vw);
+  padding: 0 0.35rem;
   color: #fff;
-  font-size: 0.8rem;
-  font-weight: 850;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .startup-animation__button-group {
   display: flex;
   align-items: center;
-  gap: 0.1rem;
+  gap: 0.05rem;
 }
 
 .startup-animation__divider {
   width: 1px;
-  height: 1.75rem;
-  margin: 0 0.15rem;
-  background: rgba(255, 255, 255, 0.2);
+  height: 1.4rem;
+  margin: 0 0.1rem;
+  background: rgba(255, 255, 255, 0.18);
 }
 
 @media (max-width: 639px) {
-  .startup-animation__controls {
+  .startup-animation__controls--active {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
     justify-content: center;
+    max-width: calc(100vw - 1.5rem);
   }
 
-  .startup-animation__identity {
+  .startup-animation__name {
     width: 100%;
     max-width: 100%;
-    align-items: center;
+    padding: 0.15rem 0.35rem 0.3rem;
     text-align: center;
   }
 
@@ -325,7 +346,8 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .startup-animation {
+  .startup-animation,
+  .startup-animation__controls {
     transition: none;
   }
 }

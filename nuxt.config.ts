@@ -26,6 +26,12 @@ function generateWonderLabComponentMetadata(): void {
   }
 }
 
+const buildId =
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  process.env.VERCEL_DEPLOYMENT_ID ||
+  process.env.NUXT_PUBLIC_BUILD_ID ||
+  'development'
+
 generateWonderLabComponentMetadata()
 
 export default defineNuxtConfig({
@@ -126,6 +132,7 @@ export default defineNuxtConfig({
     brevoNewsletterListId: process.env.BREVO_NEWSLETTER_LIST_ID || '',
     public: {
       appBaseUrl: process.env.APP_BASE_URL || 'https://kindrobots.org',
+      buildId,
     },
   },
 

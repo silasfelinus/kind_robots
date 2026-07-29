@@ -1,7 +1,13 @@
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
+    <quick-loading-splash
+      v-if="showOverlay && startupMode === 'quick'"
+      @covered="handleOverlayCovered"
+      @hidden="handleOverlayHidden"
+    />
+
     <loading-messages
-      v-if="showOverlay"
+      v-else-if="showOverlay"
       :stores-ready="storesReady"
       @covered="handleOverlayCovered"
       @hiding="handleOverlayHiding"
@@ -65,38 +71,25 @@ const navStore = useNavStore()
 const themeStore = useThemeStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
+const runtimeConfig = useRuntimeConfig()
 
 const emit = defineEmits<{
   covered: []
   pageReady: [boolean]
 }>()
 
-const STARTUP_STORAGE_KEY = 'kind-robots-last-startup-animation-v1'
-const STARTUP_STALE_MS = 12 * 60 * 60 * 1000
+type StartupMode = 'full' | 'quick'
 
-function isReloadNavigation(): boolean {
-  if (!import.meta.client) return false
+const STARTUP_STORAGE_KEY = 'kind-robots-startup-build-v1'
+const buildId = String(runtimeConfig.public.buildId || 'development')
 
-  const navigation = performance.getEntriesByType(
-    'navigation',
-  )[0] as PerformanceNavigationTiming | undefined
-
-  return navigation?.type === 'reload'
-}
-
-function shouldShowStartupSequence(): boolean {
+function shouldShowFullStartupSequence(): boolean {
   if (!import.meta.client) return true
 
   try {
-    const stored = localStorage.getItem(STARTUP_STORAGE_KEY)
-    if (!stored) return !isReloadNavigation()
-
-    const lastShownAt = Number(stored)
-    if (!Number.isFinite(lastShownAt)) return true
-
-    return Date.now() - lastShownAt >= STARTUP_STALE_MS
+    return localStorage.getItem(STARTUP_STORAGE_KEY) !== buildId
   } catch {
-    return !isReloadNavigation()
+    return true
   }
 }
 
@@ -104,14 +97,16 @@ function markStartupSequenceSeen(): void {
   if (!import.meta.client) return
 
   try {
-    localStorage.setItem(STARTUP_STORAGE_KEY, String(Date.now()))
+    localStorage.setItem(STARTUP_STORAGE_KEY, buildId)
   } catch {
     return
   }
 }
 
-const showStartupSequence = ref(shouldShowStartupSequence())
-const showOverlay = ref(showStartupSequence.value)
+const startupMode = ref<StartupMode>(
+  shouldShowFullStartupSequence() ? 'full' : 'quick',
+)
+const showOverlay = ref(true)
 const storesReady = ref(false)
 const pageReadyEmitted = ref(false)
 const coveredEmitted = ref(false)
@@ -119,9 +114,9 @@ const coveredEmitted = ref(false)
 let initializationPromise: Promise<void> | null = null
 
 startupStore.reset()
-butterflyStore.setShowSwarm(showStartupSequence.value)
+butterflyStore.setShowSwarm(startupMode.value === 'full')
 
-if (showStartupSequence.value) {
+if (startupMode.value === 'full') {
   markStartupSequenceSeen()
 }
 
@@ -261,16 +256,13 @@ function ensureStoresInitialized(): Promise<void> {
 }
 
 onBeforeMount(() => {
-  if (showStartupSequence.value) return
-
+  if (startupMode.value !== 'quick') return
   void ensureStoresInitialized()
-  handleOverlayCovered()
-  emitReadyOnce()
 })
 
-onMounted(async () => {
-  if (!showStartupSequence.value) return
-  await ensureStoresInitialized()
+onMounted(() => {
+  if (startupMode.value !== 'full') return
+  void ensureStoresInitialized()
 })
 </script>
 
@@ -280,5 +272,18 @@ onMounted(async () => {
   inset: 0;
   z-index: 40;
   pointer-events: none;
+}
+
+:global(.kr-shell.bg-black) {
+  background-color: transparent !important;
+}
+
+:global(.kr-boot-curtain) {
+  display: none !important;
+}
+
+:global(.loading-overlay),
+:global(.loading-content) {
+  pointer-events: none !important;
 }
 </style>

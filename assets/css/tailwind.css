@@ -26,6 +26,14 @@ body,
   overflow-x: hidden;
 }
 
+.kr-shell.bg-black {
+  background-color: transparent !important;
+}
+
+.kr-boot-curtain {
+  display: none !important;
+}
+
 section:has(img[src*='projects/images']) .overflow-y-auto {
   overflow-x: hidden;
 }

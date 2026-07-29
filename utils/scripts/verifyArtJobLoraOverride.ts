@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
 import { applyResolvedLoraResourceToArtJobPayload } from '../../server/utils/artJobResourceRefresh'
 
@@ -196,6 +197,27 @@ import { applyResolvedLoraResourceToArtJobPayload } from '../../server/utils/art
   )
   assert.ok(!JSON.stringify(refresh.payload).includes('FLUX/'))
   assert.ok(!JSON.stringify(refresh.payload).includes('\\\\'))
+}
+
+// 8. Every route that returns an existing ArtJob to PENDING must refresh the
+//    current Resource path first. This guards the dashboard's "Resume unchanged"
+//    route, which was separate from the two re-enqueue routes.
+{
+  const routes = [
+    '../../server/api/art/queue/[id]/requeue.post.ts',
+    '../../server/api/art/queue/[id]/edit.post.ts',
+    '../../server/api/art/queue/[id]/reenqueue.post.ts',
+    '../../server/api/art/queue/reenqueue-failed.post.ts',
+  ]
+
+  for (const route of routes) {
+    const source = readFileSync(new URL(route, import.meta.url), 'utf8')
+    assert.match(
+      source,
+      /await refreshArtJobLoraResources\(/,
+      `${route} must refresh LoRA Resources before queueing`,
+    )
+  }
 }
 
 console.log('✅ verifyArtJobLoraOverride: all assertions passed')

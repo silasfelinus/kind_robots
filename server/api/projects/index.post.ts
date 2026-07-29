@@ -50,6 +50,7 @@ type ProjectCreateBody = {
   artCollectionId?: unknown
   isPublic?: unknown
   isMature?: unknown
+  isActive?: unknown
 }
 
 async function createProjectWithDirectFallback(
@@ -114,8 +115,12 @@ export default defineEventHandler(async (event) => {
     const priority = projectPriorities.has(body.priority as ProjectPriority)
       ? (body.priority as ProjectPriority)
       : 'NORMAL'
+    const isActive =
+      typeof body.isActive === 'boolean'
+        ? body.isActive
+        : status !== 'ARCHIVED'
 
-    if (status === 'ACTIVE' || status === 'PAUSED') {
+    if (isActive && (status === 'ACTIVE' || status === 'PAUSED')) {
       await enforceProjectCap({
         userId: auth.user.id,
         userRole: auth.user.Role,
@@ -150,6 +155,7 @@ export default defineEventHandler(async (event) => {
       artCollectionId: normalizeNullableId(body.artCollectionId),
       isPublic: body.isPublic !== false,
       isMature: body.isMature === true,
+      isActive,
       userId: auth.user.id,
     } satisfies Prisma.ProjectUncheckedCreateInput
 

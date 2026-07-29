@@ -7,7 +7,9 @@
   >
     <header class="flex min-w-0 flex-wrap items-center gap-2">
       <Icon name="kind-icon:image" class="size-4 text-secondary" />
-      <h4 class="truncate text-xs font-bold uppercase tracking-wide text-base-content/60">
+      <h4
+        class="truncate text-xs font-bold uppercase tracking-wide text-base-content/60"
+      >
         Project Images
       </h4>
       <span v-if="matchedCollection" class="badge badge-secondary badge-xs">
@@ -19,15 +21,24 @@
       <span v-if="slides.length" class="ml-auto text-xs text-base-content/40">
         {{ activeIndex + 1 }} / {{ slides.length }}
       </span>
-      <button
-        v-if="mayEdit && resolvedProjectId"
-        type="button"
-        class="btn btn-primary btn-xs gap-1 rounded-lg"
-        @click="openReplaceForm()"
-      >
-        <Icon name="kind-icon:upload" class="size-3" />
-        Submit new image
-      </button>
+      <template v-if="mayEdit && resolvedProjectId">
+        <button
+          type="button"
+          class="btn btn-secondary btn-xs gap-1 rounded-lg"
+          @click="openGenerateForm()"
+        >
+          <Icon name="kind-icon:sparkles" class="size-3" />
+          Generate replacement
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-xs gap-1 rounded-lg"
+          @click="openReplaceForm()"
+        >
+          <Icon name="kind-icon:upload" class="size-3" />
+          Upload image
+        </button>
+      </template>
     </header>
 
     <div
@@ -45,20 +56,34 @@
       </Transition>
 
       <div
-        class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-base-300/90 to-transparent p-3 pt-10"
+        class="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 bg-linear-to-t from-base-300/90 to-transparent p-3 pt-10"
       >
-        <span class="badge badge-sm border-0 bg-base-100/85 font-semibold backdrop-blur">
+        <span
+          class="badge badge-sm border-0 bg-base-100/85 font-semibold backdrop-blur"
+        >
           {{ activeSlide.label }}
         </span>
-        <button
+        <div
           v-if="mayEdit && resolvedProjectId && activeSlide.field"
-          type="button"
-          class="btn btn-sm gap-1 rounded-lg border-0 bg-base-100/85 shadow backdrop-blur hover:bg-base-100"
-          @click="openReplaceForm(activeSlide.field)"
+          class="flex flex-wrap gap-1.5"
         >
-          <Icon name="kind-icon:upload" class="size-3.5" />
-          Replace {{ activeSlide.label }}
-        </button>
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm gap-1 rounded-lg border-0 shadow"
+            @click="openGenerateForm(activeSlide.field)"
+          >
+            <Icon name="kind-icon:sparkles" class="size-3.5" />
+            Generate {{ activeSlide.label }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm gap-1 rounded-lg border-0 bg-base-100/85 shadow backdrop-blur hover:bg-base-100"
+            @click="openReplaceForm(activeSlide.field)"
+          >
+            <Icon name="kind-icon:upload" class="size-3.5" />
+            Upload {{ activeSlide.label }}
+          </button>
+        </div>
       </div>
 
       <template v-if="slides.length > 1">
@@ -86,17 +111,162 @@
       class="flex min-h-[14rem] flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-base-300 bg-base-200/50 p-4 text-center"
     >
       <Icon name="kind-icon:image" class="size-8 text-base-content/20" />
-      <p class="text-xs font-semibold text-base-content/50">No project images yet.</p>
-      <button
-        v-if="mayEdit && resolvedProjectId"
-        type="button"
-        class="btn btn-primary btn-sm gap-1 rounded-xl"
-        @click="openReplaceForm()"
-      >
-        <Icon name="kind-icon:upload" class="size-4" />
-        Submit first image
-      </button>
+      <p class="text-xs font-semibold text-base-content/50">
+        No project images yet.
+      </p>
+      <div v-if="mayEdit && resolvedProjectId" class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm gap-1 rounded-xl"
+          @click="openGenerateForm()"
+        >
+          <Icon name="kind-icon:sparkles" class="size-4" />
+          Generate first image
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm gap-1 rounded-xl"
+          @click="openReplaceForm()"
+        >
+          <Icon name="kind-icon:upload" class="size-4" />
+          Upload first image
+        </button>
+      </div>
     </div>
+
+    <form
+      v-if="showGenerateForm"
+      class="space-y-3 rounded-xl border border-secondary/30 bg-secondary/5 p-3"
+      @submit.prevent="submitGeneration"
+    >
+      <div class="flex items-start gap-2">
+        <div>
+          <p class="text-sm font-bold">Generate a Project replacement</p>
+          <p class="text-xs text-base-content/50">
+            Describe the image you want. It will be queued as a forced Project
+            replacement, using Krea 2 by default.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs ml-auto rounded-lg"
+          :disabled="generating"
+          @click="closeGenerateForm"
+        >
+          <Icon name="kind-icon:x" class="size-3" />
+        </button>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <label class="form-control gap-1">
+          <span class="text-xs font-semibold text-base-content/60">Replace</span>
+          <select
+            v-model="generationField"
+            class="select select-bordered select-sm rounded-xl"
+            :disabled="generating"
+          >
+            <option value="imagePath">Icon · square</option>
+            <option value="cardPath">Card · 2:3 portrait</option>
+            <option value="heroPath">Hero · 16:9 landscape</option>
+          </select>
+        </label>
+        <label class="form-control gap-1">
+          <span class="text-xs font-semibold text-base-content/60">Engine</span>
+          <select
+            v-model="generationEngine"
+            class="select select-bordered select-sm rounded-xl"
+            :disabled="generating"
+          >
+            <option value="krea2">Krea 2 · default</option>
+            <option value="openai">OpenAI Images</option>
+            <option value="flux">Flux</option>
+            <option value="comfy">ComfyUI</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="form-control gap-1">
+        <span class="text-xs font-semibold text-base-content/60">Art prompt</span>
+        <textarea
+          v-model="generationPrompt"
+          class="textarea textarea-bordered min-h-28 rounded-xl text-sm"
+          maxlength="4000"
+          :placeholder="generationPlaceholder"
+          :disabled="generating"
+        />
+        <span class="text-[0.65rem] text-base-content/35">
+          The Project title, description, pitch, and goal are sent as supporting
+          context. Your prompt remains the primary art direction.
+        </span>
+      </label>
+
+      <fieldset class="space-y-1">
+        <legend class="text-xs font-semibold text-base-content/60">
+          Current image
+        </legend>
+        <label
+          class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+        >
+          <input
+            v-model="generationPreserveOriginal"
+            type="radio"
+            :value="true"
+            class="radio radio-secondary radio-sm mt-0.5"
+            :disabled="generating"
+          />
+          <span>
+            <span class="block text-sm font-semibold">Keep as inspiration</span>
+            <span class="block text-xs text-base-content/45">
+              Save the current version in this Project gallery before the
+              generated image replaces it.
+            </span>
+          </span>
+        </label>
+        <label
+          class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+        >
+          <input
+            v-model="generationPreserveOriginal"
+            type="radio"
+            :value="false"
+            class="radio radio-secondary radio-sm mt-0.5"
+            :disabled="generating"
+          />
+          <span>
+            <span class="block text-sm font-semibold">Do not retain it</span>
+            <span class="block text-xs text-base-content/45">
+              The current version is not added to the Project inspiration
+              gallery when the replacement is queued.
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="rounded-lg bg-base-100/60 px-3 py-2 text-xs text-base-content/55">
+        <strong>Target:</strong> {{ generationMeta.label }} ·
+        {{ generationMeta.size }} ·
+        <code class="break-all">{{ generationTargetUrl }}</code>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <p
+          v-if="generationMessage"
+          class="min-w-0 flex-1 text-xs"
+          :class="generationError ? 'text-error' : 'text-success'"
+        >
+          {{ generationMessage }}
+        </p>
+        <button
+          type="submit"
+          class="btn btn-secondary btn-sm ml-auto gap-1.5 rounded-xl"
+          :disabled="generationPrompt.trim().length < 3 || generating"
+        >
+          <span v-if="generating" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:sparkles" class="size-4" />
+          Queue {{ generationMeta.label }} generation
+        </button>
+      </div>
+    </form>
 
     <form
       v-if="showReplaceForm"
@@ -146,8 +316,12 @@
       </div>
 
       <fieldset class="space-y-1">
-        <legend class="text-xs font-semibold text-base-content/60">Previous image</legend>
-        <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+        <legend class="text-xs font-semibold text-base-content/60">
+          Previous image
+        </legend>
+        <label
+          class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+        >
           <input
             v-model="preserveOriginal"
             type="radio"
@@ -162,7 +336,9 @@
             </span>
           </span>
         </label>
-        <label class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60">
+        <label
+          class="flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 hover:bg-base-100/60"
+        >
           <input
             v-model="preserveOriginal"
             type="radio"
@@ -217,7 +393,11 @@
         :title="slide.label"
         @click="activeIndex = index"
       >
-        <img :src="slide.src" :alt="slide.label" class="h-full w-full object-cover" />
+        <img
+          :src="slide.src"
+          :alt="slide.label"
+          class="h-full w-full object-cover"
+        />
       </button>
     </div>
   </section>
@@ -231,6 +411,8 @@ import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 
 type ProjectArtField = 'imagePath' | 'cardPath' | 'heroPath'
+type ProjectArtVariant = 'icon' | 'card' | 'hero'
+type GenerationEngine = 'krea2' | 'openai' | 'flux' | 'comfy'
 type Slide = { src: string; label: string; field?: ProjectArtField }
 type ProjectArtLink = {
   createdAt: string | Date
@@ -241,6 +423,24 @@ type ProjectArtLink = {
     fileType?: string | null
   }
 }
+type ArtQueueResult = {
+  created?: boolean
+  forced?: boolean
+  branch?: string
+  entry?: { id?: string; image_path?: string; engine?: string }
+}
+
+const FIELD_META: Record<
+  ProjectArtField,
+  { label: string; variant: ProjectArtVariant; size: string }
+> = {
+  imagePath: { label: 'Icon', variant: 'icon', size: '256×256' },
+  cardPath: { label: 'Card', variant: 'card', size: '512×768' },
+  heroPath: { label: 'Hero', variant: 'hero', size: '1280×720' },
+}
+
+const CONDUCTOR_IMAGE_BASE =
+  'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 
 const props = defineProps<{
   slug: string
@@ -258,6 +458,7 @@ const activeIndex = ref(0)
 const paused = ref(false)
 const failedSrcs = ref<Set<string>>(new Set())
 const projectArtLinks = ref<ProjectArtLink[]>([])
+
 const showReplaceForm = ref(false)
 const replacementField = ref<ProjectArtField>('cardPath')
 const replacementFile = ref<File | null>(null)
@@ -266,9 +467,29 @@ const replacing = ref(false)
 const replacementMessage = ref('')
 const replacementError = ref(false)
 
+const showGenerateForm = ref(false)
+const generationField = ref<ProjectArtField>('cardPath')
+const generationPrompt = ref('')
+const generationEngine = ref<GenerationEngine>('krea2')
+const generationPreserveOriginal = ref(true)
+const generating = ref(false)
+const generationMessage = ref('')
+const generationError = ref(false)
+
 const resolvedProject = computed(() => projectStore.projectForSlug(props.slug))
-const resolvedProjectId = computed(() => props.projectId ?? resolvedProject.value?.id ?? null)
+const resolvedProjectId = computed(
+  () => props.projectId ?? resolvedProject.value?.id ?? null,
+)
 const mayEdit = computed(() => props.canEdit ?? userStore.isAdmin)
+const generationMeta = computed(() => FIELD_META[generationField.value])
+const generationTargetUrl = computed(
+  () =>
+    `${CONDUCTOR_IMAGE_BASE}/${props.slug}-${generationMeta.value.variant}.webp`,
+)
+const generationPlaceholder = computed(() => {
+  const title = resolvedProject.value?.title || props.slug
+  return `Describe a distinctive ${generationMeta.value.label.toLowerCase()} for ${title}. Include the subject, mood, setting, composition, and visual style; avoid text unless it is essential.`
+})
 
 function normalizeImageSrc(value: string | null | undefined): string {
   if (!value) return ''
@@ -292,11 +513,14 @@ const matchedCollection = computed(() => {
 
 const collectionSlides = computed<Slide[]>(() => {
   if (!matchedCollection.value) return []
-  const images = collectionStore.getCollectionImages?.(matchedCollection.value.id) ?? []
+  const images =
+    collectionStore.getCollectionImages?.(matchedCollection.value.id) ?? []
   return images
     .map((image, index) => ({
       src: normalizeImageSrc(
-        image.imagePath || (image as { path?: string | null }).path || image.fileName,
+        image.imagePath ||
+          (image as { path?: string | null }).path ||
+          image.fileName,
       ),
       label: `Collection ${index + 1}`,
     }))
@@ -338,7 +562,8 @@ const slides = computed<Slide[]>(() => {
 })
 
 const activeSlide = computed<Slide>(() =>
-  slides.value[activeIndex.value] ?? slides.value[0] ?? { src: '', label: '' },
+  slides.value[activeIndex.value] ??
+  slides.value[0] ?? { src: '', label: '' },
 )
 
 function step(direction: number) {
@@ -351,6 +576,7 @@ function dropSlide(src: string) {
 }
 
 function openReplaceForm(field?: ProjectArtField) {
+  closeGenerateForm()
   replacementField.value = field || activeSlide.value.field || 'cardPath'
   replacementMessage.value = ''
   replacementError.value = false
@@ -364,6 +590,22 @@ function closeReplaceForm() {
   replacementFile.value = null
   replacementMessage.value = ''
   replacementError.value = false
+}
+
+function openGenerateForm(field?: ProjectArtField) {
+  closeReplaceForm()
+  generationField.value = field || activeSlide.value.field || 'cardPath'
+  generationMessage.value = ''
+  generationError.value = false
+  showGenerateForm.value = true
+  paused.value = true
+}
+
+function closeGenerateForm() {
+  if (generating.value) return
+  showGenerateForm.value = false
+  generationMessage.value = ''
+  generationError.value = false
 }
 
 function handleFileChange(event: Event) {
@@ -385,6 +627,85 @@ async function fetchProjectArt(force = false) {
     force ? { cache: 'no-store' } : {},
   )
   if (response.success) projectArtLinks.value = response.data ?? []
+}
+
+async function submitGeneration() {
+  const projectId = resolvedProjectId.value
+  const prompt = generationPrompt.value.trim()
+  if (!projectId || prompt.length < 3 || generating.value) return
+
+  generating.value = true
+  generationMessage.value = ''
+  generationError.value = false
+
+  try {
+    const prepareResponse = await performFetch(
+      `/api/projects/${projectId}/art/prepare-generation`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field: generationField.value,
+          preserveOriginal: generationPreserveOriginal.value,
+        }),
+      },
+    )
+    if (!prepareResponse.success) {
+      throw new Error(
+        prepareResponse.message || 'Could not prepare the current Project image.',
+      )
+    }
+
+    const project = resolvedProject.value
+    const title = project?.title || props.slug
+    const context = [project?.pitch, project?.goal]
+      .filter((value): value is string => Boolean(value?.trim()))
+      .join('\n')
+    const queueResponse = await performFetch<ArtQueueResult>(
+      '/api/conductor/art-request',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          src: generationTargetUrl.value,
+          imagePath: generationTargetUrl.value,
+          pageUrl: typeof window === 'undefined' ? '' : window.location.href,
+          alt: `${title} ${generationMeta.value.label}`,
+          label: `${title} ${generationMeta.value.label}`,
+          variant: generationMeta.value.variant,
+          size: generationMeta.value.size.replace('×', 'x'),
+          prompt,
+          engine: generationEngine.value,
+          force: true,
+          pageTitle: title,
+          pageDescription: project?.description || '',
+          nearbyText: context,
+          projectId,
+          projectSlug: props.slug,
+          projectField: generationField.value,
+        }),
+      },
+      1,
+      30_000,
+    )
+    if (!queueResponse.success) {
+      throw new Error(queueResponse.message || 'Project art generation was not queued.')
+    }
+
+    await fetchProjectArt(true)
+    const queueId = queueResponse.data?.entry?.id
+    generationMessage.value = queueId
+      ? `${generationMeta.value.label} queued with ${generationEngine.value} as ${queueId}. It will replace the Project asset when generation finishes.`
+      : queueResponse.message ||
+        `${generationMeta.value.label} generation queued. It will replace the Project asset when generation finishes.`
+    generationPrompt.value = ''
+  } catch (error) {
+    generationError.value = true
+    generationMessage.value =
+      error instanceof Error ? error.message : 'Project art generation failed to queue.'
+  } finally {
+    generating.value = false
+  }
 }
 
 async function submitReplacement() {
@@ -414,12 +735,15 @@ async function submitReplacement() {
       projectStore.fetchProject(projectId),
       fetchProjectArt(true),
     ])
-    replacementMessage.value = response.message || 'Project image replaced successfully.'
+    replacementMessage.value =
+      response.message || 'Project image replaced successfully.'
     replacementFile.value = null
   } catch (error) {
     replacementError.value = true
     replacementMessage.value =
-      error instanceof Error ? error.message : 'Project image replacement failed.'
+      error instanceof Error
+        ? error.message
+        : 'Project image replacement failed.'
   } finally {
     replacing.value = false
   }
@@ -431,6 +755,10 @@ watch(
     activeIndex.value = 0
     failedSrcs.value = new Set()
     closeReplaceForm()
+    closeGenerateForm()
+    generationField.value = 'cardPath'
+    generationPrompt.value = ''
+    generationEngine.value = 'krea2'
     void fetchProjectArt(true)
   },
 )
@@ -442,9 +770,19 @@ watch(slides, (next) => {
 let advanceTimer: ReturnType<typeof setInterval> | null = null
 onMounted(async () => {
   advanceTimer = setInterval(() => {
-    if (!paused.value && !showReplaceForm.value && slides.value.length > 1) step(1)
+    if (
+      !paused.value &&
+      !showReplaceForm.value &&
+      !showGenerateForm.value &&
+      slides.value.length > 1
+    ) {
+      step(1)
+    }
   }, 6000)
-  await Promise.allSettled([collectionStore.fetchCollections(), fetchProjectArt()])
+  await Promise.allSettled([
+    collectionStore.fetchCollections(),
+    fetchProjectArt(),
+  ])
 })
 
 onBeforeUnmount(() => {

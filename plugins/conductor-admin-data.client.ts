@@ -34,7 +34,10 @@ export default defineNuxtPlugin(() => {
     try {
       await Promise.all([
         conductorStore.fetchProjects(true),
-        projectStore.fetchProjects(),
+        projectStore.fetchProjects(
+          { includeInactive: true, includeMature: true },
+          true,
+        ),
         todoStore.hasLoaded ? todoStore.fetchTodos(true) : Promise.resolve(),
       ])
     } finally {

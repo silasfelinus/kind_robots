@@ -38,14 +38,21 @@
             type="text"
             placeholder="Serendipity: turn butterflies on"
             class="input input-bordered input-sm min-w-0 flex-1 rounded-xl"
+            :disabled="voice.sending"
           />
           <button
             type="submit"
             class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-            :disabled="!tryText.trim()"
+            :disabled="!tryText.trim() || voice.sending"
           >
-            <Icon name="kind-icon:microphone" class="size-4" />
-            Try it
+            <Icon
+              :name="
+                voice.sending ? 'kind-icon:spinner' : 'kind-icon:microphone'
+              "
+              class="size-4"
+              :class="{ 'animate-spin': voice.sending }"
+            />
+            {{ voice.sending ? 'Sending…' : 'Try it' }}
           </button>
         </form>
 

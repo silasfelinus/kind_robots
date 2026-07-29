@@ -1251,7 +1251,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // the asset, update the source, or create + link a new record — idempotently.
   async function commitItem(itemId: string): Promise<boolean> {
     const item = findItem(itemId)
-    if (!item) return false
+    if (!item || !state.run) return false
+    const runId = state.run.id
 
     committingItemSingleton.claim(item.id)
     item.error = null
@@ -1273,6 +1274,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         throw new Error(response.message || 'Commit failed.')
       }
 
+      // The commit POST durably creates/links/promotes the target server-side
+      // regardless of what happens next -- same as generateItemAsset's art
+      // render, this can't be undone from here. But unlike generateItemAsset,
+      // the server itself already wrote item.stageStatuses.COMMIT, so skipping
+      // the local mutations below on a cancelled run only avoids re-attaching
+      // a detached item object and popping a misleading "committed" success
+      // toast for a run the user already told the app to abandon. Mirrors the
+      // cancelledRunIds guard already used by generateItemAsset/pollAsyncArtJob.
+      if (cancelledRunIds.has(runId)) return false
+
       const target = response.data?.target ?? null
       finishCommit(item, {
         status: 'approved',
@@ -1290,6 +1301,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       )
       return true
     } catch (error) {
+      if (cancelledRunIds.has(runId)) return false
+
       handleError(error, 'committing build item')
       item.error = error instanceof Error ? error.message : 'Commit failed.'
       finishCommit(item, { status: 'ready', note: item.error })

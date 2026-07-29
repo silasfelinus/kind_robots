@@ -30,6 +30,8 @@ export default defineEventHandler(async (event) => {
       comicIssues,
       tvSeasons,
       yearRows,
+      yearTypeRows,
+      yearMonthRows,
     ] = await Promise.all([
       prisma.mediaEntry.count({ where }),
       prisma.mediaEntry.groupBy({
@@ -74,6 +76,18 @@ export default defineEventHandler(async (event) => {
         select: { year: true },
         orderBy: { year: 'desc' },
       }),
+      // Also unfiltered by `year` -- the Year-over-year comparison
+      // (BROWSE-UX.md §4) is inherently cross-year, same precedent as
+      // `yearRows` above.
+      prisma.mediaEntry.groupBy({
+        by: ['year', 'mediaType'],
+        _count: { _all: true },
+      }),
+      prisma.mediaEntry.groupBy({
+        by: ['year', 'watchedMonth'],
+        where: { watchedMonth: { not: null } },
+        _count: { _all: true },
+      }),
     ])
 
     const countByType = byMediaType.reduce<Record<string, number>>(
@@ -94,6 +108,50 @@ export default defineEventHandler(async (event) => {
       {},
     )
 
+    // Year-over-year comparison (BROWSE-UX.md §4): per-year totals by media
+    // type plus each year's most-watched month, for a side-by-side table.
+    type YearComparisonRow = {
+      year: number
+      totalCount: number
+      countByType: Record<string, number>
+      mostWatchedMonth: { month: number; count: number } | null
+    }
+    const comparisonByYear = new Map<number, YearComparisonRow>()
+    function getComparisonRow(entryYear: number): YearComparisonRow {
+      let row = comparisonByYear.get(entryYear)
+      if (!row) {
+        row = {
+          year: entryYear,
+          totalCount: 0,
+          countByType: {},
+          mostWatchedMonth: null,
+        }
+        comparisonByYear.set(entryYear, row)
+      }
+      return row
+    }
+    for (const group of yearTypeRows) {
+      const row = getComparisonRow(group.year)
+      row.countByType[group.mediaType] = group._count._all
+      row.totalCount += group._count._all
+    }
+    for (const group of yearMonthRows) {
+      if (group.watchedMonth == null) continue
+      const row = getComparisonRow(group.year)
+      if (
+        !row.mostWatchedMonth ||
+        group._count._all > row.mostWatchedMonth.count
+      ) {
+        row.mostWatchedMonth = {
+          month: group.watchedMonth,
+          count: group._count._all,
+        }
+      }
+    }
+    const yearComparison = Array.from(comparisonByYear.values()).sort(
+      (a, b) => b.year - a.year,
+    )
+
     return {
       success: true,
       data: {
@@ -109,6 +167,7 @@ export default defineEventHandler(async (event) => {
         comicIssuesRead: comicIssues._sum.issueCount ?? 0,
         tvShowCount: tvSeasons._count._all,
         tvSeasonCount: tvSeasons._sum.season ?? 0,
+        yearComparison,
       },
     }
   } catch (error) {

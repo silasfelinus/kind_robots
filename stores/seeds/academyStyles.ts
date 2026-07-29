@@ -1788,6 +1788,38 @@ export const academyStyles: AcademyStyle[] = [
     },
   },
   {
+    slug: 'egyptian-painting',
+    name: 'Ancient Egyptian Painting',
+    era: 'c. 1390–950 BCE',
+    sortYear: -1390,
+    previewImageSrc: '/images/academy/styles/egyptian-painting.webp',
+    region: 'Ancient Egypt',
+    keyIdeas:
+      'Ancient Egyptian painting fixed a set of pictorial conventions — composite ("twisted") perspective, hierarchical scale, flat horizontal registers, and integrated hieroglyphic text — that were followed with remarkable consistency for well over two thousand years, making it the starting point of nearly every general art-history survey. Nothing else in the curriculum teaches this grammar: Fayum Mummy Portraits is a much later, Greco-Roman-influenced, naturalistically modeled Roman-Egypt style and is in most ways this entry\'s stylistic opposite. The style is unusually procedural rather than personal: no single named artist invented it, and its devices can be described and checked for as a repeatable visual system, closer in spirit to Byzantine Mosaic than to a single-artist movement. This lesson draws its verified examples from funerary papyri in the "Book of the Dead" tradition, a portable medium sharing every recognition cue below with tomb wall painting.',
+    recognitionCues: [
+      'Composite ("twisted") perspective on the human figure: head, legs, and feet in profile, with eye and shoulders/torso frontal',
+      'Hierarchical scale — the most important figure (a god, the pharaoh, the tomb owner) drawn noticeably larger than secondary figures',
+      'Registers: the composition divided into stacked horizontal ground-line bands, each its own self-contained scene',
+      'Flat, unmodeled color fill inside firm outlines, with no cast shadow and no atmospheric perspective',
+      'Integrated hieroglyphic-style caption marks worked directly into the composition rather than added as a separate label',
+      'Deities identifiable by attribute (animal heads, specific crowns, held symbols) within an otherwise human-scaled scene',
+    ],
+    artists: [
+      {
+        name: 'Anonymous Egyptian scribes and painters',
+        years: 'c. 1390–950 BCE',
+        note: "No papyrus or tomb painting in this tradition carries a signature in the modern sense, so this lesson credits the tradition to its anonymous scribes and painters — the same treatment already given to Byzantine Mosaic's anonymous Ravenna/Constantinople mosaicists and Fayum Mummy Portraits' anonymous encaustic painters.",
+      },
+    ],
+    failureMode:
+      'Likely collapses into a generic "hieroglyphics wallpaper" pattern that scatters symbol-like marks across the background without committing to the figure-level grammar, or drifts toward Fayum Mummy Portraits\' naturalistic modeling; lean on composite ("twisted") perspective on any human figure, stacked horizontal registers, hierarchical scale, and flat unmodeled color fill with firm outlines to keep the two Egypt-adjacent styles distinct',
+    remix: {
+      mode: 'prompt',
+      template:
+        'Recompose this image in the manner of ancient Egyptian tomb and papyrus painting: redraw any human figures using composite perspective (profile head, legs, and feet; frontal eye and shoulders), organize the composition into stacked horizontal register bands with a ground line, use flat unmodeled color fill inside firm dark outlines with no cast shadow, scale the most significant figure noticeably larger than secondary figures, and add small integrated hieroglyphic-style caption marks near key figures',
+    },
+  },
+  {
     slug: 'fauvism',
     name: 'Fauvism',
     era: 'c. 1904–1908',

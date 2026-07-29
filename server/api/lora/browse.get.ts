@@ -17,6 +17,20 @@ import { requireApiUser } from '../../utils/authGuard'
 const CIVITAI_MODELS_URL = 'https://civitai.com/api/v1/models'
 const CIVARCHIVE_MODEL_URL = 'https://civitaiarchive.com/api/models'
 
+// The two model kinds this browser queues. LoRA is the default; Checkpoint is
+// the base-model tab. `civitaiType` is the value Civitai's `types=` filter wants.
+type BrowseResourceType = 'LORA' | 'CHECKPOINT'
+
+function normalizeBrowseType(value: unknown): BrowseResourceType {
+  return String(value ?? '').toUpperCase() === 'CHECKPOINT'
+    ? 'CHECKPOINT'
+    : 'LORA'
+}
+
+function civitaiTypeFor(type: BrowseResourceType): string {
+  return type === 'CHECKPOINT' ? 'Checkpoint' : 'LORA'
+}
+
 type BrowseCard = {
   civitaiModelId: number
   civitaiModelVersionId: number
@@ -27,6 +41,7 @@ type BrowseCard = {
   fileName: string | null
   creator: string | null
   isMature: boolean
+  resourceType: BrowseResourceType
   source: 'CIVITAI' | 'CIVARCHIVE'
   owned: boolean
   updatable: boolean
@@ -75,9 +90,10 @@ async function browseCivitai(options: {
   cursor: string
   baseModel: string
   nsfw: boolean
+  type: BrowseResourceType
 }): Promise<{ cards: BrowseCard[]; nextCursor: string | null }> {
   const params = new URLSearchParams({
-    types: 'LORA',
+    types: civitaiTypeFor(options.type),
     limit: String(options.limit),
     sort: 'Highest Rated',
     nsfw: options.nsfw ? 'true' : 'false',
@@ -111,6 +127,7 @@ async function browseCivitai(options: {
         fileName: primaryFile?.name ?? null,
         creator: model.creator?.username ?? null,
         isMature: model.nsfw === true,
+        resourceType: options.type,
         source: 'CIVITAI',
         owned: false,
         updatable: false,
@@ -169,6 +186,7 @@ function archiveDownloadUrl(version: ArchiveVersion): string | null {
 async function browseCivArchive(options: {
   q: string
   allowMature: boolean
+  type: BrowseResourceType
 }): Promise<{ cards: BrowseCard[]; nextCursor: string | null }> {
   const modelId = extractModelId(options.q)
   if (!modelId) {
@@ -209,6 +227,7 @@ async function browseCivArchive(options: {
         fileName: firstString(file?.name),
         creator,
         isMature,
+        resourceType: options.type,
         source: 'CIVARCHIVE',
         owned: false,
         updatable: false,
@@ -276,13 +295,14 @@ export default defineEventHandler(async (event) => {
 
     const q = String(query.q ?? '').trim()
     const source = String(query.source ?? 'civitai').toLowerCase()
+    const type = normalizeBrowseType(query.type)
     const allowMature = Boolean(auth.user.showMature)
 
     let result: { cards: BrowseCard[]; nextCursor: string | null }
 
     try {
       if (source === 'civarchive') {
-        result = await browseCivArchive({ q, allowMature })
+        result = await browseCivArchive({ q, allowMature, type })
       } else {
         const requestedNsfw = String(query.nsfw ?? '') === 'true'
         result = await browseCivitai({
@@ -291,6 +311,7 @@ export default defineEventHandler(async (event) => {
           cursor: String(query.cursor ?? '').trim(),
           baseModel: String(query.baseModel ?? '').trim(),
           nsfw: allowMature && requestedNsfw,
+          type,
         })
       }
     } catch (fetchError) {

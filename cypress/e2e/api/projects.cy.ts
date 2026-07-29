@@ -113,15 +113,15 @@ describe('Project API', () => {
       headers: bearerHeaders(token),
       body: {
         priority: 'LOW',
-        channelKey: 'lab',
+        channelKey: 'play',
         tabKey: 'challenges',
-        liveUrl: '/challenges',
+        liveUrl: '/play/challenges',
         allowReviews: true,
       },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.data.priority).to.eq('LOW')
-      expect(response.body.data.channelKey).to.eq('lab')
+      expect(response.body.data.channelKey).to.eq('play')
       expect(response.body.data.tabKey).to.eq('challenges')
       expect(response.body.data.allowReviews).to.be.true
       expectLeanProject(response.body.data)

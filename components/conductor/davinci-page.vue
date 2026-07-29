@@ -644,7 +644,7 @@ const config: ProjectFrontConfig = {
     'A generative life-and-legacy simulation. Each run seeds a life of ambition and craft, advances through chapters of choices that move your stats, collects art along the way, and resolves into an ending — with hundreds of achievements tracking every mark you leave.',
   launch: {
     label: 'Begin a life',
-    href: '/davinci',
+    href: '/play/davinci',
     icon: 'kind-icon:sparkles',
   },
   stats: [

@@ -68,13 +68,13 @@ import { resolveTutorialChannelFromRoute } from '@/stores/helpers/tutorialCards'
 // its 7 real routes (using the real, unmodified production route map).
 {
   const wonderRoutes = [
-    '/newsfeed',
-    '/wonderlab',
-    '/screenfx',
-    '/davinci',
-    '/watchlist',
-    '/ruler-hooked',
-    '/voice-lab',
+    '/plan/newsfeed',
+    '/plan/wonderlab',
+    '/play/screenfx',
+    '/play/davinci',
+    '/plan/watchlist',
+    '/plan/projects/ruler-hooked',
+    '/plan/voice-lab',
   ]
 
   for (const route of wonderRoutes) {

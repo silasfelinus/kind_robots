@@ -38,14 +38,21 @@
             type="text"
             placeholder="Serendipity: turn butterflies on"
             class="input input-bordered input-sm min-w-0 flex-1 rounded-xl"
+            :disabled="voice.sending"
           />
           <button
             type="submit"
             class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-            :disabled="!tryText.trim()"
+            :disabled="!tryText.trim() || voice.sending"
           >
-            <Icon name="kind-icon:microphone" class="size-4" />
-            Try it
+            <Icon
+              :name="
+                voice.sending ? 'kind-icon:spinner' : 'kind-icon:microphone'
+              "
+              class="size-4"
+              :class="{ 'animate-spin': voice.sending }"
+            />
+            {{ voice.sending ? 'Sending…' : 'Try it' }}
           </button>
         </form>
 
@@ -67,11 +74,11 @@
         </p>
 
         <NuxtLink
-          to="/serendipity-voice"
+          to="/serendipity"
           class="btn btn-ghost btn-sm w-fit gap-1.5 rounded-xl border border-base-300"
         >
           <Icon name="kind-icon:external-link" class="size-4" />
-          Open the full Serendipity Voice view
+          Open the full Serendipity view
         </NuxtLink>
       </section>
 
@@ -194,8 +201,8 @@ const config: ProjectFrontConfig = {
   description:
     'The experimental voice frontier: an Alexa skill and a local relay that let Serendipity and friends listen and speak. This lab is where the wiring is documented and the relay status shows whether the voice bridge is awake.',
   launch: {
-    label: 'Open Serendipity Voice view',
-    href: '/serendipity-voice',
+    label: 'Open Serendipity view',
+    href: '/serendipity',
     icon: 'kind-icon:microphone',
   },
   sections: [

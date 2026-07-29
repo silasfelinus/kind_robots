@@ -7,21 +7,28 @@ import {
 } from '@/stores/helpers/channelContent'
 import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
 
+// The Lab channel was dissolved in the "forever nav" restructure. The three
+// public WonderLab surfaces moved into public channels (Museum → Plan,
+// Memory/Screen FX → Play) but must stay directly reachable by guests, while
+// admin-only tools that now share those channels stay restricted.
 const publicTabs = [
   {
-    path: 'content/channels/lab/museum.md',
+    path: 'content/channels/plan/museum.md',
+    channelKey: 'plan',
     tabKey: 'museum',
-    route: '/wonderlab',
+    route: '/plan/wonderlab',
   },
   {
-    path: 'content/channels/lab/experiments.md',
+    path: 'content/channels/play/experiments.md',
+    channelKey: 'play',
     tabKey: 'experiments',
-    route: '/memory',
+    route: '/play/memory',
   },
   {
-    path: 'content/channels/lab/screen-fx.md',
+    path: 'content/channels/play/screen-fx.md',
+    channelKey: 'play',
     tabKey: 'screen-fx',
-    route: '/screenfx',
+    route: '/play/screenfx',
   },
 ]
 
@@ -33,15 +40,21 @@ for (const tab of publicTabs) {
 const items: ChannelContentItem[] = [
   {
     contentType: 'channel',
-    channelKey: 'lab',
-    label: 'Lab',
-    route: '/memory',
+    channelKey: 'play',
+    label: 'Play',
+    route: '/dreams',
     defaultTab: 'experiments',
-    requiredRole: 'ADMIN',
+  },
+  {
+    contentType: 'channel',
+    channelKey: 'plan',
+    label: 'Plan',
+    route: '/conductor',
+    defaultTab: 'projects',
   },
   ...publicTabs.map((tab) => ({
     contentType: 'tab' as const,
-    channelKey: 'lab',
+    channelKey: tab.channelKey,
     tabKey: tab.tabKey,
     label: tab.tabKey,
     route: tab.route,
@@ -49,10 +62,10 @@ const items: ChannelContentItem[] = [
   })),
   {
     contentType: 'tab',
-    channelKey: 'lab',
-    tabKey: 'private-tools',
-    label: 'Private tools',
-    route: '/private-tools',
+    channelKey: 'play',
+    tabKey: 'davinci',
+    label: 'Da Vinci',
+    route: '/play/davinci',
     requiredRole: 'ADMIN',
   },
 ]
@@ -60,12 +73,6 @@ const items: ChannelContentItem[] = [
 const channels = resolveChannels(items)
 const guestChannels = filterChannelsByRole(channels, 'GUEST')
 const adminChannels = filterChannelsByRole(channels, 'ADMIN')
-
-assert.equal(
-  guestChannels.some((channel) => channel.channelKey === 'lab'),
-  false,
-  'The restricted Lab channel should remain absent from guest navigation.',
-)
 
 for (const tab of publicTabs) {
   const access = evaluateNavigationRouteAccess(channels, guestChannels, {
@@ -77,13 +84,13 @@ for (const tab of publicTabs) {
 }
 
 const privateAccess = evaluateNavigationRouteAccess(channels, guestChannels, {
-  path: '/private-tools',
+  path: '/play/davinci',
 })
 assert.equal(privateAccess.matched, true)
 assert.equal(privateAccess.allowed, false)
 assert.equal(privateAccess.requiredRole, 'ADMIN')
 
-for (const route of [...publicTabs.map((tab) => tab.route), '/private-tools']) {
+for (const route of [...publicTabs.map((tab) => tab.route), '/play/davinci']) {
   assert.equal(
     evaluateNavigationRouteAccess(channels, adminChannels, { path: route }).allowed,
     true,
@@ -92,5 +99,5 @@ for (const route of [...publicTabs.map((tab) => tab.route), '/private-tools']) {
 }
 
 console.log(
-  'WonderLab public navigation verified: public Lab tabs allow direct guests while private Lab tools remain restricted.',
+  'WonderLab public navigation verified: public WonderLab surfaces (Museum, Memory, Screen FX) allow direct guests while admin-only tools remain restricted.',
 )

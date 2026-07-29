@@ -18,7 +18,7 @@
         <NuxtLink to="/admin/wonderlab-review-generator" class="btn btn-outline btn-sm">
           Single-draft generator
         </NuxtLink>
-        <NuxtLink to="/wonderlab" class="btn btn-ghost btn-sm">WonderLab</NuxtLink>
+        <NuxtLink to="/plan/wonderlab" class="btn btn-ghost btn-sm">WonderLab</NuxtLink>
       </div>
     </header>
 

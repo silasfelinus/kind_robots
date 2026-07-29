@@ -32,6 +32,10 @@ export type ArtJobOverrides = {
   sampler?: string | null
   scheduler?: string | null
   checkpoint?: string | null
+  // Repoint the selected style LoRA (server skips required/base LoRAs). Lets the
+  // editor fix a job whose stored lora_name no longer matches ComfyUI's list.
+  loraName?: string | null
+  loraStrength?: number | null
 }
 
 export type ArtFeedbackSource = 'CURATOR' | 'HUMAN'

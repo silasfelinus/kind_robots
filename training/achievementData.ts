@@ -332,7 +332,7 @@ export const achievementData: Achievement[] = [
     updatedAt: now,
     tooltip: 'Score fifty or more in the Memory game.',
     isActive: false,
-    pageHint: '/memory',
+    pageHint: '/play/memory',
     subtleHint: 'Now, where did you leave that jellybean?',
     imagePath: null,
     artImageId: null,

@@ -99,6 +99,12 @@ export type ArtJobOverrides = {
   sampler?: string | null
   scheduler?: string | null
   checkpoint?: string | null
+  // Swap the user-selected *style* LoRA on a queued/failed job. Patches the
+  // style LoraLoader node(s); required/base LoRAs (e.g. LTX's distilled
+  // acceleration LoRA) are left alone. Lets edit/requeue correct a job whose
+  // stored lora_name no longer resolves — without rebuilding it from scratch.
+  loraName?: string | null
+  loraStrength?: number | null
   durationSeconds?: number | null
   fps?: number | null
   loop?: boolean | null
@@ -110,6 +116,7 @@ const SAMPLER_NODE_TYPES = new Set([
   'SamplerCustom',
 ])
 const CHECKPOINT_KEYS = ['ckpt_name', 'unet_name', 'model_name']
+const LORA_NODE_TYPES = new Set(['LoraLoaderModelOnly', 'LoraLoader'])
 const VIDEO_NODE_TYPES = new Set([
   'LTXVConditioning',
   'LTXVImgToVideo',
@@ -236,6 +243,8 @@ export function applyArtJobOverrides(
   const sampler = overrides.sampler?.trim() || null
   const scheduler = overrides.scheduler?.trim() || null
   const checkpoint = overrides.checkpoint?.trim() || null
+  const loraName = overrides.loraName?.trim() || null
+  const loraStrength = num(overrides.loraStrength)
   const durationOverride = num(overrides.durationSeconds)
   const fpsOverride = num(overrides.fps)
   const loopOverride =
@@ -340,6 +349,25 @@ export function applyArtJobOverrides(
         }
       }
 
+      // Style-LoRA swap. Only the user-selected style LoRA is overridable;
+      // builders title the required/base ones "... Required ..." (e.g. LTX's
+      // distilled acceleration LoRA), so those are skipped and keep their
+      // pinned filename. Every WAN/kontext/flux "Selected"/"Style" LoRA node
+      // is repointed at the new file (WAN applies it to both expert passes).
+      if (
+        loraName &&
+        LORA_NODE_TYPES.has(classType) &&
+        'lora_name' in inputs &&
+        !String(meta.title || '')
+          .toLowerCase()
+          .includes('required')
+      ) {
+        inputs.lora_name = loraName
+        if (loraStrength !== null && 'strength_model' in inputs) {
+          inputs.strength_model = loraStrength
+        }
+      }
+
       if (
         negativePrompt !== null &&
         classType === 'CLIPTextEncode' &&
@@ -365,6 +393,17 @@ export function applyArtJobOverrides(
   if (sampler) payload.sampler = sampler
   if (scheduler) payload.scheduler = scheduler
   if (checkpoint) payload.checkpoint = checkpoint
+  if (loraName) {
+    payload.loraName = loraName
+    // Keep the resources metadata list in step with the workflow so a later
+    // read (or provenance recompute) reflects the swapped style LoRA.
+    const resources = asRecord(payload.resources)
+    if (Array.isArray(resources.loraNames) && resources.loraNames.length > 0) {
+      resources.loraNames = [loraName]
+      payload.resources = resources
+    }
+  }
+  if (loraStrength !== null) payload.loraStrength = loraStrength
   if (negativePrompt !== null) payload.negativePrompt = negativePrompt
 
   if (videoModel) {

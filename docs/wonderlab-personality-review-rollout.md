@@ -127,9 +127,9 @@ After publishing a representative set, rerun `/admin/wonderlab-review-rollout`.
 
 Verify on production:
 
-- `/wonderlab`
-- `/memory`
-- `/screenfx`
+- `/plan/wonderlab`
+- `/play/memory`
+- `/play/screenfx`
 
 In WonderLab, confirm:
 

@@ -14,7 +14,7 @@
         <NuxtLink to="/admin/wonderlab-reviews" class="btn btn-primary btn-sm">
           Open curator workspace
         </NuxtLink>
-        <NuxtLink to="/wonderlab" class="btn btn-outline btn-sm">Open WonderLab</NuxtLink>
+        <NuxtLink to="/plan/wonderlab" class="btn btn-outline btn-sm">Open WonderLab</NuxtLink>
       </div>
     </header>
 

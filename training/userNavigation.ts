@@ -42,7 +42,7 @@ export const userNavigation: navigationData[] = [
     title: 'Art Match',
     image: '/images/cafepurr/cafepurr-395.webp',
     description: 'Memory Match using art from our digital art galleries',
-    path: '/memory',
+    path: '/play/memory',
   },
   {
     title: 'AMI',

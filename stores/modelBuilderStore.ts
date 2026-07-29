@@ -1052,6 +1052,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     output: BuildOutputConfig | undefined,
     prompt: string,
     dims: { width: number; height: number },
+    runId: string,
   ): Promise<void> {
     const artStore = useArtStore()
 
@@ -1079,10 +1080,46 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
       const result = await artStore.finalizeQueuedArtImage(job, generateData)
 
+      // finalizeQueuedArtImage is itself a network round-trip long enough for
+      // the user to cancel this exact run while it's in flight. By this point
+      // item.artJobId has already been cleared above (as part of normal
+      // terminal-status handling, not by cancellation), so the artJobId check
+      // above can no longer distinguish "cancelled" from "completing
+      // normally" -- cancelRun's own clearing of item.artJobId is a no-op
+      // here. Only cancelledRunIds still tells them apart. Mirrors
+      // generateItemAsset's cancelledRunIds guard: don't persist a candidate,
+      // PATCH/POST onto a cancelled run's item, or pop a misleading
+      // success/error toast for a run the user no longer has open.
+      if (cancelledRunIds.has(runId)) return
+
       if (!result.success || !result.data) {
         item.error = result.message || `Art job ${jobId} did not complete.`
         finishGenerateAssets(item, { status: 'ready', note: item.error })
         setStatus('error', item.error)
+        return
+      }
+
+      // item.artJobId was cleared above, before this function's own await --
+      // that's what the item panel's isQueued reads, so for the exact span
+      // between that clear and finalizeQueuedArtImage resolving, isQueued is
+      // false while GENERATE_ASSETS is still 'in-progress'. On a regenerate
+      // (item.artImageId already holds a prior candidate), the panel's
+      // canApproveAssets briefly evaluates true during that span -- neither
+      // isGenerating nor isQueued nor isLocked block it -- letting the user
+      // click "Keep this asset" using the OLD image; approveStage writes
+      // 'approved' straight through with no gate of its own. Applying this
+      // render's NEW image unconditionally below would then silently swap
+      // what the just-approved stage points at, with no re-review. Mirrors
+      // finishGenerateAssets' "only write if nothing else touched the stage
+      // while we were awaiting" rule, extended to the image itself -- but
+      // only for 'approved': a concurrent upstream edit marking this stage
+      // 'stale' while the job was in flight is the existing, intended way to
+      // flag "re-review this candidate," and should still receive the image.
+      if (item.stages.GENERATE_ASSETS.status === 'approved') {
+        setStatus(
+          'error',
+          `${item.label} finished generating after its candidate was already approved — discarded to avoid silently replacing it.`,
+        )
         return
       }
 
@@ -1108,6 +1145,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function generateItemAssetAsync(itemId: string): Promise<boolean> {
     const item = findItem(itemId)
     if (!item || !state.run) return false
+    const runId = state.run.id
 
     if (item.generation !== 'image') {
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
@@ -1156,6 +1194,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         output,
         prompt,
         dims,
+        runId,
       )
       return true
     } catch (error) {

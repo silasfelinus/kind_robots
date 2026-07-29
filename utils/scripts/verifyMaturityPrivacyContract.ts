@@ -44,15 +44,12 @@ const matureOnlyEdit = applyArtJobVisibility(
 )
 assert.deepEqual(matureOnlyEdit.save, { isMature: true, isPublic: false })
 
-const videoGenerator = readFileSync('pages/video-generator.vue', 'utf8')
+const videoGenerator = readFileSync('pages/play/video-generator.vue', 'utf8')
 assert.ok(videoGenerator.includes('<content-visibility-controls'))
 assert.ok(videoGenerator.includes('isMature: isMature.value'))
 assert.ok(videoGenerator.includes('isPublic: isPublic.value'))
 
-const queueEditor = readFileSync(
-  'components/art/artjob-editor.vue',
-  'utf8',
-)
+const queueEditor = readFileSync('components/art/artjob-editor.vue', 'utf8')
 assert.ok(queueEditor.includes('v-model:is-mature="form.isMature"'))
 assert.ok(queueEditor.includes('isMature: form.isMature'))
 assert.ok(queueEditor.includes('isPublic: form.isPublic'))

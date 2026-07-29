@@ -11,7 +11,7 @@ description: Experiment with generated endings, branching ideas, and visual stor
 icon: kind-icon:brain
 route: /play/davinci
 sort: 130
-requiredRole: ADMIN
+requiredRole: GUEST
 ---
 
 A narrative experiment where endings are prototypes rather than conclusions.

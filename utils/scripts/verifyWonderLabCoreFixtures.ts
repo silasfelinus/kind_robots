@@ -65,7 +65,7 @@ for (const key of [
 }
 
 const commentaryGuide = readFileSync(
-  'pages/wonderlab/commentary-guide.vue',
+  'pages/plan/wonderlab/commentary-guide.vue',
   'utf8',
 )
 

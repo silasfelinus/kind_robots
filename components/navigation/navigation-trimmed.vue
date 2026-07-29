@@ -91,9 +91,20 @@
               </span>
             </span>
 
-            <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
-              <span class="max-w-full truncate text-sm font-black">
-                {{ tab.label }}
+            <span
+              class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+            >
+              <span class="flex max-w-full items-center gap-1">
+                <span class="truncate text-sm font-black">
+                  {{ tab.label }}
+                </span>
+                <span
+                  v-if="isAdminOnlyTab(channel, tab)"
+                  class="badge badge-warning badge-xs shrink-0 font-bold uppercase"
+                  title="Admin-only page"
+                >
+                  Admin
+                </span>
               </span>
               <span
                 v-if="tab.summary || tab.description"
@@ -163,5 +174,10 @@ function tabTo(channel: ResolvedChannel, tab: ResolvedTab) {
     channel.tabs.filter((item) => item.route === tab.route).length > 1
 
   return shared ? { path: tab.route, query: { tab: tab.tabKey } } : tab.route
+}
+
+// Mark admin-gated tabs that live outside the dedicated admin channel.
+function isAdminOnlyTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
+  return tab.requiredRole === 'ADMIN' && channel.channelKey !== 'admin'
 }
 </script>

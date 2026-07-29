@@ -11,7 +11,7 @@ description: Try structured challenges that connect creative systems, achievemen
 icon: kind-icon:trophy
 route: /play/challenges
 sort: 120
-requiredRole: ADMIN
+requiredRole: GUEST
 ---
 
 A testing ground for challenges that may eventually graduate into Play.

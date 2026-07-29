@@ -39,7 +39,7 @@ export const DATA_SURFACES: DataSurfaceEntry[] = [
     id: 'video-generator',
     label: 'Image-to-video generator',
     dataSource:
-      'pages/build/video-generator.vue: stores/videoStore.ts -> POST /api/art/enqueue',
-    navEntry: { channelKey: 'build', tabKey: 'video-generator' },
+      'pages/play/video-generator.vue: stores/videoStore.ts -> POST /api/art/enqueue',
+    navEntry: { channelKey: 'play', tabKey: 'video-generator' },
   },
 ]

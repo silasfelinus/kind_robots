@@ -151,6 +151,12 @@ jobs:
       - name: Model Builder commit cancelled-run guard contract
         run: npm run test:model-builder-commit-cancelled-run-guard
 
+      - name: Model Builder draft approval guard checker self-test
+        run: npm run test:model-builder-draft-approval-guard-selftest
+
+      - name: Model Builder draft approval guard contract
+        run: npm run test:model-builder-draft-approval-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

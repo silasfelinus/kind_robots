@@ -109,6 +109,8 @@
     "test:model-builder-approved-asset-guard": "tsx utils/scripts/verifyModelBuilderApprovedAssetGuard.ts",
     "test:model-builder-commit-cancelled-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitCancelledRunGuard.test.ts",
     "test:model-builder-commit-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderCommitCancelledRunGuard.ts",
+    "test:model-builder-draft-approval-guard-selftest": "tsx utils/scripts/verifyModelBuilderDraftApprovalGuard.test.ts",
+    "test:model-builder-draft-approval-guard": "tsx utils/scripts/verifyModelBuilderDraftApprovalGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",

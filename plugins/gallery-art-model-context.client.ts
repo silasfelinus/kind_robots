@@ -49,10 +49,10 @@ function facetImageField(facet: FacetCatalogEntry, source: string): string {
 
 export default defineNuxtPlugin({
   name: 'gallery-art-model-context',
-  enforce: 'pre',
-  setup() {
+  setup(nuxtApp) {
     const dreamStore = useDreamStore()
     const facetStore = useFacetCatalogStore()
+    let observer: MutationObserver | null = null
 
     function decorate(img: HTMLImageElement): void {
       if (img.dataset.artModel || img.closest('[data-art-model]')) return
@@ -108,21 +108,28 @@ export default defineNuxtPlugin({
       for (const img of node.querySelectorAll<HTMLImageElement>('img')) decorate(img)
     }
 
-    window.addEventListener(
-      'error',
-      (event) => {
-        if (event.target instanceof HTMLImageElement) decorate(event.target)
-      },
-      true,
-    )
+    function handleImageError(event: Event): void {
+      if (event.target instanceof HTMLImageElement) decorate(event.target)
+    }
 
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) decorateTree(node)
-      }
+    function start(): void {
+      const root = document.documentElement
+      if (!root) return
+
+      window.addEventListener('error', handleImageError, true)
+      observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) decorateTree(node)
+        }
+      })
+      observer.observe(root, { childList: true, subtree: true })
+      decorateTree(root)
+    }
+
+    nuxtApp.hook('app:mounted', start)
+    nuxtApp.hook('app:beforeUnmount', () => {
+      observer?.disconnect()
+      window.removeEventListener('error', handleImageError, true)
     })
-
-    observer.observe(document.documentElement, { childList: true, subtree: true })
-    decorateTree(document.documentElement)
   },
 })

@@ -213,7 +213,7 @@ export const dashboardConfigs = {
         icon: 'kind-icon:map',
         title: 'Art History Timeline',
         summary:
-          'Walk twenty-five centuries of art history, one style at a time.',
+          'Walk thirty-three centuries of art history, one style at a time.',
         image: tabImage('academy', 'timeline'),
         narrative:
           'Walk the timeline from Greek vases to De Stijl grids, meet the long-departed masters, and learn why every era thought the previous one was doing it wrong.',

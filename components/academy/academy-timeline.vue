@@ -12,8 +12,8 @@
           The Art History Timeline
         </h2>
         <p class="text-sm text-base-content/70">
-          Twenty-five centuries of style, all public domain, all remixable. Pick
-          an era and see what the masters were up to.
+          Thirty-three centuries of style, all public domain, all remixable.
+          Pick an era and see what the masters were up to.
         </p>
       </div>
       <div

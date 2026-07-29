@@ -41,7 +41,7 @@
         />
         <p class="text-sm text-base-content/70">
           Dusting off the timeline, warming up the remix engine, and politely
-          waking twenty-five centuries of dead masters...
+          waking thirty-three centuries of dead masters...
         </p>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { assertRunAccess, getItemId, parseStoredJson } from '../../runs/index'
 import { CREATE_TARGETS, fieldSpecFor } from '~/stores/helpers/modelBuilderFields'
+import { BUILD_STAGES } from '~/stores/helpers/modelBuilderRecipes'
 import { syncCharacterFacetsInTransaction } from '~/server/utils/characterFacetSync'
 import { syncBotFacetsInTransaction } from '~/server/utils/botFacetSync'
 import type { FacetTaxonomy } from '~/server/utils/facetCatalog'
@@ -519,6 +520,34 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Build item not found.', statusCode: 404 }
     }
     assertRunAccess(item.Run, auth.user)
+
+    // The front-end only ever calls commitItem() once COMMIT has unlocked,
+    // which approveStage only does after PITCH, FIELDS_AND_PROMPTS, and
+    // GENERATE_ASSETS are each approved in turn — but that sequencing lives
+    // entirely in the client state machine. This route trusted the client to
+    // have gotten there, so a direct POST (bad client state, a retried/
+    // replayed request, or just curl) for an item still sitting at 'locked'/
+    // 'ready'/'rejected' could create/update/promote straight from an
+    // unreviewed draft — the exact "silently rewrites a canonical model"
+    // outcome this module's own header comment says COMMIT must never cause.
+    // dryRun previews the plan without writing, so it's exempt.
+    if (!dryRun) {
+      const currentStages = parseStoredJson<Record<string, { status?: string }>>(
+        item.stageStatuses,
+        {},
+      )
+      const unapprovedStage = BUILD_STAGES.find(
+        (stage) =>
+          stage.key !== 'COMMIT' &&
+          currentStages[stage.key]?.status !== 'approved',
+      )
+      if (unapprovedStage) {
+        throw createError({
+          statusCode: 400,
+          message: `${unapprovedStage.label} must be approved before committing.`,
+        })
+      }
+    }
 
     const sourceType = item.Run.sourceType
     if (!isSourceType(sourceType)) {

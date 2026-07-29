@@ -149,7 +149,7 @@ type ArchiveModel = {
 
 function extractModelId(input: string): number | null {
   const match = input.match(/(\d{2,})/)
-  const id = match ? Number(match[1]) : NaN
+  const id = Number(match?.[1] ?? NaN)
   return Number.isInteger(id) && id > 0 ? id : null
 }
 

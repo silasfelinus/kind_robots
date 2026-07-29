@@ -1099,6 +1099,30 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         return
       }
 
+      // item.artJobId was cleared above, before this function's own await --
+      // that's what the item panel's isQueued reads, so for the exact span
+      // between that clear and finalizeQueuedArtImage resolving, isQueued is
+      // false while GENERATE_ASSETS is still 'in-progress'. On a regenerate
+      // (item.artImageId already holds a prior candidate), the panel's
+      // canApproveAssets briefly evaluates true during that span -- neither
+      // isGenerating nor isQueued nor isLocked block it -- letting the user
+      // click "Keep this asset" using the OLD image; approveStage writes
+      // 'approved' straight through with no gate of its own. Applying this
+      // render's NEW image unconditionally below would then silently swap
+      // what the just-approved stage points at, with no re-review. Mirrors
+      // finishGenerateAssets' "only write if nothing else touched the stage
+      // while we were awaiting" rule, extended to the image itself -- but
+      // only for 'approved': a concurrent upstream edit marking this stage
+      // 'stale' while the job was in flight is the existing, intended way to
+      // flag "re-review this candidate," and should still receive the image.
+      if (item.stages.GENERATE_ASSETS.status === 'approved') {
+        setStatus(
+          'error',
+          `${item.label} finished generating after its candidate was already approved — discarded to avoid silently replacing it.`,
+        )
+        return
+      }
+
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null

@@ -15,7 +15,10 @@
         <button class="btn btn-sm" :disabled="loading" @click="refresh">
           {{ loading ? 'Refreshing…' : 'Refresh' }}
         </button>
-        <button class="btn btn-sm btn-ghost" @click="pageStore.setWorkspaceCardKey('overview')">
+        <button
+          class="btn btn-sm btn-ghost"
+          @click="pageStore.setWorkspaceCardKey('overview')"
+        >
           ← Workspace
         </button>
       </div>
@@ -45,12 +48,17 @@
                 v-model="form.slug"
                 type="text"
                 class="input input-bordered font-mono"
+                :class="{ 'input-error': slugError }"
                 :placeholder="slugPreview || 'recipe-box'"
+                maxlength="41"
               />
             </label>
           </div>
+          <p v-if="slugError" class="text-xs text-error">{{ slugError }}</p>
           <label class="form-control">
-            <span class="label-text pb-1">What is it? (one line, also steers its art)</span>
+            <span class="label-text pb-1"
+              >What is it? (one line, also steers its art)</span
+            >
             <textarea
               v-model="form.description"
               class="textarea textarea-bordered"
@@ -61,12 +69,14 @@
           <div class="flex items-center gap-3">
             <button
               class="btn btn-primary btn-sm"
-              :disabled="creating || !form.title.trim()"
+              :disabled="creating || !form.title.trim() || !!slugError"
               @click="createApp"
             >
               {{ creating ? 'Filing request…' : 'Create app' }}
             </button>
-            <span v-if="createMessage" class="text-sm opacity-80">{{ createMessage }}</span>
+            <span v-if="createMessage" class="text-sm opacity-80">{{
+              createMessage
+            }}</span>
           </div>
           <p class="text-xs opacity-60">
             Creating an app files a scaffold request for the agents: the
@@ -110,7 +120,9 @@
           <div class="card-body gap-2 p-4">
             <div class="flex items-start justify-between gap-2">
               <h3 class="card-title text-base">{{ app.title }}</h3>
-              <span class="badge badge-outline font-mono text-xs">{{ app.slug }}</span>
+              <span class="badge badge-outline font-mono text-xs">{{
+                app.slug
+              }}</span>
             </div>
             <p v-if="app.description" class="line-clamp-2 text-sm opacity-70">
               {{ app.description }}
@@ -123,7 +135,10 @@
               />
               <p class="text-xs opacity-60">
                 {{ app.taskDone }} of {{ app.taskTotal }} tasks done
-                <span v-if="app.needsHuman > 0" class="badge badge-primary badge-xs ml-1">
+                <span
+                  v-if="app.needsHuman > 0"
+                  class="badge badge-primary badge-xs ml-1"
+                >
                   {{ app.needsHuman }} need you
                 </span>
               </p>
@@ -151,8 +166,14 @@ import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 
 const FREE_PROJECT_LIMIT = 2
+// Mirrors server/api/appmaker/scaffold-request.post.ts's SLUG_RE — keep in sync.
+const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/
 
-type PendingScaffold = { slug: string; dreamId: number | null; requestedAt: string }
+type PendingScaffold = {
+  slug: string
+  dreamId: number | null
+  requestedAt: string
+}
 type AppsResponse = { scaffolded: string[]; pending: PendingScaffold[] }
 
 type FleetApp = {
@@ -186,6 +207,12 @@ const slugPreview = computed(() =>
     .slice(0, 40),
 )
 
+const slugError = computed(() => {
+  const candidate = form.slug.trim().toLowerCase() || slugPreview.value
+  if (!candidate || SLUG_RE.test(candidate)) return ''
+  return 'Slug must be kebab-case: start with a letter, then letters/digits/hyphens.'
+})
+
 const fleet = computed<FleetApp[]>(() =>
   scaffolded.value.map((slug) => {
     const project = conductorStore.projects.find(
@@ -212,10 +239,19 @@ function titleize(slug: string): string {
 
 function formatDate(value: string): string {
   const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? 'recently' : parsed.toLocaleDateString()
+  return Number.isNaN(parsed.getTime())
+    ? 'recently'
+    : parsed.toLocaleDateString()
 }
 
+// Guards against out-of-order responses: refresh() can be triggered
+// concurrently (onMounted, the manual Refresh button, and createApp()'s
+// post-create refresh), and a slower earlier request resolving after a
+// newer one would otherwise silently overwrite fresh state with stale data.
+let refreshToken = 0
+
 async function refresh(): Promise<void> {
+  const token = ++refreshToken
   loading.value = true
   error.value = ''
   try {
@@ -223,6 +259,7 @@ async function refresh(): Promise<void> {
       performFetch<AppsResponse>('/api/appmaker/apps'),
       conductorStore.fetchProjects(true),
     ])
+    if (token !== refreshToken) return
     if (appsRes.success && appsRes.data) {
       scaffolded.value = appsRes.data.scaffolded
       pending.value = appsRes.data.pending
@@ -230,9 +267,11 @@ async function refresh(): Promise<void> {
       error.value = appsRes.message || 'Could not load apps.'
     }
   } catch (fetchError) {
-    error.value = fetchError instanceof Error ? fetchError.message : String(fetchError)
+    if (token !== refreshToken) return
+    error.value =
+      fetchError instanceof Error ? fetchError.message : String(fetchError)
   } finally {
-    loading.value = false
+    if (token === refreshToken) loading.value = false
   }
 }
 
@@ -241,14 +280,17 @@ async function createApp(): Promise<void> {
   createMessage.value = ''
   error.value = ''
   try {
-    const res = await performFetch<{ slug: string }>('/api/appmaker/scaffold-request', {
-      method: 'POST',
-      body: JSON.stringify({
-        title: form.title.trim(),
-        slug: (form.slug.trim() || slugPreview.value) || undefined,
-        description: form.description.trim() || undefined,
-      }),
-    })
+    const res = await performFetch<{ slug: string }>(
+      '/api/appmaker/scaffold-request',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          title: form.title.trim(),
+          slug: form.slug.trim() || slugPreview.value || undefined,
+          description: form.description.trim() || undefined,
+        }),
+      },
+    )
     if (res.success && res.data) {
       createMessage.value = `Request filed — '${res.data.slug}' will be scaffolded on the next agent cycle.`
       form.title = ''
@@ -260,7 +302,9 @@ async function createApp(): Promise<void> {
     }
   } catch (createError_) {
     error.value =
-      createError_ instanceof Error ? createError_.message : String(createError_)
+      createError_ instanceof Error
+        ? createError_.message
+        : String(createError_)
   } finally {
     creating.value = false
   }

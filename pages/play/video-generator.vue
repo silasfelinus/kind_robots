@@ -150,6 +150,24 @@
       :disabled="videoStore.isBusy"
     />
 
+    <!-- Output format -->
+    <section class="space-y-2">
+      <label class="font-semibold">Output format</label>
+      <div class="flex gap-2">
+        <button
+          v-for="opt in outputFormats"
+          :key="opt.value"
+          type="button"
+          class="btn btn-sm"
+          :class="outputFormat === opt.value ? 'btn-accent' : 'btn-outline'"
+          @click="outputFormat = opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
+      <p class="text-xs opacity-60">{{ activeOutputFormat.hint }}</p>
+    </section>
+
     <!-- Controls -->
     <section class="grid gap-4 sm:grid-cols-3">
       <div class="space-y-1">
@@ -265,7 +283,14 @@
     <!-- Result -->
     <section v-if="videoStore.state.videoSrc" class="space-y-2">
       <h2 class="font-semibold">Result</h2>
+      <img
+        v-if="videoStore.resultIsImage"
+        :src="videoStore.state.videoSrc"
+        class="w-full rounded-lg border border-base-300 bg-black object-contain"
+        alt="Generated clip"
+      />
       <video
+        v-else
         :src="videoStore.state.videoSrc"
         class="w-full rounded-lg border border-base-300 bg-black"
         :loop="loop"
@@ -276,7 +301,7 @@
       />
       <a
         :href="videoStore.state.videoSrc"
-        download="kindrobots-clip"
+        :download="downloadFilename"
         class="btn btn-sm btn-outline"
       >
         ⬇ Download clip
@@ -287,7 +312,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useVideoStore } from '@/stores/videoStore'
+import { useVideoStore, type VideoOutputFormat } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
 
 const LOGO_SRC = '/images/kindlogo_new.webp'
@@ -319,6 +344,29 @@ const activeEngine = computed(
   () => engines.find((e) => e.value === engine.value) ?? engines[0]!,
 )
 
+const outputFormats = [
+  {
+    value: 'webp' as const,
+    label: 'WebP',
+    hint: 'Animated image, loops natively — smallest file, best default for web display (e.g. a randomized loading animation).',
+  },
+  {
+    value: 'mp4' as const,
+    label: 'MP4',
+    hint: 'Real video container — best for longer or more complex motion, plays with controls.',
+  },
+  {
+    value: 'webm' as const,
+    label: 'WebM',
+    hint: 'Real video container, open codec — similar use case to MP4.',
+  },
+]
+
+const outputFormat = ref<VideoOutputFormat>('webp')
+const activeOutputFormat = computed(
+  () => outputFormats.find((f) => f.value === outputFormat.value) ?? outputFormats[0]!,
+)
+
 const firstImage = ref('')
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
@@ -336,6 +384,10 @@ const seedInput = ref<number | string>('')
 
 const estimatedFrames = computed(() =>
   Math.max(2, Math.round((durationSeconds.value || 0) * (fps.value || 0)) + 1),
+)
+
+const downloadFilename = computed(
+  () => `kindrobots-clip.${videoStore.state.fileType || outputFormat.value}`,
 )
 
 const canGenerate = computed(
@@ -410,6 +462,7 @@ async function generate() {
     width: width.value,
     height: height.value,
     seed,
+    outputFormat: outputFormat.value,
     loraResourceIds: loraResourceId.value ? [loraResourceId.value] : undefined,
     loraStrength: loraResourceId.value ? loraStrength.value : undefined,
     isMature: isMature.value,

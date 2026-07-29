@@ -19,6 +19,11 @@
   fixed, unfiltered global view -- a separate GET /api/media-entries?take=10&
   sort=date_desc call that ignores the active search/year/type/starred/month/
   season state entirely, per that spec.
+  "Year over year" (media-watchlist/t-006, BROWSE-UX.md §4's last gap) is a
+  side-by-side per-year table (totals by media type, most-watched month),
+  gated to 2+ years of data; rides along on the existing loadStats() call --
+  stats.get.ts's new yearComparison field is unfiltered by the active year,
+  same as the years list.
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -135,6 +140,70 @@
             >TV seasons ({{ stats.tvShowCount }} shows)</span
           >
         </div>
+      </div>
+
+      <!-- Year-over-year comparison (BROWSE-UX.md §4) -->
+      <div
+        v-if="stats && showYearComparison"
+        class="overflow-x-auto rounded-3xl border border-base-300 bg-base-100 p-4"
+      >
+        <p class="mb-2 text-xs font-semibold uppercase text-base-content/50">
+          Year over year
+        </p>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th></th>
+              <th
+                v-for="row in stats.yearComparison"
+                :key="row.year"
+                class="text-right"
+              >
+                {{ row.year }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="chip in MEDIA_TYPE_CHIPS" :key="chip.value">
+              <td class="font-semibold text-base-content/70">
+                {{ chip.label }}
+              </td>
+              <td
+                v-for="row in stats.yearComparison"
+                :key="row.year"
+                class="text-right"
+              >
+                {{ countForChipGroup(row, chip.group) }}
+              </td>
+            </tr>
+            <tr class="font-semibold">
+              <td>Total</td>
+              <td
+                v-for="row in stats.yearComparison"
+                :key="row.year"
+                class="text-right"
+              >
+                {{ row.totalCount }}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-semibold text-base-content/70">
+                Most watched month
+              </td>
+              <td
+                v-for="row in stats.yearComparison"
+                :key="row.year"
+                class="text-right"
+              >
+                {{
+                  row.mostWatchedMonth
+                    ? monthLabel(row.mostWatchedMonth.month)
+                    : '—'
+                }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Filters -->
@@ -406,6 +475,13 @@ type MediaEntriesResponse = {
   total: number
 }
 
+type YearComparisonRow = {
+  year: number
+  totalCount: number
+  countByType: Record<string, number>
+  mostWatchedMonth: { month: number; count: number } | null
+}
+
 type MediaEntryStats = {
   years: number[]
   totalCount: number
@@ -416,6 +492,7 @@ type MediaEntryStats = {
   comicIssuesRead: number
   tvShowCount: number
   tvSeasonCount: number
+  yearComparison: YearComparisonRow[]
 }
 
 type MediaEntryStatsResponse = {
@@ -509,6 +586,12 @@ const stats = ref<MediaEntryStats | null>(null)
 const selectedId = ref<number | null>(null)
 const recentEntries = ref<MediaEntrySummary[]>([])
 
+function monthLabel(month: number): string {
+  return new Date(2000, month - 1, 1).toLocaleString('en-US', {
+    month: 'long',
+  })
+}
+
 // BROWSE-UX.md §1: "Most active month: 'You consumed the most in [Month]: N
 // entries'". countByMonth is keyed by month number as a string (1-12); pick
 // the highest count and name it. No entry -> hide the line rather than
@@ -525,11 +608,14 @@ const mostActiveMonth = computed(() => {
     }
   }
   if (bestMonth === null) return null
-  const label = new Date(2000, bestMonth - 1, 1).toLocaleString('en-US', {
-    month: 'long',
-  })
-  return { label, count: bestCount }
+  return { label: monthLabel(bestMonth), count: bestCount }
 })
+
+// Year-over-year comparison (BROWSE-UX.md §4) only makes sense with 2+ years
+// of data to compare.
+const showYearComparison = computed(
+  () => (stats.value?.yearComparison.length ?? 0) >= 2,
+)
 
 const canShowMore = computed(() => entries.value.length < total.value)
 const selectedEntry = computed(
@@ -560,6 +646,12 @@ function handleEntryUpdated(updated: MediaEntryDetail) {
       ...updated,
     }
   }
+}
+
+// Sums a year-comparison row's per-type counts across a chip's full group
+// (e.g. TV chip = TV + ANIME), same fold-in as expandActiveTypes() below.
+function countForChipGroup(row: YearComparisonRow, group: MediaType[]): number {
+  return group.reduce((sum, type) => sum + (row.countByType[type] ?? 0), 0)
 }
 
 function toggleType(type: MediaType) {

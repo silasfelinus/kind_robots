@@ -671,9 +671,25 @@ export const useResourceStore = defineStore('resourceStore', () => {
     })
   })
 
+  // CHECKPOINT resources for the model browser, with the same account-level
+  // maturity gating as visibleLoras. This is the full DB set (distinct from
+  // checkpointStore.visibleCheckpoints, which is the art-picker's curated list).
+  const visibleCheckpoints = computed<Resource[]>(() => {
+    const userStore = useUserStore()
+    const showMature = userStore.showMature
+
+    return resources.value.filter((resource) => {
+      const type = String(resource.resourceType || '').toUpperCase()
+      if (type !== 'CHECKPOINT') return false
+      if (!showMature && (resource.isMature ?? false)) return false
+      return true
+    })
+  })
+
   return {
     resources,
     visibleLoras,
+    visibleCheckpoints,
     usingSnapshot,
     currentResource,
     isInitialized,

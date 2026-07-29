@@ -5,6 +5,7 @@ export type SuggestProvider =
 export type SuggestBuilder = string
 
 export type SuggestServerSnapshot = {
+  id?: number | null
   serverType?: string | null
   baseUrl?: string | null
   endpointPath?: string | null

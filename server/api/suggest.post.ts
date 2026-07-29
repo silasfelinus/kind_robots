@@ -1,7 +1,9 @@
 // /server/api/suggest.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
+import { userIsAdmin } from '../utils/authUser'
 import { manaGate } from '../utils/manaGate'
 import { estimateTextCostUsd } from '../utils/manaCost'
+import { resolveArtModelContext } from '../utils/suggest/artModelContext'
 import { buildSuggestUserPrompt } from '../utils/suggest/suggestPrompt'
 import { getSuggestSheet } from '../utils/suggest/suggestRegistry'
 import {
@@ -40,7 +42,7 @@ export default defineEventHandler(async (event) => {
     const builder = body?.builder ?? 'adventure'
     const server = body?.server
     const current = body?.current ?? ''
-    const context = body?.context ?? {}
+    const suppliedContext = body?.context ?? {}
 
     if (!field && !stepKey) {
       return {
@@ -59,15 +61,6 @@ export default defineEventHandler(async (event) => {
       sheet.fallbackSystemPrompt ||
       'You are a helpful creative writing assistant.'
 
-    const userPrompt = buildSuggestUserPrompt(sheet, {
-      ...body,
-      builder,
-      field,
-      stepKey,
-      current,
-      context,
-    })
-
     // Caller-requested completion budget, clamped so a bad request can't ask
     // for an unbounded generation. Mana cost is estimated from the same value.
     const maxTokens = Math.min(
@@ -84,6 +77,29 @@ export default defineEventHandler(async (event) => {
       serverId: getSuggestServerId(server),
     })
 
+    const entity =
+      builder === 'art-asset'
+        ? await resolveArtModelContext(suppliedContext.entityRef, {
+            userId: gate.user.id,
+            isAdmin: userIsAdmin(gate.user),
+          })
+        : null
+    const context = entity
+      ? {
+          ...suppliedContext,
+          entity,
+        }
+      : suppliedContext
+
+    const userPrompt = buildSuggestUserPrompt(sheet, {
+      ...body,
+      builder,
+      field,
+      stepKey,
+      current,
+      context,
+    })
+
     console.log('[suggest]', {
       builder,
       sheet: sheet.builder,
@@ -91,6 +107,8 @@ export default defineEventHandler(async (event) => {
       model,
       field,
       stepKey,
+      artModel: entity?.modelType,
+      artModelId: entity?.id,
     })
 
     const value = await callSuggestProvider(systemPrompt, userPrompt, {

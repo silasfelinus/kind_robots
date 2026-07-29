@@ -1,6 +1,10 @@
 <!-- /components/wonderlab/reactable-card.vue -->
 <template>
   <article
+    :data-art-model="normalizedTargetType || undefined"
+    :data-art-model-id="normalizedTargetId || undefined"
+    :data-art-subject="normalizedTargetTitle || undefined"
+    data-art-context
     :class="[
       'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
       compact ? 'gap-2 p-3' : 'gap-4 p-4',

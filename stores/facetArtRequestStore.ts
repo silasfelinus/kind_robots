@@ -1,6 +1,7 @@
 // /stores/facetArtRequestStore.ts
 import { reactive } from 'vue'
 import { defineStore } from 'pinia'
+import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'
 import { performFetch } from '@/stores/utils'
 import type { FacetCatalogEntry } from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
@@ -45,26 +46,57 @@ export const useFacetArtRequestStore = defineStore('facetArtRequestStore', () =>
     requesting[facet.id] = true
     errors[facet.id] = ''
     const src = facet.imagePath || defaultFacetArtworkPath(facet)
+    const pageUrl =
+      typeof window !== 'undefined' ? window.location.href : '/facets'
 
     try {
+      const suggestedPrompt = await suggestArtAssetPrompt({
+        current: facet.artPrompt || '',
+        subject: facet.title,
+        purpose:
+          'Primary square gallery artwork that makes this canonical Facet visually recognizable across Kind Robots',
+        entityRef: {
+          modelType: 'facet',
+          id: facet.id,
+          ...(facet.slug ? { slug: facet.slug } : {}),
+        },
+        asset: {
+          source: src,
+          role: 'imagePath',
+          variant: 'image',
+          size: '1024x1024',
+        },
+        page: {
+          url: pageUrl,
+          title: 'Facets',
+          description:
+            'Browse the canonical creative building blocks shared across Characters, Bots, Dreams, Scenarios, and Art.',
+          heading: facet.title,
+          localText: facetPromptContext(facet),
+        },
+      }).catch(() => '')
+
       const response = await performFetch<{ targetPath?: string }>(
         '/api/conductor/art-request',
         {
           method: 'POST',
           body: JSON.stringify({
             src,
-            pageUrl:
-              typeof window !== 'undefined' ? window.location.href : '/facets',
+            pageUrl,
             label: `${facet.title} ${facet.taxonomy.toLowerCase()} facet`,
             alt: `${facet.title} canonical Facet artwork`,
             variant: 'image',
             size: '1024x1024',
-            prompt: facet.artPrompt || undefined,
+            prompt: suggestedPrompt || facet.artPrompt || undefined,
             pageTitle: 'Facets',
             pageDescription:
               'Browse the canonical creative building blocks shared across Characters, Bots, Dreams, Scenarios, and Art.',
             nearestHeading: facet.title,
             nearbyText: facetPromptContext(facet),
+            modelType: 'facet',
+            modelId: facet.id,
+            modelSlug: facet.slug || undefined,
+            modelField: 'imagePath',
           }),
         },
       )

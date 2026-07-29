@@ -61,7 +61,7 @@ export const LTX_DEFAULT_SAMPLER = 'euler_ancestral_cfg_pp'
 export const LTX_DEFAULT_SIGMAS =
   '1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0'
 export const LTX_DEFAULT_LORA_STRENGTH = 0.5
-export const LTX_CHECKPOINT = 'ltx\\ltx-2.3-22b-dev-fp8.safetensors'
+export const LTX_CHECKPOINT = 'ltx/ltx-2.3-22b-dev-fp8.safetensors'
 export const LTX_TEXT_ENCODER = 'gemma_3_12B_it_fp4_mixed.safetensors'
 export const LTX_LORA = 'ltx-2.3-22b-distilled-lora-384.safetensors'
 

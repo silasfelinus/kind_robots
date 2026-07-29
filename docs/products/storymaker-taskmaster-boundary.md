@@ -28,12 +28,13 @@ Taskmaster may reuse narrative presentation primitives, Facet selectors, entity 
 
 ## Serendipity name
 
-The former task-story product is renamed completely to Taskmaster.
+The former task-story product is renamed completely to Taskmaster, leaving the Serendipity name and route free for the voice-led experience.
 
-- `/taskmaster` is the sole product route.
-- `/serendipity` must not remain as a redirect, alias, compatibility page, deprecated wrapper, content slug, store alias, or dashboard key.
-- Obsolete Serendipity task-story files are deleted after their Taskmaster replacements are wired.
-- Serendipity Voice is a separate product and keeps its existing name and route.
+- `/taskmaster` is the sole task-story product route.
+- `/serendipity` is the sole Serendipity product route and hosts the voice-led experience.
+- `/serendipity-voice` must not remain as a route, redirect, alias, compatibility page, content slug, component identity, or dashboard key.
+- The separate voice-relay repository and internal integration types may retain `serendipity-voice` only where they specifically name that relay subsystem.
+- Obsolete Serendipity task-story files remain deleted after their Taskmaster replacements are wired.
 
 The application is still in alpha. Temporary development paths are not compatibility contracts.
 

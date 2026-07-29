@@ -1,5 +1,5 @@
 ---
-title: Serendipity Voice
+title: Serendipity
 room: Story Door
 subtitle: Talk to Kind Robots
 description: The voice surface for the Serendipity Alexa integration. Connects to the local voice relay, shows the shared message feed, and applies spoken commands like "turn butterflies on" to the app.
@@ -8,10 +8,10 @@ tooltip: Say "Serendipity, turn butterflies on" and watch it happen here.
 dottiTip: The house is listening. Speak kindly.
 amiTip: Your voice becomes a butterfly. Try it.
 channelKey: play
-tabKey: serendipity-voice
+tabKey: serendipity
 dashboardKey: scenario
-dashboardTab: serendipity-voice
+dashboardTab: serendipity
 cards: navCards
 ---
 
-:serendipity-voice-page
+:serendipity-page

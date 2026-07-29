@@ -1,6 +1,6 @@
-<!-- /components/pages/serendipity-voice-page.vue -->
+<!-- /components/pages/serendipity-page.vue -->
 <!--
-  Serendipity Voice — the Kind Robots front end for the Alexa voice surface.
+  Serendipity — the Kind Robots front end for the Alexa voice surface.
   It connects to the local serendipity-voice relay, shows the shared message
   feed, and applies spoken commands to the app. Say "Serendipity, turn
   butterflies on" to your Echo (or use the simulate box below) and the butterfly
@@ -19,7 +19,7 @@
           <Icon name="kind-icon:butterfly" class="h-7 w-7" />
         </span>
         <div>
-          <h1 class="text-2xl font-black tracking-tight">Serendipity Voice</h1>
+          <h1 class="text-2xl font-black tracking-tight">Serendipity</h1>
           <p class="text-sm text-base-content/60">
             Talk to Kind Robots through your Amazon Echo.
           </p>

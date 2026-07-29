@@ -924,16 +924,16 @@ export const dashboardConfigs = {
         route: '/taskmaster',
       },
       {
-        key: 'serendipity-voice',
-        label: 'Serendipity Voice',
+        key: 'serendipity',
+        label: 'Serendipity',
         icon: 'kind-icon:microphone',
-        title: 'Serendipity (Voice)',
+        title: 'Serendipity',
         summary:
-          'The spoken-word version of Serendipity — listen, answer aloud, keep moving.',
+          'Talk to Serendipity, answer aloud, and keep the Kind Robots voice surface moving.',
         image: tabImage('scenario', 'serendipity-voice'),
         narrative:
-          'Serendipity with a voice: hear the story, answer out loud, and let a hands-free narrator carry the helpful little fairy tale while you keep your hands busy.',
-        route: '/serendipity-voice',
+          'Hear Serendipity, answer out loud, and let a hands-free narrator carry the helpful little fairy tale while you keep your hands busy.',
+        route: '/serendipity',
       },
     ],
   },

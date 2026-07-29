@@ -44,6 +44,8 @@ type OpenAIResponse = {
   output?: OpenAIOutputItem[]
 }
 
+const PROJECT_ASSET_VARIANTS = new Set(['icon', 'card', 'hero'])
+
 function compact(value: string, maxLength = 1200): string {
   const clean = value.replace(/\s+/g, ' ').trim()
   if (clean.length <= maxLength) return clean
@@ -85,7 +87,7 @@ function sanitizePrompt(value: string): string {
       .replace(/```$/i, '')
       .replace(/^prompt\s*:\s*/i, '')
       .trim(),
-    900,
+    1200,
   )
 }
 
@@ -116,6 +118,7 @@ function promptContext(body: ArtPromptRequestBody, target: ArtPromptTarget): str
       alt: meaningfulLabel(body),
       label: meaningfulLabel(body),
       className: cleanArtPrompt(body.imageClass),
+      draftPrompt: sanitizePrompt(cleanArtPrompt(body.prompt)),
     },
   }
 
@@ -141,6 +144,29 @@ function compositionFor(target: ArtPromptTarget): string {
     return '16:9 cinematic landscape composition with strong left-to-right visual flow'
   }
   return 'balanced website illustration with a clear focal subject and uncluttered background'
+}
+
+function promptWordCount(value: string): number {
+  return value.split(/\s+/).filter(Boolean).length
+}
+
+function shouldExpandProjectPrompt(
+  prompt: string,
+  target: ArtPromptTarget,
+): boolean {
+  if (!PROJECT_ASSET_VARIANTS.has(target.variant)) return false
+  const minimumWords = target.variant === 'icon' ? 45 : 80
+  return promptWordCount(prompt) < minimumWords
+}
+
+function promptLengthDirection(target: ArtPromptTarget): string {
+  if (target.variant === 'icon') {
+    return 'Use roughly 45 to 90 words: enough detail to control subject, silhouette, palette, materials, and lighting without overcrowding the icon.'
+  }
+  if (target.variant === 'card' || target.variant === 'hero') {
+    return 'Use roughly 90 to 160 words with concrete visual direction for subject, secondary elements, spatial arrangement, camera or framing, environment, lighting, palette, materials, texture, mood, and exclusions.'
+  }
+  return 'Use enough concrete detail to make the visible result unambiguous.'
 }
 
 function contextualFallback(
@@ -176,7 +202,7 @@ function contextualFallback(
     'no readable text, no logos, no watermark, no collage',
   ].join(' ')
 
-  return assessArtPrompt(prompt).useful ? compact(prompt, 900) : ''
+  return assessArtPrompt(prompt).useful ? compact(prompt, 1200) : ''
 }
 
 function insufficientContext(): never {
@@ -193,11 +219,15 @@ export async function buildContextualArtPrompt(
   fallbackPrompt: string,
 ): Promise<string> {
   const explicit = sanitizePrompt(cleanArtPrompt(body.prompt))
-  if (explicit) {
-    return assessArtPrompt(explicit).useful ? explicit : insufficientContext()
-  }
+  if (explicit && !assessArtPrompt(explicit).useful) insufficientContext()
 
-  const fallback = contextualFallback(body, target, fallbackPrompt)
+  const fallback = explicit || contextualFallback(body, target, fallbackPrompt)
+  const expandExplicit = Boolean(
+    explicit && shouldExpandProjectPrompt(explicit, target),
+  )
+
+  if (explicit && !expandExplicit) return explicit
+
   const token = openAiKey()
   if (!token) return fallback || insufficientContext()
 
@@ -213,15 +243,20 @@ export async function buildContextualArtPrompt(
         model: openAiModel(),
         instructions: [
           'You write production-ready image generation prompts for a multidimensional asset-creation platform.',
-          'Infer the actual visible subject from the asset path, page URL, meaningful image label, and surrounding page context.',
+          'Infer the actual visible subject from the asset path, page URL, meaningful image label, surrounding page context, and draft prompt.',
+          'When a draft prompt is supplied, preserve its intended subject, objects, relationships, and exclusions. Enrich it; do not replace it with a different concept.',
           'Never treat a database id, filename number, or phrases such as “Image 529” as a subject.',
           'Never use “Kind Robots style”, “Kind Robots visual style”, “Kind Robots visual language”, or “cohesive visual style”; those phrases give an image model no visual information and often cause unwanted robots.',
           `Use this concrete default art direction when the surrounding context does not specify another medium: ${DEFAULT_ASSET_ART_DIRECTION}.`,
           'Robots are not a default mascot. Include a robot only when the requested subject, story, or surrounding page context explicitly requires one.',
+          'For software tools, dashboards, and project assets, prefer a concrete object, environment, mechanism, or visual metaphor over a generic character portrait.',
+          'Do not invent a person, human face, headshot, mascot, or humanoid focal character unless the supplied context explicitly calls for one.',
           'Return one vivid prompt only. No markdown, no JSON, no quotes.',
-          'Always describe the visible subject, action or pose, setting, composition, mood, and concrete rendering style, ending with no readable text.',
+          'Describe the visible focal subject, supporting elements, action or state, setting, spatial arrangement, composition, camera or framing, lighting, color palette, materials or texture, mood, and concrete rendering style.',
+          promptLengthDirection(target),
           'Respect the requested variant: icon is square and simple, card is 2:3 portrait, hero is 16:9 landscape.',
           'Avoid copyrighted characters, licensed style names, logos, brands, text in the image, collages, and vague filler.',
+          'End with no readable text, no logo, no watermark, no collage.',
           'If the supplied context does not identify a real subject, return exactly INSUFFICIENT_CONTEXT.',
         ].join(' '),
         input: [
@@ -230,12 +265,12 @@ export async function buildContextualArtPrompt(
             content: [
               {
                 type: 'input_text',
-                text: `Create the best image prompt for this missing asset.\n\n${promptContext(body, target)}`,
+                text: `Create or expand the best image prompt for this asset.\n\n${promptContext(body, target)}`,
               },
             ],
           },
         ],
-        max_output_tokens: 300,
+        max_output_tokens: 500,
       }),
     })
   } catch {

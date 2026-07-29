@@ -14,4 +14,6 @@ dashboardTab: taskmaster
 cards: navCards
 ---
 
+:taskmaster-sample-tasks
+
 :taskmaster-page

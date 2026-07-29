@@ -79,9 +79,16 @@ export const useTodoStore = defineStore('todoStore', () => {
     const title = todo.title.toLowerCase()
     const description = todo.description?.toLowerCase() ?? ''
     return (
+      // Pre-rename Serendipity todos (kept for any already-created rows).
       todo.icon === 'kind-icon:sparkles' ||
       title.startsWith('story decision on ') ||
-      description.startsWith('captured by serendipity for conductor task ')
+      description.startsWith('captured by serendipity for conductor task ') ||
+      // Taskmaster (post-rename) todos — see stores/taskmasterStore.ts's
+      // answerCurrentBeat write-back, which creates AGENT todos with these
+      // exact icon/title/description shapes.
+      todo.icon === 'kind-icon:gearhammer' ||
+      title.startsWith('taskmaster decision on ') ||
+      description.startsWith('captured by taskmaster for conductor task ')
     )
   }
 

@@ -62,9 +62,6 @@ console.log('renderRequestEntry indentation')
   )
   check('no line contains a tab character', !rendered.includes('\t'))
 
-  // Every non-first, non-empty line is either a 2-space key or the 4-space
-  // folded-scalar body line for `prompt: >`. Nothing may sit at column 0
-  // except the leading `- ` marker, and no key may be indented 4+ spaces.
   let sawFoldedHeader = false
   let indentationOk = true
   let badLine = ''
@@ -75,7 +72,6 @@ console.log('renderRequestEntry indentation')
       sawFoldedHeader = true
       continue
     }
-    // The single folded body line sits at 4 spaces directly after the header.
     if (sawFoldedHeader && /^ {4}\S/.test(line)) {
       sawFoldedHeader = false
       continue
@@ -98,6 +94,23 @@ console.log('renderRequestEntry indentation')
   check(
     'prompt folds newlines into a single line',
     !/\n {4}\S.*\n {4}\S/.test(rendered),
+  )
+}
+
+// --- project art engine defaults ---------------------------------------------
+console.log('project art engine defaults')
+{
+  const icon = renderRequestEntry(sampleEntry())
+  const hero = renderRequestEntry(sampleEntry({ variant: 'hero' }))
+  const image = renderRequestEntry(sampleEntry({ variant: 'image' }))
+  const explicit = renderRequestEntry(sampleEntry({ engine: 'flux2-klein' }))
+
+  check('icon requests default to Flux', icon.includes('  engine: "flux"'))
+  check('hero requests default to Flux', hero.includes('  engine: "flux"'))
+  check('generic image requests do not force an engine', !image.includes('  engine:'))
+  check(
+    'explicit engine overrides the project default',
+    explicit.includes('  engine: "flux2-klein"'),
   )
 }
 
@@ -144,7 +157,6 @@ console.log('appendRequest into each requests: shape')
     intoBare,
   )
 
-  // idempotency: same entry twice must not duplicate (dedup by id / image_path)
   const once = appendRequest('requests: []\n', entry)
   const twice = appendRequest(once, entry)
   check('appendRequest is idempotent by id', once === twice)

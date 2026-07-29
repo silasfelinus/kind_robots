@@ -32,6 +32,7 @@ export type ArtQueueEntry = {
   size: string
   label: string
   prompt: string
+  engine?: string
   project_id?: number
   project_slug?: string
   project_field?: string
@@ -51,18 +52,24 @@ export function yamlFolded(
   return `${key}: >\n${indent}${clean}`
 }
 
+function normalizedEngine(entry: ArtQueueEntry): string | undefined {
+  const explicit = entry.engine?.trim()
+  if (explicit) return explicit
+  return entry.variant === 'image' ? undefined : 'flux'
+}
+
 export function normalizeArtQueueEntry(entry: ArtQueueEntry): ArtQueueEntry {
-  if (entry.target_repo !== KIND_ROBOTS_REPO) {
-    return {
-      ...entry,
-      prompt: replaceVagueArtDirection(entry.prompt),
-    }
+  const normalized = {
+    ...entry,
+    engine: normalizedEngine(entry),
+    prompt: replaceVagueArtDirection(entry.prompt),
   }
 
+  if (entry.target_repo !== KIND_ROBOTS_REPO) return normalized
+
   return {
-    ...entry,
+    ...normalized,
     image_path: normalizeKindRobotsImagePath(entry.image_path),
-    prompt: replaceVagueArtDirection(entry.prompt),
   }
 }
 
@@ -83,6 +90,8 @@ export function renderRequestEntry(entry: ArtQueueEntry): string {
     lines.push(`  page_url: ${yamlQuoted(normalized.page_url)}`)
   }
   lines.push(`  variant: ${yamlQuoted(normalized.variant)}`)
+  if (normalized.engine)
+    lines.push(`  engine: ${yamlQuoted(normalized.engine)}`)
   if (normalized.size) lines.push(`  size: ${yamlQuoted(normalized.size)}`)
   if (normalized.label) lines.push(`  label: ${yamlQuoted(normalized.label)}`)
   if (normalized.project_id)

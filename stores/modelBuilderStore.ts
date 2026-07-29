@@ -795,6 +795,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // --- AI drafting: reuse the existing /api/suggest text generator -----------
 
+  // Which build stage a draft field's content lives under -- pitch under
+  // PITCH; fields/artPrompt both under FIELDS_AND_PROMPTS (see
+  // model-builder-item-panel.vue's stage sections). Shared by draftText
+  // (guards against the stage having been approved while its own draft was
+  // in flight) and batchDraftField (skips already-approved items up front).
+  function stageForDraftField(field: DraftField): BuildStageKey {
+    return field === 'pitch' ? 'PITCH' : 'FIELDS_AND_PROMPTS'
+  }
+
   async function draftText(
     itemId: string,
     field: DraftField,
@@ -889,6 +898,25 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         setStatus(
           'error',
           `${item.label} was edited while drafting — draft discarded to avoid overwriting your changes.`,
+        )
+        return false
+      }
+
+      // The stage this field belongs to may also have been approved while the
+      // draft was in flight -- the Approve button for PITCH/FIELDS_AND_PROMPTS
+      // has no isDrafting gate of its own (unlike the Draft button next to
+      // it), so a user can click Draft then Approve before the response
+      // lands. Applying the draft afterward would silently rewrite an
+      // approved stage's content while its badge keeps showing 'approved' --
+      // the same review-gate-bypass class isStageEditable already guards for
+      // batchDraftField/batchSetField, just missing here for the single-item
+      // path (updatePitch/updateFields/updatePrompt assume they're always
+      // called from behind the UI's editable gate, which is true for a
+      // synchronous @change edit but not for this async draft's completion).
+      if (!isStageEditable(item, stageForDraftField(field))) {
+        setStatus(
+          'error',
+          `${item.label} was approved while drafting — draft discarded to avoid overwriting the approved content.`,
         )
         return false
       }
@@ -1460,10 +1488,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
-    // pitch lives under PITCH; fields/artPrompt both live under
-    // FIELDS_AND_PROMPTS (see model-builder-item-panel.vue's stage sections).
-    const stageKey: BuildStageKey =
-      field === 'pitch' ? 'PITCH' : 'FIELDS_AND_PROMPTS'
+    const stageKey = stageForDraftField(field)
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let drafted = 0

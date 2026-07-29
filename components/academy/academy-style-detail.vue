@@ -196,9 +196,12 @@
 // subset — check all three before changing a prop's default or meaning:
 //   - academy-timeline.vue: default props (close+remix shown), expanded list item
 //   - academy-styles-browser.vue: default props (close+remix shown), grid detail panel
-//   - academy-remix.vue: showClose=false, showRemixButton=false — read-only style
-//     summary in the Remix Studio sidebar, where remixing is already the page's
-//     primary action (a stray showRemixButton no-op button here was PR #301's bug)
+//   - academy-remix.vue: showClose=false, showRemixButton=false, allowMarkViewed=false
+//     — read-only style summary in the Remix Studio sidebar, where remixing is
+//     already the page's primary action (a stray showRemixButton no-op button
+//     here was PR #301's bug); allowMarkViewed=false stops incidental style
+//     preview clicks from inflating the Timeline/Gallery "explored" progress,
+//     which is meant to reflect deliberate lesson-reading, not style browsing
 import { computed, onMounted } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'

@@ -1,10 +1,15 @@
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useConductorStore } from '@/stores/conductorStore'
+import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'
 import { useProjectStore } from '@/stores/projectStore'
-import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
+import {
+  normalizeArtModelType,
+  type ArtModelRef,
+  type ArtModelType,
+} from '@/utils/artModelContext'
 
 type ProjectArtContext = {
   id?: number
@@ -37,14 +42,14 @@ type MissingImageReport = {
   nearestHeading?: string
   nearbyText?: string
   imageClass?: string
+  modelType?: ArtModelType
+  modelId?: number
+  modelSlug?: string
+  modelField?: string
   projectId?: number
   projectSlug?: string
   projectField?: string
   project?: ProjectArtContext
-}
-
-type SuggestResult = {
-  value: string
 }
 
 const IMAGE_EXTENSIONS = ['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg']
@@ -118,6 +123,29 @@ function shouldIgnoreSource(src: string): boolean {
   }
 }
 
+function artContextElement(img: HTMLImageElement): HTMLElement | null {
+  return img.closest<HTMLElement>(
+    '[data-art-model], [data-project-id], [data-project-slug], [data-art-context]',
+  )
+}
+
+function datasetValue(
+  img: HTMLImageElement,
+  context: HTMLElement | null,
+  key: keyof DOMStringMap,
+): string {
+  return cleanString(img.dataset[key] || context?.dataset[key])
+}
+
+function datasetId(
+  img: HTMLImageElement,
+  context: HTMLElement | null,
+  key: keyof DOMStringMap,
+): number | undefined {
+  const value = Number(datasetValue(img, context, key))
+  return Number.isInteger(value) && value > 0 ? value : undefined
+}
+
 function inferVariant(img: HTMLImageElement, src: string): string | undefined {
   const explicit = cleanString(img.dataset.variant).toLowerCase()
   if (['icon', 'card', 'hero'].includes(explicit)) return explicit
@@ -136,13 +164,16 @@ function inferVariant(img: HTMLImageElement, src: string): string | undefined {
 }
 
 function labelForImage(img: HTMLImageElement): string | undefined {
+  const context = artContextElement(img)
   const candidates = [
     img.dataset.artSubject,
+    context?.dataset.artSubject,
     img.alt,
     img.title,
     img.getAttribute('aria-label'),
     img.dataset.slug,
     img.dataset.projectSlug,
+    context?.dataset.projectSlug,
   ]
 
   for (const candidate of candidates) {
@@ -185,47 +216,57 @@ function pageDescription(): string | undefined {
 
 function shouldIgnoreImage(img: HTMLImageElement): boolean {
   if (img.dataset.missingImageReport === 'false') return true
-
-  const label = cleanString(
-    img.dataset.artSubject ||
-      img.alt ||
-      img.title ||
-      img.getAttribute('aria-label') ||
-      img.dataset.slug ||
-      img.dataset.projectSlug,
-  )
-
+  const label = labelForImage(img)
   return Boolean(label && isGenericLabel(label))
 }
 
-function projectPurpose(report: MissingImageReport): string {
+function modelRef(report: MissingImageReport): ArtModelRef | undefined {
+  if (!report.modelType) return undefined
+  if (!report.modelId && !report.modelSlug) return undefined
+
+  return {
+    modelType: report.modelType,
+    ...(report.modelId ? { id: report.modelId } : {}),
+    ...(report.modelSlug ? { slug: report.modelSlug } : {}),
+  }
+}
+
+function assetPurpose(report: MissingImageReport): string {
   const title =
-    report.project?.title || report.subject || report.label || report.projectSlug
-  const subject = title ? `the ${title} project` : 'this project'
+    report.project?.title ||
+    report.subject ||
+    report.label ||
+    report.modelSlug ||
+    report.projectSlug
+  const model = report.modelType ? `${report.modelType} ` : ''
+  const subject = title ? `${model}${title}` : 'this gallery record'
 
   if (report.variant === 'icon') {
-    return `Square application icon that communicates the core function of ${subject}`
+    return `Square icon that makes ${subject} immediately recognizable`
   }
   if (report.variant === 'card') {
-    return `Portrait project-card artwork that explains the purpose and personality of ${subject}`
+    return `Portrait gallery-card artwork that communicates the identity and purpose of ${subject}`
   }
   if (report.variant === 'hero') {
-    return `Landscape hero artwork that visually introduces the purpose and working world of ${subject}`
+    return `Landscape hero artwork that introduces the identity, world, and purpose of ${subject}`
   }
 
-  return `Frontend illustration that communicates the purpose of ${subject}`
+  return `Primary gallery artwork that makes the identity and purpose of ${subject} visually clear`
 }
 
 export default defineNuxtPlugin(() => {
   const route = useRoute()
   const conductorStore = useConductorStore()
   const projectStore = useProjectStore()
-  const serverStore = useServerStore()
   const userStore = useUserStore()
   const queued = new Map<string, MissingImageReport>()
   const submitted = new Set<string>()
 
   function projectContext(report: MissingImageReport): ProjectArtContext | undefined {
+    if (report.modelType !== 'project' && !report.projectId && !report.projectSlug) {
+      return undefined
+    }
+
     const record =
       (report.projectId
         ? projectStore.projects.find((project) => project.id === report.projectId)
@@ -281,7 +322,11 @@ export default defineNuxtPlugin(() => {
   function enrichReport(report: MissingImageReport): MissingImageReport {
     const project = projectContext(report)
     const subject =
-      report.subject || project?.title || report.label || report.projectSlug
+      report.subject ||
+      project?.title ||
+      report.label ||
+      report.modelSlug ||
+      report.projectSlug
     const enriched = {
       ...report,
       ...(subject ? { subject } : {}),
@@ -290,62 +335,8 @@ export default defineNuxtPlugin(() => {
 
     return {
       ...enriched,
-      purpose: report.purpose || projectPurpose(enriched),
+      purpose: report.purpose || assetPurpose(enriched),
     }
-  }
-
-  async function suggestArtPrompt(report: MissingImageReport): Promise<string> {
-    const activeServer = serverStore.activeTextServer
-    const server = activeServer
-      ? {
-          serverType: activeServer.serverType ?? null,
-          baseUrl: activeServer.baseUrl ?? null,
-          endpointPath: activeServer.endpointPath ?? null,
-          model: activeServer.model ?? null,
-        }
-      : undefined
-
-    const result = await performFetch<SuggestResult>(
-      '/api/suggest',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          builder: 'art-asset',
-          field: 'prompt',
-          stepKey: 'missing-art',
-          current: '',
-          server,
-          maxTokens: 500,
-          context: {
-            subject: report.subject || report.label,
-            purpose: report.purpose,
-            asset: {
-              source: report.src,
-              role: report.projectField || report.variant || 'frontend image',
-              variant: report.variant,
-              size: report.size,
-              className: report.imageClass,
-              description: report.artDescription,
-              preferredStyle: report.artStyle,
-              exclusions: report.artExclusions,
-            },
-            project: report.project,
-            page: {
-              url: report.pageUrl,
-              title: report.pageTitle,
-              description: report.pageDescription,
-              heading: report.nearestHeading,
-              localText: report.nearbyText,
-            },
-          },
-        }),
-      },
-      1,
-      30000,
-    )
-
-    return result.success ? cleanString(result.data?.value) : ''
   }
 
   async function submit(report: MissingImageReport) {
@@ -353,7 +344,34 @@ export default defineNuxtPlugin(() => {
     submitted.add(report.src)
 
     const enriched = enrichReport(report)
-    const prompt = await suggestArtPrompt(enriched).catch(() => '')
+    const prompt = await suggestArtAssetPrompt({
+      subject: enriched.subject || enriched.label,
+      purpose: enriched.purpose,
+      entityRef: modelRef(enriched),
+      asset: {
+        source: enriched.src,
+        role:
+          enriched.modelField ||
+          enriched.projectField ||
+          enriched.variant ||
+          'gallery image',
+        variant: enriched.variant,
+        size: enriched.size,
+        className: enriched.imageClass,
+        description: enriched.artDescription,
+        preferredStyle: enriched.artStyle,
+        exclusions: enriched.artExclusions,
+      },
+      project: enriched.project,
+      page: {
+        url: enriched.pageUrl,
+        title: enriched.pageTitle,
+        description: enriched.pageDescription,
+        heading: enriched.nearestHeading,
+        localText: enriched.nearbyText,
+      },
+    }).catch(() => '')
+
     const result = await performFetch(
       '/api/conductor/art-request',
       {
@@ -386,18 +404,36 @@ export default defineNuxtPlugin(() => {
     if (shouldIgnoreSource(src)) return
     if (submitted.has(src) || queued.has(src)) return
 
+    const context = artContextElement(img)
     const variant = inferVariant(img, src)
     const label = labelForImage(img)
+    const projectId = datasetId(img, context, 'projectId')
+    const projectSlug = datasetValue(img, context, 'projectSlug') || undefined
+    const explicitModel = normalizeArtModelType(
+      datasetValue(img, context, 'artModel'),
+    )
+    const modelType =
+      explicitModel || (projectId || projectSlug ? 'project' : undefined)
+    const modelId =
+      datasetId(img, context, 'artModelId') ||
+      (modelType === 'project' ? projectId : undefined)
+    const modelSlug =
+      datasetValue(img, context, 'artModelSlug') ||
+      (modelType === 'project' ? projectSlug : undefined)
+
     const report: MissingImageReport = {
       src,
       pageUrl: window.location.href || route.fullPath,
       alt: label,
       label,
-      subject: cleanString(img.dataset.artSubject) || label,
-      purpose: cleanString(img.dataset.artPurpose) || undefined,
-      artDescription: cleanString(img.dataset.artDescription) || undefined,
-      artStyle: cleanString(img.dataset.artStyle) || undefined,
-      artExclusions: cleanString(img.dataset.artExclusions) || undefined,
+      subject:
+        datasetValue(img, context, 'artSubject') || label,
+      purpose: datasetValue(img, context, 'artPurpose') || undefined,
+      artDescription:
+        datasetValue(img, context, 'artDescription') || undefined,
+      artStyle: datasetValue(img, context, 'artStyle') || undefined,
+      artExclusions:
+        datasetValue(img, context, 'artExclusions') || undefined,
       variant,
       size: variant ? VARIANT_SIZES[variant] : undefined,
       pageTitle: cleanString(document.title) || undefined,
@@ -405,13 +441,15 @@ export default defineNuxtPlugin(() => {
       nearestHeading: nearestHeading(img),
       nearbyText: nearbyText(img),
       imageClass: cleanString(img.getAttribute('class')) || undefined,
-      projectId:
-        Number.isInteger(Number(img.dataset.projectId)) &&
-        Number(img.dataset.projectId) > 0
-          ? Number(img.dataset.projectId)
-          : undefined,
-      projectSlug: cleanString(img.dataset.projectSlug) || undefined,
-      projectField: cleanString(img.dataset.projectField) || undefined,
+      modelType,
+      modelId,
+      modelSlug: modelSlug || undefined,
+      modelField:
+        datasetValue(img, context, 'artModelField') || undefined,
+      projectId,
+      projectSlug,
+      projectField:
+        datasetValue(img, context, 'projectField') || undefined,
     }
 
     if (!userStore.isAdmin) {

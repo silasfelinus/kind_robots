@@ -7,6 +7,7 @@ import rewardSuggest from './rewardSuggest'
 import dreamSuggest from './dreamSuggest'
 import modelBuilderSuggest from './modelBuilderSuggest'
 import packmakerSuggest from './packmakerSuggest'
+import artAssetSuggest from './artAssetSuggest'
 import type { SuggestSheet } from '../suggestTypes'
 
 export const suggestSheets = [
@@ -18,4 +19,5 @@ export const suggestSheets = [
   dreamSuggest,
   modelBuilderSuggest,
   packmakerSuggest,
+  artAssetSuggest,
 ] satisfies SuggestSheet[]

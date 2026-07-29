@@ -105,8 +105,8 @@ console.log('project art engine defaults')
   const image = renderRequestEntry(sampleEntry({ variant: 'image' }))
   const explicit = renderRequestEntry(sampleEntry({ engine: 'flux2-klein' }))
 
-  check('icon requests default to Flux', icon.includes('  engine: "flux"'))
-  check('hero requests default to Flux', hero.includes('  engine: "flux"'))
+  check('icon requests default to Krea 2', icon.includes('  engine: "krea2"'))
+  check('hero requests default to Krea 2', hero.includes('  engine: "krea2"'))
   check('generic image requests do not force an engine', !image.includes('  engine:'))
   check(
     'explicit engine overrides the project default',
@@ -163,6 +163,21 @@ console.log('appendRequest into each requests: shape')
   check(
     'appendRequest is idempotent by active image_path',
     appendRequest(once, sampleEntry({ id: 'different-id-99999999' })) === once,
+  )
+
+  const forced = appendRequest(
+    once,
+    sampleEntry({ id: 'forced-retry-id-99999999' }),
+    { allowDuplicate: true },
+  )
+  check('forced retry bypasses active image_path dedupe', forced !== once)
+  check(
+    'forced retry receives a separate request block',
+    forced.includes('forced-retry-id-99999999'),
+  )
+  check(
+    'forced retry keeps both active blocks',
+    (forced.match(/^- id:/gm) ?? []).length === 2,
   )
 
   const completed = once.replace('status: "pending"', 'status: "done"')

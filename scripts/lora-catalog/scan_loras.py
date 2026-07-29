@@ -74,7 +74,11 @@ from typing import Any, Optional
 # Config / constants
 # ----------------------------------------------------------------------------
 
-LORA_EXTENSIONS = {".safetensors", ".pt", ".ckpt", ".pth", ".bin"}
+# .gguf (quantized unets/checkpoints, loaded via UnetLoaderGGUF in ComfyUI) has
+# no safetensors header — build_entry()/scan_models.build_entry() already gate
+# header reads on `.suffix == ".safetensors"`, so it's handled the same way
+# .bin/.ckpt/.pth already are: hashed and classified, metadata just skipped.
+LORA_EXTENSIONS = {".safetensors", ".pt", ".ckpt", ".pth", ".bin", ".gguf"}
 CIVITAI_BY_HASH = "https://civitai.com/api/v1/model-versions/by-hash/{hash}"
 CIVARCHIVE_BY_HASH = "https://civitaiarchive.com/api/sha256/{hash}"
 HASH_CHUNK = 1 << 20  # 1 MiB

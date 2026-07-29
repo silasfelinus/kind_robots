@@ -1052,6 +1052,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     output: BuildOutputConfig | undefined,
     prompt: string,
     dims: { width: number; height: number },
+    runId: string,
   ): Promise<void> {
     const artStore = useArtStore()
 
@@ -1078,6 +1079,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.queueState = null
 
       const result = await artStore.finalizeQueuedArtImage(job, generateData)
+
+      // finalizeQueuedArtImage is itself a network round-trip long enough for
+      // the user to cancel this exact run while it's in flight. By this point
+      // item.artJobId has already been cleared above (as part of normal
+      // terminal-status handling, not by cancellation), so the artJobId check
+      // above can no longer distinguish "cancelled" from "completing
+      // normally" -- cancelRun's own clearing of item.artJobId is a no-op
+      // here. Only cancelledRunIds still tells them apart. Mirrors
+      // generateItemAsset's cancelledRunIds guard: don't persist a candidate,
+      // PATCH/POST onto a cancelled run's item, or pop a misleading
+      // success/error toast for a run the user no longer has open.
+      if (cancelledRunIds.has(runId)) return
 
       if (!result.success || !result.data) {
         item.error = result.message || `Art job ${jobId} did not complete.`
@@ -1108,6 +1121,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function generateItemAssetAsync(itemId: string): Promise<boolean> {
     const item = findItem(itemId)
     if (!item || !state.run) return false
+    const runId = state.run.id
 
     if (item.generation !== 'image') {
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
@@ -1156,6 +1170,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         output,
         prompt,
         dims,
+        runId,
       )
       return true
     } catch (error) {

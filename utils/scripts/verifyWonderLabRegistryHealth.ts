@@ -143,7 +143,7 @@ assert.match(healthSource, /entriesBySourceKey/)
 assert.match(healthSource, /entriesBySourcePath/)
 assert.match(healthSource, /canonicalEntry \|\|/)
 
-const contentSource = await readFile('content/wonderlab.md', 'utf8')
+const contentSource = await readFile('content/plan/wonderlab.md', 'utf8')
 assert.match(contentSource, /:component-registry-health/)
 assert.match(contentSource, /:lab-manager/)
 assert.ok(

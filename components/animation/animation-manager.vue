@@ -24,7 +24,7 @@
 
       <div class="flex flex-wrap items-center gap-2">
         <NuxtLink
-          to="/screenfx"
+          to="/play/screenfx"
           class="btn btn-outline btn-sm rounded-xl"
           title="Toggle effects live on-screen"
         >

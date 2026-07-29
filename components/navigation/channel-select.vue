@@ -141,8 +141,17 @@
                 <span
                   class="flex min-w-0 flex-1 flex-col items-start leading-tight"
                 >
-                  <span class="max-w-full truncate text-sm font-black">
-                    {{ tab.label }}
+                  <span class="flex max-w-full items-center gap-1">
+                    <span class="truncate text-sm font-black">
+                      {{ tab.label }}
+                    </span>
+                    <span
+                      v-if="isAdminOnlyTab(channel, tab)"
+                      class="badge badge-warning badge-xs shrink-0 font-bold uppercase"
+                      title="Admin-only page"
+                    >
+                      Admin
+                    </span>
                   </span>
                   <span
                     v-if="tab.summary || tab.description"
@@ -197,8 +206,17 @@
             <span
               class="flex min-w-0 flex-1 flex-col items-start leading-tight"
             >
-              <span class="max-w-full truncate text-sm font-black">
-                {{ tab.label }}
+              <span class="flex max-w-full items-center gap-1">
+                <span class="truncate text-sm font-black">
+                  {{ tab.label }}
+                </span>
+                <span
+                  v-if="isAdminOnlyTab(expandedChannel, tab)"
+                  class="badge badge-warning badge-xs shrink-0 font-bold uppercase"
+                  title="Admin-only page"
+                >
+                  Admin
+                </span>
               </span>
               <span
                 v-if="tab.summary || tab.description"
@@ -278,7 +296,9 @@ const fallbackChannel: ResolvedChannel = {
 }
 
 const activeChannel = computed<ResolvedChannel>(() => {
-  return pageStore.resolvedChannel ?? visibleChannels.value[0] ?? fallbackChannel
+  return (
+    pageStore.resolvedChannel ?? visibleChannels.value[0] ?? fallbackChannel
+  )
 })
 
 const activeTab = computed<ResolvedTab | null>(() => {
@@ -321,6 +341,12 @@ function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
     activeChannel.value.channelKey === channel.channelKey &&
     activeTab.value?.tabKey === tab.tabKey
   )
+}
+
+// Flag admin-gated tabs that live OUTSIDE the dedicated admin channel, so the
+// user can tell at a glance which public-channel links are actually restricted.
+function isAdminOnlyTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
+  return tab.requiredRole === 'ADMIN' && channel.channelKey !== 'admin'
 }
 
 function closeChannelTabs(): void {

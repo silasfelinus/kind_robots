@@ -23,9 +23,9 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/coloring',
   },
   'challenge-center': {
-    channelKey: 'lab',
+    channelKey: 'play',
     tabKey: 'challenges',
-    route: '/challenges',
+    route: '/play/challenges',
   },
   wishmaster: {
     channelKey: 'plan',
@@ -58,9 +58,9 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/storymaker',
   },
   sketchy: {
-    channelKey: 'lab',
-    tabKey: 'sketchy',
-    route: '/sketchy',
+    channelKey: 'plan',
+    tabKey: 'projects',
+    route: '/plan/projects/sketchy',
   },
   packmaker: {
     channelKey: 'build',
@@ -68,34 +68,34 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/packs',
   },
   davinci: {
-    channelKey: 'lab',
+    channelKey: 'play',
     tabKey: 'davinci',
-    route: '/davinci',
+    route: '/play/davinci',
   },
   'media-watchlist': {
-    channelKey: 'lab',
+    channelKey: 'plan',
     tabKey: 'watchlist',
-    route: '/watchlist',
+    route: '/plan/watchlist',
   },
   'coat-dance': {
-    channelKey: 'lab',
-    tabKey: 'coat-dance',
-    route: '/coat-dance',
+    channelKey: 'plan',
+    tabKey: 'projects',
+    route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'lab',
-    tabKey: 'ruler-hooked',
-    route: '/ruler-hooked',
+    channelKey: 'plan',
+    tabKey: 'projects',
+    route: '/plan/projects/ruler-hooked',
   },
   newsfeed: {
-    channelKey: 'lab',
+    channelKey: 'plan',
     tabKey: 'newsfeed',
-    route: '/newsfeed',
+    route: '/plan/newsfeed',
   },
   'humboldt-scoop': {
-    channelKey: 'lab',
-    tabKey: 'humboldt-scoop',
-    route: '/humboldt-scoop',
+    channelKey: 'plan',
+    tabKey: 'projects',
+    route: '/plan/projects/humboldt-scoop',
   },
   'humboldt-scoop-cms': {
     channelKey: 'admin',
@@ -108,9 +108,9 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/conductor-app',
   },
   'alexa-integration': {
-    channelKey: 'lab',
+    channelKey: 'plan',
     tabKey: 'voice-lab',
-    route: '/voice-lab',
+    route: '/plan/voice-lab',
   },
   'superkate-services-calculator': {
     channelKey: 'plan',
@@ -118,9 +118,9 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/stylist',
   },
   'superkate-hairstyle-ai': {
-    channelKey: 'lab',
+    channelKey: 'build',
     tabKey: 'hair-studio',
-    route: '/hair-studio',
+    route: '/build/hair-studio',
   },
   'digital-storefront': {
     channelKey: 'sanctuary',
@@ -138,9 +138,9 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/brainstorm',
   },
   'mural-design': {
-    channelKey: 'lab',
+    channelKey: 'build',
     tabKey: 'mural',
-    route: '/mural',
+    route: '/build/mural',
   },
   conductor: {
     channelKey: 'plan',

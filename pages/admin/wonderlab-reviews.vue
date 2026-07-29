@@ -14,7 +14,7 @@
           </p>
         </div>
         <div class="flex gap-2">
-          <NuxtLink to="/wonderlab" class="btn btn-outline btn-sm">WonderLab</NuxtLink>
+          <NuxtLink to="/plan/wonderlab" class="btn btn-outline btn-sm">WonderLab</NuxtLink>
           <button class="btn btn-primary btn-sm" :disabled="loading" @click="loadDrafts">
             <span v-if="loading" class="loading loading-spinner loading-xs" />
             Refresh

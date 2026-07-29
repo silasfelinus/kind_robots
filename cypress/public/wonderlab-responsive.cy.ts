@@ -31,7 +31,7 @@ function expectNoHorizontalOverflow(): void {
   })
 }
 
-function visitWonderLab(path = '/wonderlab'): void {
+function visitWonderLab(path = '/plan/wonderlab'): void {
   cy.intercept('GET', '**/api/components*').as('components')
   cy.visit(path)
   cy.wait('@components', { timeout: 30_000 })
@@ -99,13 +99,13 @@ describe('Public WonderLab responsive acceptance', () => {
     it(`loads related Lab routes on ${viewport.name}`, () => {
       cy.viewport(viewport.width, viewport.height)
 
-      cy.visit('/memory')
+      cy.visit('/play/memory')
       cy.contains(/enter the dungeon/i, { timeout: 30_000 })
         .scrollIntoView()
         .should('be.visible')
       expectNoHorizontalOverflow()
 
-      cy.visit('/screenfx')
+      cy.visit('/play/screenfx')
       cy.contains('Screen FX', { timeout: 30_000 })
         .scrollIntoView()
         .should('be.visible')

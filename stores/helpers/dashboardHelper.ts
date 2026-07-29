@@ -157,7 +157,7 @@ export const dashboardConfigs = {
         tagline: 'Throw prompts at the image generators.',
         narrative:
           'Test image generators directly with quick prompts, fast iteration, and a healthy distrust of default settings.',
-        route: '/wonderlab',
+        route: '/plan/wonderlab',
       },
       {
         key: 'coat-dance',
@@ -169,7 +169,7 @@ export const dashboardConfigs = {
         image: tabImage('art', 'coat-dance'),
         narrative:
           'Coat Dance is the creative video-remix corner: take motion and costume and remix them into short, delightful loops that move exactly as ridiculously as intended.',
-        route: '/coat-dance',
+        route: '/plan/projects/coat-dance',
       },
       {
         key: 'artjob',
@@ -264,7 +264,7 @@ export const dashboardConfigs = {
         image: tabImage('academy', 'sketchy'),
         narrative:
           'Sketchy hands you a drawing assignment, a timer, and a kind critique. Show up daily, fill the page, and watch a real drawing habit sneak up on you.',
-        route: '/sketchy',
+        route: '/plan/projects/sketchy',
       },
     ],
   },
@@ -663,7 +663,7 @@ export const dashboardConfigs = {
           'A memory crawl with glowing keys and suspiciously clever cards.',
         narrative:
           'Enter the Memory Dungeon: a gamified crawl through matching cards, remembered patterns, hidden rooms, and little nostalgic monsters. Explore, survive, and see what the dungeon remembers back.',
-        route: '/memory',
+        route: '/play/memory',
       },
 
       {
@@ -1115,7 +1115,7 @@ export const dashboardConfigs = {
         tagline: 'A card-matching crawl with teeth.',
         narrative:
           'Explore the gamified memory adventure. Match the cards, survive the dungeon, and see how deep the little cardboard menace goes.',
-        route: '/wonderlab',
+        route: '/plan/wonderlab',
       },
       {
         key: 'wonder-lab',
@@ -1128,7 +1128,7 @@ export const dashboardConfigs = {
         tagline: 'Experimental toys and delightful nonsense.',
         narrative:
           'The open sandbox: experimental components, half-finished toys, and things that exist purely because they were fun to make.',
-        route: '/wonderlab',
+        route: '/plan/wonderlab',
       },
       {
         key: 'screen-fx',
@@ -1141,7 +1141,7 @@ export const dashboardConfigs = {
         tagline: 'Overlays, butterflies, and visual chaos.',
         narrative:
           'Control the screen-effect layer, including matrix rain, firefly drift, butterflies, and ambient theater.',
-        route: '/screenfx',
+        route: '/play/screenfx',
       },
       {
         key: 'animation-manager',
@@ -1154,7 +1154,7 @@ export const dashboardConfigs = {
         tagline: 'Preview, compare, promote, polish, or retire a build.',
         narrative:
           'Every Screen FX catalog effect in one gallery: build history, working/broken state, version lineage, and Reaction ratings, with actions to preview it live, compare builds side by side, and promote, polish, or retire an attempt.',
-        route: '/animation-manager',
+        route: '/build/animation-manager',
       },
       {
         key: 'mural',
@@ -1168,7 +1168,7 @@ export const dashboardConfigs = {
         tagline: 'Paint inside the lines, then bend the lines politely.',
         narrative:
           'Color a simplified mural page, assign one paint ID across multiple sections, override individual shapes, and save the palette before the paint goblin eats the swatches.',
-        route: '/mural',
+        route: '/build/mural',
       },
       {
         key: 'davinci',
@@ -1182,7 +1182,7 @@ export const dashboardConfigs = {
         tagline: 'Live a life. Leave a legacy.',
         narrative:
           'Step into a generative life simulation of ambition, craft, and rivalry — hundreds of achievements, branching choices, and a legacy that remembers what you built.',
-        route: '/davinci',
+        route: '/play/davinci',
       },
       {
         key: 'watchlist',
@@ -1196,7 +1196,7 @@ export const dashboardConfigs = {
         tagline: 'Everything you meant to watch, in one honest list.',
         narrative:
           'Track films and shows across a clean, structured watchlist — queue, in-progress, and finished — so the "what should we watch" argument finally has a source of truth.',
-        route: '/watchlist',
+        route: '/plan/watchlist',
       },
       {
         key: 'ruler-hooked',
@@ -1210,7 +1210,7 @@ export const dashboardConfigs = {
         tagline: 'Rule the shore. Answer to the tide.',
         narrative:
           'Cast lines, manage a seaside kingdom, and ride the slideshow of tides and decisions where every catch reshapes the realm you rule.',
-        route: '/ruler-hooked',
+        route: '/plan/projects/ruler-hooked',
       },
       {
         key: 'newsfeed',
@@ -1224,7 +1224,7 @@ export const dashboardConfigs = {
         tagline: 'The front page the swarm writes itself.',
         narrative:
           'A programmable feed of fresh art, stories, pitches, and project milestones — the living homepage that shows what Kind Robots is dreaming up right now.',
-        route: '/newsfeed',
+        route: '/plan/newsfeed',
       },
       {
         key: 'humboldt-scoop',
@@ -1238,7 +1238,7 @@ export const dashboardConfigs = {
         tagline: 'Small business, big heart, tidy yards.',
         narrative:
           'Meet the Humboldt Scoop — the real-world pet-waste service with a warm story — and jump straight to booking on its own site.',
-        route: '/humboldt-scoop',
+        route: '/plan/projects/humboldt-scoop',
       },
       {
         key: 'voice-lab',
@@ -1251,7 +1251,7 @@ export const dashboardConfigs = {
         tagline: 'Kind Robots, out loud.',
         narrative:
           'The voice frontier: an Alexa skill and local relay that let Serendipity and friends speak and listen. Watch the relay status and learn how to plug in.',
-        route: '/voice-lab',
+        route: '/plan/voice-lab',
       },
       {
         key: 'challenges',
@@ -1265,7 +1265,7 @@ export const dashboardConfigs = {
         tagline: 'Two enter. The swarm decides.',
         narrative:
           'Pit generated contenders against each other in themed challenges, cast votes on head-to-head matchups, and watch the leaderboard crown the community favorite.',
-        route: '/challenges',
+        route: '/play/challenges',
       },
     ],
   },

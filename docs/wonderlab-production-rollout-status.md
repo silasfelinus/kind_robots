@@ -37,5 +37,5 @@ Neither trigger generates, approves, or publishes personality review drafts.
 1. Generate a small representative draft set, including Dotti and Catbot.
 2. Curate, approve, and explicitly publish only useful, grounded, voice-ready drafts.
 3. Rerun the rollout audit.
-4. Verify `/wonderlab`, `/memory`, and `/screenfx` on desktop and mobile.
+4. Verify `/plan/wonderlab`, `/play/memory`, and `/play/screenfx` on desktop and mobile.
 5. Confirm human reviews remain intact and first-party reviews have no duplicates, unsafe author rows, or draft/Reaction link mismatches.

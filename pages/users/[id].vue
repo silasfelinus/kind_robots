@@ -3,7 +3,7 @@
   <section class="h-full min-h-0 overflow-y-auto p-4 sm:p-6">
     <div class="mx-auto max-w-2xl">
       <NuxtLink
-        to="/wonderlab"
+        to="/plan/wonderlab"
         class="btn btn-ghost btn-sm mb-4 rounded-xl"
       >
         <Icon name="kind-icon:arrow-left" class="size-4" />

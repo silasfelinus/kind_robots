@@ -9,9 +9,9 @@ on:
       - 'cypress/public/wonderlab-responsive.cy.ts'
       - 'utils/scripts/verifyWonderLabPublicNavigation.ts'
       - 'stores/helpers/navigationRouteAccess.ts'
-      - 'content/channels/lab/museum.md'
-      - 'content/channels/lab/experiments.md'
-      - 'content/channels/lab/screen-fx.md'
+      - 'content/channels/plan/museum.md'
+      - 'content/channels/play/experiments.md'
+      - 'content/channels/play/screen-fx.md'
   pull_request:
     branches: [main]
     paths:
@@ -20,9 +20,9 @@ on:
       - 'cypress/public/wonderlab-responsive.cy.ts'
       - 'utils/scripts/verifyWonderLabPublicNavigation.ts'
       - 'stores/helpers/navigationRouteAccess.ts'
-      - 'content/channels/lab/museum.md'
-      - 'content/channels/lab/experiments.md'
-      - 'content/channels/lab/screen-fx.md'
+      - 'content/channels/plan/museum.md'
+      - 'content/channels/play/experiments.md'
+      - 'content/channels/play/screen-fx.md'
   workflow_dispatch:
     inputs:
       base_url:
@@ -79,9 +79,9 @@ jobs:
           assert.match(config, /supportFile:\s*false/)
 
           for (const required of [
-            '/wonderlab',
-            '/memory',
-            '/screenfx',
+            '/plan/wonderlab',
+            '/play/memory',
+            '/play/screenfx',
             '1440',
             '390',
             'expectNoHorizontalOverflow',

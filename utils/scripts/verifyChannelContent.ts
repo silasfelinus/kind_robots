@@ -21,7 +21,6 @@ const expectedChannels = [
   'plan',
   'build',
   'play',
-  'lab',
   'sanctuary',
   'admin',
 ]

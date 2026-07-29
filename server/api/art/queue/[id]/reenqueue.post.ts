@@ -19,6 +19,7 @@ import {
   type ArtJobOverrides,
   type ArtJobRetryMode,
 } from '../../../../utils/artJobRetry'
+import { refreshArtJobLoraResources } from '../../../../utils/artJobResourceRefresh'
 import { applyArtJobVisibility } from '../../../../utils/artJobVisibility'
 import {
   applyArtFacetsToPayload,
@@ -150,7 +151,9 @@ export default defineEventHandler(async (event) => {
     }
     delete renderOverrides.facetIds
     delete renderOverrides.basePromptString
-    const payload = applyArtJobOverrides(prepared, renderOverrides)
+    const overriddenPayload = applyArtJobOverrides(prepared, renderOverrides)
+    const resourceRefresh = await refreshArtJobLoraResources(overriddenPayload)
+    const payload = resourceRefresh.payload
     applyArtJobVisibility(payload, body?.overrides)
     applyArtFacetsToPayload(payload, basePrompt, facets)
     const jobEngine = presetEngine ? 'COMFY' : source.engine
@@ -178,6 +181,11 @@ export default defineEventHandler(async (event) => {
         sourceJobId: id,
         mode,
         targetArtImageId: mode === 'OVERWRITE' ? source.artImageId : null,
+        resourceRefresh: {
+          changed: resourceRefresh.changed,
+          loraResourceIds: resourceRefresh.loraResourceIds,
+          loraNames: resourceRefresh.loraNames,
+        },
       },
       statusCode: 201,
     }

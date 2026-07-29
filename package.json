@@ -81,7 +81,7 @@
     "test:ownership-nullability": "tsx utils/scripts/verifyOwnershipNullability.test.ts",
     "test:capture-group-guards": "tsx utils/scripts/verifyCaptureGroupGuards.ts",
     "test:capture-group-guards-selftest": "tsx utils/scripts/verifyCaptureGroupGuards.test.ts",
-    "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts",
+    "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts && tsx utils/scripts/verifyConductorProjectRegistry.ts",
     "test:conductor-api-auth-guards-selftest": "tsx utils/scripts/verifyConductorApiAuthGuards.test.ts",
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",
     "test:pitch-detector-accuracy": "tsx utils/scripts/verifyPitchDetectorAccuracy.test.ts",

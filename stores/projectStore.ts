@@ -58,16 +58,37 @@ export type ApplyPlacementsResult = {
   failed: ProjectPlacementFailure[]
 }
 
+const PROJECT_LIST_FRESH_MS = 60_000
+
 function queryString(options: ProjectListOptions): string {
   const query = new URLSearchParams()
-
   for (const [key, value] of Object.entries(options)) {
     if (value === undefined || value === null || value === '') continue
     query.set(key, String(value))
   }
-
   const value = query.toString()
   return value ? `?${value}` : ''
+}
+
+function queryKey(options: ProjectListOptions): string {
+  return queryString(options) || '?canonical-public'
+}
+
+function isCanonicalList(options: ProjectListOptions): boolean {
+  return !(
+    options.mine ||
+    options.status ||
+    options.priority ||
+    options.channelKey ||
+    options.search ||
+    options.take !== undefined ||
+    options.skip !== undefined
+  )
+}
+
+function coverageScore(options: ProjectListOptions): number {
+  return Number(options.includeInactive === true) * 2 +
+    Number(options.includeMature === true)
 }
 
 function mergeProjectDetail(
@@ -78,19 +99,11 @@ function mergeProjectDetail(
     ...existing,
     ...incoming,
   }
-
-  if (incoming.managerBotId !== existing.managerBotId) {
-    merged.Manager = null
-  }
-
-  if (incoming.artImageId !== existing.artImageId) {
-    merged.ArtImage = null
-  }
-
+  if (incoming.managerBotId !== existing.managerBotId) merged.Manager = null
+  if (incoming.artImageId !== existing.artImageId) merged.ArtImage = null
   if (incoming.artCollectionId !== existing.artCollectionId) {
     merged.ArtCollection = null
   }
-
   return merged
 }
 
@@ -100,7 +113,11 @@ export const useProjectStore = defineStore('projectStore', () => {
   const loading = ref(false)
   const saving = ref(false)
   const loaded = ref(false)
+  const loadedAt = ref(0)
   const error = ref<string | null>(null)
+  const canonicalCoverage = ref(-1)
+  const canonicalKey = ref('')
+  const inFlightLists = new Map<string, Promise<ProjectWithRelations[]>>()
 
   const activeProjects = computed(() =>
     projects.value.filter(
@@ -114,12 +131,10 @@ export const useProjectStore = defineStore('projectStore', () => {
   )
   const projectsBySlug = computed(() => {
     const index = new Map<string, ProjectWithRelations>()
-
     for (const project of projects.value) {
       if (project.slug) index.set(project.slug, project)
       if (project.conductorSlug) index.set(project.conductorSlug, project)
     }
-
     return index
   })
 
@@ -137,42 +152,74 @@ export const useProjectStore = defineStore('projectStore', () => {
           ? selectedProject.value
           : null
     const next = previous ? mergeProjectDetail(previous, project) : project
-
     if (index >= 0) projects.value[index] = next
     else projects.value.unshift(next)
-
-    if (selectedProject.value?.id === project.id) {
-      selectedProject.value = next
-    }
-
+    if (selectedProject.value?.id === project.id) selectedProject.value = next
     return next
   }
 
   async function fetchProjects(
     options: ProjectListOptions = {},
+    force = false,
   ): Promise<ProjectWithRelations[]> {
+    const key = queryKey(options)
+    const canonical = isCanonicalList(options)
+    const coverage = coverageScore(options)
+    const fresh = Date.now() - loadedAt.value < PROJECT_LIST_FRESH_MS
+
+    if (
+      canonical &&
+      !force &&
+      loaded.value &&
+      fresh &&
+      canonicalKey.value === key
+    ) {
+      return projects.value
+    }
+
+    const existingRequest = inFlightLists.get(key)
+    if (existingRequest) return existingRequest
+
     loading.value = true
     error.value = null
+    const request = (async () => {
+      try {
+        const baseQuery = queryString(options)
+        const separator = baseQuery ? '&' : '?'
+        const refreshQuery = force ? `${separator}refresh=${Date.now()}` : ''
+        const response = await performFetch<ProjectWithRelations[]>(
+          `/api/projects${baseQuery}${refreshQuery}`,
+          force ? { cache: 'no-store' } : {},
+        )
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch Projects.')
+        }
 
-    try {
-      const response = await performFetch<ProjectWithRelations[]>(
-        `/api/projects${queryString(options)}`,
-      )
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch Projects.')
+        const result = response.data ?? []
+        if (canonical) {
+          // A narrower admin fetch must never overwrite a broader canonical set.
+          // This is the race that previously turned 41 mixed-status Projects into
+          // a smaller or stale all-active-looking gallery.
+          if (coverage >= canonicalCoverage.value || !loaded.value) {
+            projects.value = result
+            canonicalCoverage.value = coverage
+            canonicalKey.value = key
+            loadedAt.value = Date.now()
+            loaded.value = true
+          }
+        }
+        return result
+      } catch (cause) {
+        error.value = cause instanceof Error ? cause.message : String(cause)
+        throw cause
+      } finally {
+        inFlightLists.delete(key)
+        loading.value = inFlightLists.size > 0
       }
+    })()
 
-      projects.value = response.data ?? []
-      loaded.value = true
-
-      return projects.value
-    } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : String(cause)
-      throw cause
-    } finally {
-      loading.value = false
-    }
+    inFlightLists.set(key, request)
+    return request
   }
 
   async function fetchProject(
@@ -180,18 +227,15 @@ export const useProjectStore = defineStore('projectStore', () => {
   ): Promise<ProjectWithRelations> {
     loading.value = true
     error.value = null
-
     try {
       const response = await performFetch<ProjectWithRelations>(
-        `/api/projects/${key}`,
+        `/api/projects/${key}?refresh=${Date.now()}`,
+        { cache: 'no-store' },
       )
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Project not found.')
       }
-
       selectedProject.value = replaceProject(response.data)
-
       return selectedProject.value
     } finally {
       loading.value = false
@@ -202,22 +246,52 @@ export const useProjectStore = defineStore('projectStore', () => {
     input: Partial<Project> & Pick<Project, 'title'>,
   ): Promise<ProjectWithRelations> {
     saving.value = true
-
     try {
       const response = await performFetch<Project>('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       })
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create Project.')
       }
-
       return replaceProject(response.data)
     } finally {
       saving.value = false
     }
+  }
+
+  async function patchProjectRecord(
+    id: number,
+    input: Partial<Project>,
+  ): Promise<ProjectWithRelations> {
+    const response = await performFetch<Project>(`/api/projects/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to update Project.')
+    }
+    return replaceProject(response.data)
+  }
+
+  async function updateLifecycle(
+    id: number,
+    input: Pick<Partial<Project>, 'status' | 'priority'>,
+  ): Promise<ProjectWithRelations> {
+    const response = await performFetch<ProjectWithRelations>(
+      '/api/conductor/project-state',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId: id, ...input }),
+      },
+    )
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to synchronize Project lifecycle.')
+    }
+    return replaceProject(response.data)
   }
 
   async function updateProject(
@@ -225,19 +299,34 @@ export const useProjectStore = defineStore('projectStore', () => {
     input: Partial<Project>,
   ): Promise<ProjectWithRelations> {
     saving.value = true
-
     try {
-      const response = await performFetch<Project>(`/api/projects/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      })
+      const existing = projects.value.find((project) => project.id === id)
+      const lifecycle: Pick<Partial<Project>, 'status' | 'priority'> = {}
+      const regular = { ...input }
+      const hasConductorLink = Boolean(existing?.conductorSlug)
 
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update Project.')
+      if (hasConductorLink && input.priority !== undefined) {
+        lifecycle.priority = input.priority
+        delete regular.priority
+      }
+      if (
+        hasConductorLink &&
+        input.status !== undefined &&
+        input.status !== 'BRAINSTORM'
+      ) {
+        lifecycle.status = input.status
+        delete regular.status
       }
 
-      return replaceProject(response.data)
+      let updated: ProjectWithRelations | null = null
+      if (Object.keys(regular).length) {
+        updated = await patchProjectRecord(id, regular)
+      }
+      if (lifecycle.status !== undefined || lifecycle.priority !== undefined) {
+        updated = await updateLifecycle(id, lifecycle)
+      }
+      if (!updated) updated = await patchProjectRecord(id, input)
+      return updated
     } finally {
       saving.value = false
     }
@@ -245,17 +334,18 @@ export const useProjectStore = defineStore('projectStore', () => {
 
   async function archiveProject(id: number): Promise<ProjectWithRelations> {
     saving.value = true
-
     try {
+      const existing = projects.value.find((project) => project.id === id)
+      if (existing?.conductorSlug) {
+        return await updateLifecycle(id, { status: 'ARCHIVED' })
+      }
       const response = await performFetch<ProjectWithRelations>(
         `/api/projects/${id}`,
         { method: 'DELETE' },
       )
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to archive Project.')
       }
-
       return replaceProject(response.data)
     } finally {
       saving.value = false
@@ -275,7 +365,6 @@ export const useProjectStore = defineStore('projectStore', () => {
         projectForSlug(slug) ??
         projects.value.find((entry) => entry.conductorSlug === slug) ??
         null
-
       if (!project) {
         missing.push(slug)
         continue
@@ -285,7 +374,6 @@ export const useProjectStore = defineStore('projectStore', () => {
         overwriteLiveUrl || !project.liveUrl
           ? placementLiveUrl(placement)
           : project.liveUrl
-
       if (
         project.channelKey === placement.channelKey &&
         project.tabKey === placement.tabKey &&
@@ -322,6 +410,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     loading,
     saving,
     loaded,
+    loadedAt,
     error,
     activeProjects,
     publicProjects,

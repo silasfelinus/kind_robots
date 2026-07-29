@@ -16,7 +16,7 @@
       <ConductorPitchManager
         v-else-if="pageStore.workspaceCardKey === 'brainstorm'"
       />
-      <ConductorOverviewGalleryPage v-else-if="showConductorGallery" />
+      <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
       <ConductorPage v-else />
     </div>
   </div>
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppmakerPage from '@/components/pages/appmaker-page.vue'
-import ConductorOverviewGalleryPage from '@/components/pages/conductor-overview-gallery-page.vue'
+import ConductorProjectGalleryPage from '@/components/pages/conductor-project-gallery-page.vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import ConductorPitchManager from '@/components/pages/conductor-pitch-manager.vue'
 import PortosPage from '@/components/pages/portos-page.vue'

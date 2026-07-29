@@ -1,6 +1,17 @@
 // server/api/conductor/projects.get.ts
-// Fetches Conductor project data (roadmaps + pitches) from GitHub and returns parsed JSON.
-import { defineEventHandler, createError } from 'h3'
+// Conductor's project-overrides.yaml is the lifecycle registry; roadmap.yaml is
+// the task/progress source. This endpoint joins both without inventing projects
+// from every historical directory in the repository.
+import { createError, defineEventHandler, setHeader } from 'h3'
+import {
+  conductorPriorityToProjectPriority,
+  conductorStatusToProjectStatus,
+  parseConductorProjectOverrides,
+  type ConductorProjectPriority,
+  type ConductorProjectStatus,
+  type ProjectLifecyclePriority,
+  type ProjectLifecycleStatus,
+} from '@/server/utils/conductorProjectRegistry'
 
 const GITHUB_API = 'https://api.github.com'
 const OWNER = 'silasfelinus'
@@ -40,6 +51,10 @@ export interface ConductorProject {
   slug: string
   name: string
   kind: string
+  status?: ProjectLifecycleStatus
+  priority?: ProjectLifecyclePriority
+  conductorStatus?: ConductorProjectStatus
+  conductorPriority?: ConductorProjectPriority
   milestones: ConductorMilestone[]
   tasks: ConductorTask[]
   progress: number
@@ -47,6 +62,11 @@ export interface ConductorProject {
   cardPath: string
   heroPath: string
   notesFromSilas?: string
+  goal?: string
+  liveUrl?: string
+  channelKey?: string
+  tabKey?: string
+  repoUrl?: string
 }
 
 export interface ConductorPitch {
@@ -64,17 +84,28 @@ export interface ConductorData {
   projects: ConductorProject[]
   pitches: ConductorPitch[]
   fetchedAt: string
+  registryCount: number
+}
+
+type GithubContentEntry = {
+  name: string
+  type: string
+  sha?: string
+  content?: string
 }
 
 async function githubFetch(path: string): Promise<unknown> {
   const token = process.env.GITHUB_TOKEN
-  const res = await fetch(`${GITHUB_API}/repos/${OWNER}/${REPO}/contents/${path}`, {
-    headers: {
-      Accept: 'application/vnd.github.v3+json',
-      'User-Agent': 'kind-robots-workspace/1.0',
-      ...(token ? { Authorization: `token ${token}` } : {}),
+  const res = await fetch(
+    `${GITHUB_API}/repos/${OWNER}/${REPO}/contents/${path}`,
+    {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'kind-robots-workspace/2.0',
+        ...(token ? { Authorization: `token ${token}` } : {}),
+      },
     },
-  })
+  )
   if (!res.ok) throw new Error(`GitHub ${res.status} for ${path}`)
   return res.json()
 }
@@ -83,11 +114,23 @@ function b64decode(b64: string): string {
   return Buffer.from(b64.replace(/\n/g, ''), 'base64').toString('utf-8')
 }
 
-function conductorProjectAssets(slug: string): ConductorProjectAssets {
+function versionedImageUrl(
+  filename: string,
+  imageShas: ReadonlyMap<string, string>,
+): string {
+  const base = `${PROJECT_IMAGE_BASE}/${filename}`
+  const sha = imageShas.get(filename)
+  return sha ? `${base}?v=${sha.slice(0, 12)}` : base
+}
+
+function conductorProjectAssets(
+  slug: string,
+  imageShas: ReadonlyMap<string, string>,
+): ConductorProjectAssets {
   return {
-    imagePath: `${PROJECT_IMAGE_BASE}/${slug}-icon.webp`,
-    cardPath: `${PROJECT_IMAGE_BASE}/${slug}-card.webp`,
-    heroPath: `${PROJECT_IMAGE_BASE}/${slug}-hero.webp`,
+    imagePath: versionedImageUrl(`${slug}-icon.webp`, imageShas),
+    cardPath: versionedImageUrl(`${slug}-card.webp`, imageShas),
+    heroPath: versionedImageUrl(`${slug}-hero.webp`, imageShas),
   }
 }
 
@@ -95,65 +138,75 @@ function computeProgress(milestones: ConductorMilestone[]): number {
   if (!milestones.length) return 0
   let total = 0
   let done = 0
-  for (const m of milestones) {
-    total += m.weight
-    if (m.status === 'done') done += m.weight
-    else if (m.status === 'in-progress') done += m.weight * 0.5
+  for (const milestone of milestones) {
+    total += milestone.weight
+    if (milestone.status === 'done') done += milestone.weight
+    else if (milestone.status === 'in-progress') done += milestone.weight * 0.5
   }
   return total > 0 ? Math.round((done / total) * 100) : 0
 }
 
-function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progress' | keyof ConductorProjectAssets> {
+function parseRoadmapYaml(text: string) {
   const lines = text.split('\n')
   const result = {
     name: '',
     kind: 'software',
+    goal: undefined as string | undefined,
     milestones: [] as ConductorMilestone[],
     tasks: [] as ConductorTask[],
     notesFromSilas: undefined as string | undefined,
   }
 
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]!
-
-    if (!line.trim() || line.trim().startsWith('#')) { i++; continue }
+  let index = 0
+  while (index < lines.length) {
+    const line = lines[index]!
+    if (!line.trim() || line.trim().startsWith('#')) {
+      index += 1
+      continue
+    }
 
     const scalar = line.match(/^(project|kind):\s*(.+)$/)
     if (scalar) {
-      const val = scalar[2]!.replace(/^["']|["']$/g, '').trim()
-      if (scalar[1] === 'project') result.name = val
-      else result.kind = val
-      i++; continue
+      const value = scalar[2]!.replace(/^["']|["']$/g, '').trim()
+      if (scalar[1] === 'project') result.name = value
+      else result.kind = value
+      index += 1
+      continue
     }
 
-    if (/^notes_from_silas:\s*\|/.test(line)) {
-      const buf: string[] = []
-      i++
-      while (i < lines.length && (lines[i]!.startsWith('  ') || lines[i] === '')) {
-        buf.push(lines[i]!.replace(/^  /, ''))
-        i++
+    const blockMatch = line.match(/^(goal|notes_from_silas):\s*[>|]\s*$/)
+    if (blockMatch?.[1]) {
+      const buffer: string[] = []
+      index += 1
+      while (
+        index < lines.length &&
+        (lines[index]!.startsWith('  ') || lines[index] === '')
+      ) {
+        buffer.push(lines[index]!.replace(/^  /, ''))
+        index += 1
       }
-      result.notesFromSilas = buf.join('\n').trim()
+      const value = buffer.join('\n').trim()
+      if (blockMatch[1] === 'goal') result.goal = value || undefined
+      else result.notesFromSilas = value || undefined
       continue
     }
 
     if (/^milestones:/.test(line)) {
-      i++
-      while (i < lines.length && /^  - /.test(lines[i]!)) {
-        const m: Partial<ConductorMilestone> = {}
-        parseBlockItem(lines, i, m as Record<string, unknown>)
-        i++
-        while (i < lines.length && /^    /.test(lines[i]!)) {
-          parseKV(lines[i]!.trim(), m as Record<string, unknown>)
-          i++
+      index += 1
+      while (index < lines.length && /^  - /.test(lines[index]!)) {
+        const milestone: Record<string, unknown> = {}
+        parseBlockItem(lines[index]!, milestone)
+        index += 1
+        while (index < lines.length && /^    /.test(lines[index]!)) {
+          parseKV(lines[index]!.trim(), milestone)
+          index += 1
         }
-        if (m.id) {
+        if (milestone.id) {
           result.milestones.push({
-            id: m.id as string,
-            title: (m.title as string) || (m.id as string),
-            weight: Number(m.weight) || 10,
-            status: (m.status as string) || 'not-started',
+            id: String(milestone.id),
+            title: String(milestone.title || milestone.id),
+            weight: Number(milestone.weight) || 10,
+            status: String(milestone.status || 'not-started'),
           })
         }
       }
@@ -161,92 +214,101 @@ function parseRoadmapYaml(text: string): Omit<ConductorProject, 'slug' | 'progre
     }
 
     if (/^tasks:/.test(line)) {
-      i++
-      while (i < lines.length && /^  - /.test(lines[i]!)) {
-        const t: Record<string, unknown> = {}
-        parseBlockItem(lines, i, t)
-        i++
-        while (i < lines.length && /^    /.test(lines[i]!)) {
-          const tline = lines[i]!
-          // Block scalar (note: > or note: |) — capture content instead of skipping
-          const blockScalarMatch = tline.match(/^    ([\w-]+):\s*[>|]\s*$/)
-          if (blockScalarMatch) {
-            const rawKey = blockScalarMatch[1]!
-            const camelKey = rawKey.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-            i++
-            const buf: string[] = []
-            while (i < lines.length && /^      /.test(lines[i]!)) {
-              buf.push(lines[i]!.replace(/^      /, '').trimEnd())
-              i++
+      index += 1
+      while (index < lines.length && /^  - /.test(lines[index]!)) {
+        const task: Record<string, unknown> = {}
+        parseBlockItem(lines[index]!, task)
+        index += 1
+        while (index < lines.length && /^    /.test(lines[index]!)) {
+          const taskLine = lines[index]!
+          const blockScalar = taskLine.match(/^    ([\w-]+):\s*[>|]\s*$/)
+          if (blockScalar?.[1]) {
+            const key = blockScalar[1].replace(
+              /-([a-z])/g,
+              (_, letter: string) => letter.toUpperCase(),
+            )
+            index += 1
+            const buffer: string[] = []
+            while (index < lines.length && /^      /.test(lines[index]!)) {
+              buffer.push(lines[index]!.replace(/^      /, '').trimEnd())
+              index += 1
             }
-            t[camelKey] = buf.join(' ').trim()
+            task[key] = buffer.join(' ').trim()
             continue
           }
-          // Block sequence for depends_on: followed by - items
-          if (/^    depends_on:\s*$/.test(tline)) {
-            i++
+          if (/^    depends_on:\s*$/.test(taskLine)) {
+            index += 1
             const items: string[] = []
-            while (i < lines.length && /^      - /.test(lines[i]!)) {
-              items.push(lines[i]!.replace(/^      - /, '').trim())
-              i++
+            while (index < lines.length && /^      - /.test(lines[index]!)) {
+              items.push(lines[index]!.replace(/^      - /, '').trim())
+              index += 1
             }
-            t['dependsOn'] = items
+            task.dependsOn = items
             continue
           }
-          parseKV(tline.trim(), t)
-          i++
+          parseKV(taskLine.trim(), task)
+          index += 1
         }
-        if (t['id']) {
-          const rawDependsOn = t['dependsOn'] ?? t['depends_on']
-          const dependsOn: string | string[] | null =
-            Array.isArray(rawDependsOn)
-              ? rawDependsOn
-              : typeof rawDependsOn === 'string' && rawDependsOn
-                ? rawDependsOn
-                : null
+
+        if (task.id) {
+          const rawDependsOn = task.dependsOn ?? task.depends_on
           result.tasks.push({
-            id: t['id'] as string,
-            milestone: (t['milestone'] as string) || '',
-            title: (t['title'] as string) || (t['id'] as string),
-            status: (t['status'] as string) || 'ready',
-            owner: t['owner'] === 'null' || t['owner'] == null ? null : (t['owner'] as string),
-            passes: Number(t['passes']) || 0,
-            stakes: t['stakes'] as string | undefined,
-            gateHuman: t['gateHuman'] === 'true' || t['gateHuman'] === true || t['gate_human'] === 'true' || t['gate_human'] === true,
-            note: t['note'] as string | undefined,
-            dependsOn,
-            approvedByHuman: t['approvedByHuman'] === 'true' || t['approvedByHuman'] === true || t['approved_by_human'] === 'true' || t['approved_by_human'] === true,
-            updated: (t['updated'] as string | null | undefined) ?? null,
+            id: String(task.id),
+            milestone: String(task.milestone || ''),
+            title: String(task.title || task.id),
+            status: String(task.status || 'ready'),
+            owner:
+              task.owner === 'null' || task.owner == null
+                ? null
+                : String(task.owner),
+            passes: Number(task.passes) || 0,
+            stakes: task.stakes ? String(task.stakes) : undefined,
+            gateHuman:
+              task.gateHuman === 'true' ||
+              task.gateHuman === true ||
+              task.gate_human === 'true' ||
+              task.gate_human === true,
+            note: task.note ? String(task.note) : undefined,
+            dependsOn: Array.isArray(rawDependsOn)
+              ? rawDependsOn.map(String)
+              : rawDependsOn
+                ? String(rawDependsOn)
+                : null,
+            approvedByHuman:
+              task.approvedByHuman === 'true' ||
+              task.approvedByHuman === true ||
+              task.approved_by_human === 'true' ||
+              task.approved_by_human === true,
+            updated: task.updated ? String(task.updated) : null,
           })
         }
       }
       continue
     }
 
-    i++
+    index += 1
   }
 
   return result
 }
 
-function parseBlockItem(lines: string[], i: number, obj: Record<string, unknown>) {
-  const first = lines[i]!.replace(/^  - /, '').trim()
-  parseKV(first, obj)
+function parseBlockItem(line: string, target: Record<string, unknown>) {
+  parseKV(line.replace(/^  - /, '').trim(), target)
 }
 
-function parseKV(raw: string, obj: Record<string, unknown>) {
-  const m = raw.match(/^([\w-]+):\s*(.*)$/)
-  if (!m) return
-  const key = m[1]!.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-  const val = m[2]!.replace(/^["']|["']$/g, '').trim()
-  obj[key] = val
+function parseKV(raw: string, target: Record<string, unknown>) {
+  const match = raw.match(/^([\w-]+):\s*(.*)$/)
+  if (!match?.[1]) return
+  const key = match[1].replace(
+    /-([a-z])/g,
+    (_, letter: string) => letter.toUpperCase(),
+  )
+  target[key] = (match[2] ?? '').replace(/^["']|["']$/g, '').trim()
 }
 
 function parsePitch(filename: string, text: string): ConductorPitch {
-  const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})-/)
-  const date = dateMatch?.[1] ?? ''
+  const date = filename.match(/^(\d{4}-\d{2}-\d{2})-/)?.[1] ?? ''
   const slug = filename.replace(/\.md$/, '')
-
   let title = slug
   let status = 'awaiting-silas'
   let projectTarget = ''
@@ -256,61 +318,116 @@ function parsePitch(filename: string, text: string): ConductorPitch {
   let section = ''
 
   for (const line of text.split('\n')) {
-    if (/^#\s*Pitch:/.test(line)) { title = line.replace(/^#\s*Pitch:\s*/, '').trim(); continue }
-    if (/^project-target:/.test(line)) { projectTarget = line.replace(/^project-target:\s*/, '').trim(); continue }
-    if (/^status:/.test(line)) { status = line.replace(/^status:\s*/, '').replace(/#.*/, '').trim(); continue }
-    if (/^##\s*The idea/i.test(line)) { section = 'idea'; continue }
-    if (/^##\s*Why/i.test(line)) { section = 'why'; continue }
-    if (/^##\s*Rough effort/i.test(line)) { section = 'effort'; continue }
-    if (/^##/.test(line)) { section = ''; continue }
-    if (section === 'idea' && line.trim()) idea += (idea ? ' ' : '') + line.trim()
-    else if (section === 'why' && line.trim()) whyDoIt += (whyDoIt ? ' ' : '') + line.trim()
-    else if (section === 'effort' && line.trim()) { effort = line.trim(); section = '' }
+    if (/^#\s*Pitch:/.test(line)) {
+      title = line.replace(/^#\s*Pitch:\s*/, '').trim()
+      continue
+    }
+    if (/^project-target:/.test(line)) {
+      projectTarget = line.replace(/^project-target:\s*/, '').trim()
+      continue
+    }
+    if (/^status:/.test(line)) {
+      status = line.replace(/^status:\s*/, '').replace(/#.*/, '').trim()
+      continue
+    }
+    if (/^##\s*The idea/i.test(line)) section = 'idea'
+    else if (/^##\s*Why/i.test(line)) section = 'why'
+    else if (/^##\s*Rough effort/i.test(line)) section = 'effort'
+    else if (/^##/.test(line)) section = ''
+    else if (section === 'idea' && line.trim())
+      idea += `${idea ? ' ' : ''}${line.trim()}`
+    else if (section === 'why' && line.trim())
+      whyDoIt += `${whyDoIt ? ' ' : ''}${line.trim()}`
+    else if (section === 'effort' && line.trim()) {
+      effort = line.trim()
+      section = ''
+    }
   }
 
   return { slug, date, title, status, projectTarget, idea, whyDoIt, effort }
 }
 
-export default defineEventHandler(async (): Promise<ConductorData> => {
+export default defineEventHandler(async (event): Promise<ConductorData> => {
   try {
-    const [projectsDir, pitchesDir] = await Promise.all([
-      githubFetch('projects') as Promise<Array<{ name: string; type: string }>>,
-      githubFetch('pitches') as Promise<Array<{ name: string; type: string }>>,
+    const [overrideFile, pitchesDir, imagesDir] = await Promise.all([
+      githubFetch('project-overrides.yaml') as Promise<GithubContentEntry>,
+      githubFetch('pitches') as Promise<GithubContentEntry[]>,
+      githubFetch('projects/images') as Promise<GithubContentEntry[]>,
     ])
 
-    const projectSlugs = projectsDir
-      .filter((e) => e.type === 'dir' && !e.name.startsWith('_'))
-      .map((e) => e.name)
-
+    if (!overrideFile.content) throw new Error('project-overrides.yaml is empty')
+    const registry = parseConductorProjectOverrides(
+      b64decode(overrideFile.content),
+    )
+    const imageShas = new Map(
+      imagesDir
+        .filter((entry) => entry.type === 'file' && entry.sha)
+        .map((entry) => [entry.name, entry.sha!] as const),
+    )
     const pitchFilenames = pitchesDir
-      .filter((e) => e.type === 'file' && e.name.endsWith('.md') && e.name !== 'README.md')
-      .map((e) => e.name)
+      .filter(
+        (entry) =>
+          entry.type === 'file' &&
+          entry.name.endsWith('.md') &&
+          entry.name !== 'README.md',
+      )
+      .map((entry) => entry.name)
 
     const [rawProjects, rawPitches] = await Promise.all([
       Promise.all(
-        projectSlugs.map(async (slug) => {
-          try {
-            const file = (await githubFetch(`projects/${slug}/roadmap.yaml`)) as { content?: string }
-            if (!file.content) return null
-            const parsed = parseRoadmapYaml(b64decode(file.content))
-            return {
-              slug,
-              ...parsed,
-              ...conductorProjectAssets(slug),
-              name: parsed.name || slug,
-              progress: computeProgress(parsed.milestones),
-            } satisfies ConductorProject
-          } catch {
-            return null
+        registry.map(async (override) => {
+          let parsed: ReturnType<typeof parseRoadmapYaml> = {
+            name: '',
+            kind: override.kind || 'software',
+            goal: undefined,
+            milestones: [],
+            tasks: [],
+            notesFromSilas: undefined,
           }
+          try {
+            const file = (await githubFetch(
+              `projects/${override.slug}/roadmap.yaml`,
+            )) as GithubContentEntry
+            if (file.content) parsed = parseRoadmapYaml(b64decode(file.content))
+          } catch {
+            // A lifecycle entry remains visible even if its historical roadmap
+            // is absent; the registry, not directory existence, defines projects.
+          }
+
+          return {
+            slug: override.slug,
+            name: parsed.name || override.slug,
+            kind: override.kind || parsed.kind || 'software',
+            status: conductorStatusToProjectStatus(override.status),
+            priority: conductorPriorityToProjectPriority(override.priority),
+            conductorStatus: override.status,
+            conductorPriority: override.priority,
+            milestones: parsed.milestones,
+            tasks: parsed.tasks,
+            progress: computeProgress(parsed.milestones),
+            ...conductorProjectAssets(override.slug, imageShas),
+            ...(parsed.notesFromSilas
+              ? { notesFromSilas: parsed.notesFromSilas }
+              : {}),
+            ...(parsed.goal ? { goal: parsed.goal } : {}),
+            ...(override.liveUrl ? { liveUrl: override.liveUrl } : {}),
+            ...(override.channelKey
+              ? { channelKey: override.channelKey }
+              : {}),
+            ...(override.tabKey ? { tabKey: override.tabKey } : {}),
+            ...(override.repoUrl ? { repoUrl: override.repoUrl } : {}),
+          } satisfies ConductorProject
         }),
       ),
       Promise.all(
         pitchFilenames.map(async (filename) => {
           try {
-            const file = (await githubFetch(`pitches/${filename}`)) as { content?: string }
-            if (!file.content) return null
-            return parsePitch(filename, b64decode(file.content))
+            const file = (await githubFetch(
+              `pitches/${filename}`,
+            )) as GithubContentEntry
+            return file.content
+              ? parsePitch(filename, b64decode(file.content))
+              : null
           } catch {
             return null
           }
@@ -318,15 +435,25 @@ export default defineEventHandler(async (): Promise<ConductorData> => {
       ),
     ])
 
+    setHeader(
+      event,
+      'Cache-Control',
+      'private, max-age=15, stale-while-revalidate=45',
+    )
     return {
-      projects: rawProjects.filter((p): p is ConductorProject => p !== null),
-      pitches: rawPitches.filter((p): p is ConductorPitch => p !== null),
+      projects: rawProjects,
+      pitches: rawPitches.filter(
+        (pitch): pitch is ConductorPitch => pitch !== null,
+      ),
       fetchedAt: new Date().toISOString(),
+      registryCount: registry.length,
     }
-  } catch (err) {
+  } catch (error) {
     throw createError({
       statusCode: 502,
-      message: `Conductor fetch failed: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Conductor fetch failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
     })
   }
 })

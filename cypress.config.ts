@@ -591,4 +591,18 @@ export default defineConfig({
   // videos" artifact step and Cypress Cloud recording) but skip compression,
   // which is the step that actually stalls.
   videoCompression: false,
+  // Same reasoning as cypress.public.config.ts: this suite's baseUrl is the
+  // live Vercel deployment, so an occasional cy.request() can hit a cold
+  // serverless function start or a momentary latency blip and blow the
+  // default 30s responseTimeout even though the endpoint itself is correct
+  // (seen twice against unrelated routes on 2026-07-28/29 -- POST
+  // /api/sheets/by-dream/:id and POST /api/art/image -- both single-run
+  // flakes with the very next scheduled run green). Retry once in CI so a
+  // genuine infra blip doesn't false-positive the whole suite; a real
+  // regression still fails after the retry. Local `cypress open` runs
+  // unaffected.
+  retries: {
+    runMode: 1,
+    openMode: 0,
+  },
 })

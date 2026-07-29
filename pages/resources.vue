@@ -1,13 +1,11 @@
-<!-- /pages/models.vue -->
+<!-- /pages/resources.vue -->
 <!--
-  Model Library — the single home for installed generation models. One endpoint,
-  three tabs (URL-param driven so each view is linkable, per repo convention):
+  Resource Library — the single home for every generation resource: checkpoints,
+  LoRAs, embeddings, and other tools. One endpoint, two tabs (URL-param driven so
+  each view is linkable, per repo convention):
 
-    - Checkpoints  browse / filter / add / edit base models (<model-gallery>)
-    - LoRAs        browse / filter / edit owned LoRAs        (<lora-gallery>)
-    - Discover     browse Civitai / CivArchive + queue downloads (<lora-discover>)
-
-  /lora redirects here (?tab=loras) so old bookmarks keep working.
+    - Library    browse / filter / add / edit / preview  (<resource-gallery>)
+    - Discover   browse Civitai / CivArchive + queue downloads (<lora-discover>)
 -->
 <template>
   <div class="flex h-full min-h-0 w-full flex-col gap-3 p-3">
@@ -26,9 +24,8 @@
       </button>
     </div>
 
-    <div class="min-h-0 flex-1">
-      <model-gallery v-if="activeTab === 'checkpoints'" />
-      <lora-gallery v-else-if="activeTab === 'loras'" />
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <resource-gallery v-if="activeTab === 'library'" />
       <lora-discover v-else />
     </div>
   </div>
@@ -38,13 +35,12 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-useHead({ title: 'Model Library' })
+useHead({ title: 'Resource Library' })
 
-type TabKey = 'checkpoints' | 'loras' | 'discover'
+type TabKey = 'library' | 'discover'
 
 const tabs: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'checkpoints', label: 'Checkpoints', icon: 'kind-icon:blueprint' },
-  { key: 'loras', label: 'LoRAs', icon: 'kind-icon:folder' },
+  { key: 'library', label: 'Library', icon: 'kind-icon:database' },
   { key: 'discover', label: 'Discover', icon: 'kind-icon:search' },
 ]
 
@@ -53,9 +49,7 @@ const router = useRouter()
 
 const activeTab = computed<TabKey>(() => {
   const requested = String(route.query.tab ?? '').toLowerCase()
-  return tabs.some((tab) => tab.key === requested)
-    ? (requested as TabKey)
-    : 'checkpoints'
+  return tabs.some((tab) => tab.key === requested) ? (requested as TabKey) : 'library'
 })
 
 function selectTab(key: TabKey) {

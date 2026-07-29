@@ -93,7 +93,7 @@
     "test:wonderlab-fixture-cleanup": "tsx utils/scripts/verifyComponentTestFixtures.ts",
     "test:wonderlab-core-fixtures": "tsx utils/scripts/verifyWonderLabCoreFixtures.ts",
     "test:wonderlab-visual-fixtures": "tsx utils/scripts/verifyWonderLabVisualFixtures.ts",
-    "test:wonderlab-ui-fixtures": "tsx utils/scripts/verifyWonderLabUIFixtures.ts",
+    "test:wonderlab-ui-fixtures": "tsx utils/scripts/verifyWonderLabUiFixtures.ts",
     "test:wonderlab-achievement-navigation-fixtures": "tsx utils/scripts/verifyWonderLabAchievementNavigationFixtures.ts",
     "test:wonderlab-passive-card-fixtures": "tsx utils/scripts/verifyWonderLabPassiveCardFixtures.ts",
     "test:newsfeed-aggregation": "tsx utils/scripts/verifyNewsfeedAggregation.ts",

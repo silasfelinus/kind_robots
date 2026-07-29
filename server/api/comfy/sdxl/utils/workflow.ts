@@ -126,6 +126,165 @@ export function patchComfyWorkflow(
   }
 }
 
+export type SdxlImg2ImgInput = {
+  prompt: string
+  negativePrompt?: string | null
+  // Filename the relay uploads to Comfy's input folder (see the `images` payload
+  // the enqueue route builds), referenced by the LoadImage node below.
+  imageName: string
+  checkpoint?: string | null
+  cfgValue?: number | null
+  steps?: number | null
+  seed?: number | null
+  sampler?: string | null
+  scheduler?: string | null
+  // How much of the ORIGINAL image to preserve, 0..1. denoise = 1 - originalWeight
+  // (floored to MIN_SDXL_IMG2IMG_DENOISE), so a higher weight keeps more of the
+  // source composition/subject and gives the checkpoint + style LoRA less room to
+  // repaint. When omitted, an explicit `denoise` is used; when both are omitted a
+  // restyle-friendly default is applied.
+  originalWeight?: number | null
+  denoise?: number | null
+  // Optional style LoRA. Unlike the Flux/Kontext model-only splice, SDXL style
+  // LoRAs frequently carry text-encoder weights, so a full LoraLoader (model +
+  // clip) is used and the CLIP encoders read through it too.
+  loraName?: string | null
+  loraStrength?: number | null
+  filenamePrefix?: string | null
+}
+
+// Defaults tuned for the SDXL-Turbo base (dreamshaperXL_v21TurboDPMSDE): few
+// steps, low cfg, DPM++ SDE / Karras. A non-Turbo checkpoint still renders with
+// these but the UI is expected to expose step/cfg overrides.
+export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
+const MIN_SDXL_IMG2IMG_DENOISE = 0.15
+const DEFAULT_SDXL_IMG2IMG_CHECKPOINT = 'dreamshaperXL_v21TurboDPMSDE.safetensors'
+
+function resolveSdxlSeed(seed?: number | null): number {
+  if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
+    return Math.floor(seed)
+  }
+  return Math.floor(Math.random() * 2_147_483_647)
+}
+
+function clampUnit(value: number): number {
+  return Math.min(1, Math.max(0, value))
+}
+
+// SDXL restyle: VAE-encode the source photo and sample from it at a reduced
+// denoise so the composition survives while the checkpoint (and optional style
+// LoRA) reinterpret the look. Mirrors the img2img shape of the Kontext builder,
+// but on a plain CheckpointLoaderSimple graph (baked CLIP + VAE).
+export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
+  workflow: ComfyWorkflow
+  seed: number
+  denoise: number
+} {
+  const seed = resolveSdxlSeed(input.seed)
+  const steps = input.steps ?? 8
+  const cfg = input.cfgValue || 2
+  const sampler = input.sampler
+    ? normalizeComfySampler(input.sampler)
+    : 'dpmpp_sde'
+  const scheduler = input.scheduler?.trim() || 'karras'
+  const checkpoint = input.checkpoint?.trim() || DEFAULT_SDXL_IMG2IMG_CHECKPOINT
+
+  const originalWeight =
+    typeof input.originalWeight === 'number' &&
+    Number.isFinite(input.originalWeight)
+      ? clampUnit(input.originalWeight)
+      : null
+  const denoise =
+    originalWeight !== null
+      ? Math.min(1, Math.max(MIN_SDXL_IMG2IMG_DENOISE, 1 - originalWeight))
+      : typeof input.denoise === 'number' && Number.isFinite(input.denoise)
+        ? Math.min(1, Math.max(MIN_SDXL_IMG2IMG_DENOISE, input.denoise))
+        : 1 - DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT
+
+  const loraName = input.loraName?.trim() || ''
+  const loraStrength =
+    typeof input.loraStrength === 'number' && Number.isFinite(input.loraStrength)
+      ? input.loraStrength
+      : 1
+
+  // Model + CLIP sources flip to the LoRA loader when a style LoRA is applied.
+  const modelSource: [string, number] = loraName ? ['10', 0] : ['1', 0]
+  const clipSource: [string, number] = loraName ? ['10', 1] : ['1', 1]
+
+  const workflow: ComfyWorkflow = {
+    '1': {
+      class_type: 'CheckpointLoaderSimple',
+      inputs: { ckpt_name: checkpoint },
+      _meta: { title: 'Load Checkpoint' },
+    },
+    '2': {
+      class_type: 'CLIPTextEncode',
+      inputs: { text: input.prompt, clip: clipSource },
+      _meta: { title: 'Positive Prompt' },
+    },
+    '3': {
+      class_type: 'CLIPTextEncode',
+      inputs: { text: input.negativePrompt || '', clip: clipSource },
+      _meta: { title: 'Negative Prompt' },
+    },
+    '4': {
+      class_type: 'LoadImage',
+      inputs: { image: input.imageName },
+      _meta: { title: 'Load Source Image' },
+    },
+    '5': {
+      class_type: 'VAEEncode',
+      inputs: { pixels: ['4', 0], vae: ['1', 2] },
+      _meta: { title: 'VAE Encode (img2img init)' },
+    },
+    '6': {
+      class_type: 'KSampler',
+      inputs: {
+        seed,
+        steps,
+        cfg,
+        sampler_name: sampler,
+        scheduler,
+        denoise,
+        model: modelSource,
+        positive: ['2', 0],
+        negative: ['3', 0],
+        latent_image: ['5', 0],
+      },
+      _meta: { title: 'KSampler' },
+    },
+    '7': {
+      class_type: 'VAEDecode',
+      inputs: { samples: ['6', 0], vae: ['1', 2] },
+      _meta: { title: 'VAE Decode' },
+    },
+    '8': {
+      class_type: 'SaveImage',
+      inputs: {
+        filename_prefix: input.filenamePrefix || 'kindrobots_sdxl_restyle',
+        images: ['7', 0],
+      },
+      _meta: { title: 'Save Image' },
+    },
+  }
+
+  if (loraName) {
+    workflow['10'] = {
+      class_type: 'LoraLoader',
+      inputs: {
+        model: ['1', 0],
+        clip: ['1', 1],
+        lora_name: loraName,
+        strength_model: loraStrength,
+        strength_clip: loraStrength,
+      },
+      _meta: { title: 'Style LoRA' },
+    }
+  }
+
+  return { workflow, seed, denoise }
+}
+
 export function buildDefaultComfyWorkflow({
   prompt,
   negativePrompt,

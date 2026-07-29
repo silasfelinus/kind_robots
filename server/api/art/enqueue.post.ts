@@ -4,7 +4,10 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { authAndGate } from '../../utils/comfyGate'
 import { resolveEnqueueLoraResource } from '../../utils/artLoraResource'
-import { buildDefaultComfyWorkflow } from '../comfy/sdxl/utils/workflow'
+import {
+  buildDefaultComfyWorkflow,
+  buildSdxlImg2ImgWorkflow,
+} from '../comfy/sdxl/utils/workflow'
 import { buildFluxWorkflowFromRequest } from '../comfy/flux/utils/workflow'
 import { buildKrea2WorkflowFromRequest } from '../comfy/krea2/utils/workflow'
 import { buildFlux2KleinWorkflowFromRequest } from '../comfy/flux2/utils/workflow'
@@ -39,6 +42,7 @@ const ART_FACET_WORKFLOW_KEY = '__kindRobotsFacetSelection'
 type EnqueueEngine =
   | 'a1111'
   | 'comfy'
+  | 'sdxl-img2img'
   | 'flux'
   | 'krea2'
   | 'flux2'
@@ -73,6 +77,7 @@ type ArtEnqueueRequest = {
   guidance?: number | null
   denoise?: number | null
   seed?: number | null
+  originalWeight?: number | null
   width?: number | null
   height?: number | null
   variant?: 'dev' | 'schnell' | null
@@ -115,6 +120,9 @@ const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   'flux2-klein': 'flux2',
   'flux-2': 'flux2',
   sdxl: 'comfy',
+  'sdxl-restyle': 'sdxl-img2img',
+  'sdxl-i2i': 'sdxl-img2img',
+  'sdxl-image': 'sdxl-img2img',
 }
 const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])
 const DEFAULT_VIDEO_NEGATIVE =
@@ -125,6 +133,7 @@ const GATE_ENGINE: Record<
 > = {
   a1111: 'comfy',
   comfy: 'comfy',
+  'sdxl-img2img': 'comfy',
   flux: 'flux',
   krea2: 'comfy',
   flux2: 'comfy',
@@ -211,6 +220,7 @@ function normalizeEngine(value: unknown): EnqueueEngine {
   if (
     engine === 'a1111' ||
     engine === 'comfy' ||
+    engine === 'sdxl-img2img' ||
     engine === 'flux' ||
     engine === 'krea2' ||
     engine === 'flux2' ||
@@ -464,6 +474,45 @@ function buildJobPayload(
       loraStrength: body.loraStrength ?? null,
     })
     return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
+  }
+
+  if (engine === 'sdxl-img2img') {
+    const imageData = body.sourceImageBase64?.trim()
+    if (!imageData) {
+      throw createError({
+        statusCode: 400,
+        message: 'SDXL img2img restyle requires "sourceImageBase64".',
+      })
+    }
+    const normalizedImageData = imageData.startsWith('data:image/')
+      ? imageData
+      : `data:image/png;base64,${imageData}`
+    const extension = getKontextImageExtension(normalizedImageData)
+    const imageName = `kr_sdxl_restyle_${crypto.randomUUID()}.${extension}`
+    const { workflow } = buildSdxlImg2ImgWorkflow({
+      prompt: promptString,
+      negativePrompt: body.negativePrompt ?? null,
+      imageName,
+      checkpoint: body.checkpoint ?? null,
+      cfgValue: body.cfg ?? null,
+      steps: body.steps ?? null,
+      seed: body.seed ?? null,
+      sampler: body.sampler ?? null,
+      scheduler: body.scheduler ?? null,
+      originalWeight: body.originalWeight ?? null,
+      denoise: body.denoise ?? null,
+      loraName: body.loraName ?? null,
+      loraStrength: body.loraStrength ?? null,
+    })
+    return {
+      jobEngine: 'COMFY',
+      payload: {
+        workflow,
+        promptString,
+        images: [{ name: imageName, imageData: normalizedImageData }],
+        save,
+      },
+    }
   }
 
   if (engine === 'kontext') {

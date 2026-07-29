@@ -30,6 +30,7 @@ const RESOURCE_RESOLVED_ENGINES = new Set([
   'flux2',
   'ltx',
   'wan',
+  'sdxl-img2img',
 ])
 
 function normalizeText(value: unknown): string {
@@ -137,6 +138,14 @@ function compatibilityRank(
     if (resource.supportedServer === SupportedServer.FLUX) return 30
     if (resource.supportedServer === SupportedServer.KONTEXT) return 20
     if (resource.supportedServer === SupportedServer.GENERIC) return 10
+  }
+
+  if (engine === 'sdxl-img2img') {
+    if (resource.supportedServer === SupportedServer.SDXL) return 30
+    if (resource.supportedServer === SupportedServer.COMFY) return 15
+    if (resource.supportedServer === SupportedServer.GENERIC) return 10
+    // SD15 LoRAs are a different architecture and won't load on an SDXL
+    // checkpoint, so they stay rank 0 (blocked by the strict check below).
   }
 
   if (engine === 'ltx') {
@@ -276,7 +285,9 @@ export async function resolveEnqueueLoraResource(input: {
   }
 
   if (
-    (input.engine === 'ltx' || input.engine === 'wan') &&
+    (input.engine === 'ltx' ||
+      input.engine === 'wan' ||
+      input.engine === 'sdxl-img2img') &&
     compatibilityRank(resource, input.engine) === 0
   ) {
     throw createError({

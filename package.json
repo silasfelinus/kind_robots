@@ -57,6 +57,7 @@
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts",
     "test:art-prompt-repair": "tsx utils/scripts/verifyArtPromptRepair.ts",
     "test:artjob-bulk-scope": "tsx utils/scripts/verifyArtJobBulkScope.ts",
+    "test:artjob-lora-override": "tsx utils/scripts/verifyArtJobLoraOverride.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "test:data-surface-manifest": "tsx utils/scripts/verifyDataSurfaceManifest.ts",

@@ -135,8 +135,7 @@ export const tutorialChannels = {
         key: 'taskmaster',
         title: 'Taskmaster',
         body: 'Choose a project or enter an objective, select narrative ingredients, and advance real work through a playful second-person quest. Taskmaster directs story art automatically and never applies real-world changes without review.',
-        // Shared temporarily until the dedicated Taskmaster tutorial art lands.
-        image: tutorialImage('scenario', 'storymaker'),
+        image: tutorialImage('scenario', 'taskmaster'),
       },
       {
         key: 'storymaker',

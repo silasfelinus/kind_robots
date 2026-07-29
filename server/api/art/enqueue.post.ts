@@ -23,6 +23,7 @@ import {
   LTX_DEFAULT_DURATION,
   LTX_DEFAULT_FRAME_RATE,
 } from '../comfy/ltx/utils/imageToVideoWorkflow'
+import { normalizeVideoOutputFormat } from '../comfy/utils/videoOutput'
 import {
   buildWanImageToVideoWorkflow,
   wanFrameCount,
@@ -101,6 +102,8 @@ type ArtEnqueueRequest = {
   fps?: number | null
   frameRate?: number | null
   loop?: boolean | null
+  // 'webp' (default) | 'mp4' | 'webm' — see server/api/comfy/utils/videoOutput.
+  outputFormat?: string | null
   workflow?: Record<string, unknown> | null
 }
 
@@ -666,6 +669,7 @@ function buildVideoJobPayload(
   }
 
   const loop = Boolean(body.loop)
+  const outputFormat = normalizeVideoOutputFormat(body.outputFormat)
   const frames = isWan
     ? wanFrameCount(duration, frameRate)
     : ltxFrameCount(duration, frameRate)
@@ -686,6 +690,7 @@ function buildVideoJobPayload(
         scheduler: body.scheduler ?? null,
         loraName,
         loraStrength,
+        outputFormat,
       })
     : buildLtxImageToVideoWorkflow({
         prompt: promptString,
@@ -702,6 +707,7 @@ function buildVideoJobPayload(
         sampler: body.sampler ?? null,
         styleLoraName: loraName,
         styleLoraStrength: loraStrength,
+        outputFormat,
       })
 
   return {
@@ -723,6 +729,7 @@ function buildVideoJobPayload(
         hasLastImage: Boolean(lastImageName),
         hasLora: Boolean(loraName),
         loraStrength,
+        outputFormat,
       },
       save,
     },

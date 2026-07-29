@@ -13,6 +13,12 @@
 // array; the home relay uploads those to Comfy before running the graph, so the
 // LoadImage nodes resolve. This is the same contract the kontext queue path uses.
 
+import {
+  buildVideoOutputNodes,
+  normalizeVideoOutputFormat,
+  type VideoOutputFormat,
+} from '../../utils/videoOutput'
+
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
 export type ComfyWorkflowNode = {
@@ -47,6 +53,7 @@ export type LtxImageToVideoInput = {
   temporalSize?: number | null
   temporalOverlap?: number | null
   filenamePrefix?: string | null
+  outputFormat?: VideoOutputFormat | string | null
 }
 
 // Defaults match the proven text2video route so a queued clip renders with the
@@ -288,22 +295,15 @@ export function buildLtxImageToVideoWorkflow(
     class_type: 'VAEDecodeTiled',
     _meta: { title: 'VAE Decode Tiled' },
   }
-  workflow['312'] = {
-    inputs: { fps: frameRate, images: ['316', 0] },
-    class_type: 'CreateVideo',
-    _meta: { title: 'Create Video' },
-  }
-  workflow['341'] = {
-    inputs: {
-      filename_prefix:
-        input.filenamePrefix ?? 'video/kindrobots_ltx_image2video',
-      format: 'auto',
-      codec: 'auto',
-      video: ['312', 0],
-    },
-    class_type: 'SaveVideo',
-    _meta: { title: 'Save Video' },
-  }
+  Object.assign(
+    workflow,
+    buildVideoOutputNodes({
+      format: normalizeVideoOutputFormat(input.outputFormat),
+      imagesRef: ['316', 0],
+      fps: frameRate,
+      filenamePrefix: input.filenamePrefix ?? 'video/kindrobots_ltx_image2video',
+    }),
+  )
 
   return workflow
 }

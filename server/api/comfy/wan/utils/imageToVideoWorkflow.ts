@@ -18,6 +18,12 @@
 // 2026-07) and centralised as constants so the operator can retune a different
 // WAN build without touching the graph.
 
+import {
+  buildVideoOutputNodes,
+  normalizeVideoOutputFormat,
+  type VideoOutputFormat,
+} from '../../utils/videoOutput'
+
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
 export type ComfyWorkflowNode = {
@@ -46,6 +52,7 @@ export type WanImageToVideoInput = {
   // low-noise expert takes over (0–1). Defaults to WAN_DEFAULT_BOUNDARY.
   boundary?: number | null
   filenamePrefix?: string | null
+  outputFormat?: VideoOutputFormat | string | null
 }
 
 export const WAN_DEFAULT_WIDTH = 832
@@ -252,28 +259,21 @@ export function buildWanImageToVideoWorkflow(
     _meta: { title: 'KSampler Advanced (Low Noise)' },
   }
 
-  // --- Decode + encode video ----------------------------------------------
+  // --- Decode + save output ------------------------------------------------
   workflow['decode'] = {
     inputs: { samples: ['sampler_low', 0], vae: ['vae', 0] },
     class_type: 'VAEDecode',
     _meta: { title: 'VAE Decode' },
   }
-  workflow['create_video'] = {
-    inputs: { fps: frameRate, images: ['decode', 0] },
-    class_type: 'CreateVideo',
-    _meta: { title: 'Create Video' },
-  }
-  workflow['save_video'] = {
-    inputs: {
-      filename_prefix:
-        input.filenamePrefix ?? 'video/kindrobots_wan_image2video',
-      format: 'auto',
-      codec: 'auto',
-      video: ['create_video', 0],
-    },
-    class_type: 'SaveVideo',
-    _meta: { title: 'Save Video' },
-  }
+  Object.assign(
+    workflow,
+    buildVideoOutputNodes({
+      format: normalizeVideoOutputFormat(input.outputFormat),
+      imagesRef: ['decode', 0],
+      fps: frameRate,
+      filenamePrefix: input.filenamePrefix ?? 'video/kindrobots_wan_image2video',
+    }),
+  )
 
   return workflow
 }

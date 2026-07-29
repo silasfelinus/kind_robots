@@ -13,6 +13,11 @@ import { performFetch } from '@/stores/utils'
 
 export type VideoEngine = 'ltx' | 'wan'
 
+// 'webp' (default) — native ComfyUI SaveAnimatedWEBP, smaller/better quality
+// than GIF for a short looping clip, renders as <img>. 'mp4'/'webm' render as
+// <video> and suit longer or more complex motion.
+export type VideoOutputFormat = 'webp' | 'mp4' | 'webm'
+
 export type VideoJobStatus = 'idle' | 'queued' | 'rendering' | 'done' | 'error'
 
 export interface GenerateVideoParams {
@@ -30,6 +35,7 @@ export interface GenerateVideoParams {
   seed?: number | null
   loraResourceIds?: number[]
   loraStrength?: number | null
+  outputFormat?: VideoOutputFormat
   isPublic?: boolean
   isMature?: boolean
   designer?: string | null
@@ -50,18 +56,30 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// Resolve a finished ArtImage (fileType mp4/webm/gif) into a playable src.
-// Handles inline base64 clips and stored paths, same shape as artImageToSrc but
-// video-aware (data:video/... and /video/... paths).
+// webp/gif clips are animated *images* (render as <img>, loop natively);
+// mp4/webm are real video containers (render as <video>).
+const IMAGE_CLIP_TYPES = new Set(['webp', 'gif'])
+
+export function isImageClipFileType(fileType: string | null | undefined): boolean {
+  return IMAGE_CLIP_TYPES.has((fileType || '').toLowerCase())
+}
+
+// Resolve a finished ArtImage (fileType webp/gif/mp4/webm) into a playable
+// src. Handles inline base64 clips and stored paths, same shape as
+// artImageToSrc but clip-aware (data:video/... , data:image/... , and
+// /video/... or /image/... paths).
 function artImageToVideoSrc(image: ArtImage | null | undefined): string {
   if (!image) return ''
   const fileType = (image.fileType || 'mp4').toLowerCase()
   const raw = (image.imageData || '').trim()
+  const mime = isImageClipFileType(fileType)
+    ? `image/${fileType}`
+    : `video/${fileType === 'webm' ? 'webm' : 'mp4'}`
 
   if (raw) {
     if (raw.startsWith('data:')) return raw
     if (!raw.startsWith('/') && !raw.startsWith('http')) {
-      return `data:video/${fileType === 'webm' ? 'webm' : 'mp4'};base64,${raw}`
+      return `data:${mime};base64,${raw}`
     }
   }
 
@@ -77,6 +95,7 @@ export const useVideoStore = defineStore('videoStore', () => {
     status: 'idle' as VideoJobStatus,
     jobId: null as number | null,
     videoSrc: '',
+    fileType: '',
     artImageId: null as number | null,
     message: '',
     error: '',
@@ -87,10 +106,14 @@ export const useVideoStore = defineStore('videoStore', () => {
     () => state.status === 'queued' || state.status === 'rendering',
   )
 
+  // webp/gif clips render as <img> (loop natively); mp4/webm render as <video>.
+  const resultIsImage = computed(() => isImageClipFileType(state.fileType))
+
   function reset(): void {
     state.status = 'idle'
     state.jobId = null
     state.videoSrc = ''
+    state.fileType = ''
     state.artImageId = null
     state.message = ''
     state.error = ''
@@ -113,6 +136,7 @@ export const useVideoStore = defineStore('videoStore', () => {
         ? params.loraResourceIds
         : undefined,
       loraStrength: params.loraStrength ?? undefined,
+      outputFormat: params.outputFormat ?? undefined,
       isPublic: params.isPublic ?? true,
       isMature: params.isMature ?? false,
       designer: params.designer ?? undefined,
@@ -183,6 +207,7 @@ export const useVideoStore = defineStore('videoStore', () => {
     }
 
     state.videoSrc = artImageToVideoSrc(res.data)
+    state.fileType = (res.data.fileType || '').toLowerCase()
   }
 
   // Full orchestration: enqueue → poll → resolve. Sets status/error along the
@@ -219,5 +244,5 @@ export const useVideoStore = defineStore('videoStore', () => {
     }
   }
 
-  return { state, isBusy, reset, generate }
+  return { state, isBusy, resultIsImage, reset, generate }
 })

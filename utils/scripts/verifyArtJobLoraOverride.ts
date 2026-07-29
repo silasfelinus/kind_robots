@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
+import { applyResolvedLoraResourceToArtJobPayload } from '../../server/utils/artJobResourceRefresh'
 
 // Style-LoRA override: repoint a job's selected style LoRA without rebuilding
 // it. This is the in-place fix for a stored lora_name that no longer resolves
@@ -115,6 +116,86 @@ import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
   const out = applyArtJobOverrides(payload, { loraName: 'x/y.safetensors' })
   assert.equal((out.workflow as any)['24'].inputs.unet_name, 'flux1-dev-Q8_0.gguf')
   assert.ok(!('lora_name' in (out.workflow as any)['24'].inputs))
+}
+
+// 6. Job 2615 refreshes Resource 4082 instead of preserving the stale payload.
+{
+  const refresh = applyResolvedLoraResourceToArtJobPayload(
+    {
+      loraName: 'FLUX\\impressionist.safetensors',
+      resources: {
+        loraResourceIds: [4082],
+        loraNames: ['FLUX\\impressionist.safetensors'],
+      },
+      workflow: {
+        '61': {
+          class_type: 'LoraLoaderModelOnly',
+          inputs: {
+            lora_name: 'FLUX\\impressionist.safetensors',
+            strength_model: 1,
+          },
+          _meta: { title: 'Style LoRA' },
+        },
+      },
+    },
+    {
+      id: 4082,
+      localPath: 'Flux/SFW/ume_classic_impressionist.safetensors',
+    },
+  )
+
+  assert.equal(refresh.changed, true)
+  assert.deepEqual(refresh.loraResourceIds, [4082])
+  assert.deepEqual(refresh.loraNames, [
+    'Flux/SFW/ume_classic_impressionist.safetensors',
+  ])
+  assert.equal(
+    (refresh.payload.workflow as any)['61'].inputs.lora_name,
+    'Flux/SFW/ume_classic_impressionist.safetensors',
+  )
+  assert.equal(
+    refresh.payload.loraName,
+    'Flux/SFW/ume_classic_impressionist.safetensors',
+  )
+  assert.deepEqual((refresh.payload.resources as any).loraNames, [
+    'Flux/SFW/ume_classic_impressionist.safetensors',
+  ])
+}
+
+// 7. Job 2621 keeps the Resource's Kontext folder and exact path casing.
+{
+  const refresh = applyResolvedLoraResourceToArtJobPayload(
+    {
+      resources: {
+        loraResourceIds: [1300],
+        loraNames: ['FLUX/manuscript_illustration_kontext.safetensors'],
+      },
+      workflow: {
+        '61': {
+          class_type: 'LoraLoaderModelOnly',
+          inputs: {
+            lora_name: 'FLUX/manuscript_illustration_kontext.safetensors',
+            strength_model: 1,
+          },
+          _meta: { title: 'Style LoRA' },
+        },
+      },
+    },
+    {
+      id: 1300,
+      localPath: 'Kontext\\SFW\\manuscript_illustration_kontext.safetensors',
+    },
+  )
+
+  assert.deepEqual(refresh.loraNames, [
+    'Kontext/SFW/manuscript_illustration_kontext.safetensors',
+  ])
+  assert.equal(
+    (refresh.payload.workflow as any)['61'].inputs.lora_name,
+    'Kontext/SFW/manuscript_illustration_kontext.safetensors',
+  )
+  assert.ok(!JSON.stringify(refresh.payload).includes('FLUX/'))
+  assert.ok(!JSON.stringify(refresh.payload).includes('\\\\'))
 }
 
 console.log('✅ verifyArtJobLoraOverride: all assertions passed')

@@ -7,7 +7,10 @@ on:
       - "server/api/art/queue/**"
       - "server/utils/artJobProvenance.ts"
       - "server/utils/artImageSeed.ts"
+      - "server/utils/artJobResourceRefresh.ts"
+      - "server/utils/artJobRetry.ts"
       - "utils/scripts/verifyArtJobProvenance.ts"
+      - "utils/scripts/verifyArtJobLoraOverride.ts"
       - ".github/workflows/artjob-provenance-contract.yml"
   pull_request:
     branches: [main]
@@ -15,7 +18,10 @@ on:
       - "server/api/art/queue/**"
       - "server/utils/artJobProvenance.ts"
       - "server/utils/artImageSeed.ts"
+      - "server/utils/artJobResourceRefresh.ts"
+      - "server/utils/artJobRetry.ts"
       - "utils/scripts/verifyArtJobProvenance.ts"
+      - "utils/scripts/verifyArtJobLoraOverride.ts"
       - ".github/workflows/artjob-provenance-contract.yml"
   workflow_dispatch:
 
@@ -43,6 +49,9 @@ jobs:
 
       - name: Verify prompt and output provenance
         run: npx tsx utils/scripts/verifyArtJobProvenance.ts
+
+      - name: Verify LoRA retry resource refresh
+        run: npm run test:artjob-lora-override
 
       - name: TypeScript check
         run: npm run test

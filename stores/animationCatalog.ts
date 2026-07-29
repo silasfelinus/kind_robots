@@ -249,6 +249,17 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'celestial-mobile',
+    label: 'Celestial Mobile',
+    reveal: 'It finds its balance',
+    icon: 'kind-icon:orbit',
+    tooltip:
+      'A hanging mobile of moons, robots, keys, and planets slowly rebalances itself; wave the pointer for a breeze, click to hang a mystery weight 🪐',
+    color: '#b08d57',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

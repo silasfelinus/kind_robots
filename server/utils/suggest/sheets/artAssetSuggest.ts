@@ -46,6 +46,9 @@ function buildArtContext(context: Record<string, unknown>): string[] {
   pushLine(lines, 'Variant', asset.variant)
   pushLine(lines, 'Dimensions', asset.size)
   pushLine(lines, 'Image class', asset.className)
+  pushLine(lines, 'Asset description', asset.description)
+  pushLine(lines, 'Preferred art direction', asset.preferredStyle)
+  pushLine(lines, 'Explicit exclusions', asset.exclusions)
 
   pushLine(lines, 'Project title', project.title)
   pushLine(lines, 'Project slug', project.slug)

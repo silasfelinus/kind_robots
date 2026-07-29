@@ -6,6 +6,10 @@ on:
       - codex/serendipity-canonical-route
     paths:
       - '.github/workflows/serendipity-route-cutover.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/serendipity-route-cutover.yml'
 
 permissions:
   contents: write

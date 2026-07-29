@@ -100,6 +100,8 @@
     "test:model-builder-completion-gate": "tsx utils/scripts/verifyModelBuilderCompletionGate.ts",
     "test:model-builder-cancelled-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderCancelledRunGuard.test.ts",
     "test:model-builder-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderCancelledRunGuard.ts",
+    "test:model-builder-approved-asset-guard-selftest": "tsx utils/scripts/verifyModelBuilderApprovedAssetGuard.test.ts",
+    "test:model-builder-approved-asset-guard": "tsx utils/scripts/verifyModelBuilderApprovedAssetGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",

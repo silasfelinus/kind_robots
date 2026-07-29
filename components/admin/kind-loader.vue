@@ -1,7 +1,13 @@
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
+    <quick-loading-splash
+      v-if="showOverlay && startupMode === 'quick'"
+      @covered="handleOverlayCovered"
+      @hidden="handleOverlayHidden"
+    />
+
     <loading-messages
-      v-if="showOverlay"
+      v-else-if="showOverlay"
       :stores-ready="storesReady"
       @covered="handleOverlayCovered"
       @hiding="handleOverlayHiding"
@@ -72,10 +78,12 @@ const emit = defineEmits<{
   pageReady: [boolean]
 }>()
 
+type StartupMode = 'full' | 'quick'
+
 const STARTUP_STORAGE_KEY = 'kind-robots-startup-build-v1'
 const buildId = String(runtimeConfig.public.buildId || 'development')
 
-function shouldShowStartupSequence(): boolean {
+function shouldShowFullStartupSequence(): boolean {
   if (!import.meta.client) return true
 
   try {
@@ -95,8 +103,10 @@ function markStartupSequenceSeen(): void {
   }
 }
 
-const showStartupSequence = ref(shouldShowStartupSequence())
-const showOverlay = ref(showStartupSequence.value)
+const startupMode = ref<StartupMode>(
+  shouldShowFullStartupSequence() ? 'full' : 'quick',
+)
+const showOverlay = ref(true)
 const storesReady = ref(false)
 const pageReadyEmitted = ref(false)
 const coveredEmitted = ref(false)
@@ -104,9 +114,9 @@ const coveredEmitted = ref(false)
 let initializationPromise: Promise<void> | null = null
 
 startupStore.reset()
-butterflyStore.setShowSwarm(showStartupSequence.value)
+butterflyStore.setShowSwarm(startupMode.value === 'full')
 
-if (showStartupSequence.value) {
+if (startupMode.value === 'full') {
   markStartupSequenceSeen()
 }
 
@@ -246,16 +256,13 @@ function ensureStoresInitialized(): Promise<void> {
 }
 
 onBeforeMount(() => {
-  if (showStartupSequence.value) return
-
+  if (startupMode.value !== 'quick') return
   void ensureStoresInitialized()
-  handleOverlayCovered()
-  emitReadyOnce()
 })
 
-onMounted(async () => {
-  if (!showStartupSequence.value) return
-  await ensureStoresInitialized()
+onMounted(() => {
+  if (startupMode.value !== 'full') return
+  void ensureStoresInitialized()
 })
 </script>
 

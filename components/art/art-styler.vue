@@ -1371,19 +1371,29 @@ async function hydrateFromResourceStore(): Promise<void> {
 
     if (!dbLoras.length) return
 
-    const builtinPaths = new Set(
-      styles.value
-        .map((style) => style.loraPath)
-        .filter((path): path is string => !!path),
+    // Match by filename stem (case/slash-insensitive), NOT by the full stored
+    // path — the builtins hardcode legacy `FLUX/...` strings that no longer
+    // exist on the art server, so the real match lives at a different folder
+    // (`Kontext/SFW/...`, `Flux/SFW/...`). We adopt the resource's actual
+    // localPath below so the workflow gets a name ComfyUI can resolve.
+    const stemOf = (path?: string | null): string =>
+      path
+        ?.replace(/\\/g, '/')
+        .split('/')
+        .pop()
+        ?.replace(/\.safetensors$/i, '')
+        .toLowerCase() || ''
+
+    const builtinStems = new Set(
+      styles.value.map((style) => stemOf(style.loraPath)).filter(Boolean),
     )
 
     const updated = styles.value.map((style) => {
-      const stem =
-        style.loraPath?.split('/').pop()?.replace('.safetensors', '') || ''
+      const stem = stemOf(style.loraPath)
 
       const match = dbLoras.find((resource) => {
         return (
-          (stem && resource.localPath?.includes(stem)) ||
+          (stem && stemOf(resource.localPath) === stem) ||
           resource.name?.toLowerCase().includes(style.label.toLowerCase())
         )
       })
@@ -1392,6 +1402,8 @@ async function hydrateFromResourceStore(): Promise<void> {
 
       return {
         ...style,
+        // Use the resource's real path, not the builtin's legacy `FLUX/...`.
+        loraPath: match.localPath || style.loraPath,
         resourceId: match.id,
         previewImageSrc: style.previewImageSrc || match.imagePath || undefined,
       }
@@ -1400,18 +1412,13 @@ async function hydrateFromResourceStore(): Promise<void> {
     const newFromDb = dbLoras
       .filter((resource) => {
         if (!resource.localPath) return false
-
-        const fullPath = resource.localPath.startsWith('FLUX/')
-          ? resource.localPath
-          : `FLUX/${resource.localPath}`
-
-        return !builtinPaths.has(fullPath)
+        // Dedupe against builtins by filename stem (a builtin already covers
+        // this LoRA under a legacy path); the DB path is used verbatim.
+        return !builtinStems.has(stemOf(resource.localPath))
       })
       .map((resource): StyleEntry => {
         return {
-          loraPath: resource.localPath!.startsWith('FLUX/')
-            ? resource.localPath!
-            : `FLUX/${resource.localPath}`,
+          loraPath: resource.localPath!,
           loraWeight: 1,
           triggerPhrase:
             resource.artPrompt || resource.customLabel || resource.name,

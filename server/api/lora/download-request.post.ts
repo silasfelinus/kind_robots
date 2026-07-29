@@ -12,8 +12,27 @@ import { requireApiUser } from '../../utils/authGuard'
 
 type DownloadSource = 'CIVITAI' | 'CIVARCHIVE' | 'URL'
 
+// The kinds of model a download can become. Mirrors prisma ResourceType; the
+// import agent reads this to pick the engine directory (loras vs checkpoints).
+const RESOURCE_TYPES = [
+  'CHECKPOINT',
+  'EMBEDDING',
+  'LORA',
+  'LYCORIS',
+  'HYPERNETWORK',
+  'SAMPLER',
+  'CONTROLNET',
+  'URL',
+  'API',
+  'VAE',
+  'TEXT_ENCODER',
+  'DIFFUSION_MODEL',
+] as const
+type ResourceType = (typeof RESOURCE_TYPES)[number]
+
 type DownloadRequestBody = {
   source?: string | null
+  resourceType?: string | null
   civitaiModelId?: number | null
   civitaiModelVersionId?: number | null
   downloadUrl?: string | null
@@ -27,6 +46,13 @@ function normalizeSource(value: unknown): DownloadSource {
   if (candidate === 'CIVARCHIVE') return 'CIVARCHIVE'
   if (candidate === 'URL') return 'URL'
   return 'CIVITAI'
+}
+
+function normalizeResourceType(value: unknown): ResourceType {
+  const candidate = String(value ?? '').toUpperCase()
+  return (RESOURCE_TYPES as readonly string[]).includes(candidate)
+    ? (candidate as ResourceType)
+    : 'LORA'
 }
 
 function optionalPositiveInt(value: unknown): number | null {
@@ -52,6 +78,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const source = normalizeSource(body.source)
+    const resourceType = normalizeResourceType(body.resourceType)
     const civitaiModelId = optionalPositiveInt(body.civitaiModelId)
     const civitaiModelVersionId = optionalPositiveInt(body.civitaiModelVersionId)
     const downloadUrl = optionalText(body.downloadUrl, 2000)
@@ -106,6 +133,7 @@ export default defineEventHandler(async (event) => {
       data: {
         status: 'PENDING',
         source,
+        resourceType,
         civitaiModelId,
         civitaiModelVersionId,
         downloadUrl,

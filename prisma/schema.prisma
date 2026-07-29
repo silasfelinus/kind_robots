@@ -1545,6 +1545,10 @@ model DownloadRequest {
   updatedAt             DateTime?      @default(now()) @updatedAt
   status                DownloadStatus @default(PENDING)
   source                DownloadSource @default(CIVITAI)
+  /// What kind of model this download becomes — tells the import agent which
+  /// engine directory to drop the file in (loras vs checkpoints). Defaults to
+  /// LORA so pre-existing rows (queued before this column) keep working.
+  resourceType          ResourceType   @default(LORA)
   civitaiModelId        Int?
   civitaiModelVersionId Int?
   downloadUrl           String?        @db.Text

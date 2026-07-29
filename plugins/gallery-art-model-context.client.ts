@@ -127,7 +127,9 @@ export default defineNuxtPlugin({
     }
 
     nuxtApp.hook('app:mounted', start)
-    nuxtApp.hook('app:beforeUnmount', () => {
+    // Nuxt has no app-unmount hook (the root app lives for the whole session);
+    // tear the observer + error listener down on real page teardown instead.
+    window.addEventListener('pagehide', () => {
       observer?.disconnect()
       window.removeEventListener('error', handleImageError, true)
     })

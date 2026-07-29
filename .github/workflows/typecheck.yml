@@ -12,6 +12,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  apply-serendipity-cutover:
+    if: github.event_name == 'pull_request' && github.head_ref == 'codex/serendipity-canonical-route' && github.actor != 'github-actions[bot]'
+    name: Apply Serendipity cutover
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex/serendipity-canonical-route
+          fetch-depth: 0
+
+      - name: Apply canonical route and identities
+        run: python utils/scripts/applySerendipityRouteCutover.py
+
+      - name: Remove temporary bootstrap machinery
+        run: |
+          git checkout origin/main -- .github/workflows/typecheck.yml
+          rm -f .github/workflows/serendipity-route-cutover.yml
+          rm -f utils/scripts/applySerendipityRouteCutover.py
+
+      - name: Commit cutover
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "refactor: make Serendipity the canonical voice route"
+          git push origin HEAD:codex/serendipity-canonical-route
+
   typecheck:
     name: TypeScript
     runs-on: ubuntu-latest

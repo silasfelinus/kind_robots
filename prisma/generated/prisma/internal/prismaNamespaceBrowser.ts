@@ -1364,6 +1364,7 @@ export const DownloadRequestScalarFieldEnum = {
   updatedAt: 'updatedAt',
   status: 'status',
   source: 'source',
+  resourceType: 'resourceType',
   civitaiModelId: 'civitaiModelId',
   civitaiModelVersionId: 'civitaiModelVersionId',
   downloadUrl: 'downloadUrl',

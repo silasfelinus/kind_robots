@@ -55,6 +55,7 @@ export type DownloadRequestMinAggregateOutputType = {
   updatedAt: Date | null
   status: $Enums.DownloadStatus | null
   source: $Enums.DownloadSource | null
+  resourceType: $Enums.ResourceType | null
   civitaiModelId: number | null
   civitaiModelVersionId: number | null
   downloadUrl: string | null
@@ -75,6 +76,7 @@ export type DownloadRequestMaxAggregateOutputType = {
   updatedAt: Date | null
   status: $Enums.DownloadStatus | null
   source: $Enums.DownloadSource | null
+  resourceType: $Enums.ResourceType | null
   civitaiModelId: number | null
   civitaiModelVersionId: number | null
   downloadUrl: string | null
@@ -95,6 +97,7 @@ export type DownloadRequestCountAggregateOutputType = {
   updatedAt: number
   status: number
   source: number
+  resourceType: number
   civitaiModelId: number
   civitaiModelVersionId: number
   downloadUrl: number
@@ -135,6 +138,7 @@ export type DownloadRequestMinAggregateInputType = {
   updatedAt?: true
   status?: true
   source?: true
+  resourceType?: true
   civitaiModelId?: true
   civitaiModelVersionId?: true
   downloadUrl?: true
@@ -155,6 +159,7 @@ export type DownloadRequestMaxAggregateInputType = {
   updatedAt?: true
   status?: true
   source?: true
+  resourceType?: true
   civitaiModelId?: true
   civitaiModelVersionId?: true
   downloadUrl?: true
@@ -175,6 +180,7 @@ export type DownloadRequestCountAggregateInputType = {
   updatedAt?: true
   status?: true
   source?: true
+  resourceType?: true
   civitaiModelId?: true
   civitaiModelVersionId?: true
   downloadUrl?: true
@@ -282,6 +288,7 @@ export type DownloadRequestGroupByOutputType = {
   updatedAt: Date | null
   status: $Enums.DownloadStatus
   source: $Enums.DownloadSource
+  resourceType: $Enums.ResourceType
   civitaiModelId: number | null
   civitaiModelVersionId: number | null
   downloadUrl: string | null
@@ -325,6 +332,7 @@ export type DownloadRequestWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"DownloadRequest"> | Date | string | null
   status?: Prisma.EnumDownloadStatusFilter<"DownloadRequest"> | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceFilter<"DownloadRequest"> | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeFilter<"DownloadRequest"> | $Enums.ResourceType
   civitaiModelId?: Prisma.IntNullableFilter<"DownloadRequest"> | number | null
   civitaiModelVersionId?: Prisma.IntNullableFilter<"DownloadRequest"> | number | null
   downloadUrl?: Prisma.StringNullableFilter<"DownloadRequest"> | string | null
@@ -345,6 +353,7 @@ export type DownloadRequestOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  resourceType?: Prisma.SortOrder
   civitaiModelId?: Prisma.SortOrderInput | Prisma.SortOrder
   civitaiModelVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   downloadUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -369,6 +378,7 @@ export type DownloadRequestWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"DownloadRequest"> | Date | string | null
   status?: Prisma.EnumDownloadStatusFilter<"DownloadRequest"> | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceFilter<"DownloadRequest"> | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeFilter<"DownloadRequest"> | $Enums.ResourceType
   civitaiModelId?: Prisma.IntNullableFilter<"DownloadRequest"> | number | null
   civitaiModelVersionId?: Prisma.IntNullableFilter<"DownloadRequest"> | number | null
   downloadUrl?: Prisma.StringNullableFilter<"DownloadRequest"> | string | null
@@ -389,6 +399,7 @@ export type DownloadRequestOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  resourceType?: Prisma.SortOrder
   civitaiModelId?: Prisma.SortOrderInput | Prisma.SortOrder
   civitaiModelVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   downloadUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -417,6 +428,7 @@ export type DownloadRequestScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DownloadRequest"> | Date | string | null
   status?: Prisma.EnumDownloadStatusWithAggregatesFilter<"DownloadRequest"> | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceWithAggregatesFilter<"DownloadRequest"> | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeWithAggregatesFilter<"DownloadRequest"> | $Enums.ResourceType
   civitaiModelId?: Prisma.IntNullableWithAggregatesFilter<"DownloadRequest"> | number | null
   civitaiModelVersionId?: Prisma.IntNullableWithAggregatesFilter<"DownloadRequest"> | number | null
   downloadUrl?: Prisma.StringNullableWithAggregatesFilter<"DownloadRequest"> | string | null
@@ -436,6 +448,7 @@ export type DownloadRequestCreateInput = {
   updatedAt?: Date | string | null
   status?: $Enums.DownloadStatus
   source?: $Enums.DownloadSource
+  resourceType?: $Enums.ResourceType
   civitaiModelId?: number | null
   civitaiModelVersionId?: number | null
   downloadUrl?: string | null
@@ -456,6 +469,7 @@ export type DownloadRequestUncheckedCreateInput = {
   updatedAt?: Date | string | null
   status?: $Enums.DownloadStatus
   source?: $Enums.DownloadSource
+  resourceType?: $Enums.ResourceType
   civitaiModelId?: number | null
   civitaiModelVersionId?: number | null
   downloadUrl?: string | null
@@ -475,6 +489,7 @@ export type DownloadRequestUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumDownloadStatusFieldUpdateOperationsInput | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceFieldUpdateOperationsInput | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   downloadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -495,6 +510,7 @@ export type DownloadRequestUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumDownloadStatusFieldUpdateOperationsInput | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceFieldUpdateOperationsInput | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   downloadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -515,6 +531,7 @@ export type DownloadRequestCreateManyInput = {
   updatedAt?: Date | string | null
   status?: $Enums.DownloadStatus
   source?: $Enums.DownloadSource
+  resourceType?: $Enums.ResourceType
   civitaiModelId?: number | null
   civitaiModelVersionId?: number | null
   downloadUrl?: string | null
@@ -534,6 +551,7 @@ export type DownloadRequestUpdateManyMutationInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumDownloadStatusFieldUpdateOperationsInput | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceFieldUpdateOperationsInput | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   downloadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -554,6 +572,7 @@ export type DownloadRequestUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumDownloadStatusFieldUpdateOperationsInput | $Enums.DownloadStatus
   source?: Prisma.EnumDownloadSourceFieldUpdateOperationsInput | $Enums.DownloadSource
+  resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   civitaiModelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   civitaiModelVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   downloadUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -580,6 +599,7 @@ export type DownloadRequestCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  resourceType?: Prisma.SortOrder
   civitaiModelId?: Prisma.SortOrder
   civitaiModelVersionId?: Prisma.SortOrder
   downloadUrl?: Prisma.SortOrder
@@ -609,6 +629,7 @@ export type DownloadRequestMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  resourceType?: Prisma.SortOrder
   civitaiModelId?: Prisma.SortOrder
   civitaiModelVersionId?: Prisma.SortOrder
   downloadUrl?: Prisma.SortOrder
@@ -629,6 +650,7 @@ export type DownloadRequestMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  resourceType?: Prisma.SortOrder
   civitaiModelId?: Prisma.SortOrder
   civitaiModelVersionId?: Prisma.SortOrder
   downloadUrl?: Prisma.SortOrder
@@ -668,6 +690,7 @@ export type DownloadRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   updatedAt?: boolean
   status?: boolean
   source?: boolean
+  resourceType?: boolean
   civitaiModelId?: boolean
   civitaiModelVersionId?: boolean
   downloadUrl?: boolean
@@ -690,6 +713,7 @@ export type DownloadRequestSelectScalar = {
   updatedAt?: boolean
   status?: boolean
   source?: boolean
+  resourceType?: boolean
   civitaiModelId?: boolean
   civitaiModelVersionId?: boolean
   downloadUrl?: boolean
@@ -704,7 +728,7 @@ export type DownloadRequestSelectScalar = {
   userId?: boolean
 }
 
-export type DownloadRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "status" | "source" | "civitaiModelId" | "civitaiModelVersionId" | "downloadUrl" | "fileName" | "label" | "isMature" | "attempts" | "claimedAt" | "claimedBy" | "resourceId" | "error" | "userId", ExtArgs["result"]["downloadRequest"]>
+export type DownloadRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "status" | "source" | "resourceType" | "civitaiModelId" | "civitaiModelVersionId" | "downloadUrl" | "fileName" | "label" | "isMature" | "attempts" | "claimedAt" | "claimedBy" | "resourceId" | "error" | "userId", ExtArgs["result"]["downloadRequest"]>
 
 export type $DownloadRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DownloadRequest"
@@ -715,6 +739,12 @@ export type $DownloadRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     updatedAt: Date | null
     status: $Enums.DownloadStatus
     source: $Enums.DownloadSource
+    /**
+     * What kind of model this download becomes — tells the import agent which
+     * engine directory to drop the file in (loras vs checkpoints). Defaults to
+     * LORA so pre-existing rows (queued before this column) keep working.
+     */
+    resourceType: $Enums.ResourceType
     civitaiModelId: number | null
     civitaiModelVersionId: number | null
     downloadUrl: string | null
@@ -1101,6 +1131,7 @@ export interface DownloadRequestFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"DownloadRequest", 'DateTime'>
   readonly status: Prisma.FieldRef<"DownloadRequest", 'DownloadStatus'>
   readonly source: Prisma.FieldRef<"DownloadRequest", 'DownloadSource'>
+  readonly resourceType: Prisma.FieldRef<"DownloadRequest", 'ResourceType'>
   readonly civitaiModelId: Prisma.FieldRef<"DownloadRequest", 'Int'>
   readonly civitaiModelVersionId: Prisma.FieldRef<"DownloadRequest", 'Int'>
   readonly downloadUrl: Prisma.FieldRef<"DownloadRequest", 'String'>

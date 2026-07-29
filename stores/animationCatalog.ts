@@ -260,6 +260,17 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'tiny-weather-front',
+    label: 'Tiny Weather Front',
+    reveal: 'Its own little sky',
+    icon: 'kind-icon:storm',
+    tooltip:
+      'Miniature weather cells drift and merge across the screen; wave the pointer to bend a front, click for a warm updraft 🌦️',
+    color: '#64748b',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'fireworks-effect',
     label: 'Fireworks',
     reveal: '🎆 Celebration!',

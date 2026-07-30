@@ -1,4 +1,10 @@
 export const FORCE_FULL_STARTUP_KEY = 'kind-robots-force-full-startup-v1'
+export const STARTUP_COVER_CLASS = 'kr-full-startup'
+
+export function clearStartupCover(): void {
+  if (!import.meta.client) return
+  document.documentElement.classList.remove(STARTUP_COVER_CLASS)
+}
 
 export function requestFullStartupReload(): void {
   if (!import.meta.client) return
@@ -9,7 +15,20 @@ export function requestFullStartupReload(): void {
     // Reload anyway; the next visit may fall back to normal startup detection.
   }
 
-  window.location.reload()
+  document.documentElement.classList.add(STARTUP_COVER_CLASS)
+
+  let reloadStarted = false
+  const reload = () => {
+    if (reloadStarted) return
+    reloadStarted = true
+    window.location.reload()
+  }
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(reload)
+  })
+
+  window.setTimeout(reload, 180)
 }
 
 export function consumeForcedFullStartup(): boolean {

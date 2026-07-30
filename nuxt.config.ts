@@ -32,10 +32,54 @@ const buildId =
   process.env.NUXT_PUBLIC_BUILD_ID ||
   'development'
 
+const startupPrehydrateScript = `(() => {
+  const FORCE_KEY = 'kind-robots-force-full-startup-v1'
+  const SEEN_KEY = 'kind-robots-startup-build-v1'
+  const COVER_CLASS = 'kr-full-startup'
+  const BUILD_ID = ${JSON.stringify(buildId)}
+
+  let forced = false
+  let reloading = false
+  let shouldCover = false
+
+  try {
+    forced = sessionStorage.getItem(FORCE_KEY) === '1'
+  } catch {}
+
+  try {
+    const navigation = performance.getEntriesByType('navigation')[0]
+    reloading = navigation?.type === 'reload'
+  } catch {}
+
+  if (forced) {
+    shouldCover = true
+  } else if (!reloading) {
+    try {
+      shouldCover = localStorage.getItem(SEEN_KEY) !== BUILD_ID
+    } catch {
+      shouldCover = true
+    }
+  }
+
+  if (shouldCover) {
+    document.documentElement.classList.add(COVER_CLASS)
+  }
+})()`
+
 generateWonderLabComponentMetadata()
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-06-01',
+  app: {
+    head: {
+      script: [
+        {
+          innerHTML: startupPrehydrateScript,
+          tagPosition: 'head',
+        },
+      ],
+    },
+  },
   content: {
     experimental: {
       sqliteConnector: 'native',
@@ -107,7 +151,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/tailwind.css'],
+  css: ['~/assets/css/startup-cover.css', '~/assets/css/tailwind.css'],
 
   runtimeConfig: {
     openaiApiKey: process.env.OPENAI_API_KEY || '',

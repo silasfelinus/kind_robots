@@ -1,6 +1,5 @@
 <template>
   <img
-    v-if="visualSrc"
     :key="visualSrc"
     :src="visualSrc"
     alt="Kind Robots"
@@ -11,7 +10,7 @@
     loading="eager"
     fetchpriority="high"
     decoding="async"
-    @load="visualReady = true"
+    @load="handleVisualLoad"
     @error="useLogoFallback"
   />
 </template>
@@ -23,59 +22,105 @@ interface StartupAnimationsResponse {
   animations?: string[]
 }
 
+type IntroVisualKind = 'logo' | 'animation'
+
+const emit = defineEmits<{
+  settled: [kind: IntroVisualKind]
+}>()
+
 const LOGO_SRC = '/images/kindlogo_new.webp'
 const ANIMATION_CHANCE = 0.5
-const FALLBACK_WAIT_MS = 900
-const REQUEST_TIMEOUT_MS = 1_800
+const REQUEST_TIMEOUT_MS = 3_500
+const IMAGE_LOAD_TIMEOUT_MS = 8_000
 
 const shouldTryAnimation = import.meta.client && Math.random() < ANIMATION_CHANCE
-const visualSrc = ref(shouldTryAnimation ? '' : LOGO_SRC)
+const visualSrc = ref(LOGO_SRC)
 const visualReady = ref(false)
 
 let destroyed = false
-let fallbackCommitted = false
-let fallbackTimer: ReturnType<typeof setTimeout> | null = null
+let animationAttemptPending = shouldTryAnimation
+let settledEmitted = false
 let requestController: AbortController | null = null
+let cancelPreload: (() => void) | null = null
+
+function emitSettled(kind: IntroVisualKind): void {
+  if (destroyed || settledEmitted) return
+  settledEmitted = true
+  emit('settled', kind)
+}
 
 function setVisual(src: string): void {
-  if (destroyed) return
+  if (destroyed || visualSrc.value === src) return
   visualReady.value = false
   visualSrc.value = src
 }
 
-function commitLogoFallback(): void {
-  fallbackCommitted = true
-  setVisual(LOGO_SRC)
+function settleOnLogo(): void {
+  animationAttemptPending = false
+  if (visualSrc.value !== LOGO_SRC) setVisual(LOGO_SRC)
+  if (visualReady.value) emitSettled('logo')
 }
 
 function useLogoFallback(): void {
-  if (visualSrc.value === LOGO_SRC) return
-  commitLogoFallback()
+  settleOnLogo()
 }
 
-function clearFallbackTimer(): void {
-  if (!fallbackTimer) return
-  clearTimeout(fallbackTimer)
-  fallbackTimer = null
+function handleVisualLoad(): void {
+  visualReady.value = true
+
+  if (visualSrc.value !== LOGO_SRC) {
+    animationAttemptPending = false
+    emitSettled('animation')
+    return
+  }
+
+  if (!animationAttemptPending) emitSettled('logo')
+}
+
+function preloadAnimation(src: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const image = new Image()
+    let settled = false
+
+    const finish = (loaded: boolean) => {
+      if (settled) return
+      settled = true
+      window.clearTimeout(timeoutId)
+      image.onload = null
+      image.onerror = null
+      if (cancelPreload === cancel) cancelPreload = null
+      resolve(loaded)
+    }
+
+    const cancel = () => finish(false)
+    const timeoutId = window.setTimeout(cancel, IMAGE_LOAD_TIMEOUT_MS)
+
+    cancelPreload = cancel
+    image.onload = () => finish(true)
+    image.onerror = cancel
+    image.src = src
+  })
 }
 
 async function selectAnimation(): Promise<void> {
-  fallbackTimer = setTimeout(commitLogoFallback, FALLBACK_WAIT_MS)
   requestController = new AbortController()
-  const requestTimeout = setTimeout(
+  const requestTimeout = window.setTimeout(
     () => requestController?.abort(),
     REQUEST_TIMEOUT_MS,
   )
 
   try {
     const fetchResponse = await fetch('/api/startup/animations', {
+      cache: 'force-cache',
       headers: { Accept: 'application/json' },
       signal: requestController.signal,
     })
-    if (!fetchResponse.ok) throw new Error(`Animation catalog ${fetchResponse.status}`)
+    if (!fetchResponse.ok) {
+      throw new Error(`Animation catalog ${fetchResponse.status}`)
+    }
 
     const response = (await fetchResponse.json()) as StartupAnimationsResponse
-    if (destroyed || fallbackCommitted) return
+    if (destroyed) return
 
     const animations = (response.animations || []).filter((url) =>
       /^\/images\/startup-animations\/launch-[a-z0-9][a-z0-9-]*\.webp$/i.test(
@@ -83,29 +128,44 @@ async function selectAnimation(): Promise<void> {
       ),
     )
     if (!animations.length) {
-      commitLogoFallback()
+      settleOnLogo()
       return
     }
 
-    clearFallbackTimer()
     const selected = animations[Math.floor(Math.random() * animations.length)]
-    setVisual(selected || LOGO_SRC)
+    if (!selected) {
+      settleOnLogo()
+      return
+    }
+
+    const loaded = await preloadAnimation(selected)
+    if (!loaded || destroyed) {
+      settleOnLogo()
+      return
+    }
+
+    setVisual(selected)
   } catch {
-    if (!fallbackCommitted) commitLogoFallback()
+    settleOnLogo()
   } finally {
-    clearTimeout(requestTimeout)
+    window.clearTimeout(requestTimeout)
     requestController = null
   }
 }
 
 onMounted(() => {
-  if (shouldTryAnimation) void selectAnimation()
+  if (shouldTryAnimation) {
+    void selectAnimation()
+  } else if (visualReady.value) {
+    emitSettled('logo')
+  }
 })
 
 onBeforeUnmount(() => {
   destroyed = true
-  clearFallbackTimer()
   requestController?.abort()
   requestController = null
+  cancelPreload?.()
+  cancelPreload = null
 })
 </script>

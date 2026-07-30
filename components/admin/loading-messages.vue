@@ -12,7 +12,7 @@
       <div class="loading-heading">Building Kind Robots...</div>
 
       <div class="loading-logo-frame">
-        <startup-intro-visual />
+        <startup-intro-visual @settled="handleIntroVisualSettled" />
       </div>
 
       <div class="loading-status">
@@ -53,6 +53,8 @@ const currentMessage = ref('Wiring robots for suspicious levels of charm...')
 const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
+const introVisualSettled = ref(false)
+const introVisualKind = ref<'logo' | 'animation'>('logo')
 const hiddenEmitted = ref(false)
 const exitRequested = ref(false)
 
@@ -60,6 +62,7 @@ const EXTRA_MESSAGE_COUNT = 2
 const EXTRA_MESSAGE_MS = 1250
 const ROTATING_MESSAGE_MS = 1600
 const READY_HOLD_MS = 450
+const ANIMATION_VISIBLE_HOLD_MS = 1500
 const MIN_TOTAL_MS =
   (EXTRA_MESSAGE_COUNT + 1) * EXTRA_MESSAGE_MS + READY_HOLD_MS
 const OVERLAY_FADE_MS = 650
@@ -128,6 +131,7 @@ function doFade() {
 function scheduleFade() {
   if (!props.storesReady) return
   if (!minimumSequenceComplete.value) return
+  if (!introVisualSettled.value) return
   if (fadeOverlay.value) return
   if (startupStore.immersive) return
   if (readyHoldTimeoutId) return
@@ -135,13 +139,22 @@ function scheduleFade() {
   clearRotation()
 
   const elapsed = Date.now() - startTime
+  const minimumRemaining = Math.max(READY_HOLD_MS, MIN_TOTAL_MS - elapsed)
   const holdNeeded = exitRequested.value
     ? 0
-    : Math.max(READY_HOLD_MS, MIN_TOTAL_MS - elapsed)
+    : introVisualKind.value === 'animation'
+      ? Math.max(ANIMATION_VISIBLE_HOLD_MS, minimumRemaining)
+      : minimumRemaining
 
   readyHoldTimeoutId = setTimeout(() => {
     doFade()
   }, holdNeeded)
+}
+
+function handleIntroVisualSettled(kind: 'logo' | 'animation') {
+  introVisualKind.value = kind
+  introVisualSettled.value = true
+  scheduleFade()
 }
 
 function handleTransitionEnd(event: TransitionEvent) {
@@ -159,7 +172,7 @@ async function runVisualSequence() {
 
   minimumSequenceComplete.value = true
 
-  if (props.storesReady) {
+  if (props.storesReady && introVisualSettled.value) {
     scheduleFade()
     return
   }
@@ -167,7 +180,7 @@ async function runVisualSequence() {
   rotationIntervalId = setInterval(() => {
     if (destroyed) return
     nextMessage()
-    if (props.storesReady) scheduleFade()
+    if (props.storesReady && introVisualSettled.value) scheduleFade()
   }, ROTATING_MESSAGE_MS)
 }
 
@@ -331,7 +344,7 @@ onBeforeUnmount(() => {
   animation: loading-logo-wobble 10s ease-in-out infinite alternate;
 }
 
-.loading-logo {
+:deep(.loading-logo) {
   position: relative;
   z-index: 1;
   width: clamp(16rem, 58vw, 34rem);
@@ -359,12 +372,12 @@ onBeforeUnmount(() => {
   will-change: opacity, transform;
 }
 
-.loading-logo--ready {
+:deep(.loading-logo--ready) {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-.loading-overlay--fade .loading-logo {
+.loading-overlay--fade :deep(.loading-logo) {
   opacity: 0;
   transform: translateY(-0.5rem) scale(1.04);
   transition-duration: 650ms;
@@ -438,7 +451,7 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .loading-content,
-  .loading-logo,
+  :deep(.loading-logo),
   .loading-logo-frame::before,
   .loading-logo-frame::after {
     animation: none;

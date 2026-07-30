@@ -1,0 +1,20 @@
+html.kr-full-startup {
+  background: #000;
+}
+
+html.kr-full-startup::before {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background: #000;
+  content: '';
+  pointer-events: none;
+}
+
+.kr-boot-curtain {
+  display: none !important;
+}
+
+html.kr-full-startup .kr-boot-curtain {
+  display: block !important;
+}

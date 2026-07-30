@@ -462,6 +462,7 @@ const FIELD_META: Record<
 
 const CONDUCTOR_IMAGE_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
+const PROJECT_ART_STATUS_POLL_MS = 2_000
 
 const props = defineProps<{
   slug: string
@@ -752,7 +753,7 @@ function startPolling(jobId: number) {
       // Completion is durable on the server; transient polling failures should
       // not turn a valid queued job into a visible failure.
     }
-    pollTimer = setTimeout(poll, 5000)
+    pollTimer = setTimeout(poll, PROJECT_ART_STATUS_POLL_MS)
   }
   void poll()
 }

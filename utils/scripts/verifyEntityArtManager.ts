@@ -113,6 +113,8 @@ expectContains('components/pages/conductor-art-gallery.vue', [
   "entityType: 'project'",
   'queued as ArtJob',
   'startPolling(jobId)',
+  'const PROJECT_ART_STATUS_POLL_MS = 2_000',
+  'setTimeout(poll, PROJECT_ART_STATUS_POLL_MS)',
 ])
 
 const projectGallerySource = read('components/pages/conductor-art-gallery.vue')

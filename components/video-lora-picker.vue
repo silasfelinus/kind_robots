@@ -20,6 +20,13 @@
       </button>
     </div>
 
+    <maturity-toggle
+      variant="resource"
+      label="Mature LoRAs"
+      visible-text="Mature video LoRAs are available in this selector."
+      hidden-text="Mature video LoRAs are hidden from this selector."
+    />
+
     <div
       v-if="resourceStore.isLoading && !resourceStore.hasLoaded"
       class="flex min-h-28 items-center justify-center rounded-lg bg-base-200"
@@ -147,7 +154,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useArtStore } from '@/stores/artStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import type { VideoEngine } from '@/stores/videoStore'
 import type { Resource } from '~/prisma/generated/prisma/client'
@@ -173,22 +179,20 @@ const emit = defineEmits<{
   'update:strength': [value: number]
 }>()
 
-const artStore = useArtStore()
 const resourceStore = useResourceStore()
 
 const compatibleResources = computed<VideoLoraResource[]>(() => {
   const supportedServer = props.engine.toUpperCase()
 
-  return (resourceStore.resources as VideoLoraResource[]).filter((resource) => {
-    return (
-      (resource.resourceType === 'LORA' ||
-        resource.resourceType === 'LYCORIS') &&
-      Boolean(resource.localPath?.trim()) &&
-      (!resource.isMature || artStore.showMature) &&
-      (resource.supportedServer === supportedServer ||
-        resource.supportedServer === 'GENERIC')
-    )
-  })
+  return (resourceStore.visibleLoras as VideoLoraResource[]).filter(
+    (resource) => {
+      return (
+        Boolean(resource.localPath?.trim()) &&
+        (resource.supportedServer === supportedServer ||
+          resource.supportedServer === 'GENERIC')
+      )
+    },
+  )
 })
 
 const selectedResource = computed(

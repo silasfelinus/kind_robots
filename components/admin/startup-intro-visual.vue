@@ -1,6 +1,5 @@
 <template>
   <img
-    v-if="visualSrc"
     :key="visualSrc"
     :src="visualSrc"
     alt="Kind Robots"
@@ -17,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 
 interface StartupAnimationsResponse {
   animations?: string[]
@@ -25,87 +24,104 @@ interface StartupAnimationsResponse {
 
 const LOGO_SRC = '/images/kindlogo_new.webp'
 const ANIMATION_CHANCE = 0.5
-const FALLBACK_WAIT_MS = 900
-const REQUEST_TIMEOUT_MS = 1_800
+const REQUEST_TIMEOUT_MS = 2_800
+const IMAGE_LOAD_TIMEOUT_MS = 3_200
 
 const shouldTryAnimation = import.meta.client && Math.random() < ANIMATION_CHANCE
-const visualSrc = ref(shouldTryAnimation ? '' : LOGO_SRC)
+const visualSrc = ref(LOGO_SRC)
 const visualReady = ref(false)
 
 let destroyed = false
-let fallbackCommitted = false
-let fallbackTimer: ReturnType<typeof setTimeout> | null = null
 let requestController: AbortController | null = null
+let cancelPreload: (() => void) | null = null
 
 function setVisual(src: string): void {
-  if (destroyed) return
+  if (destroyed || visualSrc.value === src) return
   visualReady.value = false
   visualSrc.value = src
 }
 
-function commitLogoFallback(): void {
-  fallbackCommitted = true
+function useLogoFallback(): void {
+  if (visualSrc.value === LOGO_SRC) return
   setVisual(LOGO_SRC)
 }
 
-function useLogoFallback(): void {
-  if (visualSrc.value === LOGO_SRC) return
-  commitLogoFallback()
-}
+function preloadAnimation(src: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const image = new Image()
+    let settled = false
 
-function clearFallbackTimer(): void {
-  if (!fallbackTimer) return
-  clearTimeout(fallbackTimer)
-  fallbackTimer = null
+    const finish = (loaded: boolean) => {
+      if (settled) return
+      settled = true
+      window.clearTimeout(timeoutId)
+      image.onload = null
+      image.onerror = null
+      if (cancelPreload === cancel) cancelPreload = null
+      resolve(loaded)
+    }
+
+    const cancel = () => finish(false)
+    const timeoutId = window.setTimeout(cancel, IMAGE_LOAD_TIMEOUT_MS)
+
+    cancelPreload = cancel
+    image.onload = () => finish(true)
+    image.onerror = cancel
+    image.src = src
+  })
 }
 
 async function selectAnimation(): Promise<void> {
-  fallbackTimer = setTimeout(commitLogoFallback, FALLBACK_WAIT_MS)
   requestController = new AbortController()
-  const requestTimeout = setTimeout(
+  const requestTimeout = window.setTimeout(
     () => requestController?.abort(),
     REQUEST_TIMEOUT_MS,
   )
 
   try {
     const fetchResponse = await fetch('/api/startup/animations', {
+      cache: 'force-cache',
       headers: { Accept: 'application/json' },
       signal: requestController.signal,
     })
-    if (!fetchResponse.ok) throw new Error(`Animation catalog ${fetchResponse.status}`)
+    if (!fetchResponse.ok) {
+      throw new Error(`Animation catalog ${fetchResponse.status}`)
+    }
 
     const response = (await fetchResponse.json()) as StartupAnimationsResponse
-    if (destroyed || fallbackCommitted) return
+    if (destroyed) return
 
     const animations = (response.animations || []).filter((url) =>
       /^\/images\/startup-animations\/launch-[a-z0-9][a-z0-9-]*\.webp$/i.test(
         url,
       ),
     )
-    if (!animations.length) {
-      commitLogoFallback()
-      return
-    }
+    if (!animations.length) return
 
-    clearFallbackTimer()
     const selected = animations[Math.floor(Math.random() * animations.length)]
-    setVisual(selected || LOGO_SRC)
+    if (!selected) return
+
+    const loaded = await preloadAnimation(selected)
+    if (!loaded || destroyed) return
+
+    setVisual(selected)
   } catch {
-    if (!fallbackCommitted) commitLogoFallback()
+    // The logo remains visible when catalog discovery or preloading fails.
   } finally {
-    clearTimeout(requestTimeout)
+    window.clearTimeout(requestTimeout)
     requestController = null
   }
 }
 
-onMounted(() => {
-  if (shouldTryAnimation) void selectAnimation()
-})
+if (shouldTryAnimation) {
+  void selectAnimation()
+}
 
 onBeforeUnmount(() => {
   destroyed = true
-  clearFallbackTimer()
   requestController?.abort()
   requestController = null
+  cancelPreload?.()
+  cancelPreload = null
 })
 </script>

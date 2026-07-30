@@ -32,15 +32,16 @@ const buildId =
   process.env.NUXT_PUBLIC_BUILD_ID ||
   'development'
 
+const startupAnimationSrc = '/images/startup-animations/launch-04.webp'
+
 const startupPrehydrateScript = `(() => {
   const FORCE_KEY = 'kind-robots-force-full-startup-v1'
   const SEEN_KEY = 'kind-robots-startup-build-v1'
   const COVER_CLASS = 'kr-full-startup'
-  const BUILD_ID = ${JSON.stringify(buildId)}
+  const ANIMATION_SRC = ${JSON.stringify(startupAnimationSrc)}
 
   let forced = false
   let reloading = false
-  let shouldCover = false
 
   try {
     forced = sessionStorage.getItem(FORCE_KEY) === '1'
@@ -51,18 +52,23 @@ const startupPrehydrateScript = `(() => {
     reloading = navigation?.type === 'reload'
   } catch {}
 
-  if (forced) {
-    shouldCover = true
-  } else if (!reloading) {
-    try {
-      shouldCover = localStorage.getItem(SEEN_KEY) !== BUILD_ID
-    } catch {
-      shouldCover = true
-    }
-  }
+  const shouldCover = forced || !reloading
 
   if (shouldCover) {
+    if (!reloading) {
+      try {
+        localStorage.removeItem(SEEN_KEY)
+      } catch {}
+    }
+
     document.documentElement.classList.add(COVER_CLASS)
+
+    const preload = document.createElement('link')
+    preload.rel = 'preload'
+    preload.as = 'image'
+    preload.href = ANIMATION_SRC
+    preload.fetchPriority = 'high'
+    document.head.appendChild(preload)
   }
 })()`
 

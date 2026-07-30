@@ -6,9 +6,29 @@ html.kr-full-startup::before {
   position: fixed;
   inset: 0;
   z-index: 2147483646;
-  background: #000;
+  background-color: #000;
+  background-image:
+    url('/images/startup-animations/launch-04.webp'),
+    url('/images/kindlogo_new.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: clamp(16rem, 58vw, 34rem) auto;
   content: '';
   pointer-events: none;
+}
+
+html.kr-full-startup .loader-root {
+  z-index: 2147483647;
+}
+
+.loading-logo-frame {
+  background-color: #000;
+  background-image:
+    url('/images/startup-animations/launch-04.webp'),
+    url('/images/kindlogo_new.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: clamp(16rem, 58vw, 34rem) auto;
 }
 
 .kr-boot-curtain {

@@ -101,6 +101,36 @@ export default defineEventHandler(async (event) => {
     }
 
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
+
+    // The relay polls frequently while idle. Avoid stale cleanup, affinity
+    // lookup, and the 50-row smart-queue query when there is clearly no work.
+    // This cheap probe also sees stale RUNNING jobs so recovery still happens.
+    const queueSignal = await prisma.artJob.findFirst({
+      where: {
+        engine: { in: engines },
+        OR: [
+          { status: 'PENDING', attempts: { lt: MAX_ATTEMPTS } },
+          { status: 'RUNNING', claimedAt: { lt: staleBefore } },
+        ],
+      },
+      select: { id: true },
+    })
+
+    if (!queueSignal) {
+      return {
+        success: true,
+        message: 'No runnable jobs.',
+        data: {
+          job: null,
+          scheduling: {
+            mode: smartQueue ? 'SMART' : 'FIFO',
+            preferredAffinity: null,
+          },
+        },
+        statusCode: 200,
+      }
+    }
+
     const skippedIds: number[] = []
 
     await prisma.artJob.updateMany({

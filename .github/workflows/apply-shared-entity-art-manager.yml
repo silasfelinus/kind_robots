@@ -1,0 +1,33 @@
+name: Apply Shared Entity Art Manager
+
+on:
+  push:
+    branches:
+      - agent/shared-entity-art-manager
+    paths:
+      - '.github/workflows/apply-shared-entity-art-manager.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/shared-entity-art-manager
+          fetch-depth: 0
+      - name: Apply shared entity art manager
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          import gzip
+          payload = ''.join(
+              Path(f'.agent-patches/entity-art-{index:02d}.b64').read_text().strip()
+              for index in range(7)
+          )
+          exec(gzip.decompress(base64.b64decode(payload)).decode())
+          PY

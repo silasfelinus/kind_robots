@@ -1,9 +1,9 @@
 name: Apply Shared Entity Art Manager
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/shared-entity-art-manager
+      - main
     paths:
       - '.github/workflows/apply-shared-entity-art-manager.yml'
   workflow_dispatch:
@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   apply:
+    if: github.head_ref == 'agent/shared-entity-art-manager'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

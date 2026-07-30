@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html {{ HTML_ATTRS }}>
+  <head {{ HEAD_ATTRS }}>
+    {{ HEAD }}
+    <style>
+      #kr-prehydrate-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        overflow: hidden;
+        background:
+          radial-gradient(
+            circle at 50% 42%,
+            rgba(80, 190, 184, 0.16),
+            transparent 38%
+          ),
+          #04070c;
+        color: #fff;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 180ms ease;
+      }
+
+      #kr-prehydrate-splash.kr-prehydrate-splash--fade {
+        opacity: 0;
+      }
+
+      #kr-prehydrate-splash-content {
+        display: grid;
+        width: min(92vw, 32rem);
+        place-items: center;
+        gap: 0.75rem;
+      }
+
+      #kr-prehydrate-splash-image {
+        width: min(72vw, 20rem);
+        aspect-ratio: 1;
+        object-fit: contain;
+        filter: drop-shadow(0 1rem 2rem rgba(0, 0, 0, 0.32));
+        -webkit-mask-image: radial-gradient(
+          ellipse 55% 55% at center,
+          #000 58%,
+          rgba(0, 0, 0, 0.96) 72%,
+          transparent 100%
+        );
+        mask-image: radial-gradient(
+          ellipse 55% 55% at center,
+          #000 58%,
+          rgba(0, 0, 0, 0.96) 72%,
+          transparent 100%
+        );
+      }
+
+      #kr-prehydrate-splash-message {
+        max-width: min(90vw, 32rem);
+        margin: 0;
+        padding: 0.55rem 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 9999px;
+        background: rgba(0, 0, 0, 0.72);
+        color: #fff;
+        font: 750 clamp(0.9rem, 2vw, 1.1rem) / 1.35 system-ui, sans-serif;
+        text-align: center;
+        box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(0.7rem);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #kr-prehydrate-splash {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body {{ BODY_ATTRS }}>
+    <div id="kr-prehydrate-splash" aria-hidden="true">
+      <div id="kr-prehydrate-splash-content">
+        <img
+          id="kr-prehydrate-splash-image"
+          src="/images/kindlogo_new.webp"
+          alt=""
+          fetchpriority="high"
+        />
+        <p id="kr-prehydrate-splash-message">Waking the robot parade...</p>
+      </div>
+    </div>
+    <script>
+      ;(() => {
+        const primaryCandidates = [
+          '/images/startup-animations/launch-01.webp',
+          '/images/startup-animations/launch-02.webp',
+          '/images/startup-animations/launch-03.webp',
+          '/images/startup-animations/launch-rainbow-bot.webp',
+        ]
+        const messages = [
+          'Waking the robot parade...',
+          'Untangling a few friendly circuits...',
+          'Inviting the butterflies back inside...',
+          'Polishing one last improbable button...',
+        ]
+        const logoFallback = '/images/kindlogo_new.webp'
+        const image = document.getElementById('kr-prehydrate-splash-image')
+        const message = document.getElementById('kr-prehydrate-splash-message')
+        const queue = [...primaryCandidates].sort(() => Math.random() - 0.5)
+
+        window.__KR_STARTUP_STARTED_AT__ = Date.now()
+        window.__KR_STARTUP_CANDIDATES__ = primaryCandidates
+        window.__KR_STARTUP_MESSAGE__ =
+          messages[Math.floor(Math.random() * messages.length)] || messages[0]
+
+        if (message) message.textContent = window.__KR_STARTUP_MESSAGE__
+        if (!image) return
+
+        const useNextVisual = () => {
+          const nextVisual = queue.shift()
+
+          if (nextVisual) {
+            window.__KR_STARTUP_VISUAL__ = nextVisual
+            image.setAttribute('src', nextVisual)
+            return
+          }
+
+          window.__KR_STARTUP_VISUAL__ = logoFallback
+          image.setAttribute('src', logoFallback)
+        }
+
+        image.addEventListener('load', () => {
+          window.__KR_STARTUP_VISUAL__ = image.getAttribute('src') || logoFallback
+        })
+        image.addEventListener('error', useNextVisual)
+        useNextVisual()
+      })()
+    </script>
+    {{ APP }}
+  </body>
+</html>

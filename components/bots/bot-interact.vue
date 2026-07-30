@@ -353,6 +353,21 @@
           </div>
         </section>
 
+        <EntityArtManager
+          v-if="botStore.currentBot"
+          entity-type="bot"
+          :entity="botStore.currentBot"
+          :slots="[
+            {
+              field: 'avatarImage',
+              label: 'Avatar',
+              aspect: '1 / 1',
+              width: 1024,
+              height: 1024,
+            },
+          ]"
+        />
+
         <section
           class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
         >

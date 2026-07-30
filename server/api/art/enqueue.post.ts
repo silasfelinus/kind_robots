@@ -37,6 +37,11 @@ import {
   normalizeArtFacetIds,
   resolveArtFacetSelection,
 } from '../../utils/artFacetSelection'
+import {
+  buildEntityArtPrompt,
+  prepareEntityArtEnqueue,
+  type EntityArtRequest,
+} from '../../utils/entityArt'
 
 const ART_FACET_WORKFLOW_KEY = '__kindRobotsFacetSelection'
 
@@ -105,6 +110,7 @@ type ArtEnqueueRequest = {
   // 'webp' (default) | 'mp4' | 'webm' — see server/api/comfy/utils/videoOutput.
   outputFormat?: string | null
   workflow?: Record<string, unknown> | null
+  entityArt?: EntityArtRequest | null
 }
 
 type SaveBlock = {
@@ -274,6 +280,40 @@ export default defineEventHandler(async (event) => {
       serverId: body?.serverId ?? null,
     })
     const isAdmin = Boolean((gate.user as { isAdmin?: boolean }).isAdmin)
+    const entityArt = body?.entityArt
+      ? await prepareEntityArtEnqueue(event, prisma, body.entityArt, {
+          user: { id: gate.user.id },
+          isAdmin,
+        })
+      : null
+
+    if (
+      entityArt?.metadata.mode === 'img2img' &&
+      engine !== 'sdxl-img2img' &&
+      engine !== 'kontext'
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Entity img2img supports SDXL img2img or Kontext.',
+      })
+    }
+    if (
+      entityArt?.metadata.mode === 'recreate' &&
+      (engine === 'sdxl-img2img' || engine === 'kontext')
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Entity recreation requires a prompt-only engine such as Krea 2.',
+      })
+    }
+
+    const bodyWithEntityArt: ArtEnqueueRequest | null =
+      entityArt?.sourceImageBase64
+        ? {
+            ...(body ?? {}),
+            sourceImageBase64: entityArt.sourceImageBase64,
+          }
+        : body
 
     if (narrativeContext) {
       const existingJob = await prisma.artJob.findFirst({
@@ -305,7 +345,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const resolvedLora = await resolveEnqueueLoraResource({
-      body: (body ?? {}) as ArtEnqueueRequest & Record<string, unknown>,
+      body: (bodyWithEntityArt ?? {}) as ArtEnqueueRequest & Record<string, unknown>,
       engine,
       userId: gate.user.id,
       isAdmin,
@@ -314,6 +354,9 @@ export default defineEventHandler(async (event) => {
 
     const requestedFacets = facetRequest(resolvedBody)
     const basePromptString = requestedFacets.basePromptString || requestedPrompt
+    const contextualBasePrompt = entityArt
+      ? buildEntityArtPrompt(basePromptString, entityArt.target)
+      : basePromptString
     const facets = await resolveArtFacetSelection({
       facetIds: requestedFacets.facetIds,
       userId: gate.user.id,
@@ -329,7 +372,7 @@ export default defineEventHandler(async (event) => {
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(
       previewPayload,
-      basePromptString,
+      contextualBasePrompt,
       facets,
     )
 
@@ -342,8 +385,9 @@ export default defineEventHandler(async (event) => {
       promptString,
       save,
     })
-    applyArtFacetsToPayload(payload, basePromptString, facets)
+    applyArtFacetsToPayload(payload, contextualBasePrompt, facets)
     if (narrativeContext) payload.narrativeContext = narrativeContext
+    if (entityArt) payload.entityArt = entityArt.metadata
 
     const provenanceResources = {
       checkpointResourceId:

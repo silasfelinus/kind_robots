@@ -38,6 +38,7 @@ import {
   artImageResourceConnectData,
   resolveArtImageResourceLinks,
 } from '../../utils/resourceProvenance'
+import { applyEntityArtCompletion } from '../../../../utils/entityArt'
 
 const MAX_ATTEMPTS = 3
 
@@ -250,6 +251,7 @@ export default defineEventHandler(async (event) => {
     let replacedArtImageId: number | null = null
     let completionTrace: Record<string, unknown> | null = null
     let completedFacetIds: number[] = []
+    let completedEntityArt: Record<string, unknown> | null = null
 
     if (body.success) {
       const uploadedArtImageId = Number(body.artImageId)
@@ -359,6 +361,13 @@ export default defineEventHandler(async (event) => {
             targetArtImageId,
           )
 
+          const entityArt = await applyEntityArtCompletion(
+            tx,
+            tracedPayload,
+            targetArtImageId,
+            archived.id,
+          )
+
           const completed = await tx.artJob.update({
             where: { id },
             data: {
@@ -373,13 +382,14 @@ export default defineEventHandler(async (event) => {
 
           await tx.artImage.delete({ where: { id: uploadedArtImageId } })
 
-          return { completed, archivedId: archived.id, facetIds }
+          return { completed, archivedId: archived.id, facetIds, entityArt }
         })
 
         updated = result.completed
         archivedArtImageId = result.archivedId
         replacedArtImageId = targetArtImageId
         completedFacetIds = result.facetIds
+        completedEntityArt = result.entityArt
       } else {
         const normalResult = await prisma.$transaction(async (tx) => {
           const uploaded = await tx.artImage.findUnique({
@@ -426,6 +436,12 @@ export default defineEventHandler(async (event) => {
             uploadedArtImageId,
           )
 
+          const entityArt = await applyEntityArtCompletion(
+            tx,
+            tracedPayload,
+            uploadedArtImageId,
+          )
+
           const completed = await tx.artJob.update({
             where: { id },
             data: {
@@ -436,11 +452,12 @@ export default defineEventHandler(async (event) => {
             },
           })
 
-          return { completed, facetIds }
+          return { completed, facetIds, entityArt }
         })
 
         updated = normalResult.completed
         completedFacetIds = normalResult.facetIds
+        completedEntityArt = normalResult.entityArt
       }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)
@@ -469,6 +486,7 @@ export default defineEventHandler(async (event) => {
         archivedArtImageId,
         completionTrace,
         completedFacetIds,
+        completedEntityArt,
       },
       statusCode: 200,
     }

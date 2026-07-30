@@ -26,9 +26,14 @@ jobs:
           from pathlib import Path
           import base64
           import gzip
+          import hashlib
           payload = ''.join(
               Path(f'.agent-patches/entity-art-fix-{index:02d}.b64').read_text().strip()
               for index in range(7)
           )
+          expected = '13bfeb68282270559fa2cce34dc899c827c497e6fda136132e0034a19972eddc'
+          actual = hashlib.sha256(payload.encode()).hexdigest()
+          if actual != expected:
+              raise RuntimeError(f'entity art payload checksum mismatch: {actual}')
           exec(gzip.decompress(base64.b64decode(payload)).decode())
           PY

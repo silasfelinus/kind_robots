@@ -12,21 +12,7 @@
       <div class="loading-heading">Building Kind Robots...</div>
 
       <div class="loading-logo-frame">
-        <NuxtImg
-          src="/images/kindlogo_new.webp"
-          alt="Kind Robots"
-          class="loading-logo"
-          :class="{ 'loading-logo--ready': logoLoaded }"
-          :width="720"
-          :height="720"
-          format="webp"
-          :quality="82"
-          preload
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          @load="logoLoaded = true"
-        />
+        <startup-intro-visual />
       </div>
 
       <div class="loading-status">
@@ -67,7 +53,6 @@ const currentMessage = ref('Wiring robots for suspicious levels of charm...')
 const messageKey = ref(0)
 const fadeOverlay = ref(false)
 const minimumSequenceComplete = ref(false)
-const logoLoaded = ref(false)
 const hiddenEmitted = ref(false)
 const exitRequested = ref(false)
 

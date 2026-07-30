@@ -38,6 +38,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoadStore } from '../../stores/loadStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
+import { consumeStartupStartedAt } from '@/utils/startupLaunch'
 
 const props = defineProps<{ storesReady: boolean }>()
 const emit = defineEmits<{
@@ -67,7 +68,7 @@ const MIN_TOTAL_MS =
   (EXTRA_MESSAGE_COUNT + 1) * EXTRA_MESSAGE_MS + READY_HOLD_MS
 const OVERLAY_FADE_MS = 650
 
-const startTime = Date.now()
+const startTime = consumeStartupStartedAt()
 
 let destroyed = false
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
@@ -83,6 +84,10 @@ function wait(ms: number) {
 
     setTimeout(resolve, ms)
   })
+}
+
+function waitUntil(offsetMs: number) {
+  return wait(Math.max(0, startTime + offsetMs - Date.now()))
 }
 
 function nextMessage() {
@@ -140,11 +145,16 @@ function scheduleFade() {
 
   const elapsed = Date.now() - startTime
   const minimumRemaining = Math.max(READY_HOLD_MS, MIN_TOTAL_MS - elapsed)
+  const animationVisibleRemaining = Math.max(
+    0,
+    ANIMATION_VISIBLE_HOLD_MS - elapsed,
+  )
   const holdNeeded = exitRequested.value
     ? 0
-    : introVisualKind.value === 'animation'
-      ? Math.max(ANIMATION_VISIBLE_HOLD_MS, minimumRemaining)
-      : minimumRemaining
+    : Math.max(
+        minimumRemaining,
+        introVisualKind.value === 'animation' ? animationVisibleRemaining : 0,
+      )
 
   readyHoldTimeoutId = setTimeout(() => {
     doFade()
@@ -165,7 +175,7 @@ function handleTransitionEnd(event: TransitionEvent) {
 
 async function runVisualSequence() {
   for (let index = 0; index < EXTRA_MESSAGE_COUNT; index += 1) {
-    await wait(EXTRA_MESSAGE_MS)
+    await waitUntil((index + 1) * EXTRA_MESSAGE_MS)
     if (destroyed) return
     nextMessage()
   }

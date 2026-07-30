@@ -41,7 +41,7 @@ function positiveInteger(value: unknown): number | undefined {
   return Number.isInteger(number) && number > 0 ? number : undefined
 }
 
-function projectContext(element: HTMLElement): ProjectContext | null {
+function projectContextFromVue(element: HTMLElement): ProjectContext | null {
   let instance: VueInstanceLike | null | undefined =
     (element as VueElement).__vueParentComponent
 
@@ -70,6 +70,41 @@ function projectContext(element: HTMLElement): ProjectContext | null {
   return null
 }
 
+function projectSlugFromTarget(form: HTMLFormElement): string {
+  const target = Array.from(form.querySelectorAll<HTMLElement>('code'))
+    .map((element) => cleanString(element.textContent))
+    .find((value) => value.includes('/projects/images/'))
+
+  const match = target?.match(
+    /\/projects\/images\/(.+)-(?:icon|card|hero)\.webp(?:[?#].*)?$/i,
+  )
+  if (match?.[1]) return decodeURIComponent(match[1])
+
+  const params = new URLSearchParams(window.location.search)
+  return cleanString(
+    params.get('projectSlug') || params.get('project') || params.get('slug'),
+  )
+}
+
+function projectContext(
+  element: HTMLElement,
+  form: HTMLFormElement,
+): ProjectContext | null {
+  const vueContext = projectContextFromVue(element)
+  if (vueContext) return vueContext
+
+  const slug = projectSlugFromTarget(form)
+  if (!slug) return null
+
+  return {
+    slug,
+    title:
+      cleanString(document.querySelector('h1')?.textContent) ||
+      cleanString(document.title) ||
+      slug,
+  }
+}
+
 function selectedField(form: HTMLFormElement): ProjectArtField {
   const select = Array.from(
     form.querySelectorAll<HTMLSelectElement>('select'),
@@ -78,6 +113,15 @@ function selectedField(form: HTMLFormElement): ProjectArtField {
   )
   const value = select?.value
   return value === 'imagePath' || value === 'heroPath' ? value : 'cardPath'
+}
+
+function hasProjectTarget(form: HTMLFormElement): boolean {
+  return Array.from(form.querySelectorAll<HTMLSelectElement>('select')).some(
+    (select) =>
+      ['imagePath', 'cardPath', 'heroPath'].every((field) =>
+        Array.from(select.options).some((option) => option.value === field),
+      ),
+  )
 }
 
 function currentImageSource(form: HTMLFormElement): string | undefined {
@@ -99,16 +143,7 @@ function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
 function addSuggestButton(textarea: HTMLTextAreaElement): void {
   if (attached.has(textarea)) return
   const form = textarea.closest<HTMLFormElement>('form')
-  if (!form) return
-  const context = projectContext(textarea)
-  if (!context) return
-
-  const hasProjectTarget = Array.from(
-    form.querySelectorAll<HTMLSelectElement>('select'),
-  ).some((select) =>
-    Array.from(select.options).some((option) => option.value === 'heroPath'),
-  )
-  if (!hasProjectTarget) return
+  if (!form || !hasProjectTarget(form)) return
 
   attached.add(textarea)
   const button = document.createElement('button')
@@ -122,12 +157,19 @@ function addSuggestButton(textarea: HTMLTextAreaElement): void {
 
   button.addEventListener('click', async () => {
     if (button.dataset.loading === 'true') return
-    const currentContext = projectContext(textarea)
-    if (!currentContext) return
+    const currentContext = projectContext(textarea, form)
+    const initialLabel = button.textContent || '✨ Suggest prompt'
+
+    if (!currentContext) {
+      button.textContent = 'Could not identify Project'
+      window.setTimeout(() => {
+        button.textContent = initialLabel
+      }, 2400)
+      return
+    }
 
     const field = selectedField(form)
     const meta = FIELD_META[field]
-    const initialLabel = button.textContent || '✨ Suggest prompt'
     button.dataset.loading = 'true'
     button.disabled = true
     button.textContent = 'Suggesting…'

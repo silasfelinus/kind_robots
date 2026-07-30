@@ -480,7 +480,7 @@ const resolvedProject = computed(() => projectStore.projectForSlug(props.slug))
 const resolvedProjectId = computed(
   () => props.projectId ?? resolvedProject.value?.id ?? null,
 )
-const mayEdit = computed(() => props.canEdit ?? userStore.isAdmin)
+const mayEdit = computed(() => props.canEdit || userStore.isAdmin)
 const generationMeta = computed(() => FIELD_META[generationField.value])
 const generationTargetUrl = computed(
   () =>

@@ -26,6 +26,7 @@ interface StartupAnimationsResponse {
 const LOGO_SRC = '/images/kindlogo_new.webp'
 const ANIMATION_CHANCE = 0.5
 const FALLBACK_WAIT_MS = 900
+const REQUEST_TIMEOUT_MS = 1_800
 
 const shouldTryAnimation = import.meta.client && Math.random() < ANIMATION_CHANCE
 const visualSrc = ref(shouldTryAnimation ? '' : LOGO_SRC)
@@ -34,6 +35,7 @@ const visualReady = ref(false)
 let destroyed = false
 let fallbackCommitted = false
 let fallbackTimer: ReturnType<typeof setTimeout> | null = null
+let requestController: AbortController | null = null
 
 function setVisual(src: string): void {
   if (destroyed) return
@@ -59,12 +61,20 @@ function clearFallbackTimer(): void {
 
 async function selectAnimation(): Promise<void> {
   fallbackTimer = setTimeout(commitLogoFallback, FALLBACK_WAIT_MS)
+  requestController = new AbortController()
+  const requestTimeout = setTimeout(
+    () => requestController?.abort(),
+    REQUEST_TIMEOUT_MS,
+  )
 
   try {
-    const response = await $fetch<StartupAnimationsResponse>(
-      '/api/startup/animations',
-      { timeout: 1_800 },
-    )
+    const fetchResponse = await fetch('/api/startup/animations', {
+      headers: { Accept: 'application/json' },
+      signal: requestController.signal,
+    })
+    if (!fetchResponse.ok) throw new Error(`Animation catalog ${fetchResponse.status}`)
+
+    const response = (await fetchResponse.json()) as StartupAnimationsResponse
     if (destroyed || fallbackCommitted) return
 
     const animations = (response.animations || []).filter((url) =>
@@ -82,6 +92,9 @@ async function selectAnimation(): Promise<void> {
     setVisual(selected || LOGO_SRC)
   } catch {
     if (!fallbackCommitted) commitLogoFallback()
+  } finally {
+    clearTimeout(requestTimeout)
+    requestController = null
   }
 }
 
@@ -92,5 +105,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   destroyed = true
   clearFallbackTimer()
+  requestController?.abort()
+  requestController = null
 })
 </script>

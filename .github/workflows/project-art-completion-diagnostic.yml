@@ -6,41 +6,27 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   diagnose:
     if: github.head_ref == 'fix/project-art-completion-attachment'
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
-      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
-      - name: Require database and Tailscale secrets
-        env:
-          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Apply Project art live synchronization
+        run: python .github/project-art-live-sync-patch.py
+      - name: Commit product fix and remove diagnostics
         run: |
-          test -n "$DATABASE_URL"
-          test -n "$TS_OAUTH_CLIENT_ID"
-          test -n "$TS_OAUTH_SECRET"
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
-        env:
-          CYPRESS_INSTALL_BINARY: '0'
-      - name: Generate Prisma client
-        run: npx prisma generate
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v3
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-      - name: Inspect recent Project art completion state
-        run: npx tsx utils/scripts/diagnoseProjectArtCompletion.ts
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Patch already applied."
+            exit 0
+          fi
+          git commit -m "Synchronize completed Project art to live galleries"
+          git push origin HEAD:${{ github.head_ref }}

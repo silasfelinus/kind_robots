@@ -10,30 +10,44 @@
     loading="eager"
     fetchpriority="high"
     decoding="async"
-    @load="visualReady = true"
+    @load="handleVisualLoad"
     @error="useLogoFallback"
   />
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 interface StartupAnimationsResponse {
   animations?: string[]
 }
 
+type IntroVisualKind = 'logo' | 'animation'
+
+const emit = defineEmits<{
+  settled: [kind: IntroVisualKind]
+}>()
+
 const LOGO_SRC = '/images/kindlogo_new.webp'
 const ANIMATION_CHANCE = 0.5
-const REQUEST_TIMEOUT_MS = 2_800
-const IMAGE_LOAD_TIMEOUT_MS = 3_200
+const REQUEST_TIMEOUT_MS = 3_500
+const IMAGE_LOAD_TIMEOUT_MS = 8_000
 
 const shouldTryAnimation = import.meta.client && Math.random() < ANIMATION_CHANCE
 const visualSrc = ref(LOGO_SRC)
 const visualReady = ref(false)
 
 let destroyed = false
+let animationAttemptPending = shouldTryAnimation
+let settledEmitted = false
 let requestController: AbortController | null = null
 let cancelPreload: (() => void) | null = null
+
+function emitSettled(kind: IntroVisualKind): void {
+  if (destroyed || settledEmitted) return
+  settledEmitted = true
+  emit('settled', kind)
+}
 
 function setVisual(src: string): void {
   if (destroyed || visualSrc.value === src) return
@@ -41,9 +55,26 @@ function setVisual(src: string): void {
   visualSrc.value = src
 }
 
+function settleOnLogo(): void {
+  animationAttemptPending = false
+  if (visualSrc.value !== LOGO_SRC) setVisual(LOGO_SRC)
+  if (visualReady.value) emitSettled('logo')
+}
+
 function useLogoFallback(): void {
-  if (visualSrc.value === LOGO_SRC) return
-  setVisual(LOGO_SRC)
+  settleOnLogo()
+}
+
+function handleVisualLoad(): void {
+  visualReady.value = true
+
+  if (visualSrc.value !== LOGO_SRC) {
+    animationAttemptPending = false
+    emitSettled('animation')
+    return
+  }
+
+  if (!animationAttemptPending) emitSettled('logo')
 }
 
 function preloadAnimation(src: string): Promise<boolean> {
@@ -96,26 +127,39 @@ async function selectAnimation(): Promise<void> {
         url,
       ),
     )
-    if (!animations.length) return
+    if (!animations.length) {
+      settleOnLogo()
+      return
+    }
 
     const selected = animations[Math.floor(Math.random() * animations.length)]
-    if (!selected) return
+    if (!selected) {
+      settleOnLogo()
+      return
+    }
 
     const loaded = await preloadAnimation(selected)
-    if (!loaded || destroyed) return
+    if (!loaded || destroyed) {
+      settleOnLogo()
+      return
+    }
 
     setVisual(selected)
   } catch {
-    // The logo remains visible when catalog discovery or preloading fails.
+    settleOnLogo()
   } finally {
     window.clearTimeout(requestTimeout)
     requestController = null
   }
 }
 
-if (shouldTryAnimation) {
-  void selectAnimation()
-}
+onMounted(() => {
+  if (shouldTryAnimation) {
+    void selectAnimation()
+  } else if (visualReady.value) {
+    emitSettled('logo')
+  }
+})
 
 onBeforeUnmount(() => {
   destroyed = true

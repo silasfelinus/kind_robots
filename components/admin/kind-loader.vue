@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
-import { onBeforeMount, onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, ref, watch } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
@@ -254,6 +254,17 @@ function ensureStoresInitialized(): Promise<void> {
 
   return initializationPromise
 }
+
+watch(
+  () => startupStore.exitRequest,
+  (request, previousRequest) => {
+    if (request === previousRequest || startupMode.value !== 'full') return
+
+    handleOverlayHiding()
+    showOverlay.value = false
+    emitReadyOnce()
+  },
+)
 
 onBeforeMount(() => {
   if (startupMode.value !== 'quick') return

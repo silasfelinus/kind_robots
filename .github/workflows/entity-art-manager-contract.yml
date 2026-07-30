@@ -9,11 +9,16 @@ on:
       - 'components/scenarios/scenario-interact.vue'
       - 'components/rewards/reward-interact.vue'
       - 'components/facets/facet-manager.vue'
+      - 'plugins/entity-art-prompt-suggest.client.ts'
+      - 'stores/helpers/artAssetSuggest.ts'
+      - 'server/api/suggest.post.ts'
+      - 'server/utils/suggest/sheets/artAssetSuggest.ts'
       - 'server/api/art/enqueue.post.ts'
       - 'server/api/art/queue/[id]/complete.post.ts'
       - 'server/api/art/entities/**'
       - 'server/utils/entityArt.ts'
       - 'utils/scripts/verifyEntityArtManager.ts'
+      - 'utils/scripts/verifyEntityArtPromptSuggest.ts'
       - '.github/workflows/entity-art-manager-contract.yml'
   workflow_dispatch:
 
@@ -31,3 +36,4 @@ jobs:
       - run: npm ci
       - run: npx prisma generate
       - run: npx tsx utils/scripts/verifyEntityArtManager.ts
+      - run: npx tsx utils/scripts/verifyEntityArtPromptSuggest.ts

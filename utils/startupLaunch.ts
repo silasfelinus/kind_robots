@@ -1,5 +1,8 @@
 export const FORCE_FULL_STARTUP_KEY = 'kind-robots-force-full-startup-v1'
 export const STARTUP_COVER_CLASS = 'kr-full-startup'
+export const STARTUP_STARTED_AT_KEY = 'kind-robots-startup-started-at-v1'
+
+const MAX_STARTUP_AGE_MS = 30_000
 
 export function clearStartupCover(): void {
   if (!import.meta.client) return
@@ -11,6 +14,7 @@ export function requestFullStartupReload(): void {
 
   try {
     sessionStorage.setItem(FORCE_FULL_STARTUP_KEY, '1')
+    sessionStorage.setItem(STARTUP_STARTED_AT_KEY, String(Date.now()))
   } catch {
     // Reload anyway; the next visit may fall back to normal startup detection.
   }
@@ -29,6 +33,26 @@ export function requestFullStartupReload(): void {
   })
 
   window.setTimeout(reload, 180)
+}
+
+export function consumeStartupStartedAt(): number {
+  const fallback = Date.now()
+  if (!import.meta.client) return fallback
+
+  try {
+    const raw = sessionStorage.getItem(STARTUP_STARTED_AT_KEY)
+    sessionStorage.removeItem(STARTUP_STARTED_AT_KEY)
+    const startedAt = Number(raw)
+    const age = fallback - startedAt
+
+    if (Number.isFinite(startedAt) && age >= 0 && age <= MAX_STARTUP_AGE_MS) {
+      return startedAt
+    }
+  } catch {
+    return fallback
+  }
+
+  return fallback
 }
 
 export function consumeForcedFullStartup(): boolean {

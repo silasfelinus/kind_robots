@@ -84,6 +84,9 @@
         </button>
 
         <server-selector class="header-control-item min-w-0" />
+        <maturity-toggle
+          v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
+        />
         <notification-bell class="shrink-0" />
         <login-switcher class="header-control-item min-w-0" />
         <mana-widget class="shrink-0" />
@@ -93,23 +96,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
+import { useMaturityPreferenceStore } from '@/stores/maturityPreferenceStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
 import { requestFullStartupReload } from '@/utils/startupLaunch'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
 const channelContentStore = useChannelContentStore()
+const maturityPreferenceStore = useMaturityPreferenceStore()
 const navStore = useNavStore()
 const pageStore = usePageStore()
+const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
 await channelContentStore.initialize()
+
+const showDashboardMaturityToggle = computed(
+  () => maturityPreferenceStore.showDashboardMaturityToggle,
+)
 
 const requestedTabKey = computed(() => {
   return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
@@ -215,6 +226,10 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  maturityPreferenceStore.initialize()
+})
 
 function goBack(): void {
   const path = navStore.backPath

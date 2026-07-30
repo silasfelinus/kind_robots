@@ -72,57 +72,57 @@ completion = replace_once(
 )
 completion = replace_once(
     completion,
-    """           const entityArt = await applyEntityArtCompletion(
-             tx,
-             tracedPayload,
-             targetArtImageId,
-             archived.id,
-           )
+    """          const entityArt = await applyEntityArtCompletion(
+            tx,
+            tracedPayload,
+            targetArtImageId,
+            archived.id,
+          )
 
-           const completed = await tx.artJob.update({
+          const completed = await tx.artJob.update({
 """,
-    """           const entityArt = await applyEntityArtCompletion(
-             tx,
-             tracedPayload,
-             targetArtImageId,
-             archived.id,
-           )
-           if (expectsEntityArtCompletion && !entityArt) {
-             throw createError({
-               statusCode: 409,
-               message:
-                 'Entity artwork attachment was not applied. Completion rolled back instead of marking the job DONE.',
-             })
-           }
+    """          const entityArt = await applyEntityArtCompletion(
+            tx,
+            tracedPayload,
+            targetArtImageId,
+            archived.id,
+          )
+          if (expectsEntityArtCompletion && !entityArt) {
+            throw createError({
+              statusCode: 409,
+              message:
+                'Entity artwork attachment was not applied. Completion rolled back instead of marking the job DONE.',
+            })
+          }
 
-           const completed = await tx.artJob.update({
+          const completed = await tx.artJob.update({
 """,
     'overwrite entity attachment assertion',
 )
 completion = replace_once(
     completion,
-    """           const entityArt = await applyEntityArtCompletion(
-             tx,
-             tracedPayload,
-             uploadedArtImageId,
-           )
+    """          const entityArt = await applyEntityArtCompletion(
+            tx,
+            tracedPayload,
+            uploadedArtImageId,
+          )
 
-           const completed = await tx.artJob.update({
+          const completed = await tx.artJob.update({
 """,
-    """           const entityArt = await applyEntityArtCompletion(
-             tx,
-             tracedPayload,
-             uploadedArtImageId,
-           )
-           if (expectsEntityArtCompletion && !entityArt) {
-             throw createError({
-               statusCode: 409,
-               message:
-                 'Entity artwork attachment was not applied. Completion rolled back instead of marking the job DONE.',
-             })
-           }
+    """          const entityArt = await applyEntityArtCompletion(
+            tx,
+            tracedPayload,
+            uploadedArtImageId,
+          )
+          if (expectsEntityArtCompletion && !entityArt) {
+            throw createError({
+              statusCode: 409,
+              message:
+                'Entity artwork attachment was not applied. Completion rolled back instead of marking the job DONE.',
+            })
+          }
 
-           const completed = await tx.artJob.update({
+          const completed = await tx.artJob.update({
 """,
     'normal entity attachment assertion',
 )

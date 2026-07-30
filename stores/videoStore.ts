@@ -1,7 +1,7 @@
 // /stores/videoStore.ts
 //
 // Front-end store for the video generator page. Enqueues an image-to-video
-// ArtJob (engine: 'ltx' | 'wan') via /api/art/enqueue, polls /api/art/queue/:id
+// ArtJob (engine: 'ltx' | 'wan') via /api/video/generate, polls /api/art/queue/:id
 // until the home relay renders + completes it, then resolves the finished
 // ArtImage into a playable video src. Mirrors the enqueue → poll → resolve
 // pattern in stores/artStore.ts, kept standalone so the video page has a small,
@@ -10,18 +10,19 @@ import { defineStore } from 'pinia'
 import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import type {
+  VideoEngine,
+  VideoOutputFormat,
+  VideoPresetId,
+} from '@/utils/videoPresets'
 
-export type VideoEngine = 'ltx' | 'wan'
-
-// 'webp' (default) — native ComfyUI SaveAnimatedWEBP, smaller/better quality
-// than GIF for a short looping clip, renders as <img>. 'mp4'/'webm' render as
-// <video> and suit longer or more complex motion.
-export type VideoOutputFormat = 'webp' | 'mp4' | 'webm'
+export type { VideoEngine, VideoOutputFormat, VideoPresetId }
 
 export type VideoJobStatus = 'idle' | 'queued' | 'rendering' | 'done' | 'error'
 
 export interface GenerateVideoParams {
   engine: VideoEngine
+  presetId?: VideoPresetId | null
   promptString: string
   negativePrompt?: string
   // Base64 data URLs (or raw base64). First is required, second optional.
@@ -122,6 +123,7 @@ export const useVideoStore = defineStore('videoStore', () => {
   async function enqueue(params: GenerateVideoParams): Promise<number> {
     const body = {
       engine: params.engine,
+      presetId: params.presetId ?? undefined,
       promptString: params.promptString,
       negativePrompt: params.negativePrompt ?? undefined,
       firstImageBase64: params.firstImageBase64,
@@ -144,7 +146,7 @@ export const useVideoStore = defineStore('videoStore', () => {
     }
 
     const res = await performFetch<{ jobId: number; status: string }>(
-      '/api/art/enqueue',
+      '/api/video/generate',
       { method: 'POST', body: JSON.stringify(body) },
       2,
       60_000,

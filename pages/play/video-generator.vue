@@ -24,12 +24,51 @@
           type="button"
           class="btn btn-sm"
           :class="engine === opt.value ? 'btn-accent' : 'btn-outline'"
-          @click="engine = opt.value"
+          @click="selectEngine(opt.value)"
         >
           {{ opt.label }}
         </button>
       </div>
       <p class="text-xs opacity-60">{{ activeEngine.hint }}</p>
+    </section>
+
+    <!-- Generation presets -->
+    <section class="space-y-2">
+      <label class="font-semibold">Preset</label>
+      <div class="grid gap-2 sm:grid-cols-3">
+        <button
+          type="button"
+          class="btn h-auto min-h-0 justify-start py-3 text-left"
+          :class="videoPresetId === '' ? 'btn-accent' : 'btn-outline'"
+          @click="selectVideoPreset('')"
+        >
+          <span class="flex flex-col items-start">
+            <span class="font-semibold">Custom</span>
+            <span class="text-xs font-normal opacity-70">
+              Keep the manual controls below.
+            </span>
+          </span>
+        </button>
+        <button
+          v-for="preset in availableVideoPresets"
+          :key="preset.id"
+          type="button"
+          class="btn h-auto min-h-0 justify-start py-3 text-left"
+          :class="videoPresetId === preset.id ? 'btn-accent' : 'btn-outline'"
+          @click="selectVideoPreset(preset.id)"
+        >
+          <span class="flex flex-col items-start">
+            <span class="font-semibold">{{ preset.label }}</span>
+            <span class="text-xs font-normal opacity-70">
+              {{ preset.description }}
+            </span>
+          </span>
+        </button>
+      </div>
+      <p class="text-xs opacity-60">
+        Presets fill the editable controls below; changing a value still
+        overrides the preset for this render.
+      </p>
     </section>
 
     <!-- Images -->
@@ -314,6 +353,12 @@
 import { computed, ref } from 'vue'
 import { useVideoStore, type VideoOutputFormat } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  getVideoPreset,
+  getVideoPresetsForEngine,
+  type VideoEngine,
+  type VideoPresetId,
+} from '@/utils/videoPresets'
 
 const LOGO_SRC = '/images/kindlogo_new.webp'
 
@@ -339,9 +384,13 @@ const engines = [
   },
 ]
 
-const engine = ref<'ltx' | 'wan'>('ltx')
+const engine = ref<VideoEngine>('ltx')
+const videoPresetId = ref<VideoPresetId | ''>('')
 const activeEngine = computed(
   () => engines.find((e) => e.value === engine.value) ?? engines[0]!,
+)
+const availableVideoPresets = computed(() =>
+  getVideoPresetsForEngine(engine.value),
 )
 
 const outputFormats = [
@@ -404,6 +453,26 @@ const generateLabel = computed(() => {
   return `Generate ${engine.value.toUpperCase()} clip`
 })
 
+function selectEngine(nextEngine: VideoEngine): void {
+  engine.value = nextEngine
+  videoPresetId.value = ''
+}
+
+function selectVideoPreset(nextPresetId: VideoPresetId | ''): void {
+  videoPresetId.value = nextPresetId
+  if (!nextPresetId) return
+
+  const preset = getVideoPreset(nextPresetId)
+  if (!preset || preset.engine !== engine.value) return
+
+  width.value = preset.width
+  height.value = preset.height
+  durationSeconds.value = preset.durationSeconds
+  fps.value = preset.fps
+  loop.value = preset.loop
+  outputFormat.value = preset.outputFormat
+}
+
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -452,6 +521,7 @@ async function generate() {
 
   await videoStore.generate({
     engine: engine.value,
+    presetId: videoPresetId.value || null,
     promptString: prompt.value.trim(),
     negativePrompt: negativePrompt.value.trim() || undefined,
     firstImageBase64: firstImage.value,

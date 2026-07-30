@@ -7,6 +7,8 @@
       class="flex h-10 min-h-10 shrink-0 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
       :title="`Navigate ${activeChannel.label}`"
       aria-haspopup="menu"
+      @click="scheduleChannelMenuViewportUpdate"
+      @focus="scheduleChannelMenuViewportUpdate"
     >
       <span
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
@@ -35,10 +37,18 @@
       />
     </button>
 
-    <div tabindex="0" class="dropdown-content z-110 mt-2">
+    <div
+      tabindex="0"
+      class="dropdown-content z-110 mt-2"
+      @focusin="scheduleChannelMenuViewportUpdate"
+    >
       <ul
         ref="channelMenu"
-        class="menu max-h-[calc(100dvh-5rem)] w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="menu w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        :style="{
+          maxHeight: `${channelMenuMaxHeight}px`,
+          scrollbarGutter: 'stable',
+        }"
         @scroll="handleChannelMenuScroll"
       >
         <li
@@ -169,8 +179,12 @@
       <ul
         v-if="expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
-        class="channel-submenu menu absolute left-full z-120 ml-2 max-h-[calc(100dvh-5rem)] w-80 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
-        :style="{ top: `${channelFlyoutTop}px` }"
+        class="channel-submenu menu absolute left-full z-120 ml-2 w-80 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        :style="{
+          top: `${channelFlyoutTop}px`,
+          maxHeight: `${channelFlyoutMaxHeight}px`,
+          scrollbarGutter: 'stable',
+        }"
         :aria-label="expandedChannel.label + ' tabs'"
       >
         <li v-for="tab in expandedChannel.tabs" :key="tab.tabKey">
@@ -233,7 +247,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type {
   ResolvedChannel,
@@ -244,6 +258,8 @@ import { usePageStore } from '@/stores/pageStore'
 
 type SubmenuMode = 'flyout' | 'inline'
 
+const VIEWPORT_GUTTER = 12
+
 const route = useRoute()
 const router = useRouter()
 const pageStore = usePageStore()
@@ -252,6 +268,8 @@ const expandedChannelKey = ref('')
 const channelMenu = ref<HTMLElement | null>(null)
 const channelFlyout = ref<HTMLElement | null>(null)
 const channelFlyoutTop = ref(0)
+const channelMenuMaxHeight = ref(320)
+const channelFlyoutMaxHeight = ref(320)
 const submenuMode = ref<SubmenuMode>('inline')
 
 await channelContentStore.initialize()
@@ -353,6 +371,60 @@ function closeChannelTabs(): void {
   expandedChannelKey.value = ''
 }
 
+function getViewportBottom(): number {
+  if (typeof window === 'undefined') return 640
+
+  const viewport = window.visualViewport
+  return viewport ? viewport.offsetTop + viewport.height : window.innerHeight
+}
+
+function availableViewportHeight(element: HTMLElement): number {
+  const elementTop = element.getBoundingClientRect().top
+  return Math.max(
+    0,
+    Math.floor(getViewportBottom() - elementTop - VIEWPORT_GUTTER),
+  )
+}
+
+function updateChannelFlyoutViewport(): void {
+  const flyout = channelFlyout.value
+  if (!flyout) return
+
+  channelFlyoutMaxHeight.value = availableViewportHeight(flyout)
+}
+
+function updateChannelMenuViewport(): void {
+  const menu = channelMenu.value
+  if (!menu) return
+
+  channelMenuMaxHeight.value = availableViewportHeight(menu)
+  updateChannelFlyoutViewport()
+}
+
+function scheduleChannelMenuViewportUpdate(): void {
+  if (typeof window === 'undefined') return
+
+  void nextTick(() => {
+    window.requestAnimationFrame(updateChannelMenuViewport)
+  })
+}
+
+function handleViewportResize(): void {
+  scheduleChannelMenuViewportUpdate()
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleViewportResize)
+  window.visualViewport?.addEventListener('resize', handleViewportResize)
+  window.visualViewport?.addEventListener('scroll', handleViewportResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleViewportResize)
+  window.visualViewport?.removeEventListener('resize', handleViewportResize)
+  window.visualViewport?.removeEventListener('scroll', handleViewportResize)
+})
+
 function expectedFlyoutWidth(): number {
   if (typeof window === 'undefined') return 320
   return window.innerWidth >= 768
@@ -389,6 +461,7 @@ function positionChannelTabs(event: Event): void {
 
     const maxTop = Math.max(0, menu.clientHeight - flyout.offsetHeight)
     channelFlyoutTop.value = Math.min(channelFlyoutTop.value, maxTop)
+    scheduleChannelMenuViewportUpdate()
   })
 }
 

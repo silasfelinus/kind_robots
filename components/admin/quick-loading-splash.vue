@@ -10,12 +10,10 @@
           :src="visualSrc"
           alt="Kind Robots"
           class="quick-loading-visual"
-          :class="{ 'quick-loading-visual--ready': visualReady }"
           loading="eager"
           fetchpriority="high"
           decoding="async"
-          @load="visualReady = true"
-          @error="useLogoFallback"
+          @error="useNextVisual"
         />
       </div>
 
@@ -28,35 +26,65 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { useLoadStore } from '@/stores/loadStore'
+
+declare global {
+  interface Window {
+    __KR_STARTUP_CANDIDATES__?: string[]
+    __KR_STARTUP_MESSAGE__?: string
+    __KR_STARTUP_STARTED_AT__?: number
+    __KR_STARTUP_VISUAL__?: string
+  }
+}
 
 const emit = defineEmits<{
   covered: []
   hidden: []
 }>()
 
-const animationModules = import.meta.glob<string>(
-  '../../assets/images/startup-animations/launch-*.webp',
-  {
-    eager: true,
-    import: 'default',
-    query: '?url',
-  },
-)
-
-const animationUrls = Object.values(animationModules)
 const logoFallback = '/images/kindlogo_new.webp'
-const selectedAnimation =
-  animationUrls[Math.floor(Math.random() * animationUrls.length)]
+const defaultAnimationCandidates = [
+  '/images/startup-animations/launch-01.webp',
+  '/images/startup-animations/launch-02.webp',
+  '/images/startup-animations/launch-03.webp',
+  '/images/startup-animations/launch-rainbow-bot.webp',
+]
 
-const loadStore = useLoadStore()
-const visualSrc = ref(selectedAnimation || logoFallback)
-const visualReady = ref(false)
+function shuffled<T>(items: T[]): T[] {
+  const copy = [...items]
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[copy[index], copy[swapIndex]] = [copy[swapIndex]!, copy[index]!]
+  }
+
+  return copy
+}
+
+const browserCandidates = import.meta.client
+  ? window.__KR_STARTUP_CANDIDATES__ || defaultAnimationCandidates
+  : defaultAnimationCandidates
+const prehydrateVisual = import.meta.client
+  ? document
+      .getElementById('kr-prehydrate-splash-image')
+      ?.getAttribute('src') || undefined
+  : undefined
+const initialVisual = import.meta.client
+  ? window.__KR_STARTUP_VISUAL__ ||
+    prehydrateVisual ||
+    shuffled(browserCandidates)[0] ||
+    logoFallback
+  : logoFallback
+
+const remainingVisuals = ref(
+  shuffled(browserCandidates.filter((source) => source !== initialVisual)),
+)
+const visualSrc = ref(initialVisual)
 const fading = ref(false)
 const hiddenEmitted = ref(false)
 const message = ref(
-  loadStore.randomLoadMessage?.() ??
-    'Wiring robots for suspicious levels of charm...',
+  import.meta.client
+    ? window.__KR_STARTUP_MESSAGE__ || 'Waking the robot parade...'
+    : 'Waking the robot parade...',
 )
 
 const TOTAL_MS = 2000
@@ -86,15 +114,28 @@ function handleTransitionEnd(event: TransitionEvent): void {
   emitHiddenOnce()
 }
 
-function useLogoFallback(): void {
-  if (visualSrc.value === logoFallback) return
-  visualReady.value = false
-  visualSrc.value = logoFallback
+function useNextVisual(): void {
+  const nextVisual = remainingVisuals.value.shift()
+
+  if (nextVisual) {
+    visualSrc.value = nextVisual
+    return
+  }
+
+  if (visualSrc.value !== logoFallback) {
+    visualSrc.value = logoFallback
+  }
 }
 
 onMounted(() => {
   emit('covered')
-  fadeTimer = setTimeout(beginFade, HOLD_MS)
+
+  const startedAt =
+    window.__KR_STARTUP_STARTED_AT__ || performance.timeOrigin || Date.now()
+  const elapsed = Math.max(0, Date.now() - startedAt)
+  const remainingHold = Math.max(0, HOLD_MS - elapsed)
+
+  fadeTimer = setTimeout(beginFade, remainingHold)
 })
 
 onBeforeUnmount(() => {
@@ -118,11 +159,12 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.12);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(80, 190, 184, 0.16), transparent 38%),
+    rgba(4, 7, 12, 0.96);
   opacity: 1;
   pointer-events: none;
   transition: opacity 400ms ease;
-  backdrop-filter: blur(2px);
 }
 
 .quick-loading-overlay--fade {
@@ -166,11 +208,8 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  opacity: 0;
-  transform: scale(0.94);
-  transition:
-    opacity 220ms ease,
-    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: quick-loading-visual-in 320ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
   filter: drop-shadow(0 1rem 2rem rgba(0, 0, 0, 0.32));
   -webkit-mask-image: radial-gradient(
     ellipse 55% 55% at center,
@@ -184,11 +223,6 @@ onBeforeUnmount(() => {
     rgba(0, 0, 0, 0.96) 72%,
     transparent 100%
   );
-}
-
-.quick-loading-visual--ready {
-  opacity: 1;
-  transform: scale(1);
 }
 
 .quick-loading-message {
@@ -206,10 +240,25 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(0.7rem);
 }
 
+@keyframes quick-loading-visual-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .quick-loading-overlay,
-  .quick-loading-visual {
+  .quick-loading-overlay {
     transition: none;
+  }
+
+  .quick-loading-visual {
+    animation: none;
   }
 }
 </style>

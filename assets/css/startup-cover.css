@@ -17,6 +17,39 @@ html.kr-full-startup::before {
   pointer-events: none;
 }
 
+html.kr-full-startup body::before,
+html.kr-full-startup body::after {
+  position: fixed;
+  left: 50%;
+  z-index: 2147483647;
+  width: fit-content;
+  max-width: min(90vw, 44rem);
+  padding: 0.65rem 1.2rem;
+  border-radius: 0.25rem;
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.42);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+html.kr-full-startup body::before {
+  top: max(1rem, 4vh);
+  content: 'Building Kind Robots...';
+  font-size: clamp(1.2rem, 2.25vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+html.kr-full-startup body::after {
+  bottom: max(1.5rem, 5vh);
+  content: '●  ●  ●   Wiring robots for suspicious levels of charm...';
+  font-size: clamp(1rem, 1.8vw, 1.6rem);
+  animation: kr-prehydrate-status-pulse 1.15s ease-in-out infinite alternate;
+}
+
 html.kr-full-startup .loader-root {
   z-index: 2147483647;
 }
@@ -37,4 +70,22 @@ html.kr-full-startup .loader-root {
 
 html.kr-full-startup .kr-boot-curtain {
   display: block !important;
+}
+
+@keyframes kr-prehydrate-status-pulse {
+  from {
+    opacity: 0.72;
+    transform: translateX(-50%) translateY(0.2rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.kr-full-startup body::after {
+    animation: none;
+  }
 }

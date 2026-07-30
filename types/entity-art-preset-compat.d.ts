@@ -1,8 +1,6 @@
 // The shared entity-art manager always supplies a quality fallback after its
-// mode-specific preset lookup. This exact overload records that invariant
-// without weakening indexed-access checks for the rest of the application.
-import type { ComputedGetter, ComputedRef, DebuggerOptions } from 'vue'
-
+// mode-specific preset lookup. This overload is limited to arrays with that
+// preset shape, leaving ordinary Array.find calls unchanged.
 type EntityArtGenerationPreset = {
   key: string
   label: string
@@ -12,9 +10,14 @@ type EntityArtGenerationPreset = {
   steps?: number
 }
 
-declare module 'vue' {
-  export function computed(
-    getter: ComputedGetter<EntityArtGenerationPreset | undefined>,
-    debugOptions?: DebuggerOptions,
-  ): ComputedRef<EntityArtGenerationPreset>
+interface Array<T> {
+  find(
+    this: EntityArtGenerationPreset[],
+    predicate: (
+      value: EntityArtGenerationPreset,
+      index: number,
+      obj: EntityArtGenerationPreset[],
+    ) => unknown,
+    thisArg?: unknown,
+  ): EntityArtGenerationPreset
 }

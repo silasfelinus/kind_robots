@@ -213,6 +213,8 @@ onMounted(async () => {
 watch(
   [() => props.engine, compatibleResources],
   () => {
+    if (!resourceStore.hasLoaded) return
+
     if (props.modelValue && !selectedResource.value) {
       emit('update:modelValue', null)
     }

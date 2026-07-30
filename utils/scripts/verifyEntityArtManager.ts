@@ -111,7 +111,7 @@ expectContains('server/utils/entityArt.ts', [
 expectContains('components/pages/conductor-art-gallery.vue', [
   "'/api/art/enqueue'",
   "entityType: 'project'",
-  'Queued as ArtJob',
+  'queued as ArtJob',
   'startPolling(jobId)',
 ])
 

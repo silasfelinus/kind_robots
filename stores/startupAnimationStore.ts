@@ -18,15 +18,14 @@ export const useStartupAnimationStore = defineStore(
       immersive.value = true
     }
 
-    function leaveControlMode(): void {
-      controlsActive.value = false
-      immersive.value = false
-    }
-
     function requestExit(): void {
       controlsActive.value = false
       immersive.value = false
       exitRequest.value += 1
+    }
+
+    function leaveControlMode(): void {
+      requestExit()
     }
 
     function reset(): void {

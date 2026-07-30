@@ -37,6 +37,51 @@ media-ingest path is deliberately introduced.
 When `IMAGES_PATH` is absent, the application falls back to `public/images`, so
 existing checkouts continue to work.
 
+## Startup intro animations
+
+The full startup intro may replace the normal logo with one randomly selected
+animated WebP. Store those files in the canonical external image tree:
+
+```text
+/mnt/user/pc/kindrobots/images/startup-animations/
+Z:\kindrobots\images\startup-animations\
+/mnt/z/kindrobots/images/startup-animations/
+```
+
+Use the numbered naming contract:
+
+```text
+launch-01.webp
+launch-02.webp
+launch-03.webp
+```
+
+The browser-facing URLs remain:
+
+```text
+/images/startup-animations/launch-01.webp
+/images/startup-animations/launch-02.webp
+```
+
+`GET /api/startup/animations` discovers matching files directly from
+`IMAGES_PATH` when the mounted share is available. On Vercel it discovers the
+same public media directory through the media origin. Directory indexes and
+`manifest.json` or `index.json` are supported; when none is present, the endpoint
+probes the numbered `launch-01.webp` through `launch-40.webp` contract. Results
+are cached briefly.
+
+A manifest is optional. When used, it can be either an array or an object with an
+`images` array:
+
+```json
+{
+  "images": ["launch-01.webp", "launch-02.webp"]
+}
+```
+
+The intro always falls back to `/images/kindlogo_new.webp` when no animation is
+found or an animation cannot load.
+
 ## Live migration sync
 
 During cutover, keep copying repository images to Unraid without deleting files

@@ -1,13 +1,7 @@
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
-    <quick-loading-splash
-      v-if="showOverlay && startupMode === 'quick'"
-      @covered="handleOverlayCovered"
-      @hidden="handleOverlayHidden"
-    />
-
     <loading-messages
-      v-else-if="showOverlay"
+      v-if="showOverlay"
       :stores-ready="storesReady"
       @covered="handleOverlayCovered"
       @hiding="handleOverlayHiding"
@@ -18,7 +12,7 @@
 
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
-import { onBeforeMount, onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, ref, watch } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
@@ -45,6 +39,10 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
+import {
+  consumeForcedFullStartup,
+  isBrowserReload,
+} from '@/utils/startupLaunch'
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
@@ -78,13 +76,16 @@ const emit = defineEmits<{
   pageReady: [boolean]
 }>()
 
-type StartupMode = 'full' | 'quick'
+type StartupMode = 'full' | 'none'
 
 const STARTUP_STORAGE_KEY = 'kind-robots-startup-build-v1'
 const buildId = String(runtimeConfig.public.buildId || 'development')
 
 function shouldShowFullStartupSequence(): boolean {
   if (!import.meta.client) return true
+
+  if (consumeForcedFullStartup()) return true
+  if (isBrowserReload()) return false
 
   try {
     return localStorage.getItem(STARTUP_STORAGE_KEY) !== buildId
@@ -104,9 +105,9 @@ function markStartupSequenceSeen(): void {
 }
 
 const startupMode = ref<StartupMode>(
-  shouldShowFullStartupSequence() ? 'full' : 'quick',
+  shouldShowFullStartupSequence() ? 'full' : 'none',
 )
-const showOverlay = ref(true)
+const showOverlay = ref(startupMode.value === 'full')
 const storesReady = ref(false)
 const pageReadyEmitted = ref(false)
 const coveredEmitted = ref(false)
@@ -255,9 +256,23 @@ function ensureStoresInitialized(): Promise<void> {
   return initializationPromise
 }
 
+watch(
+  () => startupStore.exitRequest,
+  (request, previousRequest) => {
+    if (request === previousRequest || startupMode.value !== 'full') return
+
+    handleOverlayHiding()
+    showOverlay.value = false
+    emitReadyOnce()
+  },
+)
+
 onBeforeMount(() => {
-  if (startupMode.value !== 'quick') return
+  if (startupMode.value !== 'none') return
+
   void ensureStoresInitialized()
+  handleOverlayCovered()
+  emitReadyOnce()
 })
 
 onMounted(() => {

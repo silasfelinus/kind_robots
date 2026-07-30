@@ -111,7 +111,7 @@ expectContains('server/utils/entityArt.ts', [
 expectContains('components/pages/conductor-art-gallery.vue', [
   "'/api/art/enqueue'",
   "entityType: 'project'",
-  'Queued as ArtJob',
+  'queued as ArtJob',
   'startPolling(jobId)',
 ])
 
@@ -131,9 +131,21 @@ expectContains('server/api/art/enqueue.post.ts', [
   'entityArt?.sourceImageBase64',
 ])
 
+// Relay/server completion is the durable contract; no browser process is required.
 expectContains('server/api/art/queue/[id]/complete.post.ts', [
   'applyEntityArtCompletion',
+  'readEntityArtMetadata',
+  'expectsEntityArtCompletion',
+  'Completion rolled back instead of marking the job DONE',
   'completedEntityArt',
+])
+
+expectContains('components/pages/conductor-page.vue', [
+  'projectStore.fetchProjects(projectOptions, true)',
+])
+
+expectContains('components/pages/conductor-project-gallery-page.vue', [
+  'await load(true)',
 ])
 
 for (const path of [

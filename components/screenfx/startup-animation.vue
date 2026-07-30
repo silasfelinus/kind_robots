@@ -9,7 +9,10 @@
         'startup-animation__stage--fading': isFading,
       }"
     >
-      <Suspense :key="resolvedEffectId" @resolve="handleEffectReady">
+      <Suspense
+        :key="resolvedEffectId ?? 'startup-effect'"
+        @resolve="handleEffectReady"
+      >
         <component
           :is="currentComponent"
           :key="resolvedEffectId"

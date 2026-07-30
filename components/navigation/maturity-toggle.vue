@@ -1,78 +1,80 @@
 <!-- /components/navigation/maturity-toggle.vue -->
 <template>
   <div
-    v-if="userStore.isLoggedIn && variant === 'resource'"
-    class="space-y-1"
+    v-if="userStore.isLoggedIn"
+    :class="variant === 'resource' ? 'space-y-1' : 'contents'"
   >
-    <label
-      class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
-      :title="buttonTitle"
-    >
-      <span class="flex min-w-0 items-center gap-3">
-        <span
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-          :class="
-            showMature
-              ? 'bg-warning/15 text-warning'
-              : 'bg-base-200 text-base-content/55'
-          "
-        >
-          <Icon
-            :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"
-            class="h-5 w-5"
+    <template v-if="variant === 'resource'">
+      <label
+        class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+        :title="buttonTitle"
+      >
+        <span class="flex min-w-0 items-center gap-3">
+          <span
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            :class="
+              showMature
+                ? 'bg-warning/15 text-warning'
+                : 'bg-base-200 text-base-content/55'
+            "
+          >
+            <Icon
+              :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"
+              class="h-5 w-5"
+            />
+          </span>
+
+          <span class="min-w-0">
+            <span class="block text-sm font-bold text-base-content">
+              {{ label }}
+            </span>
+            <span class="block text-xs text-base-content/55">
+              {{ showMature ? visibleText : hiddenText }}
+            </span>
+          </span>
+        </span>
+
+        <span class="flex shrink-0 items-center gap-2">
+          <span v-if="isUpdating" class="loading loading-spinner loading-xs" />
+          <input
+            type="checkbox"
+            class="toggle toggle-warning toggle-sm"
+            :checked="showMature"
+            :disabled="isUpdating"
+            :aria-label="buttonLabel"
+            @change="onToggleChange"
           />
         </span>
+      </label>
 
-        <span class="min-w-0">
-          <span class="block text-sm font-bold text-base-content">
-            {{ label }}
-          </span>
-          <span class="block text-xs text-base-content/55">
-            {{ showMature ? visibleText : hiddenText }}
-          </span>
-        </span>
-      </span>
+      <p v-if="updateError" class="px-1 text-xs text-error">
+        {{ updateError }}
+      </p>
+    </template>
 
-      <span class="flex shrink-0 items-center gap-2">
-        <span v-if="isUpdating" class="loading loading-spinner loading-xs" />
-        <input
-          type="checkbox"
-          class="toggle toggle-warning toggle-sm"
-          :checked="showMature"
-          :disabled="isUpdating"
-          :aria-label="buttonLabel"
-          @change="onToggleChange"
-        />
-      </span>
-    </label>
-
-    <p v-if="updateError" class="px-1 text-xs text-error">
-      {{ updateError }}
-    </p>
-  </div>
-
-  <button
-    v-else-if="userStore.isLoggedIn"
-    type="button"
-    class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border"
-    :class="
-      showMature
-        ? 'border-warning/60 bg-warning/15 text-warning'
-        : 'border-base-300 bg-base-100 text-base-content/60'
-    "
-    :aria-label="buttonLabel"
-    :aria-pressed="showMature"
-    :title="buttonTitle"
-    :disabled="isUpdating"
-    @click="setShowMature(!showMature)"
-  >
-    <span v-if="isUpdating" class="loading loading-spinner loading-xs" />
-    <Icon
+    <button
       v-else
-      :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"
-      class="h-5 w-5"
-    />
-  </button>
+      type="button"
+      class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border"
+      :class="
+        showMature
+          ? 'border-warning/60 bg-warning/15 text-warning'
+          : 'border-base-300 bg-base-100 text-base-content/60'
+      "
+      :aria-label="buttonLabel"
+      :aria-pressed="showMature"
+      :title="buttonTitle"
+      :disabled="isUpdating"
+      @click="setShowMature(!showMature)"
+    >
+      <span v-if="isUpdating" class="loading loading-spinner loading-xs" />
+      <Icon
+        v-else
+        :name="showMature ? 'kind-icon:eye' : 'kind-icon:eye-off'"
+        class="h-5 w-5"
+      />
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">

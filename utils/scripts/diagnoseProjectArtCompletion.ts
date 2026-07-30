@@ -10,10 +10,10 @@ function asRecord(value: unknown): Record<string, unknown> {
 async function main() {
   const jobs = await prisma.artJob.findMany({
     where: {
-      createdAt: { gte: new Date(Date.now() - 6 * 60 * 60 * 1000) },
+      createdAt: { gte: new Date(Date.now() - 8 * 60 * 60 * 1000) },
     },
     orderBy: { id: 'desc' },
-    take: 40,
+    take: 80,
     select: {
       id: true,
       status: true,
@@ -50,6 +50,9 @@ async function main() {
   const projectIds = [...new Set(projectJobs
     .map((job) => Number(job.entityArt.entityId))
     .filter((id) => Number.isInteger(id) && id > 0))]
+  const artImageIds = [...new Set(projectJobs
+    .map((job) => Number(job.artImageId))
+    .filter((id) => Number.isInteger(id) && id > 0))]
 
   const projects = projectIds.length
     ? await prisma.project.findMany({
@@ -63,10 +66,12 @@ async function main() {
           cardPath: true,
           heroPath: true,
           artImageId: true,
+          isPublic: true,
+          isMature: true,
           updatedAt: true,
           ArtImageLinks: {
             orderBy: { createdAt: 'desc' },
-            take: 12,
+            take: 20,
             select: {
               artImageId: true,
               createdAt: true,
@@ -76,6 +81,11 @@ async function main() {
                   path: true,
                   imagePath: true,
                   fileName: true,
+                  fileType: true,
+                  isPublic: true,
+                  isMature: true,
+                  isActive: true,
+                  imageData: true,
                   createdAt: true,
                   updatedAt: true,
                 },
@@ -86,7 +96,47 @@ async function main() {
       })
     : []
 
-  console.log('PROJECT_ART_STATE=' + JSON.stringify(projects))
+  const sanitizedProjects = projects.map((project) => ({
+    ...project,
+    ArtImageLinks: project.ArtImageLinks.map((link) => ({
+      ...link,
+      ArtImage: {
+        ...link.ArtImage,
+        hasImageData: Boolean(link.ArtImage.imageData),
+        imageDataLength: link.ArtImage.imageData?.length ?? 0,
+        imageData: undefined,
+      },
+    })),
+  }))
+
+  console.log('PROJECT_ART_STATE=' + JSON.stringify(sanitizedProjects))
+
+  const images = artImageIds.length
+    ? await prisma.artImage.findMany({
+        where: { id: { in: artImageIds } },
+        select: {
+          id: true,
+          userId: true,
+          path: true,
+          imagePath: true,
+          fileName: true,
+          fileType: true,
+          isPublic: true,
+          isMature: true,
+          isActive: true,
+          imageData: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+    : []
+
+  console.log('PROJECT_ART_IMAGES=' + JSON.stringify(images.map((image) => ({
+    ...image,
+    hasImageData: Boolean(image.imageData),
+    imageDataLength: image.imageData?.length ?? 0,
+    imageData: undefined,
+  }))))
 }
 
 main()

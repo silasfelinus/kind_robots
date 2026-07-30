@@ -131,6 +131,7 @@ expectContains('server/api/art/enqueue.post.ts', [
   'entityArt?.sourceImageBase64',
 ])
 
+// Relay/server completion is the durable contract; no browser process is required.
 expectContains('server/api/art/queue/[id]/complete.post.ts', [
   'applyEntityArtCompletion',
   'readEntityArtMetadata',

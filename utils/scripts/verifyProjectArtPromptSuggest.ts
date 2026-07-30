@@ -22,11 +22,11 @@ expectContains('components/pages/conductor-art-gallery.vue', [
 ])
 
 expectContains('plugins/project-art-prompt-suggest.client.ts', [
-  "suggestArtAssetPrompt",
+  'suggestArtAssetPrompt',
   "modelType: 'project'",
   'props.projectId',
   'props.slug',
-  "textarea[maxlength=\"4000\"]",
+  'textarea[maxlength="4000"]',
   "imagePath: { label: 'Icon', variant: 'icon', width: 256, height: 256 }",
   "cardPath: { label: 'Card', variant: 'card', width: 512, height: 768 }",
   "heroPath: { label: 'Hero', variant: 'hero', width: 1280, height: 720 }",
@@ -43,7 +43,8 @@ expectContains('stores/helpers/artAssetSuggest.ts', [
 
 expectContains('server/utils/suggest/sheets/artAssetSuggest.ts', [
   'Projects: communicate what the project actually does',
-  "modelType: 'project'",
 ])
+
+expectContains('utils/artModelContext.ts', ["'project'"])
 
 console.log('Project art prompt suggestion contract verified.')

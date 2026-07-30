@@ -4,8 +4,9 @@
     <div
       class="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4 sm:p-6"
     >
-      <!-- ── Header ───────────────────────────────────────────────────── -->
-      <header class="rounded-2xl border border-base-300 bg-base-100 p-4 sm:p-5">
+      <header
+        class="rounded-2xl border border-base-300 bg-base-100 p-4 sm:p-5"
+      >
         <div
           class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
         >
@@ -13,7 +14,10 @@
             <span
               class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15"
             >
-              <icon name="kind-icon:paintbrush" class="h-7 w-7 text-primary" />
+              <icon
+                name="kind-icon:paintbrush"
+                class="h-7 w-7 text-primary"
+              />
             </span>
             <div>
               <h1 class="text-2xl font-black text-primary sm:text-3xl">
@@ -33,7 +37,6 @@
         </div>
       </header>
 
-      <!-- Generation message -->
       <div
         v-if="artStore.generationMessage"
         class="flex items-start gap-2 rounded-2xl border p-3 text-sm font-semibold"
@@ -54,18 +57,17 @@
         {{ artStore.generationMessage }}
       </div>
 
-      <!-- ── Step 1-3: Server / Model / Collection ─────────────────────── -->
       <section
         class="grid grid-cols-1 gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 lg:grid-cols-3"
       >
-        <!-- Step badge helper: reused via local style -->
         <label class="form-control">
           <span class="label">
             <span class="label-text flex items-center gap-2 font-bold">
               <span
                 class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[0.65rem] font-black text-primary-content"
-                >1</span
               >
+                1
+              </span>
               Server
             </span>
           </span>
@@ -86,22 +88,30 @@
           </select>
 
           <span class="label">
-            <span class="label-text-alt text-base-content/55">{{
-              selectedServerSummary
-            }}</span>
+            <span class="label-text-alt text-base-content/55">
+              {{ selectedServerSummary }}
+            </span>
           </span>
         </label>
 
-        <label class="form-control">
-          <span class="label">
+        <div class="form-control gap-2">
+          <span class="label pb-0">
             <span class="label-text flex items-center gap-2 font-bold">
               <span
                 class="flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[0.65rem] font-black text-secondary-content"
-                >2</span
               >
+                2
+              </span>
               Model
             </span>
           </span>
+
+          <maturity-toggle
+            variant="resource"
+            label="Mature checkpoint models"
+            visible-text="Mature checkpoints are available in this selector."
+            hidden-text="Mature checkpoints are hidden from this selector."
+          />
 
           <select
             v-model="selectedCheckpointName"
@@ -122,20 +132,21 @@
             </option>
           </select>
 
-          <span class="label">
+          <span class="label pt-0">
             <span class="label-text-alt text-base-content/55">
               Active: {{ checkpointStore.currentApiModel || 'unknown' }}
             </span>
           </span>
-        </label>
+        </div>
 
         <div class="form-control">
           <span class="label">
             <span class="label-text flex items-center gap-2 font-bold">
               <span
                 class="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[0.65rem] font-black text-accent-content"
-                >3</span
               >
+                3
+              </span>
               Collection
             </span>
           </span>
@@ -172,11 +183,9 @@
         </div>
       </section>
 
-      <!-- ── Prompt + Options ──────────────────────────────────────────── -->
       <section
         class="grid grid-cols-1 gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 xl:grid-cols-[minmax(0,1fr)_320px]"
       >
-        <!-- Left: prompts + randomizers -->
         <div class="flex min-h-0 flex-col gap-4">
           <label class="form-control">
             <span class="label">
@@ -206,9 +215,9 @@
 
           <label class="form-control">
             <span class="label">
-              <span class="label-text font-bold text-base-content/70"
-                >Negative Prompt</span
-              >
+              <span class="label-text font-bold text-base-content/70">
+                Negative Prompt
+              </span>
             </span>
 
             <textarea
@@ -225,15 +234,14 @@
                 <icon name="kind-icon:dice" class="h-4 w-4" />
                 Randomizers
               </span>
-              <span class="text-xs text-base-content/50"
-                >Optional prompt seasoning</span
-              >
+              <span class="text-xs text-base-content/50">
+                Optional prompt seasoning
+              </span>
             </div>
             <art-randomizer />
           </div>
         </div>
 
-        <!-- Right: generation options -->
         <aside class="flex flex-col gap-4">
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <h2
@@ -266,9 +274,9 @@
 
               <div class="grid grid-cols-2 gap-3">
                 <label class="form-control">
-                  <span class="label"
-                    ><span class="label-text font-bold">Steps</span></span
-                  >
+                  <span class="label">
+                    <span class="label-text font-bold">Steps</span>
+                  </span>
                   <input
                     v-model.number="artStore.artForm.steps"
                     class="input input-bordered rounded-2xl bg-base-100"
@@ -279,9 +287,9 @@
                   />
                 </label>
                 <label class="form-control">
-                  <span class="label"
-                    ><span class="label-text font-bold">CFG</span></span
-                  >
+                  <span class="label">
+                    <span class="label-text font-bold">CFG</span>
+                  </span>
                   <input
                     v-model.number="artStore.artForm.cfg"
                     class="input input-bordered rounded-2xl bg-base-100"
@@ -294,9 +302,9 @@
               </div>
 
               <label class="form-control">
-                <span class="label"
-                  ><span class="label-text font-bold">Seed</span></span
-                >
+                <span class="label">
+                  <span class="label-text font-bold">Seed</span>
+                </span>
                 <input
                   v-model.number="seedInput"
                   class="input input-bordered rounded-2xl bg-base-100"
@@ -344,7 +352,9 @@
             </div>
           </div>
 
-          <details class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <details
+            class="rounded-2xl border border-base-300 bg-base-200 p-4"
+          >
             <summary
               class="flex cursor-pointer list-none items-center gap-2 text-base font-bold text-primary"
             >
@@ -364,7 +374,6 @@
         </aside>
       </section>
 
-      <!-- ── Latest Result ─────────────────────────────────────────────── -->
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
         <div
           class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
@@ -400,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import type { Server } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import type { Resource } from '@/stores/resourceStore'
@@ -475,16 +484,17 @@ const selectedServerSummary = computed(() => {
 const checkpointOptions = computed<CheckpointResource[]>(() => {
   const checkpoints = checkpointStore.visibleCheckpoints
   if (!Array.isArray(checkpoints)) return []
-  return (checkpoints as CheckpointResource[]).filter((checkpoint) => {
-    if (checkpoint.isMature && !artStore.showMature) return false
-    return Boolean(safeText(checkpoint.name).trim())
-  })
+
+  return (checkpoints as CheckpointResource[]).filter((checkpoint) =>
+    Boolean(safeText(checkpoint.name).trim()),
+  )
 })
 
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean')
+  if (typeof value === 'number' || typeof value === 'boolean') {
     return String(value)
+  }
   return ''
 }
 
@@ -500,7 +510,7 @@ function getCheckpointLabel(checkpoint: CheckpointResource): string {
   )
 }
 
-function configureArtImageUpload() {
+function configureArtImageUpload(): void {
   uploadStore.setTarget({
     model: 'ArtImage',
     modelId: null,
@@ -514,7 +524,7 @@ function configureArtImageUpload() {
   })
 }
 
-function handleCollectionCreated(collection: ArtCollection) {
+function handleCollectionCreated(collection: ArtCollection): void {
   artStore.selectGenerationCollection(collection.id)
   artStore.setGenerationMessage(
     'success',
@@ -522,27 +532,43 @@ function handleCollectionCreated(collection: ArtCollection) {
   )
 }
 
-function handleCollectionSelected(collection: ArtCollection) {
+function handleCollectionSelected(collection: ArtCollection): void {
   artStore.selectGenerationCollection(collection.id)
 }
 
-function clearPrompt() {
+function clearPrompt(): void {
   promptStore.promptField = ''
   artStore.setArtForm({ promptString: '', negativePrompt: '' })
   artStore.clearGenerationMessage()
 }
 
-function goToSelectedTab() {
+function goToSelectedTab(): void {
   navStore.setDashboardTab(dashboardKey, 'selected')
 }
 
-function handleRemixUploaded() {
+function handleRemixUploaded(): void {
   artStore.setGenerationMessage(
     'success',
     'Remix image uploaded. Opening selected image.',
   )
   goToSelectedTab()
 }
+
+watch(
+  checkpointOptions,
+  (options) => {
+    const selectedName = selectedCheckpointName.value
+    if (
+      selectedName &&
+      !options.some(
+        (checkpoint) => safeText(checkpoint.name).trim() === selectedName,
+      )
+    ) {
+      selectedCheckpointName.value = safeText(options[0]?.name).trim()
+    }
+  },
+  { immediate: true },
+)
 
 onMounted(async () => {
   const result = await artStore.prepareArtGenerator()

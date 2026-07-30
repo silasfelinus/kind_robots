@@ -73,6 +73,16 @@
       <section
         class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5"
       >
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 bg-base-100"
+          aria-label="Refresh with launch animation"
+          title="Refresh with launch animation"
+          @click="requestFullStartupReload"
+        >
+          <Icon name="kind-icon:refresh" class="h-5 w-5" />
+        </button>
+
         <server-selector class="header-control-item min-w-0" />
         <notification-bell class="shrink-0" />
         <login-switcher class="header-control-item min-w-0" />
@@ -89,6 +99,7 @@ import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { requestFullStartupReload } from '@/utils/startupLaunch'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
@@ -200,7 +211,6 @@ watch(
   }),
   ({ channelKey, tabKey }) => {
     if (!channelKey || !tabKey) return
-
     channelContentStore.setActiveTab(channelKey, tabKey)
   },
   { immediate: true },

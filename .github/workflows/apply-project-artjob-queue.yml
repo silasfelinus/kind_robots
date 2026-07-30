@@ -1,0 +1,35 @@
+name: Apply Project ArtJob Queue Patch
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'fix/project-artjob-real-queue'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Apply Project ArtJob migration
+        run: python utils/scripts/applyProjectArtJobQueuePatch.py
+      - name: Commit product changes
+        run: |
+          git config user.name "kind-robots-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            components/pages/conductor-art-gallery.vue \
+            server/utils/entityArt.ts \
+            utils/scripts/verifyEntityArtManager.ts
+          if git diff --cached --quiet; then
+            echo "Patch already applied."
+            exit 0
+          fi
+          git commit -m "Route Project artwork through ArtJob queue"
+          git push origin "HEAD:${{ github.head_ref }}"

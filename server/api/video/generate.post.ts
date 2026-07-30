@@ -16,6 +16,13 @@ type VideoGenerateRequest = Record<string, unknown> & {
   outputFormat?: string | null
 }
 
+type VideoGenerateResponse = {
+  success: boolean
+  message: string
+  statusCode: number
+  data?: Record<string, unknown>
+}
+
 function normalizeEngine(value: unknown): VideoEngine {
   const engine = String(value || '').trim().toLowerCase()
   if (engine === 'ltx' || engine === 'wan') return engine
@@ -56,7 +63,7 @@ export default defineEventHandler(async (event) => {
     outputFormat: body?.outputFormat ?? preset?.outputFormat,
   }
 
-  return event.$fetch('/api/art/enqueue', {
+  return event.$fetch<VideoGenerateResponse, string>('/api/art/enqueue', {
     method: 'POST',
     body: resolvedBody,
   })

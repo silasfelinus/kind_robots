@@ -11,6 +11,7 @@ export type EntityArtType =
   | 'scenario'
   | 'reward'
   | 'facet'
+  | 'project'
 
 export type EntityArtMode = 'recreate' | 'img2img'
 
@@ -113,6 +114,26 @@ const ENTITY_FIELDS: Record<
       primary: false,
     },
   },
+  project: {
+    imagePath: {
+      label: 'Icon',
+      width: 256,
+      height: 256,
+      primary: true,
+    },
+    cardPath: {
+      label: 'Card',
+      width: 512,
+      height: 768,
+      primary: false,
+    },
+    heroPath: {
+      label: 'Hero',
+      width: 1280,
+      height: 720,
+      primary: false,
+    },
+  },
 }
 
 const IMAGE_API_PATTERN = /\/api\/art\/images\/(\d+)\/file/
@@ -179,13 +200,14 @@ export function normalizeEntityArtType(value: unknown): EntityArtType {
     type === 'character' ||
     type === 'scenario' ||
     type === 'reward' ||
-    type === 'facet'
+    type === 'facet' ||
+    type === 'project'
   ) {
     return type
   }
   throw createError({
     statusCode: 400,
-    message: 'Choose Bot, Character, Scenario, Reward, or Facet.',
+    message: 'Choose Bot, Character, Scenario, Reward, Facet, or Project.',
   })
 }
 
@@ -243,6 +265,10 @@ export async function getEntityArtRecord(
         | null
     case 'facet':
       return (await db.facet.findUnique({ where: { id: entityId } })) as
+        | EntityArtRecord
+        | null
+    case 'project':
+      return (await db.project.findUnique({ where: { id: entityId } })) as
         | EntityArtRecord
         | null
   }
@@ -329,7 +355,7 @@ async function createHistoryReference(
   const timestamp = Date.now()
   const slug = cleanSlug(title, `${input.entityType}-${input.entityId}`)
 
-  return db.artImage.create({
+  const history = await db.artImage.create({
     data: {
       userId: input.record.userId ?? source?.userId ?? 1,
       fileName: `${slug}-${fieldConfig.label.toLowerCase()}-previous-${timestamp}`,
@@ -357,6 +383,21 @@ async function createHistoryReference(
       isActive: true,
     },
   })
+
+  if (input.entityType === 'project') {
+    await db.projectArtImage.upsert({
+      where: {
+        projectId_artImageId: {
+          projectId: input.entityId,
+          artImageId: history.id,
+        },
+      },
+      create: { projectId: input.entityId, artImageId: history.id },
+      update: {},
+    })
+  }
+
+  return history
 }
 
 export async function archiveCurrentEntityArt(
@@ -379,6 +420,20 @@ export async function archiveCurrentEntityArt(
     ? `/api/art/images/${sourceArtImageId}/file`
     : path
   if (!referencePath) return null
+
+  if (input.entityType === 'project' && sourceArtImageId) {
+    await db.projectArtImage.upsert({
+      where: {
+        projectId_artImageId: {
+          projectId: input.entityId,
+          artImageId: sourceArtImageId,
+        },
+      },
+      create: { projectId: input.entityId, artImageId: sourceArtImageId },
+      update: {},
+    })
+    return db.artImage.findUnique({ where: { id: sourceArtImageId } })
+  }
 
   return createHistoryReference(db, {
     ...input,
@@ -432,6 +487,29 @@ async function updateEntityRecord(
           artImageId: input.artImageId,
         },
       })) as EntityArtRecord
+    case 'project': {
+      const data =
+        input.field === 'cardPath'
+          ? { cardPath: input.imagePath }
+          : input.field === 'heroPath'
+            ? { heroPath: input.imagePath }
+            : { imagePath: input.imagePath, artImageId: input.artImageId }
+      const project = await db.project.update({
+        where: { id: input.entityId },
+        data,
+      })
+      await db.projectArtImage.upsert({
+        where: {
+          projectId_artImageId: {
+            projectId: input.entityId,
+            artImageId: input.artImageId,
+          },
+        },
+        create: { projectId: input.entityId, artImageId: input.artImageId },
+        update: {},
+      })
+      return project as EntityArtRecord
+    }
     case 'facet': {
       const data =
         input.field === 'cardPath'
@@ -476,6 +554,25 @@ export async function applyEntityArtImage(
   })
   if (!artImage) {
     throw createError({ statusCode: 404, message: 'Generated image was not found.' })
+  }
+
+  const previousArtImageId = currentArtImageId(
+    target.record,
+    target.field,
+    target.config.primary,
+  )
+  if (
+    target.entityType === 'project' &&
+    !input.preserveOriginal &&
+    previousArtImageId &&
+    previousArtImageId !== artImage.id
+  ) {
+    await db.projectArtImage.deleteMany({
+      where: {
+        projectId: target.entityId,
+        artImageId: previousArtImageId,
+      },
+    })
   }
 
   let archivedId: number | null = null
@@ -621,6 +718,15 @@ function contextLines(
       ['Flavor text', record.flavorText],
       ['Examples', record.examples],
       ['Existing art prompt', record.artPrompt],
+    ],
+    project: [
+      ['Title', record.title],
+      ['Description', record.description],
+      ['Pitch', record.pitch],
+      ['Goal', record.goal],
+      ['Flavor text', record.flavorText],
+      ['Status', record.status],
+      ['Priority', record.priority],
     ],
   }
 

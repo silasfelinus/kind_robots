@@ -1,30 +1,95 @@
-html.kr-full-startup {
+html.kr-full-startup,
+html.kr-startup-handoff {
   background: #000;
 }
 
-html.kr-full-startup::before {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483646;
-  background-color: #000;
-  background-image:
-    url('/images/startup-animations/launch-04.webp'),
-    url('/images/kindlogo_new.webp');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: clamp(16rem, 58vw, 34rem) auto;
-  content: '';
-  pointer-events: none;
+.kr-prehydrate-loader {
+  display: contents;
 }
 
-.kr-prehydrate-loader {
+.kr-prehydrate-effect,
+.kr-prehydrate-content,
+.kr-prehydrate-controls {
   display: none;
 }
 
-html.kr-full-startup .kr-prehydrate-loader {
+html.kr-startup-handoff .kr-prehydrate-effect {
   position: fixed;
   inset: 0;
-  z-index: 2147483647;
+  z-index: 48;
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(58, 85, 112, 0.2), transparent 34%),
+    radial-gradient(circle at 18% 24%, rgba(125, 211, 252, 0.11), transparent 26%),
+    radial-gradient(circle at 82% 72%, rgba(216, 180, 254, 0.1), transparent 30%);
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+  isolation: isolate;
+}
+
+html.kr-startup-effect-ready .kr-prehydrate-effect {
+  opacity: 0;
+}
+
+.kr-prehydrate-effect__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(86vmax, 72rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 42% 58% 61% 39% / 56% 43% 57% 44%;
+  background:
+    conic-gradient(
+      from 20deg,
+      transparent,
+      rgba(103, 232, 249, 0.08),
+      transparent 31%,
+      rgba(232, 121, 249, 0.07),
+      transparent 67%,
+      rgba(147, 197, 253, 0.08),
+      transparent
+    );
+  filter: blur(1.2rem);
+  opacity: 0.9;
+  transform: translate(-50%, -50%);
+  animation: kr-prehydrate-effect-turn 16s linear infinite;
+}
+
+.kr-prehydrate-effect__particles,
+.kr-prehydrate-effect__particles i {
+  position: absolute;
+}
+
+.kr-prehydrate-effect__particles {
+  inset: 0;
+}
+
+.kr-prehydrate-effect__particles i {
+  top: var(--kr-y);
+  left: var(--kr-x);
+  width: var(--kr-size);
+  height: var(--kr-size);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 42% 58% 68% 32% / 64% 38% 62% 36%;
+  background:
+    radial-gradient(circle at 35% 30%, #fff, rgba(147, 197, 253, 0.78) 34%, rgba(99, 102, 241, 0.15) 72%, transparent 76%);
+  box-shadow:
+    0 0 0.8rem rgba(125, 211, 252, 0.45),
+    0 0 1.8rem rgba(129, 140, 248, 0.18);
+  opacity: 0;
+  animation:
+    kr-prehydrate-effect-drift var(--kr-duration) linear var(--kr-delay) infinite,
+    kr-prehydrate-effect-flutter 1.1s ease-in-out var(--kr-delay) infinite alternate;
+  will-change: transform, opacity;
+}
+
+html.kr-full-startup .kr-prehydrate-content {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
   display: grid;
   padding: 1rem;
   place-items: center;
@@ -33,9 +98,8 @@ html.kr-full-startup .kr-prehydrate-loader {
 }
 
 .kr-prehydrate-content {
-  display: grid;
-  width: min(98vw, 64rem);
-  height: min(92vh, 52rem);
+  width: 100%;
+  height: 100%;
   grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem;
   place-items: center;
 }
@@ -54,6 +118,7 @@ html.kr-full-startup .kr-prehydrate-loader {
   font-weight: 700;
   text-align: center;
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(0.35rem);
 }
 
 .kr-prehydrate-heading {
@@ -64,9 +129,11 @@ html.kr-full-startup .kr-prehydrate-loader {
 
 .kr-prehydrate-visual {
   position: relative;
-  width: 100%;
+  display: grid;
+  width: min(98vw, 64rem);
   height: 100%;
   min-height: 0;
+  place-items: center;
   isolation: isolate;
 }
 
@@ -103,6 +170,18 @@ html.kr-full-startup .kr-prehydrate-loader {
   filter: blur(0.65rem);
   opacity: 0.72;
   animation: kr-prehydrate-logo-wobble 10s ease-in-out infinite alternate;
+}
+
+.kr-prehydrate-media {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: clamp(16rem, 58vw, 34rem);
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  opacity: 1;
+  filter: drop-shadow(0 1rem 2.5rem rgba(0, 0, 0, 0.48));
 }
 
 .kr-prehydrate-status {
@@ -202,12 +281,68 @@ html.kr-full-startup .kr-prehydrate-loader {
   animation-delay: 2.5s;
 }
 
-html.kr-full-startup .loader-root {
-  z-index: 2147483647;
+html.kr-startup-handoff .kr-prehydrate-controls {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 61;
+  display: flex;
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.35rem 0.3rem 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  box-shadow: 0 0.65rem 1.75rem rgba(0, 0, 0, 0.42);
+  opacity: 1;
+  pointer-events: auto;
+  backdrop-filter: blur(0.7rem);
+  transition: opacity 180ms ease;
+}
+
+html.kr-startup-controls-ready .kr-prehydrate-controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kr-prehydrate-controls__name {
+  overflow: hidden;
+  max-width: min(12rem, 42vw);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.72rem;
+  font-weight: 850;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kr-prehydrate-controls__button {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.45rem;
+  padding: 0.2rem 0.45rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kr-prehydrate-controls__button:hover,
+.kr-prehydrate-controls__button:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
 }
 
 .loading-logo-frame {
-  background-color: #000;
+  background-color: transparent;
   background-image:
     url('/images/startup-animations/launch-04.webp'),
     url('/images/kindlogo_new.webp');
@@ -222,6 +357,52 @@ html.kr-full-startup .loader-root {
 
 html.kr-full-startup .kr-boot-curtain {
   display: block !important;
+}
+
+@keyframes kr-prehydrate-effect-turn {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.94);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.04);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg) scale(0.94);
+  }
+}
+
+@keyframes kr-prehydrate-effect-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(-8deg) scale(0.72);
+  }
+
+  16% {
+    opacity: 0.72;
+  }
+
+  78% {
+    opacity: 0.62;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--kr-drift-x), var(--kr-drift-y), 0) rotate(34deg) scale(1.24);
+  }
+}
+
+@keyframes kr-prehydrate-effect-flutter {
+  from {
+    border-radius: 42% 58% 68% 32% / 64% 38% 62% 36%;
+    filter: brightness(0.82);
+  }
+
+  to {
+    border-radius: 66% 34% 38% 62% / 36% 68% 32% 64%;
+    filter: brightness(1.24);
+  }
 }
 
 @keyframes kr-prehydrate-logo-haze {
@@ -273,12 +454,29 @@ html.kr-full-startup .kr-boot-curtain {
   }
 }
 
+@media (max-width: 639px) {
+  html.kr-startup-handoff .kr-prehydrate-controls {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    justify-content: center;
+    width: auto;
+    max-width: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .kr-prehydrate-effect__glow,
+  .kr-prehydrate-effect__particles i,
   .kr-prehydrate-visual::before,
   .kr-prehydrate-visual::after,
   .kr-prehydrate-spinner i,
   .kr-prehydrate-message span {
     animation: none;
+  }
+
+  .kr-prehydrate-effect__particles i {
+    display: none;
   }
 
   .kr-prehydrate-message span:first-child {

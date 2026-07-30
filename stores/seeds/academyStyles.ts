@@ -1932,6 +1932,46 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image as a Barbizon School landscape: a muted, earthy palette of greens, browns, and greys, loose but controlled brushwork, soft overcast or late-day atmospheric light, direct unidealized observation of a specific rural landscape, and a quiet, humble mood with no academic or mythological staging. Preserve the source composition and subject.',
     },
   },
+  {
+    slug: 'american-luminism',
+    name: 'American Luminism',
+    era: 'c. 1850–1875',
+    sortYear: 1850,
+    previewImageSrc: '/images/academy/styles/american-luminism.webp',
+    region: 'United States',
+    keyIdeas:
+      "American Luminism gives the curriculum a third lens on the same 19th-century American landscape tradition already taught through the Hudson River School (§32) and Tonalism (§39), and is deliberately distinct from both. Where Hudson River School painters build panoramic, geologically detailed drama and Tonalism dissolves the scene into a single muted, blurred tone, Luminist painters do the opposite of both: they render an exceptionally calm, glassy stretch of water or sky in crisp, almost invisible brushwork, so smooth the paint surface itself seems to disappear, and study the precise, still gradation of natural light at a specific moment — dawn haze, a becalmed noon, or the last low sun before a storm — with near-scientific clarity rather than blur or theatrical intensity. Many Luminist canvases (Heade's marsh and thunderstorm scenes especially) hold a hushed, almost eerie stillness, often with a single sailboat or salt-marsh haystack as the only mark of human presence in an otherwise silent, mirror-flat expanse. The movement was not named or grouped by its own painters — 'Luminism' is a mid-20th-century art-historical label applied retroactively to a shared sensibility among painters working independently along the American coast and inland waterways.",
+    recognitionCues: [
+      'Smooth, meticulously blended brushwork with the paint surface itself nearly invisible — the opposite of Impressionist or Barbizon visible touch',
+      'A perfectly calm, mirror-flat or glassy body of water or sky, often reflecting the sky’s exact gradation',
+      'Precise, almost scientific rendering of a specific quality of light (dawn haze, still midday heat, or pre-storm low sun) rather than dramatic theatrical illumination',
+      'A hushed, motionless, sometimes eerie stillness; time itself feels suspended',
+      'Minimal, incidental human presence — a single small sailboat, a distant figure, or a salt-marsh haystack, never the focus',
+      'Coastal, marsh, or inland-waterway subject matter far more often than mountain or forest interior scenes',
+    ],
+    artists: [
+      {
+        name: 'Fitz Henry Lane',
+        years: '1804–1865',
+        note: 'A Gloucester, Massachusetts marine painter and this lesson’s clearest generation-style anchor; his harbor and coastal scenes define the glassy-water, still-light Luminist signature.',
+      },
+      {
+        name: 'Martin Johnson Heade',
+        years: '1819–1904',
+        note: 'Known for salt-marsh haystack scenes and pre-storm coastal light studies with an unusually hushed, still-air quality even at the edge of a storm.',
+      },
+      {
+        name: 'John Frederick Kensett',
+        years: '1816–1872',
+        note: 'Painted calm inland lake and shoreline scenes (Lake George, Newport) with the same smooth, light-precise handling.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image in the American Luminist style: extremely smooth, near-invisible brushwork, a perfectly calm glassy body of water or sky reflecting a precise gradation of still natural light (dawn haze, quiet midday, or pre-storm low sun), a hushed and motionless mood, and minimal incidental human presence. Preserve the source composition and subject.',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

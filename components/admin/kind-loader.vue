@@ -40,6 +40,7 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 import {
+  clearStartupCover,
   consumeForcedFullStartup,
   isBrowserReload,
 } from '@/utils/startupLaunch'
@@ -121,13 +122,25 @@ if (startupMode.value === 'full') {
   markStartupSequenceSeen()
 }
 
+function releasePrehydrateCover(): void {
+  if (!import.meta.client) return
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      clearStartupCover()
+    })
+  })
+}
+
 function handleOverlayCovered() {
   if (coveredEmitted.value) return
   coveredEmitted.value = true
   emit('covered')
+  releasePrehydrateCover()
 }
 
 function handleOverlayHiding() {
+  clearStartupCover()
   butterflyStore.setShowSwarm(false)
 }
 
@@ -291,10 +304,6 @@ onMounted(() => {
 
 :global(.kr-shell.bg-black) {
   background-color: transparent !important;
-}
-
-:global(.kr-boot-curtain) {
-  display: none !important;
 }
 
 :global(.loading-overlay),

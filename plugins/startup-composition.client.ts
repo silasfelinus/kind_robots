@@ -8,7 +8,7 @@ const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
 export default defineNuxtPlugin((nuxtApp) => {
   const root = document.documentElement
   let sawLoader = false
-  let cleanupTimer: ReturnType<typeof window.setTimeout> | null = null
+  let cleanupTimer: number | null = null
 
   function clearCleanupTimer(): void {
     if (cleanupTimer === null) return

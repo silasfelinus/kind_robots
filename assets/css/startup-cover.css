@@ -17,37 +17,189 @@ html.kr-full-startup::before {
   pointer-events: none;
 }
 
-html.kr-full-startup body::before,
-html.kr-full-startup body::after {
+.kr-prehydrate-loader {
+  display: none;
+}
+
+html.kr-full-startup .kr-prehydrate-loader {
   position: fixed;
-  left: 50%;
+  inset: 0;
   z-index: 2147483647;
+  display: grid;
+  padding: 1rem;
+  place-items: center;
+  color: #fff;
+  pointer-events: none;
+}
+
+.kr-prehydrate-content {
+  display: grid;
+  width: min(98vw, 64rem);
+  height: min(92vh, 52rem);
+  grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem;
+  place-items: center;
+}
+
+.kr-prehydrate-heading,
+.kr-prehydrate-message {
+  display: grid;
   width: fit-content;
   max-width: min(90vw, 44rem);
+  min-height: 3.75rem;
   padding: 0.65rem 1.2rem;
+  place-items: center;
   border-radius: 0.25rem;
   background: rgba(0, 0, 0, 0.78);
   color: #fff;
   font-weight: 700;
   text-align: center;
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.42);
-  transform: translateX(-50%);
-  pointer-events: none;
 }
 
-html.kr-full-startup body::before {
-  top: max(1rem, 4vh);
-  content: 'Building Kind Robots...';
+.kr-prehydrate-heading {
   font-size: clamp(1.2rem, 2.25vw, 2rem);
   font-weight: 800;
   letter-spacing: 0.02em;
 }
 
-html.kr-full-startup body::after {
-  bottom: max(1.5rem, 5vh);
-  content: '●  ●  ●   Wiring robots for suspicious levels of charm...';
-  font-size: clamp(1rem, 1.8vw, 1.6rem);
-  animation: kr-prehydrate-status-pulse 1.15s ease-in-out infinite alternate;
+.kr-prehydrate-visual {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  isolation: isolate;
+}
+
+.kr-prehydrate-visual::before,
+.kr-prehydrate-visual::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: clamp(17rem, 60vw, 36rem);
+  aspect-ratio: 1;
+  content: '';
+  pointer-events: none;
+}
+
+.kr-prehydrate-visual::before {
+  border-radius: 46% 54% 61% 39% / 57% 41% 59% 43%;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.2), transparent 42%),
+    radial-gradient(circle at 64% 68%, rgba(129, 230, 217, 0.16), transparent 46%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 68%);
+  filter: blur(1.8rem);
+  opacity: 0.88;
+  animation: kr-prehydrate-logo-haze 8s ease-in-out infinite alternate;
+}
+
+.kr-prehydrate-visual::after {
+  width: clamp(15rem, 54vw, 32rem);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 58% 42% 47% 53% / 43% 62% 38% 57%;
+  box-shadow:
+    0 0 2.5rem rgba(255, 255, 255, 0.12),
+    inset 0 0 2.25rem rgba(255, 255, 255, 0.08);
+  filter: blur(0.65rem);
+  opacity: 0.72;
+  animation: kr-prehydrate-logo-wobble 10s ease-in-out infinite alternate;
+}
+
+.kr-prehydrate-status {
+  display: grid;
+  width: 100%;
+  min-height: 8rem;
+  grid-template-rows: 4rem 4rem;
+  place-items: center;
+}
+
+.kr-prehydrate-spinner {
+  position: relative;
+  display: block;
+  width: 4rem;
+  height: 4rem;
+  filter: drop-shadow(0 0 0.75rem rgba(255, 255, 255, 0.22));
+}
+
+.kr-prehydrate-spinner i {
+  --kr-bubble-angle: 0deg;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.58rem;
+  height: 0.58rem;
+  margin: -0.29rem;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.2;
+  transform: rotate(var(--kr-bubble-angle)) translateY(-1.42rem);
+  transform-origin: center;
+  animation: kr-prehydrate-bubble-pulse 1s ease-in-out infinite;
+}
+
+.kr-prehydrate-spinner i:nth-child(1) {
+  --kr-bubble-angle: 0deg;
+  animation-delay: -0.875s;
+}
+
+.kr-prehydrate-spinner i:nth-child(2) {
+  --kr-bubble-angle: 45deg;
+  animation-delay: -0.75s;
+}
+
+.kr-prehydrate-spinner i:nth-child(3) {
+  --kr-bubble-angle: 90deg;
+  animation-delay: -0.625s;
+}
+
+.kr-prehydrate-spinner i:nth-child(4) {
+  --kr-bubble-angle: 135deg;
+  animation-delay: -0.5s;
+}
+
+.kr-prehydrate-spinner i:nth-child(5) {
+  --kr-bubble-angle: 180deg;
+  animation-delay: -0.375s;
+}
+
+.kr-prehydrate-spinner i:nth-child(6) {
+  --kr-bubble-angle: 225deg;
+  animation-delay: -0.25s;
+}
+
+.kr-prehydrate-spinner i:nth-child(7) {
+  --kr-bubble-angle: 270deg;
+  animation-delay: -0.125s;
+}
+
+.kr-prehydrate-spinner i:nth-child(8) {
+  --kr-bubble-angle: 315deg;
+  animation-delay: 0s;
+}
+
+.kr-prehydrate-message {
+  position: relative;
+  min-width: min(90vw, 28rem);
+  font-size: clamp(1.05rem, 2vw, 1.75rem);
+}
+
+.kr-prehydrate-message span {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(5px);
+  animation: kr-prehydrate-message-cycle 3.75s linear infinite;
+}
+
+.kr-prehydrate-message span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.kr-prehydrate-message span:nth-child(2) {
+  animation-delay: 1.25s;
+}
+
+.kr-prehydrate-message span:nth-child(3) {
+  animation-delay: 2.5s;
 }
 
 html.kr-full-startup .loader-root {
@@ -72,20 +224,65 @@ html.kr-full-startup .kr-boot-curtain {
   display: block !important;
 }
 
-@keyframes kr-prehydrate-status-pulse {
-  from {
-    opacity: 0.72;
-    transform: translateX(-50%) translateY(0.2rem) scale(0.985);
+@keyframes kr-prehydrate-logo-haze {
+  0% {
+    border-radius: 46% 54% 61% 39% / 57% 41% 59% 43%;
+    transform: translate(-50%, -50%) rotate(-2deg) scale(0.96);
   }
 
-  to {
+  100% {
+    border-radius: 57% 43% 39% 61% / 44% 58% 42% 56%;
+    transform: translate(-50%, -50%) rotate(3deg) scale(1.05);
+  }
+}
+
+@keyframes kr-prehydrate-logo-wobble {
+  0% {
+    border-radius: 58% 42% 47% 53% / 43% 62% 38% 57%;
+    transform: translate(-50%, -50%) rotate(2deg) scale(1.02);
+  }
+
+  100% {
+    border-radius: 42% 58% 55% 45% / 61% 39% 57% 43%;
+    transform: translate(-50%, -50%) rotate(-3deg) scale(0.95);
+  }
+}
+
+@keyframes kr-prehydrate-bubble-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kr-prehydrate-message-cycle {
+  0%,
+  27% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  33%,
+  100% {
+    opacity: 0;
+    transform: translateY(5px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.kr-full-startup body::after {
+  .kr-prehydrate-visual::before,
+  .kr-prehydrate-visual::after,
+  .kr-prehydrate-spinner i,
+  .kr-prehydrate-message span {
     animation: none;
+  }
+
+  .kr-prehydrate-message span:first-child {
+    opacity: 1;
+    transform: none;
   }
 }

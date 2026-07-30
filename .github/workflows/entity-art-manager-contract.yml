@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - 'components/art/entity-art-manager.vue'
+      - 'components/pages/conductor-art-gallery.vue'
       - 'components/bots/bot-interact.vue'
       - 'components/characters/character-interact.vue'
       - 'components/scenarios/scenario-interact.vue'
       - 'components/rewards/reward-interact.vue'
       - 'components/facets/facet-manager.vue'
       - 'plugins/entity-art-prompt-suggest.client.ts'
+      - 'plugins/project-art-prompt-suggest.client.ts'
       - 'stores/helpers/artAssetSuggest.ts'
       - 'server/api/suggest.post.ts'
       - 'server/utils/suggest/sheets/artAssetSuggest.ts'
@@ -19,6 +21,7 @@ on:
       - 'server/utils/entityArt.ts'
       - 'utils/scripts/verifyEntityArtManager.ts'
       - 'utils/scripts/verifyEntityArtPromptSuggest.ts'
+      - 'utils/scripts/verifyProjectArtPromptSuggest.ts'
       - '.github/workflows/entity-art-manager-contract.yml'
   workflow_dispatch:
 
@@ -37,3 +40,4 @@ jobs:
       - run: npx prisma generate
       - run: npx tsx utils/scripts/verifyEntityArtManager.ts
       - run: npx tsx utils/scripts/verifyEntityArtPromptSuggest.ts
+      - run: npx tsx utils/scripts/verifyProjectArtPromptSuggest.ts

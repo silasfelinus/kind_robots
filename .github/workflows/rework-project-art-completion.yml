@@ -1,0 +1,32 @@
+name: Rework Project Art Completion
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  rework:
+    if: github.head_ref == 'fix/project-art-completion-attachment'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Rework completion durability
+        run: python .github/rework-project-art-completion.py
+      - name: Commit corrected architecture
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes required."
+            exit 0
+          fi
+          git commit -m "Make Project art completion independent of browser state"
+          git push origin HEAD:${{ github.head_ref }}

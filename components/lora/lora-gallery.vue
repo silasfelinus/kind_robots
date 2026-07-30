@@ -7,8 +7,12 @@
   both route through <add-lora>.
 -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
-    <header class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-bold text-base-content">
@@ -29,6 +33,13 @@
         </button>
       </div>
 
+      <maturity-toggle
+        variant="resource"
+        label="Mature LoRAs"
+        visible-text="Mature LoRAs are included in your library."
+        hidden-text="Mature LoRAs are hidden from your library."
+      />
+
       <div class="grid gap-2 md:grid-cols-[1fr_auto_auto_auto]">
         <input
           v-model="searchQuery"
@@ -36,14 +47,20 @@
           placeholder="Search name, label, trigger, path"
         />
 
-        <select v-model="selectedBase" class="select select-bordered rounded-xl">
+        <select
+          v-model="selectedBase"
+          class="select select-bordered rounded-xl"
+        >
           <option value="all">All bases</option>
           <option v-for="base in baseOptions" :key="base" :value="base">
             {{ base }}
           </option>
         </select>
 
-        <select v-model="maturityFilter" class="select select-bordered rounded-xl">
+        <select
+          v-model="maturityFilter"
+          class="select select-bordered rounded-xl"
+        >
           <option value="all">All ratings</option>
           <option value="sfw">SFW only</option>
           <option value="mature">Mature only</option>
@@ -66,7 +83,11 @@
 
     <div
       class="grid gap-3"
-      :class="compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4'"
+      :class="
+        compact
+          ? 'grid-cols-2 sm:grid-cols-3'
+          : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4'
+      "
     >
       <lora-card
         v-for="lora in pageItems"
@@ -241,7 +262,6 @@ const summaryText = computed(() => {
   return `${shown} of ${total} LoRAs`
 })
 
-// Any filter change resets to page 1; clamp if the list shrinks under us.
 watch([searchQuery, selectedBase, maturityFilter, sortBy], () => {
   page.value = 1
 })
@@ -250,22 +270,22 @@ watch(pageCount, (count) => {
   if (page.value > count) page.value = count
 })
 
-function openAdd() {
+function openAdd(): void {
   editing.value = null
   showForm.value = true
 }
 
-function openEdit(lora: Partial<Resource>) {
+function openEdit(lora: Partial<Resource>): void {
   editing.value = lora
   showForm.value = true
 }
 
-function closeForm() {
+function closeForm(): void {
   showForm.value = false
   editing.value = null
 }
 
-function handleSaved() {
+function handleSaved(): void {
   closeForm()
 }
 

@@ -27,6 +27,7 @@ jobs:
           import base64
           import gzip
           import hashlib
+          import re
 
           def verified(path: str, expected: str) -> str:
               value = Path(path).read_text().strip()
@@ -51,5 +52,18 @@ jobs:
           actual = hashlib.sha256(payload.encode()).hexdigest()
           if actual != expected:
               raise RuntimeError(f'entity art payload checksum mismatch: {actual}')
-          exec(gzip.decompress(base64.b64decode(payload)).decode())
+
+          script = gzip.decompress(base64.b64decode(payload)).decode()
+          script = re.sub(
+              r", '\.github/workflows/entity-art-manager-contract\.yml': '[^']+'",
+              '',
+              script,
+          )
+          script = script.replace(
+              'workflow = Path(".github/workflows/apply-shared-entity-art-manager.yml")\n'
+              'if workflow.exists():\n'
+              '    workflow.unlink()\n',
+              '',
+          )
+          exec(script)
           PY

@@ -90,3 +90,4 @@ import type prisma from '~/server/utils/prisma'
           git add components/art/entity-art-manager.vue server/utils/entityArt.ts
           git commit -m "Fix shared entity art TypeScript boundaries"
           git push origin HEAD
+          # Triggered after the workflow already existed on the PR branch.

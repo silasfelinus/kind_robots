@@ -65,7 +65,14 @@ import type prisma from '~/server/utils/prisma'
   const dbAnchor = 'type EntityArtDb = PrismaClient | Prisma.TransactionClient\n'
   const dbReplacement = `type EntityArtDb = Pick<
   typeof prisma,
-  'bot' | 'character' | 'scenario' | 'reward' | 'facet' | 'artImage'
+  | 'bot'
+  | 'character'
+  | 'scenario'
+  | 'reward'
+  | 'facet'
+  | 'project'
+  | 'projectArtImage'
+  | 'artImage'
 >
 `
   if (!source.includes(importAnchor) || !source.includes(dbAnchor)) {
@@ -92,11 +99,31 @@ expectContains('server/utils/entityArt.ts', [
   "| 'scenario'",
   "| 'reward'",
   "| 'facet'",
+  "| 'project'",
+  "case 'project'",
+  'projectArtImage.upsert',
   'buildEntityArtPrompt',
   'prepareEntityArtEnqueue',
   'applyEntityArtCompletion',
   'entityArtHistoryPrefix',
 ])
+
+expectContains('components/pages/conductor-art-gallery.vue', [
+  "'/api/art/enqueue'",
+  "entityType: 'project'",
+  'Queued as ArtJob',
+  'startPolling(jobId)',
+])
+
+const projectGallerySource = read('components/pages/conductor-art-gallery.vue')
+for (const obsolete of [
+  "'/api/conductor/art-request'",
+  '/art/prepare-generation',
+]) {
+  if (projectGallerySource.includes(obsolete)) {
+    throw new Error(`Project gallery still uses obsolete queue path: ${obsolete}`)
+  }
+}
 
 expectContains('server/api/art/enqueue.post.ts', [
   'prepareEntityArtEnqueue',

@@ -143,8 +143,8 @@
         <div>
           <p class="text-sm font-bold">Generate a Project replacement</p>
           <p class="text-xs text-base-content/50">
-            Describe the image you want. It will be queued as a forced Project
-            replacement, using Krea 2 by default.
+            Describe the image you want. It will be queued as an ArtJob and
+            attached to this Project automatically, using Krea 2 by default.
           </p>
         </div>
         <button
@@ -178,7 +178,6 @@
             :disabled="generating"
           >
             <option value="krea2">Krea 2 · default</option>
-            <option value="openai">OpenAI Images</option>
             <option value="flux">Flux</option>
             <option value="comfy">ComfyUI</option>
           </select>
@@ -412,7 +411,7 @@ import { performFetch } from '@/stores/utils'
 
 type ProjectArtField = 'imagePath' | 'cardPath' | 'heroPath'
 type ProjectArtVariant = 'icon' | 'card' | 'hero'
-type GenerationEngine = 'krea2' | 'openai' | 'flux' | 'comfy'
+type GenerationEngine = 'krea2' | 'flux' | 'comfy'
 type Slide = { src: string; label: string; field?: ProjectArtField }
 type ProjectArtLink = {
   createdAt: string | Date
@@ -424,19 +423,41 @@ type ProjectArtLink = {
   }
 }
 type ArtQueueResult = {
-  created?: boolean
-  forced?: boolean
-  branch?: string
-  entry?: { id?: string; image_path?: string; engine?: string }
+  jobId: number
+  status: string
 }
 
 const FIELD_META: Record<
   ProjectArtField,
-  { label: string; variant: ProjectArtVariant; size: string }
+  {
+    label: string
+    variant: ProjectArtVariant
+    size: string
+    width: number
+    height: number
+  }
 > = {
-  imagePath: { label: 'Icon', variant: 'icon', size: '256×256' },
-  cardPath: { label: 'Card', variant: 'card', size: '512×768' },
-  heroPath: { label: 'Hero', variant: 'hero', size: '1280×720' },
+  imagePath: {
+    label: 'Icon',
+    variant: 'icon',
+    size: '256×256',
+    width: 256,
+    height: 256,
+  },
+  cardPath: {
+    label: 'Card',
+    variant: 'card',
+    size: '512×768',
+    width: 512,
+    height: 768,
+  },
+  heroPath: {
+    label: 'Hero',
+    variant: 'hero',
+    size: '1280×720',
+    width: 1280,
+    height: 720,
+  },
 }
 
 const CONDUCTOR_IMAGE_BASE =
@@ -475,6 +496,9 @@ const generationPreserveOriginal = ref(true)
 const generating = ref(false)
 const generationMessage = ref('')
 const generationError = ref(false)
+let activeJobId: number | null = null
+let pollTimer: ReturnType<typeof setTimeout> | null = null
+let stopped = false
 
 const resolvedProject = computed(() => projectStore.projectForSlug(props.slug))
 const resolvedProjectId = computed(
@@ -639,66 +663,45 @@ async function submitGeneration() {
   generationError.value = false
 
   try {
-    const prepareResponse = await performFetch(
-      `/api/projects/${projectId}/art/prepare-generation`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          field: generationField.value,
-          preserveOriginal: generationPreserveOriginal.value,
-        }),
-      },
-    )
-    if (!prepareResponse.success) {
-      throw new Error(
-        prepareResponse.message || 'Could not prepare the current Project image.',
-      )
-    }
-
     const project = resolvedProject.value
-    const title = project?.title || props.slug
-    const context = [project?.pitch, project?.goal]
-      .filter((value): value is string => Boolean(value?.trim()))
-      .join('\n')
     const queueResponse = await performFetch<ArtQueueResult>(
-      '/api/conductor/art-request',
+      '/api/art/enqueue',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          src: generationTargetUrl.value,
-          imagePath: generationTargetUrl.value,
-          pageUrl: typeof window === 'undefined' ? '' : window.location.href,
-          alt: `${title} ${generationMeta.value.label}`,
-          label: `${title} ${generationMeta.value.label}`,
-          variant: generationMeta.value.variant,
-          size: generationMeta.value.size.replace('×', 'x'),
-          prompt,
           engine: generationEngine.value,
-          force: true,
-          pageTitle: title,
-          pageDescription: project?.description || '',
-          nearbyText: context,
-          projectId,
+          promptString: prompt,
+          width: generationMeta.value.width,
+          height: generationMeta.value.height,
           projectSlug: props.slug,
-          projectField: generationField.value,
+          isPublic: project?.isPublic ?? true,
+          isMature: project?.isMature ?? false,
+          designer:
+            project?.designer || userStore.user?.username || 'Kind Robots',
+          entityArt: {
+            entityType: 'project',
+            entityId: projectId,
+            field: generationField.value,
+            preserveOriginal: generationPreserveOriginal.value,
+            mode: 'recreate',
+          },
         }),
       },
       1,
       30_000,
     )
-    if (!queueResponse.success) {
-      throw new Error(queueResponse.message || 'Project art generation was not queued.')
+    const jobId = Number(queueResponse.data?.jobId)
+    if (!queueResponse.success || !Number.isInteger(jobId) || jobId <= 0) {
+      throw new Error(
+        queueResponse.message || 'Project art generation was not queued.',
+      )
     }
 
-    await fetchProjectArt(true)
-    const queueId = queueResponse.data?.entry?.id
-    generationMessage.value = queueId
-      ? `${generationMeta.value.label} queued with ${generationEngine.value} as ${queueId}. It will replace the Project asset when generation finishes.`
-      : queueResponse.message ||
-        `${generationMeta.value.label} generation queued. It will replace the Project asset when generation finishes.`
+    activeJobId = jobId
+    generationMessage.value = `${generationMeta.value.label} queued as ArtJob ${jobId}. It will replace the Project asset when generation finishes.`
     generationPrompt.value = ''
+    startPolling(jobId)
   } catch (error) {
     generationError.value = true
     generationMessage.value =
@@ -706,6 +709,52 @@ async function submitGeneration() {
   } finally {
     generating.value = false
   }
+}
+
+function startPolling(jobId: number) {
+  if (pollTimer) clearTimeout(pollTimer)
+  const poll = async () => {
+    if (stopped || activeJobId !== jobId) return
+    try {
+      const response = await performFetch<{
+        job: {
+          id: number
+          status: string
+          error?: string | null
+        }
+      }>(`/api/art/queue/${jobId}`, { cache: 'no-store' })
+      if (!response.success) {
+        throw new Error(response.message || 'Queue check failed.')
+      }
+      const status = String(response.data?.job?.status || '')
+      if (status === 'DONE') {
+        const projectId = resolvedProjectId.value
+        await Promise.all([
+          projectId ? projectStore.fetchProject(projectId) : Promise.resolve(),
+          fetchProjectArt(true),
+        ])
+        generationMessage.value = `ArtJob ${jobId} finished and the ${generationMeta.value.label.toLowerCase()} was replaced.`
+        generationError.value = false
+        activeJobId = null
+        pollTimer = null
+        return
+      }
+      if (status === 'FAILED' || status === 'CANCELLED') {
+        generationMessage.value =
+          response.data?.job?.error || `ArtJob ${jobId} ended as ${status}.`
+        generationError.value = true
+        activeJobId = null
+        pollTimer = null
+        return
+      }
+      generationMessage.value = `ArtJob ${jobId}: ${status || 'PENDING'}. It will attach automatically when complete.`
+    } catch {
+      // Completion is durable on the server; transient polling failures should
+      // not turn a valid queued job into a visible failure.
+    }
+    pollTimer = setTimeout(poll, 5000)
+  }
+  void poll()
 }
 
 async function submitReplacement() {
@@ -759,6 +808,11 @@ watch(
     generationField.value = 'cardPath'
     generationPrompt.value = ''
     generationEngine.value = 'krea2'
+    activeJobId = null
+    if (pollTimer) {
+      clearTimeout(pollTimer)
+      pollTimer = null
+    }
     void fetchProjectArt(true)
   },
 )
@@ -786,7 +840,9 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  stopped = true
   if (advanceTimer) clearInterval(advanceTimer)
+  if (pollTimer) clearTimeout(pollTimer)
 })
 </script>
 

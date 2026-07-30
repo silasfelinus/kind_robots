@@ -27,23 +27,25 @@ jobs:
           import base64
           import gzip
           import hashlib
-          expected_chunks = [
-              '6f581acac0de991982e597feb2a3a0a800540341e9fc73682b072b6a43da0bc3',
-              'b2ef4e78d6d274f2955b03501e573b2e8061775513eb252403f9f9d655f6d40b',
-              'b3c305eed709108835893c58ccac2a26f2c75af895d37a8952ecb87eb90285ca',
-              '9903659b7ab7cdc5bfd242584f6eda7c89e90b014f04dc92efd1fc4870d886c8',
-              '5620d0ec94e05731ca8936059995b346ff0824f2e89d630a4a1b446e0cd3a817',
-              '8d9066c308078871566f97c92fac07b2aa9b11e1d4e03d9e13a9565f44f8edcf',
-              'eebc1a4818893341ebcf540d04d51fff2061977dacfa96b29aa4a9b90aac7e27',
-          ]
-          chunks = []
-          for index, expected in enumerate(expected_chunks):
-              value = Path(f'.agent-patches/entity-art-fix-{index:02d}.b64').read_text().strip()
+
+          def verified(path: str, expected: str) -> str:
+              value = Path(path).read_text().strip()
               actual = hashlib.sha256(value.encode()).hexdigest()
-              print(f'chunk {index}: length={len(value)} sha256={actual}')
+              print(f'{path}: length={len(value)} sha256={actual}')
               if actual != expected:
-                  raise RuntimeError(f'entity art payload chunk {index} mismatch')
-              chunks.append(value)
+                  raise RuntimeError(f'entity art payload mismatch: {path}')
+              return value
+
+          chunks = [
+              verified('.agent-patches/entity-art-fix-00.b64', '6f581acac0de991982e597feb2a3a0a800540341e9fc73682b072b6a43da0bc3'),
+              verified('.agent-patches/entity-art-fix-01.b64', 'b2ef4e78d6d274f2955b03501e573b2e8061775513eb252403f9f9d655f6d40b'),
+              verified('.agent-patches/entity-art-fix-02.b64', 'b3c305eed709108835893c58ccac2a26f2c75af895d37a8952ecb87eb90285ca'),
+              verified('.agent-patches/entity-art-fix-03a.b64', '2d3aed8bf2007c9763a2cbd2e4082f23c28e97988030ce16a4386ef1d41ee4da')
+              + verified('.agent-patches/entity-art-fix-03b.b64', '54c407e6537833a5b0553c8e88767e57baeaff2b71c14bd2e5ddd666917ac24c'),
+              verified('.agent-patches/entity-art-fix-04.b64', '5620d0ec94e05731ca8936059995b346ff0824f2e89d630a4a1b446e0cd3a817'),
+              verified('.agent-patches/entity-art-fix-05.b64', '8d9066c308078871566f97c92fac07b2aa9b11e1d4e03d9e13a9565f44f8edcf'),
+              verified('.agent-patches/entity-art-fix-06.b64', 'eebc1a4818893341ebcf540d04d51fff2061977dacfa96b29aa4a9b90aac7e27'),
+          ]
           payload = ''.join(chunks)
           expected = '13bfeb68282270559fa2cce34dc899c827c497e6fda136132e0034a19972eddc'
           actual = hashlib.sha256(payload.encode()).hexdigest()

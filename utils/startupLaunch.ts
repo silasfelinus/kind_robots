@@ -36,14 +36,19 @@ export function requestFullStartupReload(): void {
 }
 
 export function consumeStartupStartedAt(): number {
-  const fallback = Date.now()
-  if (!import.meta.client) return fallback
+  const now = Date.now()
+  if (!import.meta.client) return now
+
+  const navigationStartedAt = Number(performance.timeOrigin)
+  const fallback = Number.isFinite(navigationStartedAt)
+    ? navigationStartedAt
+    : now
 
   try {
     const raw = sessionStorage.getItem(STARTUP_STARTED_AT_KEY)
     sessionStorage.removeItem(STARTUP_STARTED_AT_KEY)
     const startedAt = Number(raw)
-    const age = fallback - startedAt
+    const age = now - startedAt
 
     if (Number.isFinite(startedAt) && age >= 0 && age <= MAX_STARTUP_AGE_MS) {
       return startedAt

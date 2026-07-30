@@ -111,26 +111,8 @@ expectContains('server/utils/entityArt.ts', [
 expectContains('components/pages/conductor-art-gallery.vue', [
   "'/api/art/enqueue'",
   "entityType: 'project'",
-  'queued as ArtJob',
+  'Queued as ArtJob',
   'startPolling(jobId)',
-])
-
-expectContains('stores/projectStore.ts', [
-  "'/api/art/queue?pageSize=200'",
-  "entityArt.entityType !== 'project'",
-  'refreshProjectSilently',
-  'startProjectArtJobSync',
-  'stopProjectArtJobSync',
-])
-
-expectContains('components/pages/conductor-page.vue', [
-  'projectStore.startProjectArtJobSync()',
-  'projectStore.stopProjectArtJobSync()',
-])
-
-expectContains('components/pages/conductor-project-gallery-page.vue', [
-  'projects.startProjectArtJobSync()',
-  'projects.stopProjectArtJobSync()',
 ])
 
 const projectGallerySource = read('components/pages/conductor-art-gallery.vue')
@@ -151,7 +133,18 @@ expectContains('server/api/art/enqueue.post.ts', [
 
 expectContains('server/api/art/queue/[id]/complete.post.ts', [
   'applyEntityArtCompletion',
+  'readEntityArtMetadata',
+  'expectsEntityArtCompletion',
+  'Completion rolled back instead of marking the job DONE',
   'completedEntityArt',
+])
+
+expectContains('components/pages/conductor-page.vue', [
+  'projectStore.fetchProjects(projectOptions, true)',
+])
+
+expectContains('components/pages/conductor-project-gallery-page.vue', [
+  'await load(true)',
 ])
 
 for (const path of [

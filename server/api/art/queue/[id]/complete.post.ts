@@ -38,7 +38,10 @@ import {
   artImageResourceConnectData,
   resolveArtImageResourceLinks,
 } from '../../utils/resourceProvenance'
-import { applyEntityArtCompletion } from '../../../../utils/entityArt'
+import {
+  applyEntityArtCompletion,
+  readEntityArtMetadata,
+} from '../../../../utils/entityArt'
 
 const MAX_ATTEMPTS = 3
 
@@ -246,6 +249,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const parsedJobPayload = parseArtJobPayload(job.payload)
+    const declaredEntityArt = asRecord(parsedJobPayload.entityArt)
+    const expectsEntityArtCompletion = Object.keys(declaredEntityArt).length > 0
+    if (expectsEntityArtCompletion && !readEntityArtMetadata(parsedJobPayload)) {
+      throw createError({
+        statusCode: 409,
+        message:
+          'ArtJob declares entity artwork, but its entityArt metadata is invalid. Completion refused before marking the job DONE.',
+      })
+    }
+
     let updated
     let archivedArtImageId: number | null = null
     let replacedArtImageId: number | null = null
@@ -367,6 +381,13 @@ export default defineEventHandler(async (event) => {
             targetArtImageId,
             archived.id,
           )
+          if (expectsEntityArtCompletion && !entityArt) {
+            throw createError({
+              statusCode: 409,
+              message:
+                'Entity artwork attachment was not applied. Completion rolled back instead of marking the job DONE.',
+            })
+          }
 
           const completed = await tx.artJob.update({
             where: { id },
@@ -441,6 +462,13 @@ export default defineEventHandler(async (event) => {
             tracedPayload,
             uploadedArtImageId,
           )
+          if (expectsEntityArtCompletion && !entityArt) {
+            throw createError({
+              statusCode: 409,
+              message:
+                'Entity artwork attachment was not applied. Completion rolled back instead of marking the job DONE.',
+            })
+          }
 
           const completed = await tx.artJob.update({
             where: { id },

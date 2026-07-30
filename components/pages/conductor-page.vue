@@ -2487,7 +2487,6 @@ watch(
 
 onBeforeUnmount(() => {
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
-  projectStore.stopProjectArtJobSync()
   pageStore.clearCards()
 })
 
@@ -2495,7 +2494,9 @@ async function refreshWorkspace() {
   const projectOptions = userStore.isAdmin
     ? { includeInactive: true, includeMature: true }
     : {}
-  const work: Promise<unknown>[] = [projectStore.fetchProjects(projectOptions)]
+  const work: Promise<unknown>[] = [
+    projectStore.fetchProjects(projectOptions, true),
+  ]
   if (userStore.isAdmin) work.push(conductorStore.fetchProjects(true))
   if (todoStore.hasLoaded) work.push(todoStore.fetchTodos(true))
   await Promise.all(work)
@@ -2604,7 +2605,6 @@ async function createNewProject() {
 }
 
 onMounted(() => {
-  projectStore.startProjectArtJobSync()
   const saved = localStorage.getItem(
     'conductor-gallery-mode',
   ) as GalleryMode | null

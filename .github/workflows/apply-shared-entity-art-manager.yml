@@ -1,0 +1,93 @@
+name: Apply Shared Entity Art Manager
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/apply-shared-entity-art-manager.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'agent/shared-entity-art-manager-final'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/shared-entity-art-manager-final
+          fetch-depth: 0
+      - name: Apply validated TypeScript corrections
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          component = Path('components/art/entity-art-manager.vue')
+          text = component.read_text()
+          preset_anchor = """const recreatePresets: GenerationPreset[] = [
+  {
+    key: 'quality',
+    label: 'Quality default',
+    description: 'Uses the current quality-focused workflow defaults.',
+  },
+"""
+          preset_replacement = """const qualityPreset: GenerationPreset = {
+  key: 'quality',
+  label: 'Quality default',
+  description: 'Uses the current quality-focused workflow defaults.',
+}
+const recreatePresets: GenerationPreset[] = [
+  qualityPreset,
+"""
+          selected_anchor = """const selectedPreset = computed(
+  () =>
+    availablePresets.value.find((preset) => preset.key === presetKey.value) ||
+    availablePresets.value[0] ||
+    recreatePresets[0],
+)
+"""
+          selected_replacement = """const selectedPreset = computed<GenerationPreset>(
+  () =>
+    availablePresets.value.find((preset) => preset.key === presetKey.value) ??
+    availablePresets.value[0] ??
+    qualityPreset,
+)
+"""
+          if preset_anchor not in text or selected_anchor not in text:
+              raise RuntimeError('Entity art preset correction anchors changed.')
+          component.write_text(
+              text.replace(preset_anchor, preset_replacement, 1)
+                  .replace(selected_anchor, selected_replacement, 1)
+          )
+
+          service = Path('server/utils/entityArt.ts')
+          text = service.read_text()
+          import_anchor = """import type {
+  Prisma,
+  PrismaClient,
+} from '~/prisma/generated/prisma/client'
+"""
+          import_replacement = """import type { Prisma } from '~/prisma/generated/prisma/client'
+import type prisma from '~/server/utils/prisma'
+"""
+          db_anchor = 'type EntityArtDb = PrismaClient | Prisma.TransactionClient\n'
+          db_replacement = """type EntityArtDb = Pick<
+  typeof prisma,
+  'bot' | 'character' | 'scenario' | 'reward' | 'facet' | 'artImage'
+>
+"""
+          if import_anchor not in text or db_anchor not in text:
+              raise RuntimeError('Entity art Prisma correction anchors changed.')
+          service.write_text(
+              text.replace(import_anchor, import_replacement, 1)
+                  .replace(db_anchor, db_replacement, 1)
+          )
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add components/art/entity-art-manager.vue server/utils/entityArt.ts
+          git commit -m "Fix shared entity art TypeScript boundaries"
+          git push origin HEAD

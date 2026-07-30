@@ -1,4 +1,5 @@
 import { useButterflyStore } from '@/stores/butterflyStore'
+import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 
 const ACTIVE_CLASS = 'kr-startup-active'
 const FADING_CLASS = 'kr-startup-fading'
@@ -13,6 +14,7 @@ const FADE_CLEANUP_MS = 700
 export default defineNuxtPlugin((nuxtApp) => {
   const root = document.documentElement
   const butterflyStore = useButterflyStore()
+  const startupStore = useStartupAnimationStore()
 
   let sawLoader = false
   let cleanupTimer: number | null = null
@@ -103,6 +105,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const elapsedSinceNavigation = performance.now()
   emergencyFadeTimer = window.setTimeout(() => {
     emergencyFadeTimer = null
+    if (startupStore.immersive) return
     beginFade()
   }, Math.max(0, EMERGENCY_FADE_AT_MS - elapsedSinceNavigation))
 

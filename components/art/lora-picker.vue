@@ -16,14 +16,12 @@
                         for the parent to append to the prompt if desired.
 -->
 <script setup lang="ts">
-import type { Resource } from '~/stores/resourceStore'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useResourceStore, type Resource } from '~/stores/resourceStore'
 
 const props = withDefaults(
   defineProps<{
     modelValue?: number[]
-    // Optional base-model filter, e.g. 'Pony' | 'SDXL' | 'Flux' — matches the
-    // Resource.generation / supportedServer so a picker can be scoped to the
-    // checkpoint the user is rendering with.
     baseFilter?: string | null
   }>(),
   { modelValue: () => [], baseFilter: null },
@@ -31,58 +29,78 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:modelValue': [ids: number[]]
-  change: [payload: { loraResourceIds: number[]; loraName: string | null; triggers: string }]
+  change: [
+    payload: {
+      loraResourceIds: number[]
+      loraName: string | null
+      triggers: string
+    },
+  ]
 }>()
 
 const resourceStore = useResourceStore()
-const artStore = useArtStore()
-
 const query = ref('')
 
-const loras = computed<Resource[]>(() => {
-  const q = query.value.trim().toLowerCase()
+const availableLoras = computed<Resource[]>(() => {
   const base = props.baseFilter?.toLowerCase() ?? null
-  return resourceStore.resources
-    .filter((r) => r.resourceType === 'LORA' || r.resourceType === 'LYCORIS')
-    .filter((r) => (r.isMature ? artStore.showMature : true))
-    .filter((r) =>
-      base
-        ? (r.generation ?? '').toLowerCase().includes(base) ||
-          (r.supportedServer ?? '').toLowerCase().includes(base)
-        : true,
-    )
-    .filter((r) =>
-      q
-        ? [r.customLabel, r.name, r.generation, r.triggerWords]
+
+  return resourceStore.visibleLoras.filter((resource) =>
+    base
+      ? (resource.generation ?? '').toLowerCase().includes(base) ||
+        (resource.supportedServer ?? '').toLowerCase().includes(base)
+      : true,
+  )
+})
+
+const loras = computed<Resource[]>(() => {
+  const search = query.value.trim().toLowerCase()
+
+  return availableLoras.value
+    .filter((resource) =>
+      search
+        ? [
+            resource.customLabel,
+            resource.name,
+            resource.generation,
+            resource.triggerWords,
+          ]
             .filter(Boolean)
-            .some((v) => String(v).toLowerCase().includes(q))
+            .some((value) => String(value).toLowerCase().includes(search))
         : true,
     )
     .sort((a, b) =>
-      (a.customLabel || a.name || '').localeCompare(b.customLabel || b.name || ''),
+      (a.customLabel || a.name || '').localeCompare(
+        b.customLabel || b.name || '',
+      ),
     )
 })
 
-const selected = computed<Resource[]>(() =>
-  props.modelValue
-    .map((id) => resourceStore.resources.find((r) => r.id === id))
-    .filter((r): r is Resource => Boolean(r)),
+const availableLoraIds = computed(
+  () => new Set(availableLoras.value.map((resource) => resource.id)),
 )
 
-function engineName(r: Resource): string {
-  return r.localPath || r.name || r.customLabel || ''
+const selected = computed<Resource[]>(() =>
+  props.modelValue
+    .map((id) => availableLoras.value.find((resource) => resource.id === id))
+    .filter((resource): resource is Resource => Boolean(resource)),
+)
+
+function engineName(resource: Resource): string {
+  return resource.localPath || resource.name || resource.customLabel || ''
 }
 
-function emitChange(ids: number[]) {
+function emitChange(ids: number[]): void {
   emit('update:modelValue', ids)
+
   const chosen = ids
-    .map((id) => resourceStore.resources.find((r) => r.id === id))
-    .filter((r): r is Resource => Boolean(r))
+    .map((id) => availableLoras.value.find((resource) => resource.id === id))
+    .filter((resource): resource is Resource => Boolean(resource))
   const primary = chosen.at(0)
   const triggers = chosen
-    .map((r) => r.defaultTrigger || r.triggerWords || '')
+    .map((resource) => resource.defaultTrigger || resource.triggerWords || '')
     .filter(Boolean)
     .join(', ')
+
   emit('change', {
     loraResourceIds: ids,
     loraName: primary ? engineName(primary) : null,
@@ -90,37 +108,71 @@ function emitChange(ids: number[]) {
   })
 }
 
-function toggle(r: Resource) {
-  const ids = props.modelValue.includes(r.id)
-    ? props.modelValue.filter((id) => id !== r.id)
-    : [...props.modelValue, r.id]
+function toggle(resource: Resource): void {
+  const ids = props.modelValue.includes(resource.id)
+    ? props.modelValue.filter((id) => id !== resource.id)
+    : [...props.modelValue, resource.id]
+
   emitChange(ids)
 }
 
-function isSelected(r: Resource): boolean {
-  return props.modelValue.includes(r.id)
+function isSelected(resource: Resource): boolean {
+  return props.modelValue.includes(resource.id)
 }
+
+watch(
+  [() => props.modelValue, () => resourceStore.hasLoaded, availableLoraIds],
+  () => {
+    if (!resourceStore.hasLoaded) return
+
+    const visibleIds = props.modelValue.filter((id) =>
+      availableLoraIds.value.has(id),
+    )
+
+    if (
+      visibleIds.length !== props.modelValue.length ||
+      visibleIds.some((id, index) => id !== props.modelValue[index])
+    ) {
+      emitChange(visibleIds)
+    }
+  },
+  { immediate: true },
+)
+
+onMounted(async () => {
+  if (!resourceStore.hasLoaded) {
+    await resourceStore.getResources()
+  }
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-2">
     <div class="flex items-center gap-2">
       <span class="text-sm font-medium">LoRAs</span>
-      <span v-if="selected.length" class="badge badge-sm badge-primary">{{ selected.length }}</span>
+      <span v-if="selected.length" class="badge badge-sm badge-primary">
+        {{ selected.length }}
+      </span>
     </div>
 
-    <!-- selected chips -->
+    <maturity-toggle
+      variant="resource"
+      label="Mature LoRAs"
+      visible-text="Mature image LoRAs are available in this selector."
+      hidden-text="Mature image LoRAs are hidden from this selector."
+    />
+
     <div v-if="selected.length" class="flex flex-wrap gap-1">
       <button
-        v-for="r in selected"
-        :key="r.id"
+        v-for="resource in selected"
+        :key="resource.id"
         type="button"
         class="badge badge-outline gap-1 rounded-xl"
-        :title="r.triggerWords || ''"
-        @click="toggle(r)"
+        :title="resource.triggerWords || ''"
+        @click="toggle(resource)"
       >
-        {{ r.customLabel || r.name }}
-        <span v-if="r.isMature" class="text-error">·18+</span>
+        {{ resource.customLabel || resource.name }}
+        <span v-if="resource.isMature" class="text-error">·18+</span>
         ✕
       </button>
     </div>
@@ -132,23 +184,28 @@ function isSelected(r: Resource): boolean {
       class="input input-bordered input-xs rounded-lg"
     />
 
-    <!-- results -->
-    <ul class="menu menu-xs max-h-56 flex-nowrap overflow-y-auto rounded-lg bg-base-200 p-1">
+    <ul
+      class="menu menu-xs max-h-56 flex-nowrap overflow-y-auto rounded-lg bg-base-200 p-1"
+    >
       <li v-if="!loras.length" class="disabled px-2 py-1 text-xs opacity-60">
         No matching LoRAs.
       </li>
-      <li v-for="r in loras" :key="r.id">
+      <li v-for="resource in loras" :key="resource.id">
         <button
           type="button"
           class="flex items-center justify-between gap-2"
-          :class="{ 'bg-primary/20': isSelected(r) }"
-          @click="toggle(r)"
+          :class="{ 'bg-primary/20': isSelected(resource) }"
+          @click="toggle(resource)"
         >
           <span class="truncate">
-            <span :class="{ 'font-semibold': isSelected(r) }">{{ r.customLabel || r.name }}</span>
-            <span v-if="r.isMature" class="ml-1 text-error">18+</span>
+            <span :class="{ 'font-semibold': isSelected(resource) }">
+              {{ resource.customLabel || resource.name }}
+            </span>
+            <span v-if="resource.isMature" class="ml-1 text-error">18+</span>
           </span>
-          <span class="shrink-0 text-[10px] opacity-60">{{ r.generation || r.supportedServer }}</span>
+          <span class="shrink-0 text-[10px] opacity-60">
+            {{ resource.generation || resource.supportedServer }}
+          </span>
         </button>
       </li>
     </ul>

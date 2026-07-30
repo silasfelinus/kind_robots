@@ -3,102 +3,113 @@
   <Teleport to="body">
     <div
       v-if="renderEffect && currentComponent"
-      class="startup-animation"
-      :class="{ 'startup-animation--fading': isFading }"
+      class="startup-animation__stage"
+      :class="{
+        'startup-animation__stage--ready': effectReady,
+        'startup-animation__stage--fading': isFading,
+      }"
     >
-      <component
-        :is="currentComponent"
-        :key="resolvedEffectId"
-        class="startup-animation__effect"
-        aria-hidden="true"
-      />
+      <Suspense :key="resolvedEffectId" @resolve="handleEffectReady">
+        <component
+          :is="currentComponent"
+          :key="resolvedEffectId"
+          class="startup-animation__effect"
+          aria-hidden="true"
+        />
 
-      <div
-        class="startup-animation__controls"
-        :class="{
-          'startup-animation__controls--active': startupStore.controlsActive,
-          'startup-animation__controls--compact': !startupStore.controlsActive,
-        }"
-      >
-        <template v-if="startupStore.controlsActive">
-          <span class="startup-animation__name">{{ currentEffectLabel }}</span>
-
-          <div class="startup-animation__button-group">
-            <button
-              type="button"
-              class="btn btn-xs btn-ghost btn-square text-white"
-              title="Previous animation"
-              aria-label="Previous animation"
-              @click="selectPreviousEffect"
-            >
-              <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-xs btn-ghost gap-1 text-white"
-              title="Choose another random animation"
-              @click="selectRandomEffect"
-            >
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              <span class="hidden sm:inline">Random</span>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-xs btn-ghost btn-square text-white"
-              title="Next animation"
-              aria-label="Next animation"
-              @click="selectNextEffect"
-            >
-              <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
-            </button>
-          </div>
-
-          <div class="startup-animation__divider" />
-
-          <button
-            type="button"
-            class="btn btn-xs border-white/20 bg-white/10 text-white hover:bg-white/20"
-            title="Restore the launch screen and continue loading"
-            @click="startupStore.leaveControlMode()"
-          >
-            Resume
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-xs btn-square border-white/20 bg-black/30 text-white hover:bg-error/70"
-            title="Leave startup animation"
-            aria-label="Leave startup animation"
-            @click="startupStore.requestExit()"
-          >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
-          </button>
+        <template #fallback>
+          <span class="startup-animation__effect-placeholder" aria-hidden="true" />
         </template>
+      </Suspense>
+    </div>
 
-        <template v-else>
-          <span class="startup-animation__compact-name">
-            {{ currentEffectLabel }}
-          </span>
+    <div
+      v-if="renderEffect && currentComponent"
+      class="startup-animation__controls"
+      :class="{
+        'startup-animation__controls--active': startupStore.controlsActive,
+        'startup-animation__controls--compact': !startupStore.controlsActive,
+        'startup-animation__controls--fading': isFading,
+      }"
+    >
+      <template v-if="startupStore.controlsActive">
+        <span class="startup-animation__name">{{ currentEffectLabel }}</span>
+
+        <div class="startup-animation__button-group">
+          <button
+            type="button"
+            class="btn btn-xs btn-ghost btn-square text-white"
+            title="Previous animation"
+            aria-label="Previous animation"
+            @click="selectPreviousEffect"
+          >
+            <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+          </button>
 
           <button
             type="button"
-            class="btn btn-xs border-white/20 bg-white/10 text-white hover:bg-white/20"
-            title="Pause the launch and explore animations"
-            @click="startupStore.enterControlMode()"
+            class="btn btn-xs btn-ghost gap-1 text-white"
+            title="Choose another random animation"
+            @click="selectRandomEffect"
           >
             <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-            <span>Pause &amp; explore</span>
+            <span class="hidden sm:inline">Random</span>
           </button>
-        </template>
-      </div>
+
+          <button
+            type="button"
+            class="btn btn-xs btn-ghost btn-square text-white"
+            title="Next animation"
+            aria-label="Next animation"
+            @click="selectNextEffect"
+          >
+            <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <div class="startup-animation__divider" />
+
+        <button
+          type="button"
+          class="btn btn-xs border-white/20 bg-white/10 text-white hover:bg-white/20"
+          title="Restore the launch screen and continue loading"
+          @click="startupStore.leaveControlMode()"
+        >
+          Resume
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-xs btn-square border-white/20 bg-black/30 text-white hover:bg-error/70"
+          title="Leave startup animation"
+          aria-label="Leave startup animation"
+          @click="startupStore.requestExit()"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+        </button>
+      </template>
+
+      <template v-else>
+        <span class="startup-animation__compact-name">
+          {{ currentEffectLabel }}
+        </span>
+
+        <button
+          type="button"
+          class="btn btn-xs border-white/20 bg-white/10 text-white hover:bg-white/20"
+          title="Pause the launch and explore animations"
+          @click="startupStore.enterControlMode()"
+        >
+          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <span>Pause &amp; explore</span>
+        </button>
+      </template>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
 import type { AnimationEffectId } from '@/stores/animationCatalog'
 import { useAnimationStore } from '@/stores/animationStore'
@@ -108,6 +119,23 @@ import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 
 defineOptions({ inheritAttrs: false })
 
+type StartupBridgeAction =
+  | 'explore'
+  | 'previous'
+  | 'random'
+  | 'next'
+  | 'resume'
+  | 'exit'
+
+type StartupBridgeWindow = Window & {
+  __KR_STARTUP_ACTION_QUEUE__?: string[]
+}
+
+const HANDOFF_CLASS = 'kr-startup-handoff'
+const EFFECT_READY_CLASS = 'kr-startup-effect-ready'
+const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
+const BRIDGE_EVENT = 'kr-startup-action'
+
 const animationStore = useAnimationStore()
 const preferenceStore = useAnimationPreferenceStore()
 const butterflyStore = useButterflyStore()
@@ -115,11 +143,14 @@ const startupStore = useStartupAnimationStore()
 
 const resolvedEffectId = ref<AnimationEffectId | null>(null)
 const renderEffect = ref(false)
+const effectReady = ref(false)
 const isFading = ref(false)
 
 const FADE_MS = 650
+const HANDOFF_FADE_MS = 340
 
 let fadeTimer: ReturnType<typeof setTimeout> | null = null
+let handoffTimer: ReturnType<typeof setTimeout> | null = null
 
 const availableEffectIds = computed(() => {
   return animationStore.safeEffects
@@ -151,10 +182,51 @@ function clearFadeTimer(): void {
   fadeTimer = null
 }
 
+function clearHandoffTimer(): void {
+  if (!handoffTimer) return
+  clearTimeout(handoffTimer)
+  handoffTimer = null
+}
+
+function finishHandoffIfReady(): void {
+  if (!import.meta.client) return
+
+  const root = document.documentElement
+  if (!root.classList.contains(EFFECT_READY_CLASS)) return
+  if (!root.classList.contains(CONTROLS_READY_CLASS)) return
+  if (!root.classList.contains(HANDOFF_CLASS)) return
+
+  clearHandoffTimer()
+  handoffTimer = setTimeout(() => {
+    root.classList.remove(HANDOFF_CLASS)
+    handoffTimer = null
+  }, HANDOFF_FADE_MS)
+}
+
+function markControlsReady(): void {
+  if (!import.meta.client) return
+  document.documentElement.classList.add(CONTROLS_READY_CLASS)
+  finishHandoffIfReady()
+}
+
+function handleEffectReady(): void {
+  effectReady.value = true
+
+  if (!import.meta.client) return
+  document.documentElement.classList.add(EFFECT_READY_CLASS)
+  finishHandoffIfReady()
+}
+
 function setEffect(effectId: AnimationEffectId | null): void {
   resolvedEffectId.value = effectId
   renderEffect.value = Boolean(effectId)
+  effectReady.value = false
   isFading.value = false
+
+  if (!effectId && import.meta.client) {
+    document.documentElement.classList.add(EFFECT_READY_CLASS)
+    finishHandoffIfReady()
+  }
 }
 
 function selectEffect(): void {
@@ -194,6 +266,45 @@ function selectRandomEffect(): void {
   setEffect(pool[index] ?? ids[0] ?? null)
 }
 
+function applyBridgeAction(action: string): void {
+  switch (action as StartupBridgeAction) {
+    case 'explore':
+      startupStore.enterControlMode()
+      break
+    case 'previous':
+      selectPreviousEffect()
+      break
+    case 'random':
+      selectRandomEffect()
+      break
+    case 'next':
+      selectNextEffect()
+      break
+    case 'resume':
+      startupStore.leaveControlMode()
+      break
+    case 'exit':
+      startupStore.requestExit()
+      break
+  }
+}
+
+function handleBridgeEvent(event: Event): void {
+  const action = (event as CustomEvent<string>).detail
+  if (typeof action !== 'string') return
+  applyBridgeAction(action)
+}
+
+function consumeBridgeQueue(): void {
+  if (!import.meta.client) return
+
+  const bridgeWindow = window as StartupBridgeWindow
+  const queue = bridgeWindow.__KR_STARTUP_ACTION_QUEUE__ ?? []
+  bridgeWindow.__KR_STARTUP_ACTION_QUEUE__ = []
+
+  queue.forEach(applyBridgeAction)
+}
+
 function fadeOut(): void {
   if (!renderEffect.value || isFading.value) return
 
@@ -226,27 +337,42 @@ watch(
   },
 )
 
+onMounted(() => {
+  window.addEventListener(BRIDGE_EVENT, handleBridgeEvent)
+  markControlsReady()
+  consumeBridgeQueue()
+})
+
 onBeforeUnmount(() => {
   clearFadeTimer()
+  clearHandoffTimer()
+
+  if (import.meta.client) {
+    window.removeEventListener(BRIDGE_EVENT, handleBridgeEvent)
+  }
 })
 </script>
 
 <style scoped>
-.startup-animation {
+.startup-animation__stage {
   position: fixed;
   inset: 0;
   z-index: 49;
   overflow: hidden;
-  background: #000;
   pointer-events: none;
-  opacity: 1;
-  transition: opacity 650ms ease;
+  opacity: 0;
+  transition: opacity 320ms ease;
   isolation: isolate;
   will-change: opacity;
 }
 
-.startup-animation--fading {
+.startup-animation__stage--ready {
+  opacity: 1;
+}
+
+.startup-animation__stage--fading {
   opacity: 0;
+  transition-duration: 650ms;
 }
 
 .startup-animation__effect {
@@ -256,11 +382,16 @@ onBeforeUnmount(() => {
   height: 100%;
 }
 
-.startup-animation__controls {
+.startup-animation__effect-placeholder {
   position: absolute;
+  inset: 0;
+}
+
+.startup-animation__controls {
+  position: fixed;
   bottom: 1rem;
   left: 1rem;
-  z-index: 100;
+  z-index: 60;
   display: flex;
   width: fit-content;
   max-width: calc(100vw - 2rem);
@@ -270,11 +401,18 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(255, 255, 255, 0.22);
   background: rgba(0, 0, 0, 0.7);
   box-shadow: 0 0.65rem 1.75rem rgba(0, 0, 0, 0.42);
+  opacity: 1;
   backdrop-filter: blur(0.7rem);
   transition:
+    opacity 180ms ease,
     border-radius 180ms ease,
     padding 180ms ease,
     gap 180ms ease;
+}
+
+.startup-animation__controls--fading {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .startup-animation__controls--compact {
@@ -346,7 +484,7 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .startup-animation,
+  .startup-animation__stage,
   .startup-animation__controls {
     transition: none;
   }

@@ -74,6 +74,21 @@
         </div>
       </div>
 
+      <EntityArtManager
+        v-if="selectedScenario"
+        entity-type="scenario"
+        :entity="selectedScenario"
+        :slots="[
+          {
+            field: 'imagePath',
+            label: 'Scenario image',
+            aspect: '16 / 9',
+            width: 1536,
+            height: 864,
+          },
+        ]"
+      />
+
       <article
         v-if="introChoices.length"
         class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"

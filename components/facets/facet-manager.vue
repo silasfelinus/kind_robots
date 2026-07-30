@@ -189,6 +189,33 @@
 
           <div v-else class="mt-4 space-y-4">
             <FacetProfileEditor v-model="editForm" />
+            <EntityArtManager
+              entity-type="facet"
+              :entity="facet"
+              :slots="[
+                {
+                  field: 'imagePath',
+                  label: 'Image',
+                  aspect: '1 / 1',
+                  width: 1024,
+                  height: 1024,
+                },
+                {
+                  field: 'cardPath',
+                  label: 'Card',
+                  aspect: '2 / 3',
+                  width: 1024,
+                  height: 1536,
+                },
+                {
+                  field: 'heroPath',
+                  label: 'Hero',
+                  aspect: '16 / 9',
+                  width: 1536,
+                  height: 864,
+                },
+              ]"
+            />
             <div class="flex gap-2">
               <button
                 type="button"

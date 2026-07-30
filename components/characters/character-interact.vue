@@ -70,6 +70,21 @@
           </div>
         </section>
 
+        <EntityArtManager
+          v-if="characterStore.selectedCharacter"
+          entity-type="character"
+          :entity="characterStore.selectedCharacter"
+          :slots="[
+            {
+              field: 'imagePath',
+              label: 'Portrait',
+              aspect: '1 / 1',
+              width: 1024,
+              height: 1024,
+            },
+          ]"
+        />
+
         <section
           v-if="characterStore.selectedCharacter"
           class="rounded-2xl border border-base-300 bg-base-100 p-4"

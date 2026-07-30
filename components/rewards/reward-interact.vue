@@ -356,6 +356,20 @@
       </div>
 
       <aside class="flex flex-col gap-4 xl:min-h-0 xl:overflow-y-auto xl:pr-1">
+        <EntityArtManager
+          v-if="rewardStore.selectedReward"
+          entity-type="reward"
+          :entity="rewardStore.selectedReward"
+          :slots="[
+            {
+              field: 'imagePath',
+              label: 'Reward image',
+              aspect: '1 / 1',
+              width: 1024,
+              height: 1024,
+            },
+          ]"
+        />
         <section
           class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >

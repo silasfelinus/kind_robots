@@ -2487,6 +2487,7 @@ watch(
 
 onBeforeUnmount(() => {
   if (saveMessageTimer) clearTimeout(saveMessageTimer)
+  projectStore.stopProjectArtJobSync()
   pageStore.clearCards()
 })
 
@@ -2603,6 +2604,7 @@ async function createNewProject() {
 }
 
 onMounted(() => {
+  projectStore.startProjectArtJobSync()
   const saved = localStorage.getItem(
     'conductor-gallery-mode',
   ) as GalleryMode | null

@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { ConductorProject, ConductorTask } from '@/server/api/conductor/projects.get'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useProjectStore, type ProjectPriorityLevel, type ProjectWithRelations } from '@/stores/projectStore'
@@ -174,7 +174,8 @@ watch(workspaceCards, (cards) => { page.setCards(cards); if (!page.workspaceCard
 watch(galleryMode, (value) => { if (import.meta.client) localStorage.setItem('conductor-gallery-mode', value) })
 watch(filter, (value) => { if (import.meta.client) localStorage.setItem('conductor-project-filter', value) })
 
-onMounted(async () => { if (import.meta.client) { const mode = localStorage.getItem('conductor-gallery-mode') as Mode | null; if (mode && modes.some((entry) => entry.value === mode)) galleryMode.value = mode; const saved = localStorage.getItem('conductor-project-filter') as Filter | null; if (saved && filters.some((entry) => entry.value === saved)) filter.value = saved } await load(false) })
+onMounted(async () => { projects.startProjectArtJobSync(); if (import.meta.client) { const mode = localStorage.getItem('conductor-gallery-mode') as Mode | null; if (mode && modes.some((entry) => entry.value === mode)) galleryMode.value = mode; const saved = localStorage.getItem('conductor-project-filter') as Filter | null; if (saved && filters.some((entry) => entry.value === saved)) filter.value = saved } await load(false) })
+onBeforeUnmount(() => projects.stopProjectArtJobSync())
 const load = (force: boolean) => Promise.all([projects.fetchProjects({ includeInactive: true, includeMature: true }, force), conductor.fetchProjects(force), todos.hasLoaded ? todos.fetchTodos(force) : Promise.resolve()])
 const refresh = () => load(true)
 async function open(item: Item) { await projects.fetchProject(item.id); page.setWorkspaceCardKey(item.slug) }

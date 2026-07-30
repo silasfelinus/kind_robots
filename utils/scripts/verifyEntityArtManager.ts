@@ -111,8 +111,26 @@ expectContains('server/utils/entityArt.ts', [
 expectContains('components/pages/conductor-art-gallery.vue', [
   "'/api/art/enqueue'",
   "entityType: 'project'",
-  'Queued as ArtJob',
+  'queued as ArtJob',
   'startPolling(jobId)',
+])
+
+expectContains('stores/projectStore.ts', [
+  "'/api/art/queue?pageSize=200'",
+  "entityArt.entityType !== 'project'",
+  'refreshProjectSilently',
+  'startProjectArtJobSync',
+  'stopProjectArtJobSync',
+])
+
+expectContains('components/pages/conductor-page.vue', [
+  'projectStore.startProjectArtJobSync()',
+  'projectStore.stopProjectArtJobSync()',
+])
+
+expectContains('components/pages/conductor-project-gallery-page.vue', [
+  'projects.startProjectArtJobSync()',
+  'projects.stopProjectArtJobSync()',
 ])
 
 const projectGallerySource = read('components/pages/conductor-art-gallery.vue')

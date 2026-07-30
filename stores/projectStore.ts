@@ -58,7 +58,36 @@ export type ApplyPlacementsResult = {
   failed: ProjectPlacementFailure[]
 }
 
+type ProjectArtQueueJob = {
+  id: number
+  status: string
+  artImageId?: number | null
+  updatedAt?: string | Date | null
+  payload?: unknown
+}
+
+type ProjectArtQueueData = {
+  jobs?: ProjectArtQueueJob[]
+}
+
 const PROJECT_LIST_FRESH_MS = 60_000
+const PROJECT_ART_ACTIVE_POLL_MS = 3_000
+const PROJECT_ART_IDLE_POLL_MS = 15_000
+
+function objectRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {}
+}
+
+function projectArtEntityId(job: ProjectArtQueueJob): number | null {
+  const payload = objectRecord(job.payload)
+  const entityArt = objectRecord(payload.entityArt)
+  if (entityArt.entityType !== 'project') return null
+  const entityId = Number(entityArt.entityId)
+  return Number.isInteger(entityId) && entityId > 0 ? entityId : null
+}
+
 
 function queryString(options: ProjectListOptions): string {
   const query = new URLSearchParams()
@@ -118,6 +147,10 @@ export const useProjectStore = defineStore('projectStore', () => {
   const canonicalCoverage = ref(-1)
   const canonicalKey = ref('')
   const inFlightLists = new Map<string, Promise<ProjectWithRelations[]>>()
+  const projectArtJobMarkers = new Map<number, string>()
+  let projectArtSyncClients = 0
+  let projectArtSyncRunning = false
+  let projectArtSyncTimer: ReturnType<typeof setTimeout> | null = null
 
   const activeProjects = computed(() =>
     projects.value.filter(
@@ -352,6 +385,85 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
+  async function refreshProjectSilently(id: number): Promise<void> {
+    const response = await performFetch<ProjectWithRelations>(
+      `/api/projects/${id}?refresh=${Date.now()}`,
+      { cache: 'no-store' },
+    )
+    if (response.success && response.data) replaceProject(response.data)
+  }
+
+  function scheduleProjectArtSync(delay: number): void {
+    if (projectArtSyncTimer) clearTimeout(projectArtSyncTimer)
+    projectArtSyncTimer = null
+    if (projectArtSyncClients < 1) return
+    projectArtSyncTimer = setTimeout(() => {
+      projectArtSyncTimer = null
+      void pollProjectArtJobs()
+    }, delay)
+  }
+
+  async function pollProjectArtJobs(): Promise<void> {
+    if (projectArtSyncClients < 1 || projectArtSyncRunning) return
+    projectArtSyncRunning = true
+    let hasActiveProjectJobs = false
+
+    try {
+      const response = await performFetch<ProjectArtQueueData>(
+        '/api/art/queue?pageSize=200',
+        { cache: 'no-store' },
+      )
+      if (!response.success) return
+
+      const refreshIds = new Set<number>()
+      for (const job of response.data?.jobs ?? []) {
+        const entityId = projectArtEntityId(job)
+        if (!entityId) continue
+
+        const status = String(job.status || '').toUpperCase()
+        if (status === 'PENDING' || status === 'RUNNING') {
+          hasActiveProjectJobs = true
+        }
+
+        const marker = [
+          status,
+          Number(job.artImageId) || 0,
+          job.updatedAt ? new Date(job.updatedAt).getTime() : 0,
+        ].join(':')
+        const previousMarker = projectArtJobMarkers.get(job.id)
+        projectArtJobMarkers.set(job.id, marker)
+
+        if (status === 'DONE' && marker !== previousMarker) {
+          refreshIds.add(entityId)
+        }
+      }
+
+      await Promise.all([...refreshIds].map(refreshProjectSilently))
+    } catch {
+      // Queue synchronization is best-effort. The durable completion path owns
+      // the database update; the next poll or page refresh can reconcile UI state.
+    } finally {
+      projectArtSyncRunning = false
+      scheduleProjectArtSync(
+        hasActiveProjectJobs
+          ? PROJECT_ART_ACTIVE_POLL_MS
+          : PROJECT_ART_IDLE_POLL_MS,
+      )
+    }
+  }
+
+  function startProjectArtJobSync(): void {
+    projectArtSyncClients += 1
+    if (projectArtSyncClients === 1) void pollProjectArtJobs()
+  }
+
+  function stopProjectArtJobSync(): void {
+    projectArtSyncClients = Math.max(0, projectArtSyncClients - 1)
+    if (projectArtSyncClients > 0) return
+    if (projectArtSyncTimer) clearTimeout(projectArtSyncTimer)
+    projectArtSyncTimer = null
+  }
+
   async function applyPlacements(
     overwriteLiveUrl = false,
   ): Promise<ApplyPlacementsResult> {
@@ -422,5 +534,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     updateProject,
     archiveProject,
     applyPlacements,
+    startProjectArtJobSync,
+    stopProjectArtJobSync,
   }
 })

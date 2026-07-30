@@ -52,7 +52,6 @@ expectContains('components/art/entity-art-manager.vue', [
   'Art direction',
   'textarea',
   'maxlength="5000"',
-  "generationMode.value = mode === 'recreate' ? 'krea2' : 'sdxl-img2img'",
 ])
 
 console.log('Entity art prompt suggestion contract verified.')

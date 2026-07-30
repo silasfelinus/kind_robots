@@ -1,0 +1,31 @@
+name: Entity Art Manager Contract
+
+on:
+  pull_request:
+    paths:
+      - 'components/art/entity-art-manager.vue'
+      - 'components/bots/bot-interact.vue'
+      - 'components/characters/character-interact.vue'
+      - 'components/scenarios/scenario-interact.vue'
+      - 'components/rewards/reward-interact.vue'
+      - 'components/facets/facet-manager.vue'
+      - 'server/api/art/enqueue.post.ts'
+      - 'server/api/art/queue/[id]/complete.post.ts'
+      - 'server/api/art/entities/**'
+      - 'server/utils/entityArt.ts'
+      - 'utils/scripts/verifyEntityArtManager.ts'
+      - '.github/workflows/entity-art-manager-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx tsx utils/scripts/verifyEntityArtManager.ts

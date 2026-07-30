@@ -51,6 +51,23 @@ export const useAccountStore = defineStore('accountStore', () => {
     }
   }
 
+  async function refreshMaturityResources(): Promise<void> {
+    try {
+      const [{ useResourceStore }, { useResourceGalleryStore }] =
+        await Promise.all([
+          import('./resourceStore'),
+          import('./resourceGalleryStore'),
+        ])
+
+      await Promise.all([
+        useResourceStore().getResources(true),
+        useResourceGalleryStore().loadResources(),
+      ])
+    } catch (error) {
+      handleError(error, 'refreshing maturity-filtered Resources')
+    }
+  }
+
   async function run(
     label: string,
     url: string,
@@ -115,7 +132,15 @@ export const useAccountStore = defineStore('accountStore', () => {
       patch as Record<string, unknown>,
       'PATCH',
     )
-    if (result.success) patchLocalUser(patch as Record<string, unknown>)
+
+    if (result.success) {
+      patchLocalUser(patch as Record<string, unknown>)
+
+      if (typeof patch.showMature === 'boolean') {
+        await refreshMaturityResources()
+      }
+    }
+
     return result
   }
 

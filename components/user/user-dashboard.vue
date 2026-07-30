@@ -123,6 +123,36 @@
 
         <animation-selector />
 
+        <label
+          v-if="!isGuest"
+          class="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+        >
+          <span class="flex min-w-0 items-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning/15 text-warning"
+            >
+              <Icon name="kind-icon:eye" class="h-5 w-5" />
+            </span>
+
+            <span class="min-w-0">
+              <span class="block font-black text-base-content">
+                Dashboard maturity toggle
+              </span>
+              <span class="block text-xs text-base-content/55">
+                Show a quick 18+ visibility control in the workspace header. This
+                preference stays in this browser.
+              </span>
+            </span>
+          </span>
+
+          <input
+            type="checkbox"
+            class="toggle toggle-warning shrink-0"
+            :checked="showDashboardMaturityToggle"
+            @change="onDashboardMaturityToggleChange"
+          />
+        </label>
+
         <div
           v-if="!isGuest"
           class="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
@@ -161,14 +191,19 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, watch } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { useMaturityPreferenceStore } from '@/stores/maturityPreferenceStore'
 import { useUploadStore } from '@/stores/uploadStore'
+import { useUserStore } from '@/stores/userStore'
 
+const maturityPreferenceStore = useMaturityPreferenceStore()
 const userStore = useUserStore()
 const imageUploadStore = useUploadStore()
 
 const user = computed(() => userStore.user)
 const isGuest = computed(() => userStore.isGuest)
+const showDashboardMaturityToggle = computed(
+  () => maturityPreferenceStore.showDashboardMaturityToggle,
+)
 
 const displayName = computed(() => {
   return isGuest.value ? 'Kind Guest' : user.value?.username || 'Kind User'
@@ -186,7 +221,14 @@ function configureUserImageUpload() {
   imageUploadStore.setAvatarTarget({ userId: userStore.user.id })
 }
 
+function onDashboardMaturityToggleChange(event: Event): void {
+  maturityPreferenceStore.setShowDashboardMaturityToggle(
+    (event.target as HTMLInputElement).checked,
+  )
+}
+
 onMounted(() => {
+  maturityPreferenceStore.initialize()
   configureUserImageUpload()
 })
 
@@ -198,7 +240,7 @@ watch(
   () => userStore.user?.id,
   () => {
     configureUserImageUpload()
-  }
+  },
 )
 
 const logout = async () => {

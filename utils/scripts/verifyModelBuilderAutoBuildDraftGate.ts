@@ -66,24 +66,25 @@ export function checkAutoBuildDraftGate(content: string): string[] {
   }
 
   const claimIndex = fn.body.indexOf('autoBuildingItemSingleton.claim(item.id)')
-const reentrancyGuard = /if\s*\(\s*state\.autoBuildingItemId\s*===\s*item\.id\s*\)\s*return false/.exec(
-  fn.body,
-)
-if (
-  claimIndex < 0 ||
-  !reentrancyGuard ||
-  reentrancyGuard.index > claimIndex
-) {
-  errors.push(
-    `${FN_NAME}() must return false when state.autoBuildingItemId already ` +
-      'equals item.id before claiming autoBuildingItemSingleton. Without ' +
-      'that entry guard, the item-level Auto action can overlap with batch ' +
-      'or run-level auto-build for the same item and duplicate draft, render, ' +
-      'or commit work.',
-  )
-}
+  const reentrancyGuard =
+    /if\s*\(\s*state\.autoBuildingItemId\s*===\s*item\.id\s*\)\s*return false/.exec(
+      fn.body,
+    )
+  if (
+    claimIndex < 0 ||
+    !reentrancyGuard ||
+    reentrancyGuard.index > claimIndex
+  ) {
+    errors.push(
+      `${FN_NAME}() must return false when state.autoBuildingItemId already ` +
+        'equals item.id before claiming autoBuildingItemSingleton. Without ' +
+        'that entry guard, the item-level Auto action can overlap with batch ' +
+        'or run-level auto-build for the same item and duplicate draft, render, ' +
+        'or commit work.',
+    )
+  }
 
-for (const { field, stageKey } of DRAFT_GATES) {
+  for (const { field, stageKey } of DRAFT_GATES) {
     const callPattern = new RegExp(
       `(?:const\\s+(\\w+)\\s*=\\s*)?await draftText\\(itemId, '${field}'\\)`,
     )

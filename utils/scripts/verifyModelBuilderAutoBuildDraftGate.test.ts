@@ -5,7 +5,8 @@
 // the real check against synthetic store-shaped fixtures covering: the
 // pre-fix shape (draftText's result discarded, approveStage called
 // unconditionally -- the exact bug found by manual read-through), the fixed
-// shape (result captured and gated), and autoBuildItem being absent entirely.
+// shape (result captured and gated), the same-item reentrancy guard, and
+// autoBuildItem being absent entirely.
 import assert from 'node:assert/strict'
 
 import { checkAutoBuildDraftGate } from './verifyModelBuilderAutoBuildDraftGate.js'
@@ -160,8 +161,7 @@ assert.equal(
 assert.ok(missingFnErrors[0]!.includes('autoBuildItem'))
 
 console.log(
-  'Model Builder auto-build draft gate checker verified: flags the pre-fix ' +
-    'shape (discarded draftText results feeding straight into an ' +
-    'unconditional approveStage), clears the fixed shape, and flags ' +
-    'autoBuildItem being absent entirely.',
+  'Model Builder auto-build gate checker verified: flags discarded draft ' +
+    'results and missing same-item reentrancy protection, clears the fixed shape, ' +
+    'and flags autoBuildItem being absent entirely.',
 )

@@ -98,6 +98,7 @@ export default defineNitroPlugin((nitroApp) => {
             if (!action) return
 
             event.preventDefault()
+            event.stopPropagation()
 
             if (root.classList.contains('kr-startup-controls-ready')) {
               window.dispatchEvent(
@@ -107,7 +108,7 @@ export default defineNitroPlugin((nitroApp) => {
             }
 
             queue.push(action)
-          })
+          }, true)
 
           window.setTimeout(() => {
             root.classList.remove('kr-startup-handoff')

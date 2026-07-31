@@ -301,6 +301,12 @@ onBeforeUnmount(() => {
   transform: translateZ(0);
 }
 
+.loading-heading,
+.loading-status {
+  position: relative;
+  z-index: 2;
+}
+
 .loading-heading {
   font-size: clamp(1.2rem, 2.25vw, 2rem);
   font-weight: 800;
@@ -309,6 +315,7 @@ onBeforeUnmount(() => {
 
 .loading-logo-frame {
   position: relative;
+  z-index: 1;
   display: grid;
   width: 100%;
   height: 100%;

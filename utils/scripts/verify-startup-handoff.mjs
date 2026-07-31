@@ -1,84 +1,83 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-const [startupComponent, startupPlugin, startupShell] = await Promise.all([
+const [
+  startupComponent,
+  startupPlugin,
+  startupShell,
+  compositionShell,
+  loadingMessages,
+] = await Promise.all([
   readFile('components/screenfx/startup-animation.vue', 'utf8'),
   readFile('plugins/startup-composition.client.ts', 'utf8'),
   readFile('server/plugins/startup-loader-shell.ts', 'utf8'),
+  readFile('server/plugins/00-startup-composition-shell.ts', 'utf8'),
+  readFile('components/admin/loading-messages.vue', 'utf8'),
 ])
 
 assert.ok(
   startupComponent.includes('v-if="showControls"') &&
     startupComponent.includes('ref="controlsElement"'),
-  'Hydrated startup controls must render independently and expose a mounted element ref.',
+  'Hydrated startup controls must render from the real Vue component.',
 )
 
 assert.ok(
   startupComponent.includes("currentEffectLabel.value || 'Preparing animation…'"),
-  'The control tray must never present a blank animation-name slot.',
-)
-
-const handoffGuard = startupComponent.slice(
-  startupComponent.indexOf('async function syncControlsHandoff'),
-  startupComponent.indexOf('function handleEffectReady'),
-)
-
-for (const requiredGuard of [
-  'showControls.value',
-  'resolvedEffectId.value',
-  'currentComponent.value',
-  'currentEffectLabel.value',
-  'controlsElement.value',
-  'markControlsReady()',
-]) {
-  assert.ok(
-    handoffGuard.includes(requiredGuard),
-    `Hydrated handoff is missing required readiness guard: ${requiredGuard}`,
-  )
-}
-
-assert.ok(
-  !/onMounted\([\s\S]*?markControlsReady\(\)/.test(startupComponent),
-  'Controls must not be declared ready merely because the component mounted.',
+  'The hydrated control tray must never present a blank animation name.',
 )
 
 assert.ok(
-  !/setTimeout\([\s\S]*?remove\(['"]kr-startup-handoff['"]\)/.test(
-    startupShell,
+  !startupShell.includes('kr-prehydrate-controls') &&
+    !startupShell.includes('data-kr-startup-action'),
+  'The server shell must not render a fake control panel that can become an untappable ghost.',
+)
+
+assert.ok(
+  compositionShell.includes('__KR_STARTUP_SHELL_WATCHDOG__') &&
+    compositionShell.includes('const WATCHDOG_MS = 9000'),
+  'The server-rendered startup cover must have a hydration-independent hard stop.',
+)
+
+assert.ok(
+  compositionShell.includes("sessionStorage.removeItem(FORCE_KEY)") &&
+    compositionShell.includes("sessionStorage.removeItem(STARTED_AT_KEY)"),
+  'The hard stop must clear sticky forced-startup session state.',
+)
+
+assert.ok(
+  compositionShell.includes(
+    "document.querySelector('.startup-animation__controls--active')",
   ),
-  'The server-rendered control must not disappear on an unconditional timer.',
+  'The shell hard stop may preserve startup only for a real active hydrated control panel.',
 )
 
 assert.ok(
-  startupComponent.includes('__KR_STARTUP_BRIDGE_READY__ = true') &&
-    startupComponent.includes('__KR_STARTUP_BRIDGE_READY__ = false'),
-  'The hydrated component must explicitly publish and clear bridge-listener readiness.',
+  loadingMessages.includes('const HARD_EXIT_MS = 9000') &&
+    loadingMessages.includes('startHardExitWatchdog()'),
+  'The hydrated loading overlay must have its own hard exit deadline.',
+)
+
+const exitRequestWatch = loadingMessages.slice(
+  loadingMessages.indexOf('() => startupStore.exitRequest'),
+  loadingMessages.indexOf('onMounted(async'),
 )
 
 assert.ok(
-  startupShell.includes('if (window.__KR_STARTUP_BRIDGE_READY__)'),
-  'Server control clicks must dispatch as soon as the Vue event bridge is listening.',
+  exitRequestWatch.includes('exitRequested.value = true') &&
+    exitRequestWatch.includes('doFade()'),
+  'Close and Resume requests must dismiss the overlay without waiting for stores or media.',
 )
 
 assert.ok(
-  !startupShell.includes(
-    "if (root.classList.contains('kr-startup-controls-ready'))",
-  ),
-  'Click dispatch must not wait for the visual control-panel handoff.',
+  compositionShell.includes('.loading-status') &&
+    compositionShell.includes('padding-bottom: 6rem !important'),
+  'Mobile startup layout must reserve space above the control tray for loading messages.',
 )
 
 assert.ok(
-  startupPlugin.includes(
-    'startupStore.immersive && hasUsableImmersiveControls()',
-  ),
-  'Immersive mode may suppress emergency exit only when hydrated controls are usable.',
+  startupPlugin.includes('clearShellWatchdog()') &&
+    startupPlugin.includes("delete startupWindow.__KR_STARTUP_SHELL_WATCHDOG__"),
+  'Normal client cleanup must cancel the server shell watchdog.',
 )
 
-assert.ok(
-  startupPlugin.includes(
-    "document.querySelector('.startup-animation__controls')",
-  ),
-  'The emergency guard must verify that the hydrated controls exist in the DOM.',
-)
-
-console.log('Startup handoff contract passed.')
+console.log('Startup hard-stop contract passed.')

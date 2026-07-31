@@ -11,6 +11,12 @@
       aria-hidden="true"
     />
 
+    <div
+      v-if="showLoader"
+      class="pointer-events-none fixed inset-0 z-48 bg-black"
+      aria-hidden="true"
+    />
+
     <ClientOnly>
       <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
         <kind-loader

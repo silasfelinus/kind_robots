@@ -15,9 +15,7 @@ function clean(value: unknown): string {
 
 function requireText(path: string, text: string, fragment: string): void {
   if (!text.includes(fragment)) {
-    throw new Error(
-      `${path} is missing Scenario Genre Facet contract text: ${fragment}`,
-    )
+    throw new Error(`${path} is missing Scenario Genre Facet contract text: ${fragment}`)
   }
 }
 
@@ -56,9 +54,7 @@ async function main(): Promise<void> {
       const imagePath = clean(choice.image)
       if (!value) continue
       if (!imagePath) {
-        failures.push(
-          `${label} is a direct Scenario Genre choice without an artwork target.`,
-        )
+        failures.push(`${label} is a direct Scenario Genre choice without an artwork target.`)
         continue
       }
       direct.push({ value, label, imagePath })
@@ -75,14 +71,10 @@ async function main(): Promise<void> {
   }
 
   if (direct.length < 10) {
-    failures.push(
-      `Expected at least 10 illustrated Scenario Genres, found ${direct.length}.`,
-    )
+    failures.push(`Expected at least 10 illustrated Scenario Genres, found ${direct.length}.`)
   }
   if (extended.size < 40) {
-    failures.push(
-      `Expected at least 40 extended Scenario Genres, found ${extended.size}.`,
-    )
+    failures.push(`Expected at least 40 extended Scenario Genres, found ${extended.size}.`)
   }
 
   const directPaths = new Set(direct.map((entry) => entry.imagePath))
@@ -108,8 +100,7 @@ async function main(): Promise<void> {
   } as const
   const entries = await Promise.all(
     Object.entries(files).map(
-      async ([key, path]) =>
-        [key, await readFile(resolve(root, path), 'utf8')] as const,
+      async ([key, path]) => [key, await readFile(resolve(root, path), 'utf8')] as const,
     ),
   )
   const text = Object.fromEntries(entries) as Record<keyof typeof files, string>
@@ -121,23 +112,10 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'backfillScenarioGenres')
   requireText(files.seed, text.seed, 'existingPublicImagePath')
   requireText(files.artwork, text.artwork, 'SCENARIO_GENRE_ARTWORK_TARGETS')
-  requireText(
-    files.wrapper,
-    text.wrapper,
-    "import('./seedScenarioGenreFacetCatalog')",
-  )
+  requireText(files.wrapper, text.wrapper, "import('./seedScenarioGenreFacetCatalog')")
   requireText(files.plugin, text.plugin, 'SCENARIO_CARDS')
   requireText(files.plugin, text.plugin, "if (key === 'genres') return 'genre'")
-  // `hydrateScenarioBuilder` no longer exists: PR #1211 generalized it (and its
-  // adventure twin) into hydrateBuilderCards(DECK, catalog). That PR added the
-  // line below but left this one behind, which is what broke facet-catalog on
-  // main. The next line asserts the same contract against the symbol that
-  // actually ships, so dropping this one loses no coverage.
-  requireText(
-    files.plugin,
-    text.plugin,
-    'hydrateBuilderCards(SCENARIO_CARDS, catalog)',
-  )
+  requireText(files.plugin, text.plugin, 'hydrateBuilderCards(SCENARIO_CARDS, catalog)')
   requireText(files.sync, text.sync, 'syncScenarioGenreFacetsInTransaction')
   requireText(files.sync, text.sync, "where: { taxonomy: 'GENRE' }")
   requireText(files.sync, text.sync, 'facetId: { in: genreFacetIds }')
@@ -153,21 +131,11 @@ async function main(): Promise<void> {
   requireText(files.patch, text.patch, "if ('genres' in data)")
   requireText(files.batchPatch, text.batchPatch, "if ('genres' in data)")
   requireText(files.policy, text.policy, 'stores/helpers/scenarioCards.ts')
-  requireText(
-    files.policy,
-    text.policy,
-    'utils/seeds/facetScenarioGenreArtwork.ts',
-  )
-  requireText(
-    files.policy,
-    text.policy,
-    'utils/scripts/seedScenarioGenreFacetCatalog.ts',
-  )
+  requireText(files.policy, text.policy, 'utils/seeds/facetScenarioGenreArtwork.ts')
+  requireText(files.policy, text.policy, 'utils/scripts/seedScenarioGenreFacetCatalog.ts')
 
   if (failures.length) {
-    throw new Error(
-      `Scenario Genre Facet cutover failed:\n- ${failures.join('\n- ')}`,
-    )
+    throw new Error(`Scenario Genre Facet cutover failed:\n- ${failures.join('\n- ')}`)
   }
 
   process.stdout.write(

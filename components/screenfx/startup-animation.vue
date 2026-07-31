@@ -191,6 +191,10 @@ function setEffect(effectId: AnimationEffectId | null): void {
   isFading.value = false
 }
 
+function handleEffectReady(): void {
+  effectReady.value = true
+}
+
 function selectEffect(): void {
   preferenceStore.initialize()
   setEffect(preferenceStore.resolveStartupEffect(availableEffectIds.value))

@@ -1,6 +1,5 @@
 import { defineNuxtPlugin } from '#app'
 import { performFetch } from '@/stores/utils'
-import { useServerStore } from '@/stores/serverStore'
 import { reconcileServerRows } from '@/stores/helpers/serverReconcile'
 import type { Server } from '~/prisma/generated/prisma/client'
 
@@ -24,13 +23,16 @@ type ServerListResponse = {
  * for rendering, so it runs in the background.
  */
 export default defineNuxtPlugin(() => {
-  const serverStore = useServerStore()
-
-  if (!serverStore.isInitialized) {
-    serverStore.loadFromLocalStorage()
-  }
-
+  // serverStore (~65 KB) is imported on demand: plugins live in the eager entry
+  // chunk, and reconciling cached server rows is not a first-paint concern.
   void (async () => {
+    const { useServerStore } = await import('@/stores/serverStore')
+    const serverStore = useServerStore()
+
+    if (!serverStore.isInitialized) {
+      serverStore.loadFromLocalStorage()
+    }
+
     const cachedIds = new Set(serverStore.servers.map((server) => server.id))
     const response = (await performFetch('/api/server')) as ServerListResponse
 

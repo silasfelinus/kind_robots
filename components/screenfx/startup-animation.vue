@@ -143,6 +143,7 @@ type StartupBridgeAction =
 
 type StartupBridgeWindow = Window & {
   __KR_STARTUP_ACTION_QUEUE__?: string[]
+  __KR_STARTUP_BRIDGE_READY__?: boolean
 }
 
 const HANDOFF_CLASS = 'kr-startup-handoff'
@@ -385,7 +386,10 @@ watch(
 )
 
 onMounted(() => {
+  const bridgeWindow = window as StartupBridgeWindow
+
   window.addEventListener(BRIDGE_EVENT, handleBridgeEvent)
+  bridgeWindow.__KR_STARTUP_BRIDGE_READY__ = true
   consumeBridgeQueue()
   void syncControlsHandoff()
 })
@@ -395,6 +399,8 @@ onBeforeUnmount(() => {
   clearHandoffTimer()
 
   if (import.meta.client) {
+    const bridgeWindow = window as StartupBridgeWindow
+    bridgeWindow.__KR_STARTUP_BRIDGE_READY__ = false
     window.removeEventListener(BRIDGE_EVENT, handleBridgeEvent)
   }
 })

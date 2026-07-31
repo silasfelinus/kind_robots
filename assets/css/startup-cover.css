@@ -25,11 +25,16 @@
  */
 html.kr-startup-fading .loading-overlay,
 html.kr-startup-fading .startup-animation__stage,
-html.kr-startup-fading .startup-animation__controls,
-html:has(.loading-overlay--fade) .startup-animation__stage,
-html:has(.loading-overlay--fade) .startup-animation__controls {
+html:has(.loading-overlay--fade) .startup-animation__stage {
   opacity: 0 !important;
   pointer-events: none !important;
+  transition: opacity 650ms ease !important;
+}
+
+html.kr-startup-fading .startup-animation__controls,
+html:has(.loading-overlay--fade) .startup-animation__controls {
+  opacity: 0.55 !important;
+  pointer-events: auto !important;
   transition: opacity 650ms ease !important;
 }
 

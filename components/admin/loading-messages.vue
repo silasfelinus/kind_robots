@@ -116,6 +116,23 @@ function emitHiddenOnce() {
   emit('hidden')
 }
 
+function cancelFade() {
+  if (!fadeOverlay.value) return
+
+  if (fallbackFadeTimeoutId) {
+    clearTimeout(fallbackFadeTimeoutId)
+    fallbackFadeTimeoutId = null
+  }
+
+  hiddenEmitted.value = false
+  fadeOverlay.value = false
+  loadStore.resetRevealState()
+
+  if (import.meta.client) {
+    document.documentElement.classList.remove(FADING_CLASS)
+  }
+}
+
 function doFade() {
   if (destroyed || fadeOverlay.value) return
 
@@ -196,6 +213,7 @@ watch(
   (immersive) => {
     if (immersive) {
       clearFadeTimers()
+      cancelFade()
       return
     }
 

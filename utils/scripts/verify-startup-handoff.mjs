@@ -191,6 +191,20 @@ assert.ok(
 )
 
 assert.ok(
+  /\.startup-animation__controls\s*\{[^}]*top:\s*max\(1rem, env\(safe-area-inset-top, 0px\)\);[^}]*right:\s*1rem;/s.test(startupAnimation),
+  'The animation controls must occupy the top-right corner, away from loading messages.',
+)
+
+assert.ok(
+  startupAnimation.includes('@pointerdown.capture="restoreFromFade"') &&
+    /\.startup-animation__controls--fading\s*\{[^}]*pointer-events:\s*auto;/s.test(startupAnimation) &&
+    startupCoverCss.includes('pointer-events: auto !important') &&
+    loadingMessages.includes('function cancelFade()') &&
+    loadingMessages.includes('hiddenEmitted.value = false'),
+  'A fading control panel must remain tappable and cancel pending startup cleanup when explore mode is restored.',
+)
+
+assert.ok(
   startupLaunch.includes('export function markAppReady') &&
     kindLoader.includes('markAppReady()'),
   'The app must signal readiness so the boot cover can retire early.',

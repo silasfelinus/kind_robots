@@ -151,6 +151,41 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   }
 
+  function handleStartupControlClick(event: Event): void {
+    const target = event.target
+    if (!(target instanceof Element)) return
+
+    const button = target.closest<HTMLButtonElement>(
+      '.startup-animation__controls button',
+    )
+    if (!button) return
+
+    const description = [
+      button.getAttribute('title'),
+      button.getAttribute('aria-label'),
+      button.textContent,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    if (description.includes('pause') || description.includes('explore')) {
+      startupWindow.__KR_STARTUP_USER_EXPLORE__ = true
+      trace('client:user-entered-explore')
+      flush('user-entered-explore')
+      return
+    }
+
+    if (
+      description.includes('resume') ||
+      description.includes('leave startup') ||
+      description.includes('close')
+    ) {
+      startupWindow.__KR_STARTUP_USER_EXPLORE__ = false
+      trace('client:user-left-explore')
+    }
+  }
+
   const observer = new MutationObserver(syncCompositionState)
 
   observer.observe(document.documentElement, {
@@ -159,6 +194,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     attributes: true,
     attributeFilter: ['class'],
   })
+
+  document.addEventListener('click', handleStartupControlClick, true)
 
   trace('client:plugin-init', {
     performanceNow: Math.round(performance.now()),
@@ -188,6 +225,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       clearCleanupTimer()
       clearEmergencyExitTimer()
       observer.disconnect()
+      document.removeEventListener('click', handleStartupControlClick, true)
     },
     { once: true },
   )

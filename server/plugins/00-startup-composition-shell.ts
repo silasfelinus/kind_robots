@@ -37,8 +37,7 @@ export default defineNitroPlugin((nitroApp) => {
           z-index: 30;
           display: grid;
           place-items: center;
-          gap: 1.25rem;
-          grid-auto-flow: row;
+          padding: 1rem;
           background: #000;
           color: #fff;
           opacity: 1;
@@ -60,33 +59,69 @@ export default defineNitroPlugin((nitroApp) => {
           animation: none;
         }
 
+        /*
+         * Match loading-messages.vue closely enough that the boot-cover cameo
+         * and the real Vue intro occupy the same visual slots. On a normal
+         * launch the handoff should read as one continuous logo, not a second
+         * logo loading at a new size or position. On browser refresh, where the
+         * full intro is intentionally skipped, this is the brief logo cameo.
+         */
+        .kr-boot-cover__content {
+          display: grid;
+          width: min(98vw, 64rem);
+          height: min(92vh, 52rem);
+          grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem;
+          place-items: center;
+        }
+
+        .kr-boot-cover__title {
+          display: flex;
+          width: fit-content;
+          max-width: min(90vw, 44rem);
+          min-height: 3.75rem;
+          align-items: center;
+          justify-content: center;
+          padding: 0.65rem 1.2rem;
+          background: rgba(0, 0, 0, 0.78);
+          color: #fff;
+          font-size: clamp(1.2rem, 2.25vw, 2rem);
+          font-weight: 800;
+          letter-spacing: 0.02em;
+          text-align: center;
+          box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.42);
+        }
+
+        .kr-boot-cover__media-frame {
+          display: grid;
+          width: 100%;
+          height: 100%;
+          min-height: 0;
+          place-items: center;
+        }
+
         .kr-boot-cover__media {
-          width: clamp(14rem, 52vw, 30rem);
-          max-width: 90vw;
+          width: clamp(16rem, 58vw, 34rem);
+          max-height: 100%;
           height: auto;
           object-fit: contain;
+          filter: drop-shadow(0 1.5rem 3rem rgba(255, 255, 255, 0.2));
           -webkit-mask-image: radial-gradient(
-            ellipse 47% 52% at 48% 49%,
-            #000 0%,
-            #000 42%,
-            rgba(0, 0, 0, 0.62) 73%,
+            ellipse 54% 54% at center,
+            #000 58%,
+            rgba(0, 0, 0, 0.96) 70%,
             transparent 100%
           );
           mask-image: radial-gradient(
-            ellipse 47% 52% at 48% 49%,
-            #000 0%,
-            #000 42%,
-            rgba(0, 0, 0, 0.62) 73%,
+            ellipse 54% 54% at center,
+            #000 58%,
+            rgba(0, 0, 0, 0.96) 70%,
             transparent 100%
           );
         }
 
-        .kr-boot-cover__title {
-          max-width: 90vw;
-          font-size: clamp(1.1rem, 2.2vw, 1.9rem);
-          font-weight: 800;
-          letter-spacing: 0.02em;
-          text-align: center;
+        .kr-boot-cover__status-spacer {
+          width: 100%;
+          min-height: 8rem;
         }
 
         @keyframes kr-boot-cover-release {
@@ -104,16 +139,23 @@ export default defineNitroPlugin((nitroApp) => {
       </style>
 
       <div class="kr-boot-cover" aria-hidden="true">
-        <img
-          src="/images/startup-animations/launch-04.webp"
-          alt=""
-          class="kr-boot-cover__media"
-          width="720"
-          height="720"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <p class="kr-boot-cover__title">Building Kind Robots...</p>
+        <div class="kr-boot-cover__content">
+          <p class="kr-boot-cover__title">Building Kind Robots...</p>
+
+          <div class="kr-boot-cover__media-frame">
+            <img
+              src="/images/startup-animations/launch-04.webp"
+              alt=""
+              class="kr-boot-cover__media"
+              width="720"
+              height="720"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+
+          <div class="kr-boot-cover__status-spacer"></div>
+        </div>
       </div>
     `)
   })

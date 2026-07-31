@@ -21,6 +21,8 @@ export default defineNitroPlugin((nitroApp) => {
 
         .startup-animation__controls {
           z-index: 2147483000 !important;
+          display: flex !important;
+          visibility: visible !important;
           isolation: isolate;
         }
 
@@ -128,13 +130,120 @@ export default defineNitroPlugin((nitroApp) => {
           const STARTED_AT_KEY = 'kind-robots-startup-started-at-v1'
           const WATCHDOG_MS = 9000
           const FADE_MS = 700
+          const traceState = {
+            traceId:
+              Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+            events: [],
+            sentCount: 0,
+          }
+
+          const snapshot = () => ({
+            readyState: document.readyState,
+            visibility: document.visibilityState,
+            classes: Array.from(root.classList),
+            viewport: [window.innerWidth, window.innerHeight],
+            dom: {
+              prehydrate: Boolean(document.querySelector('.kr-prehydrate-loader')),
+              blackBase: Boolean(document.querySelector('.kr-startup-black-base')),
+              loaderRoot: Boolean(document.querySelector('.loader-root')),
+              overlay: Boolean(document.querySelector('.loading-overlay')),
+              overlayFading: Boolean(
+                document.querySelector('.loading-overlay--fade'),
+              ),
+              stage: Boolean(document.querySelector('.startup-animation__stage')),
+              controls: Boolean(
+                document.querySelector('.startup-animation__controls'),
+              ),
+              controlsActive: Boolean(
+                document.querySelector('.startup-animation__controls--active'),
+              ),
+            },
+            userExplore: window.__KR_STARTUP_USER_EXPLORE__ === true,
+          })
+
+          const record = (name, detail) => {
+            const entry = {
+              at: Math.round(performance.now()),
+              name,
+              detail: detail || null,
+              snapshot: snapshot(),
+            }
+            traceState.events.push(entry)
+            console.info('[startup-trace]', entry)
+          }
+
+          const flush = (reason) => {
+            const events = traceState.events.slice(traceState.sentCount)
+            if (!events.length) return
+            traceState.sentCount = traceState.events.length
+
+            fetch('/api/startup/trace', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                traceId: traceState.traceId,
+                buildId: window.__NUXT__?.config?.public?.buildId,
+                reason,
+                events,
+                snapshot: snapshot(),
+                userAgent: navigator.userAgent,
+              }),
+              keepalive: true,
+            }).catch(() => {})
+          }
+
+          window.__KR_STARTUP_TRACE__ = record
+          window.__KR_STARTUP_TRACE_FLUSH__ = flush
+          window.__KR_STARTUP_USER_EXPLORE__ = false
 
           root.classList.add('kr-startup-active', 'kr-startup-handoff')
+          record('shell:init')
+
+          ;[1500, 3500, 6000, 9000, 12000].forEach((delay) => {
+            window.setTimeout(() => {
+              record('shell:snapshot', { delay })
+              flush('snapshot-' + delay)
+            }, delay)
+          })
+
+          window.addEventListener(
+            'error',
+            (event) => {
+              record('window:error', {
+                message: event.message,
+                source: event.filename,
+                line: event.lineno,
+                column: event.colno,
+              })
+              flush('window-error')
+            },
+            true,
+          )
+
+          window.addEventListener('unhandledrejection', (event) => {
+            record('window:unhandledrejection', {
+              reason: String(event.reason),
+            })
+            flush('unhandled-rejection')
+          })
 
           window.__KR_STARTUP_SHELL_WATCHDOG__ = window.setTimeout(() => {
-            if (document.querySelector('.startup-animation__controls--active')) {
+            if (window.__KR_STARTUP_USER_EXPLORE__ === true) {
+              record('shell:watchdog-preserved-user-explore')
+              flush('watchdog-user-explore')
               return
             }
+
+            if (
+              !root.classList.contains('kr-full-startup') &&
+              !root.classList.contains('kr-startup-active')
+            ) {
+              record('shell:watchdog-already-cleared')
+              flush('watchdog-already-cleared')
+              return
+            }
+
+            record('shell:watchdog-fire')
 
             try {
               sessionStorage.removeItem(FORCE_KEY)
@@ -154,10 +263,19 @@ export default defineNitroPlugin((nitroApp) => {
               )
 
               document
-                .querySelectorAll('.kr-prehydrate-loader, .kr-startup-black-base')
+                .querySelectorAll(
+                  '.kr-prehydrate-loader, .kr-startup-black-base, .loading-overlay, .loader-root',
+                )
                 .forEach((element) => element.remove())
+
+              record('shell:watchdog-cleanup')
+              flush('watchdog-cleanup')
             }, FADE_MS)
           }, WATCHDOG_MS)
+
+          window.addEventListener('pagehide', () => flush('pagehide'), {
+            once: true,
+          })
         })()
       </script>
 

@@ -14,31 +14,9 @@
 // /components/content/story/kind-loader.vue
 import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
-import { useRandomStore } from '@/stores/randomStore'
-import { useCharacterStore } from '@/stores/characterStore'
-import { useBotStore } from '@/stores/botStore'
-import { useChatStore } from '@/stores/chatStore'
-import { useAchievementStore } from '@/stores/achievementStore'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useReactionStore } from '@/stores/reactionStore'
-import { useRewardStore } from '@/stores/rewardStore'
-import { useScenarioStore } from '@/stores/scenarioStore'
-import { useWeirdStore } from '@/stores/weirdStore'
-import { useConsoleStore } from '@/stores/consoleStore'
-import { useChoiceStore } from '@/stores/choiceStore'
-import { useSmartbarStore } from '@/stores/smartbarStore'
-import { useComponentStore } from '@/stores/componentStore'
-import { usePageStore } from '@/stores/pageStore'
-import { useNavStore } from '@/stores/navStore'
-import { useServerStore } from '@/stores/serverStore'
-import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useThemeStore } from '@/stores/themeStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
-import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 import {
   consumeForcedFullStartup,
   isBrowserReload,
@@ -47,27 +25,6 @@ import {
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
-const pageStore = usePageStore()
-const userStore = useUserStore()
-const serverStore = useServerStore()
-const checkpointStore = useCheckpointStore()
-const artStore = useArtStore()
-const botStore = useBotStore()
-const achievementStore = useAchievementStore()
-const promptStore = usePromptStore()
-const reactionStore = useReactionStore()
-const rewardStore = useRewardStore()
-const chatStore = useChatStore()
-const characterStore = useCharacterStore()
-const scenarioStore = useScenarioStore()
-const weirdStore = useWeirdStore()
-const consoleStore = useConsoleStore()
-const choiceStore = useChoiceStore()
-const smartbarStore = useSmartbarStore()
-const componentStore = useComponentStore()
-const randomStore = useRandomStore()
-const navStore = useNavStore()
-const themeStore = useThemeStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
 
@@ -172,34 +129,19 @@ async function runWave(
   }
 }
 
-async function initializeServerAndCheckpoints() {
-  await errorStore.handleError(
-    async () => {
-      if (
-        !serverStore.isInitialized ||
-        !serverStore.hasLoaded ||
-        serverStore.servers.length === 0
-      ) {
-        await serverStore.initialize({ fetchRemote: true })
-      }
-    },
-    ErrorType.STORE_ERROR,
-    'Error initializing server store',
-  )
-
-  await errorStore.handleError(
-    async () => {
-      checkpointStore.initialize()
-    },
-    ErrorType.STORE_ERROR,
-    'Error initializing checkpoint store',
-  )
-}
-
+/*
+ * Every store below is imported on demand rather than at module scope.
+ *
+ * kind-loader is rendered by app.vue, so a static import here puts the store —
+ * and everything it pulls in — into the eager entry chunk that must download,
+ * parse and execute before the app can mount. That chain was dragging ~25
+ * stores plus the builder card decks and seed tables into the critical path
+ * for every visitor on every page, purely so this function could call
+ * initialize() on them. Loading them here instead moves that work off first
+ * paint without changing what runs or in what order.
+ */
 async function initializeStores() {
   try {
-    ensureBuildersRegistered()
-
     if (!displayStore.isInitialized) {
       await errorStore.handleError(
         async () => displayStore.initialize(),
@@ -208,37 +150,114 @@ async function initializeStores() {
       )
     }
 
+    const [
+      { useUserStore },
+      { usePageStore },
+      { useNavStore },
+      { useSmartbarStore },
+      { useConsoleStore },
+      { useAchievementStore },
+      { useThemeStore },
+    ] = await Promise.all([
+      import('@/stores/userStore'),
+      import('@/stores/pageStore'),
+      import('@/stores/navStore'),
+      import('@/stores/smartbarStore'),
+      import('@/stores/consoleStore'),
+      import('@/stores/achievementStore'),
+      import('@/stores/themeStore'),
+    ])
+
     await runWave('identity + chrome', [
-      userStore.initialize?.(),
-      pageStore.initialize?.(),
-      navStore.initialize?.(),
-      smartbarStore.initialize?.(),
-      consoleStore.initialize?.(),
-      achievementStore.initialize?.({
+      useUserStore().initialize?.(),
+      usePageStore().initialize?.(),
+      useNavStore().initialize?.(),
+      useSmartbarStore().initialize?.(),
+      useConsoleStore().initialize?.(),
+      useAchievementStore().initialize?.({
         fetchRemote: true,
         migratePendingGuestAchievements: true,
       }),
-      themeStore.initialize({ fetchShared: true }),
+      useThemeStore().initialize({ fetchShared: true }),
     ])
 
-    await initializeServerAndCheckpoints()
+    const [{ useServerStore }, { useCheckpointStore }] = await Promise.all([
+      import('@/stores/serverStore'),
+      import('@/stores/checkpointStore'),
+    ])
+    const serverStore = useServerStore()
+
+    await errorStore.handleError(
+      async () => {
+        if (
+          !serverStore.isInitialized ||
+          !serverStore.hasLoaded ||
+          serverStore.servers.length === 0
+        ) {
+          await serverStore.initialize({ fetchRemote: true })
+        }
+      },
+      ErrorType.STORE_ERROR,
+      'Error initializing server store',
+    )
+
+    await errorStore.handleError(
+      async () => {
+        useCheckpointStore().initialize()
+      },
+      ErrorType.STORE_ERROR,
+      'Error initializing checkpoint store',
+    )
+
+    const [{ useArtStore }, { useBotStore }, { useChatStore }] =
+      await Promise.all([
+        import('@/stores/artStore'),
+        import('@/stores/botStore'),
+        import('@/stores/chatStore'),
+      ])
 
     await runWave('content stores', [
-      artStore.initialize?.(),
-      botStore.initialize?.(),
-      chatStore.initialize?.(),
+      useArtStore().initialize?.(),
+      useBotStore().initialize?.(),
+      useChatStore().initialize?.(),
     ])
 
+    const [
+      { useCharacterStore },
+      { usePromptStore },
+      { useReactionStore },
+      { useRewardStore },
+      { useScenarioStore },
+      { useWeirdStore },
+      { useChoiceStore },
+      { useComponentStore },
+      { useRandomStore },
+      { ensureBuildersRegistered },
+    ] = await Promise.all([
+      import('@/stores/characterStore'),
+      import('@/stores/promptStore'),
+      import('@/stores/reactionStore'),
+      import('@/stores/rewardStore'),
+      import('@/stores/scenarioStore'),
+      import('@/stores/weirdStore'),
+      import('@/stores/choiceStore'),
+      import('@/stores/componentStore'),
+      import('@/stores/randomStore'),
+      import('@/stores/registerBuilderStore'),
+    ])
+
+    ensureBuildersRegistered()
+
     await runWave('remaining stores', [
-      characterStore.initialize?.(),
-      promptStore.initialize?.(),
-      reactionStore.initialize?.(),
-      rewardStore.initialize?.(),
-      scenarioStore.initialize?.(),
-      weirdStore.initialize?.(),
-      choiceStore.initialize?.(),
-      componentStore.initialize?.(),
-      randomStore.initialize?.(),
+      useCharacterStore().initialize?.(),
+      usePromptStore().initialize?.(),
+      useReactionStore().initialize?.(),
+      useRewardStore().initialize?.(),
+      useScenarioStore().initialize?.(),
+      useWeirdStore().initialize?.(),
+      useChoiceStore().initialize?.(),
+      useComponentStore().initialize?.(),
+      useRandomStore().initialize?.(),
     ])
   } catch (error) {
     errorStore.setError(

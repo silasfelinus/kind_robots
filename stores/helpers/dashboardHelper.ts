@@ -216,7 +216,7 @@ export const dashboardConfigs = {
           'Walk thirty-three centuries of art history, one style at a time.',
         image: tabImage('academy', 'timeline'),
         narrative:
-          'Walk the timeline from Greek vases to De Stijl grids, meet the long-departed masters, and learn why every era thought the previous one was doing it wrong.',
+          'Walk the timeline from Ancient Egypt to American Regionalism, meet the long-departed masters, and learn why every era thought the previous one was doing it wrong.',
         route: '/academy',
       },
       {

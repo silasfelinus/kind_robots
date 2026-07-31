@@ -1,3 +1,6 @@
+import { useButterflyStore } from '@/stores/butterflyStore'
+import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
+
 const ACTIVE_CLASS = 'kr-startup-active'
 const FADING_CLASS = 'kr-startup-fading'
 const COVER_CLASS = 'kr-full-startup'
@@ -5,10 +8,17 @@ const HANDOFF_CLASS = 'kr-startup-handoff'
 const EFFECT_READY_CLASS = 'kr-startup-effect-ready'
 const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
 
+const EMERGENCY_FADE_AT_MS = 6000
+const FADE_CLEANUP_MS = 700
+
 export default defineNuxtPlugin((nuxtApp) => {
   const root = document.documentElement
+  const butterflyStore = useButterflyStore()
+  const startupStore = useStartupAnimationStore()
+
   let sawLoader = false
   let cleanupTimer: number | null = null
+  let emergencyFadeTimer: number | null = null
 
   function clearCleanupTimer(): void {
     if (cleanupTimer === null) return
@@ -16,8 +26,28 @@ export default defineNuxtPlugin((nuxtApp) => {
     cleanupTimer = null
   }
 
+  function clearEmergencyFadeTimer(): void {
+    if (emergencyFadeTimer === null) return
+    window.clearTimeout(emergencyFadeTimer)
+    emergencyFadeTimer = null
+  }
+
+  function beginFade(): void {
+    const startupActive =
+      root.classList.contains(ACTIVE_CLASS) ||
+      root.classList.contains(COVER_CLASS)
+
+    if (!startupActive) return
+
+    clearEmergencyFadeTimer()
+    root.classList.add(FADING_CLASS)
+    butterflyStore.setShowSwarm(false)
+  }
+
   function cleanup(): void {
     clearCleanupTimer()
+    clearEmergencyFadeTimer()
+    butterflyStore.setShowSwarm(false)
     root.classList.remove(
       ACTIVE_CLASS,
       FADING_CLASS,
@@ -35,7 +65,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       cleanupTimer = null
       cleanup()
       observer.disconnect()
-    }, 700)
+    }, FADE_CLEANUP_MS)
   }
 
   function syncCompositionState(): void {
@@ -52,10 +82,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     if (overlay?.classList.contains('loading-overlay--fade')) {
-      root.classList.add(FADING_CLASS)
+      beginFade()
     }
 
     if (sawLoader && !loader && !overlay) {
+      beginFade()
       scheduleCleanup()
     }
   }
@@ -70,6 +101,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   })
 
   syncCompositionState()
+
+  const elapsedSinceNavigation = performance.now()
+  emergencyFadeTimer = window.setTimeout(() => {
+    emergencyFadeTimer = null
+    if (startupStore.immersive) return
+    beginFade()
+  }, Math.max(0, EMERGENCY_FADE_AT_MS - elapsedSinceNavigation))
 
   nuxtApp.hook('app:mounted', syncCompositionState)
   window.addEventListener('pagehide', cleanup, { once: true })

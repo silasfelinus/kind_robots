@@ -6,7 +6,7 @@
 // written to a path. This keeps upload/save flows working while letting the API
 // stop shipping (and eventually storing) heavy base64 blobs for pathed art.
 
-export type ArtImageLike =
+export type ArtImageSrcLike =
   | {
       imagePath?: string | null
       path?: string | null
@@ -44,7 +44,7 @@ export function toArtDataUri(
 // Renderable source for a full-size ArtImage. Prefers imagePath / path; falls
 // back to inline base64 only when no path exists; then to `fallback`.
 export function resolveArtImageSrc(
-  image: ArtImageLike,
+  image: ArtImageSrcLike,
   fallback = '',
 ): string {
   const path = cleanValue(image?.imagePath) || cleanValue(image?.path)
@@ -55,7 +55,7 @@ export function resolveArtImageSrc(
 // Renderable source for a thumbnail. Prefers thumbnailPath, then the full-size
 // path, then inline thumbnail/full base64, then `fallback`.
 export function resolveArtImageThumbSrc(
-  image: ArtImageLike,
+  image: ArtImageSrcLike,
   fallback = '',
 ): string {
   const path =

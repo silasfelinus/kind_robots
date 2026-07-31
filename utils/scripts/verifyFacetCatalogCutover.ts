@@ -222,7 +222,18 @@ async function main(): Promise<void> {
   requireText(files.generatorStore, text.generatorStore, 'entry.isRandomizable && entry.randomWeight > 0')
   forbidText(files.generatorStore, text.generatorStore, '__facetCatalogPatched')
 
-  requireText(files.builderPlugin, text.builderPlugin, 'hydrateAdventureBuilder')
+  requireText(files.builderPlugin, text.builderPlugin, "import('@/stores/helpers/adventureCards')")
+  requireText(files.builderPlugin, text.builderPlugin, "import('@/stores/helpers/scenarioCards')")
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    'hydrateBuilderCards(ADVENTURE_CARDS, catalog)',
+  )
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    'hydrateBuilderCards(SCENARIO_CARDS, catalog)',
+  )
   requireText(files.builderPlugin, text.builderPlugin, 'Generator methods read this same catalog')
   forbidText(files.builderPlugin, text.builderPlugin, 'patchGenerator')
   forbidText(files.builderPlugin, text.builderPlugin, '__facetCatalogPatched')

@@ -106,16 +106,18 @@ export default defineNitroPlugin((nitroApp) => {
           object-fit: contain;
           filter: drop-shadow(0 1.5rem 3rem rgba(255, 255, 255, 0.2));
           -webkit-mask-image: radial-gradient(
-            ellipse 54% 54% at center,
-            #000 58%,
-            rgba(0, 0, 0, 0.96) 70%,
-            transparent 100%
+            ellipse 50% 47% at 52% 49%,
+            #000 42%,
+            rgba(0, 0, 0, 0.86) 58%,
+            rgba(0, 0, 0, 0.34) 76%,
+            transparent 96%
           );
           mask-image: radial-gradient(
-            ellipse 54% 54% at center,
-            #000 58%,
-            rgba(0, 0, 0, 0.96) 70%,
-            transparent 100%
+            ellipse 50% 47% at 52% 49%,
+            #000 42%,
+            rgba(0, 0, 0, 0.86) 58%,
+            rgba(0, 0, 0, 0.34) 76%,
+            transparent 96%
           );
         }
 

@@ -28,6 +28,7 @@ const [
   loadingMessages,
   startupAnimation,
   startupLaunch,
+  app,
 ] = await Promise.all([
   readFile('server/plugins/00-startup-composition-shell.ts', 'utf8'),
   readFile('assets/css/startup-cover.css', 'utf8'),
@@ -35,6 +36,7 @@ const [
   readFile('components/admin/loading-messages.vue', 'utf8'),
   readFile('components/screenfx/startup-animation.vue', 'utf8'),
   readFile('utils/startupLaunch.ts', 'utf8'),
+  readFile('app.vue', 'utf8'),
 ])
 
 /*
@@ -122,10 +124,13 @@ assert.ok(
   'Close and Resume must dismiss the intro without waiting for stores or media.',
 )
 
-// The intro owns its own backdrop now that the server no longer paints one.
+// Black, effect, and foreground must be separate sibling layers. If the
+// z-50 loader paints black, it hides the z-49 Screen FX along with the site.
 assert.ok(
-  /\.loading-overlay\s*\{[^}]*background:\s*#000/.test(loadingMessages),
-  'The intro overlay must paint its own opaque backdrop.',
+  /\.loading-overlay\s*\{[^}]*background:\s*transparent/.test(loadingMessages) &&
+    app.includes('fixed inset-0 z-48 bg-black') &&
+    app.includes('fixed inset-0 z-50'),
+  'Startup must stack a z-48 black base, z-49 Screen FX, and transparent z-50 loader foreground.',
 )
 
 /*
@@ -163,7 +168,8 @@ assert.ok(
 
 assert.ok(
   bootCover.includes('grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem') &&
-    bootCover.includes('ellipse 54% 54% at center'),
+    bootCover.includes('ellipse 50% 47% at 52% 49%') &&
+    loadingMessages.includes('ellipse 50% 47% at 52% 49%'),
   'The server boot cameo must align with the Vue intro geometry and haze mask so their handoff reads as one logo.',
 )
 

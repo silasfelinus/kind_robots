@@ -155,7 +155,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
 import { useResourceStore } from '@/stores/resourceStore'
-import type { VideoEngine } from '@/stores/videoStore'
+import type { VideoEngine } from '@/utils/videoPresets'
 import type { Resource } from '~/prisma/generated/prisma/client'
 
 type PreviewArtImage = {

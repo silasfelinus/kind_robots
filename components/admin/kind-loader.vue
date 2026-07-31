@@ -40,10 +40,9 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 import { ensureBuildersRegistered } from '@/stores/registerBuilderStore'
 import {
-  clearStartupCover,
   consumeForcedFullStartup,
   isBrowserReload,
-  startupWasAbandoned,
+  markAppReady,
 } from '@/utils/startupLaunch'
 
 const errorStore = useErrorStore()
@@ -71,7 +70,6 @@ const navStore = useNavStore()
 const themeStore = useThemeStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
-const runtimeConfig = useRuntimeConfig()
 
 const emit = defineEmits<{
   covered: []
@@ -80,40 +78,21 @@ const emit = defineEmits<{
 
 type StartupMode = 'full' | 'none'
 
-const STARTUP_STORAGE_KEY = 'kind-robots-startup-build-v1'
-const buildId = String(runtimeConfig.public.buildId || 'development')
-
+/*
+ * A browser refresh skips the intro and goes straight to the site; a fresh
+ * navigation plays it; the dashboard refresh button forces it.
+ *
+ * There used to be an additional localStorage build-id check here, but the
+ * pre-hydration head script cleared that key on every non-reload navigation,
+ * so it always evaluated true and never actually gated anything. Both halves
+ * are gone rather than left as decoration.
+ */
 function shouldShowFullStartupSequence(): boolean {
   if (!import.meta.client) return true
 
-  /*
-   * Checked before anything else, including the forced-reload flag: if the
-   * shell already tore the launch screen down we must not raise a second one,
-   * no matter how we got here. Reveal the site instead.
-   */
-  if (startupWasAbandoned()) {
-    consumeForcedFullStartup()
-    return false
-  }
-
   if (consumeForcedFullStartup()) return true
-  if (isBrowserReload()) return false
 
-  try {
-    return localStorage.getItem(STARTUP_STORAGE_KEY) !== buildId
-  } catch {
-    return true
-  }
-}
-
-function markStartupSequenceSeen(): void {
-  if (!import.meta.client) return
-
-  try {
-    localStorage.setItem(STARTUP_STORAGE_KEY, buildId)
-  } catch {
-    return
-  }
+  return !isBrowserReload()
 }
 
 const startupMode = ref<StartupMode>(
@@ -129,16 +108,17 @@ let initializationPromise: Promise<void> | null = null
 startupStore.reset()
 butterflyStore.setShowSwarm(startupMode.value === 'full')
 
-if (startupMode.value === 'full') {
-  markStartupSequenceSeen()
-}
-
-function releasePrehydrateCover(): void {
+/*
+ * Retires the server-rendered boot cover now that the app is rendering its own
+ * intro. The cover also releases itself through CSS, so this only makes the
+ * handoff prompt — it is never what guarantees the site becomes visible.
+ */
+function releaseBootCover(): void {
   if (!import.meta.client) return
 
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
-      clearStartupCover()
+      markAppReady()
     })
   })
 }
@@ -147,11 +127,11 @@ function handleOverlayCovered() {
   if (coveredEmitted.value) return
   coveredEmitted.value = true
   emit('covered')
-  releasePrehydrateCover()
+  releaseBootCover()
 }
 
 function handleOverlayHiding() {
-  clearStartupCover()
+  markAppReady()
   butterflyStore.setShowSwarm(false)
 }
 

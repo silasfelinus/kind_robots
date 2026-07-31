@@ -132,41 +132,16 @@ const legacyEnginePolyfillScript = `(() => {
 })()`
 
 const startupPrehydrateScript = `(() => {
-  const FORCE_KEY = 'kind-robots-force-full-startup-v1'
-  const SEEN_KEY = 'kind-robots-startup-build-v1'
-  const COVER_CLASS = 'kr-full-startup'
-  const ANIMATION_SRC = ${JSON.stringify(startupAnimationSrc)}
-
-  let forced = false
-  let reloading = false
-
-  try {
-    forced = sessionStorage.getItem(FORCE_KEY) === '1'
-  } catch {}
-
-  try {
-    const navigation = performance.getEntriesByType('navigation')[0]
-    reloading = navigation?.type === 'reload'
-  } catch {}
-
-  const shouldCover = forced || !reloading
-
-  if (shouldCover) {
-    if (!reloading) {
-      try {
-        localStorage.removeItem(SEEN_KEY)
-      } catch {}
-    }
-
-    document.documentElement.classList.add(COVER_CLASS)
-
-    const preload = document.createElement('link')
-    preload.rel = 'preload'
-    preload.as = 'image'
-    preload.href = ANIMATION_SRC
-    preload.fetchPriority = 'high'
-    document.head.appendChild(preload)
-  }
+  // Preload only. This used to also stamp a cover class on <html> and manage
+  // sessionStorage handoff state for a pre-hydration launch screen that no
+  // longer exists; the boot cover is plain markup + CSS, and kind-loader owns
+  // the decision about whether to play the intro.
+  const link = document.createElement('link')
+  link.rel = 'preload'
+  link.as = 'image'
+  link.href = ${JSON.stringify(startupAnimationSrc)}
+  link.fetchPriority = 'high'
+  document.head.appendChild(link)
 })()`
 
 generateWonderLabComponentMetadata()

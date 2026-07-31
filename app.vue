@@ -72,7 +72,7 @@
 
             <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
               <ClientOnly>
-                <workspace-sheet />
+                <LazyWorkspaceSheet />
 
                 <template #fallback>
                   <div
@@ -126,7 +126,7 @@
             class="pointer-events-auto min-w-0 w-full flex-1"
             :style="{ height: 'var(--hand-panel-h)' }"
           >
-            <workspace-hand />
+            <LazyWorkspaceHand />
           </div>
         </Transition>
       </section>

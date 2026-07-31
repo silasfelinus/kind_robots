@@ -65,52 +65,7 @@ export default defineNitroPlugin((nitroApp) => {
             </div>
           </div>
         </div>
-
-        <div class="kr-prehydrate-controls">
-          <span class="kr-prehydrate-controls__name">Startup animation</span>
-          <button
-            type="button"
-            class="kr-prehydrate-controls__button"
-            data-kr-startup-action="explore"
-          >
-            <span aria-hidden="true">✦</span>
-            <span>Pause &amp; explore</span>
-          </button>
-        </div>
       </div>
-
-      <script>
-        (() => {
-          const root = document.documentElement
-          if (!root.classList.contains('kr-full-startup')) return
-
-          root.classList.add('kr-startup-handoff')
-          const queue = window.__KR_STARTUP_ACTION_QUEUE__ || []
-          window.__KR_STARTUP_ACTION_QUEUE__ = queue
-
-          document.addEventListener('click', (event) => {
-            const source = event.target
-            if (!(source instanceof Element)) return
-            const control = source.closest('[data-kr-startup-action]')
-            if (!(control instanceof HTMLElement)) return
-
-            const action = control.dataset.krStartupAction
-            if (!action) return
-
-            event.preventDefault()
-            event.stopPropagation()
-
-            if (window.__KR_STARTUP_BRIDGE_READY__) {
-              window.dispatchEvent(
-                new CustomEvent('kr-startup-action', { detail: action }),
-              )
-              return
-            }
-
-            queue.push(action)
-          }, true)
-        })()
-      </script>
     `)
   })
 })

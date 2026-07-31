@@ -74,6 +74,35 @@ const bodyNumber = (value: unknown): number | undefined => {
 
 export const resetSeedUserCursor = () => {}
 
+// `cy.then(async () => { await fetch(...) })` is a documented Cypress gotcha:
+// Cypress does not apply any command timeout to a promise returned from a
+// `.then()` callback, so a raw `fetch()` inside one can hang the entire spec
+// (and, in CI, the whole 30-minute job) if the endpoint stalls. Bound it
+// explicitly so a stall fails fast with a clear error instead of a silent
+// hang. Used by the two specs that upload multipart images via raw `fetch`
+// (Cypress's own `cy.request()` doesn't support browser `FormData`/`Blob`
+// bodies) — see art-upload.cy.ts and art-image-collection-connections.cy.ts.
+export async function fetchWithTimeout(
+  input: string,
+  init: RequestInit = {},
+  timeoutMs = 45_000,
+): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(input, { ...init, signal: controller.signal })
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Request to ${input} timed out after ${timeoutMs}ms`, {
+        cause: error,
+      })
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export const getApiEnv = () =>
   cy
     .env(['API_KEY', 'BETA_ADMIN_TOKEN', 'ADMIN_TOKEN', 'BASE_API_URL'])

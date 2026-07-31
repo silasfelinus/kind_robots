@@ -1,6 +1,7 @@
 import {
   bearerHeaders,
   createLoggedInTestUser,
+  fetchWithTimeout,
   getApiEnv,
   type TestUserAuth,
 } from '../../support/api-auth'
@@ -37,7 +38,7 @@ function uploadImage(apiBase: string, user: TestUserAuth) {
     formData.append('image', pngBlob(), 'connection-owner.png')
     formData.append('galleryName', 'cypressConnections')
 
-    const response = await fetch(`${apiBase}/art/upload`, {
+    const response = await fetchWithTimeout(`${apiBase}/art/upload`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${user.token}`,

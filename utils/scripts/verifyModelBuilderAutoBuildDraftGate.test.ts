@@ -54,6 +54,8 @@ const FIXED_FIXTURE = `
     const item = findItem(itemId)
     if (!item || !state.run) return false
 
+    if (state.autoBuildingItemId === item.id) return false
+
     const isAsset = item.action === 'ASSET_ONLY'
     const wantArt = state.includeArt && item.generation === 'image'
 
@@ -108,9 +110,10 @@ const MISSING_FIXTURE = `
 const buggyErrors = checkAutoBuildDraftGate(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
-  3,
-  'expected the pre-fix shape (all three discarded draftText results) to ' +
-    `raise 3 errors, got ${buggyErrors.length}: ${JSON.stringify(buggyErrors)}`,
+  4,
+  'expected the pre-fix shape (three discarded draftText results plus the ' +
+    'missing same-item reentrancy guard) to raise 4 errors, got ' +
+    `${buggyErrors.length}: ${JSON.stringify(buggyErrors)}`,
 )
 assert.ok(
   buggyErrors.some((e) => e.includes("'pitch'") && e.includes('discarded')),
@@ -124,6 +127,10 @@ assert.ok(
   buggyErrors.some((e) => e.includes("'artPrompt'") && e.includes('discarded')),
   'expected a violation for the discarded artPrompt draft result',
 )
+assert.ok(
+  buggyErrors.some((e) => e.includes('autoBuildingItemId')),
+  'expected a violation for the missing same-item reentrancy guard',
+)
 
 const fixedErrors = checkAutoBuildDraftGate(FIXED_FIXTURE)
 assert.equal(
@@ -131,6 +138,18 @@ assert.equal(
   0,
   `expected the fixed shape to raise no errors, got: ${JSON.stringify(fixedErrors)}`,
 )
+
+const REENTRANT_FIXTURE = FIXED_FIXTURE.replace(
+  '    if (state.autoBuildingItemId === item.id) return false\n\n',
+  '',
+)
+const reentrantErrors = checkAutoBuildDraftGate(REENTRANT_FIXTURE)
+assert.equal(
+  reentrantErrors.length,
+  1,
+  'expected exactly one violation when only the same-item reentrancy guard is missing',
+)
+assert.ok(reentrantErrors[0]!.includes('autoBuildingItemId'))
 
 const missingFnErrors = checkAutoBuildDraftGate(MISSING_FIXTURE)
 assert.equal(

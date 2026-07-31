@@ -1,30 +1,14 @@
 # AI README for Kind Robots
 
-Last updated: 2026-06-23
+Last updated: 2026-07-31
 
-This file is a shared handoff note for future AI coding sessions helping Silas with Kind Robots.
+This file is the **session handoff note** — current focus, what's in flight, what the last
+session left behind. It goes stale on purpose.
 
-## Project conventions
-
-- Nuxt 4, Vue 3, TypeScript, Prisma, MariaDB.
-- Server routes live under `/server/api`.
-- Frontend state and data flow should go through Pinia stores.
-- Styling uses Tailwind and DaisyUI.
-- Prefer complete copy-pasteable code when requested.
-
-## Database migration rules (standing, from Silas 2026-07-02)
-
-- NEVER run `prisma migrate reset` or any command that drops/recreates the
-  database. The database contains real data. Resets happen only under specific
-  circumstances that Silas declares explicitly in the session — never as a
-  convenience fix for drift or a failed migration.
-- Never rename or edit a migration folder that may have been applied anywhere
-  (any dev machine counts). Ship a new migration instead (e.g.
-  `ALTER TABLE ... CHANGE COLUMN`), even for cosmetic renames.
-- To repair drift or a failed migration, prefer targeted, data-preserving
-  steps: `prisma db execute` for surgical SQL, fix `_prisma_migrations`
-  bookkeeping, then `prisma migrate resolve --applied <name>` — and explain
-  what happened.
+**The standing rules moved to [AGENTS.md](./AGENTS.md).** Read that first: stack, code
+conventions, database safety rules, routes/surfaces precedence, art pipeline, and the
+shared-behavior audit list. It applies to every agent regardless of origin and does not go
+stale. Don't restate its rules here — update them there.
 
 ## Current focus
 

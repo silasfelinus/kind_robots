@@ -28,7 +28,6 @@
 
     <div
       v-if="showControls"
-      ref="controlsElement"
       class="startup-animation__controls"
       :class="{
         'startup-animation__controls--active': startupStore.controlsActive,
@@ -116,14 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
 import type { AnimationEffectId } from '@/stores/animationCatalog'
 import { useAnimationStore } from '@/stores/animationStore'
@@ -133,40 +125,19 @@ import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 
 defineOptions({ inheritAttrs: false })
 
-type StartupBridgeAction =
-  | 'explore'
-  | 'previous'
-  | 'random'
-  | 'next'
-  | 'resume'
-  | 'exit'
-
-type StartupBridgeWindow = Window & {
-  __KR_STARTUP_ACTION_QUEUE__?: string[]
-  __KR_STARTUP_BRIDGE_READY__?: boolean
-}
-
-const HANDOFF_CLASS = 'kr-startup-handoff'
-const EFFECT_READY_CLASS = 'kr-startup-effect-ready'
-const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
-const BRIDGE_EVENT = 'kr-startup-action'
-
 const animationStore = useAnimationStore()
 const preferenceStore = useAnimationPreferenceStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
 
-const controlsElement = ref<HTMLElement | null>(null)
 const resolvedEffectId = ref<AnimationEffectId | null>(null)
 const renderEffect = ref(false)
 const effectReady = ref(false)
 const isFading = ref(false)
 
 const FADE_MS = 650
-const HANDOFF_FADE_MS = 340
 
 let fadeTimer: ReturnType<typeof setTimeout> | null = null
-let handoffTimer: ReturnType<typeof setTimeout> | null = null
 
 const availableEffectIds = computed(() => {
   return animationStore.safeEffects
@@ -213,64 +184,11 @@ function clearFadeTimer(): void {
   fadeTimer = null
 }
 
-function clearHandoffTimer(): void {
-  if (!handoffTimer) return
-  clearTimeout(handoffTimer)
-  handoffTimer = null
-}
-
-function finishHandoffIfReady(): void {
-  if (!import.meta.client) return
-
-  const root = document.documentElement
-  if (!root.classList.contains(EFFECT_READY_CLASS)) return
-  if (!root.classList.contains(CONTROLS_READY_CLASS)) return
-  if (!root.classList.contains(HANDOFF_CLASS)) return
-
-  clearHandoffTimer()
-  handoffTimer = setTimeout(() => {
-    root.classList.remove(HANDOFF_CLASS)
-    handoffTimer = null
-  }, HANDOFF_FADE_MS)
-}
-
-function markControlsReady(): void {
-  if (!import.meta.client) return
-  document.documentElement.classList.add(CONTROLS_READY_CLASS)
-  finishHandoffIfReady()
-}
-
-async function syncControlsHandoff(): Promise<void> {
-  if (!import.meta.client) return
-  if (!showControls.value) return
-  if (!resolvedEffectId.value) return
-  if (!currentComponent.value) return
-  if (!currentEffectLabel.value) return
-
-  await nextTick()
-  if (!controlsElement.value) return
-
-  markControlsReady()
-}
-
-function handleEffectReady(): void {
-  effectReady.value = true
-
-  if (!import.meta.client) return
-  document.documentElement.classList.add(EFFECT_READY_CLASS)
-  void syncControlsHandoff()
-  finishHandoffIfReady()
-}
-
 function setEffect(effectId: AnimationEffectId | null): void {
   resolvedEffectId.value = effectId
   renderEffect.value = Boolean(effectId)
   effectReady.value = false
   isFading.value = false
-
-  if (!effectId && import.meta.client) {
-    document.documentElement.classList.remove(CONTROLS_READY_CLASS)
-  }
 }
 
 function selectEffect(): void {
@@ -310,45 +228,6 @@ function selectRandomEffect(): void {
   setEffect(pool[index] ?? ids[0] ?? null)
 }
 
-function applyBridgeAction(action: string): void {
-  switch (action as StartupBridgeAction) {
-    case 'explore':
-      startupStore.enterControlMode()
-      break
-    case 'previous':
-      selectPreviousEffect()
-      break
-    case 'random':
-      selectRandomEffect()
-      break
-    case 'next':
-      selectNextEffect()
-      break
-    case 'resume':
-      startupStore.leaveControlMode()
-      break
-    case 'exit':
-      startupStore.requestExit()
-      break
-  }
-}
-
-function handleBridgeEvent(event: Event): void {
-  const action = (event as CustomEvent<string>).detail
-  if (typeof action !== 'string') return
-  applyBridgeAction(action)
-}
-
-function consumeBridgeQueue(): void {
-  if (!import.meta.client) return
-
-  const bridgeWindow = window as StartupBridgeWindow
-  const queue = bridgeWindow.__KR_STARTUP_ACTION_QUEUE__ ?? []
-  bridgeWindow.__KR_STARTUP_ACTION_QUEUE__ = []
-
-  queue.forEach(applyBridgeAction)
-}
-
 function fadeOut(): void {
   if (!renderEffect.value || isFading.value) return
 
@@ -381,31 +260,8 @@ watch(
   { immediate: true },
 )
 
-watch(
-  [showControls, resolvedEffectId, currentComponent, currentEffectLabel],
-  () => {
-    void syncControlsHandoff()
-  },
-)
-
-onMounted(() => {
-  const bridgeWindow = window as StartupBridgeWindow
-
-  window.addEventListener(BRIDGE_EVENT, handleBridgeEvent)
-  bridgeWindow.__KR_STARTUP_BRIDGE_READY__ = true
-  consumeBridgeQueue()
-  void syncControlsHandoff()
-})
-
 onBeforeUnmount(() => {
   clearFadeTimer()
-  clearHandoffTimer()
-
-  if (import.meta.client) {
-    const bridgeWindow = window as StartupBridgeWindow
-    bridgeWindow.__KR_STARTUP_BRIDGE_READY__ = false
-    window.removeEventListener(BRIDGE_EVENT, handleBridgeEvent)
-  }
 })
 </script>
 

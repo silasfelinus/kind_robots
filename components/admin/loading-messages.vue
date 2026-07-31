@@ -38,7 +38,6 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoadStore } from '../../stores/loadStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
-import { consumeStartupStartedAt } from '@/utils/startupLaunch'
 
 const props = defineProps<{ storesReady: boolean }>()
 const emit = defineEmits<{
@@ -213,12 +212,10 @@ watch(
 )
 
 onMounted(() => {
+  // Timed from mount, never from navigation start: the app can hydrate many
+  // seconds after navigation, and the intro should run for its own duration
+  // once it is actually on screen.
   sequenceStartedAt = performance.now()
-
-  // Consumed purely to clear the sessionStorage handoff key; the intro no
-  // longer times itself from navigation start (performance.timeOrigin), which
-  // could already be seconds in the past by the time we mount.
-  consumeStartupStartedAt()
 
   emit('covered')
 
@@ -250,7 +247,12 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: transparent;
+  /*
+   * Opaque on purpose. The intro used to sit on top of a separate
+   * server-rendered black base; now it owns its own backdrop, so it can never
+   * end up as text floating over a half-revealed site.
+   */
+  background: #000;
   opacity: 1;
   transition: opacity 650ms ease;
   pointer-events: auto;

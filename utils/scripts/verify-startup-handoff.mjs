@@ -174,6 +174,16 @@ assert.ok(
 )
 
 assert.ok(
+  /\.loading-heading,\s*\.loading-status\s*\{[^}]*position:\s*relative;[^}]*z-index:\s*2;/s.test(
+    loadingMessages,
+  ) &&
+    /\.loading-logo-frame\s*\{[^}]*position:\s*relative;[^}]*z-index:\s*1;/s.test(
+      loadingMessages,
+    ),
+  'Startup heading, spinner, and rotating message must paint above the positioned launch media.',
+)
+
+assert.ok(
   startupLaunch.includes('export function markAppReady') &&
     kindLoader.includes('markAppReady()'),
   'The app must signal readiness so the boot cover can retire early.',

@@ -1,0 +1,42 @@
+name: Startup Handoff Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'components/screenfx/startup-animation.vue'
+      - 'plugins/startup-composition.client.ts'
+      - 'server/plugins/startup-loader-shell.ts'
+      - 'utils/scripts/verify-startup-handoff.mjs'
+      - '.github/workflows/startup-handoff-contract.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/screenfx/startup-animation.vue'
+      - 'plugins/startup-composition.client.ts'
+      - 'server/plugins/startup-loader-shell.ts'
+      - 'utils/scripts/verify-startup-handoff.mjs'
+      - '.github/workflows/startup-handoff-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: startup-handoff-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  startup-handoff:
+    name: Verify startup handoff lifecycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify startup handoff
+        run: node utils/scripts/verify-startup-handoff.mjs

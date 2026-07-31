@@ -253,8 +253,12 @@ export default defineNuxtPlugin(() => {
         import('@/stores/registerBuilderStore'),
       ])
 
-      hydrateBuilderCards(ADVENTURE_CARDS, catalog)
-      hydrateBuilderCards(SCENARIO_CARDS, catalog)
+      const hydrateAdventureBuilder = () =>
+        hydrateBuilderCards(ADVENTURE_CARDS, catalog)
+      const hydrateScenarioBuilder = () =>
+        hydrateBuilderCards(SCENARIO_CARDS, catalog)
+      hydrateAdventureBuilder()
+      hydrateScenarioBuilder()
       hydrateBotBuilder(BOT_CARDS, catalog)
       hydrateArtBuilder(ART_CARDS, catalog)
       hydrateSystemBuilder(DREAM_CARDS, catalog)

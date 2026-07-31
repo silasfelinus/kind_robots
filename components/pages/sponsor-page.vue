@@ -131,8 +131,11 @@
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
+/*
+ * Poppins is loaded non-blockingly from nuxt.config's head script. See the note
+ * in login-page.vue: a remote `@import` in a component style block lands in the
+ * render-blocking global CSS and stalls app hydration behind fonts.googleapis.com.
+ */
 :root {
   --base-color: #ffcc00; /* Placeholder, replace with your actual color */
   --accent-color: #ff5733; /* Placeholder, replace with your actual accent color */

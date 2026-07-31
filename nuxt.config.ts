@@ -72,6 +72,50 @@ const startupPrehydrateScript = `(() => {
   }
 })()`
 
+/*
+ * Webfonts must never be able to stall the app.
+ *
+ * These were CSS \`@import url(...)\` statements inside component <style> blocks
+ * (login-page.vue, sponsor-page.vue). Vite hoists those into the bundled global
+ * stylesheet, and a pending stylesheet blocks script execution — so hydration of
+ * the whole application waited on fonts.googleapis.com. Measured at 12.7s in one
+ * environment, and unbounded for anyone whose network blocks Google Fonts
+ * (ad/tracker blockers, DNS filtering, school and corporate networks). The
+ * symptom is total: the startup animation never fades and its controls never
+ * become interactive, because no Vue ever mounts to run them.
+ *
+ * media="print" makes the browser fetch the sheet without treating it as
+ * render-blocking; the onload handler promotes it once it has arrived. If it
+ * never arrives, the app is entirely unaffected.
+ */
+const asyncFontHrefs = [
+  'https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap',
+  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
+]
+
+const asyncFontScript = `(() => {
+  const HREFS = ${JSON.stringify(asyncFontHrefs)}
+
+  // Deliberately deferred to the load event. Appending a stylesheet from a
+  // parser-inserted script — even with media="print" — makes it a pending
+  // stylesheet that blocks the parser and every script after it, which is the
+  // exact failure being fixed here (measured: the renderer stayed blocked for
+  // as long as fonts.googleapis.com hung). After load, nothing is left to block.
+  const addFontLinks = () => {
+    for (const href of HREFS) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = href
+      link.media = 'print'
+      link.addEventListener('load', () => { link.media = 'all' }, { once: true })
+      document.head.appendChild(link)
+    }
+  }
+
+  if (document.readyState === 'complete') addFontLinks()
+  else window.addEventListener('load', addFontLinks, { once: true })
+})()`
+
 generateWonderLabComponentMetadata()
 
 export default defineNuxtConfig({
@@ -81,6 +125,10 @@ export default defineNuxtConfig({
       script: [
         {
           innerHTML: startupPrehydrateScript,
+          tagPosition: 'head',
+        },
+        {
+          innerHTML: asyncFontScript,
           tagPosition: 'head',
         },
       ],

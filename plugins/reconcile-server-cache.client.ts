@@ -17,51 +17,59 @@ type ServerListResponse = {
  * localStorage. Reconcile once during client bootstrap so API membership is
  * authoritative while matching cached fields remain available.
  */
-export default defineNuxtPlugin(async () => {
+/*
+ * Not async at the plugin level: Nuxt awaits a plugin's returned promise before
+ * mounting the Vue app, so awaiting /api/server here blocked the whole app on a
+ * network call. The reconcile is a cache-correctness pass, not a prerequisite
+ * for rendering, so it runs in the background.
+ */
+export default defineNuxtPlugin(() => {
   const serverStore = useServerStore()
 
   if (!serverStore.isInitialized) {
     serverStore.loadFromLocalStorage()
   }
 
-  const cachedIds = new Set(serverStore.servers.map((server) => server.id))
-  const response = (await performFetch('/api/server')) as ServerListResponse
+  void (async () => {
+    const cachedIds = new Set(serverStore.servers.map((server) => server.id))
+    const response = (await performFetch('/api/server')) as ServerListResponse
 
-  if (!response.success || !Array.isArray(response.data)) return
+    if (!response.success || !Array.isArray(response.data)) return
 
-  const nextServers = reconcileServerRows(serverStore.servers, response.data)
-  const liveIds = new Set(nextServers.map((server) => server.id))
-  const removedIds = [...cachedIds].filter((id) => !liveIds.has(id))
+    const nextServers = reconcileServerRows(serverStore.servers, response.data)
+    const liveIds = new Set(nextServers.map((server) => server.id))
+    const removedIds = [...cachedIds].filter((id) => !liveIds.has(id))
 
-  serverStore.servers.splice(0, serverStore.servers.length, ...nextServers)
+    serverStore.servers.splice(0, serverStore.servers.length, ...nextServers)
 
-  if (
-    serverStore.selectedServer &&
-    !liveIds.has(serverStore.selectedServer.id)
-  ) {
-    serverStore.selectedServer = null
-    serverStore.serverForm = {}
-  }
+    if (
+      serverStore.selectedServer &&
+      !liveIds.has(serverStore.selectedServer.id)
+    ) {
+      serverStore.selectedServer = null
+      serverStore.serverForm = {}
+    }
 
-  if (
-    typeof serverStore.activeArtServerId === 'number' &&
-    !liveIds.has(serverStore.activeArtServerId)
-  ) {
-    serverStore.activeArtServerId = null
-  }
+    if (
+      typeof serverStore.activeArtServerId === 'number' &&
+      !liveIds.has(serverStore.activeArtServerId)
+    ) {
+      serverStore.activeArtServerId = null
+    }
 
-  if (
-    typeof serverStore.activeTextServerId === 'number' &&
-    !liveIds.has(serverStore.activeTextServerId)
-  ) {
-    serverStore.activeTextServerId = null
-  }
+    if (
+      typeof serverStore.activeTextServerId === 'number' &&
+      !liveIds.has(serverStore.activeTextServerId)
+    ) {
+      serverStore.activeTextServerId = null
+    }
 
-  for (const id of removedIds) {
-    delete serverStore.healthResults[id]
-    serverStore.clearRuntimeReport(id)
-  }
+    for (const id of removedIds) {
+      delete serverStore.healthResults[id]
+      serverStore.clearRuntimeReport(id)
+    }
 
-  serverStore.hasLoaded = true
-  serverStore.syncToLocalStorage()
+    serverStore.hasLoaded = true
+    serverStore.syncToLocalStorage()
+  })()
 })

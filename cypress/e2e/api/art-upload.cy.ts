@@ -1,6 +1,7 @@
 import {
   bearerHeaders,
   createLoggedInTestUser,
+  fetchWithTimeout,
   getApiEnv,
   type TestUserAuth,
 } from '../../support/api-auth'
@@ -47,7 +48,7 @@ function uploadMultipart<T>(
       formData.append(name, value)
     }
 
-    const response = await fetch(`${apiBase}/art/upload`, {
+    const response = await fetchWithTimeout(`${apiBase}/art/upload`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

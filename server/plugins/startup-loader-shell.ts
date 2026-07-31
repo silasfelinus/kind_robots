@@ -109,10 +109,6 @@ export default defineNitroPlugin((nitroApp) => {
 
             queue.push(action)
           }, true)
-
-          window.setTimeout(() => {
-            root.classList.remove('kr-startup-handoff')
-          }, 8000)
         })()
       </script>
     `)

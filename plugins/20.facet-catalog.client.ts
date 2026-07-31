@@ -101,7 +101,9 @@ function hydrateBotBuilder(
         step.choices = [...canonical, ...controls]
         step.listOptions = canonical.map((choice) => choice.value)
       } else {
-        const visualChoices = canonical.filter((choice) => Boolean(choice.image))
+        const visualChoices = canonical.filter((choice) =>
+          Boolean(choice.image),
+        )
         const listChoices = canonical.filter((choice) => !choice.image)
         const moreChoice: BuilderChoice[] = listChoices.length
           ? [
@@ -223,25 +225,38 @@ function hydrateSystemBuilder(
   }
 }
 
-export default defineNuxtPlugin(async () => {
+/*
+ * MUST NOT be an async plugin. Nuxt awaits the promise a plugin returns before
+ * it mounts the Vue app, so awaiting this catalog fetch here held the entire
+ * application hostage to one network round trip — up to its own 10s timeout,
+ * and indefinitely if the request never settled. Nothing rendered in that
+ * window: no loading overlay, no startup controls, no site.
+ *
+ * The Builders this hydrates are re-registered when the fetch resolves, so
+ * running it in the background is correct; callers already tolerate an
+ * unpopulated catalog (the `!catalog.entries.length` bail below predates this).
+ */
+export default defineNuxtPlugin(() => {
   const catalog = useFacetCatalogStore()
 
-  try {
-    await catalog.fetchCatalog({ includeMature: true, take: 1000 }, true)
-    if (!catalog.entries.length) return
+  void (async () => {
+    try {
+      await catalog.fetchCatalog({ includeMature: true, take: 1000 }, true)
+      if (!catalog.entries.length) return
 
-    hydrateAdventureBuilder(catalog)
-    hydrateScenarioBuilder(catalog)
-    hydrateBotBuilder(catalog)
-    hydrateArtBuilder(catalog)
-    hydrateSystemBuilder(DREAM_CARDS, catalog)
-    hydrateSystemBuilder(REWARD_CARDS, catalog)
+      hydrateAdventureBuilder(catalog)
+      hydrateScenarioBuilder(catalog)
+      hydrateBotBuilder(catalog)
+      hydrateArtBuilder(catalog)
+      hydrateSystemBuilder(DREAM_CARDS, catalog)
+      hydrateSystemBuilder(REWARD_CARDS, catalog)
 
-    // Registration stores the same mutable card graphs. Re-register after the
-    // async catalog fetch so mounted Builders observe canonical choices immediately.
-    // Generator methods read this same catalog directly and need no runtime patching.
-    ensureBuildersRegistered(true)
-  } catch (error) {
-    console.error('[facet-catalog] Canonical Facet hydration failed.', error)
-  }
+      // Registration stores the same mutable card graphs. Re-register after the
+      // async catalog fetch so mounted Builders observe canonical choices immediately.
+      // Generator methods read this same catalog directly and need no runtime patching.
+      ensureBuildersRegistered(true)
+    } catch (error) {
+      console.error('[facet-catalog] Canonical Facet hydration failed.', error)
+    }
+  })()
 })

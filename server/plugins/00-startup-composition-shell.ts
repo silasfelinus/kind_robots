@@ -118,13 +118,13 @@ export default defineNitroPlugin((nitroApp) => {
         html.kr-full-startup .loader-root,
         html.kr-full-startup .startup-animation__stage,
         html.kr-full-startup .startup-animation__controls {
-          animation: kr-startup-css-hard-stop 700ms ease 11500ms forwards !important;
+          animation: kr-startup-css-hard-stop 700ms ease 8300ms forwards !important;
         }
 
         html.kr-full-startup,
         html.kr-startup-handoff,
         html.kr-full-startup .kr-shell.bg-black {
-          animation: kr-startup-css-root-release 1ms linear 12200ms forwards !important;
+          animation: kr-startup-css-root-release 1ms linear 9000ms forwards !important;
         }
 
         html.kr-startup-user-explore,
@@ -217,13 +217,14 @@ export default defineNitroPlugin((nitroApp) => {
           const FORCE_KEY = 'kind-robots-force-full-startup-v1'
           const STARTED_AT_KEY = 'kind-robots-startup-started-at-v1'
           /*
-           * Emergency only. The hydrated intro fades itself by ~5.7s worst case
-           * (loading-messages.vue INTRO_MAX_MS + fade), so this deadline must
-           * stay clear of it. At 9000ms this watchdog was firing *before* the
-           * normal fade could ever run on a slow load and hard-cutting the
-           * launch screen instead — which read as "the fade never happens".
+           * Emergency only, and deliberately NOT pushed further out. The
+           * hydrated intro fades itself by ~5.7s worst case (loading-messages.vue
+           * INTRO_MAX_MS + fade), so 9s already clears it. When hydration blocks
+           * the main thread this watchdog and the CSS hard stop are the only
+           * things that still work, so delaying them only lengthens the time a
+           * user stares at a frozen launch screen.
            */
-          const WATCHDOG_MS = 12000
+          const WATCHDOG_MS = 9000
           const FADE_MS = 700
           const BRIDGE_EVENT = 'kr-startup-action'
           const traceState = {

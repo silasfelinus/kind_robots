@@ -320,8 +320,14 @@ function handleRetryLogin(): void {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap');
-
+/*
+ * The Syne webfont is loaded non-blockingly from nuxt.config's head script.
+ * It used to be an `@import url(...)` here, which Vite hoists into the bundled
+ * global CSS — and a pending stylesheet blocks script execution, so this one
+ * login-page font gated hydration of the entire app on a third-party request.
+ * Anyone whose network blocks or slows fonts.googleapis.com never got a
+ * working site. Do not reintroduce a remote @import in component styles.
+ */
 .font-display {
   font-family: 'Syne', sans-serif;
 }

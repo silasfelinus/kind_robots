@@ -31,25 +31,47 @@ assert.ok(
 )
 
 assert.ok(
-  !startupShell.includes('kr-prehydrate-controls') &&
-    !startupShell.includes('data-kr-startup-action'),
-  'The server shell must not render a fake control panel that can become an untappable ghost.',
+  startupShell.includes('kr-prehydrate-controls') &&
+    startupShell.includes('data-kr-startup-action="explore"') &&
+    startupShell.includes('data-kr-startup-action="exit"'),
+  'The server shell must render visible controls before Vue hydration.',
+)
+
+assert.ok(
+  compositionShell.includes('__KR_STARTUP_ACTION_QUEUE__') &&
+    compositionShell.includes("const BRIDGE_EVENT = 'kr-startup-action'") &&
+    compositionShell.includes('forwardBridgeAction(action)'),
+  'Pre-hydration controls must bridge queued actions into the real Vue controls.',
 )
 
 assert.ok(
   compositionShell.includes('__KR_STARTUP_SHELL_WATCHDOG__') &&
     compositionShell.includes('const WATCHDOG_MS = 9000'),
-  'The server-rendered startup cover must have a hydration-independent hard stop.',
+  'The server-rendered startup cover must have a hydration-independent JS hard stop.',
+)
+
+assert.ok(
+  compositionShell.includes('@keyframes kr-startup-css-hard-stop') &&
+    compositionShell.includes('8300ms forwards !important') &&
+    compositionShell.includes('@keyframes kr-startup-css-root-release'),
+  'The startup cover must also release through CSS when the main JS thread is blocked.',
+)
+
+assert.ok(
+  compositionShell.includes('.kr-boot-curtain') &&
+    compositionShell.includes('.kr-shell.bg-black'),
+  'The compositor hard stop must release both the boot curtain and black app shell.',
 )
 
 assert.ok(
   compositionShell.includes("sessionStorage.removeItem(FORCE_KEY)") &&
     compositionShell.includes("sessionStorage.removeItem(STARTED_AT_KEY)"),
-  'The hard stop must clear sticky forced-startup session state.',
+  'The JS hard stop must clear sticky forced-startup session state.',
 )
 
 assert.ok(
   compositionShell.includes('__KR_STARTUP_USER_EXPLORE__ === true') &&
+    compositionShell.includes('kr-startup-user-explore') &&
     !compositionShell.includes(
       "if (document.querySelector('.startup-animation__controls--active'))",
     ),
@@ -59,8 +81,9 @@ assert.ok(
 assert.ok(
   compositionShell.includes("fetch('/api/startup/trace'") &&
     compositionShell.includes("record('shell:snapshot'") &&
+    compositionShell.includes('prehydrateControls: Boolean') &&
     traceEndpoint.includes("console.info(`[startup-trace]"),
-  'Mobile startup must report structured lifecycle snapshots to production runtime logs.',
+  'Mobile startup must report structured lifecycle snapshots and server-control presence.',
 )
 
 assert.ok(
@@ -109,4 +132,4 @@ assert.ok(
   'Startup remounts must not erase an already-issued exit request.',
 )
 
-console.log('Startup trace and hard-stop contract passed.')
+console.log('Startup controls, telemetry, and hard-stop contract passed.')

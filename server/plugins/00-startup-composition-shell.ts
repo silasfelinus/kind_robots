@@ -32,6 +32,31 @@ export default defineNitroPlugin((nitroApp) => {
           touch-action: manipulation;
         }
 
+        .kr-prehydrate-controls__group {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2rem;
+        }
+
+        .kr-prehydrate-controls__active-only {
+          display: none;
+        }
+
+        .kr-prehydrate-controls--active .kr-prehydrate-controls__active-only {
+          display: inline-flex;
+        }
+
+        .kr-prehydrate-controls--active .kr-prehydrate-controls__compact-only {
+          display: none;
+        }
+
+        .kr-prehydrate-controls__exit {
+          min-width: 1.65rem;
+          justify-content: center;
+          font-size: 1rem;
+          line-height: 1;
+        }
+
         .kr-prehydrate-media,
         .loading-logo {
           -webkit-mask-image: radial-gradient(
@@ -68,6 +93,7 @@ export default defineNitroPlugin((nitroApp) => {
         html.kr-startup-fading .loading-overlay,
         html.kr-startup-fading .kr-prehydrate-effect,
         html.kr-startup-fading .kr-prehydrate-content,
+        html.kr-startup-fading .kr-prehydrate-controls,
         html.kr-startup-fading .startup-animation__stage,
         html.kr-startup-fading .startup-animation__controls,
         html:has(.loading-overlay--fade) .startup-animation__stage,
@@ -75,6 +101,63 @@ export default defineNitroPlugin((nitroApp) => {
           opacity: 0 !important;
           transition: opacity 650ms ease !important;
           pointer-events: none !important;
+        }
+
+        /*
+         * This is intentionally CSS-driven. On the iPad failure the main JS
+         * thread stops servicing timers after hydration begins, while animated
+         * images and compositor animations continue. The startup cover must
+         * therefore become invisible without requiring another JS callback.
+         */
+        html.kr-full-startup .kr-startup-black-base,
+        html.kr-full-startup .kr-prehydrate-content,
+        html.kr-full-startup:not(.kr-startup-effect-ready) .kr-prehydrate-effect,
+        html.kr-full-startup:not(.kr-startup-controls-ready) .kr-prehydrate-controls,
+        html.kr-full-startup .kr-boot-curtain,
+        html.kr-full-startup .loading-overlay,
+        html.kr-full-startup .loader-root,
+        html.kr-full-startup .startup-animation__stage,
+        html.kr-full-startup .startup-animation__controls {
+          animation: kr-startup-css-hard-stop 700ms ease 8300ms forwards !important;
+        }
+
+        html.kr-full-startup,
+        html.kr-startup-handoff,
+        html.kr-full-startup .kr-shell.bg-black {
+          animation: kr-startup-css-root-release 1ms linear 9000ms forwards !important;
+        }
+
+        html.kr-startup-user-explore,
+        html.kr-startup-user-explore .kr-startup-black-base,
+        html.kr-startup-user-explore .kr-prehydrate-content,
+        html.kr-startup-user-explore .kr-prehydrate-effect,
+        html.kr-startup-user-explore .kr-prehydrate-controls,
+        html.kr-startup-user-explore .kr-boot-curtain,
+        html.kr-startup-user-explore .loading-overlay,
+        html.kr-startup-user-explore .loader-root,
+        html.kr-startup-user-explore .startup-animation__stage,
+        html.kr-startup-user-explore .startup-animation__controls,
+        html.kr-startup-user-explore .kr-shell.bg-black {
+          animation-play-state: paused !important;
+        }
+
+        @keyframes kr-startup-css-hard-stop {
+          from {
+            opacity: 1;
+            visibility: visible;
+          }
+
+          to {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+          }
+        }
+
+        @keyframes kr-startup-css-root-release {
+          to {
+            background-color: transparent;
+          }
         }
 
         @media (max-width: 639px) {
@@ -105,6 +188,10 @@ export default defineNitroPlugin((nitroApp) => {
             max-width: calc(100vw - 1.5rem) !important;
             font-size: clamp(0.95rem, 4.5vw, 1.25rem) !important;
           }
+
+          .kr-prehydrate-controls__wide-label {
+            display: none;
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -112,6 +199,7 @@ export default defineNitroPlugin((nitroApp) => {
           html.kr-startup-fading .loading-overlay,
           html.kr-startup-fading .kr-prehydrate-effect,
           html.kr-startup-fading .kr-prehydrate-content,
+          html.kr-startup-fading .kr-prehydrate-controls,
           html.kr-startup-fading .startup-animation__stage,
           html.kr-startup-fading .startup-animation__controls,
           html:has(.loading-overlay--fade) .startup-animation__stage,
@@ -130,6 +218,7 @@ export default defineNitroPlugin((nitroApp) => {
           const STARTED_AT_KEY = 'kind-robots-startup-started-at-v1'
           const WATCHDOG_MS = 9000
           const FADE_MS = 700
+          const BRIDGE_EVENT = 'kr-startup-action'
           const traceState = {
             traceId:
               Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
@@ -145,6 +234,9 @@ export default defineNitroPlugin((nitroApp) => {
             dom: {
               prehydrate: Boolean(document.querySelector('.kr-prehydrate-loader')),
               blackBase: Boolean(document.querySelector('.kr-startup-black-base')),
+              prehydrateControls: Boolean(
+                document.querySelector('.kr-prehydrate-controls'),
+              ),
               loaderRoot: Boolean(document.querySelector('.loader-root')),
               overlay: Boolean(document.querySelector('.loading-overlay')),
               overlayFading: Boolean(
@@ -192,12 +284,102 @@ export default defineNitroPlugin((nitroApp) => {
             }).catch(() => {})
           }
 
+          const removeStartupNodes = () => {
+            document
+              .querySelectorAll(
+                '.kr-prehydrate-loader, .kr-startup-black-base, .loading-overlay, .loader-root',
+              )
+              .forEach((element) => element.remove())
+          }
+
+          const clearStartupClasses = () => {
+            root.classList.remove(
+              'kr-full-startup',
+              'kr-startup-active',
+              'kr-startup-handoff',
+              'kr-startup-fading',
+              'kr-startup-effect-ready',
+              'kr-startup-controls-ready',
+              'kr-startup-user-explore',
+            )
+          }
+
+          const beginShellExit = (reason) => {
+            if (
+              !root.classList.contains('kr-full-startup') &&
+              !root.classList.contains('kr-startup-active')
+            ) {
+              return
+            }
+
+            window.__KR_STARTUP_USER_EXPLORE__ = false
+            root.classList.remove('kr-startup-user-explore')
+            root.classList.add('kr-startup-fading')
+            record('shell:begin-exit', { reason })
+
+            window.setTimeout(() => {
+              clearStartupClasses()
+              removeStartupNodes()
+              record('shell:exit-cleanup', { reason })
+              flush('shell-exit-' + reason)
+            }, FADE_MS)
+          }
+
+          const forwardBridgeAction = (action) => {
+            if (window.__KR_STARTUP_BRIDGE_READY__ === true) {
+              window.dispatchEvent(new CustomEvent(BRIDGE_EVENT, { detail: action }))
+              return
+            }
+
+            const queue = window.__KR_STARTUP_ACTION_QUEUE__ || []
+            queue.push(action)
+            window.__KR_STARTUP_ACTION_QUEUE__ = queue
+          }
+
+          const setExploreMode = (enabled) => {
+            window.__KR_STARTUP_USER_EXPLORE__ = enabled
+            root.classList.toggle('kr-startup-user-explore', enabled)
+            document
+              .querySelector('.kr-prehydrate-controls')
+              ?.classList.toggle('kr-prehydrate-controls--active', enabled)
+          }
+
           window.__KR_STARTUP_TRACE__ = record
           window.__KR_STARTUP_TRACE_FLUSH__ = flush
           window.__KR_STARTUP_USER_EXPLORE__ = false
+          window.__KR_STARTUP_ACTION_QUEUE__ =
+            window.__KR_STARTUP_ACTION_QUEUE__ || []
 
           root.classList.add('kr-startup-active', 'kr-startup-handoff')
           record('shell:init')
+
+          document.addEventListener(
+            'click',
+            (event) => {
+              const target = event.target
+              if (!(target instanceof Element)) return
+
+              const button = target.closest('[data-kr-startup-action]')
+              if (!button) return
+
+              const action = button.getAttribute('data-kr-startup-action')
+              if (!action) return
+
+              record('shell:control-action', { action })
+
+              if (action === 'explore') {
+                setExploreMode(true)
+              } else if (action === 'resume') {
+                setExploreMode(false)
+              } else if (action === 'exit') {
+                beginShellExit('control-exit')
+              }
+
+              forwardBridgeAction(action)
+              flush('control-' + action)
+            },
+            true,
+          )
 
           ;[1500, 3500, 6000, 9000, 12000].forEach((delay) => {
             window.setTimeout(() => {
@@ -250,27 +432,7 @@ export default defineNitroPlugin((nitroApp) => {
               sessionStorage.removeItem(STARTED_AT_KEY)
             } catch {}
 
-            root.classList.add('kr-startup-fading')
-
-            window.setTimeout(() => {
-              root.classList.remove(
-                'kr-full-startup',
-                'kr-startup-active',
-                'kr-startup-handoff',
-                'kr-startup-fading',
-                'kr-startup-effect-ready',
-                'kr-startup-controls-ready',
-              )
-
-              document
-                .querySelectorAll(
-                  '.kr-prehydrate-loader, .kr-startup-black-base, .loading-overlay, .loader-root',
-                )
-                .forEach((element) => element.remove())
-
-              record('shell:watchdog-cleanup')
-              flush('watchdog-cleanup')
-            }, FADE_MS)
+            beginShellExit('watchdog')
           }, WATCHDOG_MS)
 
           window.addEventListener('pagehide', () => flush('pagehide'), {

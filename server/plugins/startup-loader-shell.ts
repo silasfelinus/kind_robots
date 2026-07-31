@@ -65,6 +65,59 @@ export default defineNitroPlugin((nitroApp) => {
             </div>
           </div>
         </div>
+
+        <div
+          class="kr-prehydrate-controls"
+          role="group"
+          aria-label="Startup animation controls"
+        >
+          <span class="kr-prehydrate-controls__name">Launch 04</span>
+
+          <div class="kr-prehydrate-controls__group kr-prehydrate-controls__active-only">
+            <button
+              type="button"
+              class="kr-prehydrate-controls__button"
+              data-kr-startup-action="previous"
+              title="Previous animation"
+              aria-label="Previous animation"
+            >←</button>
+            <button
+              type="button"
+              class="kr-prehydrate-controls__button"
+              data-kr-startup-action="random"
+              title="Choose another random animation"
+            >✨ <span class="kr-prehydrate-controls__wide-label">Random</span></button>
+            <button
+              type="button"
+              class="kr-prehydrate-controls__button"
+              data-kr-startup-action="next"
+              title="Next animation"
+              aria-label="Next animation"
+            >→</button>
+          </div>
+
+          <button
+            type="button"
+            class="kr-prehydrate-controls__button kr-prehydrate-controls__compact-only"
+            data-kr-startup-action="explore"
+            title="Pause the launch and explore animations"
+          >✨ Pause &amp; explore</button>
+
+          <button
+            type="button"
+            class="kr-prehydrate-controls__button kr-prehydrate-controls__active-only"
+            data-kr-startup-action="resume"
+            title="Restore the launch screen and continue loading"
+          >Resume</button>
+
+          <button
+            type="button"
+            class="kr-prehydrate-controls__button kr-prehydrate-controls__exit"
+            data-kr-startup-action="exit"
+            title="Leave startup animation"
+            aria-label="Leave startup animation"
+          >×</button>
+        </div>
       </div>
     `)
   })

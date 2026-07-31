@@ -7,12 +7,16 @@ const [
   startupShell,
   compositionShell,
   loadingMessages,
+  startupStore,
+  traceEndpoint,
 ] = await Promise.all([
   readFile('components/screenfx/startup-animation.vue', 'utf8'),
   readFile('plugins/startup-composition.client.ts', 'utf8'),
   readFile('server/plugins/startup-loader-shell.ts', 'utf8'),
   readFile('server/plugins/00-startup-composition-shell.ts', 'utf8'),
   readFile('components/admin/loading-messages.vue', 'utf8'),
+  readFile('stores/startupAnimationStore.ts', 'utf8'),
+  readFile('server/api/startup/trace.post.ts', 'utf8'),
 ])
 
 assert.ok(
@@ -45,10 +49,18 @@ assert.ok(
 )
 
 assert.ok(
-  compositionShell.includes(
-    "document.querySelector('.startup-animation__controls--active')",
-  ),
-  'The shell hard stop may preserve startup only for a real active hydrated control panel.',
+  compositionShell.includes('__KR_STARTUP_USER_EXPLORE__ === true') &&
+    !compositionShell.includes(
+      "if (document.querySelector('.startup-animation__controls--active'))",
+    ),
+  'Only an explicit user explore action may preserve startup; invisible DOM state must not suppress the hard stop.',
+)
+
+assert.ok(
+  compositionShell.includes("fetch('/api/startup/trace'") &&
+    compositionShell.includes("record('shell:snapshot'") &&
+    traceEndpoint.includes("console.info(`[startup-trace]"),
+  'Mobile startup must report structured lifecycle snapshots to production runtime logs.',
 )
 
 assert.ok(
@@ -75,9 +87,26 @@ assert.ok(
 )
 
 assert.ok(
-  startupPlugin.includes('clearShellWatchdog()') &&
-    startupPlugin.includes("delete startupWindow.__KR_STARTUP_SHELL_WATCHDOG__"),
-  'Normal client cleanup must cancel the server shell watchdog.',
+  startupPlugin.includes("nuxtApp.hook('app:mounted'") &&
+    startupPlugin.includes('CLIENT_EMERGENCY_AFTER_MOUNT_MS') &&
+    !startupPlugin.includes('EMERGENCY_EXIT_AT_MS - elapsedSinceNavigation'),
+  'The client emergency exit must start after mount instead of firing into unmounted listeners on slow devices.',
 )
 
-console.log('Startup hard-stop contract passed.')
+assert.ok(
+  startupPlugin.includes("'.kr-prehydrate-loader, .kr-startup-black-base, .loading-overlay, .loader-root'") &&
+    startupPlugin.includes('removeStartupNodes()'),
+  'Client cleanup must remove startup DOM nodes, not only CSS classes.',
+)
+
+const resetBody = startupStore.slice(
+  startupStore.indexOf('function reset()'),
+  startupStore.indexOf('return {'),
+)
+
+assert.ok(
+  !resetBody.includes('exitRequest.value = 0'),
+  'Startup remounts must not erase an already-issued exit request.',
+)
+
+console.log('Startup trace and hard-stop contract passed.')

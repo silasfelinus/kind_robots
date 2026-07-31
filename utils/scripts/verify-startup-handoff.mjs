@@ -14,8 +14,7 @@ assert.ok(
 )
 
 assert.ok(
-  startupComponent.includes("currentEffectLabel.value || 'Preparing animation…'") ||
-    startupComponent.includes("currentEffectLabel.value || 'Preparing animation…'"),
+  startupComponent.includes("currentEffectLabel.value || 'Preparing animation…'"),
   'The control tray must never present a blank animation-name slot.',
 )
 
@@ -48,6 +47,24 @@ assert.ok(
     startupShell,
   ),
   'The server-rendered control must not disappear on an unconditional timer.',
+)
+
+assert.ok(
+  startupComponent.includes('__KR_STARTUP_BRIDGE_READY__ = true') &&
+    startupComponent.includes('__KR_STARTUP_BRIDGE_READY__ = false'),
+  'The hydrated component must explicitly publish and clear bridge-listener readiness.',
+)
+
+assert.ok(
+  startupShell.includes('if (window.__KR_STARTUP_BRIDGE_READY__)'),
+  'Server control clicks must dispatch as soon as the Vue event bridge is listening.',
+)
+
+assert.ok(
+  !startupShell.includes(
+    "if (root.classList.contains('kr-startup-controls-ready'))",
+  ),
+  'Click dispatch must not wait for the visual control-panel handoff.',
 )
 
 assert.ok(

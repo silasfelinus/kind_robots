@@ -184,7 +184,7 @@ export default defineNuxtConfig({
       },
     },
     build: {
-      target: 'esnext',
+      target: 'es2020',
       minify: 'esbuild',
       chunkSizeWarningLimit: 500,
     },

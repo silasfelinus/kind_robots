@@ -35,6 +35,7 @@
         'startup-animation__controls--compact': !startupStore.controlsActive,
         'startup-animation__controls--fading': isFading,
       }"
+      @pointerdown.capture="restoreFromFade"
     >
       <template v-if="startupStore.controlsActive">
         <span class="startup-animation__name">{{ displayEffectLabel }}</span>
@@ -233,6 +234,19 @@ function selectRandomEffect(): void {
   setEffect(pool[index] ?? ids[0] ?? null)
 }
 
+function restoreFromFade(): void {
+  if (!isFading.value) return
+
+  clearFadeTimer()
+  isFading.value = false
+
+  if (import.meta.client) {
+    document.documentElement.classList.remove('kr-startup-fading')
+  }
+
+  startupStore.enterControlMode()
+}
+
 function fadeOut(): void {
   if (!renderEffect.value || isFading.value) return
 
@@ -326,8 +340,8 @@ onBeforeUnmount(() => {
 
 .startup-animation__controls {
   position: fixed;
-  bottom: 1rem;
-  left: 1rem;
+  top: max(1rem, env(safe-area-inset-top, 0px));
+  right: 1rem;
   z-index: 60;
   display: flex;
   width: fit-content;
@@ -348,8 +362,8 @@ onBeforeUnmount(() => {
 }
 
 .startup-animation__controls--fading {
-  opacity: 0;
-  pointer-events: none;
+  opacity: 0.55;
+  pointer-events: auto;
 }
 
 .startup-animation__controls--compact {
@@ -400,12 +414,14 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 639px) {
-  .startup-animation__controls--active {
+  .startup-animation__controls {
+    top: max(0.75rem, env(safe-area-inset-top, 0px));
     right: 0.75rem;
-    bottom: 0.75rem;
-    left: 0.75rem;
-    justify-content: center;
     max-width: calc(100vw - 1.5rem);
+  }
+
+  .startup-animation__controls--active {
+    justify-content: flex-end;
   }
 
   .startup-animation__name {

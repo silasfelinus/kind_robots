@@ -34,6 +34,103 @@ const buildId =
 
 const startupAnimationSrc = '/images/startup-animations/launch-04.webp'
 
+/*
+ * The build targets 'esnext', so nothing lowers syntax and nothing polyfills
+ * missing APIs. On engines that predate the newer array/object methods the
+ * entry chunk throws during module evaluation — the observed production
+ * failure was "e.split(...).at is not a function" from
+ * effect-component-registry's pascalFromPath, thrown at ~1.9s, after which
+ * Vue never mounts: the startup animation loops forever and its control tray
+ * responds to hover (CSS) but not clicks (needs a mounted handler).
+ *
+ * This inline classic script runs during head parsing, before any deferred
+ * module script, so every chunk (and node_modules) sees the patched builtins.
+ * Covered: everything the built entry chunk actually references beyond ES2020
+ * (verified by grepping the bundle): .at, Object.hasOwn, structuredClone,
+ * String.replaceAll, and the ES2023 change-by-copy array methods.
+ */
+const legacyEnginePolyfillScript = `(() => {
+  const def = (obj, name, value) => {
+    try {
+      Object.defineProperty(obj, name, { value, writable: true, configurable: true })
+    } catch {}
+  }
+
+  const at = function at(n) {
+    n = Math.trunc(n) || 0
+    if (n < 0) n += this.length
+    return n < 0 || n >= this.length ? undefined : this[n]
+  }
+  if (!Array.prototype.at) def(Array.prototype, 'at', at)
+  if (!String.prototype.at) def(String.prototype, 'at', at)
+
+  if (!Object.hasOwn) {
+    def(Object, 'hasOwn', (obj, key) => Object.prototype.hasOwnProperty.call(obj, key))
+  }
+
+  if (!String.prototype.replaceAll) {
+    def(String.prototype, 'replaceAll', function replaceAll(search, replacement) {
+      if (search instanceof RegExp) return this.replace(search, replacement)
+      const escaped = String(search).replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&')
+      return this.replace(new RegExp(escaped, 'g'), replacement)
+    })
+  }
+
+  if (!Array.prototype.toSorted) {
+    def(Array.prototype, 'toSorted', function toSorted(cmp) { return this.slice().sort(cmp) })
+  }
+  if (!Array.prototype.toReversed) {
+    def(Array.prototype, 'toReversed', function toReversed() { return this.slice().reverse() })
+  }
+  if (!Array.prototype.toSpliced) {
+    def(Array.prototype, 'toSpliced', function toSpliced(...args) {
+      const copy = this.slice()
+      copy.splice(...args)
+      return copy
+    })
+  }
+  if (!Array.prototype.with) {
+    def(Array.prototype, 'with', function withItem(index, value) {
+      const copy = this.slice()
+      const n = Math.trunc(index) || 0
+      copy[n < 0 ? n + copy.length : n] = value
+      return copy
+    })
+  }
+
+  if (typeof structuredClone !== 'function') {
+    const clone = (value, seen) => {
+      if (value === null || typeof value !== 'object') return value
+      if (seen.has(value)) return seen.get(value)
+      if (value instanceof Date) return new Date(value.getTime())
+      if (value instanceof RegExp) return new RegExp(value.source, value.flags)
+      if (value instanceof Map) {
+        const out = new Map()
+        seen.set(value, out)
+        value.forEach((v, k) => out.set(clone(k, seen), clone(v, seen)))
+        return out
+      }
+      if (value instanceof Set) {
+        const out = new Set()
+        seen.set(value, out)
+        value.forEach((v) => out.add(clone(v, seen)))
+        return out
+      }
+      if (Array.isArray(value)) {
+        const out = []
+        seen.set(value, out)
+        for (const item of value) out.push(clone(item, seen))
+        return out
+      }
+      const out = {}
+      seen.set(value, out)
+      for (const key of Object.keys(value)) out[key] = clone(value[key], seen)
+      return out
+    }
+    def(window, 'structuredClone', (value) => clone(value, new Map()))
+  }
+})()`
+
 const startupPrehydrateScript = `(() => {
   const FORCE_KEY = 'kind-robots-force-full-startup-v1'
   const SEEN_KEY = 'kind-robots-startup-build-v1'
@@ -72,50 +169,6 @@ const startupPrehydrateScript = `(() => {
   }
 })()`
 
-/*
- * Webfonts must never be able to stall the app.
- *
- * These were CSS \`@import url(...)\` statements inside component <style> blocks
- * (login-page.vue, sponsor-page.vue). Vite hoists those into the bundled global
- * stylesheet, and a pending stylesheet blocks script execution — so hydration of
- * the whole application waited on fonts.googleapis.com. Measured at 12.7s in one
- * environment, and unbounded for anyone whose network blocks Google Fonts
- * (ad/tracker blockers, DNS filtering, school and corporate networks). The
- * symptom is total: the startup animation never fades and its controls never
- * become interactive, because no Vue ever mounts to run them.
- *
- * media="print" makes the browser fetch the sheet without treating it as
- * render-blocking; the onload handler promotes it once it has arrived. If it
- * never arrives, the app is entirely unaffected.
- */
-const asyncFontHrefs = [
-  'https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
-]
-
-const asyncFontScript = `(() => {
-  const HREFS = ${JSON.stringify(asyncFontHrefs)}
-
-  // Deliberately deferred to the load event. Appending a stylesheet from a
-  // parser-inserted script — even with media="print" — makes it a pending
-  // stylesheet that blocks the parser and every script after it, which is the
-  // exact failure being fixed here (measured: the renderer stayed blocked for
-  // as long as fonts.googleapis.com hung). After load, nothing is left to block.
-  const addFontLinks = () => {
-    for (const href of HREFS) {
-      const link = document.createElement('link')
-      link.rel = 'stylesheet'
-      link.href = href
-      link.media = 'print'
-      link.addEventListener('load', () => { link.media = 'all' }, { once: true })
-      document.head.appendChild(link)
-    }
-  }
-
-  if (document.readyState === 'complete') addFontLinks()
-  else window.addEventListener('load', addFontLinks, { once: true })
-})()`
-
 generateWonderLabComponentMetadata()
 
 export default defineNuxtConfig({
@@ -123,12 +176,13 @@ export default defineNuxtConfig({
   app: {
     head: {
       script: [
+        // Must stay first: patches builtins the rest of the bundle assumes.
         {
-          innerHTML: startupPrehydrateScript,
+          innerHTML: legacyEnginePolyfillScript,
           tagPosition: 'head',
         },
         {
-          innerHTML: asyncFontScript,
+          innerHTML: startupPrehydrateScript,
           tagPosition: 'head',
         },
       ],

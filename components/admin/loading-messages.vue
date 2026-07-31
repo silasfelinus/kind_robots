@@ -12,7 +12,7 @@
       <div class="loading-heading">Building Kind Robots...</div>
 
       <div class="loading-logo-frame">
-        <startup-intro-visual @settled="handleIntroVisualSettled" />
+        <startup-intro-visual />
       </div>
 
       <div class="loading-status">
@@ -53,43 +53,37 @@ const startupStore = useStartupAnimationStore()
 const currentMessage = ref('Wiring robots for suspicious levels of charm...')
 const messageKey = ref(0)
 const fadeOverlay = ref(false)
-const minimumSequenceComplete = ref(false)
-const introVisualSettled = ref(false)
-const introVisualKind = ref<'logo' | 'animation'>('logo')
 const hiddenEmitted = ref(false)
-const exitRequested = ref(false)
 
-const EXTRA_MESSAGE_COUNT = 2
-const EXTRA_MESSAGE_MS = 1250
-const ROTATING_MESSAGE_MS = 1600
-const READY_HOLD_MS = 450
-const ANIMATION_VISIBLE_HOLD_MS = 1500
-const MIN_TOTAL_MS =
-  (EXTRA_MESSAGE_COUNT + 1) * EXTRA_MESSAGE_MS + READY_HOLD_MS
+/*
+ * The intro is TIME-driven, never readiness-driven.
+ *
+ * It used to be gated on `storesReady` (≈25 sequential store initialize()
+ * calls, several of them network-bound with 10s timeouts of their own) and on
+ * the intro webp firing `load`. Both are unbounded, so on any slow or failing
+ * request the fade simply never ran and the only thing that ever cleared the
+ * launch screen was an emergency watchdog — a hard cut, not a fade.
+ *
+ * Now: fade at INTRO_BASE_MS once the stores are ready, and at INTRO_MAX_MS no
+ * matter what. Store readiness can only make the intro end *sooner*; it can
+ * never hold it open. Nothing else is allowed to gate the fade.
+ */
+const INTRO_BASE_MS = 3500
+const INTRO_MAX_MS = 5000
+const ROTATING_MESSAGE_MS = 1250
 const OVERLAY_FADE_MS = 650
-const HARD_EXIT_MS = 9000
 
-const startTime = consumeStartupStartedAt()
+const FADING_CLASS = 'kr-startup-fading'
 
 let destroyed = false
+let sequenceStartedAt = 0
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
 let fallbackFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
-let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null
-let hardExitTimeoutId: ReturnType<typeof setTimeout> | null = null
+let baseFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
+let capFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
 
-function wait(ms: number) {
-  return new Promise<void>((resolve) => {
-    if (destroyed) {
-      resolve()
-      return
-    }
-
-    setTimeout(resolve, ms)
-  })
-}
-
-function waitUntil(offsetMs: number) {
-  return wait(Math.max(0, startTime + offsetMs - Date.now()))
+function elapsed(): number {
+  return performance.now() - sequenceStartedAt
 }
 
 function nextMessage() {
@@ -105,16 +99,16 @@ function clearRotation() {
   rotationIntervalId = null
 }
 
-function clearReadyHold() {
-  if (!readyHoldTimeoutId) return
-  clearTimeout(readyHoldTimeoutId)
-  readyHoldTimeoutId = null
-}
+function clearFadeTimers() {
+  if (baseFadeTimeoutId) {
+    clearTimeout(baseFadeTimeoutId)
+    baseFadeTimeoutId = null
+  }
 
-function clearHardExit() {
-  if (!hardExitTimeoutId) return
-  clearTimeout(hardExitTimeoutId)
-  hardExitTimeoutId = null
+  if (capFadeTimeoutId) {
+    clearTimeout(capFadeTimeoutId)
+    capFadeTimeoutId = null
+  }
 }
 
 function emitHiddenOnce() {
@@ -127,11 +121,20 @@ function doFade() {
   if (destroyed || fadeOverlay.value) return
 
   clearRotation()
-  clearReadyHold()
-  clearHardExit()
+  clearFadeTimers()
   loadStore.revealDesktop()
   emit('hiding')
   fadeOverlay.value = true
+
+  /*
+   * Drive every startup surface off one class change so the webp, the loading
+   * messages, the animated background, the black base and the control tray all
+   * fade on the same 650ms curve instead of relying on the client plugin's
+   * MutationObserver noticing us first.
+   */
+  if (import.meta.client) {
+    document.documentElement.classList.add(FADING_CLASS)
+  }
 
   if (fallbackFadeTimeoutId) {
     clearTimeout(fallbackFadeTimeoutId)
@@ -142,56 +145,31 @@ function doFade() {
   }, OVERLAY_FADE_MS + 120)
 }
 
-function scheduleFade() {
-  if (!props.storesReady) return
-  if (!minimumSequenceComplete.value) return
-  if (!introVisualSettled.value) return
-  if (fadeOverlay.value) return
+/*
+ * Arms both deadlines against time already served, so this stays correct if it
+ * is ever re-armed rather than restarting the intro from zero.
+ */
+function armFadeTimers() {
+  clearFadeTimers()
+
+  if (destroyed || fadeOverlay.value) return
   if (startupStore.immersive) return
-  if (readyHoldTimeoutId) return
 
-  clearRotation()
-
-  const elapsed = Date.now() - startTime
-  const minimumRemaining = Math.max(READY_HOLD_MS, MIN_TOTAL_MS - elapsed)
-  const animationVisibleRemaining = Math.max(
-    0,
-    ANIMATION_VISIBLE_HOLD_MS - elapsed,
+  baseFadeTimeoutId = setTimeout(
+    () => {
+      baseFadeTimeoutId = null
+      if (props.storesReady) doFade()
+    },
+    Math.max(0, INTRO_BASE_MS - elapsed()),
   )
-  const holdNeeded = exitRequested.value
-    ? 0
-    : Math.max(
-        minimumRemaining,
-        introVisualKind.value === 'animation' ? animationVisibleRemaining : 0,
-      )
 
-  readyHoldTimeoutId = setTimeout(() => {
-    doFade()
-  }, holdNeeded)
-}
-
-function startHardExitWatchdog() {
-  const remaining = Math.max(0, startTime + HARD_EXIT_MS - Date.now())
-
-  hardExitTimeoutId = setTimeout(() => {
-    hardExitTimeoutId = null
-
-    if (
-      startupStore.controlsActive &&
-      document.querySelector('.startup-animation__controls--active')
-    ) {
-      return
-    }
-
-    exitRequested.value = true
-    doFade()
-  }, remaining)
-}
-
-function handleIntroVisualSettled(kind: 'logo' | 'animation') {
-  introVisualKind.value = kind
-  introVisualSettled.value = true
-  scheduleFade()
+  capFadeTimeoutId = setTimeout(
+    () => {
+      capFadeTimeoutId = null
+      doFade()
+    },
+    Math.max(0, INTRO_MAX_MS - elapsed()),
+  )
 }
 
 function handleTransitionEnd(event: TransitionEvent) {
@@ -200,72 +178,62 @@ function handleTransitionEnd(event: TransitionEvent) {
   emitHiddenOnce()
 }
 
-async function runVisualSequence() {
-  for (let index = 0; index < EXTRA_MESSAGE_COUNT; index += 1) {
-    await waitUntil((index + 1) * EXTRA_MESSAGE_MS)
-    if (destroyed) return
-    nextMessage()
-  }
-
-  minimumSequenceComplete.value = true
-
-  if (props.storesReady && introVisualSettled.value) {
-    scheduleFade()
-    return
-  }
-
-  rotationIntervalId = setInterval(() => {
-    if (destroyed) return
-    nextMessage()
-    if (props.storesReady && introVisualSettled.value) scheduleFade()
-  }, ROTATING_MESSAGE_MS)
-}
-
+// Stores becoming ready can only pull the fade in, never push it out.
 watch(
   () => props.storesReady,
   (ready) => {
-    if (!ready) return
-
-    if (exitRequested.value) {
-      doFade()
-      return
-    }
-
-    scheduleFade()
+    if (!ready || startupStore.immersive) return
+    if (elapsed() >= INTRO_BASE_MS) doFade()
   },
 )
 
+/*
+ * Explore mode holds the launch screen open for as long as the user wants.
+ * Leaving it fades immediately — per spec, unpausing goes straight to the site
+ * rather than resuming the remainder of the intro.
+ */
 watch(
   () => startupStore.immersive,
   (immersive) => {
     if (immersive) {
-      clearReadyHold()
+      clearFadeTimers()
       return
     }
 
-    scheduleFade()
-  },
-)
-
-watch(
-  () => startupStore.exitRequest,
-  () => {
-    exitRequested.value = true
     doFade()
   },
 )
 
-onMounted(async () => {
+// Resume and the close button both dismiss without waiting for anything.
+watch(
+  () => startupStore.exitRequest,
+  () => {
+    doFade()
+  },
+)
+
+onMounted(() => {
+  sequenceStartedAt = performance.now()
+
+  // Consumed purely to clear the sessionStorage handoff key; the intro no
+  // longer times itself from navigation start (performance.timeOrigin), which
+  // could already be seconds in the past by the time we mount.
+  consumeStartupStartedAt()
+
   emit('covered')
-  startHardExitWatchdog()
-  await runVisualSequence()
+
+  rotationIntervalId = setInterval(() => {
+    if (destroyed) return
+    nextMessage()
+  }, ROTATING_MESSAGE_MS)
+
+  armFadeTimers()
 })
 
 onBeforeUnmount(() => {
   destroyed = true
   clearRotation()
-  clearReadyHold()
-  clearHardExit()
+  clearFadeTimers()
 
   if (fallbackFadeTimeoutId) {
     clearTimeout(fallbackFadeTimeoutId)

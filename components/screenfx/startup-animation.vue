@@ -362,8 +362,11 @@ function fadeOut(): void {
   }, FADE_MS)
 }
 
-startupStore.reset()
-
+/*
+ * Deliberately does NOT reset the startup store here. kind-loader owns that
+ * lifecycle; resetting on this component's setup meant any remount silently
+ * dropped the user out of explore mode.
+ */
 watch(
   [() => butterflyStore.showSwarm, availableEffectIds],
   ([visible]) => {

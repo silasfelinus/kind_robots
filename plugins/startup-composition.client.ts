@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 
@@ -188,12 +189,37 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const observer = new MutationObserver(syncCompositionState)
 
+  /*
+   * Scoped deliberately. This previously observed the whole document with
+   * `subtree: true` for both childList and class attributes, so every class
+   * toggle anywhere in the app re-ran syncCompositionState (which does four
+   * querySelector calls) — thousands of callbacks during hydration, competing
+   * with the very timers and click handlers the startup sequence depends on.
+   *
+   * All the state we actually care about lives in exactly two places: the
+   * startup classes on <html>, and the loader nodes being added/removed as
+   * direct children of <body> / the app root.
+   */
   observer.observe(document.documentElement, {
-    subtree: true,
-    childList: true,
+    childList: false,
     attributes: true,
     attributeFilter: ['class'],
   })
+
+  /*
+   * Teardown is driven by the store rather than by watching the DOM for the
+   * loader nodes disappearing. showSwarm going false is the authoritative
+   * "startup is over" signal (kind-loader sets it in handleOverlayHiding and
+   * on unmount), so we no longer need a subtree childList observer to infer it.
+   */
+  watch(
+    () => butterflyStore.showSwarm,
+    (visible, wasVisible) => {
+      if (visible || !wasVisible) return
+      beginFade('swarm-cleared')
+      scheduleCleanup('swarm-cleared')
+    },
+  )
 
   document.addEventListener('click', handleStartupControlClick, true)
 

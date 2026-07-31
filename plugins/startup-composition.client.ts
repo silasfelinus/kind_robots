@@ -8,7 +8,7 @@ const HANDOFF_CLASS = 'kr-startup-handoff'
 const EFFECT_READY_CLASS = 'kr-startup-effect-ready'
 const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
 
-const EMERGENCY_FADE_AT_MS = 6000
+const EMERGENCY_EXIT_AT_MS = 6000
 const FADE_CLEANUP_MS = 700
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -18,7 +18,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   let sawLoader = false
   let cleanupTimer: number | null = null
-  let emergencyFadeTimer: number | null = null
+  let emergencyExitTimer: number | null = null
 
   function clearCleanupTimer(): void {
     if (cleanupTimer === null) return
@@ -26,10 +26,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     cleanupTimer = null
   }
 
-  function clearEmergencyFadeTimer(): void {
-    if (emergencyFadeTimer === null) return
-    window.clearTimeout(emergencyFadeTimer)
-    emergencyFadeTimer = null
+  function clearEmergencyExitTimer(): void {
+    if (emergencyExitTimer === null) return
+    window.clearTimeout(emergencyExitTimer)
+    emergencyExitTimer = null
   }
 
   function beginFade(): void {
@@ -39,14 +39,14 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     if (!startupActive) return
 
-    clearEmergencyFadeTimer()
+    clearEmergencyExitTimer()
     root.classList.add(FADING_CLASS)
     butterflyStore.setShowSwarm(false)
   }
 
   function cleanup(): void {
     clearCleanupTimer()
-    clearEmergencyFadeTimer()
+    clearEmergencyExitTimer()
     butterflyStore.setShowSwarm(false)
     root.classList.remove(
       ACTIVE_CLASS,
@@ -66,6 +66,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       cleanup()
       observer.disconnect()
     }, FADE_CLEANUP_MS)
+  }
+
+  function requestEmergencyExit(): void {
+    if (startupStore.immersive) return
+
+    beginFade()
+    startupStore.requestExit()
+    scheduleCleanup()
   }
 
   function syncCompositionState(): void {
@@ -103,11 +111,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   syncCompositionState()
 
   const elapsedSinceNavigation = performance.now()
-  emergencyFadeTimer = window.setTimeout(() => {
-    emergencyFadeTimer = null
-    if (startupStore.immersive) return
-    beginFade()
-  }, Math.max(0, EMERGENCY_FADE_AT_MS - elapsedSinceNavigation))
+  emergencyExitTimer = window.setTimeout(() => {
+    emergencyExitTimer = null
+    requestEmergencyExit()
+  }, Math.max(0, EMERGENCY_EXIT_AT_MS - elapsedSinceNavigation))
 
   nuxtApp.hook('app:mounted', syncCompositionState)
   window.addEventListener('pagehide', cleanup, { once: true })

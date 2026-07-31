@@ -19,6 +19,24 @@ export default defineNitroPlugin((nitroApp) => {
           display: block;
         }
 
+        html.kr-startup-handoff .kr-prehydrate-controls,
+        .startup-animation__controls {
+          z-index: 2147483000 !important;
+          isolation: isolate;
+        }
+
+        html.kr-startup-handoff .kr-prehydrate-controls,
+        .startup-animation__controls,
+        html.kr-startup-handoff .kr-prehydrate-controls button,
+        .startup-animation__controls button {
+          pointer-events: auto !important;
+          touch-action: manipulation;
+        }
+
+        html.kr-startup-controls-ready .kr-prehydrate-controls {
+          pointer-events: none !important;
+        }
+
         .kr-prehydrate-media,
         .loading-logo {
           -webkit-mask-image: radial-gradient(
@@ -62,7 +80,7 @@ export default defineNitroPlugin((nitroApp) => {
         html:has(.loading-overlay--fade) .startup-animation__controls {
           opacity: 0 !important;
           transition: opacity 650ms ease !important;
-          pointer-events: none;
+          pointer-events: none !important;
         }
 
         @media (prefers-reduced-motion: reduce) {

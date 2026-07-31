@@ -63,7 +63,9 @@ function clean(value: unknown): string {
 
 function requireText(path: string, text: string, fragment: string): void {
   if (!text.includes(fragment)) {
-    throw new Error(`${path} is missing Builder coverage contract text: ${fragment}`)
+    throw new Error(
+      `${path} is missing Builder coverage contract text: ${fragment}`,
+    )
   }
 }
 
@@ -88,11 +90,7 @@ async function main(): Promise<void> {
   for (const source of sources) {
     for (const card of source.cards) {
       for (const step of card.steps) {
-        const fieldKey = (
-          clean(step.field) ||
-          clean(step.key) ||
-          clean(card.key)
-        )
+        const fieldKey = clean(step.field) || clean(step.key) || clean(card.key)
 
         for (const choice of step.choices ?? []) {
           if (choice.opensCustom || choice.opensList) continue
@@ -127,7 +125,10 @@ async function main(): Promise<void> {
           // Adventure art is versioned in-repo except for the tracked Gender
           // backlog. Art Builder assets live on the media host and are validated
           // by the seed's media contract instead of local existsSync/access.
-          if (source.sourceKey === 'adventure' && !(await pathExists(imagePath))) {
+          if (
+            source.sourceKey === 'adventure' &&
+            !(await pathExists(imagePath))
+          ) {
             if (fieldKey === 'gender' && GENDER_ARTWORK_PATHS.has(imagePath)) {
               knownArtworkDebt.push(imagePath)
             } else {
@@ -155,12 +156,17 @@ async function main(): Promise<void> {
   for (const path of [genderCard?.deckImage, genderCard?.heroImage]) {
     const imagePath = clean(path)
     if (!imagePath) {
-      failures.push('Gender Builder card must keep both deck and hero artwork paths.')
+      failures.push(
+        'Gender Builder card must keep both deck and hero artwork paths.',
+      )
       continue
     }
     if (!(await pathExists(imagePath))) {
       if (GENDER_ARTWORK_PATHS.has(imagePath)) knownArtworkDebt.push(imagePath)
-      else failures.push(`Gender Builder references untracked missing artwork: ${imagePath}`)
+      else
+        failures.push(
+          `Gender Builder references untracked missing artwork: ${imagePath}`,
+        )
     }
   }
 
@@ -202,7 +208,9 @@ async function main(): Promise<void> {
   )
   for (const fieldKey of ['subject', 'style', 'punk']) {
     if (!illustratedArtFields.has(fieldKey)) {
-      failures.push(`Art Builder illustrated field ${fieldKey} was not discovered.`)
+      failures.push(
+        `Art Builder illustrated field ${fieldKey} was not discovered.`,
+      )
     }
   }
 
@@ -222,7 +230,8 @@ async function main(): Promise<void> {
 
   const entries = await Promise.all(
     Object.entries(files).map(
-      async ([key, path]) => [key, await readFile(resolve(root, path), 'utf8')] as const,
+      async ([key, path]) =>
+        [key, await readFile(resolve(root, path), 'utf8')] as const,
     ),
   )
   const text = Object.fromEntries(entries) as Record<keyof typeof files, string>
@@ -230,17 +239,41 @@ async function main(): Promise<void> {
   requireText(files.serverCatalog, text.serverCatalog, "'GENDER'")
   requireText(files.catalogStore, text.catalogStore, "gender: ['GENDER']")
   requireText(files.catalogStore, text.catalogStore, 'ART_FIELD_FACETS')
-  requireText(files.catalogStore, text.catalogStore, 'builderChoicesForArtField')
-  requireText(files.catalogStore, text.catalogStore, "subject: { taxonomies: ['ART_DIRECTION']")
-  requireText(files.catalogStore, text.catalogStore, "punk: { taxonomies: ['STYLE']")
-  requireText(files.catalogStore, text.catalogStore, "emotion: { taxonomies: ['MOOD']")
+  requireText(
+    files.catalogStore,
+    text.catalogStore,
+    'builderChoicesForArtField',
+  )
+  requireText(
+    files.catalogStore,
+    text.catalogStore,
+    "subject: { taxonomies: ['ART_DIRECTION']",
+  )
+  requireText(
+    files.catalogStore,
+    text.catalogStore,
+    "punk: { taxonomies: ['STYLE']",
+  )
+  requireText(
+    files.catalogStore,
+    text.catalogStore,
+    "emotion: { taxonomies: ['MOOD']",
+  )
   requireText(files.characterSync, text.characterSync, "gender: ['GENDER']")
   requireText(files.randomStore, text.randomStore, "gender: ['GENDER']")
-  requireText(files.seedWrapper, text.seedWrapper, "import('./seedGenderFacetCatalog')")
-  requireText(files.seedWrapper, text.seedWrapper, "import('./seedArtBuilderFacetCatalog')")
-  requireText(files.artSeed, text.artSeed, "subject: {")
-  requireText(files.artSeed, text.artSeed, "punk: {")
-  requireText(files.artSeed, text.artSeed, "emotion: {")
+  requireText(
+    files.seedWrapper,
+    text.seedWrapper,
+    "import('./seedGenderFacetCatalog')",
+  )
+  requireText(
+    files.seedWrapper,
+    text.seedWrapper,
+    "import('./seedArtBuilderFacetCatalog')",
+  )
+  requireText(files.artSeed, text.artSeed, 'subject: {')
+  requireText(files.artSeed, text.artSeed, 'punk: {')
+  requireText(files.artSeed, text.artSeed, 'emotion: {')
   requireText(files.artSeed, text.artSeed, 'artBuilderFields')
   requireText(files.artSeed, text.artSeed, 'mediaAssetExists')
   requireText(files.genderSeed, text.genderSeed, "taxonomy: 'GENDER'")
@@ -250,10 +283,28 @@ async function main(): Promise<void> {
   requireText(files.genderValues, text.genderValues, 'legacyFacetGenderValues')
   requireText(files.genderArtwork, text.genderArtwork, 'GENDER_ARTWORK_TARGETS')
   requireText(files.seedPolicy, text.seedPolicy, 'stores/helpers/artCards.ts')
-  requireText(files.seedPolicy, text.seedPolicy, 'utils/scripts/seedArtBuilderFacetCatalog.ts')
-  requireText(files.builderPlugin, text.builderPlugin, "import { ART_CARDS }")
+  requireText(
+    files.seedPolicy,
+    text.seedPolicy,
+    'utils/scripts/seedArtBuilderFacetCatalog.ts',
+  )
+  // PR #1211 moved the card decks behind dynamic import() to keep them out of
+  // the first-paint bundle, so the static `import { ART_CARDS }` statement no
+  // longer exists — the deck arrives via `import('@/stores/helpers/artCards')`
+  // destructured as `{ ART_CARDS }`. Assert on the module specifier, which
+  // survives either import style and is what this contract actually cares
+  // about: that the art deck is loaded by this plugin at all.
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    "'@/stores/helpers/artCards'",
+  )
   requireText(files.builderPlugin, text.builderPlugin, 'hydrateArtBuilder')
-  requireText(files.builderPlugin, text.builderPlugin, "operationalExemptions: ['mode', 'figureCount', 'negativeFilters']")
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    "operationalExemptions: ['mode', 'figureCount', 'negativeFilters']",
+  )
 
   if (illustrated.length < 70) {
     failures.push(
@@ -262,7 +313,9 @@ async function main(): Promise<void> {
   }
 
   if (failures.length) {
-    throw new Error(`Facet Builder coverage failed:\n- ${failures.join('\n- ')}`)
+    throw new Error(
+      `Facet Builder coverage failed:\n- ${failures.join('\n- ')}`,
+    )
   }
 
   const coveredFields = Array.from(

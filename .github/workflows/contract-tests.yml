@@ -112,6 +112,12 @@ jobs:
       - name: Conductor API auth-guard contract
         run: npm run test:conductor-api-auth-guards
 
+      - name: Conductor roadmap progress parity contract
+        run: npm run test:conductor-progress-parity
+
+      - name: Da Vinci narration bounds contract
+        run: npm run test:davinci-narration
+
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 

@@ -1372,6 +1372,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item || !state.run) return false
 
+    if (state.autoBuildingItemId === item.id) return false
+
     const isAsset = item.action === 'ASSET_ONLY'
     const wantArt = state.includeArt && item.generation === 'image'
 

@@ -351,12 +351,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useVideoStore, type VideoOutputFormat } from '@/stores/videoStore'
+import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
 import {
   getVideoPreset,
   getVideoPresetsForEngine,
   type VideoEngine,
+  type VideoOutputFormat,
   type VideoPresetId,
 } from '@/utils/videoPresets'
 

@@ -12,6 +12,13 @@ import {
   type ProjectLifecyclePriority,
   type ProjectLifecycleStatus,
 } from '@/server/utils/conductorProjectRegistry'
+import {
+  computeProgress,
+  parseRoadmapYaml,
+  type ConductorMilestone,
+  type ConductorTask,
+  type ParsedRoadmap,
+} from '@/server/utils/conductorRoadmap'
 
 const GITHUB_API = 'https://api.github.com'
 const OWNER = 'silasfelinus'
@@ -19,27 +26,9 @@ const REPO = 'conductor'
 const CONDUCTOR_RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`
 const PROJECT_IMAGE_BASE = `${CONDUCTOR_RAW_BASE}/projects/images`
 
-export interface ConductorMilestone {
-  id: string
-  title: string
-  weight: number
-  status: string
-}
-
-export interface ConductorTask {
-  id: string
-  milestone: string
-  title: string
-  status: string
-  owner: string | null
-  passes: number
-  stakes?: string
-  gateHuman: boolean
-  note?: string
-  dependsOn?: string | string[] | null
-  approvedByHuman?: boolean
-  updated?: string | null
-}
+// Re-exported so existing consumers keep importing these from the endpoint
+// module they already reference (conductor-page.vue, the gallery pages).
+export type { ConductorMilestone, ConductorTask }
 
 export interface ConductorProjectAssets {
   imagePath: string
@@ -134,178 +123,6 @@ function conductorProjectAssets(
   }
 }
 
-function computeProgress(milestones: ConductorMilestone[]): number {
-  if (!milestones.length) return 0
-  let total = 0
-  let done = 0
-  for (const milestone of milestones) {
-    total += milestone.weight
-    if (milestone.status === 'done') done += milestone.weight
-    else if (milestone.status === 'in-progress') done += milestone.weight * 0.5
-  }
-  return total > 0 ? Math.round((done / total) * 100) : 0
-}
-
-function parseRoadmapYaml(text: string) {
-  const lines = text.split('\n')
-  const result = {
-    name: '',
-    kind: 'software',
-    goal: undefined as string | undefined,
-    milestones: [] as ConductorMilestone[],
-    tasks: [] as ConductorTask[],
-    notesFromSilas: undefined as string | undefined,
-  }
-
-  let index = 0
-  while (index < lines.length) {
-    const line = lines[index]!
-    if (!line.trim() || line.trim().startsWith('#')) {
-      index += 1
-      continue
-    }
-
-    const scalar = line.match(/^(project|kind):\s*(.+)$/)
-    if (scalar) {
-      const value = scalar[2]!.replace(/^["']|["']$/g, '').trim()
-      if (scalar[1] === 'project') result.name = value
-      else result.kind = value
-      index += 1
-      continue
-    }
-
-    const blockMatch = line.match(/^(goal|notes_from_silas):\s*[>|]\s*$/)
-    if (blockMatch?.[1]) {
-      const buffer: string[] = []
-      index += 1
-      while (
-        index < lines.length &&
-        (lines[index]!.startsWith('  ') || lines[index] === '')
-      ) {
-        buffer.push(lines[index]!.replace(/^  /, ''))
-        index += 1
-      }
-      const value = buffer.join('\n').trim()
-      if (blockMatch[1] === 'goal') result.goal = value || undefined
-      else result.notesFromSilas = value || undefined
-      continue
-    }
-
-    if (/^milestones:/.test(line)) {
-      index += 1
-      while (index < lines.length && /^  - /.test(lines[index]!)) {
-        const milestone: Record<string, unknown> = {}
-        parseBlockItem(lines[index]!, milestone)
-        index += 1
-        while (index < lines.length && /^    /.test(lines[index]!)) {
-          parseKV(lines[index]!.trim(), milestone)
-          index += 1
-        }
-        if (milestone.id) {
-          result.milestones.push({
-            id: String(milestone.id),
-            title: String(milestone.title || milestone.id),
-            weight: Number(milestone.weight) || 10,
-            status: String(milestone.status || 'not-started'),
-          })
-        }
-      }
-      continue
-    }
-
-    if (/^tasks:/.test(line)) {
-      index += 1
-      while (index < lines.length && /^  - /.test(lines[index]!)) {
-        const task: Record<string, unknown> = {}
-        parseBlockItem(lines[index]!, task)
-        index += 1
-        while (index < lines.length && /^    /.test(lines[index]!)) {
-          const taskLine = lines[index]!
-          const blockScalar = taskLine.match(/^    ([\w-]+):\s*[>|]\s*$/)
-          if (blockScalar?.[1]) {
-            const key = blockScalar[1].replace(
-              /-([a-z])/g,
-              (_, letter: string) => letter.toUpperCase(),
-            )
-            index += 1
-            const buffer: string[] = []
-            while (index < lines.length && /^      /.test(lines[index]!)) {
-              buffer.push(lines[index]!.replace(/^      /, '').trimEnd())
-              index += 1
-            }
-            task[key] = buffer.join(' ').trim()
-            continue
-          }
-          if (/^    depends_on:\s*$/.test(taskLine)) {
-            index += 1
-            const items: string[] = []
-            while (index < lines.length && /^      - /.test(lines[index]!)) {
-              items.push(lines[index]!.replace(/^      - /, '').trim())
-              index += 1
-            }
-            task.dependsOn = items
-            continue
-          }
-          parseKV(taskLine.trim(), task)
-          index += 1
-        }
-
-        if (task.id) {
-          const rawDependsOn = task.dependsOn ?? task.depends_on
-          result.tasks.push({
-            id: String(task.id),
-            milestone: String(task.milestone || ''),
-            title: String(task.title || task.id),
-            status: String(task.status || 'ready'),
-            owner:
-              task.owner === 'null' || task.owner == null
-                ? null
-                : String(task.owner),
-            passes: Number(task.passes) || 0,
-            stakes: task.stakes ? String(task.stakes) : undefined,
-            gateHuman:
-              task.gateHuman === 'true' ||
-              task.gateHuman === true ||
-              task.gate_human === 'true' ||
-              task.gate_human === true,
-            note: task.note ? String(task.note) : undefined,
-            dependsOn: Array.isArray(rawDependsOn)
-              ? rawDependsOn.map(String)
-              : rawDependsOn
-                ? String(rawDependsOn)
-                : null,
-            approvedByHuman:
-              task.approvedByHuman === 'true' ||
-              task.approvedByHuman === true ||
-              task.approved_by_human === 'true' ||
-              task.approved_by_human === true,
-            updated: task.updated ? String(task.updated) : null,
-          })
-        }
-      }
-      continue
-    }
-
-    index += 1
-  }
-
-  return result
-}
-
-function parseBlockItem(line: string, target: Record<string, unknown>) {
-  parseKV(line.replace(/^  - /, '').trim(), target)
-}
-
-function parseKV(raw: string, target: Record<string, unknown>) {
-  const match = raw.match(/^([\w-]+):\s*(.*)$/)
-  if (!match?.[1]) return
-  const key = match[1].replace(
-    /-([a-z])/g,
-    (_, letter: string) => letter.toUpperCase(),
-  )
-  target[key] = (match[2] ?? '').replace(/^["']|["']$/g, '').trim()
-}
-
 function parsePitch(filename: string, text: string): ConductorPitch {
   const date = filename.match(/^(\d{4}-\d{2}-\d{2})-/)?.[1] ?? ''
   const slug = filename.replace(/\.md$/, '')
@@ -327,7 +144,10 @@ function parsePitch(filename: string, text: string): ConductorPitch {
       continue
     }
     if (/^status:/.test(line)) {
-      status = line.replace(/^status:\s*/, '').replace(/#.*/, '').trim()
+      status = line
+        .replace(/^status:\s*/, '')
+        .replace(/#.*/, '')
+        .trim()
       continue
     }
     if (/^##\s*The idea/i.test(line)) section = 'idea'
@@ -355,7 +175,8 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
       githubFetch('projects/images') as Promise<GithubContentEntry[]>,
     ])
 
-    if (!overrideFile.content) throw new Error('project-overrides.yaml is empty')
+    if (!overrideFile.content)
+      throw new Error('project-overrides.yaml is empty')
     const registry = parseConductorProjectOverrides(
       b64decode(overrideFile.content),
     )
@@ -376,7 +197,7 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
     const [rawProjects, rawPitches] = await Promise.all([
       Promise.all(
         registry.map(async (override) => {
-          let parsed: ReturnType<typeof parseRoadmapYaml> = {
+          let parsed: ParsedRoadmap = {
             name: '',
             kind: override.kind || 'software',
             goal: undefined,
@@ -404,16 +225,14 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
             conductorPriority: override.priority,
             milestones: parsed.milestones,
             tasks: parsed.tasks,
-            progress: computeProgress(parsed.milestones),
+            progress: computeProgress(parsed.milestones, parsed.tasks),
             ...conductorProjectAssets(override.slug, imageShas),
             ...(parsed.notesFromSilas
               ? { notesFromSilas: parsed.notesFromSilas }
               : {}),
             ...(parsed.goal ? { goal: parsed.goal } : {}),
             ...(override.liveUrl ? { liveUrl: override.liveUrl } : {}),
-            ...(override.channelKey
-              ? { channelKey: override.channelKey }
-              : {}),
+            ...(override.channelKey ? { channelKey: override.channelKey } : {}),
             ...(override.tabKey ? { tabKey: override.tabKey } : {}),
             ...(override.repoUrl ? { repoUrl: override.repoUrl } : {}),
           } satisfies ConductorProject

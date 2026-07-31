@@ -102,8 +102,16 @@
               {{ run.protagonistName || run.title }}
             </p>
             <p class="text-xs font-semibold text-base-content/50">
-              Chapter {{ Math.min(chapterIndex, chapterCount) }} of
-              {{ chapterCount }}
+              <template v-if="narrationMode === 'ai'">
+                Chapter {{ chapterIndex }}
+                <span v-if="narratorName" class="text-base-content/40"
+                  >· narrated by {{ narratorName }}</span
+                >
+              </template>
+              <template v-else>
+                Chapter {{ Math.min(chapterIndex, chapterCount) }} of
+                {{ chapterCount }}
+              </template>
             </p>
           </div>
 
@@ -128,35 +136,97 @@
             </div>
           </div>
 
+          <!-- Narrator is composing this chapter -->
           <div
-            v-if="currentChapterDef"
+            v-if="narrating"
+            class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
+          >
+            <span class="loading loading-dots loading-lg text-primary/70" />
+            <p class="text-xs font-semibold text-base-content/50">
+              {{ narratorName || 'The narrator' }} is writing chapter
+              {{ chapterIndex }}…
+            </p>
+          </div>
+
+          <!-- Narration failed. Per the narration-layer spec a broken chapter
+               surfaces a visible retry rather than a silently fabricated one,
+               so the curated pool is offered as an explicit, labelled choice
+               instead of a transparent fallback. -->
+          <div
+            v-else-if="narrationError"
+            class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/5 p-6 text-center"
+          >
+            <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
+            <p class="text-sm text-base-content/70">
+              The narrator is having trouble with this chapter.
+            </p>
+            <p class="text-xs text-base-content/50">{{ narrationError }}</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                @click="narrateChapter()"
+              >
+                <Icon name="kind-icon:refresh" class="size-4" />
+                Try again
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-sm rounded-xl"
+                @click="useCuratedChapters"
+              >
+                Play the written chapters instead
+              </button>
+            </div>
+          </div>
+
+          <div
+            v-else-if="currentChapter"
             class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-4"
           >
-            <h4 class="text-base font-black">{{ currentChapterDef.title }}</h4>
-            <p class="text-sm leading-relaxed text-base-content/75">
-              {{ currentChapterDef.narrative }}
+            <h4 v-if="currentChapter.title" class="text-base font-black">
+              {{ currentChapter.title }}
+            </h4>
+            <p
+              class="whitespace-pre-line text-sm leading-relaxed text-base-content/75"
+            >
+              {{ currentChapter.narrative }}
             </p>
             <div class="flex flex-col gap-2">
               <button
-                v-for="choice in currentChapterDef.choices"
+                v-for="choice in currentChapter.choices"
                 :key="choice.label"
                 type="button"
-                class="btn btn-outline btn-sm justify-start rounded-xl text-left normal-case"
+                class="btn btn-outline btn-sm h-auto min-h-8 justify-start whitespace-normal rounded-xl py-1.5 text-left normal-case"
                 :disabled="submitting"
                 @click="chooseOption(choice)"
               >
                 {{ choice.label }}
               </button>
             </div>
+            <p
+              v-if="currentChapter.milestoneCandidate"
+              class="text-[0.65rem] italic text-base-content/40"
+            >
+              This life seems headed toward
+              {{ currentChapter.milestoneCandidate }}.
+            </p>
           </div>
 
+          <!-- The run may be ended any time after chapter 3 (narration-layer
+               spec): enough chapters for a meaningful spread of dimensions.
+               The narrator never decides when a life ends — the player does. -->
           <div
-            v-else
+            v-if="!narrating && (canEndRun || !currentChapter)"
             class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
           >
             <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
             <p class="text-sm text-base-content/70">
-              Your chapters are told. It's time to see how this life resolves.
+              {{
+                currentChapter
+                  ? 'You can keep living, or draw the line here and see what it all added up to.'
+                  : "Your chapters are told. It's time to see how this life resolves."
+              }}
             </p>
             <button
               type="button"
@@ -444,6 +514,41 @@ interface ChoiceResponseData {
   stats: LifeStatRow[]
 }
 
+// Mirrors DaVinciNarrationResult in server/utils/davinciNarration.ts. The
+// server has already clamped every delta and rejected any dimension outside
+// DAVINCI_DIMENSIONS by the time this reaches the client — nothing here
+// re-derives effects, it only passes the chosen option's validated `effects`
+// straight through to POST /choices.
+interface NarrationChoice {
+  id: string
+  choiceText: string
+  effects: Record<string, number>
+}
+interface NarrationResponseData {
+  narrativeText: string
+  choices: NarrationChoice[]
+  artPrompt: string | null
+  milestoneCandidate: string | null
+  chapter: number
+  narrator: string
+}
+
+// The unified shape the template renders, whichever source produced it.
+interface ActiveChapter {
+  title: string | null
+  narrative: string
+  choices: LifeChoiceOption[]
+  milestoneCandidate: string | null
+}
+
+// Chapters may be told by the narrator ('ai') or drawn from the curated pool
+// ('curated'). Curated is never entered silently — the player either picks it
+// after a narration failure, or the run has no narrator available.
+type NarrationMode = 'ai' | 'curated'
+
+// A run can be ended any time after this many recorded chapters.
+const MIN_CHAPTERS_BEFORE_ENDING = 3
+
 const STORAGE_KEY = 'davinci-active-life-run-id'
 
 const userStore = useUserStore()
@@ -461,11 +566,32 @@ const submitting = ref(false)
 const protagonistName = ref('')
 const genre = ref('')
 
+const narrationMode = ref<NarrationMode>('ai')
+const narrating = ref(false)
+const narrationError = ref('')
+const narratorName = ref('')
+const aiChapter = ref<ActiveChapter | null>(null)
+
 const chapterIndex = computed(() => playedCount.value + 1)
-const currentChapterDef = computed<LifeChapterDef | null>(() =>
-  chapterIndex.value <= chapterCount
-    ? (CHAPTERS[chapterIndex.value - 1] ?? null)
-    : null,
+
+const curatedChapter = computed<ActiveChapter | null>(() => {
+  if (chapterIndex.value > chapterCount) return null
+  const def = CHAPTERS[chapterIndex.value - 1]
+  if (!def) return null
+  return {
+    title: def.title,
+    narrative: def.narrative,
+    choices: def.choices,
+    milestoneCandidate: null,
+  }
+})
+
+const currentChapter = computed<ActiveChapter | null>(() =>
+  narrationMode.value === 'ai' ? aiChapter.value : curatedChapter.value,
+)
+
+const canEndRun = computed(
+  () => playedCount.value >= MIN_CHAPTERS_BEFORE_ENDING,
 )
 
 function statsToMap(stats: LifeStatRow[]): Record<string, number> {
@@ -505,6 +631,7 @@ async function resumeRun(id: number) {
     phase.value = 'ending'
   } else {
     phase.value = 'playing'
+    if (narrationMode.value === 'ai') await narrateChapter()
   }
 }
 
@@ -536,10 +663,55 @@ async function startLife() {
   awardedNote.value = null
   localStorage.setItem(STORAGE_KEY, String(response.data.id))
   phase.value = 'playing'
+  if (narrationMode.value === 'ai') await narrateChapter()
+}
+
+// Asks the narration layer for the current chapter. Writes nothing — the
+// returned effects only reach the database when the player picks an option and
+// chooseOption() posts it to /choices.
+async function narrateChapter() {
+  if (!run.value) return
+  narrating.value = true
+  narrationError.value = ''
+  aiChapter.value = null
+
+  const response = await performFetch<NarrationResponseData>(
+    `/api/davinci/runs/${run.value.id}/narrate`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ chapter: chapterIndex.value }),
+    },
+  )
+
+  narrating.value = false
+
+  if (!response.success || !response.data) {
+    narrationError.value =
+      response.message || 'The narrator could not be reached.'
+    return
+  }
+
+  narratorName.value = response.data.narrator || ''
+  aiChapter.value = {
+    title: null,
+    narrative: response.data.narrativeText,
+    choices: response.data.choices.map((choice) => ({
+      label: choice.choiceText,
+      effects: choice.effects,
+    })),
+    milestoneCandidate: response.data.milestoneCandidate,
+  }
+}
+
+function useCuratedChapters() {
+  narrationMode.value = 'curated'
+  narrationError.value = ''
+  aiChapter.value = null
 }
 
 async function chooseOption(choice: LifeChoiceOption) {
-  if (!run.value || !currentChapterDef.value) return
+  const chapter = currentChapter.value
+  if (!run.value || !chapter) return
   submitting.value = true
   errorMessage.value = ''
 
@@ -549,7 +721,7 @@ async function chooseOption(choice: LifeChoiceOption) {
       method: 'POST',
       body: JSON.stringify({
         chapter: chapterIndex.value,
-        prompt: currentChapterDef.value.narrative,
+        prompt: chapter.narrative,
         choiceText: choice.label,
         effects: choice.effects,
       }),
@@ -566,6 +738,8 @@ async function chooseOption(choice: LifeChoiceOption) {
 
   statMap.value = statsToMap(response.data.stats || [])
   playedCount.value += 1
+
+  if (narrationMode.value === 'ai') await narrateChapter()
 }
 
 async function resolveLife() {
@@ -604,6 +778,9 @@ function playAgain() {
   protagonistName.value = ''
   genre.value = ''
   errorMessage.value = ''
+  narrationMode.value = 'ai'
+  narrationError.value = ''
+  aiChapter.value = null
   phase.value = 'start'
 }
 

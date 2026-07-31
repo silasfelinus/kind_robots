@@ -67,6 +67,7 @@ const ANIMATION_VISIBLE_HOLD_MS = 1500
 const MIN_TOTAL_MS =
   (EXTRA_MESSAGE_COUNT + 1) * EXTRA_MESSAGE_MS + READY_HOLD_MS
 const OVERLAY_FADE_MS = 650
+const HARD_EXIT_MS = 9000
 
 const startTime = consumeStartupStartedAt()
 
@@ -74,6 +75,7 @@ let destroyed = false
 let rotationIntervalId: ReturnType<typeof setInterval> | null = null
 let fallbackFadeTimeoutId: ReturnType<typeof setTimeout> | null = null
 let readyHoldTimeoutId: ReturnType<typeof setTimeout> | null = null
+let hardExitTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 function wait(ms: number) {
   return new Promise<void>((resolve) => {
@@ -109,6 +111,12 @@ function clearReadyHold() {
   readyHoldTimeoutId = null
 }
 
+function clearHardExit() {
+  if (!hardExitTimeoutId) return
+  clearTimeout(hardExitTimeoutId)
+  hardExitTimeoutId = null
+}
+
 function emitHiddenOnce() {
   if (hiddenEmitted.value) return
   hiddenEmitted.value = true
@@ -120,6 +128,7 @@ function doFade() {
 
   clearRotation()
   clearReadyHold()
+  clearHardExit()
   loadStore.revealDesktop()
   emit('hiding')
   fadeOverlay.value = true
@@ -159,6 +168,24 @@ function scheduleFade() {
   readyHoldTimeoutId = setTimeout(() => {
     doFade()
   }, holdNeeded)
+}
+
+function startHardExitWatchdog() {
+  const remaining = Math.max(0, startTime + HARD_EXIT_MS - Date.now())
+
+  hardExitTimeoutId = setTimeout(() => {
+    hardExitTimeoutId = null
+
+    if (
+      startupStore.controlsActive &&
+      document.querySelector('.startup-animation__controls--active')
+    ) {
+      return
+    }
+
+    exitRequested.value = true
+    doFade()
+  }, remaining)
 }
 
 function handleIntroVisualSettled(kind: 'logo' | 'animation') {
@@ -224,15 +251,13 @@ watch(
   () => startupStore.exitRequest,
   () => {
     exitRequested.value = true
-
-    if (props.storesReady) {
-      doFade()
-    }
+    doFade()
   },
 )
 
 onMounted(async () => {
   emit('covered')
+  startHardExitWatchdog()
   await runVisualSequence()
 })
 
@@ -240,6 +265,7 @@ onBeforeUnmount(() => {
   destroyed = true
   clearRotation()
   clearReadyHold()
+  clearHardExit()
 
   if (fallbackFadeTimeoutId) {
     clearTimeout(fallbackFadeTimeoutId)

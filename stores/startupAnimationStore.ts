@@ -31,7 +31,6 @@ export const useStartupAnimationStore = defineStore(
     function reset(): void {
       controlsActive.value = false
       immersive.value = false
-      exitRequest.value = 0
     }
 
     return {

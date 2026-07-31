@@ -11,6 +11,10 @@ const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
 const EMERGENCY_EXIT_AT_MS = 6000
 const FADE_CLEANUP_MS = 700
 
+type StartupCompositionWindow = Window & {
+  __KR_STARTUP_SHELL_WATCHDOG__?: number
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   const root = document.documentElement
   const butterflyStore = useButterflyStore()
@@ -32,6 +36,15 @@ export default defineNuxtPlugin((nuxtApp) => {
     emergencyExitTimer = null
   }
 
+  function clearShellWatchdog(): void {
+    const startupWindow = window as StartupCompositionWindow
+    const watchdog = startupWindow.__KR_STARTUP_SHELL_WATCHDOG__
+    if (typeof watchdog !== 'number') return
+
+    window.clearTimeout(watchdog)
+    delete startupWindow.__KR_STARTUP_SHELL_WATCHDOG__
+  }
+
   function beginFade(): void {
     const startupActive =
       root.classList.contains(ACTIVE_CLASS) ||
@@ -47,6 +60,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   function cleanup(): void {
     clearCleanupTimer()
     clearEmergencyExitTimer()
+    clearShellWatchdog()
     butterflyStore.setShowSwarm(false)
     root.classList.remove(
       ACTIVE_CLASS,

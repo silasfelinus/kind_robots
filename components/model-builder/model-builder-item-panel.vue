@@ -352,7 +352,7 @@ watch(
 )
 
 const isGenerating = computed(() => store.generatingItemId === props.itemId)
-const isQueued = computed(() => Boolean(item.value?.artJobId))
+const isQueued = computed(() => Boolean(item.value?.queueState))
 const isCommitting = computed(() => store.committingItemId === props.itemId)
 const isAutoBuilding = computed(() => store.autoBuildingItemId === props.itemId)
 

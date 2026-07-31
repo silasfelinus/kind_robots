@@ -70,7 +70,10 @@ assert.ok(
  */
 const readNumber = (source, pattern, label) => {
   const match = source.match(pattern)
-  assert.ok(match, `Could not read ${label} — the startup timing contract moved.`)
+  if (!match) {
+    assert.fail(`Could not read ${label} — the startup timing contract moved.`)
+  }
+
   return Number(match[1])
 }
 

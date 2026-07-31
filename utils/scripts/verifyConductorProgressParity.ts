@@ -41,11 +41,15 @@ function referenceProgress(
   milestones: ConductorMilestone[],
   tasks: ConductorTask[],
 ): number {
-  const totalM = milestones.reduce((sum, m) => sum + (m.weight || 10), 0)
+  // Weights are used as parsed. The `weight: 10` default belongs to the parse
+  // step (build_status.py spells it `m.get("weight", 10)`, which fires only on
+  // an ABSENT key) — re-defaulting here with `|| 10` would resurrect the exact
+  // explicit-zero bug the fixture below exists to catch.
+  const totalM = milestones.reduce((sum, m) => sum + m.weight, 0)
   const doneM = milestones.reduce(
     (sum, m) =>
       sum +
-      (m.weight || 10) *
+      m.weight *
         (m.status === 'done' ? 1 : m.status === 'in-progress' ? 0.5 : 0),
     0,
   )
@@ -185,6 +189,136 @@ tasks:
     passes: 0
 `,
   },
+  {
+    // Real shape from conductor's brainstorm roadmap. build_status.py's
+    // `m.get("weight", 10)` defaults only on an ABSENT key, so an explicit
+    // `weight: 0` contributes nothing and the task ratio takes over. A
+    // `Number(w) || 10` default silently turns that 0 into 10 and reports 50%.
+    name: 'explicit weight: 0 is honoured, not defaulted to 10',
+    expected: 0,
+    yaml: `project: brainstorm
+kind: proposal
+
+milestones:
+  - id: m1
+    title: Idea engine running
+    weight: 0
+    status: in-progress
+tasks:
+  - id: t-001
+    milestone: m1
+    title: Generate this cycle's pitches
+    status: ready
+`,
+  },
+]
+
+// Shapes that the previous hand-rolled line-regex parser silently truncated.
+// Each of these is drawn from a real conductor roadmap; every one of them
+// produced a wrong, smaller-looking project on the live board.
+const parserFixtures: Array<{
+  name: string
+  yaml: string
+  milestones: number
+  tasks: number
+}> = [
+  {
+    // davinci: blank lines between sequence items ended the scan early —
+    // 1 of 4 milestones and 1 of 16 tasks survived.
+    name: 'blank lines between sequence items',
+    milestones: 2,
+    tasks: 2,
+    yaml: `project: spaced
+kind: software
+
+milestones:
+  - id: m1
+    title: "One"
+    weight: 10
+    status: done
+
+  - id: m2
+    title: "Two"
+    weight: 10
+    status: done
+
+tasks:
+  - id: t-001
+    milestone: m1
+    title: "First"
+    status: done
+
+  - id: t-002
+    milestone: m2
+    title: "Second"
+    status: done
+`,
+  },
+  {
+    // lora-ingestion: yq/PyYAML emit block sequences at column 0.
+    // `/^ {2}- /` never matched, so the whole project read as empty.
+    name: 'sequences at column 0',
+    milestones: 1,
+    tasks: 2,
+    yaml: `project: flush-left
+kind: infrastructure
+milestones:
+- id: m1
+  title: Path resolution
+  weight: 20
+  status: done
+tasks:
+- id: t-001
+  milestone: m1
+  title: First
+  status: done
+- id: t-002
+  milestone: m1
+  title: Second
+  status: ready
+`,
+  },
+  {
+    // challenge-center: PyYAML emits a double-quoted multi-line scalar when the
+    // text contains escapes. The old reader only recognised `>` and `|` blocks,
+    // fell through into the quoted body, and never recovered — 0 of 20 tasks.
+    name: 'double-quoted multi-line scalar instead of a block',
+    milestones: 1,
+    tasks: 1,
+    yaml: `project: quoted
+kind: software
+notes_from_silas: "A comparison arena. Core mechanic: issue a prompt \\u2192\\
+  \\nCONTENDERS produce an artifact \\u2192 users vote\\n\\nmilestones: not a real key\\n\\
+  \\ntasks: also not a real key\\n"
+milestones:
+  - id: m1
+    title: "Real milestone"
+    weight: 10
+    status: done
+tasks:
+  - id: t-001
+    milestone: m1
+    title: "Real task"
+    status: done
+`,
+  },
+  {
+    name: 'snake_case task fields normalize to camelCase',
+    milestones: 0,
+    tasks: 1,
+    yaml: `project: snake
+kind: software
+tasks:
+  - id: t-001
+    milestone: m1
+    title: "Gated"
+    status: needs-human
+    gate_human: true
+    approved_by_human: true
+    depends_on:
+      - t-000
+`,
+  },
 ]
 
 console.log('Conductor roadmap progress parity')
@@ -205,6 +339,33 @@ for (const fixture of fixtures) {
     `endpoint ${actual}% vs conductor ${reference.toFixed(1)}%`,
   )
 }
+
+console.log('Roadmap parsing — shapes that used to truncate silently')
+
+for (const fixture of parserFixtures) {
+  const parsed = parseRoadmapYaml(fixture.yaml)
+  check(
+    fixture.name,
+    parsed.milestones.length === fixture.milestones &&
+      parsed.tasks.length === fixture.tasks,
+    `expected ${fixture.milestones} milestones / ${fixture.tasks} tasks, got ` +
+      `${parsed.milestones.length} / ${parsed.tasks.length}`,
+  )
+}
+
+const snake = parseRoadmapYaml(parserFixtures[3]!.yaml).tasks[0]!
+check(
+  '  ↳ gate_human / approved_by_human / depends_on map through',
+  snake.gateHuman === true &&
+    snake.approvedByHuman === true &&
+    Array.isArray(snake.dependsOn) &&
+    snake.dependsOn[0] === 't-000',
+  JSON.stringify(snake),
+)
+check(
+  'a malformed roadmap yields an empty parse rather than throwing',
+  parseRoadmapYaml('project: broken\n  : : :\n- - -\n').tasks.length === 0,
+)
 
 console.log('Roadmap parsing sanity')
 

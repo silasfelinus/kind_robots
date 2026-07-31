@@ -7,8 +7,12 @@
   opt-in; "hide owned" filters rows you already have.
 -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
-    <header class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
       <div class="min-w-0">
         <h2 class="truncate text-lg font-bold text-base-content">
           Discover {{ discoverType === 'CHECKPOINT' ? 'Checkpoints' : 'LoRAs' }}
@@ -59,26 +63,25 @@
           <option value="Illustrious">Illustrious</option>
         </select>
 
-        <button class="btn btn-primary rounded-xl" type="submit" :disabled="loading">
+        <button
+          class="btn btn-primary rounded-xl"
+          type="submit"
+          :disabled="loading"
+        >
           <span v-if="loading" class="loading loading-spinner loading-sm" />
           <Icon v-else name="kind-icon:search" class="h-4 w-4" />
           {{ source === 'civarchive' ? 'Look up' : 'Search' }}
         </button>
       </form>
 
-      <div class="flex flex-wrap items-center gap-4">
-        <label
-          v-if="canShowMature"
-          class="label cursor-pointer justify-start gap-2 p-0"
-        >
-          <input
-            v-model="includeMature"
-            type="checkbox"
-            class="toggle toggle-warning toggle-sm"
-          />
-          <span class="label-text text-sm">Include mature</span>
-        </label>
+      <maturity-toggle
+        variant="resource"
+        label="Mature discovery results"
+        visible-text="Mature LoRAs and checkpoints are included in searches."
+        hidden-text="Mature LoRAs and checkpoints are excluded from searches."
+      />
 
+      <div class="flex flex-wrap items-center gap-4">
         <label class="label cursor-pointer justify-start gap-2 p-0">
           <input
             v-model="hideOwned"
@@ -144,7 +147,9 @@
             class="btn btn-sm mt-auto rounded-xl"
             :class="downloadButtonClass(card)"
             type="button"
-            :disabled="!canQueue(card) || queuing === card.civitaiModelVersionId"
+            :disabled="
+              !canQueue(card) || queuing === card.civitaiModelVersionId
+            "
             @click="queueDownload(card)"
           >
             <span
@@ -183,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 
@@ -214,7 +219,6 @@ const query = ref('')
 const discoverType = ref<'LORA' | 'CHECKPOINT'>('LORA')
 const source = ref<'civitai' | 'civarchive'>('civitai')
 const baseModel = ref('')
-const includeMature = ref(false)
 const hideOwned = ref(false)
 
 const cards = ref<DiscoverCard[]>([])
@@ -223,8 +227,6 @@ const loading = ref(false)
 const error = ref('')
 const queuing = ref<number | null>(null)
 const queuedIds = ref<Set<number>>(new Set())
-
-const canShowMature = computed(() => userStore.showMature)
 
 const visibleCards = computed(() => {
   if (!hideOwned.value) return cards.value
@@ -235,8 +237,6 @@ function isQueued(card: DiscoverCard): boolean {
   return queuedIds.value.has(card.civitaiModelVersionId)
 }
 
-// Civitai cards are always downloadable (the agent builds the by-version URL);
-// CivArchive cards need an explicit downloadUrl from the archive.
 function isDownloadable(card: DiscoverCard): boolean {
   return card.source === 'CIVITAI' || Boolean(card.downloadUrl)
 }
@@ -267,7 +267,7 @@ function downloadButtonLabel(card: DiscoverCard): string {
   return 'Download'
 }
 
-async function runSearch(reset: boolean) {
+async function runSearch(reset: boolean): Promise<void> {
   if (loading.value) return
 
   loading.value = true
@@ -285,7 +285,7 @@ async function runSearch(reset: boolean) {
     if (query.value.trim()) params.set('q', query.value.trim())
     if (source.value === 'civitai') {
       if (baseModel.value) params.set('baseModel', baseModel.value)
-      if (includeMature.value && canShowMature.value) params.set('nsfw', 'true')
+      if (userStore.showMature) params.set('nsfw', 'true')
       if (!reset && nextCursor.value) params.set('cursor', nextCursor.value)
     }
 
@@ -299,14 +299,14 @@ async function runSearch(reset: boolean) {
 
     cards.value = reset ? res.data.items : [...cards.value, ...res.data.items]
     nextCursor.value = res.data.nextCursor
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Search failed.'
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : 'Search failed.'
   } finally {
     loading.value = false
   }
 }
 
-async function queueDownload(card: DiscoverCard) {
+async function queueDownload(card: DiscoverCard): Promise<void> {
   if (card.owned || isQueued(card) || queuing.value) return
 
   queuing.value = card.civitaiModelVersionId
@@ -333,13 +333,24 @@ async function queueDownload(card: DiscoverCard) {
       throw new Error(res.message || 'Could not queue the download.')
     }
 
-    // Mark queued (or owned) so the button reflects state immediately.
-    queuedIds.value = new Set(queuedIds.value).add(card.civitaiModelVersionId)
+    queuedIds.value = new Set(queuedIds.value).add(
+      card.civitaiModelVersionId,
+    )
     if (res.data?.alreadyOwned) card.owned = true
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Could not queue the download.'
+  } catch (cause) {
+    error.value =
+      cause instanceof Error ? cause.message : 'Could not queue the download.'
   } finally {
     queuing.value = null
   }
 }
+
+watch(
+  () => userStore.showMature,
+  () => {
+    if (cards.value.length || query.value.trim()) {
+      void runSearch(true)
+    }
+  },
+)
 </script>

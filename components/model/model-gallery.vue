@@ -8,8 +8,12 @@
   all (no pagination).
 -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-y-auto rounded-2xl bg-base-300 p-3">
-    <header class="sticky top-0 z-10 flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-y-auto rounded-2xl bg-base-300 p-3"
+  >
+    <header
+      class="sticky top-0 z-10 flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-bold text-base-content">
@@ -30,6 +34,13 @@
         </button>
       </div>
 
+      <maturity-toggle
+        variant="resource"
+        label="Mature checkpoint models"
+        visible-text="Mature checkpoint models are included in this gallery."
+        hidden-text="Mature checkpoint models are hidden from this gallery."
+      />
+
       <div class="grid gap-2 md:grid-cols-[1fr_auto_auto_auto]">
         <input
           v-model="searchQuery"
@@ -37,14 +48,20 @@
           placeholder="Search name, label, path"
         />
 
-        <select v-model="selectedBase" class="select select-bordered rounded-xl">
+        <select
+          v-model="selectedBase"
+          class="select select-bordered rounded-xl"
+        >
           <option value="all">All bases</option>
           <option v-for="base in baseOptions" :key="base" :value="base">
             {{ base }}
           </option>
         </select>
 
-        <select v-model="maturityFilter" class="select select-bordered rounded-xl">
+        <select
+          v-model="maturityFilter"
+          class="select select-bordered rounded-xl"
+        >
           <option value="all">All ratings</option>
           <option value="sfw">SFW only</option>
           <option value="mature">Mature only</option>
@@ -70,22 +87,19 @@
     >
       <p class="font-bold">No models found.</p>
       <p class="text-sm text-base-content/60">
-        {{
-          resourceStore.isLoading
-            ? 'Loading models…'
-            : 'Try another filter.'
-        }}
+        {{ resourceStore.isLoading ? 'Loading models…' : 'Try another filter.' }}
       </p>
     </div>
 
     <template v-else>
-      <!-- Image base models, grouped -->
       <div
         v-for="group in imageGroups"
         :key="`img-${group.base}`"
         class="flex flex-col gap-2"
       >
-        <h3 class="flex items-center gap-2 px-1 text-sm font-bold text-base-content/80">
+        <h3
+          class="flex items-center gap-2 px-1 text-sm font-bold text-base-content/80"
+        >
           <span class="badge badge-secondary badge-sm">{{ group.base }}</span>
           <span class="text-base-content/45">{{ group.items.length }}</span>
         </h3>
@@ -101,7 +115,6 @@
         </div>
       </div>
 
-      <!-- Non-image checkpoints (3D / Audio / Video) in their own section -->
       <template v-if="nonImageGroups.length">
         <div class="divider text-xs font-bold uppercase text-base-content/50">
           Other · non-image models
@@ -112,7 +125,9 @@
           :key="`other-${group.base}`"
           class="flex flex-col gap-2"
         >
-          <h3 class="flex items-center gap-2 px-1 text-sm font-bold text-base-content/80">
+          <h3
+            class="flex items-center gap-2 px-1 text-sm font-bold text-base-content/80"
+          >
             <span class="badge badge-ghost badge-sm">{{ group.base }}</span>
             <span class="text-base-content/45">{{ group.items.length }}</span>
           </h3>
@@ -150,7 +165,6 @@ const editing = ref<Partial<Resource> | null>(null)
 
 const showMature = computed(() => userStore.showMature)
 
-// Base models that are not still-image checkpoints — grouped separately.
 const NON_IMAGE_BASES = new Set(['3D', 'AUDIO', 'VIDEO'])
 
 function safeText(value: unknown): string {
@@ -162,10 +176,10 @@ function safeText(value: unknown): string {
   return ''
 }
 
-// Base model: prefer the checkpoint's top folder (reliable post-repair), then
-// the tagged generation / supportedServer.
 function baseOf(model: Partial<Resource>): string {
-  const path = safeText(model.localPath).replaceAll('\\', '/').replace(/^\/+/, '')
+  const path = safeText(model.localPath)
+    .replaceAll('\\', '/')
+    .replace(/^\/+/, '')
   const folder = path.includes('/') ? path.split('/')[0] : ''
 
   return (
@@ -234,7 +248,6 @@ const grouped = computed<ModelGroup[]>(() => {
     ),
   }))
 
-  // Image bases first (alpha), non-image bases last (alpha).
   return groups.sort(
     (a, b) =>
       Number(a.isNonImage) - Number(b.isNonImage) ||
@@ -242,8 +255,12 @@ const grouped = computed<ModelGroup[]>(() => {
   )
 })
 
-const imageGroups = computed(() => grouped.value.filter((g) => !g.isNonImage))
-const nonImageGroups = computed(() => grouped.value.filter((g) => g.isNonImage))
+const imageGroups = computed(() =>
+  grouped.value.filter((group) => !group.isNonImage),
+)
+const nonImageGroups = computed(() =>
+  grouped.value.filter((group) => group.isNonImage),
+)
 
 const summaryText = computed(() => {
   const total = resourceStore.visibleCheckpoints.length
@@ -253,22 +270,22 @@ const summaryText = computed(() => {
   return `${shown} of ${total} models`
 })
 
-function openAdd() {
+function openAdd(): void {
   editing.value = null
   showForm.value = true
 }
 
-function openEdit(model: Partial<Resource>) {
+function openEdit(model: Partial<Resource>): void {
   editing.value = model
   showForm.value = true
 }
 
-function closeForm() {
+function closeForm(): void {
   showForm.value = false
   editing.value = null
 }
 
-function handleSaved() {
+function handleSaved(): void {
   closeForm()
 }
 

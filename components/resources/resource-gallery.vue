@@ -28,7 +28,6 @@ const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
 const activeUploadResourceId = ref<number | null>(null)
 
-// Add/edit: only CHECKPOINT and LORA/LYCORIS have a dedicated form today.
 const showAddChoice = ref(false)
 const showForm = ref(false)
 const formKind = ref<'CHECKPOINT' | 'LORA'>('CHECKPOINT')
@@ -54,7 +53,8 @@ function startAdd(kind: 'CHECKPOINT' | 'LORA'): void {
 }
 
 function openEdit(resource: ResourceGalleryRecord): void {
-  formKind.value = resource.resourceType === RESOURCE_TYPE.CHECKPOINT ? 'CHECKPOINT' : 'LORA'
+  formKind.value =
+    resource.resourceType === RESOURCE_TYPE.CHECKPOINT ? 'CHECKPOINT' : 'LORA'
   editing.value = resource
   showForm.value = true
 }
@@ -66,15 +66,16 @@ function closeForm(): void {
 }
 
 async function handleSaved(resource: Resource): Promise<void> {
-  // Re-fetch by id so the gallery card gets the full shape (ArtImage preview,
-  // usage counts) the plain resourceStore save response doesn't carry.
   await resourceGalleryStore.getResource(resource.id)
   closeForm()
 }
 
 const resourceTypes = computed(() => {
-  return [...new Set(resourceGalleryStore.resources.map((entry) => entry.resourceType))]
-    .sort()
+  return [
+    ...new Set(
+      resourceGalleryStore.resources.map((entry) => entry.resourceType),
+    ),
+  ].sort()
 })
 
 const generations = computed(() => {
@@ -91,7 +92,10 @@ const filteredResources = computed(() => {
   const search = query.value.trim().toLowerCase()
 
   return resourceGalleryStore.resources.filter((entry) => {
-    if (resourceType.value !== 'ALL' && entry.resourceType !== resourceType.value) {
+    if (
+      resourceType.value !== 'ALL' &&
+      entry.resourceType !== resourceType.value
+    ) {
       return false
     }
 
@@ -127,7 +131,9 @@ function resourceEngineName(resource: ResourceGalleryRecord): string {
 }
 
 function triggerText(resource: ResourceGalleryRecord): string {
-  return resource.defaultTrigger || resource.triggerWords || resource.artPrompt || ''
+  return (
+    resource.defaultTrigger || resource.triggerWords || resource.artPrompt || ''
+  )
 }
 
 function previewSrc(resource: ResourceGalleryRecord): string {
@@ -208,7 +214,9 @@ function startGeneration(resource: ResourceGalleryRecord): void {
   )
 }
 
-async function generatePreview(resource: ResourceGalleryRecord): Promise<void> {
+async function generatePreview(
+  resource: ResourceGalleryRecord,
+): Promise<void> {
   activePreviewResourceId.value = resource.id
   message.value = ''
 
@@ -236,7 +244,9 @@ function readFileAsDataUrl(file: File): Promise<string> {
   })
 }
 
-async function choosePreviewFile(resource: ResourceGalleryRecord): Promise<void> {
+async function choosePreviewFile(
+  resource: ResourceGalleryRecord,
+): Promise<void> {
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = 'image/png,image/jpeg,image/webp,image/avif'
@@ -281,14 +291,18 @@ onMounted(async () => {
 
 <template>
   <section class="flex min-h-full w-full flex-col gap-4">
-    <header class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
-      <div class="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+    <header
+      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm"
+    >
+      <div
+        class="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between"
+      >
         <div>
           <h2 class="text-2xl font-bold">Resource Gallery</h2>
           <p class="max-w-3xl text-sm text-base-content/65">
-            Browse checkpoints, LoRAs, embeddings, and generation tools. Add one to
-            the current build, start fresh, or manufacture a preview when the catalog
-            arrived wearing a paper bag over its head.
+            Browse checkpoints, LoRAs, embeddings, and generation tools. Add one
+            to the current build, start fresh, or manufacture a preview when the
+            catalog arrived wearing a paper bag over its head.
           </p>
         </div>
 
@@ -318,6 +332,14 @@ onMounted(async () => {
         </div>
       </div>
 
+      <maturity-toggle
+        class="mt-4"
+        variant="resource"
+        label="Mature Resources"
+        visible-text="Mature LoRAs and checkpoint models are included."
+        hidden-text="Mature LoRAs and checkpoint models are hidden."
+      />
+
       <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <label class="form-control">
           <span class="label-text text-xs">Search</span>
@@ -331,7 +353,10 @@ onMounted(async () => {
 
         <label class="form-control">
           <span class="label-text text-xs">Type</span>
-          <select v-model="resourceType" class="select select-bordered rounded-2xl">
+          <select
+            v-model="resourceType"
+            class="select select-bordered rounded-2xl"
+          >
             <option value="ALL">All types</option>
             <option v-for="type in resourceTypes" :key="type" :value="type">
               {{ type }}
@@ -341,7 +366,10 @@ onMounted(async () => {
 
         <label class="form-control">
           <span class="label-text text-xs">Base model</span>
-          <select v-model="generation" class="select select-bordered rounded-2xl">
+          <select
+            v-model="generation"
+            class="select select-bordered rounded-2xl"
+          >
             <option value="ALL">All base models</option>
             <option v-for="base in generations" :key="base" :value="base">
               {{ base }}
@@ -351,7 +379,10 @@ onMounted(async () => {
 
         <label class="form-control">
           <span class="label-text text-xs">Maturity</span>
-          <select v-model="maturity" class="select select-bordered rounded-2xl">
+          <select
+            v-model="maturity"
+            class="select select-bordered rounded-2xl"
+          >
             <option value="ALL">Visible Resources</option>
             <option value="SAFE">Safe only</option>
             <option value="MATURE">Mature only</option>
@@ -423,7 +454,10 @@ onMounted(async () => {
     </div>
 
     <div
-      v-if="resourceGalleryStore.isLoading && !resourceGalleryStore.resources.length"
+      v-if="
+        resourceGalleryStore.isLoading &&
+        !resourceGalleryStore.resources.length
+      "
       class="flex min-h-72 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
     >
       <span class="loading loading-spinner loading-lg text-primary" />
@@ -454,11 +488,18 @@ onMounted(async () => {
           />
 
           <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-            <span class="badge badge-primary badge-sm">{{ resource.resourceType }}</span>
-            <span v-if="resource.generation" class="badge badge-neutral badge-sm">
+            <span class="badge badge-primary badge-sm">
+              {{ resource.resourceType }}
+            </span>
+            <span
+              v-if="resource.generation"
+              class="badge badge-neutral badge-sm"
+            >
               {{ resource.generation }}
             </span>
-            <span v-if="resource.isMature" class="badge badge-error badge-sm">18+</span>
+            <span v-if="resource.isMature" class="badge badge-error badge-sm">
+              18+
+            </span>
           </div>
 
           <div

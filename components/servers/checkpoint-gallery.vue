@@ -1,7 +1,12 @@
 <!-- /components/content/art/checkpoint-gallery.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
-    <header v-if="showHeader" class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
+    <header
+      v-if="showHeader"
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-bold text-base-content">
@@ -23,14 +28,20 @@
         </button>
       </div>
 
-      <div v-if="showControls" class="grid gap-2 md:grid-cols-[1fr_auto_auto]">
+      <div
+        v-if="showControls"
+        class="grid gap-2 md:grid-cols-[1fr_auto_auto]"
+      >
         <input
           v-model="searchQuery"
           class="input input-bordered rounded-xl"
           placeholder="Search checkpoints"
         />
 
-        <select v-model="selectedFamily" class="select select-bordered rounded-xl">
+        <select
+          v-model="selectedFamily"
+          class="select select-bordered rounded-xl"
+        >
           <option value="all">All</option>
           <option value="A1111">A1111</option>
           <option value="COMFY">COMFY</option>
@@ -51,11 +62,21 @@
       </div>
     </header>
 
+    <maturity-toggle
+      variant="resource"
+      label="Mature checkpoint models"
+      visible-text="Mature checkpoint models are available for selection."
+      hidden-text="Mature checkpoint models are hidden from selection."
+    />
+
     <add-checkpoint v-if="showAdd" />
 
     <server-status v-if="showStatus" compact />
 
-    <div v-if="showSampler" class="rounded-2xl border border-base-300 bg-base-100 p-3">
+    <div
+      v-if="showSampler"
+      class="rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
       <label class="form-control">
         <span class="label-text font-bold">Sampler</span>
         <select
@@ -75,7 +96,10 @@
       </label>
     </div>
 
-    <div class="grid gap-3" :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'">
+    <div
+      class="grid gap-3"
+      :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'"
+    >
       <checkpoint-card
         v-for="checkpoint in filteredCheckpoints"
         :key="checkpoint.id || checkpoint.name"
@@ -89,7 +113,10 @@
       />
     </div>
 
-    <div v-if="!filteredCheckpoints.length" class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center">
+    <div
+      v-if="!filteredCheckpoints.length"
+      class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
+    >
       <p class="font-bold">No checkpoints found.</p>
       <p class="text-sm text-base-content/60">
         Try another filter or add a checkpoint.
@@ -105,7 +132,13 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useServerStore } from '@/stores/serverStore'
 
 type CheckpointGalleryVariant = 'dashboard' | 'compact' | 'selector'
-type CheckpointModelFamily = 'all' | 'A1111' | 'COMFY' | 'FLUX' | 'KONTEXT' | 'SDXL'
+type CheckpointModelFamily =
+  | 'all'
+  | 'A1111'
+  | 'COMFY'
+  | 'FLUX'
+  | 'KONTEXT'
+  | 'SDXL'
 
 const props = withDefaults(
   defineProps<{
@@ -160,7 +193,9 @@ const title = computed(() => props.title)
 const subtitleText = computed(() => {
   if (props.subtitle) return props.subtitle
   const server = serverStore.activeArtServer
-  return server ? `Active server: ${server.label || server.title} · ${server.serverType}` : 'Checkpoint choices are resources, not server capabilities.'
+  return server
+    ? `Active server: ${server.label || server.title} · ${server.serverType}`
+    : 'Checkpoint choices are resources, not server capabilities.'
 })
 
 const compact = computed(() => props.compact || props.variant === 'compact')
@@ -170,9 +205,15 @@ const filteredCheckpoints = computed<Partial<Resource>[]>(() => {
 
   return checkpointStore.visibleCheckpoints.filter((checkpoint) => {
     const family = selectedFamily.value
-    const supportedServer = String(checkpoint.supportedServer || checkpoint.generation || '').toUpperCase()
+    const supportedServer = String(
+      checkpoint.supportedServer || checkpoint.generation || '',
+    ).toUpperCase()
 
-    if (family !== 'all' && supportedServer && !supportedServer.includes(family)) {
+    if (
+      family !== 'all' &&
+      supportedServer &&
+      !supportedServer.includes(family)
+    ) {
       return false
     }
 
@@ -191,12 +232,12 @@ const filteredCheckpoints = computed<Partial<Resource>[]>(() => {
   })
 })
 
-function selectSampler(event: Event) {
+function selectSampler(event: Event): void {
   const target = event.target as HTMLSelectElement
   checkpointStore.selectSamplerByName(target.value)
 }
 
-async function refreshStatus() {
+async function refreshStatus(): Promise<void> {
   await checkpointStore.checkActiveModel()
 }
 

@@ -49,6 +49,60 @@ assert.ok(videoGenerator.includes('<content-visibility-controls'))
 assert.ok(videoGenerator.includes('isMature: isMature.value'))
 assert.ok(videoGenerator.includes('isPublic: isPublic.value'))
 
+const videoLoraPicker = readFileSync(
+  'components/video-lora-picker.vue',
+  'utf8',
+)
+assert.ok(videoLoraPicker.includes('<maturity-toggle'))
+assert.ok(videoLoraPicker.includes('resourceStore.visibleLoras'))
+assert.ok(!videoLoraPicker.includes('artStore.showMature'))
+
+const artLoraPicker = readFileSync('components/art/lora-picker.vue', 'utf8')
+assert.ok(artLoraPicker.includes('<maturity-toggle'))
+assert.ok(artLoraPicker.includes('resourceStore.visibleLoras'))
+assert.ok(artLoraPicker.includes('availableLoraIds'))
+assert.ok(!artLoraPicker.includes('artStore.showMature'))
+
+const artMaker = readFileSync('components/art/art-maker.vue', 'utf8')
+assert.ok(artMaker.includes('label="Mature checkpoint models"'))
+assert.ok(artMaker.includes('checkpointStore.visibleCheckpoints'))
+assert.ok(!artMaker.includes('artStore.showMature'))
+
+for (const file of [
+  'components/lora/lora-gallery.vue',
+  'components/model/model-gallery.vue',
+  'components/servers/checkpoint-gallery.vue',
+  'components/resources/resource-gallery.vue',
+]) {
+  const source = readFileSync(file, 'utf8')
+  assert.ok(source.includes('<maturity-toggle'), `${file} needs maturity toggle`)
+}
+
+const loraDiscover = readFileSync(
+  'components/lora/lora-discover.vue',
+  'utf8',
+)
+assert.ok(loraDiscover.includes('<maturity-toggle'))
+assert.ok(
+  loraDiscover.includes("if (userStore.showMature) params.set('nsfw', 'true')"),
+)
+assert.ok(!loraDiscover.includes('includeMature'))
+
+const maturityToggle = readFileSync(
+  'components/navigation/maturity-toggle.vue',
+  'utf8',
+)
+assert.ok(maturityToggle.includes("variant === 'resource'"))
+assert.ok(maturityToggle.includes('accountStore.updateConsent'))
+assert.ok(maturityToggle.includes('showMature: value'))
+
+const accountStore = readFileSync('stores/accountStore.ts', 'utf8')
+assert.ok(accountStore.includes('refreshMaturityResources'))
+assert.ok(accountStore.includes('resourceStore.getResources(true)'))
+assert.ok(accountStore.includes('resourceGalleryStore.loadResources()'))
+assert.ok(accountStore.includes('loraResourceIds: visibleLoraIds'))
+assert.ok(accountStore.includes('checkpointResourceId: null'))
+
 const queueEditor = readFileSync('components/art/artjob-editor.vue', 'utf8')
 assert.ok(queueEditor.includes('v-model:is-mature="form.isMature"'))
 assert.ok(queueEditor.includes('isMature: form.isMature'))

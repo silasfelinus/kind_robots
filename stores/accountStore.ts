@@ -38,6 +38,19 @@ export type ConsentPatch = {
 
 type ActionResult = { success: boolean; message: string }
 
+type ResourceLike = {
+  id: number
+  name?: string | null
+  customLabel?: string | null
+  localPath?: string | null
+  resourceType?: string | null
+  isMature?: boolean | null
+}
+
+function resourceEngineName(resource: ResourceLike | undefined): string {
+  return resource?.localPath || resource?.name || resource?.customLabel || ''
+}
+
 export const useAccountStore = defineStore('accountStore', () => {
   const userStore = useUserStore()
 
@@ -48,6 +61,98 @@ export const useAccountStore = defineStore('accountStore', () => {
   function patchLocalUser(patch: Record<string, unknown>): void {
     if (userStore.user) {
       userStore.setUser({ ...userStore.user, ...patch } as User)
+    }
+  }
+
+  async function refreshMaturityResources(showMature: boolean): Promise<void> {
+    try {
+      const [
+        { useResourceStore },
+        { useResourceGalleryStore },
+        { useCheckpointStore },
+        { useArtStore },
+      ] = await Promise.all([
+        import('./resourceStore'),
+        import('./resourceGalleryStore'),
+        import('./checkpointStore'),
+        import('./artStore'),
+      ])
+
+      const resourceStore = useResourceStore()
+      const resourceGalleryStore = useResourceGalleryStore()
+      const checkpointStore = useCheckpointStore()
+      const artStore = useArtStore()
+
+      if (!showMature) {
+        const currentResources = resourceStore.resources as ResourceLike[]
+        const matureResources = currentResources.filter(
+          (resource) => resource.isMature === true,
+        )
+        const matureIds = new Set(matureResources.map((resource) => resource.id))
+        const matureLoraNames = new Set(
+          matureResources
+            .filter((resource) => {
+              const type = String(resource.resourceType || '').toUpperCase()
+              return type === 'LORA' || type === 'LYCORIS'
+            })
+            .map(resourceEngineName)
+            .filter(Boolean),
+        )
+        const matureCheckpointNames = new Set(
+          matureResources
+            .filter(
+              (resource) =>
+                String(resource.resourceType || '').toUpperCase() ===
+                'CHECKPOINT',
+            )
+            .map(resourceEngineName)
+            .filter(Boolean),
+        )
+
+        const currentLoraIds = artStore.artForm.loraResourceIds ?? []
+        const visibleLoraIds = currentLoraIds.filter((id) => !matureIds.has(id))
+        const loraSelectionChanged =
+          visibleLoraIds.length !== currentLoraIds.length
+        const primaryVisibleLora = currentResources.find(
+          (resource) => resource.id === visibleLoraIds[0],
+        )
+        const checkpointHidden =
+          (artStore.artForm.checkpointResourceId != null &&
+            matureIds.has(artStore.artForm.checkpointResourceId)) ||
+          matureCheckpointNames.has(artStore.artForm.checkpoint || '')
+        const namedLoraHidden = matureLoraNames.has(
+          artStore.artForm.loraName || '',
+        )
+
+        artStore.setArtForm({
+          ...(loraSelectionChanged
+            ? {
+                loraResourceIds: visibleLoraIds,
+                loraName: primaryVisibleLora
+                  ? resourceEngineName(primaryVisibleLora)
+                  : null,
+              }
+            : namedLoraHidden
+              ? { loraName: null }
+              : {}),
+          ...(checkpointHidden
+            ? { checkpointResourceId: null, checkpoint: '' }
+            : {}),
+        })
+
+        if (checkpointStore.selectedCheckpoint?.isMature) {
+          checkpointStore.selectCheckpointByName(
+            checkpointStore.visibleCheckpoints[0]?.name || '',
+          )
+        }
+      }
+
+      await Promise.all([
+        resourceStore.getResources(true),
+        resourceGalleryStore.loadResources(),
+      ])
+    } catch (error) {
+      handleError(error, 'refreshing maturity-filtered Resources')
     }
   }
 
@@ -77,7 +182,6 @@ export const useAccountStore = defineStore('accountStore', () => {
     }
   }
 
-  // ── Password ───────────────────────────────────────────────────────────────
   function changePassword(
     newPassword: string,
     currentPassword?: string,
@@ -102,12 +206,10 @@ export const useAccountStore = defineStore('accountStore', () => {
     })
   }
 
-  // ── Email verification ───────────────────────────────────────────────────────
   function sendVerificationEmail(): Promise<ActionResult> {
     return run('sendVerificationEmail', '/api/auth/email/send-verification', {})
   }
 
-  // ── Consent / privacy ────────────────────────────────────────────────────────
   async function updateConsent(patch: ConsentPatch): Promise<ActionResult> {
     const result = await run(
       'updateConsent',
@@ -115,11 +217,18 @@ export const useAccountStore = defineStore('accountStore', () => {
       patch as Record<string, unknown>,
       'PATCH',
     )
-    if (result.success) patchLocalUser(patch as Record<string, unknown>)
+
+    if (result.success) {
+      patchLocalUser(patch as Record<string, unknown>)
+
+      if (typeof patch.showMature === 'boolean') {
+        await refreshMaturityResources(patch.showMature)
+      }
+    }
+
     return result
   }
 
-  // ── Newsletter (double opt-in) ────────────────────────────────────────────────
   async function setNewsletterFrequency(
     frequency: NewsletterFrequency,
   ): Promise<ActionResult> {
@@ -131,7 +240,6 @@ export const useAccountStore = defineStore('accountStore', () => {
       },
     )
     if (result.success) {
-      // Frequency is stored immediately; confirmation clears the opt-in gate.
       patchLocalUser({
         newsletterFrequency: frequency,
         ...(frequency === 'NEVER' ? { newsletterConfirmedAt: null } : {}),

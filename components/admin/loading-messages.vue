@@ -464,6 +464,22 @@ onBeforeUnmount(() => {
   }
 }
 
+@media (max-width: 639px) {
+  /*
+   * The animation controls are teleported to <body>, so they do not reserve
+   * space in this grid. Pin the status above the compact tray explicitly;
+   * z-index alone cannot prevent two opaque elements occupying the same pixels.
+   */
+  .loading-status {
+    position: fixed;
+    right: 0.75rem;
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    left: 0.75rem;
+    z-index: 2;
+    width: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .loading-content,
   :deep(.loading-logo),

@@ -6,6 +6,7 @@
       class="startup-animation__stage"
       :class="{
         'startup-animation__stage--ready': effectReady,
+        'startup-animation__stage--immersive': startupStore.immersive,
         'startup-animation__stage--fading': isFading,
       }"
     >
@@ -246,16 +247,25 @@ function fadeOut(): void {
 }
 
 /*
- * Deliberately does NOT reset the startup store here. kind-loader owns that
- * lifecycle; resetting on this component's setup meant any remount silently
- * dropped the user out of explore mode.
+ * Explore mode belongs to this component, not to the loader backdrop. App.vue
+ * may finish booting underneath while the user browses startup effects. If the
+ * loader is retired by its outer failsafe, immersive mode must therefore keep
+ * both the selected effect and an opaque black stage alive until Resume/Exit.
  */
 watch(
-  [() => butterflyStore.showSwarm, availableEffectIds],
-  ([visible]) => {
-    if (visible) {
+  [
+    () => butterflyStore.showSwarm,
+    () => startupStore.immersive,
+    availableEffectIds,
+  ],
+  ([visible, immersive]) => {
+    if (visible || immersive) {
       clearFadeTimer()
-      selectEffect()
+
+      if (!renderEffect.value || !resolvedEffectId.value) {
+        selectEffect()
+      }
+
       return
     }
 
@@ -277,12 +287,23 @@ onBeforeUnmount(() => {
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 320ms ease;
+  transition:
+    opacity 320ms ease,
+    background-color 180ms ease;
   isolation: isolate;
   will-change: opacity;
 }
 
 .startup-animation__stage--ready {
+  opacity: 1;
+}
+
+/*
+ * Once Pause & explore is active the stage becomes the screensaver surface.
+ * It must remain opaque even if the normal loader finishes underneath it.
+ */
+.startup-animation__stage--immersive {
+  background: #000;
   opacity: 1;
 }
 

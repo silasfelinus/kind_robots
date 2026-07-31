@@ -8,14 +8,15 @@
  * stylesheet having loaded.
  */
 
+/*
+ * The Vue intro renders exactly one visual through <startup-intro-visual>.
+ * Do not paint launch-04.webp or kindlogo_new.webp behind it as CSS
+ * backgrounds: those duplicate images are unmasked and make the handoff look
+ * like a second, square logo load. startup-intro-visual already owns its own
+ * fallback from the launch animation to the static logo.
+ */
 .loading-logo-frame {
-  background-color: transparent;
-  background-image:
-    url('/images/startup-animations/launch-04.webp'),
-    url('/images/kindlogo_new.webp');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: clamp(16rem, 58vw, 34rem) auto;
+  background: transparent;
 }
 
 /*

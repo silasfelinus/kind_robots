@@ -100,7 +100,7 @@ export default defineNitroPlugin((nitroApp) => {
             event.preventDefault()
             event.stopPropagation()
 
-            if (root.classList.contains('kr-startup-controls-ready')) {
+            if (window.__KR_STARTUP_BRIDGE_READY__) {
               window.dispatchEvent(
                 new CustomEvent('kr-startup-action', { detail: action }),
               )
@@ -109,10 +109,6 @@ export default defineNitroPlugin((nitroApp) => {
 
             queue.push(action)
           }, true)
-
-          window.setTimeout(() => {
-            root.classList.remove('kr-startup-handoff')
-          }, 8000)
         })()
       </script>
     `)

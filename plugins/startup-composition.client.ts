@@ -68,8 +68,15 @@ export default defineNuxtPlugin((nuxtApp) => {
     }, FADE_CLEANUP_MS)
   }
 
+  function hasUsableImmersiveControls(): boolean {
+    return (
+      root.classList.contains(CONTROLS_READY_CLASS) &&
+      Boolean(document.querySelector('.startup-animation__controls'))
+    )
+  }
+
   function requestEmergencyExit(): void {
-    if (startupStore.immersive) return
+    if (startupStore.immersive && hasUsableImmersiveControls()) return
 
     beginFade()
     startupStore.requestExit()

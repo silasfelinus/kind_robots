@@ -27,7 +27,8 @@
     </div>
 
     <div
-      v-if="renderEffect && currentComponent"
+      v-if="showControls"
+      ref="controlsElement"
       class="startup-animation__controls"
       :class="{
         'startup-animation__controls--active': startupStore.controlsActive,
@@ -36,7 +37,7 @@
       }"
     >
       <template v-if="startupStore.controlsActive">
-        <span class="startup-animation__name">{{ currentEffectLabel }}</span>
+        <span class="startup-animation__name">{{ displayEffectLabel }}</span>
 
         <div class="startup-animation__button-group">
           <button
@@ -44,6 +45,7 @@
             class="btn btn-xs btn-ghost btn-square text-white"
             title="Previous animation"
             aria-label="Previous animation"
+            :disabled="!hasSelectableEffects"
             @click="selectPreviousEffect"
           >
             <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
@@ -53,6 +55,7 @@
             type="button"
             class="btn btn-xs btn-ghost gap-1 text-white"
             title="Choose another random animation"
+            :disabled="!hasSelectableEffects"
             @click="selectRandomEffect"
           >
             <Icon name="kind-icon:sparkles" class="h-4 w-4" />
@@ -64,6 +67,7 @@
             class="btn btn-xs btn-ghost btn-square text-white"
             title="Next animation"
             aria-label="Next animation"
+            :disabled="!hasSelectableEffects"
             @click="selectNextEffect"
           >
             <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
@@ -94,7 +98,7 @@
 
       <template v-else>
         <span class="startup-animation__compact-name">
-          {{ currentEffectLabel }}
+          {{ displayEffectLabel }}
         </span>
 
         <button
@@ -112,7 +116,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 import { getAnimationEffectComponent } from '@/components/screenfx/effect-component-registry'
 import type { AnimationEffectId } from '@/stores/animationCatalog'
 import { useAnimationStore } from '@/stores/animationStore'
@@ -132,6 +143,7 @@ type StartupBridgeAction =
 
 type StartupBridgeWindow = Window & {
   __KR_STARTUP_ACTION_QUEUE__?: string[]
+  __KR_STARTUP_BRIDGE_READY__?: boolean
 }
 
 const HANDOFF_CLASS = 'kr-startup-handoff'
@@ -144,6 +156,7 @@ const preferenceStore = useAnimationPreferenceStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
 
+const controlsElement = ref<HTMLElement | null>(null)
 const resolvedEffectId = ref<AnimationEffectId | null>(null)
 const renderEffect = ref(false)
 const effectReady = ref(false)
@@ -164,6 +177,8 @@ const availableEffectIds = computed(() => {
     .map((effect) => effect.id)
 })
 
+const hasSelectableEffects = computed(() => availableEffectIds.value.length > 0)
+
 const currentComponent = computed(() => {
   if (!resolvedEffectId.value) return null
   return getAnimationEffectComponent(resolvedEffectId.value)
@@ -176,6 +191,19 @@ const currentEffectLabel = computed(() => {
     animationStore.effects.find(
       (effect) => effect.id === resolvedEffectId.value,
     )?.label ?? resolvedEffectId.value
+  )
+})
+
+const displayEffectLabel = computed(
+  () => currentEffectLabel.value || 'Preparing animation…',
+)
+
+const showControls = computed(() => {
+  return (
+    butterflyStore.showSwarm ||
+    renderEffect.value ||
+    startupStore.immersive ||
+    isFading.value
   )
 })
 
@@ -212,11 +240,25 @@ function markControlsReady(): void {
   finishHandoffIfReady()
 }
 
+async function syncControlsHandoff(): Promise<void> {
+  if (!import.meta.client) return
+  if (!showControls.value) return
+  if (!resolvedEffectId.value) return
+  if (!currentComponent.value) return
+  if (!currentEffectLabel.value) return
+
+  await nextTick()
+  if (!controlsElement.value) return
+
+  markControlsReady()
+}
+
 function handleEffectReady(): void {
   effectReady.value = true
 
   if (!import.meta.client) return
   document.documentElement.classList.add(EFFECT_READY_CLASS)
+  void syncControlsHandoff()
   finishHandoffIfReady()
 }
 
@@ -227,8 +269,7 @@ function setEffect(effectId: AnimationEffectId | null): void {
   isFading.value = false
 
   if (!effectId && import.meta.client) {
-    document.documentElement.classList.add(EFFECT_READY_CLASS)
-    finishHandoffIfReady()
+    document.documentElement.classList.remove(CONTROLS_READY_CLASS)
   }
 }
 
@@ -323,13 +364,9 @@ function fadeOut(): void {
 
 startupStore.reset()
 
-if (import.meta.client && butterflyStore.showSwarm) {
-  selectEffect()
-}
-
 watch(
-  () => butterflyStore.showSwarm,
-  (visible) => {
+  [() => butterflyStore.showSwarm, availableEffectIds],
+  ([visible]) => {
     if (visible) {
       clearFadeTimer()
       selectEffect()
@@ -338,12 +375,23 @@ watch(
 
     fadeOut()
   },
+  { immediate: true },
+)
+
+watch(
+  [showControls, resolvedEffectId, currentComponent, currentEffectLabel],
+  () => {
+    void syncControlsHandoff()
+  },
 )
 
 onMounted(() => {
+  const bridgeWindow = window as StartupBridgeWindow
+
   window.addEventListener(BRIDGE_EVENT, handleBridgeEvent)
-  markControlsReady()
+  bridgeWindow.__KR_STARTUP_BRIDGE_READY__ = true
   consumeBridgeQueue()
+  void syncControlsHandoff()
 })
 
 onBeforeUnmount(() => {
@@ -351,6 +399,8 @@ onBeforeUnmount(() => {
   clearHandoffTimer()
 
   if (import.meta.client) {
+    const bridgeWindow = window as StartupBridgeWindow
+    bridgeWindow.__KR_STARTUP_BRIDGE_READY__ = false
     window.removeEventListener(BRIDGE_EVENT, handleBridgeEvent)
   }
 })

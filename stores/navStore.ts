@@ -15,7 +15,6 @@ import {
 import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import { handleError } from '@/stores/utils'
-import { getModelCards } from '@/stores/helpers/modelCards'
 
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
@@ -496,14 +495,6 @@ export const useNavStore = defineStore('navStore', () => {
     return dashboardShell.value.summary || ''
   })
 
-  const dashboardCards = computed(() => {
-    return getModelCards(dashboardShell.value.cards)
-  })
-
-  const hasDashboardCards = computed(() => {
-    return dashboardCards.value.length > 0
-  })
-
   async function initialize(force = false): Promise<void> {
     if (initializePromise.value && !force) {
       return initializePromise.value
@@ -811,8 +802,6 @@ export const useNavStore = defineStore('navStore', () => {
 
     dashboardTitle,
     dashboardSummary,
-    dashboardCards,
-    hasDashboardCards,
     closeWorkspaceSheet,
     openWorkspaceSheet,
   }

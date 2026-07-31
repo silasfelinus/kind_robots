@@ -321,6 +321,16 @@ export default defineNitroPlugin((nitroApp) => {
             }
 
             window.__KR_STARTUP_USER_EXPLORE__ = false
+            /*
+             * Startup is over as far as this page load is concerned. On a slow
+             * device the app can hydrate long after this runs; without this
+             * flag kind-loader would mount and start a brand new startup
+             * sequence on top of the one we just tore down — and every safety
+             * net (this watchdog, the CSS hard stop) is gated on classes we are
+             * about to remove, so that second sequence would have none. That is
+             * the "animation loops forever" report.
+             */
+            window.__KR_STARTUP_ABANDONED__ = true
             root.classList.remove('kr-startup-user-explore')
             root.classList.add('kr-startup-fading')
             record('shell:begin-exit', { reason })

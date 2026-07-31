@@ -10,6 +10,8 @@ const [
   startupStore,
   traceEndpoint,
   appShell,
+  startupLaunch,
+  kindLoader,
 ] = await Promise.all([
   readFile('components/screenfx/startup-animation.vue', 'utf8'),
   readFile('plugins/startup-composition.client.ts', 'utf8'),
@@ -19,6 +21,8 @@ const [
   readFile('stores/startupAnimationStore.ts', 'utf8'),
   readFile('server/api/startup/trace.post.ts', 'utf8'),
   readFile('app.vue', 'utf8'),
+  readFile('utils/startupLaunch.ts', 'utf8'),
+  readFile('components/admin/kind-loader.vue', 'utf8'),
 ])
 
 assert.ok(
@@ -128,6 +132,25 @@ assert.ok(
   compositionShell.includes("sessionStorage.removeItem(FORCE_KEY)") &&
     compositionShell.includes("sessionStorage.removeItem(STARTED_AT_KEY)"),
   'The JS hard stop must clear sticky forced-startup session state.',
+)
+
+/*
+ * A late hydration must never raise a second launch screen. When the shell's
+ * watchdog fires it removes the very classes every safety net is gated on, so
+ * a startup sequence started after that point runs with no watchdog and no CSS
+ * hard stop — it simply never ends. Observed directly: shell:watchdog-fire at
+ * 9.3s, shell:exit-cleanup at 10.0s, then client:app-mounted at 13.8s followed
+ * by client:loader-observed starting the whole sequence over again.
+ */
+assert.ok(
+  compositionShell.includes('window.__KR_STARTUP_ABANDONED__ = true'),
+  'The shell must record that it abandoned startup before tearing it down.',
+)
+
+assert.ok(
+  startupLaunch.includes('export function startupWasAbandoned') &&
+    kindLoader.includes('startupWasAbandoned()'),
+  'kind-loader must skip the startup sequence when the shell already abandoned it.',
 )
 
 /*

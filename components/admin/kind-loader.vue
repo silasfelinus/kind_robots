@@ -43,6 +43,7 @@ import {
   clearStartupCover,
   consumeForcedFullStartup,
   isBrowserReload,
+  startupWasAbandoned,
 } from '@/utils/startupLaunch'
 
 const errorStore = useErrorStore()
@@ -84,6 +85,16 @@ const buildId = String(runtimeConfig.public.buildId || 'development')
 
 function shouldShowFullStartupSequence(): boolean {
   if (!import.meta.client) return true
+
+  /*
+   * Checked before anything else, including the forced-reload flag: if the
+   * shell already tore the launch screen down we must not raise a second one,
+   * no matter how we got here. Reveal the site instead.
+   */
+  if (startupWasAbandoned()) {
+    consumeForcedFullStartup()
+    return false
+  }
 
   if (consumeForcedFullStartup()) return true
   if (isBrowserReload()) return false

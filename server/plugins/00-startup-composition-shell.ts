@@ -19,22 +19,15 @@ export default defineNitroPlugin((nitroApp) => {
           display: block;
         }
 
-        html.kr-startup-handoff .kr-prehydrate-controls,
         .startup-animation__controls {
           z-index: 2147483000 !important;
           isolation: isolate;
         }
 
-        html.kr-startup-handoff .kr-prehydrate-controls,
         .startup-animation__controls,
-        html.kr-startup-handoff .kr-prehydrate-controls button,
         .startup-animation__controls button {
           pointer-events: auto !important;
           touch-action: manipulation;
-        }
-
-        html.kr-startup-controls-ready .kr-prehydrate-controls {
-          pointer-events: none !important;
         }
 
         .kr-prehydrate-media,
@@ -73,7 +66,6 @@ export default defineNitroPlugin((nitroApp) => {
         html.kr-startup-fading .loading-overlay,
         html.kr-startup-fading .kr-prehydrate-effect,
         html.kr-startup-fading .kr-prehydrate-content,
-        html.kr-startup-fading .kr-prehydrate-controls,
         html.kr-startup-fading .startup-animation__stage,
         html.kr-startup-fading .startup-animation__controls,
         html:has(.loading-overlay--fade) .startup-animation__stage,
@@ -83,12 +75,41 @@ export default defineNitroPlugin((nitroApp) => {
           pointer-events: none !important;
         }
 
+        @media (max-width: 639px) {
+          .startup-animation__controls {
+            right: 0.75rem !important;
+            bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+            left: 0.75rem !important;
+            max-width: calc(100vw - 1.5rem) !important;
+          }
+
+          .loading-content {
+            height: calc(100dvh - 1rem) !important;
+            max-height: none !important;
+            grid-template-rows:
+              minmax(3.25rem, auto)
+              minmax(0, 1fr)
+              14rem !important;
+          }
+
+          .loading-status {
+            box-sizing: border-box;
+            min-height: 14rem !important;
+            grid-template-rows: 4rem minmax(4rem, auto) !important;
+            padding-bottom: 6rem !important;
+          }
+
+          .loading-message {
+            max-width: calc(100vw - 1.5rem) !important;
+            font-size: clamp(0.95rem, 4.5vw, 1.25rem) !important;
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .kr-startup-black-base,
           html.kr-startup-fading .loading-overlay,
           html.kr-startup-fading .kr-prehydrate-effect,
           html.kr-startup-fading .kr-prehydrate-content,
-          html.kr-startup-fading .kr-prehydrate-controls,
           html.kr-startup-fading .startup-animation__stage,
           html.kr-startup-fading .startup-animation__controls,
           html:has(.loading-overlay--fade) .startup-animation__stage,
@@ -103,7 +124,40 @@ export default defineNitroPlugin((nitroApp) => {
           const root = document.documentElement
           if (!root.classList.contains('kr-full-startup')) return
 
+          const FORCE_KEY = 'kind-robots-force-full-startup-v1'
+          const STARTED_AT_KEY = 'kind-robots-startup-started-at-v1'
+          const WATCHDOG_MS = 9000
+          const FADE_MS = 700
+
           root.classList.add('kr-startup-active', 'kr-startup-handoff')
+
+          window.__KR_STARTUP_SHELL_WATCHDOG__ = window.setTimeout(() => {
+            if (document.querySelector('.startup-animation__controls--active')) {
+              return
+            }
+
+            try {
+              sessionStorage.removeItem(FORCE_KEY)
+              sessionStorage.removeItem(STARTED_AT_KEY)
+            } catch {}
+
+            root.classList.add('kr-startup-fading')
+
+            window.setTimeout(() => {
+              root.classList.remove(
+                'kr-full-startup',
+                'kr-startup-active',
+                'kr-startup-handoff',
+                'kr-startup-fading',
+                'kr-startup-effect-ready',
+                'kr-startup-controls-ready',
+              )
+
+              document
+                .querySelectorAll('.kr-prehydrate-loader, .kr-startup-black-base')
+                .forEach((element) => element.remove())
+            }, FADE_MS)
+          }, WATCHDOG_MS)
         })()
       </script>
 

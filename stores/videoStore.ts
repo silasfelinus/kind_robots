@@ -16,8 +16,6 @@ import type {
   VideoPresetId,
 } from '@/utils/videoPresets'
 
-export type { VideoEngine, VideoOutputFormat, VideoPresetId }
-
 export type VideoJobStatus = 'idle' | 'queued' | 'rendering' | 'done' | 'error'
 
 export interface GenerateVideoParams {

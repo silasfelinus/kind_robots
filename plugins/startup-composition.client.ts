@@ -8,21 +8,33 @@ const HANDOFF_CLASS = 'kr-startup-handoff'
 const EFFECT_READY_CLASS = 'kr-startup-effect-ready'
 const CONTROLS_READY_CLASS = 'kr-startup-controls-ready'
 
-const EMERGENCY_EXIT_AT_MS = 6000
+const CLIENT_EMERGENCY_AFTER_MOUNT_MS = 9000
 const FADE_CLEANUP_MS = 700
 
 type StartupCompositionWindow = Window & {
-  __KR_STARTUP_SHELL_WATCHDOG__?: number
+  __KR_STARTUP_TRACE__?: (name: string, detail?: unknown) => void
+  __KR_STARTUP_TRACE_FLUSH__?: (reason: string) => void
+  __KR_STARTUP_USER_EXPLORE__?: boolean
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
   const root = document.documentElement
   const butterflyStore = useButterflyStore()
   const startupStore = useStartupAnimationStore()
+  const startupWindow = window as StartupCompositionWindow
 
   let sawLoader = false
+  let appMounted = false
   let cleanupTimer: number | null = null
   let emergencyExitTimer: number | null = null
+
+  function trace(name: string, detail?: unknown): void {
+    startupWindow.__KR_STARTUP_TRACE__?.(name, detail)
+  }
+
+  function flush(reason: string): void {
+    startupWindow.__KR_STARTUP_TRACE_FLUSH__?.(reason)
+  }
 
   function clearCleanupTimer(): void {
     if (cleanupTimer === null) return
@@ -36,19 +48,19 @@ export default defineNuxtPlugin((nuxtApp) => {
     emergencyExitTimer = null
   }
 
-  function clearShellWatchdog(): void {
-    const startupWindow = window as StartupCompositionWindow
-    const watchdog = startupWindow.__KR_STARTUP_SHELL_WATCHDOG__
-    if (typeof watchdog !== 'number') return
-
-    window.clearTimeout(watchdog)
-    delete startupWindow.__KR_STARTUP_SHELL_WATCHDOG__
-  }
-
-  function beginFade(): void {
+  function beginFade(reason: string): void {
     const startupActive =
       root.classList.contains(ACTIVE_CLASS) ||
       root.classList.contains(COVER_CLASS)
+
+    trace('client:begin-fade', {
+      reason,
+      startupActive,
+      appMounted,
+      immersive: startupStore.immersive,
+      controlsActive: startupStore.controlsActive,
+      showSwarm: butterflyStore.showSwarm,
+    })
 
     if (!startupActive) return
 
@@ -57,11 +69,19 @@ export default defineNuxtPlugin((nuxtApp) => {
     butterflyStore.setShowSwarm(false)
   }
 
-  function cleanup(): void {
+  function removeStartupNodes(): void {
+    document
+      .querySelectorAll(
+        '.kr-prehydrate-loader, .kr-startup-black-base, .loading-overlay, .loader-root',
+      )
+      .forEach((element) => element.remove())
+  }
+
+  function cleanup(reason: string): void {
     clearCleanupTimer()
     clearEmergencyExitTimer()
-    clearShellWatchdog()
     butterflyStore.setShowSwarm(false)
+    startupWindow.__KR_STARTUP_USER_EXPLORE__ = false
     root.classList.remove(
       ACTIVE_CLASS,
       FADING_CLASS,
@@ -70,31 +90,36 @@ export default defineNuxtPlugin((nuxtApp) => {
       EFFECT_READY_CLASS,
       CONTROLS_READY_CLASS,
     )
+    removeStartupNodes()
+    trace('client:cleanup', { reason })
+    flush('client-cleanup-' + reason)
   }
 
-  function scheduleCleanup(): void {
+  function scheduleCleanup(reason: string): void {
     if (cleanupTimer !== null) return
 
+    trace('client:schedule-cleanup', { reason })
     cleanupTimer = window.setTimeout(() => {
       cleanupTimer = null
-      cleanup()
-      observer.disconnect()
+      cleanup(reason)
     }, FADE_CLEANUP_MS)
   }
 
-  function hasUsableImmersiveControls(): boolean {
-    return (
-      root.classList.contains(CONTROLS_READY_CLASS) &&
-      Boolean(document.querySelector('.startup-animation__controls'))
-    )
+  function userDeliberatelyExploring(): boolean {
+    return startupWindow.__KR_STARTUP_USER_EXPLORE__ === true
   }
 
-  function requestEmergencyExit(): void {
-    if (startupStore.immersive && hasUsableImmersiveControls()) return
+  function requestEmergencyExit(reason: string): void {
+    if (userDeliberatelyExploring()) {
+      trace('client:emergency-preserved-user-explore', { reason })
+      flush('client-emergency-user-explore')
+      return
+    }
 
-    beginFade()
+    trace('client:emergency-fire', { reason })
+    beginFade(reason)
     startupStore.requestExit()
-    scheduleCleanup()
+    scheduleCleanup(reason)
   }
 
   function syncCompositionState(): void {
@@ -106,17 +131,23 @@ export default defineNuxtPlugin((nuxtApp) => {
     const overlay = document.querySelector('.loading-overlay')
 
     if (loader || overlay) {
+      if (!sawLoader) {
+        trace('client:loader-observed', {
+          loader: Boolean(loader),
+          overlay: Boolean(overlay),
+        })
+      }
       sawLoader = true
       clearCleanupTimer()
     }
 
     if (overlay?.classList.contains('loading-overlay--fade')) {
-      beginFade()
+      beginFade('overlay-class')
     }
 
     if (sawLoader && !loader && !overlay) {
-      beginFade()
-      scheduleCleanup()
+      beginFade('loader-removed')
+      scheduleCleanup('loader-removed')
     }
   }
 
@@ -129,14 +160,35 @@ export default defineNuxtPlugin((nuxtApp) => {
     attributeFilter: ['class'],
   })
 
+  trace('client:plugin-init', {
+    performanceNow: Math.round(performance.now()),
+    startupActive:
+      root.classList.contains(ACTIVE_CLASS) ||
+      root.classList.contains(COVER_CLASS),
+  })
   syncCompositionState()
 
-  const elapsedSinceNavigation = performance.now()
-  emergencyExitTimer = window.setTimeout(() => {
-    emergencyExitTimer = null
-    requestEmergencyExit()
-  }, Math.max(0, EMERGENCY_EXIT_AT_MS - elapsedSinceNavigation))
+  nuxtApp.hook('app:mounted', () => {
+    appMounted = true
+    trace('client:app-mounted')
+    syncCompositionState()
 
-  nuxtApp.hook('app:mounted', syncCompositionState)
-  window.addEventListener('pagehide', cleanup, { once: true })
+    clearEmergencyExitTimer()
+    emergencyExitTimer = window.setTimeout(() => {
+      emergencyExitTimer = null
+      requestEmergencyExit('client-post-mount-watchdog')
+    }, CLIENT_EMERGENCY_AFTER_MOUNT_MS)
+  })
+
+  window.addEventListener(
+    'pagehide',
+    () => {
+      trace('client:pagehide')
+      flush('client-pagehide')
+      clearCleanupTimer()
+      clearEmergencyExitTimer()
+      observer.disconnect()
+    },
+    { once: true },
+  )
 })

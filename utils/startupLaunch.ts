@@ -72,6 +72,24 @@ export function consumeForcedFullStartup(): boolean {
   }
 }
 
+/*
+ * True once the server-rendered startup shell has given up on this page load
+ * (its watchdog fired, or the user pressed exit/resume before hydration).
+ *
+ * Set in server/plugins/00-startup-composition-shell.ts. The app can hydrate
+ * seconds after that happens on a slow device, and starting a second startup
+ * sequence at that point leaves it running with no watchdog and no CSS hard
+ * stop, because both are gated on classes the shell already removed.
+ */
+export function startupWasAbandoned(): boolean {
+  if (!import.meta.client) return false
+
+  return (
+    (window as Window & { __KR_STARTUP_ABANDONED__?: boolean })
+      .__KR_STARTUP_ABANDONED__ === true
+  )
+}
+
 export function isBrowserReload(): boolean {
   if (!import.meta.client) return false
 

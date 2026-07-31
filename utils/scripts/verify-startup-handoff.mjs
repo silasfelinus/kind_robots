@@ -21,14 +21,21 @@ import { readFile } from 'node:fs/promises'
  * that needs no JavaScript to go away, and Vue owns the intro outright.
  */
 
-const [bootCover, kindLoader, loadingMessages, startupAnimation, startupLaunch] =
-  await Promise.all([
-    readFile('server/plugins/00-startup-composition-shell.ts', 'utf8'),
-    readFile('components/admin/kind-loader.vue', 'utf8'),
-    readFile('components/admin/loading-messages.vue', 'utf8'),
-    readFile('components/screenfx/startup-animation.vue', 'utf8'),
-    readFile('utils/startupLaunch.ts', 'utf8'),
-  ])
+const [
+  bootCover,
+  startupCoverCss,
+  kindLoader,
+  loadingMessages,
+  startupAnimation,
+  startupLaunch,
+] = await Promise.all([
+  readFile('server/plugins/00-startup-composition-shell.ts', 'utf8'),
+  readFile('assets/css/startup-cover.css', 'utf8'),
+  readFile('components/admin/kind-loader.vue', 'utf8'),
+  readFile('components/admin/loading-messages.vue', 'utf8'),
+  readFile('components/screenfx/startup-animation.vue', 'utf8'),
+  readFile('utils/startupLaunch.ts', 'utf8'),
+])
 
 /*
  * The single most important property: the cover must release itself with no JS
@@ -121,10 +128,51 @@ assert.ok(
   'The intro overlay must paint its own opaque backdrop.',
 )
 
+/*
+ * Pause & explore is allowed to outlive the loader itself. Store initialization
+ * and the app can finish underneath, but the selected startup effect must stay
+ * on an opaque screensaver surface until the user resumes or exits. Otherwise
+ * the control tray survives while the effect turns into a translucent overlay
+ * on top of the real site.
+ */
+assert.ok(
+  startupAnimation.includes("'startup-animation__stage--immersive': startupStore.immersive") &&
+    startupAnimation.includes('() => startupStore.immersive') &&
+    startupAnimation.includes('if (visible || immersive)'),
+  'Immersive mode must keep the startup effect alive independently of the loader/swarm lifecycle.',
+)
+
+assert.ok(
+  /\.startup-animation__stage--immersive\s*\{[^}]*background:\s*#000[^}]*opacity:\s*1/s.test(
+    startupAnimation,
+  ),
+  'Immersive mode must own an opaque black screensaver backdrop so the live site cannot bleed through.',
+)
+
+/*
+ * The intro visual is a real <img> with its own animation->logo fallback.
+ * Never paint additional WebPs behind it in CSS: those backgrounds bypass the
+ * radial mask and look like a second square logo load.
+ */
+assert.ok(
+  !startupCoverCss.includes('background-image:') &&
+    !startupCoverCss.includes("url('/images/startup-animations/launch-04.webp')") &&
+    !startupCoverCss.includes("url('/images/kindlogo_new.webp')"),
+  'The Vue intro frame must not paint duplicate startup WebPs behind the actual masked visual.',
+)
+
+assert.ok(
+  bootCover.includes('grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem') &&
+    bootCover.includes('ellipse 54% 54% at center'),
+  'The server boot cameo must align with the Vue intro geometry and haze mask so their handoff reads as one logo.',
+)
+
 assert.ok(
   startupLaunch.includes('export function markAppReady') &&
     kindLoader.includes('markAppReady()'),
   'The app must signal readiness so the boot cover can retire early.',
 )
 
-console.log('Startup contract passed: server cover is JS-free, Vue owns the intro.')
+console.log(
+  'Startup contract passed: server cover is JS-free, Vue owns the intro, immersive mode stays opaque, and the logo is single-layered.',
+)

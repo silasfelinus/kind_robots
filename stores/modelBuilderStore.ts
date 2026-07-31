@@ -1030,6 +1030,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // run, where the candidate should still be saved.
       if (cancelledRunIds.has(runId)) return false
 
+      // generateItemAsset holds only its original item reference across the
+      // above awaits, same as pollAsyncArtJob (the async sibling). Two calls
+      // can be in flight for the same item (e.g. an item's own "Auto" button
+      // and a run-level "Auto-build all" both reaching this item concurrently
+      // -- generatingItemSingleton only guards a *different* owner overwriting
+      // this one, not two calls sharing the same item id). If the user already
+      // approved the earlier call's candidate while this one was still
+      // rendering, applying this render's image unconditionally would silently
+      // replace what was just approved, with no re-review. Mirrors
+      // pollAsyncArtJob's identical guard.
+      if (item.stages.GENERATE_ASSETS.status === 'approved') {
+        setStatus(
+          'error',
+          `${item.label} finished generating after its candidate was already approved — discarded to avoid silently replacing it.`,
+        )
+        return false
+      }
+
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null

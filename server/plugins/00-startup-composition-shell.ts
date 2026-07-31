@@ -118,13 +118,13 @@ export default defineNitroPlugin((nitroApp) => {
         html.kr-full-startup .loader-root,
         html.kr-full-startup .startup-animation__stage,
         html.kr-full-startup .startup-animation__controls {
-          animation: kr-startup-css-hard-stop 700ms ease 8300ms forwards !important;
+          animation: kr-startup-css-hard-stop 700ms ease 11500ms forwards !important;
         }
 
         html.kr-full-startup,
         html.kr-startup-handoff,
         html.kr-full-startup .kr-shell.bg-black {
-          animation: kr-startup-css-root-release 1ms linear 9000ms forwards !important;
+          animation: kr-startup-css-root-release 1ms linear 12200ms forwards !important;
         }
 
         html.kr-startup-user-explore,
@@ -216,7 +216,14 @@ export default defineNitroPlugin((nitroApp) => {
 
           const FORCE_KEY = 'kind-robots-force-full-startup-v1'
           const STARTED_AT_KEY = 'kind-robots-startup-started-at-v1'
-          const WATCHDOG_MS = 9000
+          /*
+           * Emergency only. The hydrated intro fades itself by ~5.7s worst case
+           * (loading-messages.vue INTRO_MAX_MS + fade), so this deadline must
+           * stay clear of it. At 9000ms this watchdog was firing *before* the
+           * normal fade could ever run on a slow load and hard-cutting the
+           * launch screen instead — which read as "the fade never happens".
+           */
+          const WATCHDOG_MS = 12000
           const FADE_MS = 700
           const BRIDGE_EVENT = 'kr-startup-action'
           const traceState = {
@@ -325,8 +332,15 @@ export default defineNitroPlugin((nitroApp) => {
             }, FADE_MS)
           }
 
+          /*
+           * True only once the real Vue control tray has mounted and can take
+           * over. Until then these server-rendered controls are on their own
+           * and must be able to finish the sequence without it.
+           */
+          const bridgeAlive = () => window.__KR_STARTUP_BRIDGE_READY__ === true
+
           const forwardBridgeAction = (action) => {
-            if (window.__KR_STARTUP_BRIDGE_READY__ === true) {
+            if (bridgeAlive()) {
               window.dispatchEvent(new CustomEvent(BRIDGE_EVENT, { detail: action }))
               return
             }
@@ -371,6 +385,15 @@ export default defineNitroPlugin((nitroApp) => {
                 setExploreMode(true)
               } else if (action === 'resume') {
                 setExploreMode(false)
+                /*
+                 * Resume previously only forwarded to Vue. With no hydrated
+                 * component to receive it the launch screen simply stayed up —
+                 * and because 'explore' had already suppressed every watchdog,
+                 * that was unrecoverable: a control tray that visibly responds
+                 * to hover but whose buttons do nothing. Finish it here when
+                 * nothing else can.
+                 */
+                if (!bridgeAlive()) beginShellExit('control-resume')
               } else if (action === 'exit') {
                 beginShellExit('control-exit')
               }
@@ -410,7 +433,13 @@ export default defineNitroPlugin((nitroApp) => {
           })
 
           window.__KR_STARTUP_SHELL_WATCHDOG__ = window.setTimeout(() => {
-            if (window.__KR_STARTUP_USER_EXPLORE__ === true) {
+            /*
+             * Explore mode may only suppress the hard stop while the hydrated
+             * controls are actually alive to end it. Honouring the flag
+             * unconditionally meant one click on the pre-hydration tray
+             * disarmed the last exit from a page that never hydrated.
+             */
+            if (window.__KR_STARTUP_USER_EXPLORE__ === true && bridgeAlive()) {
               record('shell:watchdog-preserved-user-explore')
               flush('watchdog-user-explore')
               return

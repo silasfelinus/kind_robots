@@ -513,10 +513,16 @@ onMounted(async () => {
   mdMedia.addEventListener('change', syncBreakpoints)
   xlMedia.addEventListener('change', syncBreakpoints)
 
+  /*
+   * Last-resort only. The intro fades on its own by ~5.7s worst case
+   * (loading-messages.vue: INTRO_MAX_MS + the 650ms fade), so this must sit
+   * well clear of that — at 8s it used to rip the loader out mid-sequence and
+   * pre-empt the graceful fade on every slow load.
+   */
   failsafeTimeoutId = setTimeout(() => {
     showLoader.value = false
     failsafeTimeoutId = null
-  }, 8000)
+  }, 9000)
 })
 
 onBeforeUnmount(() => {

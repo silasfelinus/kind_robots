@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
-import { onBeforeMount, onMounted, ref, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
@@ -291,6 +291,16 @@ onBeforeMount(() => {
 onMounted(() => {
   if (startupMode.value !== 'full') return
   void ensureStoresInitialized()
+})
+
+/*
+ * If anything unmounts the loader before it finished fading (an app-level
+ * failsafe, a route teardown), the swarm flag would otherwise stay true and
+ * leave the startup effect stage and control tray stranded on top of the site
+ * with nothing left alive to remove them.
+ */
+onBeforeUnmount(() => {
+  handleOverlayHiding()
 })
 </script>
 

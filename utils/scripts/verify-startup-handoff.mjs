@@ -184,6 +184,13 @@ assert.ok(
 )
 
 assert.ok(
+  /@media \(max-width: 639px\)\s*\{[\s\S]*?\.loading-status\s*\{[^}]*position:\s*fixed;[^}]*bottom:\s*calc\(4\.5rem \+ env\(safe-area-inset-bottom, 0px\)\);/s.test(
+    loadingMessages,
+  ),
+  'Mobile startup status must reserve physical clearance above the teleported animation controls.',
+)
+
+assert.ok(
   startupLaunch.includes('export function markAppReady') &&
     kindLoader.includes('markAppReady()'),
   'The app must signal readiness so the boot cover can retire early.',

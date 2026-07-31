@@ -20,7 +20,10 @@ import {
   NARRATION_MAX_CHOICES,
   NARRATION_MIN_CHOICES,
 } from '../../server/utils/davinciNarration'
-import { DAVINCI_DIMENSIONS } from '../../server/utils/davinci'
+// Imported from davinciDimensions, not davinci: this suite must stay free of
+// ./prisma, which throws at module load when DATABASE_URL is unset (as it is in
+// the contract-tests job).
+import { DAVINCI_DIMENSIONS } from '../../server/utils/davinciDimensions'
 
 let failures = 0
 

@@ -13,11 +13,84 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../../../utils/error'
 import { requireApiUser } from '../../../../utils/authGuard'
 import { getLifeRunForUser } from '../../../../utils/davinci'
+import prisma from '../../../../utils/prisma'
 import {
   buildNarrationRequest,
   generateDaVinciChapter,
-  loadRunNarrator,
+  type DaVinciNarrator,
 } from '../../../../utils/davinciNarration'
+
+const DEFAULT_NARRATOR_BOT_ID = 433
+
+// Two-branch narrator lookup, per the narration-layer spec: LifeRun.botId wins,
+// then characterId, then the default narrator bot. Reads the same columns
+// GET /api/narrators/[type]/[slug] normalizes, without the self-HTTP hop.
+// Lives here rather than in davinciNarration.ts so that module stays free of
+// ./prisma and can be exercised by the DB-less contract suite.
+async function loadRunNarrator(run: {
+  botId: number | null
+  characterId: number | null
+}): Promise<DaVinciNarrator> {
+  if (run.botId) {
+    const bot = await prisma.bot.findUnique({
+      where: { id: run.botId },
+      select: {
+        name: true,
+        personality: true,
+        narrativeVoice: true,
+        prompt: true,
+      },
+    })
+    if (bot) return bot
+  }
+
+  if (run.characterId) {
+    const character = await prisma.character.findUnique({
+      where: { id: run.characterId },
+      select: {
+        name: true,
+        personality: true,
+        quirks: true,
+        presentation: true,
+        backstory: true,
+        drive: true,
+      },
+    })
+    if (character) {
+      return {
+        name: character.name,
+        personality: character.personality || character.quirks || null,
+        narrativeVoice: character.presentation || null,
+        prompt:
+          [
+            character.backstory ? `Backstory: ${character.backstory}` : '',
+            character.drive ? `Drive: ${character.drive}` : '',
+          ]
+            .filter(Boolean)
+            .join('\n') || null,
+      }
+    }
+  }
+
+  const fallback = await prisma.bot.findUnique({
+    where: { id: DEFAULT_NARRATOR_BOT_ID },
+    select: {
+      name: true,
+      personality: true,
+      narrativeVoice: true,
+      prompt: true,
+    },
+  })
+
+  return (
+    fallback || {
+      name: 'the Narrator',
+      personality: null,
+      narrativeVoice: null,
+      prompt: null,
+    }
+  )
+}
 
 export default defineEventHandler(async (event) => {
   let response

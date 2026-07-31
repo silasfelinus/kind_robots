@@ -9,33 +9,22 @@
 // '1' = pass. Do not reorder without migrating the seeded endings.
 
 import prisma from './prisma'
+import {
+  DAVINCI_DIMENSIONS,
+  DAVINCI_PASS_VALUE,
+  resolveOutcomeKey,
+  type DaVinciDimension,
+} from './davinciDimensions'
 
-export const DAVINCI_DIMENSIONS = [
-  'legacy',
-  'wealth',
-  'love',
-  'wisdom',
-  'health',
-  'freedom',
-  'fame',
-  'creation',
-  'community',
-  'mystery',
-] as const
-
-export type DaVinciDimension = (typeof DAVINCI_DIMENSIONS)[number]
-
-// A dimension passes when its stat value meets this threshold
-// (ending-dimensions.yaml threshold.default_pass_value). Missing stats fail.
-export const DAVINCI_PASS_VALUE = 1
-
-export function resolveOutcomeKey(
-  stats: Partial<Record<string, number>>,
-  passValue: number = DAVINCI_PASS_VALUE,
-): string {
-  return DAVINCI_DIMENSIONS.map((key) =>
-    (stats[key] ?? 0) >= passValue ? '1' : '0',
-  ).join('')
+// The dimension vocabulary and outcome math live in ./davinciDimensions so
+// they can be imported without ./prisma, which throws at module load when
+// DATABASE_URL is unset (as it is in the contract-tests job). Re-exported here
+// so every existing importer of this module is unaffected.
+export {
+  DAVINCI_DIMENSIONS,
+  DAVINCI_PASS_VALUE,
+  resolveOutcomeKey,
+  type DaVinciDimension,
 }
 
 export interface ResolveLifeRunResult {
@@ -292,7 +281,8 @@ function withStatusCode(message: string, statusCode: number): Error {
 // artCollectionId/chatId FKs let a user pin — and then read back through the run
 // — another user's PRIVATE record (audit P6 MEDIUM/LOW). A non-existent id
 // passes here and is caught by the FK constraint on write.
-type AttachableResource = 'Character' | 'Dream' | 'Bot' | 'ArtCollection' | 'Chat'
+type AttachableResource =
+  'Character' | 'Dream' | 'Bot' | 'ArtCollection' | 'Chat'
 
 async function assertAttachable(
   resource: AttachableResource,

@@ -15,15 +15,13 @@
 // an eleventh dimension, swings a stat by 40, or returns one choice is a
 // schema violation — not a new rule.
 
-import prisma from './prisma'
-import { DAVINCI_DIMENSIONS, type DaVinciDimension } from './davinci'
+import { DAVINCI_DIMENSIONS, type DaVinciDimension } from './davinciDimensions'
 
 // Narration is synchronous from the player's point of view — they are staring
 // at a spinner waiting for the next chapter — so this budget is deliberately
 // tighter than the async WonderLab review generator's 30s.
 const NARRATION_TIMEOUT_MS = 20_000
 const NARRATION_MODEL = 'gpt-4o-mini'
-const DEFAULT_NARRATOR_BOT_ID = 433
 
 // Per-choice swing bounds. A dimension passes at DAVINCI_PASS_VALUE (1), so an
 // unclamped narrator could resolve a whole run in one chapter. Design default
@@ -416,74 +414,6 @@ async function callNarrator(
   } finally {
     clearTimeout(timeout)
   }
-}
-
-// Two-branch narrator lookup, per the spec: LifeRun.botId wins, then
-// characterId, then the default narrator bot. Reads the same columns
-// GET /api/narrators/[type]/[slug] normalizes, without the self-HTTP hop.
-export async function loadRunNarrator(run: {
-  botId: number | null
-  characterId: number | null
-}): Promise<DaVinciNarrator> {
-  if (run.botId) {
-    const bot = await prisma.bot.findUnique({
-      where: { id: run.botId },
-      select: {
-        name: true,
-        personality: true,
-        narrativeVoice: true,
-        prompt: true,
-      },
-    })
-    if (bot) return bot
-  }
-
-  if (run.characterId) {
-    const character = await prisma.character.findUnique({
-      where: { id: run.characterId },
-      select: {
-        name: true,
-        personality: true,
-        quirks: true,
-        presentation: true,
-        backstory: true,
-        drive: true,
-      },
-    })
-    if (character) {
-      return {
-        name: character.name,
-        personality: character.personality || character.quirks || null,
-        narrativeVoice: character.presentation || null,
-        prompt:
-          [
-            character.backstory ? `Backstory: ${character.backstory}` : '',
-            character.drive ? `Drive: ${character.drive}` : '',
-          ]
-            .filter(Boolean)
-            .join('\n') || null,
-      }
-    }
-  }
-
-  const fallback = await prisma.bot.findUnique({
-    where: { id: DEFAULT_NARRATOR_BOT_ID },
-    select: {
-      name: true,
-      personality: true,
-      narrativeVoice: true,
-      prompt: true,
-    },
-  })
-
-  return (
-    fallback || {
-      name: 'the Narrator',
-      personality: null,
-      narrativeVoice: null,
-      prompt: null,
-    }
-  )
 }
 
 export function buildNarrationRequest(

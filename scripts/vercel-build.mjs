@@ -113,6 +113,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Repairing subject themes and remaining genre hybrids',
   )
 
+  // Read the entire post-curation catalog and print a ranked next-batch queue.
+  // This never mutates data or blocks deployment while cleanup is still in motion.
+  run(
+    tsxBinary,
+    ['utils/scripts/auditFacetCatalogOddities.ts', '--top=60'],
+    'Auditing the complete Facet catalog for remaining oddities',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

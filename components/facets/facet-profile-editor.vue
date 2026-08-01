@@ -142,6 +142,15 @@
             />
           </label>
           <label class="form-control">
+            <span class="label-text text-xs">Icon / logo path</span>
+            <input
+              v-model="form.iconPath"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="/images/facets/icons/example.webp"
+            />
+          </label>
+          <label class="form-control">
             <span class="label-text text-xs">Card / portrait path</span>
             <input
               v-model="form.cardPath"

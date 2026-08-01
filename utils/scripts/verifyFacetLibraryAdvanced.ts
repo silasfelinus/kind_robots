@@ -30,6 +30,7 @@ async function main(): Promise<void> {
     'imagePath',
     'cardPath',
     'heroPath',
+    'iconPath',
     'artPrompt',
   ]) {
     if (!manager.includes(field) && !editor.includes(field) && !form.includes(field)) {
@@ -37,8 +38,11 @@ async function main(): Promise<void> {
     }
   }
 
-  requireText(files.manager, manager, 'requestPrimaryArtwork')
-  requireText(files.manager, manager, 'Request primary artwork')
+  requireText(files.manager, manager, 'EntityArtManager')
+  requireText(files.manager, manager, "field: 'iconPath'")
+  if (manager.includes('requestPrimaryArtwork')) {
+    throw new Error('Facet Library must use ArtJobs instead of legacy YAML artwork requests.')
+  }
   requireText(
     files.manager,
     manager,

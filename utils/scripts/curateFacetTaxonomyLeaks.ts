@@ -29,6 +29,7 @@ type FacetRow = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  iconPath: string | null
   icon: string | null
   artImageId: number | null
   artCollectionId: number | null
@@ -250,6 +251,7 @@ async function hasArtwork(facet: FacetRow): Promise<boolean> {
     facet.imagePath ||
     facet.cardPath ||
     facet.heroPath ||
+    facet.iconPath ||
     facet.icon ||
     facet.artImageId !== null ||
     facet.artCollectionId !== null

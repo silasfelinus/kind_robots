@@ -628,6 +628,7 @@ export const FacetScalarFieldEnum = {
   cardPath: 'cardPath',
   heroPath: 'heroPath',
   icon: 'icon',
+  iconPath: 'iconPath',
   designer: 'designer',
   creationSource: 'creationSource',
   userId: 'userId',

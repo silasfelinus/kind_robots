@@ -157,34 +157,6 @@
               <span v-if="facet.metadata" class="badge badge-ghost badge-xs">metadata</span>
             </div>
 
-            <div
-              v-if="facet.artRequired && !facetArtwork(facet)"
-              class="mt-3 rounded-xl border border-dashed border-accent/40 bg-accent/5 p-2"
-            >
-              <button
-                type="button"
-                class="btn btn-outline btn-accent btn-xs w-full rounded-lg"
-                :disabled="artRequestStore.requesting[facet.id]"
-                @click="requestArt(facet)"
-              >
-                <span
-                  v-if="artRequestStore.requesting[facet.id]"
-                  class="loading loading-spinner loading-xs"
-                />
-                <Icon v-else name="kind-icon:palette" class="size-3.5" />
-                {{
-                  artRequestStore.requested[facet.id]
-                    ? 'Artwork requested'
-                    : 'Request primary artwork'
-                }}
-              </button>
-              <p
-                v-if="artRequestStore.errors[facet.id]"
-                class="mt-1 text-[11px] text-error"
-              >
-                {{ artRequestStore.errors[facet.id] }}
-              </p>
-            </div>
           </template>
 
           <div v-else class="mt-4 space-y-4">
@@ -201,18 +173,25 @@
                   height: 1024,
                 },
                 {
+                  field: 'iconPath',
+                  label: 'Icon',
+                  aspect: '1 / 1',
+                  width: 256,
+                  height: 256,
+                },
+                {
                   field: 'cardPath',
                   label: 'Card',
                   aspect: '2 / 3',
-                  width: 1024,
-                  height: 1536,
+                  width: 512,
+                  height: 768,
                 },
                 {
                   field: 'heroPath',
                   label: 'Hero',
                   aspect: '16 / 9',
-                  width: 1536,
-                  height: 864,
+                  width: 1280,
+                  height: 720,
                 },
               ]"
             />
@@ -267,10 +246,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
 import {
   FACET_TAXONOMIES,
-  type FacetCatalogEntry,
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
-import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import {
   blankFacetProfileForm,
@@ -280,7 +257,6 @@ import {
 } from '@/utils/facetProfileForm'
 
 const facetStore = useFacetStore()
-const artRequestStore = useFacetArtRequestStore()
 const search = ref('')
 const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const showArchived = ref(false)
@@ -317,6 +293,7 @@ const filteredFacets = computed(() => {
       facet.imagePath,
       facet.cardPath,
       facet.heroPath,
+      facet.iconPath,
       facet.artPrompt,
       facet.metadata ? JSON.stringify(facet.metadata) : '',
       ...facet.aliases,
@@ -343,7 +320,7 @@ function taxonomyLabel(taxonomy: FacetTaxonomy): string {
 }
 
 function facetArtwork(facet: FacetWithAliases): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || null
+  return facet.cardPath || facet.imagePath || facet.heroPath || facet.iconPath || null
 }
 
 function setError(error: unknown, fallback: string): void {
@@ -378,16 +355,6 @@ async function saveEdit(id: number): Promise<void> {
     editingId.value = null
   } catch (error) {
     setError(error, 'Facet could not be saved.')
-  }
-}
-
-async function requestArt(facet: FacetWithAliases): Promise<void> {
-  errorMessage.value = ''
-  const path = await artRequestStore.requestPrimaryArtwork(
-    facet as FacetCatalogEntry,
-  )
-  if (!path && artRequestStore.errors[facet.id]) {
-    errorMessage.value = artRequestStore.errors[facet.id] || 'Artwork request failed.'
   }
 }
 

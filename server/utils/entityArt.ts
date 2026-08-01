@@ -75,8 +75,8 @@ const ENTITY_FIELDS: Record<
    * 512x768 (2:3), hero 1280x720 (16:9) -- matching `project` below and the
    * icon/card/hero contract in conductor's ART-PROMPTS.md. The gallery picks
    * which variant to fetch per view mode, so an object without them can only
-   * ever render one layout. Facet keeps its own larger sizes; churning them
-   * would invalidate art that already exists.
+   * ever render one layout. Existing Facet art paths remain valid while new
+   * variants use the same canonical dimensions as every other major model.
    *
    * ICON vs ICONPATH -- these are different things and the distinction matters
    * (Silas, 2026-08-01). `icon` is a NAME for an existing simple icon in the
@@ -199,16 +199,22 @@ const ENTITY_FIELDS: Record<
       height: 1024,
       primary: true,
     },
+    iconPath: {
+      label: 'Icon',
+      width: 256,
+      height: 256,
+      primary: false,
+    },
     cardPath: {
       label: 'Card',
-      width: 1024,
-      height: 1536,
+      width: 512,
+      height: 768,
       primary: false,
     },
     heroPath: {
       label: 'Hero',
-      width: 1536,
-      height: 864,
+      width: 1280,
+      height: 720,
       primary: false,
     },
   },

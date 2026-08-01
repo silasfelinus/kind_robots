@@ -98,6 +98,7 @@ function hasUsableArt(facet: {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  iconPath: string | null
   artImageId: number | null
   artCollectionId: number | null
 }): boolean {
@@ -105,6 +106,7 @@ function hasUsableArt(facet: {
     facet.imagePath?.trim() ||
       facet.cardPath?.trim() ||
       facet.heroPath?.trim() ||
+      facet.iconPath?.trim() ||
       facet.artImageId ||
       facet.artCollectionId,
   )
@@ -133,6 +135,7 @@ async function main(): Promise<void> {
         imagePath: true,
         cardPath: true,
         heroPath: true,
+        iconPath: true,
         artImageId: true,
         artCollectionId: true,
       },

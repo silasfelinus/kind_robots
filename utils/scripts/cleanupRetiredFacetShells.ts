@@ -165,6 +165,7 @@ function replaceFacetJobPayload(
         imagePath: canonical.imagePath,
         cardPath: canonical.cardPath,
         heroPath: canonical.heroPath,
+        iconPath: canonical.iconPath,
       }
     })
   }
@@ -387,6 +388,7 @@ async function migrateMergedShell(
         imagePath: canonical.imagePath || duplicate.imagePath,
         cardPath: canonical.cardPath || duplicate.cardPath,
         heroPath: canonical.heroPath || duplicate.heroPath,
+        iconPath: canonical.iconPath || duplicate.iconPath,
         icon: canonical.icon || duplicate.icon,
         artImageId: canonical.artImageId ?? duplicate.artImageId,
         artCollectionId:

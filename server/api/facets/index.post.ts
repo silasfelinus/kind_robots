@@ -38,6 +38,7 @@ type FacetCreateBody = {
   imagePath?: unknown
   cardPath?: unknown
   heroPath?: unknown
+  iconPath?: unknown
   icon?: unknown
   designer?: unknown
   creationSource?: unknown
@@ -149,6 +150,7 @@ export default defineEventHandler(async (event) => {
         imagePath: optionalText(body.imagePath),
         cardPath: optionalText(body.cardPath),
         heroPath: optionalText(body.heroPath),
+        iconPath: optionalText(body.iconPath),
         icon: optionalText(body.icon),
         designer: optionalText(body.designer),
         creationSource,

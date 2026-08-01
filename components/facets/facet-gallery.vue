@@ -127,24 +127,6 @@
               {{ facet.aliases.join(' · ') }}
             </p>
 
-            <button
-              v-if="canRequestArt && facet.artRequired && !facetArtwork(facet)"
-              type="button"
-              class="btn btn-outline btn-accent btn-xs w-full rounded-lg"
-              :disabled="artRequestStore.requesting[facet.id]"
-              @click="requestArt(facet)"
-            >
-              <span
-                v-if="artRequestStore.requesting[facet.id]"
-                class="loading loading-spinner loading-xs"
-              />
-              <Icon v-else name="kind-icon:palette" class="size-3.5" />
-              {{
-                artRequestStore.requested[facet.id]
-                  ? 'Artwork requested'
-                  : 'Request artwork'
-              }}
-            </button>
           </div>
         </article>
       </div>
@@ -167,23 +149,17 @@ import {
   type FacetCatalogEntry,
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
-import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
-import { useUserStore } from '@/stores/userStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 
 const catalog = useFacetCatalogStore()
-const artRequestStore = useFacetArtRequestStore()
-const userStore = useUserStore()
 
 const search = ref('')
 const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const artOnly = ref(false)
 const errorMessage = ref('')
 
-const canRequestArt = computed(() => userStore.isAdmin)
-
 function facetArtwork(facet: FacetCatalogEntry): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || null
+  return facet.cardPath || facet.imagePath || facet.heroPath || facet.iconPath || null
 }
 
 function iconName(facet: FacetCatalogEntry): string {
@@ -245,15 +221,6 @@ const groups = computed(() => {
 const visibleCount = computed(() =>
   groups.value.reduce((sum, group) => sum + group.entries.length, 0),
 )
-
-async function requestArt(facet: FacetCatalogEntry): Promise<void> {
-  errorMessage.value = ''
-  const path = await artRequestStore.requestPrimaryArtwork(facet)
-  if (!path && artRequestStore.errors[facet.id]) {
-    errorMessage.value =
-      artRequestStore.errors[facet.id] || 'Artwork request failed.'
-  }
-}
 
 onMounted(async () => {
   try {

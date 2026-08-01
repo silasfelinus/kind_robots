@@ -128,6 +128,7 @@ export default defineEventHandler(async (event) => {
       data.imagePath = optionalText(body.imagePath)
     if (body.cardPath !== undefined) data.cardPath = optionalText(body.cardPath)
     if (body.heroPath !== undefined) data.heroPath = optionalText(body.heroPath)
+    if (body.iconPath !== undefined) data.iconPath = optionalText(body.iconPath)
     if (body.icon !== undefined) data.icon = optionalText(body.icon)
     if (body.designer !== undefined) data.designer = optionalText(body.designer)
     const nextArtImageId =

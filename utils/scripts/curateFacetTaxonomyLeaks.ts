@@ -53,13 +53,21 @@ type TransformDefinition = {
   groupKey: string
   groupLabel: string
   randomWeight: number
-  isRandomizable?: boolean
   note: string
 }
 
 type SuppressDefinition = {
   lookup: readonly string[]
   note: string
+}
+
+type EnsureDefinition = {
+  slug: string
+  title: string
+  taxonomy: FacetTaxonomy
+  groupKey: string
+  groupLabel: string
+  randomWeight: number
 }
 
 const TRANSFORMS: readonly TransformDefinition[] = [
@@ -117,7 +125,7 @@ const SUPPRESS: readonly SuppressDefinition[] = [
     note: 'Resolution cargo-cult wording adds no reliable creative direction.',
   },
   {
-    lookup: ['award-winning', 'award-winning'],
+    lookup: ['award-winning'],
     note: 'Quality-claim wording is not a useful randomized creative control.',
   },
   {
@@ -212,10 +220,10 @@ function curatedMetadata(options: {
 
 async function findFacet(lookups: readonly string[]): Promise<FacetRow | null> {
   for (const lookup of lookups) {
-    const direct = await prisma.facet.findUnique({
+    const bySlug = await prisma.facet.findUnique({
       where: { slug: slugify(lookup) },
     })
-    if (direct) return direct
+    if (bySlug) return bySlug
 
     const lookupKey = normalizeFacetLookupKey(lookup)
     if (!lookupKey) continue
@@ -256,6 +264,56 @@ async function hasArtwork(facet: FacetRow): Promise<boolean> {
   return imageLinks > 0 || collectionLinks > 0
 }
 
+async function writeProfile(options: {
+  facet: FacetRow
+  profile: ProfileRow | null
+  taxonomy: FacetTaxonomy
+  groupKey: string | null
+  groupLabel: string | null
+  isRandomizable: boolean
+  randomWeight: number
+  artBacked: boolean
+  action: 'taxonomy-repair' | 'suppress-low-value' | 'decompose-recipe'
+  note: string
+}): Promise<void> {
+  const metadata = curatedMetadata({
+    previous: options.profile?.metadata,
+    action: options.action,
+    title: options.facet.title,
+    previousTaxonomy: options.profile?.taxonomy,
+    taxonomy: options.taxonomy,
+    artBacked: options.artBacked,
+    note: options.note,
+  })
+
+  await prisma.facetProfile.upsert({
+    where: { facetId: options.facet.id },
+    create: {
+      facetId: options.facet.id,
+      taxonomy: options.taxonomy,
+      canonicalValue: options.facet.title,
+      groupKey: options.groupKey,
+      groupLabel: options.groupLabel,
+      sortOrder: options.profile?.sortOrder ?? 0,
+      isRandomizable: options.isRandomizable,
+      randomWeight: options.randomWeight,
+      artRequired: options.profile?.artRequired ?? options.artBacked,
+      sourceRank: CURATION_SOURCE_RANK,
+      metadata,
+    },
+    update: {
+      taxonomy: options.taxonomy,
+      canonicalValue: options.facet.title,
+      groupKey: options.groupKey,
+      groupLabel: options.groupLabel,
+      isRandomizable: options.isRandomizable,
+      randomWeight: options.randomWeight,
+      sourceRank: CURATION_SOURCE_RANK,
+      metadata,
+    },
+  })
+}
+
 async function transformFacet(definition: TransformDefinition): Promise<object> {
   const facet = await findFacet(definition.lookup)
   if (!facet) return { lookup: definition.lookup, action: 'missing' }
@@ -268,53 +326,19 @@ async function transformFacet(definition: TransformDefinition): Promise<object> 
   if (apply) {
     await prisma.facet.update({
       where: { id: facet.id },
-      data: {
-        kind: legacyKind(definition.taxonomy),
-        isActive: true,
-      },
+      data: { kind: legacyKind(definition.taxonomy), isActive: true },
     })
-
-    await prisma.facetProfile.upsert({
-      where: { facetId: facet.id },
-      create: {
-        facetId: facet.id,
-        taxonomy: definition.taxonomy,
-        canonicalValue: facet.title,
-        groupKey: definition.groupKey,
-        groupLabel: definition.groupLabel,
-        sortOrder: profile?.sortOrder ?? 0,
-        isRandomizable: definition.isRandomizable ?? true,
-        randomWeight: definition.randomWeight,
-        artRequired: profile?.artRequired ?? artBacked,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: curatedMetadata({
-          previous: profile?.metadata,
-          action: 'taxonomy-repair',
-          title: facet.title,
-          previousTaxonomy: profile?.taxonomy,
-          taxonomy: definition.taxonomy,
-          artBacked,
-          note: definition.note,
-        }),
-      },
-      update: {
-        taxonomy: definition.taxonomy,
-        canonicalValue: facet.title,
-        groupKey: definition.groupKey,
-        groupLabel: definition.groupLabel,
-        isRandomizable: definition.isRandomizable ?? true,
-        randomWeight: definition.randomWeight,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: curatedMetadata({
-          previous: profile?.metadata,
-          action: 'taxonomy-repair',
-          title: facet.title,
-          previousTaxonomy: profile?.taxonomy,
-          taxonomy: definition.taxonomy,
-          artBacked,
-          note: definition.note,
-        }),
-      },
+    await writeProfile({
+      facet,
+      profile,
+      taxonomy: definition.taxonomy,
+      groupKey: definition.groupKey,
+      groupLabel: definition.groupLabel,
+      isRandomizable: true,
+      randomWeight: definition.randomWeight,
+      artBacked,
+      action: 'taxonomy-repair',
+      note: definition.note,
     })
   }
 
@@ -337,45 +361,20 @@ async function suppressFacet(definition: SuppressDefinition): Promise<object> {
     getProfile(facet.id),
     hasArtwork(facet),
   ])
+  const taxonomy = profile?.taxonomy ?? 'OTHER'
 
   if (apply) {
-    await prisma.facetProfile.upsert({
-      where: { facetId: facet.id },
-      create: {
-        facetId: facet.id,
-        taxonomy: profile?.taxonomy ?? 'OTHER',
-        canonicalValue: profile?.canonicalValue ?? facet.title,
-        groupKey: profile?.groupKey,
-        groupLabel: profile?.groupLabel,
-        sortOrder: profile?.sortOrder ?? 0,
-        isRandomizable: false,
-        randomWeight: 0,
-        artRequired: profile?.artRequired ?? artBacked,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: curatedMetadata({
-          previous: profile?.metadata,
-          action: 'suppress-low-value',
-          title: facet.title,
-          previousTaxonomy: profile?.taxonomy,
-          taxonomy: profile?.taxonomy,
-          artBacked,
-          note: definition.note,
-        }),
-      },
-      update: {
-        isRandomizable: false,
-        randomWeight: 0,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: curatedMetadata({
-          previous: profile?.metadata,
-          action: 'suppress-low-value',
-          title: facet.title,
-          previousTaxonomy: profile?.taxonomy,
-          taxonomy: profile?.taxonomy,
-          artBacked,
-          note: definition.note,
-        }),
-      },
+    await writeProfile({
+      facet,
+      profile,
+      taxonomy,
+      groupKey: profile?.groupKey ?? null,
+      groupLabel: profile?.groupLabel ?? null,
+      isRandomizable: false,
+      randomWeight: 0,
+      artBacked,
+      action: 'suppress-low-value',
+      note: definition.note,
     })
   }
 
@@ -383,28 +382,21 @@ async function suppressFacet(definition: SuppressDefinition): Promise<object> {
     facetId: facet.id,
     title: facet.title,
     action: apply ? 'suppressed-from-random' : 'would-suppress-from-random',
-    taxonomy: profile?.taxonomy ?? null,
+    taxonomy,
     artBacked,
   }
 }
 
-async function ensureRecipeTarget(options: {
-  slug: string
-  title: string
-  taxonomy: FacetTaxonomy
-  groupKey: string
-  groupLabel: string
-  randomWeight: number
-}): Promise<FacetRow | null> {
-  let facet = await findFacet([options.slug, options.title])
+async function ensureExactFacet(definition: EnsureDefinition): Promise<FacetRow | null> {
+  let facet = await prisma.facet.findUnique({ where: { slug: definition.slug } })
   if (!facet && !apply) return null
 
   if (!facet) {
     facet = await prisma.facet.create({
       data: {
-        title: options.title,
-        slug: options.slug,
-        kind: legacyKind(options.taxonomy),
+        title: definition.title,
+        slug: definition.slug,
+        kind: legacyKind(definition.taxonomy),
         designer: 'facet-curation',
         creationSource: 'HUMAN',
         userId: 1,
@@ -415,35 +407,34 @@ async function ensureRecipeTarget(options: {
     })
   }
 
-  const profile = await getProfile(facet.id)
+  const [profile, artBacked] = await Promise.all([
+    getProfile(facet.id),
+    hasArtwork(facet),
+  ])
   if (apply) {
-    await prisma.facetProfile.upsert({
-      where: { facetId: facet.id },
-      create: {
-        facetId: facet.id,
-        taxonomy: options.taxonomy,
-        canonicalValue: options.title,
-        groupKey: options.groupKey,
-        groupLabel: options.groupLabel,
-        sortOrder: profile?.sortOrder ?? 0,
-        isRandomizable: true,
-        randomWeight: options.randomWeight,
-        artRequired: profile?.artRequired ?? true,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: profile?.metadata,
-      },
-      update: {
-        taxonomy: options.taxonomy,
-        canonicalValue: options.title,
-        groupKey: options.groupKey,
-        groupLabel: options.groupLabel,
-        isRandomizable: true,
-        randomWeight: options.randomWeight,
-        sourceRank: CURATION_SOURCE_RANK,
+    await prisma.facet.update({
+      where: { id: facet.id },
+      data: {
+        title: definition.title,
+        kind: legacyKind(definition.taxonomy),
+        isActive: true,
       },
     })
+    await writeProfile({
+      facet: { ...facet, title: definition.title },
+      profile,
+      taxonomy: definition.taxonomy,
+      groupKey: definition.groupKey,
+      groupLabel: definition.groupLabel,
+      isRandomizable: true,
+      randomWeight: definition.randomWeight,
+      artBacked,
+      action: 'taxonomy-repair',
+      note: 'Reusable component created for a decomposed genre recipe.',
+    })
   }
-  return facet
+
+  return { ...facet, title: definition.title }
 }
 
 async function decomposeWhimsicalStew(): Promise<object> {
@@ -454,15 +445,15 @@ async function decomposeWhimsicalStew(): Promise<object> {
     getProfile(recipe.id),
     hasArtwork(recipe),
   ])
-  const whimsical = await ensureRecipeTarget({
+  const whimsicalTone = await ensureExactFacet({
     slug: 'whimsical-tone',
-    title: 'Whimsical',
+    title: 'Whimsical Tone',
     taxonomy: 'MOOD',
     groupKey: 'mood',
     groupLabel: 'Moods',
     randomWeight: 1,
   })
-  const culinary = await ensureRecipeTarget({
+  const culinaryFantasy = await ensureExactFacet({
     slug: 'culinary-fantasy',
     title: 'Culinary Fantasy',
     taxonomy: 'GENRE',
@@ -476,49 +467,21 @@ async function decomposeWhimsicalStew(): Promise<object> {
       where: { id: recipe.id },
       data: { kind: 'THEME', isActive: true },
     })
-    await prisma.facetProfile.upsert({
-      where: { facetId: recipe.id },
-      create: {
-        facetId: recipe.id,
-        taxonomy: 'THEME',
-        canonicalValue: recipe.title,
-        groupKey: 'genre-recipe',
-        groupLabel: 'Genre Recipes',
-        sortOrder: profile?.sortOrder ?? 0,
-        isRandomizable: false,
-        randomWeight: 0,
-        artRequired: profile?.artRequired ?? artBacked,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: curatedMetadata({
-          previous: profile?.metadata,
-          action: 'decompose-recipe',
-          title: recipe.title,
-          previousTaxonomy: profile?.taxonomy,
-          taxonomy: 'THEME',
-          artBacked,
-          note: 'Decomposed into reusable Whimsical mood and Culinary Fantasy genre.',
-        }),
-      },
-      update: {
-        taxonomy: 'THEME',
-        groupKey: 'genre-recipe',
-        groupLabel: 'Genre Recipes',
-        isRandomizable: false,
-        randomWeight: 0,
-        sourceRank: CURATION_SOURCE_RANK,
-        metadata: curatedMetadata({
-          previous: profile?.metadata,
-          action: 'decompose-recipe',
-          title: recipe.title,
-          previousTaxonomy: profile?.taxonomy,
-          taxonomy: 'THEME',
-          artBacked,
-          note: 'Decomposed into reusable Whimsical mood and Culinary Fantasy genre.',
-        }),
-      },
+    await writeProfile({
+      facet: recipe,
+      profile,
+      taxonomy: 'THEME',
+      groupKey: 'genre-recipe',
+      groupLabel: 'Genre Recipes',
+      isRandomizable: false,
+      randomWeight: 0,
+      artBacked,
+      action: 'decompose-recipe',
+      note:
+        'Decomposed into reusable Whimsical Tone mood and Culinary Fantasy genre.',
     })
 
-    for (const target of [whimsical, culinary]) {
+    for (const target of [whimsicalTone, culinaryFantasy]) {
       if (!target || target.id === recipe.id) continue
       await prisma.facetRelation.upsert({
         where: {
@@ -546,7 +509,7 @@ async function decomposeWhimsicalStew(): Promise<object> {
     title: recipe.title,
     action: apply ? 'decomposed' : 'would-decompose',
     artBacked,
-    components: ['Whimsical', 'Culinary Fantasy'],
+    components: ['Whimsical Tone', 'Culinary Fantasy'],
   }
 }
 

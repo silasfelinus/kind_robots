@@ -176,6 +176,12 @@ jobs:
       - name: Model Builder auto-build draft gate contract
         run: npm run test:model-builder-auto-build-draft-gate
 
+      - name: Model Builder run-writable guard checker self-test
+        run: npm run test:model-builder-run-writable-guard-selftest
+
+      - name: Model Builder run-writable guard contract
+        run: npm run test:model-builder-run-writable-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

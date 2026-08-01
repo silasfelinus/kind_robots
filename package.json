@@ -119,6 +119,8 @@
     "test:model-builder-auto-build-draft-gate": "tsx utils/scripts/verifyModelBuilderAutoBuildDraftGate.ts",
     "test:model-builder-item-patch-stage-guard-selftest": "tsx utils/scripts/verifyModelBuilderItemPatchStageGuard.test.ts",
     "test:model-builder-item-patch-stage-guard": "tsx utils/scripts/verifyModelBuilderItemPatchStageGuard.ts",
+    "test:model-builder-run-writable-guard-selftest": "tsx utils/scripts/verifyModelBuilderRunWritableGuard.test.ts",
+    "test:model-builder-run-writable-guard": "tsx utils/scripts/verifyModelBuilderRunWritableGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "audit:wonderlab-previews": "tsx utils/scripts/auditWonderLabPreviews.ts",

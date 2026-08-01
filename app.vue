@@ -93,19 +93,15 @@
         </Transition>
 
         <main
-          class="kr-main relative z-10 h-full min-h-0 overflow-hidden transition-[padding] duration-300 ease-out"
+          class="kr-main relative z-10 h-full min-h-0 overflow-hidden rounded-2xl bg-base-100 transition-[padding] duration-300 ease-out"
           :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
         >
-          <div
-            class="relative z-10 h-full min-h-0 overflow-hidden rounded-2xl bg-base-100"
-          >
-            <fx-region region="page" />
+          <fx-region region="page" />
 
-            <div
-              class="relative z-10 h-full min-h-0 w-full overflow-x-visible overflow-y-auto overscroll-y-contain"
-            >
-              <NuxtPage />
-            </div>
+          <div
+            class="relative z-10 h-full min-h-0 w-full overflow-x-visible overflow-y-auto overscroll-y-contain"
+          >
+            <NuxtPage />
           </div>
         </main>
 

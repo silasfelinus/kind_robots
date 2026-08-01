@@ -201,7 +201,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.content-host > :deep(*) {
+.content-host > :deep(:first-child) {
   flex: 1 1 0%;
   min-height: 0;
 }

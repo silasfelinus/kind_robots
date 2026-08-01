@@ -61,8 +61,10 @@ async function main(): Promise<void> {
   requireText(curatorPath, curator, 'randomWeight: 0')
 
   requireText(curatorPath, curator, 'Whimsical Stew')
-  requireText(curatorPath, curator, "title: 'Whimsical'")
+  requireText(curatorPath, curator, "slug: 'whimsical-tone'")
+  requireText(curatorPath, curator, "title: 'Whimsical Tone'")
   requireText(curatorPath, curator, "title: 'Culinary Fantasy'")
+  requireText(curatorPath, curator, 'findUnique({ where: { slug: definition.slug } })')
   requireText(curatorPath, curator, "relationType: 'CONTAINS'")
   requireText(curatorPath, curator, "groupKey: 'genre-recipe'")
 

@@ -51,7 +51,7 @@ const RULE_TITLES: Record<RuleId, string> = {
   'one-mdc': 'content pages mounting more than one component',
   'ghost-prop': ':show-header passed to a component that never declared it',
   'zero-scroll':
-    'page components with no scroll region of their own (app.vue no longer scrolls for them)',
+    'standalone page components with no scroll region of their own (app.vue no longer scrolls for them)',
 }
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
@@ -138,6 +138,26 @@ function collect(): Record<RuleId, string[]> {
     'zero-scroll': [],
   }
 
+  /*
+   * MDC-mounted components inherit the single scroll owner from
+   * pages/[...slug].vue's content-host. Giving them another overflow region would
+   * create the nested-scroll regression this contract is meant to prevent.
+   */
+  const mdcMountedComponents = new Set<string>()
+  for (const file of mdFiles) {
+    const body = read(file).replace(/^---[\s\S]*?\n---\n/, '')
+    const blocks = body
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => /^:{1,2}[a-z][a-z0-9-]*\s*$/.test(line))
+
+    for (const block of blocks) {
+      mdcMountedComponents.add(block.replace(/^:{1,2}/, ''))
+    }
+
+    if (blocks.length > 1) violations['one-mdc'].push(rel(file))
+  }
+
   /* Components that legitimately declare a showHeader prop. */
   const declaresShowHeader = new Set<string>()
   for (const file of vueFiles) {
@@ -161,7 +181,11 @@ function collect(): Record<RuleId, string[]> {
 
     const scrollers = countMatches(template, /overflow-y-auto|overflow-auto/g)
     if (scrollers > 1) violations['one-scroll'].push(r)
-    if (scrollers === 0 && isPageComponent(file)) {
+    if (
+      scrollers === 0 &&
+      isPageComponent(file) &&
+      !mdcMountedComponents.has(basename(file, '.vue'))
+    ) {
       violations['zero-scroll'].push(r)
     }
 
@@ -183,15 +207,6 @@ function collect(): Record<RuleId, string[]> {
         violations['ghost-prop'].push(`${r} → <${target}>`)
       }
     }
-  }
-
-  for (const file of mdFiles) {
-    const body = read(file).replace(/^---[\s\S]*?\n---\n/, '')
-    const blocks = body
-      .split('\n')
-      .filter((line) => /^:{1,2}[a-z][a-z0-9-]*\s*$/.test(line.trim()))
-
-    if (blocks.length > 1) violations['one-mdc'].push(rel(file))
   }
 
   for (const key of Object.keys(violations) as RuleId[]) {

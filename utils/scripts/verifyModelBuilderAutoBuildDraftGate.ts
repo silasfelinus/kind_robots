@@ -28,6 +28,15 @@
 // deliberately scoped to this one function/bug, mirroring
 // verifyModelBuilderCompletionGate.ts's preference for explicit, narrow
 // textual checks over a general-purpose static analyzer.
+//
+// Also asserts a second, adjacent guard (same task, later cycle): before
+// claiming autoBuildingItemSingleton, autoBuildItem() must bail out if a
+// manual single-stage action (generatingItemId/committingItemId/
+// draftingField) is already in flight for this item. Without it, clicking
+// "Auto" while a manual "Generate candidate"/"Draft with AI"/"Execute
+// commit" click is still running fires a second, concurrent request for the
+// same stage -- the GENERATE_ASSETS case burns a real duplicate art
+// generation call, since neither call's in-flight state blocks the other.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -81,6 +90,27 @@ export function checkAutoBuildDraftGate(content: string): string[] {
         'that entry guard, the item-level Auto action can overlap with batch ' +
         'or run-level auto-build for the same item and duplicate draft, render, ' +
         'or commit work.',
+    )
+  }
+
+  const manualActionGuard =
+    /state\.generatingItemId\s*===\s*item\.id[\s\S]{0,200}state\.committingItemId\s*===\s*item\.id[\s\S]{0,200}draftingField\.value\?\.itemId\s*===\s*item\.id[\s\S]{0,80}return false/.exec(
+      fn.body,
+    )
+  if (
+    claimIndex < 0 ||
+    !manualActionGuard ||
+    manualActionGuard.index > claimIndex
+  ) {
+    errors.push(
+      `${FN_NAME}() must return false when a manual single-stage action ` +
+        '(state.generatingItemId, state.committingItemId, or ' +
+        "draftingField.value's itemId already matching item.id) is in " +
+        'flight for this item, before claiming autoBuildingItemSingleton. ' +
+        'Without that guard, clicking Auto while a manual "Generate ' +
+        'candidate" / "Draft with AI" / "Execute commit" is still running ' +
+        'fires a second, concurrent request for the same stage -- for ' +
+        'GENERATE_ASSETS this burns a real duplicate art-generation call.',
     )
   }
 

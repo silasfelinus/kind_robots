@@ -27,7 +27,7 @@ const validPageHints = new Set([
   '/bots',
   '/builder?tab=art',
   '/builder?tab=character',
-  '/galleries',
+  '/art',
   '/amibot',
   '/themes',
   '/achievements',

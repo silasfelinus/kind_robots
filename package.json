@@ -55,7 +55,7 @@
     "seed:davinci:playloop-verify": "tsx utils/scripts/verifyDaVinciPlayLoop.ts",
     "test:davinci-narration": "tsx utils/scripts/verifyDaVinciNarration.ts",
     "test:achievement-store": "tsx utils/scripts/verifyAchievementStoreFetchSafety.ts",
-    "test:achievement-catalog": "tsx utils/scripts/verifyDatabaseRetry.ts && tsx utils/scripts/verifyAchievementCatalog.ts",
+    "test:achievement-catalog": "tsx utils/scripts/verifyDatabaseRetry.ts && tsx utils/scripts/verifyAchievementArtJobDedupe.ts && tsx utils/scripts/verifyAchievementCatalog.ts",
     "seed:achievements": "tsx scripts/seed_achievements.ts",
     "seed:resource-commercial-safe": "tsx scripts/seed_resource_commercial_safe.ts",
     "generate:achievement-art": "tsx scripts/generate_achievement_art.ts",

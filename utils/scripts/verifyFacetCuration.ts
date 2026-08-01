@@ -14,16 +14,9 @@ function requireText(path: string, text: string, value: string): void {
   }
 }
 
-function requireOrder(
-  path: string,
-  text: string,
-  before: string,
-  after: string,
-): void {
-  const beforeIndex = text.indexOf(before)
-  const afterIndex = text.indexOf(after)
-  if (beforeIndex < 0 || afterIndex < 0 || beforeIndex >= afterIndex) {
-    throw new Error(`${path} must run ${after} after ${before}`)
+function forbidText(path: string, text: string, value: string): void {
+  if (text.includes(value)) {
+    throw new Error(`${path} contains forbidden contract text: ${value}`)
   }
 }
 
@@ -111,14 +104,7 @@ async function main(): Promise<void> {
   )
   forbidFacetArtMutation(files.curator, text.curator)
 
-  requireText(files.build, text.build, 'curateFacetCatalog.ts')
-  requireOrder(
-    files.build,
-    text.build,
-    'mergeCanonicalFacetDuplicates.ts',
-    'curateFacetCatalog.ts',
-  )
-
+  forbidText(files.build, text.build, 'curateFacetCatalog.ts')
   requireText(files.workflow, text.workflow, 'Verify Facet curation batches')
   requireText(files.workflow, text.workflow, 'verifyFacetCuration.ts')
 

@@ -1365,14 +1365,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.includeArt = typeof value === 'boolean' ? value : !state.includeArt
   }
 
+  // 'skipped' means auto-build never attempted the item this call because
+  // another in-flight action (itself or a manual single-stage action) owns
+  // it right now -- the item is still buildable, just not yet. 'failed'
+  // means auto-build attempted a stage and it did not succeed (or the item
+  // isn't eligible, e.g. asset-only with art off). Callers that tally
+  // progress across many items (autoBuildRun, batchAutoBuild) need this
+  // distinction so a busy-but-fine item doesn't read the same as a broken one.
+  type AutoBuildOutcome = 'committed' | 'skipped' | 'failed'
+
   // Run one item through every gate automatically with sensible defaults: draft
   // what's empty, generate art only when wanted, and commit. "Create directly"
-  // for CREATE/UPDATE items when art is off. Returns whether it committed.
-  async function autoBuildItem(itemId: string): Promise<boolean> {
+  // for CREATE/UPDATE items when art is off. Returns the outcome so batch/run
+  // callers can tell a busy skip apart from a real failure.
+  async function autoBuildItem(itemId: string): Promise<AutoBuildOutcome> {
     const item = findItem(itemId)
-    if (!item || !state.run) return false
+    if (!item || !state.run) return 'failed'
 
-    if (state.autoBuildingItemId === item.id) return false
+    if (state.autoBuildingItemId === item.id) return 'skipped'
 
     // A manual single-stage action (Generate candidate / Draft with AI /
     // Execute commit) already in flight for this item must block Auto too --
@@ -1385,7 +1395,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       state.committingItemId === item.id ||
       draftingField.value?.itemId === item.id
     ) {
-      return false
+      return 'skipped'
     }
 
     const isAsset = item.action === 'ASSET_ONLY'
@@ -1397,7 +1407,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         'error',
         `${item.label} is asset-only — enable art to auto-build it.`,
       )
-      return false
+      return 'failed'
     }
 
     autoBuildingItemSingleton.claim(item.id)
@@ -1414,7 +1424,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           // impossible (`:disabled="isLocked('PITCH') || !pitch.trim()"`), so
           // auto-build must not produce a state the manual UI itself refuses.
           const drafted = await draftText(itemId, 'pitch')
-          if (!drafted) return false
+          if (!drafted) return 'failed'
         }
         approveStage(itemId, 'PITCH')
       }
@@ -1422,11 +1432,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       if (item.stages.FIELDS_AND_PROMPTS.status !== 'approved') {
         if (!isAsset) {
           const drafted = await draftText(itemId, 'fields')
-          if (!drafted) return false
+          if (!drafted) return 'failed'
         }
         if (wantArt) {
           const drafted = await draftText(itemId, 'artPrompt')
-          if (!drafted) return false
+          if (!drafted) return 'failed'
         }
         approveStage(itemId, 'FIELDS_AND_PROMPTS')
       }
@@ -1434,15 +1444,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       if (item.stages.GENERATE_ASSETS.status !== 'approved') {
         if (wantArt) {
           const generated = await generateItemAsset(itemId)
-          if (!generated) return false
+          if (!generated) return 'failed'
         }
         approveStage(itemId, 'GENERATE_ASSETS')
       }
 
       if (item.stages.COMMIT.status !== 'approved') {
-        return await commitItem(itemId)
+        return (await commitItem(itemId)) ? 'committed' : 'failed'
       }
-      return true
+      return 'committed'
     } finally {
       autoBuildingItemSingleton.release(item.id)
     }
@@ -1467,6 +1477,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const runId = state.run.id
     const items = [...state.run.items]
     let committed = 0
+    let skipped = 0
     try {
       for (const item of items) {
         if (state.run?.id !== runId) return
@@ -1474,13 +1485,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           committed++
           continue
         }
-        const ok = await autoBuildItem(item.id)
-        if (ok) committed++
+        const outcome = await autoBuildItem(item.id)
+        if (outcome === 'committed') committed++
+        else if (outcome === 'skipped') skipped++
       }
       if (state.run?.id === runId) {
+        const skippedNote = skipped
+          ? ` (${skipped} skipped — manual action in progress, retry after it finishes)`
+          : ''
         setStatus(
           'success',
-          `Auto-build finished: ${committed}/${items.length} committed.`,
+          `Auto-build finished: ${committed}/${items.length} committed${skippedNote}.`,
         )
       }
     } finally {
@@ -1621,18 +1636,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let committed = 0
+    let skipped = 0
     try {
       for (const item of items) {
         if (item.stages.COMMIT.status === 'approved') {
           committed++
           continue
         }
-        const ok = await autoBuildItem(item.id)
-        if (ok) committed++
+        const outcome = await autoBuildItem(item.id)
+        if (outcome === 'committed') committed++
+        else if (outcome === 'skipped') skipped++
       }
+      const skippedNote = skipped
+        ? ` (${skipped} skipped — manual action in progress, retry after it finishes)`
+        : ''
       setStatus(
         'success',
-        `Auto-built ${committed}/${items.length} in this group.`,
+        `Auto-built ${committed}/${items.length} in this group${skippedNote}.`,
       )
     } finally {
       batchingOutputSingleton.release(outputKey)

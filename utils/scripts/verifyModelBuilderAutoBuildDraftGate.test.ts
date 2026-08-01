@@ -51,18 +51,18 @@ const BUGGY_FIXTURE = `
 `
 
 const FIXED_FIXTURE = `
-  async function autoBuildItem(itemId: string): Promise<boolean> {
+  async function autoBuildItem(itemId: string): Promise<AutoBuildOutcome> {
     const item = findItem(itemId)
-    if (!item || !state.run) return false
+    if (!item || !state.run) return 'failed'
 
-    if (state.autoBuildingItemId === item.id) return false
+    if (state.autoBuildingItemId === item.id) return 'skipped'
 
     if (
       state.generatingItemId === item.id ||
       state.committingItemId === item.id ||
       draftingField.value?.itemId === item.id
     ) {
-      return false
+      return 'skipped'
     }
 
     const isAsset = item.action === 'ASSET_ONLY'
@@ -73,7 +73,7 @@ const FIXED_FIXTURE = `
       if (item.stages.PITCH.status !== 'approved') {
         if (!item.pitch.trim()) {
           const drafted = await draftText(itemId, 'pitch')
-          if (!drafted) return false
+          if (!drafted) return 'failed'
         }
         approveStage(itemId, 'PITCH')
       }
@@ -81,11 +81,11 @@ const FIXED_FIXTURE = `
       if (item.stages.FIELDS_AND_PROMPTS.status !== 'approved') {
         if (!isAsset) {
           const drafted = await draftText(itemId, 'fields')
-          if (!drafted) return false
+          if (!drafted) return 'failed'
         }
         if (wantArt) {
           const drafted = await draftText(itemId, 'artPrompt')
-          if (!drafted) return false
+          if (!drafted) return 'failed'
         }
         approveStage(itemId, 'FIELDS_AND_PROMPTS')
       }
@@ -93,15 +93,15 @@ const FIXED_FIXTURE = `
       if (item.stages.GENERATE_ASSETS.status !== 'approved') {
         if (wantArt) {
           const generated = await generateItemAsset(itemId)
-          if (!generated) return false
+          if (!generated) return 'failed'
         }
         approveStage(itemId, 'GENERATE_ASSETS')
       }
 
       if (item.stages.COMMIT.status !== 'approved') {
-        return await commitItem(itemId)
+        return (await commitItem(itemId)) ? 'committed' : 'failed'
       }
-      return true
+      return 'committed'
     } finally {
       autoBuildingItemSingleton.release(item.id)
     }
@@ -156,7 +156,7 @@ assert.equal(
 )
 
 const REENTRANT_FIXTURE = FIXED_FIXTURE.replace(
-  '    if (state.autoBuildingItemId === item.id) return false\n\n',
+  "    if (state.autoBuildingItemId === item.id) return 'skipped'\n\n",
   '',
 )
 const reentrantErrors = checkAutoBuildDraftGate(REENTRANT_FIXTURE)
@@ -174,7 +174,7 @@ const NO_MANUAL_GUARD_FIXTURE = FIXED_FIXTURE.replace(
       state.committingItemId === item.id ||
       draftingField.value?.itemId === item.id
     ) {
-      return false
+      return 'skipped'
     }
 `,
   '',

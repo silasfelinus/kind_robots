@@ -27,6 +27,14 @@ const LEGACY_TRIGGER_ALIASES: Record<string, string[]> = {
   'achievement-tour': ['test'],
 }
 
+const RETIRED_TRIGGER_CODES = [
+  'pitchmaster',
+  'Artist',
+  'matchmaker',
+  'button',
+  'milestone',
+] as const
+
 // The descriptive fields owned by the catalog. Generated `imagePath` and
 // `artImageId` are deliberately omitted so a reconciliation never erases art.
 function toUpsertData(achievement: (typeof achievementData)[number]) {
@@ -92,6 +100,52 @@ export async function upsertAchievement(
   })
 }
 
+export async function deleteRetiredAchievements(
+  prisma: PrismaClient,
+): Promise<number> {
+  const retired = await prisma.achievement.findMany({
+    where: { triggerCode: { in: [...RETIRED_TRIGGER_CODES] } },
+    select: { id: true, triggerCode: true },
+  })
+  const retiredIds = retired.map((achievement) => achievement.id)
+  if (!retiredIds.length) return 0
+
+  const records = await prisma.achievementRecord.findMany({
+    where: { achievementId: { in: retiredIds } },
+    select: { id: true },
+  })
+  const recordIds = records.map((record) => record.id)
+
+  if (recordIds.length) {
+    await prisma.lifeAchievementUnlock.updateMany({
+      where: { achievementRecordId: { in: recordIds } },
+      data: { achievementRecordId: null },
+    })
+    await prisma.achievementRecord.deleteMany({
+      where: { id: { in: recordIds } },
+    })
+  }
+
+  await prisma.lifeAchievement.updateMany({
+    where: { achievementId: { in: retiredIds } },
+    data: { achievementId: null },
+  })
+  await prisma.lifeEnding.updateMany({
+    where: { achievementId: { in: retiredIds } },
+    data: { achievementId: null },
+  })
+
+  const deleted = await prisma.achievement.deleteMany({
+    where: { id: { in: retiredIds } },
+  })
+  console.log(
+    `  deleted ${deleted.count} retired achievement(s) and ${records.length} alpha award record(s): ${retired
+      .map((achievement) => achievement.triggerCode)
+      .join(', ')}`,
+  )
+  return deleted.count
+}
+
 async function main() {
   const WRITE = process.argv.includes('--write')
 
@@ -110,7 +164,12 @@ async function main() {
     const prisma = createScriptPrismaClient()
     try {
       const before = await prisma.achievement.count()
-      console.log(`Existing achievements in DB: ${before}`)
+      const activeBefore = await prisma.achievement.count({
+        where: { isActive: true },
+      })
+      console.log(
+        `Existing achievements in DB: ${before} total, ${activeBefore} active`,
+      )
 
       let done = 0
       for (const achievement of achievementData) {
@@ -121,8 +180,15 @@ async function main() {
         )
       }
 
+      await deleteRetiredAchievements(prisma)
+
       const after = await prisma.achievement.count()
-      console.log(`Done. Totals now: ${after} achievements.`)
+      const activeAfter = await prisma.achievement.count({
+        where: { isActive: true },
+      })
+      console.log(
+        `Done. Totals now: ${after} stored, ${activeAfter} active achievements.`,
+      )
     } finally {
       await prisma.$disconnect()
     }

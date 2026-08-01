@@ -3488,7 +3488,7 @@ export type FacetSelectScalar = {
   isActive?: boolean
 }
 
-export type FacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "kind" | "description" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "cardPath" | "heroPath" | "icon" | "designer" | "creationSource" | "userId" | "artImageId" | "artCollectionId" | "packId" | "allowReviews" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["facet"]>
+export type FacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "kind" | "description" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "cardPath" | "heroPath" | "icon" | "iconPath" | "designer" | "creationSource" | "userId" | "artImageId" | "artCollectionId" | "packId" | "allowReviews" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["facet"]>
 export type FacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   DreamLinks?: boolean | Prisma.Facet$DreamLinksArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Facet$ArtCollectionArgs<ExtArgs>
@@ -3942,6 +3942,7 @@ export interface FacetFieldRefs {
   readonly cardPath: Prisma.FieldRef<"Facet", 'String'>
   readonly heroPath: Prisma.FieldRef<"Facet", 'String'>
   readonly icon: Prisma.FieldRef<"Facet", 'String'>
+  readonly iconPath: Prisma.FieldRef<"Facet", 'String'>
   readonly designer: Prisma.FieldRef<"Facet", 'String'>
   readonly creationSource: Prisma.FieldRef<"Facet", 'CreationSource'>
   readonly userId: Prisma.FieldRef<"Facet", 'Int'>

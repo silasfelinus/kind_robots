@@ -111,6 +111,7 @@ export const ModelName = {
   KarmaTransaction: 'KarmaTransaction',
   Referral: 'Referral',
   UserRelation: 'UserRelation',
+  UserRole: 'UserRole',
   Todo: 'Todo',
   Challenge: 'Challenge',
   ChallengeSubmission: 'ChallengeSubmission',
@@ -1445,6 +1446,15 @@ export const UserRelationScalarFieldEnum = {
 export type UserRelationScalarFieldEnum = (typeof UserRelationScalarFieldEnum)[keyof typeof UserRelationScalarFieldEnum]
 
 
+export const UserRoleScalarFieldEnum = {
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt'
+} as const
+
+export type UserRoleScalarFieldEnum = (typeof UserRoleScalarFieldEnum)[keyof typeof UserRoleScalarFieldEnum]
+
+
 export const TodoScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2112,6 +2122,7 @@ export const FacetOrderByRelevanceFieldEnum = {
   cardPath: 'cardPath',
   heroPath: 'heroPath',
   icon: 'icon',
+  iconPath: 'iconPath',
   designer: 'designer'
 } as const
 

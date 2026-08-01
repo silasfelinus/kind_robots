@@ -410,6 +410,28 @@ export type Referral = Prisma.ReferralModel
  */
 export type UserRelation = Prisma.UserRelationModel
 /**
+ * Model UserRole
+ * A user's additional roles. Explicit join model, not implicit M2M -- MariaDB
+ * has no Prisma scalar lists, so multi-role has to be its own table. Same
+ * pattern as UserRelation directly above.
+ * 
+ * `User.Role` stays the PRIMARY/display role and keeps being written; this
+ * table is purely additive so nothing that reads the scalar column breaks.
+ * Every user is backfilled with a row matching their existing `Role`, so the
+ * set here is complete on its own -- a reader can use it without also
+ * consulting the column.
+ * 
+ * The Role enum mixes three unrelated axes (actor kind SYSTEM/USER/ASSISTANT/
+ * BOT, permission ADMIN/DESIGNER, account type GUEST/CHILD/FAMILY), which is
+ * exactly why one slot could not hold "Child AND Admin". Splitting those axes
+ * is deliberately NOT part of this change.
+ * 
+ * Precedence when two roles disagree: RESTRICTIVE WINS. CHILD + ADMIN is still
+ * maturity-restricted -- admin grants capability, it does not lift a safety
+ * restriction. Enforced in contentAccess.ts, not here.
+ */
+export type UserRole = Prisma.UserRoleModel
+/**
  * Model Todo
  * 
  */

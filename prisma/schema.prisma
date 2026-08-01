@@ -481,6 +481,7 @@ model Facet {
   cardPath           String?              @db.Text
   heroPath           String?              @db.Text
   icon               String?
+  iconPath           String?              @db.Text
   designer           String?              @db.VarChar(256)
   creationSource     CreationSource       @default(HUMAN)
   userId             Int?                 @default(10)

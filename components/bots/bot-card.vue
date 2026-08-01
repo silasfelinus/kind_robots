@@ -5,6 +5,7 @@
       :selected="activeSelected"
       :compact="compact"
       :show-reaction="showReaction"
+      :allow-reviews="bot.allowReviews"
       :target-id="bot.id"
       target-type="bot"
       reaction-category="BOT"
@@ -266,8 +267,7 @@
 
           <pre
             class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
-            >{{ JSON.stringify(bot, null, 2) }}</pre
-          >
+            >{{ JSON.stringify(bot, null, 2) }}</pre>
         </details>
       </section>
     </reactable-card>

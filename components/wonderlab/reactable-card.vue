@@ -80,6 +80,7 @@ const props = withDefaults(
     selected?: boolean
     compact?: boolean
     showReaction?: boolean
+    allowReviews?: boolean | null
     targetId?: number | null
     targetType?: ReactionTargetType | string
     reactionCategory?: ReactionCategoryEnum | string
@@ -90,6 +91,7 @@ const props = withDefaults(
     selected: false,
     compact: false,
     showReaction: true,
+    allowReviews: true,
     targetId: null,
     targetType: undefined,
     reactionCategory: undefined,
@@ -136,7 +138,10 @@ const canRenderReactionCard = computed(() => {
 
 const showReactionButton = computed(() => {
   return Boolean(
-    props.showReaction && props.selected && canRenderReactionCard.value,
+    props.showReaction &&
+    props.allowReviews !== false &&
+    props.selected &&
+    canRenderReactionCard.value,
   )
 })
 

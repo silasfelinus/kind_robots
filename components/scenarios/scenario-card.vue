@@ -4,6 +4,7 @@
     :selected="activeSelected"
     :compact="compact"
     :show-reaction="showReaction"
+    :allow-reviews="scenario.allowReviews"
     :target-id="scenario.id"
     target-type="scenario"
     reaction-category="SCENARIO"

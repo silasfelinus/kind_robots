@@ -53,6 +53,9 @@ jobs:
       - name: Verify Facet genre leak repairs
         run: npx tsx utils/scripts/verifyFacetGenreLeaks.ts
 
+      - name: Verify Personality semantic families
+        run: npx tsx utils/scripts/verifyFacetPersonalityFamilies.ts
+
       - name: Verify whole-catalog Facet audit
         run: npx tsx utils/scripts/verifyFacetCatalogAudit.ts
 

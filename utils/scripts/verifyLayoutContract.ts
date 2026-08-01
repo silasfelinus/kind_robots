@@ -31,7 +31,12 @@ const ROOT = process.cwd()
 const BASELINE_PATH = join(ROOT, 'utils/scripts/layout-contract-baseline.json')
 
 type RuleId =
-  'one-header' | 'one-scroll' | 'no-viewport' | 'one-mdc' | 'ghost-prop'
+  | 'one-header'
+  | 'one-scroll'
+  | 'no-viewport'
+  | 'one-mdc'
+  | 'ghost-prop'
+  | 'zero-scroll'
 
 type Baseline = {
   note: string
@@ -45,6 +50,8 @@ const RULE_TITLES: Record<RuleId, string> = {
   'no-viewport': 'viewport-height units inside the h-dvh shell',
   'one-mdc': 'content pages mounting more than one component',
   'ghost-prop': ':show-header passed to a component that never declared it',
+  'zero-scroll':
+    'page components with no scroll region of their own (app.vue no longer scrolls for them)',
 }
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
@@ -128,6 +135,7 @@ function collect(): Record<RuleId, string[]> {
     'no-viewport': [],
     'one-mdc': [],
     'ghost-prop': [],
+    'zero-scroll': [],
   }
 
   /* Components that legitimately declare a showHeader prop. */
@@ -153,6 +161,9 @@ function collect(): Record<RuleId, string[]> {
 
     const scrollers = countMatches(template, /overflow-y-auto|overflow-auto/g)
     if (scrollers > 1) violations['one-scroll'].push(r)
+    if (scrollers === 0 && isPageComponent(file)) {
+      violations['zero-scroll'].push(r)
+    }
 
     const exempt = VIEWPORT_EXEMPT.some((prefix) => r.startsWith(prefix))
     if (!exempt && /\b(h-screen|min-h-screen)\b|100vh|100dvh/.test(source)) {

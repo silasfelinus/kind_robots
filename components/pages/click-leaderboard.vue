@@ -1,6 +1,6 @@
 <!-- /components/content/weird/click-leaderboard.vue -->
 <template>
-  <div class="p-4">
+  <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-4">
     <h1 class="text-xl font-bold mb-4">Global Leaderboard</h1>
     <leaderboard-table
       :rows="leaderboard"

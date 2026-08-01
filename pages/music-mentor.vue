@@ -1,5 +1,7 @@
 <template>
-  <div class="p-6 space-y-6 max-w-3xl mx-auto">
+  <div
+    class="h-full min-h-0 overflow-y-auto overscroll-contain p-6 space-y-6 max-w-3xl mx-auto"
+  >
     <header class="space-y-1">
       <h1 class="text-2xl font-bold">🎤 Music Mentor</h1>
       <p class="text-sm opacity-70">

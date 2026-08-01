@@ -1,6 +1,6 @@
 <template>
   <section
-    class="relative flex min-h-full w-full items-center justify-center overflow-y-auto bg-base-300 px-3 py-4 text-base-content sm:px-6 sm:py-8"
+    class="relative flex h-full min-h-0 w-full items-center justify-center overflow-y-auto overscroll-contain bg-base-300 px-3 py-4 text-base-content sm:px-6 sm:py-8"
   >
     <div
       class="absolute inset-0 bg-cover bg-center bg-no-repeat"

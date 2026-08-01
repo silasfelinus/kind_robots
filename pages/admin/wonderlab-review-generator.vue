@@ -1,6 +1,8 @@
 <!-- /pages/admin/wonderlab-review-generator.vue -->
 <template>
-  <main class="mx-auto min-h-screen max-w-3xl space-y-4 p-4 md:p-6">
+  <main
+    class="mx-auto h-full min-h-0 max-w-3xl space-y-4 overflow-y-auto overscroll-contain p-4 md:p-6"
+  >
     <header class="rounded-3xl border border-base-300 bg-base-100 p-5">
       <p class="text-xs font-black uppercase tracking-widest text-primary">
         WonderLab Editorial

@@ -72,15 +72,8 @@
       "components/wonderlab/wonderlab-preview-host.vue"
     ],
     "no-viewport": [
-      "components/pages/welcome-page.vue",
       "components/servers/chat-test.vue",
-      "components/wonderlab/new-eyeball.vue",
-      "pages/admin/wonderlab-review-generator.vue",
-      "pages/admin/wonderlab-review-plan.vue",
-      "pages/admin/wonderlab-review-rollout.vue",
-      "pages/admin/wonderlab-reviews.vue",
-      "pages/play/challenges/[slug].vue",
-      "pages/play/challenges/leaderboard.vue"
+      "components/wonderlab/new-eyeball.vue"
     ],
     "one-mdc": [
       "content/about.md",
@@ -96,6 +89,36 @@
       "components/wonderlab/lab-manager.vue → <lab-interact>",
       "components/wonderlab/lab-manager.vue → <memory-dungeon>",
       "components/wonderlab/lab-manager.vue → <screen-fx>"
+    ],
+    "zero-scroll": [
+      "components/coloring/coloring-book-page.vue",
+      "components/conductor/challenge-center-page.vue",
+      "components/conductor/coat-dance-page.vue",
+      "components/conductor/conductor-app-page.vue",
+      "components/conductor/davinci-page.vue",
+      "components/conductor/humboldt-scoop-page.vue",
+      "components/conductor/newsfeed-page.vue",
+      "components/conductor/packmaker-page.vue",
+      "components/conductor/ruler-hooked-page.vue",
+      "components/conductor/scoop-cms-page.vue",
+      "components/conductor/sketchy-page.vue",
+      "components/conductor/watchlist-page.vue",
+      "components/pages/about-page.vue",
+      "components/pages/conductor-art-gallery.vue",
+      "components/pages/conductor-manager.vue",
+      "components/pages/giving-page.vue",
+      "components/pages/kaizen-popup.vue",
+      "components/pages/kind-prompts.vue",
+      "components/pages/mermaids-page.vue",
+      "components/pages/plan-projects-grid.vue",
+      "components/pages/privacy-page.vue",
+      "components/pages/rebel-button.vue",
+      "components/pages/registration-form.vue",
+      "components/pages/social-page.vue",
+      "components/pages/sponsor-page.vue",
+      "components/user/registration-page.vue",
+      "pages/auth/google.vue",
+      "pages/build-bench.vue"
     ]
   }
 }

@@ -30,8 +30,8 @@ function createSeedPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
 }
 
-// The fields we own from the catalog. `triggerCode` is the upsert key, so it is
-// applied only on create (updating it would move the row to a different bean).
+// The descriptive fields owned by the catalog. Generated `imagePath` and
+// `artImageId` are deliberately omitted so a reconciliation never erases art.
 function toUpsertData(achievement: (typeof achievementData)[number]) {
   return {
     label: achievement.label,
@@ -44,7 +44,6 @@ function toUpsertData(achievement: (typeof achievementData)[number]) {
     isActive: achievement.isActive ?? false,
     isRepeatable: achievement.isRepeatable ?? false,
     artPrompt: achievement.artPrompt,
-    imagePath: achievement.imagePath,
   }
 }
 

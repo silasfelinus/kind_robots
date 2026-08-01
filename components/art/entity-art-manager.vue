@@ -401,7 +401,14 @@ import { useResourceStore } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 
-type EntityArtType = 'bot' | 'character' | 'scenario' | 'reward' | 'facet'
+type EntityArtType =
+  | 'bot'
+  | 'character'
+  | 'scenario'
+  | 'reward'
+  | 'facet'
+  | 'project'
+  | 'achievement'
 type EntityArtSlot = {
   field: string
   label: string

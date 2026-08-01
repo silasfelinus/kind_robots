@@ -48,6 +48,11 @@ for (const achievement of achievementData) {
     String(achievement.artPrompt || '').trim(),
     `Achievement ${achievement.id} needs an artPrompt.`,
   )
+  assert.equal(
+    achievement.isActive,
+    true,
+    `Achievement ${achievement.id} must be active in the public catalog.`,
+  )
   assert.ok(
     validPageHints.has(String(achievement.pageHint || '')),
     `Achievement ${achievement.id} points at a retired route: ${achievement.pageHint}`,
@@ -169,6 +174,21 @@ assert.ok(
   !seed.includes('imagePath: achievement.imagePath') &&
     !seed.includes('artImageId: achievement.artImageId'),
   'Catalog reconciliation must preserve generated achievement art.',
+)
+assert.ok(
+  seed.includes("pitchmaster: 'artmaker'") &&
+    seed.includes("Artist: 'artmaker'") &&
+    seed.includes("matchmaker: 'memory-master'") &&
+    seed.includes("button: 'rebel-button'") &&
+    seed.includes("milestone: 'achievement-tour'") &&
+    seed.includes('reconcileRetiredAchievements(prisma)'),
+  'Retired DB achievements must migrate earned records into canonical goals.',
+)
+
+const achievementsApi = source('server/api/achievements/index.get.ts')
+assert.ok(
+  achievementsApi.includes('where: { isActive: true }'),
+  'The public achievement API must hide retired definitions.',
 )
 
 const databaseRetry = source('scripts/lib/databaseRetry.ts')

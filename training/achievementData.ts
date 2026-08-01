@@ -356,7 +356,7 @@ export const achievementData: Achievement[] = [
     imagePath: null,
     artImageId: null,
     artPrompt:
-      'A cheerful robot throwing open the lab doors to welcome a returning visitor, warm confetti and floating jellybeans, banner reading welcome back, cozy whimsical illustration, warm golden palette',
+      'A cheerful robot throwing open the lab doors to welcome a returning visitor, warm confetti and floating jellybeans, glowing welcome garland made from abstract shapes, cozy whimsical illustration, warm golden palette, no text',
   },
   {
     id: 19,

@@ -16,18 +16,15 @@
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  createScriptPrismaClient,
+  withDatabaseRetry,
+} from './lib/databaseRetry'
 import { achievementData } from '../training/achievementData'
 
 const LEGACY_TRIGGER_ALIASES: Record<string, string[]> = {
   'first-character': ['fate'],
   'achievement-tour': ['test'],
-}
-
-function createSeedPrismaClient(): PrismaClient {
-  const databaseUrl = process.env.DATABASE_URL
-  if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
 }
 
 // The descriptive fields owned by the catalog. Generated `imagePath` and
@@ -109,23 +106,27 @@ async function main() {
     return
   }
 
-  const prisma = createSeedPrismaClient()
-  try {
-    const before = await prisma.achievement.count()
-    console.log(`Existing achievements in DB: ${before}`)
+  await withDatabaseRetry('achievement catalog reconciliation', async () => {
+    const prisma = createScriptPrismaClient()
+    try {
+      const before = await prisma.achievement.count()
+      console.log(`Existing achievements in DB: ${before}`)
 
-    let done = 0
-    for (const achievement of achievementData) {
-      await upsertAchievement(prisma, achievement)
-      done += 1
-      console.log(`  ...${done}/${achievementData.length} ${achievement.triggerCode}`)
+      let done = 0
+      for (const achievement of achievementData) {
+        await upsertAchievement(prisma, achievement)
+        done += 1
+        console.log(
+          `  ...${done}/${achievementData.length} ${achievement.triggerCode}`,
+        )
+      }
+
+      const after = await prisma.achievement.count()
+      console.log(`Done. Totals now: ${after} achievements.`)
+    } finally {
+      await prisma.$disconnect()
     }
-
-    const after = await prisma.achievement.count()
-    console.log(`Done. Totals now: ${after} achievements.`)
-  } finally {
-    await prisma.$disconnect()
-  }
+  })
 }
 
 // Run the CLI only when executed directly, not when imported.

@@ -101,6 +101,9 @@ jobs:
       - name: Prisma JSON-cast contract
         run: npm run test:no-prisma-json-cast
 
+      - name: Admin-flag cast contract
+        run: npm run test:admin-flag-casts
+
       - name: Unquoted reserved-word table identifier contract
         run: npm run test:no-unquoted-reserved-word-tables
 

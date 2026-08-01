@@ -25,6 +25,12 @@ interface ComfyGateInput {
 
 interface ComfyGateResult {
   user: { id: number }
+  // Carried through from requireMachineUser. Routes that need an admin bypass
+  // (entity-art ownership, LoRA visibility, mature Facet selection) must read
+  // THIS, never `gate.user`: the user object here is deliberately narrowed to
+  // `{ id }`, so casting it to something carrying `isAdmin` yields a
+  // permanently-false value that the typechecker cannot catch.
+  isAdmin: boolean
   cost: number
   free: boolean
   commit: (
@@ -48,7 +54,7 @@ export async function authAndGate(
   event: H3Event,
   input: ComfyGateInput,
 ): Promise<ComfyGateResult> {
-  const { user } = await requireMachineUser(event)
+  const { user, isAdmin } = await requireMachineUser(event)
 
   const gate = await manaGate(event, {
     kind: 'art',
@@ -64,6 +70,7 @@ export async function authAndGate(
 
   return {
     user: { id: user.id },
+    isAdmin,
     cost: gate.cost,
     free: gate.free,
     commit: gate.commit,

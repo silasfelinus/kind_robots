@@ -19,6 +19,7 @@ export type FacetProfileForm = {
   imagePath: string
   cardPath: string
   heroPath: string
+  iconPath: string
   artPrompt: string
   randomWeight: number
   isRandomizable: boolean
@@ -42,6 +43,7 @@ export function blankFacetProfileForm(): FacetProfileForm {
     imagePath: '',
     cardPath: '',
     heroPath: '',
+    iconPath: '',
     artPrompt: '',
     randomWeight: 1,
     isRandomizable: true,
@@ -66,6 +68,7 @@ export function facetToProfileForm(facet: FacetWithAliases): FacetProfileForm {
     imagePath: facet.imagePath || '',
     cardPath: facet.cardPath || '',
     heroPath: facet.heroPath || '',
+    iconPath: facet.iconPath || '',
     artPrompt: facet.artPrompt || '',
     randomWeight: facet.randomWeight,
     isRandomizable: facet.isRandomizable,
@@ -119,6 +122,7 @@ export function facetProfilePayload(form: FacetProfileForm): FacetCreateInput {
     imagePath: optional(form.imagePath),
     cardPath: optional(form.cardPath),
     heroPath: optional(form.heroPath),
+    iconPath: optional(form.iconPath),
     artPrompt: optional(form.artPrompt),
     randomWeight: Math.max(0, Number(form.randomWeight) || 0),
     isRandomizable: form.isRandomizable,

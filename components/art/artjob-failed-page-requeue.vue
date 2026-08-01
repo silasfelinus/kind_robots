@@ -17,7 +17,7 @@
         <button
           type="button"
           class="btn btn-outline btn-error btn-sm rounded-2xl"
-          :disabled="submitting"
+          :disabled="Boolean(submitting)"
           @click="cancelFailedOnPage"
         >
           <span
@@ -29,7 +29,7 @@
         <button
           type="button"
           class="btn btn-error btn-sm rounded-2xl"
-          :disabled="submitting"
+          :disabled="Boolean(submitting)"
           @click="requeueFailedOnPage"
         >
           <span

@@ -20,17 +20,16 @@ type JsonObject = Record<string, unknown>
 
 type MergeDefinition = {
   canonicalSlug: string
+  finalSlug?: string
   duplicateSlugs: readonly string[]
   aliases: readonly string[]
   title?: string
-  slug?: string
   taxonomy: FacetTaxonomy
   canonicalValue?: string
   groupKey: string
   groupLabel: string
   randomWeight: number
   description?: string
-  cardPathFromSlug?: string
 }
 
 type AtmosphereDefinition = {
@@ -113,6 +112,7 @@ const MERGES: readonly MergeDefinition[] = [
   },
   {
     canonicalSlug: 'circuscore',
+    finalSlug: 'circus',
     duplicateSlugs: ['art-punk-carnivalpunk', 'carnival', 'dark-carnival'],
     aliases: [
       'CircusCore',
@@ -125,7 +125,6 @@ const MERGES: readonly MergeDefinition[] = [
       'Dark Carnival',
     ],
     title: 'Circus',
-    slug: 'circus',
     taxonomy: 'GENRE',
     canonicalValue: 'Circus',
     groupKey: 'genre',
@@ -133,7 +132,6 @@ const MERGES: readonly MergeDefinition[] = [
     randomWeight: 1.5,
     description:
       'Circus and carnival stories built from spectacle, performance, impossible attractions, faded glamour, dangerous wonder, and the suspicion that the show has been waiting for you.',
-    cardPathFromSlug: 'carnival',
   },
 ]
 
@@ -188,6 +186,16 @@ function legacyKindForTaxonomy(
   }
 }
 
+async function findCanonical(definition: MergeDefinition) {
+  const finalSlug = definition.finalSlug ?? definition.canonicalSlug
+  return (
+    (await prisma.facet.findUnique({ where: { slug: finalSlug } })) ??
+    (await prisma.facet.findUnique({
+      where: { slug: definition.canonicalSlug },
+    }))
+  )
+}
+
 async function hasArtwork(facet: {
   id: number
   imagePath: string | null
@@ -222,6 +230,14 @@ async function installAliases(facetId: number, aliases: readonly string[]): Prom
     const lookupKey = normalizeFacetLookupKey(alias)
     if (!lookupKey) continue
 
+    const conflict = await prisma.facetAlias.findUnique({
+      where: { lookupKey },
+      select: { facetId: true },
+    })
+    if (conflict && conflict.facetId !== facetId) {
+      await prisma.facetAlias.delete({ where: { lookupKey } })
+    }
+
     await prisma.facetAlias.upsert({
       where: { lookupKey },
       create: {
@@ -241,21 +257,23 @@ async function installAliases(facetId: number, aliases: readonly string[]): Prom
   }
 }
 
-async function moveDuplicateIntoCanonical(
-  canonicalSlug: string,
+async function migrateDuplicate(
+  definition: MergeDefinition,
   duplicateSlug: string,
 ): Promise<object> {
-  const canonical = await prisma.facet.findUnique({
-    where: { slug: canonicalSlug },
-  })
-  if (!canonical) throw new Error(`Missing canonical Facet ${canonicalSlug}.`)
+  const canonical = await findCanonical(definition)
+  if (!canonical) {
+    throw new Error(
+      `Missing canonical Facet ${definition.finalSlug ?? definition.canonicalSlug}.`,
+    )
+  }
 
   const duplicate = await prisma.facet.findUnique({
     where: { slug: duplicateSlug },
   })
-  if (!duplicate) {
+  if (!duplicate || duplicate.id === canonical.id) {
     return {
-      canonicalSlug,
+      canonicalId: canonical.id,
       duplicateSlug,
       action: 'already-merged',
     }
@@ -340,7 +358,6 @@ async function moveDuplicateIntoCanonical(
 
   const report = {
     canonicalId: canonical.id,
-    canonicalSlug,
     duplicateId: duplicate.id,
     duplicateSlug,
     characterLinks: characterLinks.length,
@@ -388,13 +405,13 @@ async function moveDuplicateIntoCanonical(
     })
   }
 
-  const allArtImageIds = new Set([
+  const artImageIds = new Set([
     ...artImageLinks.map((link) => link.artImageId),
     ...(duplicate.artImageId ? [duplicate.artImageId] : []),
   ])
-  if (allArtImageIds.size) {
+  if (artImageIds.size) {
     await prisma.facetArtImage.createMany({
-      data: [...allArtImageIds].map((artImageId) => ({
+      data: [...artImageIds].map((artImageId) => ({
         facetId: canonical.id,
         artImageId,
       })),
@@ -402,13 +419,13 @@ async function moveDuplicateIntoCanonical(
     })
   }
 
-  const allArtCollectionIds = new Set([
+  const artCollectionIds = new Set([
     ...artCollectionLinks.map((link) => link.artCollectionId),
     ...(duplicate.artCollectionId ? [duplicate.artCollectionId] : []),
   ])
-  if (allArtCollectionIds.size) {
+  if (artCollectionIds.size) {
     await prisma.facetArtCollection.createMany({
-      data: [...allArtCollectionIds].map((artCollectionId) => ({
+      data: [...artCollectionIds].map((artCollectionId) => ({
         facetId: canonical.id,
         artCollectionId,
       })),
@@ -444,17 +461,24 @@ async function moveDuplicateIntoCanonical(
   const priorMergedSources = Array.isArray(canonicalMetadata.mergedFacetSources)
     ? canonicalMetadata.mergedFacetSources
     : []
+  const priorArtworkPaths = Array.isArray(canonicalMetadata.mergedArtworkPaths)
+    ? canonicalMetadata.mergedArtworkPaths.filter(
+        (value): value is string => typeof value === 'string',
+      )
+    : []
   const mergedArtworkPaths = uniqueStrings([
-    ...(Array.isArray(canonicalMetadata.mergedArtworkPaths)
-      ? canonicalMetadata.mergedArtworkPaths.filter(
-          (value): value is string => typeof value === 'string',
-        )
-      : []),
+    ...priorArtworkPaths,
     duplicate.imagePath,
     duplicate.cardPath,
     duplicate.heroPath,
     duplicate.icon,
   ])
+
+  const circusCardPath =
+    (definition.finalSlug ?? definition.canonicalSlug) === 'circus' &&
+    duplicateSlug === 'carnival'
+      ? duplicate.imagePath
+      : null
 
   await prisma.facet.update({
     where: { id: canonical.id },
@@ -464,7 +488,7 @@ async function moveDuplicateIntoCanonical(
       examples: canonical.examples || duplicate.examples,
       artPrompt: canonical.artPrompt || duplicate.artPrompt,
       imagePath: canonical.imagePath || duplicate.imagePath,
-      cardPath: canonical.cardPath || duplicate.cardPath,
+      cardPath: canonical.cardPath || circusCardPath || duplicate.cardPath,
       heroPath: canonical.heroPath || duplicate.heroPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
@@ -474,13 +498,32 @@ async function moveDuplicateIntoCanonical(
     },
   })
 
+  const mergedMetadata = JSON.stringify({
+    ...duplicateMetadata,
+    ...canonicalMetadata,
+    mergedArtworkPaths,
+    mergedFacetSources: [
+      ...priorMergedSources,
+      {
+        batchId: BATCH_ID,
+        facetId: duplicate.id,
+        slug: duplicate.slug,
+        title: duplicate.title,
+        taxonomy: duplicateProfile?.taxonomy,
+        metadata: duplicateMetadata,
+      },
+    ],
+  })
+
   await prisma.facetProfile.upsert({
     where: { facetId: canonical.id },
     create: {
       facetId: canonical.id,
       taxonomy: canonicalProfile?.taxonomy ?? duplicateProfile?.taxonomy ?? 'GENRE',
       canonicalValue:
-        canonicalProfile?.canonicalValue ?? duplicateProfile?.canonicalValue ?? canonical.title,
+        canonicalProfile?.canonicalValue ??
+        duplicateProfile?.canonicalValue ??
+        canonical.title,
       groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey,
       groupLabel: canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel,
       sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
@@ -496,44 +539,14 @@ async function moveDuplicateIntoCanonical(
         canonicalProfile?.sourceRank ?? 100,
         duplicateProfile?.sourceRank ?? 100,
       ),
-      metadata: JSON.stringify({
-        ...duplicateMetadata,
-        ...canonicalMetadata,
-        mergedArtworkPaths,
-        mergedFacetSources: [
-          ...priorMergedSources,
-          {
-            batchId: BATCH_ID,
-            facetId: duplicate.id,
-            slug: duplicate.slug,
-            title: duplicate.title,
-            taxonomy: duplicateProfile?.taxonomy,
-            metadata: duplicateMetadata,
-          },
-        ],
-      }),
+      metadata: mergedMetadata,
     },
     update: {
       sourceRank: Math.min(
         canonicalProfile?.sourceRank ?? 100,
         duplicateProfile?.sourceRank ?? 100,
       ),
-      metadata: JSON.stringify({
-        ...duplicateMetadata,
-        ...canonicalMetadata,
-        mergedArtworkPaths,
-        mergedFacetSources: [
-          ...priorMergedSources,
-          {
-            batchId: BATCH_ID,
-            facetId: duplicate.id,
-            slug: duplicate.slug,
-            title: duplicate.title,
-            taxonomy: duplicateProfile?.taxonomy,
-            metadata: duplicateMetadata,
-          },
-        ],
-      }),
+      metadata: mergedMetadata,
     },
   })
 
@@ -553,7 +566,6 @@ async function moveDuplicateIntoCanonical(
     prisma.facetAlias.deleteMany({ where: { facetId: duplicate.id } }),
     prisma.facetProfile.deleteMany({ where: { facetId: duplicate.id } }),
   ])
-
   await prisma.facet.delete({ where: { id: duplicate.id } })
 
   await installAliases(canonical.id, [
@@ -566,30 +578,31 @@ async function moveDuplicateIntoCanonical(
 }
 
 async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
-  const facet = await prisma.facet.findUnique({
-    where: { slug: definition.canonicalSlug },
-  })
-  if (!facet) throw new Error(`Missing canonical Facet ${definition.canonicalSlug}.`)
+  const facet = await findCanonical(definition)
+  if (!facet) {
+    throw new Error(
+      `Missing canonical Facet ${definition.finalSlug ?? definition.canonicalSlug}.`,
+    )
+  }
   const profile = await prisma.facetProfile.findUnique({
     where: { facetId: facet.id },
   })
-
-  const requestedCardPath = definition.cardPathFromSlug
-    ? await prisma.facet.findUnique({
-        where: { slug: definition.cardPathFromSlug },
-        select: { imagePath: true },
-      })
-    : null
+  const finalSlug = definition.finalSlug ?? definition.canonicalSlug
+  const finalTitle = definition.title ?? facet.title
 
   if (apply) {
+    const conflict = await prisma.facet.findUnique({ where: { slug: finalSlug } })
+    if (conflict && conflict.id !== facet.id) {
+      throw new Error(`Final slug ${finalSlug} is still owned by Facet ${conflict.id}.`)
+    }
+
     await prisma.facet.update({
       where: { id: facet.id },
       data: {
-        title: definition.title ?? facet.title,
-        slug: definition.slug ?? facet.slug,
+        title: finalTitle,
+        slug: finalSlug,
         kind: legacyKindForTaxonomy(definition.taxonomy),
         description: definition.description ?? facet.description,
-        cardPath: facet.cardPath || requestedCardPath?.imagePath || null,
         isActive: true,
       },
     })
@@ -599,8 +612,7 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
       create: {
         facetId: facet.id,
         taxonomy: definition.taxonomy,
-        canonicalValue:
-          definition.canonicalValue ?? definition.title ?? facet.title,
+        canonicalValue: definition.canonicalValue ?? finalTitle,
         groupKey: definition.groupKey,
         groupLabel: definition.groupLabel,
         sortOrder: profile?.sortOrder ?? 0,
@@ -619,8 +631,7 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
       },
       update: {
         taxonomy: definition.taxonomy,
-        canonicalValue:
-          definition.canonicalValue ?? definition.title ?? facet.title,
+        canonicalValue: definition.canonicalValue ?? finalTitle,
         groupKey: definition.groupKey,
         groupLabel: definition.groupLabel,
         isRandomizable: true,
@@ -639,9 +650,9 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
 
     await installAliases(facet.id, [
       definition.canonicalSlug,
+      finalSlug,
       facet.title,
-      definition.slug,
-      definition.title,
+      finalTitle,
       ...definition.aliases,
     ])
   }
@@ -649,8 +660,8 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
   return {
     facetId: facet.id,
     fromSlug: definition.canonicalSlug,
-    toSlug: definition.slug ?? definition.canonicalSlug,
-    title: definition.title ?? facet.title,
+    toSlug: finalSlug,
+    title: finalTitle,
     taxonomy: definition.taxonomy,
     action: apply ? 'canonicalized' : 'would-canonicalize',
   }
@@ -659,12 +670,12 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
 async function applyMergeDefinition(definition: MergeDefinition): Promise<object> {
   const duplicateResults = []
   for (const duplicateSlug of definition.duplicateSlugs) {
-    duplicateResults.push(
-      await moveDuplicateIntoCanonical(definition.canonicalSlug, duplicateSlug),
-    )
+    duplicateResults.push(await migrateDuplicate(definition, duplicateSlug))
   }
-  const canonical = await finalizeCanonical(definition)
-  return { canonical, duplicates: duplicateResults }
+  return {
+    canonical: await finalizeCanonical(definition),
+    duplicates: duplicateResults,
+  }
 }
 
 async function reclassifyArtAtmospheres(): Promise<object[]> {
@@ -806,8 +817,10 @@ async function reclassifyNarrativeTones(): Promise<object[]> {
 }
 
 async function renameDevotedPersonality(): Promise<object> {
-  const facet = await prisma.facet.findUnique({
-    where: { slug: 'personality-loyal' },
+  const facet = await prisma.facet.findFirst({
+    where: {
+      OR: [{ slug: 'personality-loyal' }, { title: 'Devoted' }],
+    },
   })
   if (!facet) return { action: 'missing' }
   const profile = await prisma.facetProfile.findUnique({
@@ -830,9 +843,28 @@ async function renameDevotedPersonality(): Promise<object> {
         isActive: true,
       },
     })
-    await prisma.facetProfile.update({
+    await prisma.facetProfile.upsert({
       where: { facetId: facet.id },
-      data: {
+      create: {
+        facetId: facet.id,
+        taxonomy: 'PERSONALITY',
+        canonicalValue: 'devoted',
+        groupKey: profile?.groupKey ?? 'personality',
+        groupLabel: profile?.groupLabel ?? 'Personality',
+        sortOrder: profile?.sortOrder ?? 0,
+        isRandomizable: profile?.isRandomizable ?? true,
+        randomWeight: profile?.randomWeight ?? 1,
+        artRequired: profile?.artRequired ?? true,
+        sourceRank: profile?.sourceRank ?? 25,
+        metadata: JSON.stringify({
+          ...parseMetadata(profile?.metadata),
+          catalogDirective: {
+            batchId: BATCH_ID,
+            action: 'rename-loyal-personality-to-devoted',
+          },
+        }),
+      },
+      update: {
         taxonomy: 'PERSONALITY',
         canonicalValue: 'devoted',
         metadata: JSON.stringify({
@@ -1012,9 +1044,12 @@ async function main(): Promise<void> {
         historicalShells,
         remainingMoodCount,
         policy: {
-          duplicates: 'Migrate every known edge and artwork reference, then physically delete the duplicate row.',
-          moods: 'No global MOOD Facets remain. Art atmosphere is ART_DIRECTION; story tone is THEME.',
-          punks: 'Punk families are canonical GENRE Facets. Former style rows become aliases and metadata on the genre.',
+          duplicates:
+            'Migrate every known edge and artwork reference, then physically delete the duplicate row.',
+          moods:
+            'No global MOOD Facets remain. Art atmosphere is ART_DIRECTION; story tone is THEME.',
+          punks:
+            'Punk families are canonical GENRE Facets. Former style rows become aliases and metadata on the genre.',
         },
       },
       null,

@@ -176,6 +176,9 @@ const seedIndex = build.indexOf("['scripts/seed_achievements.ts', '--write']")
 const artIndex = build.indexOf(
   "['scripts/generate_achievement_art.ts', '--write']",
 )
-assert.ok(seedIndex >= 0 && artIndex > seedIndex, 'Production must seed before queuing art.')
+assert.ok(
+  seedIndex >= 0 && artIndex > seedIndex,
+  'Production must seed before queuing art.',
+)
 
 console.log('Achievement catalog contract passed: 25 realistic goals are wired.')

@@ -59,7 +59,7 @@ async function main(): Promise<void> {
   const files = {
     curation: 'utils/seeds/facetCatalogCuration.ts',
     curator: 'utils/scripts/curateFacetCatalog.ts',
-    build: 'scripts/vercel-build.mjs',
+    runner: 'scripts/run_facet_catalog_maintenance.ts',
     workflow: '.github/workflows/facet-catalog-contract.yml',
   } as const
 
@@ -111,10 +111,10 @@ async function main(): Promise<void> {
   )
   forbidFacetArtMutation(files.curator, text.curator)
 
-  requireText(files.build, text.build, 'curateFacetCatalog.ts')
+  requireText(files.runner, text.runner, 'curateFacetCatalog.ts')
   requireOrder(
-    files.build,
-    text.build,
+    files.runner,
+    text.runner,
     'mergeCanonicalFacetDuplicates.ts',
     'curateFacetCatalog.ts',
   )

@@ -29,7 +29,7 @@ function requireOrder(
 
 async function main(): Promise<void> {
   const curatorPath = 'utils/scripts/curateFacetTaxonomyLeaks.ts'
-  const buildPath = 'scripts/vercel-build.mjs'
+  const buildPath = 'scripts/run_facet_catalog_maintenance.ts'
   const workflowPath = '.github/workflows/facet-catalog-contract.yml'
   const [curator, build, workflow] = await Promise.all([
     read(curatorPath),

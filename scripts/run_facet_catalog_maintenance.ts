@@ -169,7 +169,13 @@ async function main(): Promise<void> {
   if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
   const config = buildDatabaseConfig(databaseUrl)
-  const pool = mariadb.createPool(config)
+  // buildDatabaseConfig() is typed against @prisma/adapter-mariadb's own
+  // nested copy of the `mariadb` package, which TS treats as structurally
+  // distinct from the top-level `mariadb` import used here for raw
+  // GET_LOCK/RELEASE_LOCK queries — same shape at runtime, different types.
+  const pool = mariadb.createPool(
+    config as unknown as Parameters<typeof mariadb.createPool>[0],
+  )
   let connection: PoolConnection | undefined
   let keepAlive: NodeJS.Timeout | undefined
   let lockAcquired = false

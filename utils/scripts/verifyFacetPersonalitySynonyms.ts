@@ -29,7 +29,7 @@ function requireOrder(
 
 async function main(): Promise<void> {
   const mergePath = 'utils/scripts/mergeFacetPersonalitySynonyms.ts'
-  const buildPath = 'scripts/vercel-build.mjs'
+  const buildPath = 'scripts/run_facet_catalog_maintenance.ts'
   const workflowPath = '.github/workflows/facet-catalog-contract.yml'
   const [merge, build, workflow] = await Promise.all([
     read(mergePath),

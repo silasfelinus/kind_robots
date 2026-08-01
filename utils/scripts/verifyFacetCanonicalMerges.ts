@@ -25,6 +25,7 @@ async function main(): Promise<void> {
     wrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     merge: 'utils/scripts/mergeCanonicalFacetDuplicates.ts',
     build: 'scripts/vercel-build.mjs',
+    runner: 'scripts/run_facet_catalog_maintenance.ts',
     package: 'package.json',
   } as const
 
@@ -84,8 +85,9 @@ async function main(): Promise<void> {
     'canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? null',
   )
 
-  requireText(files.build, text.build, 'runFacetCatalogSeed.ts')
-  requireText(files.build, text.build, 'mergeCanonicalFacetDuplicates.ts')
+  requireText(files.runner, text.runner, 'runFacetCatalogSeed.ts')
+  requireText(files.runner, text.runner, 'mergeCanonicalFacetDuplicates.ts')
+  requireText(files.build, text.build, 'run_facet_catalog_maintenance.ts')
   forbidText(
     files.build,
     text.build,

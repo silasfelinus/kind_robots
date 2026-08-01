@@ -37,7 +37,7 @@ async function main(): Promise<void> {
     rewardPicker: 'components/rewards/reward-facet-picker.vue',
     rewardManager: 'components/rewards/reward-manager.vue',
     rewardMerge: 'utils/scripts/mergeRewardFacetDuplicateLinks.ts',
-    vercelBuild: 'scripts/vercel-build.mjs',
+    runner: 'scripts/run_facet_catalog_maintenance.ts',
   } as const
 
   const entries = await Promise.all(
@@ -132,10 +132,10 @@ async function main(): Promise<void> {
 
   requireText(files.rewardMerge, text.rewardMerge, 'tx.rewardFacet.createMany')
   requireText(files.rewardMerge, text.rewardMerge, 'tx.rewardFacet.deleteMany')
-  const rewardMergeIndex = text.vercelBuild.indexOf(
+  const rewardMergeIndex = text.runner.indexOf(
     'mergeRewardFacetDuplicateLinks.ts',
   )
-  const canonicalMergeIndex = text.vercelBuild.indexOf(
+  const canonicalMergeIndex = text.runner.indexOf(
     'mergeCanonicalFacetDuplicates.ts',
   )
   if (
@@ -144,7 +144,7 @@ async function main(): Promise<void> {
     rewardMergeIndex > canonicalMergeIndex
   ) {
     throw new Error(
-      'scripts/vercel-build.mjs must preserve RewardFacet links before canonical duplicate cleanup.',
+      'scripts/run_facet_catalog_maintenance.ts must preserve RewardFacet links before canonical duplicate cleanup.',
     )
   }
 

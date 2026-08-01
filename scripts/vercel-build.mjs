@@ -73,6 +73,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Applying durable Facet curation batches',
   )
 
+  // Keep art-backed house genres as distinct authored concepts. Relate them to
+  // broader reusable genres instead of flattening their tone into false aliases.
+  run(
+    tsxBinary,
+    ['utils/scripts/curateFacetHouseGenres.ts', '--apply'],
+    'Curating art-backed house genres and related genre families',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

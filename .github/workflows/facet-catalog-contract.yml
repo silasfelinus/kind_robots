@@ -38,6 +38,9 @@ jobs:
       - name: Verify Facet curation batches
         run: npx tsx utils/scripts/verifyFacetCuration.ts
 
+      - name: Verify house genre curation
+        run: npx tsx utils/scripts/verifyFacetHouseGenres.ts
+
       - name: Verify Facet seed policy
         run: node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
 

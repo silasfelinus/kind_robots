@@ -35,6 +35,7 @@ const characterScalarFields = [
   'artPrompt',
   'imagePath',
   'icon',
+  'iconPath',
   'cardPath',
   'heroPath',
   'allowReviews',
@@ -121,6 +122,7 @@ const shortTextFields = [
   'achievements',
   'imagePath',
   'icon',
+  'iconPath',
   'cardPath',
   'heroPath',
   'designer',
@@ -772,6 +774,11 @@ export async function buildCharacterCreateInput(options: {
     icon: normalizeCharacterNullableText(
       body.icon,
       'icon',
+      CHARACTER_SHORT_TEXT_LIMIT,
+    ),
+    iconPath: normalizeCharacterNullableText(
+      body.iconPath,
+      'iconPath',
       CHARACTER_SHORT_TEXT_LIMIT,
     ),
     cardPath: normalizeCharacterNullableText(

@@ -51,6 +51,7 @@ export type ScenarioMinAggregateOutputType = {
   artImageId: number | null
   imagePath: string | null
   icon: string | null
+  iconPath: string | null
   cardPath: string | null
   heroPath: string | null
   allowReviews: boolean | null
@@ -81,6 +82,7 @@ export type ScenarioMaxAggregateOutputType = {
   artImageId: number | null
   imagePath: string | null
   icon: string | null
+  iconPath: string | null
   cardPath: string | null
   heroPath: string | null
   allowReviews: boolean | null
@@ -111,6 +113,7 @@ export type ScenarioCountAggregateOutputType = {
   artImageId: number
   imagePath: number
   icon: number
+  iconPath: number
   cardPath: number
   heroPath: number
   allowReviews: number
@@ -157,6 +160,7 @@ export type ScenarioMinAggregateInputType = {
   artImageId?: true
   imagePath?: true
   icon?: true
+  iconPath?: true
   cardPath?: true
   heroPath?: true
   allowReviews?: true
@@ -187,6 +191,7 @@ export type ScenarioMaxAggregateInputType = {
   artImageId?: true
   imagePath?: true
   icon?: true
+  iconPath?: true
   cardPath?: true
   heroPath?: true
   allowReviews?: true
@@ -217,6 +222,7 @@ export type ScenarioCountAggregateInputType = {
   artImageId?: true
   imagePath?: true
   icon?: true
+  iconPath?: true
   cardPath?: true
   heroPath?: true
   allowReviews?: true
@@ -334,6 +340,7 @@ export type ScenarioGroupByOutputType = {
   artImageId: number | null
   imagePath: string | null
   icon: string | null
+  iconPath: string | null
   cardPath: string | null
   heroPath: string | null
   allowReviews: boolean
@@ -387,6 +394,7 @@ export type ScenarioWhereInput = {
   artImageId?: Prisma.IntNullableFilter<"Scenario"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   icon?: Prisma.StringNullableFilter<"Scenario"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   allowReviews?: Prisma.BoolFilter<"Scenario"> | boolean
@@ -424,6 +432,7 @@ export type ScenarioOrderByWithRelationInput = {
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -466,6 +475,7 @@ export type ScenarioWhereUniqueInput = Prisma.AtLeast<{
   artImageId?: Prisma.IntNullableFilter<"Scenario"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   icon?: Prisma.StringNullableFilter<"Scenario"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   allowReviews?: Prisma.BoolFilter<"Scenario"> | boolean
@@ -502,6 +512,7 @@ export type ScenarioOrderByWithAggregationInput = {
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -540,6 +551,7 @@ export type ScenarioScalarWhereWithAggregatesInput = {
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Scenario"> | number | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
+  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
   heroPath?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
   allowReviews?: Prisma.BoolWithAggregatesFilter<"Scenario"> | boolean
@@ -567,6 +579,7 @@ export type ScenarioCreateInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -604,6 +617,7 @@ export type ScenarioUncheckedCreateInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -636,6 +650,7 @@ export type ScenarioUpdateInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -673,6 +688,7 @@ export type ScenarioUncheckedUpdateInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -708,6 +724,7 @@ export type ScenarioCreateManyInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -735,6 +752,7 @@ export type ScenarioUpdateManyMutationInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -765,6 +783,7 @@ export type ScenarioUncheckedUpdateManyInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -821,6 +840,7 @@ export type ScenarioCountOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -858,6 +878,7 @@ export type ScenarioMaxOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -888,6 +909,7 @@ export type ScenarioMinOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -1132,6 +1154,7 @@ export type ScenarioCreateWithoutArtImageInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1167,6 +1190,7 @@ export type ScenarioUncheckedCreateWithoutArtImageInput = {
   userId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1231,6 +1255,7 @@ export type ScenarioScalarWhereInput = {
   artImageId?: Prisma.IntNullableFilter<"Scenario"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   icon?: Prisma.StringNullableFilter<"Scenario"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Scenario"> | string | null
   allowReviews?: Prisma.BoolFilter<"Scenario"> | boolean
@@ -1258,6 +1283,7 @@ export type ScenarioCreateWithoutCharactersInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1294,6 +1320,7 @@ export type ScenarioUncheckedCreateWithoutCharactersInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1346,6 +1373,7 @@ export type ScenarioCreateWithoutDreamsInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1382,6 +1410,7 @@ export type ScenarioUncheckedCreateWithoutDreamsInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1434,6 +1463,7 @@ export type ScenarioCreateWithoutFacetLinksInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1470,6 +1500,7 @@ export type ScenarioUncheckedCreateWithoutFacetLinksInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1517,6 +1548,7 @@ export type ScenarioUpdateWithoutFacetLinksInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1553,6 +1585,7 @@ export type ScenarioUncheckedUpdateWithoutFacetLinksInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1584,6 +1617,7 @@ export type ScenarioCreateWithoutReactionsInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1620,6 +1654,7 @@ export type ScenarioUncheckedCreateWithoutReactionsInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1667,6 +1702,7 @@ export type ScenarioUpdateWithoutReactionsInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1703,6 +1739,7 @@ export type ScenarioUncheckedUpdateWithoutReactionsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1734,6 +1771,7 @@ export type ScenarioCreateWithoutUserInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1769,6 +1807,7 @@ export type ScenarioUncheckedCreateWithoutUserInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1827,6 +1866,7 @@ export type ScenarioCreateWithoutChallengeSubmissionsInput = {
   intros: string
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1863,6 +1903,7 @@ export type ScenarioUncheckedCreateWithoutChallengeSubmissionsInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -1910,6 +1951,7 @@ export type ScenarioUpdateWithoutChallengeSubmissionsInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1946,6 +1988,7 @@ export type ScenarioUncheckedUpdateWithoutChallengeSubmissionsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1979,6 +2022,7 @@ export type ScenarioCreateManyArtImageInput = {
   userId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -2006,6 +2050,7 @@ export type ScenarioUpdateWithoutArtImageInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2041,6 +2086,7 @@ export type ScenarioUncheckedUpdateWithoutArtImageInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2075,6 +2121,7 @@ export type ScenarioUncheckedUpdateManyWithoutArtImageInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2102,6 +2149,7 @@ export type ScenarioUpdateWithoutCharactersInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2138,6 +2186,7 @@ export type ScenarioUncheckedUpdateWithoutCharactersInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2172,6 +2221,7 @@ export type ScenarioUncheckedUpdateManyWithoutCharactersInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2199,6 +2249,7 @@ export type ScenarioUpdateWithoutDreamsInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2235,6 +2286,7 @@ export type ScenarioUncheckedUpdateWithoutDreamsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2269,6 +2321,7 @@ export type ScenarioUncheckedUpdateManyWithoutDreamsInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2298,6 +2351,7 @@ export type ScenarioCreateManyUserInput = {
   artImageId?: number | null
   imagePath?: string | null
   icon?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   allowReviews?: boolean
@@ -2325,6 +2379,7 @@ export type ScenarioUpdateWithoutUserInput = {
   intros?: Prisma.StringFieldUpdateOperationsInput | string
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2360,6 +2415,7 @@ export type ScenarioUncheckedUpdateWithoutUserInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2394,6 +2450,7 @@ export type ScenarioUncheckedUpdateManyWithoutUserInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2491,6 +2548,7 @@ export type ScenarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   artImageId?: boolean
   imagePath?: boolean
   icon?: boolean
+  iconPath?: boolean
   cardPath?: boolean
   heroPath?: boolean
   allowReviews?: boolean
@@ -2531,6 +2589,7 @@ export type ScenarioSelectScalar = {
   artImageId?: boolean
   imagePath?: boolean
   icon?: boolean
+  iconPath?: boolean
   cardPath?: boolean
   heroPath?: boolean
   allowReviews?: boolean
@@ -2550,7 +2609,7 @@ export type ScenarioSelectScalar = {
   slug?: boolean
 }
 
-export type ScenarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "intros" | "userId" | "artImageId" | "imagePath" | "icon" | "cardPath" | "heroPath" | "allowReviews" | "locations" | "artPrompt" | "genres" | "inspirations" | "isMature" | "isPublic" | "isActive" | "difficulty" | "group" | "secretNotes" | "tier" | "cast" | "outputType" | "slug", ExtArgs["result"]["scenario"]>
+export type ScenarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "intros" | "userId" | "artImageId" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "locations" | "artPrompt" | "genres" | "inspirations" | "isMature" | "isPublic" | "isActive" | "difficulty" | "group" | "secretNotes" | "tier" | "cast" | "outputType" | "slug", ExtArgs["result"]["scenario"]>
 export type ScenarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Scenario$ChallengeSubmissionsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Scenario$ReactionsArgs<ExtArgs>
@@ -2584,6 +2643,7 @@ export type $ScenarioPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     artImageId: number | null
     imagePath: string | null
     icon: string | null
+    iconPath: string | null
     cardPath: string | null
     heroPath: string | null
     allowReviews: boolean
@@ -2987,6 +3047,7 @@ export interface ScenarioFieldRefs {
   readonly artImageId: Prisma.FieldRef<"Scenario", 'Int'>
   readonly imagePath: Prisma.FieldRef<"Scenario", 'String'>
   readonly icon: Prisma.FieldRef<"Scenario", 'String'>
+  readonly iconPath: Prisma.FieldRef<"Scenario", 'String'>
   readonly cardPath: Prisma.FieldRef<"Scenario", 'String'>
   readonly heroPath: Prisma.FieldRef<"Scenario", 'String'>
   readonly allowReviews: Prisma.FieldRef<"Scenario", 'Boolean'>

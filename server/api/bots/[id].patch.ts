@@ -225,6 +225,7 @@ export default defineEventHandler(async (event) => {
       avatarImage: getStringOrUndefined(body.avatarImage),
       imagePath: getStringOrUndefined(body.imagePath),
       icon: getStringOrUndefined(body.icon),
+      iconPath: getStringOrUndefined(body.iconPath),
       cardPath: getStringOrUndefined(body.cardPath),
       heroPath: getStringOrUndefined(body.heroPath),
       botIntro: getStringOrUndefined(body.botIntro),

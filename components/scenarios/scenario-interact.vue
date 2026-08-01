@@ -87,6 +87,13 @@
             height: 864,
           },
           {
+            field: 'iconPath',
+            label: 'Icon',
+            aspect: '1 / 1',
+            width: 256,
+            height: 256,
+          },
+          {
             field: 'cardPath',
             label: 'Card',
             aspect: '2 / 3',

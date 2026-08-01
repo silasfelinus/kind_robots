@@ -5,8 +5,9 @@
 // the real check against synthetic route-shaped fixtures covering: the
 // pre-fix shape (no assertContentStageEditable calls -- the exact bug found
 // by manual read-through), the fixed shape (a guard call ahead of each
-// content-field assignment), a partially-fixed shape (only PITCH guarded),
-// and the function being absent entirely.
+// content-field assignment, including artImageId/GENERATE_ASSETS), a
+// partially-fixed shape (only PITCH guarded), and the function being absent
+// entirely.
 import assert from 'node:assert/strict'
 
 import { checkItemPatchStageGuard } from './verifyModelBuilderItemPatchStageGuard.js'
@@ -28,6 +29,8 @@ export function prepareItemUpdate(
     data.fieldsDraft = normalizeText(body.fieldsDraft)
   if (body.promptDraft !== undefined)
     data.promptDraft = normalizeText(body.promptDraft)
+  if (body.artImageId !== undefined)
+    data.artImageId = normalizeNullableId(body.artImageId)
 
   return { data, revision: null }
 }
@@ -65,6 +68,14 @@ export function prepareItemUpdate(
     )
     data.promptDraft = normalizeText(body.promptDraft)
   }
+  if (body.artImageId !== undefined) {
+    assertContentStageEditable(
+      existing.stageStatuses,
+      'GENERATE_ASSETS',
+      'Art image',
+    )
+    data.artImageId = normalizeNullableId(body.artImageId)
+  }
 
   return { data, revision: null }
 }
@@ -86,6 +97,8 @@ export function prepareItemUpdate(
     data.fieldsDraft = normalizeText(body.fieldsDraft)
   if (body.promptDraft !== undefined)
     data.promptDraft = normalizeText(body.promptDraft)
+  if (body.artImageId !== undefined)
+    data.artImageId = normalizeNullableId(body.artImageId)
 
   return { data, revision: null }
 }
@@ -100,14 +113,16 @@ export function getRunId(event: H3Event): number {
 const buggyErrors = checkItemPatchStageGuard(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
-  3,
-  `expected the pre-fix shape (no guard calls at all) to raise 3 errors ` +
-    `(pitch, fieldsDraft, promptDraft), got ${buggyErrors.length}: ` +
+  4,
+  `expected the pre-fix shape (no guard calls at all) to raise 4 errors ` +
+    `(pitch, fieldsDraft, promptDraft, artImageId), got ${buggyErrors.length}: ` +
     JSON.stringify(buggyErrors),
 )
 assert.ok(buggyErrors.some((e) => e.includes("'PITCH'")))
 assert.ok(buggyErrors.some((e) => e.includes('body.fieldsDraft')))
 assert.ok(buggyErrors.some((e) => e.includes('body.promptDraft')))
+assert.ok(buggyErrors.some((e) => e.includes('body.artImageId')))
+assert.ok(buggyErrors.some((e) => e.includes("'GENERATE_ASSETS'")))
 
 const fixedErrors = checkItemPatchStageGuard(FIXED_FIXTURE)
 assert.equal(
@@ -119,12 +134,17 @@ assert.equal(
 const partialErrors = checkItemPatchStageGuard(PARTIAL_FIXTURE)
 assert.equal(
   partialErrors.length,
-  2,
+  3,
   `expected the partially-fixed shape (PITCH guarded, FIELDS_AND_PROMPTS ` +
-    `not) to raise 2 errors, got ${partialErrors.length}: ` +
+    `and GENERATE_ASSETS not) to raise 3 errors, got ${partialErrors.length}: ` +
     JSON.stringify(partialErrors),
 )
-assert.ok(partialErrors.every((e) => e.includes('FIELDS_AND_PROMPTS')))
+assert.ok(
+  partialErrors.some((e) => e.includes('body.fieldsDraft')) &&
+    partialErrors.some((e) => e.includes('body.promptDraft')),
+)
+assert.ok(partialErrors.some((e) => e.includes('body.artImageId')))
+assert.ok(!partialErrors.some((e) => e.includes("'PITCH'")))
 
 const missingFnErrors = checkItemPatchStageGuard(MISSING_FIXTURE)
 assert.equal(

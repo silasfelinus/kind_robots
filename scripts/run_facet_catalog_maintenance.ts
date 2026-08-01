@@ -21,7 +21,8 @@ const runCanonicalSeed = process.argv.includes('--seed')
 const reasonArgument = process.argv.find((argument) =>
   argument.startsWith('--reason='),
 )
-const seedReason = reasonArgument?.slice('--reason='.length) || 'unspecified policy'
+const seedReason =
+  reasonArgument?.slice('--reason='.length) || 'unspecified policy'
 
 type Step = {
   script: string
@@ -82,7 +83,8 @@ const steps: Step[] = [
   {
     script: 'utils/scripts/applyFacetCatalogDirectives.ts',
     args: ['--apply'],
-    label: 'Applying final Facet catalog directives and deleting historical shells',
+    label:
+      'Applying final Facet catalog directives and deleting historical shells',
   },
   {
     script: 'utils/scripts/cleanupRetiredFacetShells.ts',
@@ -97,7 +99,8 @@ const steps: Step[] = [
   {
     script: 'scripts/generate_facet_art.ts',
     args: ['--write'],
-    label: 'Queueing missing primary Facet artwork after the full catalog audit',
+    label:
+      'Queueing missing primary Facet artwork after the full catalog audit',
   },
 ]
 
@@ -138,10 +141,10 @@ async function acquireLock(connection: PoolConnection): Promise<void> {
   console.log(
     `[facet-maintenance] Acquiring database lock ${LOCK_NAME} with ${LOCK_WAIT_SECONDS}s maximum wait.`,
   )
-  const rows = await connection.query(
-    'SELECT GET_LOCK(?, ?) AS acquired',
-    [LOCK_NAME, LOCK_WAIT_SECONDS],
-  )
+  const rows = await connection.query('SELECT GET_LOCK(?, ?) AS acquired', [
+    LOCK_NAME,
+    LOCK_WAIT_SECONDS,
+  ])
   if (acquiredValue(rows) !== 1) {
     throw new Error(
       `Could not acquire Facet catalog maintenance lock ${LOCK_NAME}.`,
@@ -179,17 +182,33 @@ async function main(): Promise<void> {
   let connection: PoolConnection | undefined
   let keepAlive: NodeJS.Timeout | undefined
   let lockAcquired = false
+  let lockSessionLost = false
 
   try {
     connection = await pool.getConnection()
     await acquireLock(connection)
     lockAcquired = true
 
+    /*
+     * The keepalive only reports; it deliberately never aborts the run. But it
+     * used to keep firing every 20s against an already-dead socket for the rest
+     * of a ~45 minute run, logging the same fatal error ~130 times and burying
+     * the step output that actually explains the failure. Stop after the first
+     * loss and record it, so teardown can skip a RELEASE_LOCK that cannot work.
+     * (A dead session releases its named lock automatically, so there is nothing
+     * to clean up on the server side.)
+     */
     keepAlive = setInterval(() => {
       void connection?.ping().catch((error: unknown) => {
+        if (lockSessionLost) return
+        lockSessionLost = true
+        if (keepAlive) clearInterval(keepAlive)
         console.error(
           '[facet-maintenance] Lost the database session holding the catalog lock.',
           error,
+        )
+        console.error(
+          '[facet-maintenance] Continuing without the lock. Remaining steps still run; concurrent maintenance is no longer excluded.',
         )
       })
     }, LOCK_PING_INTERVAL_MS)
@@ -203,15 +222,43 @@ async function main(): Promise<void> {
     for (const step of steps) await runStep(step)
   } finally {
     if (keepAlive) clearInterval(keepAlive)
-    if (connection && lockAcquired) {
+    if (connection && lockAcquired && !lockSessionLost) {
       try {
         await releaseLock(connection)
       } catch (error) {
-        console.error('[facet-maintenance] Failed to release named lock cleanly.', error)
+        console.error(
+          '[facet-maintenance] Failed to release named lock cleanly.',
+          error,
+        )
       }
     }
-    connection?.release()
-    await pool.end()
+    /*
+     * Teardown must never be able to fail the run on its own.
+     *
+     * These two calls used to be unguarded inside `finally`, so a throw from
+     * either -- which is exactly what a connection already destroyed by
+     * ER_CMD_CONNECTION_CLOSED produces -- propagated out of main() and became
+     * the process's exit code. That had two bad consequences: maintenance that
+     * had actually COMPLETED could still fail the production build, and the
+     * teardown error REPLACED the real step error in the logs, hiding the true
+     * cause. Both were live during the 2026-08-01 deploy outage.
+     */
+    try {
+      connection?.release()
+    } catch (error) {
+      console.error(
+        '[facet-maintenance] Ignoring connection release error during teardown.',
+        error,
+      )
+    }
+    try {
+      await pool.end()
+    } catch (error) {
+      console.error(
+        '[facet-maintenance] Ignoring pool shutdown error during teardown.',
+        error,
+      )
+    }
   }
 }
 

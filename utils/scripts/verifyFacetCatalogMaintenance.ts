@@ -42,7 +42,9 @@ for (const required of [
 }
 
 assert.ok(
-  cleanup.includes('Retired Facet shells are migration scaffolding, not historical records.'),
+  cleanup.includes(
+    'Retired Facet shells are migration scaffolding, not historical records.',
+  ),
   'Cleanup policy must reject inactive merge shells as stored history.',
 )
 assert.ok(
@@ -92,14 +94,15 @@ for (const required of [
   "script: 'utils/scripts/auditFacetCatalogOddities.ts'",
   "script: 'scripts/generate_facet_art.ts'",
 ]) {
-  assert.ok(runner.includes(required), `Missing serialized runner contract: ${required}`)
+  assert.ok(
+    runner.includes(required),
+    `Missing serialized runner contract: ${required}`,
+  )
 }
 
 const seedHook = "script: 'utils/scripts/runFacetCatalogSeed.ts'"
-const directivesHook =
-  "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
-const cleanupHook =
-  "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
+const directivesHook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
+const cleanupHook = "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
 const auditHook = "script: 'utils/scripts/auditFacetCatalogOddities.ts'"
 const artHook = "script: 'scripts/generate_facet_art.ts'"
 
@@ -131,6 +134,24 @@ assert.ok(
 assert.ok(
   !build.includes("['utils/scripts/runFacetCatalogSeed.ts', '--apply']"),
   'Production build must not bypass the explicit Facet maintenance runner.',
+)
+
+/*
+ * kind-robots/t-051. The production build deliberately no longer runs Facet
+ * catalog maintenance (see the two assertions above) -- it was blocking deploys:
+ * nine consecutive production builds died there on 2026-08-01, and because
+ * `nuxt build` runs last in vercel-build.mjs the application was never compiled.
+ *
+ * But "the build must not run it" only makes sense paired with something that
+ * does. Without this workflow the build's own log line -- "run
+ * scripts/run_facet_catalog_maintenance.ts explicitly" -- points at nothing, and
+ * the catalog silently stops being maintained at all.
+ */
+assert.ok(
+  fs.existsSync(
+    path.join(root, '.github/workflows/facet-catalog-maintenance.yml'),
+  ),
+  'An out-of-band Facet catalog maintenance workflow must exist, because the production build no longer runs the maintenance itself.',
 )
 
 console.log('Facet catalog maintenance and artwork queue contract verified.')

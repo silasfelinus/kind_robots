@@ -1,42 +1,54 @@
 <template>
-  <main class="flex min-h-full w-full items-center justify-center p-4 sm:p-8">
-    <section class="kr-panel flex w-full max-w-2xl flex-col items-center gap-5 p-6 text-center sm:p-10">
-      <div
-        class="flex h-16 w-16 items-center justify-center rounded-full"
-        :class="result.ok ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'"
-      >
-        <Icon
-          :name="result.ok ? 'kind-icon:check' : 'kind-icon:alert'"
-          class="h-9 w-9"
-        />
-      </div>
+  <main class="kr-surface">
+    <div class="kr-scroll">
+      <div class="flex min-h-full w-full items-center justify-center p-4 sm:p-8">
+        <section
+          class="kr-panel flex w-full max-w-2xl flex-col items-center gap-5 p-6 text-center sm:p-10"
+        >
+          <div
+            class="flex h-16 w-16 items-center justify-center rounded-full"
+            :class="
+              result.ok
+                ? 'bg-success/15 text-success'
+                : 'bg-warning/15 text-warning'
+            "
+          >
+            <Icon
+              :name="result.ok ? 'kind-icon:check' : 'kind-icon:alert'"
+              class="h-9 w-9"
+            />
+          </div>
 
-      <div class="flex flex-col gap-2">
-        <p class="text-xs font-black uppercase tracking-[0.2em] text-base-content/50">
-          Email confirmation
-        </p>
-        <h1 class="text-3xl font-black sm:text-4xl">{{ result.title }}</h1>
-        <p class="mx-auto max-w-xl text-base text-base-content/70">
-          {{ result.message }}
-        </p>
-      </div>
+          <div class="flex flex-col gap-2">
+            <p
+              class="text-xs font-black uppercase tracking-[0.2em] text-base-content/50"
+            >
+              Email confirmation
+            </p>
+            <p class="text-3xl font-black sm:text-4xl">{{ result.title }}</p>
+            <p class="mx-auto max-w-xl text-base text-base-content/70">
+              {{ result.message }}
+            </p>
+          </div>
 
-      <div
-        class="kr-note w-full"
-        :class="result.ok ? 'kr-note-success' : 'kr-note-warning'"
-      >
-        {{ result.detail }}
-      </div>
+          <div
+            class="kr-note w-full"
+            :class="result.ok ? 'kr-note-success' : 'kr-note-warning'"
+          >
+            {{ result.detail }}
+          </div>
 
-      <div class="flex flex-wrap justify-center gap-3">
-        <NuxtLink to="/account" class="btn btn-primary rounded-xl">
-          Open account settings
-        </NuxtLink>
-        <NuxtLink to="/" class="btn btn-outline rounded-xl">
-          Return home
-        </NuxtLink>
+          <div class="flex flex-wrap justify-center gap-3">
+            <NuxtLink to="/account" class="btn btn-primary rounded-xl">
+              Open account settings
+            </NuxtLink>
+            <NuxtLink to="/" class="btn btn-outline rounded-xl">
+              Return home
+            </NuxtLink>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </main>
 </template>
 
@@ -99,8 +111,7 @@ const result = computed<EmailActionResult>(() => {
           title: 'That verification link is no longer valid',
           message:
             'The link may have expired or already been used. You can request another verification email from your account settings.',
-          detail:
-            'No account information was changed by this attempt.',
+          detail: 'No account information was changed by this attempt.',
         }
   }
 

@@ -113,6 +113,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Repairing subject themes and remaining genre hybrids',
   )
 
+  // Near-neighbor Personality Facets remain distinct, but share explicit semantic
+  // families and reduced secondary weights so crowded wording does not dominate.
+  run(
+    tsxBinary,
+    ['utils/scripts/curateFacetPersonalityFamilies.ts', '--apply'],
+    'Organizing related Personality Facets without false aliases',
+  )
+
   // Read the entire post-curation catalog and print a ranked next-batch queue.
   // This never mutates data or blocks deployment while cleanup is still in motion.
   run(

@@ -2,8 +2,8 @@
 contentType: tab
 channelKey: sanctuary
 tabKey: privacy
-dashboardKey: admin
-dashboardTab: user
+dashboardKey: user
+dashboardTab: dashboard
 label: Privacy
 title: Privacy and Data Philosophy
 subtitle: Your data belongs to you

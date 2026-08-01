@@ -162,11 +162,22 @@ export type PreparedItemUpdate = {
 // 'approved' — the same "review gate would be lying about what's actually
 // stored" outcome commit.post.ts's own stage-approval gate exists to prevent,
 // just reached through the item-edit route instead of the commit route.
+//
+// The same gap existed for artImageId against GENERATE_ASSETS: the store's
+// own generateItemAsset/pollAsyncArtJob already refuse to overwrite an
+// approved candidate mid-flight (verifyModelBuilderApprovedAssetGuard.ts),
+// but that guard lives entirely client-side too, and this route applied
+// body.artImageId unconditionally regardless of the item's actual
+// GENERATE_ASSETS status. A direct PATCH for an item whose GENERATE_ASSETS
+// is already 'approved' could silently repoint the item at a different
+// ArtImage (any the caller may attach per assertArtImageAttachable — their
+// own or public) with no re-review, while the stage badge kept showing
+// 'approved' for the old, actually-reviewed image.
 const CONTENT_STAGE_EDITABLE_STATUSES = new Set(['ready', 'stale', 'rejected'])
 
 function assertContentStageEditable(
   stageStatuses: unknown,
-  stageKey: 'PITCH' | 'FIELDS_AND_PROMPTS',
+  stageKey: 'PITCH' | 'FIELDS_AND_PROMPTS' | 'GENERATE_ASSETS',
   fieldLabel: string,
 ): void {
   const stages = parseStoredJson<Record<string, { status?: string }>>(
@@ -231,8 +242,14 @@ export function prepareItemUpdate(
   if (body.staleReason !== undefined)
     data.staleReason = normalizeText(body.staleReason)
   if (body.error !== undefined) data.error = normalizeText(body.error)
-  if (body.artImageId !== undefined)
+  if (body.artImageId !== undefined) {
+    assertContentStageEditable(
+      existing.stageStatuses,
+      'GENERATE_ASSETS',
+      'Art image',
+    )
     data.artImageId = normalizeNullableId(body.artImageId)
+  }
   if (body.targetType !== undefined)
     data.targetType = normalizeText(body.targetType)
   if (body.targetId !== undefined)

@@ -19,14 +19,24 @@
 // content server-side while its badge kept showing 'approved' client-side --
 // no re-review, the review gate lying about what's actually stored.
 //
+// The identical gap existed one field over: body.artImageId (gated against
+// GENERATE_ASSETS) was applied unconditionally too, so a direct PATCH for an
+// item whose GENERATE_ASSETS was already 'approved' could silently repoint
+// it at a different ArtImage (any the caller may attach at all, per
+// assertArtImageAttachable -- their own or public) with no re-review, while
+// the client-side guards for this exact class of overwrite
+// (verifyModelBuilderApprovedAssetGuard.ts's generateItemAsset/
+// pollAsyncArtJob checks) only ever run inside the store, never here.
+//
 // This asserts the textual shape of the fix stays in place: prepareItemUpdate
 // calls assertContentStageEditable(existing.stageStatuses, 'PITCH', ...)
-// before assigning data.pitch, and assertContentStageEditable(existing.
+// before assigning data.pitch, assertContentStageEditable(existing.
 // stageStatuses, 'FIELDS_AND_PROMPTS', ...) before assigning both
-// data.fieldsDraft and data.promptDraft -- deliberately scoped to this one
-// function/bug, mirroring verifyModelBuilderCommitCancelledRunGuard.ts's
-// preference for explicit, narrow textual checks over a general-purpose
-// static analyzer.
+// data.fieldsDraft and data.promptDraft, and assertContentStageEditable(
+// existing.stageStatuses, 'GENERATE_ASSETS', ...) before assigning
+// data.artImageId -- deliberately scoped to this one function/bug shape,
+// mirroring verifyModelBuilderCommitCancelledRunGuard.ts's preference for
+// explicit, narrow textual checks over a general-purpose static analyzer.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -63,6 +73,11 @@ const GATES: GateCheck[] = [
     field: 'promptDraft',
     assignment: 'data.promptDraft = normalizeText(body.promptDraft)',
     stageKey: 'FIELDS_AND_PROMPTS',
+  },
+  {
+    field: 'artImageId',
+    assignment: 'data.artImageId = normalizeNullableId(body.artImageId)',
+    stageKey: 'GENERATE_ASSETS',
   },
 ]
 
@@ -174,8 +189,9 @@ function main(): void {
 
   console.log(
     `Model Builder item-patch stage guard contract passed: ${FN_NAME}() ` +
-      'refuses to overwrite pitch/fieldsDraft/promptDraft while their stage ' +
-      "is not ready/stale/rejected, per the item's server-stored stage status.",
+      'refuses to overwrite pitch/fieldsDraft/promptDraft/artImageId while ' +
+      "their stage is not ready/stale/rejected, per the item's server-stored " +
+      'stage status.',
   )
 }
 

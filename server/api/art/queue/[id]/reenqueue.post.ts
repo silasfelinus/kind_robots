@@ -158,15 +158,31 @@ export default defineEventHandler(async (event) => {
     applyArtFacetsToPayload(payload, basePrompt, facets)
     const jobEngine = presetEngine ? 'COMFY' : source.engine
 
-    const job = await prisma.artJob.create({
-      data: {
-        engine: jobEngine,
-        payload: serializeArtJobPayload(payload),
-        priority: source.priority,
-        projectSlug: source.projectSlug,
-        projectId: source.projectId,
-        userId: source.userId,
-      },
+    const job = await prisma.$transaction(async (tx) => {
+      const created = await tx.artJob.create({
+        data: {
+          engine: jobEngine,
+          payload: serializeArtJobPayload(payload),
+          priority: source.priority,
+          projectSlug: source.projectSlug,
+          projectId: source.projectId,
+          userId: source.userId,
+        },
+      })
+
+      if (source.status === 'FAILED' && mode === 'NEW_OUTPUT') {
+        await tx.artJob.update({
+          where: { id: source.id },
+          data: {
+            status: 'CANCELLED',
+            claimedAt: null,
+            claimedBy: null,
+            error: `Superseded by corrected ArtJob ${created.id}.`,
+          },
+        })
+      }
+
+      return created
     })
 
     event.node.res.statusCode = 201

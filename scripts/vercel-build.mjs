@@ -97,6 +97,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Merging exact Personality Facet synonyms',
   )
 
+  // Repair high-confidence classification leaks and remove prompt cargo cult from
+  // random selection without deleting manually useful legacy records.
+  run(
+    tsxBinary,
+    ['utils/scripts/curateFacetTaxonomyLeaks.ts', '--apply'],
+    'Repairing Facet taxonomy leaks and low-value random controls',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

@@ -14,7 +14,12 @@ function requireText(path: string, text: string, value: string): void {
   }
 }
 
-function requireOrder(path: string, text: string, before: string, after: string): void {
+function requireOrder(
+  path: string,
+  text: string,
+  before: string,
+  after: string,
+): void {
   const beforeIndex = text.indexOf(before)
   const afterIndex = text.indexOf(after)
   if (beforeIndex < 0 || afterIndex < 0 || beforeIndex >= afterIndex) {
@@ -32,15 +37,26 @@ async function main(): Promise<void> {
     read(workflowPath),
   ])
 
-  for (const pair of [
+  const synonymPairs: ReadonlyArray<readonly [string, string]> = [
     ["canonicalSlug: 'optimist'", "duplicateSlug: 'optimistic'"],
     ["canonicalSlug: 'pessimist'", "duplicateSlug: 'pessimistic'"],
-    ["canonicalSlug: 'melancholy'", "duplicateSlug: 'personality-melancholic'"],
-    ["canonicalSlug: 'inquisitive'", "duplicateSlug: 'personality-curious'"],
-    ["canonicalSlug: 'scatter-brained'", "duplicateSlug: 'personality-scattered'"],
-  ]) {
-    requireText(mergePath, merge, pair[0])
-    requireText(mergePath, merge, pair[1])
+    [
+      "canonicalSlug: 'melancholy'",
+      "duplicateSlug: 'personality-melancholic'",
+    ],
+    [
+      "canonicalSlug: 'inquisitive'",
+      "duplicateSlug: 'personality-curious'",
+    ],
+    [
+      "canonicalSlug: 'scatter-brained'",
+      "duplicateSlug: 'personality-scattered'",
+    ],
+  ]
+
+  for (const [canonical, duplicate] of synonymPairs) {
+    requireText(mergePath, merge, canonical)
+    requireText(mergePath, merge, duplicate)
   }
 
   for (const model of [

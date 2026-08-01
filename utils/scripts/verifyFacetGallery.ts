@@ -2,8 +2,8 @@
 //
 // The gallery is a read-only, taxonomy-grouped showcase built on the canonical
 // Facet catalog. It must source from facetCatalogStore.byTaxonomy, stay
-// read-only, and gate any art-request affordance behind admin + the shared
-// facetArtRequestStore rather than inventing a new request path.
+// read-only, and keep artwork mutation in the Facet manager's shared ArtJob
+// entity-art flow rather than exposing a second request backend here.
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
@@ -43,10 +43,9 @@ async function main(): Promise<void> {
   requireText(files.gallery, text.gallery, 'byTaxonomy')
   requireText(files.gallery, text.gallery, 'FACET_TAXONOMIES')
 
-  requireText(files.gallery, text.gallery, 'useFacetArtRequestStore')
-  requireText(files.gallery, text.gallery, 'requestPrimaryArtwork')
-  requireText(files.gallery, text.gallery, 'canRequestArt')
-  requireText(files.gallery, text.gallery, 'userStore.isAdmin')
+  forbidText(files.gallery, text.gallery, 'useFacetArtRequestStore')
+  forbidText(files.gallery, text.gallery, 'requestPrimaryArtwork')
+  forbidText(files.gallery, text.gallery, 'canRequestArt')
 
   for (const mutation of [
     'createFacet',
@@ -66,7 +65,7 @@ async function main(): Promise<void> {
   }
 
   process.stdout.write(
-    'Facet gallery verified: read-only taxonomy showcase on the canonical catalog with admin-gated art requests.\n',
+    'Facet gallery verified: read-only taxonomy showcase on the canonical catalog.\n',
   )
 }
 

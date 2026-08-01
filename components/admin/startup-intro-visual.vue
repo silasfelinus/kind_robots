@@ -18,6 +18,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { getStartupAnimationSrc } from '~/utils/startupAnimations'
 
 type IntroVisualKind = 'logo' | 'animation'
 
@@ -25,7 +26,7 @@ const emit = defineEmits<{
   settled: [kind: IntroVisualKind]
 }>()
 
-const ANIMATION_SRC = '/images/startup-animations/launch-04.webp'
+const ANIMATION_SRC = getStartupAnimationSrc()
 const LOGO_SRC = '/images/kindlogo_new.webp'
 
 const imageElement = ref<HTMLImageElement | null>(null)

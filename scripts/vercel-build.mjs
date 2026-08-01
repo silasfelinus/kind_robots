@@ -64,6 +64,16 @@ if (!isVercelBuild || isProductionDeployment) {
     ['utils/scripts/mergeCanonicalFacetDuplicates.ts', '--apply'],
     'Merging legacy duplicate Facets into canonical records',
   )
+
+  // Source seeders intentionally preserve their old Builder vocabulary. Apply the
+  // human-reviewed taxonomy, recipe decomposition, aliases, and weights last so a
+  // later seed cannot silently flatten curated records back to GENRE weight 1.
+  run(
+    tsxBinary,
+    ['utils/scripts/curateFacetCatalog.ts', '--apply'],
+    'Applying durable Facet curation batches',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

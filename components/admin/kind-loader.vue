@@ -13,6 +13,7 @@
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
 import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
@@ -27,6 +28,7 @@ const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
+const route = useRoute()
 
 const emit = defineEmits<{
   covered: []
@@ -180,6 +182,8 @@ async function initializeStores() {
       }),
       useThemeStore().initialize({ fetchShared: true }),
     ])
+
+    await useAchievementStore().rewardAchievementForPath(route.path)
 
     const [{ useServerStore }, { useCheckpointStore }] = await Promise.all([
       import('@/stores/serverStore'),

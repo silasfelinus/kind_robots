@@ -2,9 +2,9 @@
 //
 // Read/write the singleton ArtJob queue pause flag (QueueControl id = 1).
 // Every read is graceful: if the table does not exist yet (deploy landed before
-// `prisma migrate deploy` ran) or any DB error occurs, we treat the queue as
-// NOT paused so relays keep draining — a missing control row must never wedge
-// the whole pipeline.
+// `prisma migrate deploy` ran), the database is slow, or any DB error occurs,
+// return the last known state. A missing control row must never wedge the
+// pipeline or hold the queue dashboard open until its client timeout.
 import prisma from './prisma'
 
 export type QueueControlState = {
@@ -23,19 +23,56 @@ const DEFAULT_STATE: QueueControlState = {
   updatedAt: null,
 }
 
-export async function getQueueControl(): Promise<QueueControlState> {
+const READ_DEADLINE_MS = 2_000
+const CACHE_TTL_MS = 5_000
+
+let cachedState: QueueControlState = DEFAULT_STATE
+let cachedAt = 0
+
+function serializeQueueControl(row: {
+  paused: boolean
+  pausedBy: string | null
+  pausedAt: Date | null
+  note: string | null
+  updatedAt: Date
+}): QueueControlState {
+  return {
+    paused: row.paused,
+    pausedBy: row.pausedBy ?? null,
+    pausedAt: row.pausedAt ? row.pausedAt.toISOString() : null,
+    note: row.note ?? null,
+    updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
+  }
+}
+
+async function readQueueControlWithDeadline() {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<null>((resolve) => {
+    timeoutId = setTimeout(() => resolve(null), READ_DEADLINE_MS)
+  })
+
   try {
-    const row = await prisma.queueControl.findUnique({ where: { id: 1 } })
-    if (!row) return DEFAULT_STATE
-    return {
-      paused: row.paused,
-      pausedBy: row.pausedBy ?? null,
-      pausedAt: row.pausedAt ? row.pausedAt.toISOString() : null,
-      note: row.note ?? null,
-      updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
-    }
+    return await Promise.race([
+      prisma.queueControl.findUnique({ where: { id: 1 } }),
+      timeout,
+    ])
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId)
+  }
+}
+
+export async function getQueueControl(): Promise<QueueControlState> {
+  if (Date.now() - cachedAt < CACHE_TTL_MS) return cachedState
+
+  try {
+    const row = await readQueueControlWithDeadline()
+    if (!row) return cachedState
+
+    cachedState = serializeQueueControl(row)
+    cachedAt = Date.now()
+    return cachedState
   } catch {
-    return DEFAULT_STATE
+    return cachedState
   }
 }
 
@@ -59,11 +96,8 @@ export async function setQueuePaused(
     create: { id: 1, ...data },
     update: data,
   })
-  return {
-    paused: row.paused,
-    pausedBy: row.pausedBy ?? null,
-    pausedAt: row.pausedAt ? row.pausedAt.toISOString() : null,
-    note: row.note ?? null,
-    updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
-  }
+
+  cachedState = serializeQueueControl(row)
+  cachedAt = Date.now()
+  return cachedState
 }

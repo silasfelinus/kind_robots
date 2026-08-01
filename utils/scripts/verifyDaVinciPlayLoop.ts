@@ -25,12 +25,14 @@
 import 'dotenv/config'
 import prisma from '../../server/utils/prisma'
 import {
-  DAVINCI_DIMENSIONS,
   createLifeRun,
   recordLifeChoice,
   resolveLifeRunEnding,
-  resolveOutcomeKey,
 } from '../../server/utils/davinci'
+import {
+  DAVINCI_DIMENSIONS,
+  resolveOutcomeKey,
+} from '../../server/utils/davinciDimensions'
 
 const TEST_USERNAME = 'davinci-playloop-verify'
 

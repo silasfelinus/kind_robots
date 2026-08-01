@@ -1,0 +1,40 @@
+name: Layout Contract
+
+# Guards the Kind Robots layout contract (conductor project interface-vision).
+# The baseline in utils/scripts/layout-contract-baseline.json is a RATCHET: this
+# job fails when a PR introduces a violation that is not already in it, and the
+# --update flag refuses to record a larger count. See
+# utils/scripts/verifyLayoutContract.ts for the rules and the reasoning.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: layout-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  layout-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify layout contract
+        run: npm run test:layout-contract

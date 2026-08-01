@@ -89,13 +89,6 @@ export type SubmitArtFeedbackInput = {
   rubricKey?: string | null
 }
 
-export type CurateRequestResult = {
-  requested: number[]
-  alreadyQueued: number[]
-  ineligible: number[]
-  missing: number[]
-}
-
 export type BulkReenqueueResult = {
   requestedCount: number
   queuedCount: number
@@ -209,8 +202,6 @@ type ArtJobState = {
   editingJobIds: number[]
   reenqueueingFailedJobs: boolean
   repairingWeakPrompts: boolean
-  curationRequestingIds: number[]
-  curationRequestedIds: number[]
   queuePaused: boolean
   queuePausedBy: string | null
   togglingQueuePause: boolean
@@ -250,8 +241,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     editingJobIds: [],
     reenqueueingFailedJobs: false,
     repairingWeakPrompts: false,
-    curationRequestingIds: [],
-    curationRequestedIds: [],
     queuePaused: false,
     queuePausedBy: null,
     togglingQueuePause: false,
@@ -406,8 +395,14 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       )
       if (res.success && res.data) {
         const forceImageIds = completedOverwriteIds(res.data.jobs)
+        // Every finished render is reviewable. This used to require a CURATOR
+        // verdict, which meant a vision model had to score the image before a
+        // human was allowed to see it -- so removing that model would have left
+        // this panel permanently empty. Art quality is a human call; the panel
+        // shows finished renders and the component splits them into
+        // "Needs feedback" vs "Reviewed" on the presence of a HUMAN verdict.
         state.trainerJobs = res.data.jobs.filter((job) => {
-          return Boolean(job.payload?.curation?.curator)
+          return typeof job.artImageId === 'number'
         })
         void loadJobImages(forceImageIds)
       } else if (!res.success) {
@@ -479,64 +474,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
     state.error = res.message || `Failed to save feedback for job ${id}.`
     return false
-  }
-
-  async function requestCuration(
-    jobIds: number | number[],
-    note?: string,
-  ): Promise<CurateRequestResult | null> {
-    const ids = (Array.isArray(jobIds) ? jobIds : [jobIds]).filter(
-      (id): id is number => Number.isInteger(id) && id > 0,
-    )
-    if (!ids.length) return null
-
-    const inFlight = ids.filter((id) => !state.curationRequestingIds.includes(id))
-    if (!inFlight.length) return null
-    state.curationRequestingIds = [...state.curationRequestingIds, ...inFlight]
-
-    try {
-      const payload =
-        inFlight.length === 1
-          ? { jobId: inFlight[0], note }
-          : { jobIds: inFlight, note }
-      const res = await performFetch<CurateRequestResult>(
-        '/api/conductor/curate-request',
-        { method: 'POST', body: JSON.stringify(payload) },
-      )
-
-      if (res.success && res.data) {
-        const queued = [...res.data.requested, ...res.data.alreadyQueued]
-        const merged = new Set([...state.curationRequestedIds, ...queued])
-        state.curationRequestedIds = [...merged]
-        return res.data
-      }
-
-      state.error = res.message || 'Failed to request curation.'
-      return null
-    } finally {
-      state.curationRequestingIds = state.curationRequestingIds.filter(
-        (id) => !inFlight.includes(id),
-      )
-    }
-  }
-
-  async function requestWindowCuration(
-    windowHours: number = state.windowHours,
-    note?: string,
-  ): Promise<CurateRequestResult | null> {
-    const res = await performFetch<CurateRequestResult>(
-      '/api/conductor/curate-request',
-      { method: 'POST', body: JSON.stringify({ window: windowHours, note }) },
-    )
-    if (res.success && res.data) {
-      const queued = [...res.data.requested, ...res.data.alreadyQueued]
-      state.curationRequestedIds = [
-        ...new Set([...state.curationRequestedIds, ...queued]),
-      ]
-      return res.data
-    }
-    state.error = res.message || 'Failed to request curation.'
-    return null
   }
 
   async function requeueJob(id: number): Promise<boolean> {
@@ -721,8 +658,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     setJobPageSize,
     fetchTrainerJobs,
     submitFeedback,
-    requestCuration,
-    requestWindowCuration,
     requeueJob,
     cancelJob,
     editJob,

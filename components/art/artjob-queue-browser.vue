@@ -552,15 +552,6 @@
                   Resume unchanged
                 </button>
                 <button
-                  v-if="job.status === 'DONE' && job.artImageId"
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-2xl"
-                  :disabled="curationRequested(job) || !canShowJobContent(job)"
-                  @click="requestCuration(job)"
-                >
-                  {{ curationRequested(job) ? 'Curation requested' : 'Curate' }}
-                </button>
-                <button
                   v-if="job.status === 'PENDING' || job.status === 'RUNNING'"
                   type="button"
                   class="btn btn-ghost btn-xs rounded-2xl text-error"
@@ -972,18 +963,6 @@ async function runWeakPromptRepair(): Promise<void> {
   repairPreview.value = result
   if (!result) return
   repairMessage.value = `Repaired ${result.repairedCount} jobs. ${result.unresolvedCount} remain unresolved and were not guessed.`
-}
-
-async function requestCuration(job: ArtJobRecord): Promise<void> {
-  if (!canShowJobContent(job)) return
-  await artJobStore.requestCuration(job.id)
-}
-
-function curationRequested(job: ArtJobRecord): boolean {
-  return (
-    artJobStore.curationRequestedIds.includes(job.id) ||
-    Boolean(asRecord(asRecord(job.payload).curation).curator)
-  )
 }
 
 async function copyPrompt(job: ArtJobRecord): Promise<void> {

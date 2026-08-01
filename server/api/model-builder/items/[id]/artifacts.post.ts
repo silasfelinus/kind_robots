@@ -4,7 +4,12 @@ import type { ModelBuildReviewState } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { assertRunAccess, getItemId, normalizeNullableId } from '../../runs/index'
+import {
+  assertRunAccess,
+  assertRunWritable,
+  getItemId,
+  normalizeNullableId,
+} from '../../runs/index'
 import { assertArtImageAttachable } from '../../relations'
 
 const reviewStates = new Set<ModelBuildReviewState>([
@@ -47,7 +52,7 @@ export default defineEventHandler(async (event) => {
 
     const item = await prisma.modelBuildItem.findUnique({
       where: { id: itemId },
-      include: { Run: { select: { userId: true } } },
+      include: { Run: { select: { userId: true, status: true } } },
     })
     if (!item) {
       event.node.res.statusCode = 404
@@ -58,6 +63,7 @@ export default defineEventHandler(async (event) => {
       }
     }
     assertRunAccess(item.Run, auth.user)
+    assertRunWritable(item.Run)
 
     const body = await readBody<ArtifactBody>(event)
     if (typeof body.kind !== 'string' || !body.kind.trim()) {

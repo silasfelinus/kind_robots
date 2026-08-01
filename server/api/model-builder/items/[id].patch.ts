@@ -6,6 +6,7 @@ import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
   assertRunAccess,
+  assertRunWritable,
   getItemId,
   prepareItemUpdate,
   type ItemPatchBody,
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
     const existing = await prisma.modelBuildItem.findUnique({
       where: { id },
-      include: { Run: { select: { userId: true } } },
+      include: { Run: { select: { userId: true, status: true } } },
     })
     if (!existing) {
       event.node.res.statusCode = 404
@@ -35,6 +36,7 @@ export default defineEventHandler(async (event) => {
       }
     }
     assertRunAccess(existing.Run, auth.user)
+    assertRunWritable(existing.Run)
 
     const body = await readBody<ItemPatchBody>(event)
     if (body.artImageId !== undefined) {

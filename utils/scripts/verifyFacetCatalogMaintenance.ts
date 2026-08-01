@@ -121,16 +121,16 @@ assert.ok(
 )
 
 assert.ok(
-  build.includes("'scripts/run_facet_catalog_maintenance.ts'"),
-  'Production build must invoke the single serialized Facet maintenance runner.',
+  !build.includes("'scripts/run_facet_catalog_maintenance.ts'"),
+  'Production deployment must not run long-lived Facet catalog mutations.',
 )
 assert.ok(
-  build.includes("facetSeedDecision.run ? '--seed' : '--skip-seed'"),
-  'Production build must preserve the canonical seed policy when invoking the runner.',
+  build.includes('Skipping Facet catalog maintenance during deployment'),
+  'Production build must explain how explicit Facet maintenance is separated from application delivery.',
 )
 assert.ok(
   !build.includes("['utils/scripts/runFacetCatalogSeed.ts', '--apply']"),
-  'Production build must not bypass the serialized Facet maintenance runner.',
+  'Production build must not bypass the explicit Facet maintenance runner.',
 )
 
 console.log('Facet catalog maintenance and artwork queue contract verified.')

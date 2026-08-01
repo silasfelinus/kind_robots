@@ -201,6 +201,7 @@ async function hasArtwork(facet: {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  iconPath: string | null
   icon: string | null
   artImageId: number | null
   artCollectionId: number | null
@@ -209,6 +210,7 @@ async function hasArtwork(facet: {
     facet.imagePath ||
     facet.cardPath ||
     facet.heroPath ||
+    facet.iconPath ||
     facet.icon ||
     facet.artImageId !== null ||
     facet.artCollectionId !== null
@@ -471,6 +473,7 @@ async function migrateDuplicate(
     duplicate.imagePath,
     duplicate.cardPath,
     duplicate.heroPath,
+    duplicate.iconPath,
     duplicate.icon,
   ])
 
@@ -490,6 +493,7 @@ async function migrateDuplicate(
       imagePath: canonical.imagePath || duplicate.imagePath,
       cardPath: canonical.cardPath || circusCardPath || duplicate.cardPath,
       heroPath: canonical.heroPath || duplicate.heroPath,
+        iconPath: canonical.iconPath || duplicate.iconPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
       artCollectionId:

@@ -105,6 +105,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Repairing Facet taxonomy leaks and low-value random controls',
   )
 
+  // Separate subject and cast controls from narrative form, then decompose the
+  // remaining scenario-list hybrids into reusable genre, mood, setting, and theme.
+  run(
+    tsxBinary,
+    ['utils/scripts/curateFacetGenreLeaks.ts', '--apply'],
+    'Repairing subject themes and remaining genre hybrids',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

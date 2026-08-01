@@ -772,7 +772,7 @@ async function submitReplacement() {
     form.append('preserveOriginal', String(preserveOriginal.value))
 
     const response = await performFetch(
-      `/api/projects/${projectId}/art/replace`,
+      `/api/art/entities/project/${projectId}/replace`,
       { method: 'POST', body: form },
       1,
       30_000,

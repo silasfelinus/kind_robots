@@ -91,6 +91,8 @@ expectContains('components/art/entity-art-manager.vue', [
   'checkpointResourceId',
   '/api/art/enqueue',
   'entityArt:',
+  "| 'project'",
+  "| 'achievement'",
 ])
 
 expectContains('server/utils/entityArt.ts', [
@@ -115,12 +117,14 @@ expectContains('components/pages/conductor-art-gallery.vue', [
   'startPolling(jobId)',
   'const PROJECT_ART_STATUS_POLL_MS = 2_000',
   'setTimeout(poll, PROJECT_ART_STATUS_POLL_MS)',
+  '/api/art/entities/project/${projectId}/replace',
 ])
 
 const projectGallerySource = read('components/pages/conductor-art-gallery.vue')
 for (const obsolete of [
   "'/api/conductor/art-request'",
   '/art/prepare-generation',
+  '/api/projects/${projectId}/art/replace',
 ]) {
   if (projectGallerySource.includes(obsolete)) {
     throw new Error(`Project gallery still uses obsolete queue path: ${obsolete}`)

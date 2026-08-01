@@ -3,7 +3,7 @@
     class="h-full min-h-0 overflow-y-auto overscroll-contain p-6 space-y-6 max-w-3xl mx-auto"
   >
     <header class="space-y-1">
-      <h1 class="text-2xl font-bold">🎤 Music Mentor</h1>
+      <p class="text-2xl font-bold">🎤 Music Mentor</p>
       <p class="text-sm opacity-70">
         Upload a recording of your sung medley and get honest, specific feedback
         on the singing and the arrangement. Everything is analyzed

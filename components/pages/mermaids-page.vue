@@ -14,9 +14,9 @@
         <div
           class="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-base-300/95 via-base-300/40 to-transparent p-5"
         >
-          <h1 class="text-3xl font-black text-base-content sm:text-4xl">
+          <p class="text-3xl font-black text-base-content sm:text-4xl">
             Mermaids of Venice
-          </h1>
+          </p>
           <p class="text-sm font-semibold text-base-content/80 sm:text-base">
             A subversive tale of gods and street performers — by Silas Knight
           </p>

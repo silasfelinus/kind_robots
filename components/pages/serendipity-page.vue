@@ -19,7 +19,7 @@
           <Icon name="kind-icon:butterfly" class="h-7 w-7" />
         </span>
         <div>
-          <h1 class="text-2xl font-black tracking-tight">Serendipity</h1>
+          <p class="text-2xl font-black tracking-tight">Serendipity</p>
           <p class="text-sm text-base-content/60">
             Talk to Kind Robots through your Amazon Echo.
           </p>

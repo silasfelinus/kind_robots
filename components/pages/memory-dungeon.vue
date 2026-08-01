@@ -12,7 +12,7 @@
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
     >
       <div>
-        <h1 class="text-2xl font-black tracking-tight">🏰 Memory Dungeon</h1>
+        <p class="text-2xl font-black tracking-tight">🏰 Memory Dungeon</p>
         <p class="text-xs text-gray-400">
           Level {{ level }} · {{ level * 10 }}ft below sanity
         </p>
@@ -175,11 +175,11 @@
         <div
           class="relative z-10 flex flex-col items-center px-4 pt-4 text-center sm:pt-8"
         >
-          <h1
+          <p
             class="splash-title text-4xl font-black tracking-widest text-yellow-100 sm:text-5xl md:text-6xl"
           >
             MEMORY MATCH DUNGEON
-          </h1>
+          </p>
           <p
             class="mt-2 text-sm italic text-red-300/90 drop-shadow sm:text-base"
           >

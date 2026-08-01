@@ -1,7 +1,7 @@
 <!-- /components/content/weird/click-leaderboard.vue -->
 <template>
   <div class="h-full min-h-0 overflow-y-auto overscroll-contain p-4">
-    <h1 class="text-xl font-bold mb-4">Global Leaderboard</h1>
+    <p class="text-xl font-bold mb-4">Global Leaderboard</p>
     <leaderboard-table
       :rows="leaderboard"
       score-label="Click Record"

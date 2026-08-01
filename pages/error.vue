@@ -4,7 +4,7 @@
     style="background-image: url('/images/background/error.png')"
   >
     <div class="rounded-2xl bg-base-100/60 p-8 text-center shadow-lg">
-      <h1 class="mb-4 text-4xl font-bold text-primary">Page Not Found</h1>
+      <p class="mb-4 text-4xl font-bold text-primary">Page Not Found</p>
 
       <p class="mb-8 text-secondary">
         It looks like this page doesn't exist. Please use the buttons below to

@@ -7,7 +7,7 @@
   >
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-bold">AppMaker</h1>
+        <p class="text-2xl font-bold">AppMaker</p>
         <p class="text-sm opacity-70">
           The app factory — every app is a workspace folder, a project roadmap,
           and a Dream sharing one slug.

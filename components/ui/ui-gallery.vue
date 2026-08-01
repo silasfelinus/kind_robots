@@ -116,6 +116,30 @@
                 >
               </li>
               <li>
+                <code>.kr-surface</code>
+                <span class="font-sans opacity-70"
+                  >— bounded root, one scroll owner inside</span
+                >
+              </li>
+              <li>
+                <code>.kr-toolbar</code>
+                <span class="font-sans opacity-70"
+                  >— one non-scrolling control row</span
+                >
+              </li>
+              <li>
+                <code>.kr-scroll</code>
+                <span class="font-sans opacity-70"
+                  >— the scroll region, exactly one per surface</span
+                >
+              </li>
+              <li>
+                <code>.kr-stage</code>
+                <span class="font-sans opacity-70"
+                  >— non-scrolling focal area (narrator, hero)</span
+                >
+              </li>
+              <li>
                 <code>.kr-container</code>
                 <span class="font-sans opacity-70"
                   >— centered max-w-6xl column</span

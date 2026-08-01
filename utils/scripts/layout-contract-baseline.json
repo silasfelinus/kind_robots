@@ -4,34 +4,12 @@
   "violations": {
     "one-header": [
       "components/conductor/project-front-page.vue",
-      "components/conductor/storymaker-page.vue",
-      "components/pages/about-page.vue",
-      "components/pages/appmaker-page.vue",
-      "components/pages/click-leaderboard.vue",
-      "components/pages/giving-page.vue",
-      "components/pages/match-leaderboard.vue",
-      "components/pages/memory-dungeon.vue",
-      "components/pages/mermaids-page.vue",
-      "components/pages/privacy-page.vue",
       "components/pages/registration-form.vue",
-      "components/pages/serendipity-page.vue",
-      "components/pages/sponsor-page.vue",
-      "components/pages/super-form.vue",
-      "components/pages/welcome-page.vue",
-      "components/user/login-page.vue",
-      "components/user/registration-page.vue",
       "pages/admin/wonderlab-review-generator.vue",
       "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
       "pages/admin/wonderlab-reviews.vue",
-      "pages/coloring-page.vue",
-      "pages/error.vue",
-      "pages/music-mentor.vue",
-      "pages/plan/wonderlab/commentary-guide.vue",
-      "pages/play/challenges/[slug].vue",
-      "pages/play/challenges/leaderboard.vue",
-      "pages/play/video-generator.vue",
-      "pages/users/[id].vue"
+      "pages/play/video-generator.vue"
     ],
     "one-scroll": [
       "components/academy/academy-manager.vue",
@@ -117,6 +95,7 @@
       "components/pages/social-page.vue",
       "components/pages/sponsor-page.vue",
       "components/user/registration-page.vue",
+      "components/pages/wallet-page.vue",
       "pages/auth/google.vue",
       "pages/build-bench.vue"
     ]

@@ -4,9 +4,9 @@
     <div
       class="bg-base-300 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
     >
-      <h1 class="text-4xl font-semibold">
+      <p class="text-4xl font-semibold">
         Greetings, friends of all species and circuits!
-      </h1>
+      </p>
       <swarm-icon />
 
       <h2 class="text-2xl font-semibold">
@@ -37,7 +37,7 @@
           inconsequential.
         </h2>
 
-        <h1>But together, we can change the world.</h1>
+        <p>But together, we can change the world.</p>
 
         <div class="flex justify-center">
           <ami-link />

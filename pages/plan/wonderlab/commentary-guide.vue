@@ -16,9 +16,9 @@
           <p class="text-xs font-black uppercase tracking-[0.22em] text-primary">
             WonderLab editorial playbook
           </p>
-          <h1 class="mt-2 text-3xl font-black sm:text-5xl">
+          <p class="mt-2 text-3xl font-black sm:text-5xl">
             Commentary Voice Guide
-          </h1>
+          </p>
           <p class="mt-4 max-w-3xl text-base leading-relaxed text-base-content/70">
             Stars carry the evaluation. The words are a glimpse of the Bot or
             Character who left them.

@@ -61,6 +61,28 @@ export function assertRunAccess(
   }
 }
 
+// cancelRun() marks a run CANCELLED specifically so no further work lands on
+// it — but that intent is enforced only client-side, and only for the one
+// store instance that issued the cancellation: modelBuilderStore.ts's
+// cancelledRunIds is an in-memory Set that guards a single tab's own
+// in-flight calls racing the exact moment of cancellation, and cancelRun()
+// only clears that tab's remembered-run localStorage key when the cancelled
+// run happens to be the one currently open in that same tab. A second
+// browser tab (or a later page load reading a stale `modelBuilder:runId`
+// left behind because the cancellation happened in a different tab) has no
+// way to learn the run was cancelled and would otherwise keep editing
+// fields, generating assets, and even durably committing records into a run
+// the user already told the app to abandon. Every write-capable item route
+// must refuse once the run itself says it's done.
+export function assertRunWritable(run: { status: ModelBuildStatus }): void {
+  if (run.status === 'CANCELLED') {
+    throw createError({
+      statusCode: 409,
+      message: 'This build run was cancelled and can no longer be modified.',
+    })
+  }
+}
+
 export function normalizeText(value: unknown): string | null | undefined {
   if (value === undefined) return undefined
   if (value === null) return null

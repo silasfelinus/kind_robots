@@ -12,6 +12,7 @@ import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
   assertRunAccess,
+  assertRunWritable,
   prepareItemUpdate,
   type ItemPatchBody,
 } from '../runs/index'
@@ -82,7 +83,7 @@ export default defineEventHandler(async (event) => {
 
         const existing = await prisma.modelBuildItem.findUnique({
           where: { id },
-          include: { Run: { select: { userId: true } } },
+          include: { Run: { select: { userId: true, status: true } } },
         })
         if (!existing) {
           throw createError({
@@ -91,6 +92,7 @@ export default defineEventHandler(async (event) => {
           })
         }
         assertRunAccess(existing.Run, auth.user)
+        assertRunWritable(existing.Run)
 
         if (entry.artImageId !== undefined) {
           await assertArtImageAttachable(

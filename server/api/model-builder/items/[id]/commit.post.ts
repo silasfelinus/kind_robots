@@ -5,7 +5,12 @@ import type { DreamType, Rarity, RewardType } from '~/prisma/generated/prisma/cl
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { assertRunAccess, getItemId, parseStoredJson } from '../../runs/index'
+import {
+  assertRunAccess,
+  assertRunWritable,
+  getItemId,
+  parseStoredJson,
+} from '../../runs/index'
 import { CREATE_TARGETS, fieldSpecFor } from '~/stores/helpers/modelBuilderFields'
 import { BUILD_STAGES } from '~/stores/helpers/modelBuilderRecipes'
 import { syncCharacterFacetsInTransaction } from '~/server/utils/characterFacetSync'
@@ -513,13 +518,16 @@ export default defineEventHandler(async (event) => {
 
     const item = await prisma.modelBuildItem.findUnique({
       where: { id },
-      include: { Run: { select: { userId: true, sourceType: true, sourceId: true } } },
+      include: {
+        Run: { select: { userId: true, sourceType: true, sourceId: true, status: true } },
+      },
     })
     if (!item) {
       event.node.res.statusCode = 404
       return { success: false, message: 'Build item not found.', statusCode: 404 }
     }
     assertRunAccess(item.Run, auth.user)
+    assertRunWritable(item.Run)
 
     // The front-end only ever calls commitItem() once COMMIT has unlocked,
     // which approveStage only does after PITCH, FIELDS_AND_PROMPTS, and

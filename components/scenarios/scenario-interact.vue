@@ -86,6 +86,20 @@
             width: 1536,
             height: 864,
           },
+          {
+            field: 'cardPath',
+            label: 'Card',
+            aspect: '2 / 3',
+            width: 512,
+            height: 768,
+          },
+          {
+            field: 'heroPath',
+            label: 'Hero',
+            aspect: '16 / 9',
+            width: 1280,
+            height: 720,
+          },
         ]"
       />
 

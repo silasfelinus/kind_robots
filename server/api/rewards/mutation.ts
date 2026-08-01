@@ -24,7 +24,10 @@ const persistedMutationFields = [
   'type',
   'artImageId',
   'imagePath',
+  'cardPath',
+  'heroPath',
   'artPrompt',
+  'allowReviews',
   'isMature',
   'isPublic',
   'isActive',
@@ -97,10 +100,17 @@ const nullableTextFields = [
   'icon',
   'collection',
   'imagePath',
+  'cardPath',
+  'heroPath',
   'artPrompt',
 ] as const
 
-const booleanFields = ['isMature', 'isPublic', 'isActive'] as const
+const booleanFields = [
+  'isMature',
+  'isPublic',
+  'isActive',
+  'allowReviews',
+] as const
 
 const relationArrayFields = [
   'characterIds',
@@ -299,7 +309,11 @@ type RewardRelationExistenceInput = {
   artImageId?: unknown
 }
 
-type OwnableRow = { id: number; userId: number | null; isPublic: boolean | null }
+type OwnableRow = {
+  id: number
+  userId: number | null
+  isPublic: boolean | null
+}
 
 // Verifies existence (404 for missing) and permission (403 for a private target
 // owned by someone else) for every connect/set relation target. A non-admin may
@@ -359,7 +373,8 @@ export async function assertRewardRelationsAttachable(
   const dreamIds = Array.from(
     new Set([
       ...(normalizeBoundedRewardIdArray(input.dreamIds, 'dreamIds') ?? []),
-      ...(normalizeBoundedRewardIdArray(input.setDreamIds, 'setDreamIds') ?? []),
+      ...(normalizeBoundedRewardIdArray(input.setDreamIds, 'setDreamIds') ??
+        []),
     ]),
   )
 

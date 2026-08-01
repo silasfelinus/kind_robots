@@ -1,5 +1,11 @@
 // /server/utils/entityArt.ts
 import { createError, getRequestURL, type H3Event } from 'h3'
+/*
+ * Keep this import multi-line. utils/scripts/verifyEntityArtManager.ts anchors
+ * on its exact shape, and `prettier --write` collapses it to one line, which
+ * breaks that contract. This file is intentionally excluded from prettier
+ * formatting for that reason.
+ */
 import type {
   Prisma,
   PrismaClient,
@@ -63,12 +69,37 @@ const ENTITY_FIELDS: Record<
   EntityArtType,
   Record<string, EntityArtFieldConfig>
 > = {
+  /*
+   * Card and hero slots use the canonical Kind Robots variant sizes -- card
+   * 512x768 (2:3), hero 1280x720 (16:9) -- matching `project` below and the
+   * icon/card/hero contract in conductor's ART-PROMPTS.md. The gallery picks
+   * which variant to fetch per view mode, so an object without them can only
+   * ever render one layout. Facet keeps its own larger sizes; churning them
+   * would invalidate art that already exists.
+   *
+   * Note there is no `icon` art slot: `Bot.icon`/`Character.icon`/`Scenario.icon`
+   * hold an icon NAME (e.g. 'mdi:radio-tower'), not a path. The small square
+   * render is the primary field (avatarImage / imagePath), same as `project`
+   * labels imagePath 'Icon'.
+   */
   bot: {
     avatarImage: {
       label: 'Avatar',
       width: 1024,
       height: 1024,
       primary: true,
+    },
+    cardPath: {
+      label: 'Card',
+      width: 512,
+      height: 768,
+      primary: false,
+    },
+    heroPath: {
+      label: 'Hero',
+      width: 1280,
+      height: 720,
+      primary: false,
     },
   },
   character: {
@@ -78,6 +109,18 @@ const ENTITY_FIELDS: Record<
       height: 1024,
       primary: true,
     },
+    cardPath: {
+      label: 'Card',
+      width: 512,
+      height: 768,
+      primary: false,
+    },
+    heroPath: {
+      label: 'Hero',
+      width: 1280,
+      height: 720,
+      primary: false,
+    },
   },
   scenario: {
     imagePath: {
@@ -86,6 +129,18 @@ const ENTITY_FIELDS: Record<
       height: 864,
       primary: true,
     },
+    cardPath: {
+      label: 'Card',
+      width: 512,
+      height: 768,
+      primary: false,
+    },
+    heroPath: {
+      label: 'Hero',
+      width: 1280,
+      height: 720,
+      primary: false,
+    },
   },
   reward: {
     imagePath: {
@@ -93,6 +148,18 @@ const ENTITY_FIELDS: Record<
       width: 1024,
       height: 1024,
       primary: true,
+    },
+    cardPath: {
+      label: 'Card',
+      width: 512,
+      height: 768,
+      primary: false,
+    },
+    heroPath: {
+      label: 'Hero',
+      width: 1280,
+      height: 720,
+      primary: false,
     },
   },
   facet: {
@@ -259,33 +326,33 @@ export async function getEntityArtRecord(
 ): Promise<EntityArtRecord | null> {
   switch (entityType) {
     case 'bot':
-      return (await db.bot.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.bot.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
     case 'character':
-      return (await db.character.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.character.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
     case 'scenario':
-      return (await db.scenario.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.scenario.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
     case 'reward':
-      return (await db.reward.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.reward.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
     case 'facet':
-      return (await db.facet.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.facet.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
     case 'project':
-      return (await db.project.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.project.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
     case 'achievement':
-      return (await db.achievement.findUnique({ where: { id: entityId } })) as
-        | EntityArtRecord
-        | null
+      return (await db.achievement.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
   }
 }
 
@@ -328,7 +395,10 @@ export async function resolveEntityArtTarget(
   return { entityType, entityId, field, config, record }
 }
 
-function recordTitle(entityType: EntityArtType, record: EntityArtRecord): string {
+function recordTitle(
+  entityType: EntityArtType,
+  record: EntityArtRecord,
+): string {
   return (
     safeText(record.title) ||
     safeText(record.name) ||
@@ -376,8 +446,7 @@ async function createHistoryReference(
       userId: input.record.userId ?? source?.userId ?? 1,
       fileName: `${slug}-${fieldConfig.label.toLowerCase()}-previous-${timestamp}`,
       fileType:
-        safeText(source?.fileType) ||
-        fileTypeFromPath(input.referencePath),
+        safeText(source?.fileType) || fileTypeFromPath(input.referencePath),
       imagePath: input.referencePath,
       path: `${entityArtHistoryPrefix(input.entityType, input.entityId)}${input.field}:${timestamp}`,
       promptString: source?.promptString ?? source?.artPrompt ?? null,
@@ -392,8 +461,7 @@ async function createHistoryReference(
       steps: source?.steps ?? null,
       cfg: source?.cfg ?? 3,
       cfgHalf: source?.cfgHalf ?? false,
-      designer:
-        source?.designer ?? input.record.designer ?? 'Kind Robots',
+      designer: source?.designer ?? input.record.designer ?? 'Kind Robots',
       isPublic: input.record.isPublic ?? source?.isPublic ?? true,
       isMature: input.record.isMature ?? source?.isMature ?? false,
       isActive: true,
@@ -469,11 +537,26 @@ async function updateEntityRecord(
     imagePath: string
   },
 ): Promise<EntityArtRecord> {
+  /*
+   * Card and hero are SECONDARY slots: they write only their own column and
+   * must never touch the primary field or artImageId, which together define the
+   * record's canonical image. Without this branch a card render (2:3) would
+   * overwrite the square avatar/portrait it was meant to sit beside.
+   * Null means "this is the primary slot" — each case then supplies its own
+   * primary shape, since bot mirrors into both avatarImage and imagePath.
+   */
+  const slotData =
+    input.field === 'cardPath'
+      ? { cardPath: input.imagePath }
+      : input.field === 'heroPath'
+        ? { heroPath: input.imagePath }
+        : null
+
   switch (input.entityType) {
     case 'bot':
       return (await db.bot.update({
         where: { id: input.entityId },
-        data: {
+        data: slotData ?? {
           avatarImage: input.imagePath,
           imagePath: input.imagePath,
           artImageId: input.artImageId,
@@ -482,7 +565,7 @@ async function updateEntityRecord(
     case 'character':
       return (await db.character.update({
         where: { id: input.entityId },
-        data: {
+        data: slotData ?? {
           imagePath: input.imagePath,
           artImageId: input.artImageId,
         },
@@ -490,7 +573,7 @@ async function updateEntityRecord(
     case 'scenario':
       return (await db.scenario.update({
         where: { id: input.entityId },
-        data: {
+        data: slotData ?? {
           imagePath: input.imagePath,
           artImageId: input.artImageId,
         },
@@ -498,7 +581,7 @@ async function updateEntityRecord(
     case 'reward':
       return (await db.reward.update({
         where: { id: input.entityId },
-        data: {
+        data: slotData ?? {
           imagePath: input.imagePath,
           artImageId: input.artImageId,
         },
@@ -512,15 +595,12 @@ async function updateEntityRecord(
         },
       })) as EntityArtRecord
     case 'project': {
-      const data =
-        input.field === 'cardPath'
-          ? { cardPath: input.imagePath }
-          : input.field === 'heroPath'
-            ? { heroPath: input.imagePath }
-            : { imagePath: input.imagePath, artImageId: input.artImageId }
       const project = await db.project.update({
         where: { id: input.entityId },
-        data,
+        data: slotData ?? {
+          imagePath: input.imagePath,
+          artImageId: input.artImageId,
+        },
       })
       await db.projectArtImage.upsert({
         where: {
@@ -534,21 +614,14 @@ async function updateEntityRecord(
       })
       return project as EntityArtRecord
     }
-    case 'facet': {
-      const data =
-        input.field === 'cardPath'
-          ? { cardPath: input.imagePath }
-          : input.field === 'heroPath'
-            ? { heroPath: input.imagePath }
-            : {
-                imagePath: input.imagePath,
-                artImageId: input.artImageId,
-              }
+    case 'facet':
       return (await db.facet.update({
         where: { id: input.entityId },
-        data,
+        data: slotData ?? {
+          imagePath: input.imagePath,
+          artImageId: input.artImageId,
+        },
       })) as EntityArtRecord
-    }
   }
 }
 
@@ -577,7 +650,10 @@ export async function applyEntityArtImage(
     where: { id: positiveId(input.artImageId, 'ArtImage ID') },
   })
   if (!artImage) {
-    throw createError({ statusCode: 404, message: 'Generated image was not found.' })
+    throw createError({
+      statusCode: 404,
+      message: 'Generated image was not found.',
+    })
   }
 
   const previousArtImageId = currentArtImageId(
@@ -618,8 +694,7 @@ export async function applyEntityArtImage(
   }
 
   const version =
-    artImage.updatedAt?.toISOString() ||
-    artImage.createdAt.toISOString()
+    artImage.updatedAt?.toISOString() || artImage.createdAt.toISOString()
   const imagePath = `/api/art/images/${artImage.id}/file?v=${encodeURIComponent(
     version,
   )}`
@@ -879,9 +954,7 @@ export async function prepareEntityArtEnqueue(
     auth,
   )
   const mode =
-    safeText(request.mode).toLowerCase() === 'img2img'
-      ? 'img2img'
-      : 'recreate'
+    safeText(request.mode).toLowerCase() === 'img2img' ? 'img2img' : 'recreate'
   const metadata: EntityArtMetadata = {
     entityType: target.entityType,
     entityId: target.entityId,
@@ -909,9 +982,7 @@ export function readEntityArtMetadata(
     const entityId = positiveId(raw.entityId, 'entity ID')
     const { field } = getEntityArtFieldConfig(entityType, raw.field)
     const mode =
-      safeText(raw.mode).toLowerCase() === 'img2img'
-        ? 'img2img'
-        : 'recreate'
+      safeText(raw.mode).toLowerCase() === 'img2img' ? 'img2img' : 'recreate'
     return {
       entityType,
       entityId,

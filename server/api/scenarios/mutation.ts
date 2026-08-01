@@ -21,6 +21,10 @@ const scenarioMutationFields = [
   'characterIds',
   'artImageId',
   'imagePath',
+  'icon',
+  'cardPath',
+  'heroPath',
+  'allowReviews',
   'locations',
   'artPrompt',
   'genres',
@@ -100,6 +104,9 @@ type ScenarioBoundaryOptions = {
 
 const nullableTextFields = [
   'imagePath',
+  'icon',
+  'cardPath',
+  'heroPath',
   'locations',
   'artPrompt',
   'genres',
@@ -109,7 +116,12 @@ const nullableTextFields = [
   'secretNotes',
 ] as const
 
-const booleanFields = ['isMature', 'isPublic', 'isActive'] as const
+const booleanFields = [
+  'isMature',
+  'isPublic',
+  'isActive',
+  'allowReviews',
+] as const
 const relationFields = ['dreamIds', 'characterIds'] as const
 const outputTypes = Object.values(ScenarioOutputType)
 
@@ -237,7 +249,8 @@ export function assertScenarioMutationInput(
   }
 
   if (input.intros !== undefined) normalizeScenarioIntros(input.intros)
-  if (input.outputType !== undefined) normalizeScenarioOutputType(input.outputType)
+  if (input.outputType !== undefined)
+    normalizeScenarioOutputType(input.outputType)
   if (input.cast !== undefined) normalizeScenarioJsonString(input.cast, 'cast')
 
   for (const field of nullableTextFields) {
@@ -614,7 +627,8 @@ export async function assertScenarioRelationsExist(input: {
   dreamIds?: number[]
   characterIds?: number[]
 }): Promise<void> {
-  const artImageIds = typeof input.artImageId === 'number' ? [input.artImageId] : []
+  const artImageIds =
+    typeof input.artImageId === 'number' ? [input.artImageId] : []
   const dreamIds = input.dreamIds ?? []
   const characterIds = input.characterIds ?? []
 
@@ -662,13 +676,31 @@ export async function buildScenarioUpdateInput(
   }
   if ('cast' in body) data.cast = normalizeScenarioJsonString(body.cast, 'cast')
   if ('imagePath' in body) {
-    data.imagePath = normalizeScenarioNullableString(body.imagePath, 'imagePath')
+    data.imagePath = normalizeScenarioNullableString(
+      body.imagePath,
+      'imagePath',
+    )
+  }
+  if ('icon' in body) {
+    data.icon = normalizeScenarioNullableString(body.icon, 'icon')
+  }
+  if ('cardPath' in body) {
+    data.cardPath = normalizeScenarioNullableString(body.cardPath, 'cardPath')
+  }
+  if ('heroPath' in body) {
+    data.heroPath = normalizeScenarioNullableString(body.heroPath, 'heroPath')
   }
   if ('locations' in body) {
-    data.locations = normalizeScenarioNullableString(body.locations, 'locations')
+    data.locations = normalizeScenarioNullableString(
+      body.locations,
+      'locations',
+    )
   }
   if ('artPrompt' in body) {
-    data.artPrompt = normalizeScenarioNullableString(body.artPrompt, 'artPrompt')
+    data.artPrompt = normalizeScenarioNullableString(
+      body.artPrompt,
+      'artPrompt',
+    )
   }
   if ('genres' in body) {
     data.genres = normalizeScenarioNullableString(body.genres, 'genres')
@@ -699,6 +731,12 @@ export async function buildScenarioUpdateInput(
   }
   if ('isActive' in body) {
     data.isActive = normalizeScenarioBoolean(body.isActive, 'isActive')
+  }
+  if ('allowReviews' in body) {
+    data.allowReviews = normalizeScenarioBoolean(
+      body.allowReviews,
+      'allowReviews',
+    )
   }
   if ('difficulty' in body) {
     data.difficulty = normalizeScenarioNullableInteger(

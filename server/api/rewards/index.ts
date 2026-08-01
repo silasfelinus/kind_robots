@@ -7,10 +7,7 @@ import {
   type Reward,
 } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
-import {
-  rewardMutationSelect,
-  type RewardMutationResult,
-} from './selects'
+import { rewardMutationSelect, type RewardMutationResult } from './selects'
 import { assertRewardRelationsAttachable } from './mutation'
 
 export type RewardRelationInput = {
@@ -40,6 +37,9 @@ export type RewardMutationInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: unknown
   artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
@@ -202,6 +202,8 @@ export function buildCreateData(
   const icon = toNullableString(input.icon, 256)
   const collection = toNullableString(input.collection, 764)
   const imagePath = toNullableString(input.imagePath, 764)
+  const cardPath = toNullableString(input.cardPath)
+  const heroPath = toNullableString(input.heroPath)
   const artPrompt = toNullableString(input.artPrompt)
   const artImageId = toPositiveInt(input.artImageId)
 
@@ -219,10 +221,13 @@ export function buildCreateData(
     rarity,
     rewardType,
     imagePath,
+    cardPath,
+    heroPath,
     artPrompt,
     isMature: toBoolean(input.isMature) ?? false,
     isPublic: toBoolean(input.isPublic) ?? true,
     isActive: toBoolean(input.isActive) ?? true,
+    allowReviews: toBoolean(input.allowReviews) ?? false,
     User: {
       connect: {
         id: authenticatedUserId,
@@ -263,6 +268,8 @@ export function buildUpdateData(
   const icon = toNullableString(input.icon, 256)
   const collection = toNullableString(input.collection, 764)
   const imagePath = toNullableString(input.imagePath, 764)
+  const cardPath = toNullableString(input.cardPath)
+  const heroPath = toNullableString(input.heroPath)
   const artPrompt = toNullableString(input.artPrompt)
   const rarity = normalizeRarity(input.rarity)
   const rewardType =
@@ -270,6 +277,7 @@ export function buildUpdateData(
   const isMature = toBoolean(input.isMature)
   const isPublic = toBoolean(input.isPublic)
   const isActive = toBoolean(input.isActive)
+  const allowReviews = toBoolean(input.allowReviews)
 
   if (input.name !== undefined || input.label !== undefined) {
     if (!name) {
@@ -310,6 +318,14 @@ export function buildUpdateData(
     data.imagePath = imagePath
   }
 
+  if (input.cardPath !== undefined) {
+    data.cardPath = cardPath
+  }
+
+  if (input.heroPath !== undefined) {
+    data.heroPath = heroPath
+  }
+
   if (input.artPrompt !== undefined) {
     data.artPrompt = artPrompt
   }
@@ -332,6 +348,10 @@ export function buildUpdateData(
 
   if (isActive !== undefined) {
     data.isActive = isActive
+  }
+
+  if (allowReviews !== undefined) {
+    data.allowReviews = allowReviews
   }
 
   if (input.artImageId !== undefined) {

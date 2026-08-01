@@ -26,7 +26,6 @@
       "components/butterfly/butterfly-sanctuary.vue",
       "components/characters/character-flip-card.vue",
       "components/characters/character-interact.vue",
-      "components/conductor/storymaker-page.vue",
       "components/dreams/dream-brainstorm.vue",
       "components/giftshop/giftshop-manager.vue",
       "components/navigation/channel-select.vue",
@@ -34,7 +33,6 @@
       "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
       "components/pages/serendipity-page.vue",
-      "components/pages/taskmaster-page.vue",
       "components/rewards/reward-interact.vue",
       "components/scenarios/scenario-gallery.vue",
       "components/scenarios/scenario-interact.vue",
@@ -57,8 +55,7 @@
     "one-mdc": [
       "content/about.md",
       "content/conductor.md",
-      "content/plan/wonderlab.md",
-      "content/taskmaster.md"
+      "content/plan/wonderlab.md"
     ],
     "ghost-prop": [
       "components/art/art-manager.vue → <art-gallery>",

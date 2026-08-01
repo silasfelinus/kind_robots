@@ -179,7 +179,20 @@ function collect(): Record<RuleId, string[]> {
       violations['one-header'].push(r)
     }
 
-    const scrollers = countMatches(template, /overflow-y-auto|overflow-auto/g)
+    /*
+     * .kr-scroll (interface-vision t-004) is the primitive's own scroll-owner
+     * class (`min-h-0 flex-1 overflow-y-auto overscroll-contain`) — a page
+     * that adopts it declares its scroll region through the class, not a raw
+     * overflow-y-auto utility string. Count both so pages can actually adopt
+     * the primitive without reading as zero-scroll (t-004 shipped the class
+     * before this file was updated to recognize it). Only match `kr-scroll`
+     * inside an actual class attribute, not a `.kr-scroll` mention in style-
+     * guide documentation prose (e.g. components/ui/ui-gallery.vue's <code>
+     * reference to the class name).
+     */
+    const scrollers =
+      countMatches(template, /overflow-y-auto|overflow-auto/g) +
+      countMatches(template, /class="[^"]*\bkr-scroll\b[^"]*"/g)
     if (scrollers > 1) violations['one-scroll'].push(r)
     if (
       scrollers === 0 &&

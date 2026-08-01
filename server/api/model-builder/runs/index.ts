@@ -151,6 +151,37 @@ export type PreparedItemUpdate = {
   } | null
 }
 
+// A stage's content is only safe to overwrite while it is workable — ready,
+// stale, or rejected. Mirrors modelBuilderStore.ts's isStageEditable, which
+// the client uses to gate every content-editing call site (updatePitch/
+// updateFields/updatePrompt, batchSetField). That gate is client-side only:
+// this route trusted the client to have gotten there, so a direct PATCH (bad
+// client state, a retried/replayed request, or just curl) for an item whose
+// PITCH or FIELDS_AND_PROMPTS stage is already 'approved' (or still 'locked')
+// could silently overwrite reviewed content while its badge keeps showing
+// 'approved' — the same "review gate would be lying about what's actually
+// stored" outcome commit.post.ts's own stage-approval gate exists to prevent,
+// just reached through the item-edit route instead of the commit route.
+const CONTENT_STAGE_EDITABLE_STATUSES = new Set(['ready', 'stale', 'rejected'])
+
+function assertContentStageEditable(
+  stageStatuses: unknown,
+  stageKey: 'PITCH' | 'FIELDS_AND_PROMPTS',
+  fieldLabel: string,
+): void {
+  const stages = parseStoredJson<Record<string, { status?: string }>>(
+    stageStatuses,
+    {},
+  )
+  const status = stages[stageKey]?.status
+  if (status !== undefined && !CONTENT_STAGE_EDITABLE_STATUSES.has(status)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldLabel} cannot be edited while its stage is ${status}. Reopen the stage first.`,
+    })
+  }
+}
+
 // Shared by the single-item and batch PATCH routes: validates/normalizes an
 // ItemPatchBody against an existing item and builds the Prisma update input
 // plus (when editable content changed) the revision-history entry to record
@@ -174,11 +205,26 @@ export function prepareItemUpdate(
     const stageStatuses = normalizeJson(body.stageStatuses)
     if (typeof stageStatuses === 'string') data.stageStatuses = stageStatuses
   }
-  if (body.pitch !== undefined) data.pitch = normalizeText(body.pitch)
-  if (body.fieldsDraft !== undefined)
+  if (body.pitch !== undefined) {
+    assertContentStageEditable(existing.stageStatuses, 'PITCH', 'Pitch')
+    data.pitch = normalizeText(body.pitch)
+  }
+  if (body.fieldsDraft !== undefined) {
+    assertContentStageEditable(
+      existing.stageStatuses,
+      'FIELDS_AND_PROMPTS',
+      'Fields',
+    )
     data.fieldsDraft = normalizeText(body.fieldsDraft)
-  if (body.promptDraft !== undefined)
+  }
+  if (body.promptDraft !== undefined) {
+    assertContentStageEditable(
+      existing.stageStatuses,
+      'FIELDS_AND_PROMPTS',
+      'Prompt',
+    )
     data.promptDraft = normalizeText(body.promptDraft)
+  }
   const relationshipDraft = normalizeJson(body.relationshipDraft)
   if (relationshipDraft !== undefined)
     data.relationshipDraft = relationshipDraft

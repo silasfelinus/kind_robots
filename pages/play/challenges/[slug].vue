@@ -34,7 +34,7 @@
         class="rounded-3xl border border-error/30 bg-error/10 p-8 text-center"
       >
         <Icon name="kind-icon:warning" class="mx-auto size-10 text-error" />
-        <h1 class="mt-3 text-xl font-black">Arena unavailable</h1>
+        <p class="mt-3 text-xl font-black">Arena unavailable</p>
         <p class="mt-2 text-sm text-base-content/65">{{ errorMessage }}</p>
         <button
           class="btn btn-error btn-sm mt-5 rounded-xl"
@@ -79,11 +79,11 @@
               >
                 Championship matchup
               </p>
-              <h1
+              <p
                 class="mt-2 max-w-4xl text-3xl font-black uppercase leading-none sm:text-5xl"
               >
                 {{ challenge.title }}
-              </h1>
+              </p>
               <p
                 class="mt-5 max-w-4xl text-base leading-relaxed text-base-content/75"
               >

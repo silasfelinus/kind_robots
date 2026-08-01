@@ -9,7 +9,7 @@
         >
           <Icon name="kind-icon:robot-color" class="h-8 w-8" />
         </span>
-        <h1 class="text-3xl font-black text-base-content">Kind Robots</h1>
+        <p class="text-3xl font-black text-base-content">Kind Robots</p>
         <p class="max-w-md text-sm text-base-content/60">
           A playground where creativity, technology, and goodness collide.
         </p>

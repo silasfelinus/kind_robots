@@ -117,11 +117,56 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * Reach for primary/secondary/accent for ACTION and EMPHASIS, not for
    * plain surfaces. Status colors (info/success/warning/error) are for
    * status only.
+   *
+   * THE HEADER RULE (interface-vision t-004): workspace-header.vue already
+   * renders icon, hero image, room label, and title from content
+   * frontmatter on every page. A page component NEVER renders its own
+   * <h1> — that's a duplicate title, not a second heading. Need in-page
+   * controls? One .kr-toolbar row, never a stacked title block. Enforced
+   * by the `one-header` rule in utils/scripts/verifyLayoutContract.ts.
    */
 
   /* Page shell — vertical stack with the standard page gutter. */
   .kr-page {
     @apply flex min-h-0 w-full flex-col gap-6 p-4 sm:p-6;
+  }
+
+  /*
+   * ── Scroll-ownership primitives (interface-vision t-004) ─────────────
+   * .kr-page has no height and no scroll ownership by design — it's a
+   * flow shell, not a scroll container. These four give a page an actual
+   * bounded region with exactly one scroll owner, modeled on the proven
+   * shape of components/pages/conductor-project-gallery-page.vue.
+   */
+
+  /* Bounded root for a page that owns its own scroll: fills content-host
+     (or the shell), never scrolls itself — a .kr-scroll region inside it
+     does that. Pair with THE HEADER RULE above. */
+  .kr-surface {
+    @apply flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden;
+  }
+
+  /* One non-scrolling control row (filters, tabs, actions) directly under
+     .kr-surface. A page gets one — controls that need more than one row
+     belong inside .kr-stage or .kr-scroll instead of stacking toolbars. */
+  .kr-toolbar {
+    @apply flex shrink-0 flex-wrap items-center gap-2;
+  }
+
+  /* THE scroll region — exactly one per .kr-surface. Everything that can
+     grow past the viewport goes inside this, never on .kr-surface itself
+     (that would create the nested-scroll bug interface-vision t-003b
+     removed from app.vue's shell). */
+  .kr-scroll {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+  }
+
+  /* A page's single non-scrolling focal area (e.g. a narrator's image +
+     text) that manages its own internal layout instead of delegating to
+     .kr-scroll — use when the content is meant to fit the viewport, not
+     grow past it. Most pages want .kr-scroll, not this. */
+  .kr-stage {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden;
   }
 
   /* Centered max-width column. Default reading/app width. */

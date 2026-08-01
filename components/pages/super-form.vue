@@ -8,9 +8,9 @@
     >
       <header class="mb-6 text-center">
         <site-logo class="mx-auto mb-4" />
-        <h1 class="text-3xl font-black text-primary sm:text-4xl">
+        <p class="text-3xl font-black text-primary sm:text-4xl">
           Hair by Superkate!
-        </h1>
+        </p>
         <p class="mt-2 text-sm text-base-content/70">
           Create and email a client receipt without exposing the mail credentials.
         </p>

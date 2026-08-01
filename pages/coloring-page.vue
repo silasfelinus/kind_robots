@@ -13,9 +13,9 @@
     <header class="flex flex-col gap-2">
       <div class="flex flex-wrap items-center gap-2">
         <span class="text-3xl leading-none">🖍️</span>
-        <h1 class="text-2xl font-black text-base-content sm:text-3xl">
+        <p class="text-2xl font-black text-base-content sm:text-3xl">
           Coloring Page Maker
-        </h1>
+        </p>
         <span class="badge badge-primary badge-sm font-bold">New</span>
       </div>
       <p class="max-w-2xl text-sm text-base-content/60">

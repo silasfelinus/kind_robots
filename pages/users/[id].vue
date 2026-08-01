@@ -33,9 +33,9 @@
               <p class="text-xs font-black uppercase tracking-widest text-primary">
                 Public Kind Robots profile
               </p>
-              <h1 class="mt-1 break-words text-3xl font-black">
+              <p class="mt-1 break-words text-3xl font-black">
                 {{ displayName }}
-              </h1>
+              </p>
               <p
                 v-if="user.username"
                 class="mt-1 text-sm font-semibold text-base-content/55"
@@ -66,7 +66,7 @@
         class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-3xl border border-warning/40 bg-warning/5 p-6 text-center"
       >
         <Icon name="kind-icon:user" class="size-12 text-warning" />
-        <h1 class="text-xl font-black">Public profile unavailable</h1>
+        <p class="text-xl font-black">Public profile unavailable</p>
         <p class="max-w-md text-sm text-base-content/65">
           {{ errorMessage }}
         </p>

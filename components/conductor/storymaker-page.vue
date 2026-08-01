@@ -13,9 +13,9 @@
         <p class="text-xs font-bold uppercase tracking-wide text-primary/70">
           Storymaker
         </p>
-        <h1 class="text-2xl font-black leading-tight">
+        <p class="text-2xl font-black leading-tight">
           Build a world, then step inside it
-        </h1>
+        </p>
         <p class="mt-1 max-w-3xl text-sm leading-relaxed text-base-content/65">
           Shape a premise, gather reusable Kind Robots characters and Facets,
           review the story bible, and let a dedicated narrator carry your choices

@@ -9,9 +9,9 @@
         class="mx-auto h-12 w-12 text-primary"
       />
 
-      <h1 class="mt-4 text-3xl font-black text-base-content sm:text-4xl">
+      <p class="mt-4 text-3xl font-black text-base-content sm:text-4xl">
         Give Directly. We Never Touch It.
-      </h1>
+      </p>
 
       <p class="mx-auto mt-3 max-w-2xl text-base-content/75">
         Kind Robots supports the

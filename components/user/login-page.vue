@@ -50,11 +50,11 @@
           />
         </div>
 
-        <h1
+        <p
           class="font-display text-4xl font-black leading-none tracking-tight text-primary drop-shadow-sm sm:text-5xl"
         >
           Kind Robots
-        </h1>
+        </p>
 
         <p class="mt-3 text-lg font-extrabold text-secondary sm:text-xl">
           Welcome back, friend 💜

@@ -38,11 +38,11 @@
             >
               Championship standings
             </p>
-            <h1
+            <p
               class="mt-2 text-4xl font-black uppercase leading-none sm:text-6xl"
             >
               Hall of contenders
-            </h1>
+            </p>
             <p class="mt-4 max-w-3xl text-base text-base-content/70">
               Every reaction counts. Compare total score, victories, and win
               rate across the whole arena or inside one challenge division.

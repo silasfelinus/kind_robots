@@ -3,7 +3,7 @@
     class="privacy-page max-w-3xl mx-auto px-6 py-12 text-base leading-relaxed"
   >
     <header class="mb-10">
-      <h1 class="text-4xl font-bold mb-2">Privacy Policy</h1>
+      <p class="text-4xl font-bold mb-2">Privacy Policy</p>
       <p class="text-sm opacity-60">Last updated: May 2026</p>
     </header>
 

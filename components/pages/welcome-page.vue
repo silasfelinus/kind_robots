@@ -7,7 +7,7 @@
       <site-header>
         <div class="hero">
           <img src="/images/kindart.webp" alt="Kind Robots" />
-          <h1>Welcome to Kind Robots</h1>
+          <p>Welcome to Kind Robots</p>
           <p>Your AI friend powered by ChatGPT.</p>
         </div>
         <slot name="headline" /><site-title

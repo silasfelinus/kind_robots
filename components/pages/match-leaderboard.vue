@@ -15,7 +15,7 @@
       v-if="isOpen"
       class="max-h-[70vh] overflow-y-auto overscroll-contain rounded-2xl border p-3 m-3 mt-4 bg-base-300 text-center transition-all duration-300"
     >
-      <h1 class="text-xl font-bold mb-4">Global Match Leaderboard</h1>
+      <p class="text-xl font-bold mb-4">Global Match Leaderboard</p>
       <leaderboard-table
         :rows="leaderboard"
         score-label="Match Record"

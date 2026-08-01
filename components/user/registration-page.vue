@@ -3,7 +3,7 @@
   <div
     class="bg-base-300 flex flex-col items-center rounded-2xl h-full p-4 sm:p-8"
   >
-    <h1 class="text-6xl font-bold mb-6 text-center">Kind Robots</h1>
+    <p class="text-6xl font-bold mb-6 text-center">Kind Robots</p>
     <div v-if="isLoggedIn" class="text-lg mb-6 text-center">
       You are already logged in. Would you like to
       <a href="/dashboard" class="text-info underline hover:text-info-focus">
@@ -21,7 +21,7 @@
     <form class="space-y-6 w-full max-w-md mx-auto" @submit.prevent="register">
       <div v-if="step === 1">
         <!-- Pick a Username Section -->
-        <h1 class="text-4xl font-bold mb-4 text-center">Pick a</h1>
+        <p class="text-4xl font-bold mb-4 text-center">Pick a</p>
         <div class="text-primary font-semibold text-5xl text-center mb-2">
           <adjective-flipper />
         </div>

@@ -1,7 +1,6 @@
 // /scripts/vercel-build.mjs
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
-import { resolveFacetCatalogSeedDecision } from './lib/facetCatalogSeedPolicy.mjs'
 
 const binExtension = process.platform === 'win32' ? '.cmd' : ''
 const prismaBinary = path.resolve(`node_modules/.bin/prisma${binExtension}`)
@@ -46,15 +45,8 @@ if (!isVercelBuild || isProductionDeployment) {
     'Queueing missing Achievement artwork',
   )
 
-  const facetSeedDecision = resolveFacetCatalogSeedDecision()
-  run(
-    tsxBinary,
-    [
-      'scripts/run_facet_catalog_maintenance.ts',
-      facetSeedDecision.run ? '--seed' : '--skip-seed',
-      `--reason=${facetSeedDecision.reason}`,
-    ],
-    'Running serialized Facet catalog maintenance',
+  console.log(
+    '[vercel-build] Skipping Facet catalog maintenance during deployment; run scripts/run_facet_catalog_maintenance.ts explicitly so a long-lived database mutation session cannot block application delivery.',
   )
 
   run(

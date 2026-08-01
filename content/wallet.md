@@ -10,6 +10,8 @@ dottiTip: Karma tracks how much good you've done here; mana is what you spend to
 amiTip: One tracks kindness, the other tracks fuel. Neither one runs out if you keep showing up.
 channelKey: home
 tabKey: wallet
+dashboardKey: user
+dashboardTab: dashboard
 requiredPermission: authenticated
 loadingMessage: Loading wallet...
 refreshLabel: Refresh wallet

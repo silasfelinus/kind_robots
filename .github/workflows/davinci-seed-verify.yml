@@ -16,9 +16,16 @@ on:
   schedule:
     - cron: '17 9 * * *' # nightly ~2am Pacific
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/davinci-seed-verify.yml'
+      - 'utils/scripts/normalizeDaVinciSeedPayload.ts'
+      - 'utils/scripts/seedDaVinciEndings.ts'
+      - 'utils/scripts/verifyDaVinciSeed.ts'
+      - 'utils/scripts/verifyDaVinciPlayLoop.ts'
 
 concurrency:
-  group: davinci-seed-verify
+  group: davinci-seed-verify-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:

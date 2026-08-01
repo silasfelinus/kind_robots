@@ -55,7 +55,7 @@
       </div>
     </section>
 
-    <main class="min-h-0 flex-1 overflow-hidden rounded-xl border border-base-300 bg-base-100 p-3">
+    <main class="min-h-0 flex-1 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-3">
       <kr-gallery
         :items="galleryItems"
         :mode="galleryMode"

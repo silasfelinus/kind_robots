@@ -448,6 +448,28 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.statusMessage = ''
   }
 
+  // Only surface a status toast if the user is still looking at the run it's
+  // about. generateItemAsset/pollAsyncArtJob/generateItemAssetAsync/commitItem
+  // each capture their own `runId` up front and deliberately keep working
+  // (and persisting) against a run the user has since navigated away from via
+  // resetRun/resetAll/openRun — that's intended (see resetRun's doc comment:
+  // the run stays valid and resumable, unlike cancelRun). But leaving a run
+  // behind this way never adds it to cancelledRunIds, so without this check a
+  // slow render or commit that finishes after the user has moved on to (or
+  // started) a *different* run pops a misleading success/error toast in that
+  // other run's banner, about an item that isn't even part of what's on
+  // screen. Mirrors autoBuildRun's own `if (state.run?.id === runId)` gate on
+  // its final summary message — just applied to the per-item completion
+  // paths that feed into it, and to the same manual single-item actions on
+  // their own.
+  function setStatusForRun(
+    runId: string,
+    tone: 'success' | 'error',
+    message: string,
+  ): void {
+    if (state.run?.id === runId) setStatus(tone, message)
+  }
+
   // --- step 1: source type + records ---------------------------------------
 
   async function selectSourceType(key: SourceTypeKey): Promise<void> {
@@ -1041,7 +1063,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // replace what was just approved, with no re-review. Mirrors
       // pollAsyncArtJob's identical guard.
       if (item.stages.GENERATE_ASSETS.status === 'approved') {
-        setStatus(
+        setStatusForRun(
+          runId,
           'error',
           `${item.label} finished generating after its candidate was already approved — discarded to avoid silently replacing it.`,
         )
@@ -1059,7 +1082,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         artImageId: item.artImageId,
       })
 
-      setStatus('success', `Generated a candidate for ${item.label}.`)
+      // Gated by setStatusForRun, not a plain setStatus: the user may have
+      // navigated away to (or started) a different run via resetRun/resetAll/
+      // openRun without cancelling this one -- the render still finishes and
+      // still persists (the run stays valid and resumable), but a bare
+      // setStatus here would pop this success toast in whatever OTHER run's
+      // banner the user is now looking at, about an item that isn't even
+      // part of what's on screen.
+      setStatusForRun(
+        runId,
+        'success',
+        `Generated a candidate for ${item.label}.`,
+      )
       return true
     } catch (error) {
       // Mirror the success path's cancelledRunIds guard above: a render that
@@ -1070,7 +1104,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       handleError(error, 'generating model builder asset')
       item.error = error instanceof Error ? error.message : 'Generation failed.'
       finishGenerateAssets(item, { status: 'ready', note: item.error })
-      setStatus('error', item.error)
+      setStatusForRun(runId, 'error', item.error)
       return false
     } finally {
       // state.generatingItemId is a store-wide singleton (not per-item, unlike
@@ -1141,7 +1175,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       if (!result.success || !result.data) {
         item.error = result.message || `Art job ${jobId} did not complete.`
         finishGenerateAssets(item, { status: 'ready', note: item.error })
-        setStatus('error', item.error)
+        setStatusForRun(runId, 'error', item.error)
         return
       }
 
@@ -1162,7 +1196,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // 'stale' while the job was in flight is the existing, intended way to
       // flag "re-review this candidate," and should still receive the image.
       if (item.stages.GENERATE_ASSETS.status === 'approved') {
-        setStatus(
+        setStatusForRun(
+          runId,
           'error',
           `${item.label} finished generating after its candidate was already approved — discarded to avoid silently replacing it.`,
         )
@@ -1180,7 +1215,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         artImageId: item.artImageId,
       })
 
-      setStatus('success', `Generated a candidate for ${item.label}.`)
+      // Gated by setStatusForRun -- see its doc comment (same reasoning as
+      // generateItemAsset's identical success-path gate above it).
+      setStatusForRun(
+        runId,
+        'success',
+        `Generated a candidate for ${item.label}.`,
+      )
       return
     }
   }
@@ -1250,7 +1291,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       finishGenerateAssets(item, { status: 'ready', note: item.error })
       item.queueState = null
       item.artJobId = null
-      setStatus('error', item.error)
+      setStatusForRun(runId, 'error', item.error)
       return false
     }
   }
@@ -1339,7 +1380,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         item.targetType = target.type
         item.targetId = target.id
       }
-      setStatus(
+      // Gated by setStatusForRun -- see its doc comment. The commit itself
+      // already durably landed server-side regardless; this only suppresses
+      // a misleading "committed" toast if the user has since navigated away
+      // to (or started) a different run without cancelling this one.
+      setStatusForRun(
+        runId,
         'success',
         target
           ? `${item.label} committed → ${target.type} #${target.id}.`
@@ -1352,7 +1398,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       handleError(error, 'committing build item')
       item.error = error instanceof Error ? error.message : 'Commit failed.'
       finishCommit(item, { status: 'ready', note: item.error })
-      setStatus('error', item.error)
+      setStatusForRun(runId, 'error', item.error)
       return false
     } finally {
       committingItemSingleton.release(item.id)

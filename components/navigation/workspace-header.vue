@@ -89,6 +89,7 @@
         />
         <notification-bell class="shrink-0" />
         <login-switcher class="header-control-item min-w-0" />
+        <karma-widget class="shrink-0" />
         <mana-widget class="shrink-0" />
       </section>
     </div>
@@ -290,7 +291,8 @@ function goBack(): void {
   padding-right: 0;
 }
 
-.header-control-strip :deep(.mana-widget .btn) {
+.header-control-strip :deep(.mana-widget .btn),
+.header-control-strip :deep(.karma-widget .btn) {
   width: auto;
   min-width: 2.25rem;
   padding-left: 0.5rem;
@@ -307,7 +309,8 @@ function goBack(): void {
     width: 2.75rem;
   }
 
-  .header-control-strip :deep(.mana-widget .btn) {
+  .header-control-strip :deep(.mana-widget .btn),
+  .header-control-strip :deep(.karma-widget .btn) {
     width: auto;
     min-width: 2.75rem;
     padding-left: 0.625rem;

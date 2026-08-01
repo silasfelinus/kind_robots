@@ -70,6 +70,10 @@ export type BotMinAggregateOutputType = {
   isActive: boolean | null
   artPrompt: string | null
   imagePath: string | null
+  icon: string | null
+  cardPath: string | null
+  heroPath: string | null
+  allowReviews: boolean | null
   forgeIntro: string | null
   narrativeVoice: string | null
   slug: string | null
@@ -106,6 +110,10 @@ export type BotMaxAggregateOutputType = {
   isActive: boolean | null
   artPrompt: string | null
   imagePath: string | null
+  icon: string | null
+  cardPath: string | null
+  heroPath: string | null
+  allowReviews: boolean | null
   forgeIntro: string | null
   narrativeVoice: string | null
   slug: string | null
@@ -142,6 +150,10 @@ export type BotCountAggregateOutputType = {
   isActive: number
   artPrompt: number
   imagePath: number
+  icon: number
+  cardPath: number
+  heroPath: number
+  allowReviews: number
   forgeIntro: number
   narrativeVoice: number
   slug: number
@@ -194,6 +206,10 @@ export type BotMinAggregateInputType = {
   isActive?: true
   artPrompt?: true
   imagePath?: true
+  icon?: true
+  cardPath?: true
+  heroPath?: true
+  allowReviews?: true
   forgeIntro?: true
   narrativeVoice?: true
   slug?: true
@@ -230,6 +246,10 @@ export type BotMaxAggregateInputType = {
   isActive?: true
   artPrompt?: true
   imagePath?: true
+  icon?: true
+  cardPath?: true
+  heroPath?: true
+  allowReviews?: true
   forgeIntro?: true
   narrativeVoice?: true
   slug?: true
@@ -266,6 +286,10 @@ export type BotCountAggregateInputType = {
   isActive?: true
   artPrompt?: true
   imagePath?: true
+  icon?: true
+  cardPath?: true
+  heroPath?: true
+  allowReviews?: true
   forgeIntro?: true
   narrativeVoice?: true
   slug?: true
@@ -389,6 +413,10 @@ export type BotGroupByOutputType = {
   isActive: boolean
   artPrompt: string | null
   imagePath: string | null
+  icon: string | null
+  cardPath: string | null
+  heroPath: string | null
+  allowReviews: boolean
   forgeIntro: string | null
   narrativeVoice: string | null
   slug: string | null
@@ -448,6 +476,10 @@ export type BotWhereInput = {
   isActive?: Prisma.BoolFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  icon?: Prisma.StringNullableFilter<"Bot"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  allowReviews?: Prisma.BoolFilter<"Bot"> | boolean
   forgeIntro?: Prisma.StringNullableFilter<"Bot"> | string | null
   narrativeVoice?: Prisma.StringNullableFilter<"Bot"> | string | null
   slug?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -498,6 +530,10 @@ export type BotOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   forgeIntro?: Prisma.SortOrderInput | Prisma.SortOrder
   narrativeVoice?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -553,6 +589,10 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  icon?: Prisma.StringNullableFilter<"Bot"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  allowReviews?: Prisma.BoolFilter<"Bot"> | boolean
   forgeIntro?: Prisma.StringNullableFilter<"Bot"> | string | null
   narrativeVoice?: Prisma.StringNullableFilter<"Bot"> | string | null
   chatBorderImage?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -602,6 +642,10 @@ export type BotOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   forgeIntro?: Prisma.SortOrderInput | Prisma.SortOrder
   narrativeVoice?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -646,6 +690,10 @@ export type BotScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
+  icon?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
+  cardPath?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
+  heroPath?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
+  allowReviews?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   forgeIntro?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   narrativeVoice?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   slug?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
@@ -678,6 +726,10 @@ export type BotCreateInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -728,6 +780,10 @@ export type BotUncheckedCreateInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -771,6 +827,10 @@ export type BotUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -821,6 +881,10 @@ export type BotUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -868,6 +932,10 @@ export type BotCreateManyInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -900,6 +968,10 @@ export type BotUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -936,6 +1008,10 @@ export type BotUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -988,6 +1064,10 @@ export type BotCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   forgeIntro?: Prisma.SortOrder
   narrativeVoice?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -1031,6 +1111,10 @@ export type BotMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   forgeIntro?: Prisma.SortOrder
   narrativeVoice?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -1067,6 +1151,10 @@ export type BotMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   forgeIntro?: Prisma.SortOrder
   narrativeVoice?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -1438,6 +1526,10 @@ export type BotCreateWithoutArtImageInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1486,6 +1578,10 @@ export type BotUncheckedCreateWithoutArtImageInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1562,6 +1658,10 @@ export type BotScalarWhereInput = {
   isActive?: Prisma.BoolFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  icon?: Prisma.StringNullableFilter<"Bot"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Bot"> | string | null
+  allowReviews?: Prisma.BoolFilter<"Bot"> | boolean
   forgeIntro?: Prisma.StringNullableFilter<"Bot"> | string | null
   narrativeVoice?: Prisma.StringNullableFilter<"Bot"> | string | null
   slug?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -1594,6 +1694,10 @@ export type BotCreateWithoutChatsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1643,6 +1747,10 @@ export type BotUncheckedCreateWithoutChatsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1701,6 +1809,10 @@ export type BotUpdateWithoutChatsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1750,6 +1862,10 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1792,6 +1908,10 @@ export type BotCreateWithoutNarratedDreamsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1841,6 +1961,10 @@ export type BotUncheckedCreateWithoutNarratedDreamsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1888,6 +2012,10 @@ export type BotCreateWithoutDreamsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1937,6 +2065,10 @@ export type BotUncheckedCreateWithoutDreamsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -1995,6 +2127,10 @@ export type BotUpdateWithoutNarratedDreamsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2044,6 +2180,10 @@ export type BotUncheckedUpdateWithoutNarratedDreamsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2102,6 +2242,10 @@ export type BotCreateWithoutManagedProjectsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2151,6 +2295,10 @@ export type BotUncheckedCreateWithoutManagedProjectsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2209,6 +2357,10 @@ export type BotUpdateWithoutManagedProjectsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2258,6 +2410,10 @@ export type BotUncheckedUpdateWithoutManagedProjectsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2300,6 +2456,10 @@ export type BotCreateWithoutExpressionMediaInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2349,6 +2509,10 @@ export type BotUncheckedCreateWithoutExpressionMediaInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2407,6 +2571,10 @@ export type BotUpdateWithoutExpressionMediaInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2456,6 +2624,10 @@ export type BotUncheckedUpdateWithoutExpressionMediaInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2498,6 +2670,10 @@ export type BotCreateWithoutExpressionTransitionInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2547,6 +2723,10 @@ export type BotUncheckedCreateWithoutExpressionTransitionInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2605,6 +2785,10 @@ export type BotUpdateWithoutExpressionTransitionInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2654,6 +2838,10 @@ export type BotUncheckedUpdateWithoutExpressionTransitionInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2696,6 +2884,10 @@ export type BotCreateWithoutNarratorThreadsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2745,6 +2937,10 @@ export type BotUncheckedCreateWithoutNarratorThreadsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2803,6 +2999,10 @@ export type BotUpdateWithoutNarratorThreadsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2852,6 +3052,10 @@ export type BotUncheckedUpdateWithoutNarratorThreadsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2894,6 +3098,10 @@ export type BotCreateWithoutPromptsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -2943,6 +3151,10 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3001,6 +3213,10 @@ export type BotUpdateWithoutPromptsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3050,6 +3266,10 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3092,6 +3312,10 @@ export type BotCreateWithoutReactionsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3141,6 +3365,10 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3199,6 +3427,10 @@ export type BotUpdateWithoutReactionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3248,6 +3480,10 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3290,6 +3526,10 @@ export type BotCreateWithoutServerInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3338,6 +3578,10 @@ export type BotUncheckedCreateWithoutServerInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3407,6 +3651,10 @@ export type BotCreateWithoutUserInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3455,6 +3703,10 @@ export type BotUncheckedCreateWithoutUserInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3524,6 +3776,10 @@ export type BotCreateWithoutChallengeSubmissionsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3573,6 +3829,10 @@ export type BotUncheckedCreateWithoutChallengeSubmissionsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3631,6 +3891,10 @@ export type BotUpdateWithoutChallengeSubmissionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3680,6 +3944,10 @@ export type BotUncheckedUpdateWithoutChallengeSubmissionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3722,6 +3990,10 @@ export type BotCreateWithoutLifeRunsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3771,6 +4043,10 @@ export type BotUncheckedCreateWithoutLifeRunsInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3829,6 +4105,10 @@ export type BotUpdateWithoutLifeRunsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3878,6 +4158,10 @@ export type BotUncheckedUpdateWithoutLifeRunsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3923,6 +4207,10 @@ export type BotCreateManyArtImageInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -3955,6 +4243,10 @@ export type BotUpdateWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4003,6 +4295,10 @@ export type BotUncheckedUpdateWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4049,6 +4345,10 @@ export type BotUncheckedUpdateManyWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4081,6 +4381,10 @@ export type BotUpdateWithoutDreamsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4130,6 +4434,10 @@ export type BotUncheckedUpdateWithoutDreamsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4176,6 +4484,10 @@ export type BotUncheckedUpdateManyWithoutDreamsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4211,6 +4523,10 @@ export type BotCreateManyServerInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -4243,6 +4559,10 @@ export type BotUpdateWithoutServerInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4291,6 +4611,10 @@ export type BotUncheckedUpdateWithoutServerInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4337,6 +4661,10 @@ export type BotUncheckedUpdateManyWithoutServerInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4372,6 +4700,10 @@ export type BotCreateManyUserInput = {
   isActive?: boolean
   artPrompt?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   forgeIntro?: string | null
   narrativeVoice?: string | null
   slug?: string | null
@@ -4404,6 +4736,10 @@ export type BotUpdateWithoutUserInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4452,6 +4788,10 @@ export type BotUncheckedUpdateWithoutUserInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4498,6 +4838,10 @@ export type BotUncheckedUpdateManyWithoutUserInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   forgeIntro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   narrativeVoice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4655,6 +4999,10 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   isActive?: boolean
   artPrompt?: boolean
   imagePath?: boolean
+  icon?: boolean
+  cardPath?: boolean
+  heroPath?: boolean
+  allowReviews?: boolean
   forgeIntro?: boolean
   narrativeVoice?: boolean
   slug?: boolean
@@ -4708,13 +5056,17 @@ export type BotSelectScalar = {
   isActive?: boolean
   artPrompt?: boolean
   imagePath?: boolean
+  icon?: boolean
+  cardPath?: boolean
+  heroPath?: boolean
+  allowReviews?: boolean
   forgeIntro?: boolean
   narrativeVoice?: boolean
   slug?: boolean
   chatBorderImage?: boolean
 }
 
-export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "designer" | "serverId" | "serverName" | "artImageId" | "isMature" | "isActive" | "artPrompt" | "imagePath" | "forgeIntro" | "narrativeVoice" | "slug" | "chatBorderImage", ExtArgs["result"]["bot"]>
+export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "designer" | "serverId" | "serverName" | "artImageId" | "isMature" | "isActive" | "artPrompt" | "imagePath" | "icon" | "cardPath" | "heroPath" | "allowReviews" | "forgeIntro" | "narrativeVoice" | "slug" | "chatBorderImage", ExtArgs["result"]["bot"]>
 export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Bot$ArtImageArgs<ExtArgs>
   Server?: boolean | Prisma.Bot$ServerArgs<ExtArgs>
@@ -4781,6 +5133,10 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     isActive: boolean
     artPrompt: string | null
     imagePath: string | null
+    icon: string | null
+    cardPath: string | null
+    heroPath: string | null
+    allowReviews: boolean
     forgeIntro: string | null
     narrativeVoice: string | null
     slug: string | null
@@ -5197,6 +5553,10 @@ export interface BotFieldRefs {
   readonly isActive: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"Bot", 'String'>
   readonly imagePath: Prisma.FieldRef<"Bot", 'String'>
+  readonly icon: Prisma.FieldRef<"Bot", 'String'>
+  readonly cardPath: Prisma.FieldRef<"Bot", 'String'>
+  readonly heroPath: Prisma.FieldRef<"Bot", 'String'>
+  readonly allowReviews: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly forgeIntro: Prisma.FieldRef<"Bot", 'String'>
   readonly narrativeVoice: Prisma.FieldRef<"Bot", 'String'>
   readonly slug: Prisma.FieldRef<"Bot", 'String'>

@@ -66,6 +66,10 @@ export type CharacterMinAggregateOutputType = {
   artPrompt: string | null
   honorific: string | null
   imagePath: string | null
+  icon: string | null
+  cardPath: string | null
+  heroPath: string | null
+  allowReviews: boolean | null
   designer: string | null
   personality: string | null
   sampleResponse: string | null
@@ -107,6 +111,10 @@ export type CharacterMaxAggregateOutputType = {
   artPrompt: string | null
   honorific: string | null
   imagePath: string | null
+  icon: string | null
+  cardPath: string | null
+  heroPath: string | null
+  allowReviews: boolean | null
   designer: string | null
   personality: string | null
   sampleResponse: string | null
@@ -148,6 +156,10 @@ export type CharacterCountAggregateOutputType = {
   artPrompt: number
   honorific: number
   imagePath: number
+  icon: number
+  cardPath: number
+  heroPath: number
+  allowReviews: number
   designer: number
   personality: number
   sampleResponse: number
@@ -209,6 +221,10 @@ export type CharacterMinAggregateInputType = {
   artPrompt?: true
   honorific?: true
   imagePath?: true
+  icon?: true
+  cardPath?: true
+  heroPath?: true
+  allowReviews?: true
   designer?: true
   personality?: true
   sampleResponse?: true
@@ -250,6 +266,10 @@ export type CharacterMaxAggregateInputType = {
   artPrompt?: true
   honorific?: true
   imagePath?: true
+  icon?: true
+  cardPath?: true
+  heroPath?: true
+  allowReviews?: true
   designer?: true
   personality?: true
   sampleResponse?: true
@@ -291,6 +311,10 @@ export type CharacterCountAggregateInputType = {
   artPrompt?: true
   honorific?: true
   imagePath?: true
+  icon?: true
+  cardPath?: true
+  heroPath?: true
+  allowReviews?: true
   designer?: true
   personality?: true
   sampleResponse?: true
@@ -419,6 +443,10 @@ export type CharacterGroupByOutputType = {
   artPrompt: string | null
   honorific: string | null
   imagePath: string | null
+  icon: string | null
+  cardPath: string | null
+  heroPath: string | null
+  allowReviews: boolean
   designer: string | null
   personality: string | null
   sampleResponse: string | null
@@ -483,6 +511,10 @@ export type CharacterWhereInput = {
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
+  icon?: Prisma.StringNullableFilter<"Character"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Character"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Character"> | string | null
+  allowReviews?: Prisma.BoolFilter<"Character"> | boolean
   designer?: Prisma.StringNullableFilter<"Character"> | string | null
   personality?: Prisma.StringNullableFilter<"Character"> | string | null
   sampleResponse?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -536,6 +568,10 @@ export type CharacterOrderByWithRelationInput = {
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   honorific?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   personality?: Prisma.SortOrderInput | Prisma.SortOrder
   sampleResponse?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -594,6 +630,10 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
+  icon?: Prisma.StringNullableFilter<"Character"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Character"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Character"> | string | null
+  allowReviews?: Prisma.BoolFilter<"Character"> | boolean
   designer?: Prisma.StringNullableFilter<"Character"> | string | null
   personality?: Prisma.StringNullableFilter<"Character"> | string | null
   sampleResponse?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -646,6 +686,10 @@ export type CharacterOrderByWithAggregationInput = {
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   honorific?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   personality?: Prisma.SortOrderInput | Prisma.SortOrder
   sampleResponse?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -695,6 +739,10 @@ export type CharacterScalarWhereWithAggregatesInput = {
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  icon?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  cardPath?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  heroPath?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  allowReviews?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
   designer?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   personality?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   sampleResponse?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
@@ -732,6 +780,10 @@ export type CharacterCreateInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -785,6 +837,10 @@ export type CharacterUncheckedCreateInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -831,6 +887,10 @@ export type CharacterUpdateInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -884,6 +944,10 @@ export type CharacterUncheckedUpdateInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -934,6 +998,10 @@ export type CharacterCreateManyInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -971,6 +1039,10 @@ export type CharacterUpdateManyMutationInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1012,6 +1084,10 @@ export type CharacterUncheckedUpdateManyInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1069,6 +1145,10 @@ export type CharacterCountOrderByAggregateInput = {
   artPrompt?: Prisma.SortOrder
   honorific?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   personality?: Prisma.SortOrder
   sampleResponse?: Prisma.SortOrder
@@ -1119,6 +1199,10 @@ export type CharacterMaxOrderByAggregateInput = {
   artPrompt?: Prisma.SortOrder
   honorific?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   personality?: Prisma.SortOrder
   sampleResponse?: Prisma.SortOrder
@@ -1160,6 +1244,10 @@ export type CharacterMinOrderByAggregateInput = {
   artPrompt?: Prisma.SortOrder
   honorific?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   personality?: Prisma.SortOrder
   sampleResponse?: Prisma.SortOrder
@@ -1551,6 +1639,10 @@ export type CharacterCreateWithoutArtImageInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -1602,6 +1694,10 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -1681,6 +1777,10 @@ export type CharacterScalarWhereInput = {
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   honorific?: Prisma.StringNullableFilter<"Character"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Character"> | string | null
+  icon?: Prisma.StringNullableFilter<"Character"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Character"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Character"> | string | null
+  allowReviews?: Prisma.BoolFilter<"Character"> | boolean
   designer?: Prisma.StringNullableFilter<"Character"> | string | null
   personality?: Prisma.StringNullableFilter<"Character"> | string | null
   sampleResponse?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -1718,6 +1818,10 @@ export type CharacterCreateWithoutChatsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -1770,6 +1874,10 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -1831,6 +1939,10 @@ export type CharacterUpdateWithoutChatsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1883,6 +1995,10 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1928,6 +2044,10 @@ export type CharacterCreateWithoutDreamsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -1980,6 +2100,10 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2046,6 +2170,10 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2098,6 +2226,10 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2159,6 +2291,10 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2211,6 +2347,10 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2256,6 +2396,10 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2308,6 +2452,10 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2369,6 +2517,10 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2421,6 +2573,10 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2466,6 +2622,10 @@ export type CharacterCreateWithoutPackInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2517,6 +2677,10 @@ export type CharacterUncheckedCreateWithoutPackInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2589,6 +2753,10 @@ export type CharacterCreateWithoutReactionsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2641,6 +2809,10 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2702,6 +2874,10 @@ export type CharacterUpdateWithoutReactionsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2754,6 +2930,10 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2799,6 +2979,10 @@ export type CharacterCreateWithoutRewardsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2851,6 +3035,10 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2917,6 +3105,10 @@ export type CharacterCreateWithoutScenariosInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -2969,6 +3161,10 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3035,6 +3231,10 @@ export type CharacterCreateWithoutUserInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3086,6 +3286,10 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3158,6 +3362,10 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3210,6 +3418,10 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3271,6 +3483,10 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3323,6 +3539,10 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3368,6 +3588,10 @@ export type CharacterCreateWithoutLifeRunsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3420,6 +3644,10 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3481,6 +3709,10 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3533,6 +3765,10 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3581,6 +3817,10 @@ export type CharacterCreateManyArtImageInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3618,6 +3858,10 @@ export type CharacterUpdateWithoutArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3669,6 +3913,10 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3718,6 +3966,10 @@ export type CharacterUncheckedUpdateManyWithoutArtImageInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3755,6 +4007,10 @@ export type CharacterUpdateWithoutDreamsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3807,6 +4063,10 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3856,6 +4116,10 @@ export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3896,6 +4160,10 @@ export type CharacterCreateManyPackInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -3933,6 +4201,10 @@ export type CharacterUpdateWithoutPackInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3984,6 +4256,10 @@ export type CharacterUncheckedUpdateWithoutPackInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4033,6 +4309,10 @@ export type CharacterUncheckedUpdateManyWithoutPackInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4070,6 +4350,10 @@ export type CharacterUpdateWithoutRewardsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4122,6 +4406,10 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4171,6 +4459,10 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4208,6 +4500,10 @@ export type CharacterUpdateWithoutScenariosInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4260,6 +4556,10 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4309,6 +4609,10 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4349,6 +4653,10 @@ export type CharacterCreateManyUserInput = {
   artPrompt?: string | null
   honorific?: string | null
   imagePath?: string | null
+  icon?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
   designer?: string | null
   personality?: string | null
   sampleResponse?: string | null
@@ -4386,6 +4694,10 @@ export type CharacterUpdateWithoutUserInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4437,6 +4749,10 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4486,6 +4802,10 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4630,6 +4950,10 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   artPrompt?: boolean
   honorific?: boolean
   imagePath?: boolean
+  icon?: boolean
+  cardPath?: boolean
+  heroPath?: boolean
+  allowReviews?: boolean
   designer?: boolean
   personality?: boolean
   sampleResponse?: boolean
@@ -4686,6 +5010,10 @@ export type CharacterSelectScalar = {
   artPrompt?: boolean
   honorific?: boolean
   imagePath?: boolean
+  icon?: boolean
+  cardPath?: boolean
+  heroPath?: boolean
+  allowReviews?: boolean
   designer?: boolean
   personality?: boolean
   sampleResponse?: boolean
@@ -4705,7 +5033,7 @@ export type CharacterSelectScalar = {
   slug?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "cardPath" | "heroPath" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
@@ -4760,6 +5088,10 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     artPrompt: string | null
     honorific: string | null
     imagePath: string | null
+    icon: string | null
+    cardPath: string | null
+    heroPath: string | null
+    allowReviews: boolean
     designer: string | null
     personality: string | null
     sampleResponse: string | null
@@ -5179,6 +5511,10 @@ export interface CharacterFieldRefs {
   readonly artPrompt: Prisma.FieldRef<"Character", 'String'>
   readonly honorific: Prisma.FieldRef<"Character", 'String'>
   readonly imagePath: Prisma.FieldRef<"Character", 'String'>
+  readonly icon: Prisma.FieldRef<"Character", 'String'>
+  readonly cardPath: Prisma.FieldRef<"Character", 'String'>
+  readonly heroPath: Prisma.FieldRef<"Character", 'String'>
+  readonly allowReviews: Prisma.FieldRef<"Character", 'Boolean'>
   readonly designer: Prisma.FieldRef<"Character", 'String'>
   readonly personality: Prisma.FieldRef<"Character", 'String'>
   readonly sampleResponse: Prisma.FieldRef<"Character", 'String'>

@@ -142,6 +142,10 @@ model Bot {
   isActive             Boolean                @default(true)
   artPrompt            String?                @db.Text
   imagePath            String?                @db.VarChar(764)
+  icon                 String?
+  cardPath             String?                @db.Text
+  heroPath             String?                @db.Text
+  allowReviews         Boolean                @default(false)
   forgeIntro           String?                @db.Text
   narrativeVoice       String?                @db.Text
   slug                 String?                @unique @db.VarChar(255)
@@ -188,6 +192,10 @@ model Character {
   artPrompt            String?                @db.Text
   honorific            String?                @default("adventurer") @db.VarChar(256)
   imagePath            String?                @db.VarChar(764)
+  icon                 String?
+  cardPath             String?                @db.Text
+  heroPath             String?                @db.Text
+  allowReviews         Boolean                @default(false)
   designer             String?                @db.VarChar(256)
   personality          String?                @db.Text
   sampleResponse       String?                @db.Text
@@ -421,6 +429,7 @@ model Project {
   imagePath          String?                @db.Text
   cardPath           String?                @db.Text
   heroPath           String?                @db.Text
+  artPrompt          String?                @db.Text
   designer           String?                @db.VarChar(256)
   creationSource     CreationSource         @default(HUMAN)
   userId             Int?                   @default(10)
@@ -476,6 +485,7 @@ model Facet {
   artImageId         Int?
   artCollectionId    Int?
   packId             Int?
+  allowReviews       Boolean              @default(false)
   isPublic           Boolean              @default(true)
   isMature           Boolean              @default(false)
   isActive           Boolean              @default(true)
@@ -1080,49 +1090,49 @@ model Reaction {
 
 /// This should also be used if a user wants to add a custom art or text checkpoints
 model Resource {
-  id              Int             @id @default(autoincrement())
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime?       @default(now()) @updatedAt
-  name            String          @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
-  customLabel     String?         @db.VarChar(764)
-  MediaPath       String?         @db.VarChar(764)
-  customUrl       String?         @db.VarChar(764)
-  civitaiUrl      String?         @db.VarChar(764)
-  huggingUrl      String?         @db.VarChar(764)
-  localPath       String?         @db.VarChar(764)
-  description     String?         @db.Text
-  isMature        Boolean         @default(false)
-  resourceType    ResourceType    @default(EMBEDDING)
-  userId          Int?            @default(1)
-  artImageId      Int?
-  generation      String?
-  supportedServer SupportedServer @default(SDXL)
-  isPublic        Boolean         @default(false)
-  isActive        Boolean         @default(true)
-  artPrompt       String?         @db.Text
-  triggerWords    String?         @db.Text
-  defaultTrigger  String?         @db.Text
-  hash            String?         @db.VarChar(64)
-  previewImageUrl String?         @db.Text
+  id                    Int             @id @default(autoincrement())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime?       @default(now()) @updatedAt
+  name                  String          @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
+  customLabel           String?         @db.VarChar(764)
+  MediaPath             String?         @db.VarChar(764)
+  customUrl             String?         @db.VarChar(764)
+  civitaiUrl            String?         @db.VarChar(764)
+  huggingUrl            String?         @db.VarChar(764)
+  localPath             String?         @db.VarChar(764)
+  description           String?         @db.Text
+  isMature              Boolean         @default(false)
+  resourceType          ResourceType    @default(EMBEDDING)
+  userId                Int?            @default(1)
+  artImageId            Int?
+  generation            String?
+  supportedServer       SupportedServer @default(SDXL)
+  isPublic              Boolean         @default(false)
+  isActive              Boolean         @default(true)
+  artPrompt             String?         @db.Text
+  triggerWords          String?         @db.Text
+  defaultTrigger        String?         @db.Text
+  hash                  String?         @db.VarChar(64)
+  previewImageUrl       String?         @db.Text
   /// Civitai model + version ids, when this row was resolved from Civitai
   /// (populated by scan_loras.py's hash lookup). Used to hide already-owned
   /// LoRAs in the Discover browser and to detect newer upstream versions.
   civitaiModelId        Int?
   civitaiModelVersionId Int?
-  imagePath       String?
-  slug            String?         @unique @db.VarChar(255)
+  imagePath             String?
+  slug                  String?         @unique @db.VarChar(255)
   /// Whether the checkpoint/LoRA this row represents is licensed for
   /// commercial output (per CONTROL.md's commercial-generation licensing
   /// rule). Defaults false/unknown; seeded true only for backends confirmed
   /// license-clean (FLUX.1 schnell, OpenAI, approved licensed APIs). The
   /// print-eligibility gate on ArtImage.checkpointResourceId reads this.
-  commercialSafe  Boolean         @default(false)
-  ArtImages       ArtImage[]      @relation("ArtImageCheckpointResource")
-  Reactions       Reaction[]
-  ArtImage        ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
-  User            User?           @relation(fields: [userId], references: [id])
-  UsedInImages    ArtImage[]      @relation("ArtImageLoraResources")
-  Servers         Server[]        @relation("ResourceToServer")
+  commercialSafe        Boolean         @default(false)
+  ArtImages             ArtImage[]      @relation("ArtImageCheckpointResource")
+  Reactions             Reaction[]
+  ArtImage              ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
+  User                  User?           @relation(fields: [userId], references: [id])
+  UsedInImages          ArtImage[]      @relation("ArtImageLoraResources")
+  Servers               Server[]        @relation("ResourceToServer")
 
   @@index([userId], map: "Resource_userId_fkey")
   @@index([artImageId], map: "Resource_artImageId_fkey")
@@ -1135,32 +1145,35 @@ model Resource {
 /// the LLM-facing narrative hook that tells the storytelling engine how the reward
 /// behaves when played into a scene.
 model Reward {
-  id          Int         @id @default(autoincrement())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime?   @default(now()) @updatedAt
-  icon        String?     @db.VarChar(256)
-  collection  String?     @db.VarChar(764)
-  rarity      Rarity      @default(COMMON)
-  userId      Int?        @default(1)
-  artImageId  Int?
-  packId      Int?
-  imagePath   String?     @db.VarChar(764)
-  isMature    Boolean     @default(false)
-  isPublic    Boolean     @default(true)
-  isActive    Boolean     @default(true)
-  artPrompt   String?     @db.Text
-  rewardType  RewardType  @default(ITEM)
-  description String?     @db.Text
-  effect      String?     @db.Text
-  flavorText  String?     @db.VarChar(512)
-  name        String      @db.VarChar(256)
-  slug        String?     @unique @db.VarChar(256)
-  Reactions   Reaction[]
-  ArtImage    ArtImage?   @relation(fields: [artImageId], references: [id])
-  User        User?       @relation(fields: [userId], references: [id])
-  Pack        Pack?       @relation(fields: [packId], references: [id])
-  Characters  Character[] @relation("CharacterToReward")
-  Dreams      Dream[]     @relation("DreamToReward")
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime?   @default(now()) @updatedAt
+  icon         String?     @db.VarChar(256)
+  collection   String?     @db.VarChar(764)
+  rarity       Rarity      @default(COMMON)
+  userId       Int?        @default(1)
+  artImageId   Int?
+  packId       Int?
+  imagePath    String?     @db.VarChar(764)
+  cardPath     String?     @db.Text
+  heroPath     String?     @db.Text
+  allowReviews Boolean     @default(false)
+  isMature     Boolean     @default(false)
+  isPublic     Boolean     @default(true)
+  isActive     Boolean     @default(true)
+  artPrompt    String?     @db.Text
+  rewardType   RewardType  @default(ITEM)
+  description  String?     @db.Text
+  effect       String?     @db.Text
+  flavorText   String?     @db.VarChar(512)
+  name         String      @db.VarChar(256)
+  slug         String?     @unique @db.VarChar(256)
+  Reactions    Reaction[]
+  ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
+  User         User?       @relation(fields: [userId], references: [id])
+  Pack         Pack?       @relation(fields: [packId], references: [id])
+  Characters   Character[] @relation("CharacterToReward")
+  Dreams       Dream[]     @relation("DreamToReward")
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
@@ -1181,6 +1194,10 @@ model Scenario {
   userId               Int?
   artImageId           Int?
   imagePath            String?
+  icon                 String?
+  cardPath             String?               @db.Text
+  heroPath             String?               @db.Text
+  allowReviews         Boolean               @default(false)
   locations            String?               @db.Text
   artPrompt            String?               @db.Text
   genres               String?

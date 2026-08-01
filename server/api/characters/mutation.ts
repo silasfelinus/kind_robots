@@ -1,8 +1,5 @@
 import { createError } from 'h3'
-import {
-  Rarity,
-  type Prisma,
-} from '~/prisma/generated/prisma/client'
+import { Rarity, type Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 
 export const CHARACTER_RELATION_ID_LIMIT = 100
@@ -37,6 +34,10 @@ const characterScalarFields = [
   'empathy',
   'artPrompt',
   'imagePath',
+  'icon',
+  'cardPath',
+  'heroPath',
+  'allowReviews',
   'experience',
   'level',
   'designer',
@@ -119,6 +120,9 @@ const shortTextFields = [
   'drive',
   'achievements',
   'imagePath',
+  'icon',
+  'cardPath',
+  'heroPath',
   'designer',
 ] as const
 
@@ -131,8 +135,20 @@ const longTextFields = [
   'artPrompt',
 ] as const
 
-const rarityFields = ['luck', 'might', 'wits', 'grace', 'charm', 'empathy'] as const
-const booleanFields = ['isPublic', 'isMature', 'isActive'] as const
+const rarityFields = [
+  'luck',
+  'might',
+  'wits',
+  'grace',
+  'charm',
+  'empathy',
+] as const
+const booleanFields = [
+  'isPublic',
+  'isMature',
+  'isActive',
+  'allowReviews',
+] as const
 const rarityValues = Object.values(Rarity)
 const rarityByNumber: Record<number, Rarity> = {
   1: Rarity.COMMON,
@@ -157,10 +173,15 @@ export function assertCharacterMutationInput(
   const fields = Object.keys(body)
 
   if (options.requireNonEmpty && fields.length === 0) {
-    throw createError({ statusCode: 400, message: 'No data provided for update.' })
+    throw createError({
+      statusCode: 400,
+      message: 'No data provided for update.',
+    })
   }
 
-  const unsupported = fields.filter((field) => !options.allowedFields.has(field))
+  const unsupported = fields.filter(
+    (field) => !options.allowedFields.has(field),
+  )
 
   if (unsupported.length) {
     throw createError({
@@ -314,7 +335,10 @@ export function normalizeCharacterRarity(
   })
 }
 
-export function normalizeCharacterBoolean(value: unknown, field: string): boolean {
+export function normalizeCharacterBoolean(
+  value: unknown,
+  field: string,
+): boolean {
   if (typeof value !== 'boolean') {
     throw createError({
       statusCode: 400,
@@ -412,14 +436,16 @@ export function normalizeCharacterConnectIds(
   if (connect === undefined || connect === null) return []
   const entries = Array.isArray(connect) ? connect : [connect]
 
-  return normalizeCharacterIdArray(
-    entries.map((entry) =>
-      entry && typeof entry === 'object' && !Array.isArray(entry)
-        ? (entry as { id?: unknown }).id
-        : undefined,
-    ),
-    `${field}.connect`,
-  ) ?? []
+  return (
+    normalizeCharacterIdArray(
+      entries.map((entry) =>
+        entry && typeof entry === 'object' && !Array.isArray(entry)
+          ? (entry as { id?: unknown }).id
+          : undefined,
+      ),
+      `${field}.connect`,
+    ) ?? []
+  )
 }
 
 export function normalizeCharacterRelationIds(
@@ -467,7 +493,8 @@ export async function assertCharacterRelationsExist(input: {
   scenarioIds?: number[]
   dreamIds?: number[]
 }): Promise<void> {
-  const artImageIds = typeof input.artImageId === 'number' ? [input.artImageId] : []
+  const artImageIds =
+    typeof input.artImageId === 'number' ? [input.artImageId] : []
   const rewardIds = input.rewardIds ?? []
   const scenarioIds = input.scenarioIds ?? []
   const dreamIds = input.dreamIds ?? []
@@ -615,7 +642,7 @@ export async function buildCharacterCreateInput(options: {
         'rewardIds',
         'Rewards',
       )
-    : normalizeCharacterIdArray(body.rewardIds, 'rewardIds') ?? []
+    : (normalizeCharacterIdArray(body.rewardIds, 'rewardIds') ?? [])
   const scenarioIds = options.batch
     ? normalizeCharacterRelationIds(
         body.scenarioIds,
@@ -623,7 +650,7 @@ export async function buildCharacterCreateInput(options: {
         'scenarioIds',
         'Scenarios',
       )
-    : normalizeCharacterIdArray(body.scenarioIds, 'scenarioIds') ?? []
+    : (normalizeCharacterIdArray(body.scenarioIds, 'scenarioIds') ?? [])
   const dreamIds = options.batch
     ? normalizeCharacterRelationIds(
         body.dreamIds,
@@ -631,7 +658,7 @@ export async function buildCharacterCreateInput(options: {
         'dreamIds',
         'Dreams',
       )
-    : normalizeCharacterIdArray(body.dreamIds, 'dreamIds') ?? []
+    : (normalizeCharacterIdArray(body.dreamIds, 'dreamIds') ?? [])
   const artImageId = normalizeCharacterNullableId(body.artImageId, 'artImageId')
 
   await assertCharacterRelationsExist({
@@ -742,6 +769,21 @@ export async function buildCharacterCreateInput(options: {
       'imagePath',
       CHARACTER_SHORT_TEXT_LIMIT,
     ),
+    icon: normalizeCharacterNullableText(
+      body.icon,
+      'icon',
+      CHARACTER_SHORT_TEXT_LIMIT,
+    ),
+    cardPath: normalizeCharacterNullableText(
+      body.cardPath,
+      'cardPath',
+      CHARACTER_SHORT_TEXT_LIMIT,
+    ),
+    heroPath: normalizeCharacterNullableText(
+      body.heroPath,
+      'heroPath',
+      CHARACTER_SHORT_TEXT_LIMIT,
+    ),
     experience:
       body.experience === undefined
         ? 0
@@ -767,6 +809,10 @@ export async function buildCharacterCreateInput(options: {
       body.isActive === undefined
         ? true
         : normalizeCharacterBoolean(body.isActive, 'isActive'),
+    allowReviews:
+      body.allowReviews === undefined
+        ? false
+        : normalizeCharacterBoolean(body.allowReviews, 'allowReviews'),
     ArtImage:
       typeof artImageId === 'number'
         ? { connect: { id: artImageId } }
@@ -821,7 +867,11 @@ export async function buildCharacterUpdateInput(
   }
 
   if ('experience' in body) {
-    data.experience = normalizeCharacterInteger(body.experience, 'experience', 0)
+    data.experience = normalizeCharacterInteger(
+      body.experience,
+      'experience',
+      0,
+    )
   }
   if ('level' in body) {
     data.level = normalizeCharacterInteger(body.level, 'level', 1)

@@ -67,6 +67,7 @@ export type ProjectMinAggregateOutputType = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  artPrompt: string | null
   designer: string | null
   creationSource: $Enums.CreationSource | null
   userId: number | null
@@ -102,6 +103,7 @@ export type ProjectMaxAggregateOutputType = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  artPrompt: string | null
   designer: string | null
   creationSource: $Enums.CreationSource | null
   userId: number | null
@@ -137,6 +139,7 @@ export type ProjectCountAggregateOutputType = {
   imagePath: number
   cardPath: number
   heroPath: number
+  artPrompt: number
   designer: number
   creationSource: number
   userId: number
@@ -190,6 +193,7 @@ export type ProjectMinAggregateInputType = {
   imagePath?: true
   cardPath?: true
   heroPath?: true
+  artPrompt?: true
   designer?: true
   creationSource?: true
   userId?: true
@@ -225,6 +229,7 @@ export type ProjectMaxAggregateInputType = {
   imagePath?: true
   cardPath?: true
   heroPath?: true
+  artPrompt?: true
   designer?: true
   creationSource?: true
   userId?: true
@@ -260,6 +265,7 @@ export type ProjectCountAggregateInputType = {
   imagePath?: true
   cardPath?: true
   heroPath?: true
+  artPrompt?: true
   designer?: true
   creationSource?: true
   userId?: true
@@ -382,6 +388,7 @@ export type ProjectGroupByOutputType = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  artPrompt: string | null
   designer: string | null
   creationSource: $Enums.CreationSource
   userId: number | null
@@ -440,6 +447,7 @@ export type ProjectWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Project"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Project"> | string | null
   designer?: Prisma.StringNullableFilter<"Project"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Project"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Project"> | number | null
@@ -486,6 +494,7 @@ export type ProjectOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -536,6 +545,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Project"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Project"> | string | null
   designer?: Prisma.StringNullableFilter<"Project"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Project"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Project"> | number | null
@@ -582,6 +592,7 @@ export type ProjectOrderByWithAggregationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -625,6 +636,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   creationSource?: Prisma.EnumCreationSourceWithAggregatesFilter<"Project"> | $Enums.CreationSource
   userId?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
@@ -659,6 +671,7 @@ export type ProjectCreateInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -701,6 +714,7 @@ export type ProjectUncheckedCreateInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -742,6 +756,7 @@ export type ProjectUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -784,6 +799,7 @@ export type ProjectUncheckedUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -826,6 +842,7 @@ export type ProjectCreateManyInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -860,6 +877,7 @@ export type ProjectUpdateManyMutationInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -891,6 +909,7 @@ export type ProjectUncheckedUpdateManyInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -947,6 +966,7 @@ export type ProjectCountOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -990,6 +1010,7 @@ export type ProjectMaxOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -1025,6 +1046,7 @@ export type ProjectMinOrderByAggregateInput = {
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -1356,6 +1378,7 @@ export type ProjectCreateWithoutArtImageInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -1397,6 +1420,7 @@ export type ProjectUncheckedCreateWithoutArtImageInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1467,6 +1491,7 @@ export type ProjectScalarWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Project"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Project"> | string | null
   designer?: Prisma.StringNullableFilter<"Project"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Project"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Project"> | number | null
@@ -1501,6 +1526,7 @@ export type ProjectCreateWithoutArtCollectionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -1542,6 +1568,7 @@ export type ProjectUncheckedCreateWithoutArtCollectionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1608,6 +1635,7 @@ export type ProjectCreateWithoutManagerInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -1649,6 +1677,7 @@ export type ProjectUncheckedCreateWithoutManagerInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1715,6 +1744,7 @@ export type ProjectCreateWithoutChatsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -1756,6 +1786,7 @@ export type ProjectUncheckedCreateWithoutChatsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1812,6 +1843,7 @@ export type ProjectUpdateWithoutChatsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1853,6 +1885,7 @@ export type ProjectUncheckedUpdateWithoutChatsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1893,6 +1926,7 @@ export type ProjectCreateWithoutArtImageLinksInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -1934,6 +1968,7 @@ export type ProjectUncheckedCreateWithoutArtImageLinksInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1990,6 +2025,7 @@ export type ProjectUpdateWithoutArtImageLinksInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2031,6 +2067,7 @@ export type ProjectUncheckedUpdateWithoutArtImageLinksInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2071,6 +2108,7 @@ export type ProjectCreateWithoutArtCollectionLinksInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -2112,6 +2150,7 @@ export type ProjectUncheckedCreateWithoutArtCollectionLinksInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2168,6 +2207,7 @@ export type ProjectUpdateWithoutArtCollectionLinksInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2209,6 +2249,7 @@ export type ProjectUncheckedUpdateWithoutArtCollectionLinksInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2249,6 +2290,7 @@ export type ProjectCreateWithoutPitchSheetInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -2290,6 +2332,7 @@ export type ProjectUncheckedCreateWithoutPitchSheetInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2346,6 +2389,7 @@ export type ProjectUpdateWithoutPitchSheetInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2387,6 +2431,7 @@ export type ProjectUncheckedUpdateWithoutPitchSheetInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2427,6 +2472,7 @@ export type ProjectCreateWithoutReactionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -2468,6 +2514,7 @@ export type ProjectUncheckedCreateWithoutReactionsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2524,6 +2571,7 @@ export type ProjectUpdateWithoutReactionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2565,6 +2613,7 @@ export type ProjectUncheckedUpdateWithoutReactionsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2605,6 +2654,7 @@ export type ProjectCreateWithoutUserInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -2646,6 +2696,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   managerBotId?: number | null
@@ -2712,6 +2763,7 @@ export type ProjectCreateWithoutArtJobsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -2753,6 +2805,7 @@ export type ProjectUncheckedCreateWithoutArtJobsInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2809,6 +2862,7 @@ export type ProjectUpdateWithoutArtJobsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2850,6 +2904,7 @@ export type ProjectUncheckedUpdateWithoutArtJobsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2890,6 +2945,7 @@ export type ProjectCreateWithoutTodosInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   isPublic?: boolean
@@ -2931,6 +2987,7 @@ export type ProjectUncheckedCreateWithoutTodosInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2987,6 +3044,7 @@ export type ProjectUpdateWithoutTodosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3028,6 +3086,7 @@ export type ProjectUncheckedUpdateWithoutTodosInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3069,6 +3128,7 @@ export type ProjectCreateManyArtImageInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -3102,6 +3162,7 @@ export type ProjectUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3143,6 +3204,7 @@ export type ProjectUncheckedUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3184,6 +3246,7 @@ export type ProjectUncheckedUpdateManyWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3218,6 +3281,7 @@ export type ProjectCreateManyArtCollectionInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -3251,6 +3315,7 @@ export type ProjectUpdateWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3292,6 +3357,7 @@ export type ProjectUncheckedUpdateWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3333,6 +3399,7 @@ export type ProjectUncheckedUpdateManyWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3367,6 +3434,7 @@ export type ProjectCreateManyManagerInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -3400,6 +3468,7 @@ export type ProjectUpdateWithoutManagerInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3441,6 +3510,7 @@ export type ProjectUncheckedUpdateWithoutManagerInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3482,6 +3552,7 @@ export type ProjectUncheckedUpdateManyWithoutManagerInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3516,6 +3587,7 @@ export type ProjectCreateManyUserInput = {
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  artPrompt?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   managerBotId?: number | null
@@ -3549,6 +3621,7 @@ export type ProjectUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3590,6 +3663,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   managerBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3631,6 +3705,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   managerBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3741,6 +3816,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   imagePath?: boolean
   cardPath?: boolean
   heroPath?: boolean
+  artPrompt?: boolean
   designer?: boolean
   creationSource?: boolean
   userId?: boolean
@@ -3790,6 +3866,7 @@ export type ProjectSelectScalar = {
   imagePath?: boolean
   cardPath?: boolean
   heroPath?: boolean
+  artPrompt?: boolean
   designer?: boolean
   creationSource?: boolean
   userId?: boolean
@@ -3801,7 +3878,7 @@ export type ProjectSelectScalar = {
   isActive?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "artPrompt" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtJobs?: boolean | Prisma.Project$ArtJobsArgs<ExtArgs>
   Chats?: boolean | Prisma.Project$ChatsArgs<ExtArgs>
@@ -3856,6 +3933,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     imagePath: string | null
     cardPath: string | null
     heroPath: string | null
+    artPrompt: string | null
     designer: string | null
     creationSource: $Enums.CreationSource
     userId: number | null
@@ -4268,6 +4346,7 @@ export interface ProjectFieldRefs {
   readonly imagePath: Prisma.FieldRef<"Project", 'String'>
   readonly cardPath: Prisma.FieldRef<"Project", 'String'>
   readonly heroPath: Prisma.FieldRef<"Project", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"Project", 'String'>
   readonly designer: Prisma.FieldRef<"Project", 'String'>
   readonly creationSource: Prisma.FieldRef<"Project", 'CreationSource'>
   readonly userId: Prisma.FieldRef<"Project", 'Int'>

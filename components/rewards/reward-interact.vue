@@ -368,6 +368,20 @@
               width: 1024,
               height: 1024,
             },
+            {
+              field: 'cardPath',
+              label: 'Card',
+              aspect: '2 / 3',
+              width: 512,
+              height: 768,
+            },
+            {
+              field: 'heroPath',
+              label: 'Hero',
+              aspect: '16 / 9',
+              width: 1280,
+              height: 720,
+            },
           ]"
         />
         <section
@@ -552,8 +566,7 @@
           <pre
             v-if="showPromptPreview"
             class="mt-3 max-h-72 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
-            >{{ rewardPromptPreview }}</pre
-          >
+            >{{ rewardPromptPreview }}</pre>
         </section>
       </aside>
     </section>

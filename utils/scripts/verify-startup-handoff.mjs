@@ -28,6 +28,7 @@ const [
   loadingMessages,
   startupAnimation,
   startupLaunch,
+  startupAnimations,
   app,
 ] = await Promise.all([
   readFile('server/plugins/00-startup-composition-shell.ts', 'utf8'),
@@ -36,6 +37,7 @@ const [
   readFile('components/admin/loading-messages.vue', 'utf8'),
   readFile('components/screenfx/startup-animation.vue', 'utf8'),
   readFile('utils/startupLaunch.ts', 'utf8'),
+  readFile('utils/startupAnimations.ts', 'utf8'),
   readFile('app.vue', 'utf8'),
 ])
 
@@ -164,6 +166,15 @@ assert.ok(
     !startupCoverCss.includes("url('/images/startup-animations/launch-04.webp')") &&
     !startupCoverCss.includes("url('/images/kindlogo_new.webp')"),
   'The Vue intro frame must not paint duplicate startup WebPs behind the actual masked visual.',
+)
+
+assert.ok(
+  startupAnimations.includes('{ length: 12 }') &&
+    startupAnimations.includes("padStart(2, '0')") &&
+    bootCover.includes('Math.floor(Math.random() * STARTUP_ANIMATION_SOURCES.length)') &&
+    bootCover.includes('markup.replaceAll(DEFAULT_STARTUP_ANIMATION_SRC, launchSrc)') &&
+    bootCover.includes('STARTUP_ANIMATION_META_NAME'),
+  'All 12 launch WebPs must be eligible, and the preload, boot cameo, SSR intro, and hydrated intro must share one random choice.',
 )
 
 assert.ok(

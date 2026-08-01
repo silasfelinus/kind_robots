@@ -70,9 +70,9 @@ for (const required of [
   'primaryLinked',
   'const ART_VARIANTS = [',
   "field: 'imagePath'",
-  'iconPath: {',
-  'cardPath: {',
-  'heroPath: {',
+  "field: 'iconPath'",
+  "field: 'cardPath'",
+  "field: 'heroPath'",
   'width: 256',
   'height: 256',
   'width: 512',
@@ -101,9 +101,9 @@ for (const required of [
 }
 
 for (const required of [
-  "field: 'iconPath'",
-  "field: 'cardPath'",
-  "field: 'heroPath'",
+  'iconPath: {',
+  'cardPath: {',
+  'heroPath: {',
   'width: 256',
   'width: 512',
   'width: 1280',

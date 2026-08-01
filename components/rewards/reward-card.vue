@@ -4,6 +4,7 @@
     :selected="activeSelected"
     :compact="compact"
     :show-reaction="showReaction"
+    :allow-reviews="reward.allowReviews"
     :target-id="reward.id"
     target-type="reward"
     reaction-category="REWARD"

@@ -4,6 +4,7 @@
     :selected="activeSelected"
     :compact="compact"
     :show-reaction="showReaction"
+    :allow-reviews="character.allowReviews"
     :target-id="character.id"
     target-type="character"
     reaction-category="CHARACTER"
@@ -70,7 +71,10 @@
           {{ character.isPublic ? 'Public' : 'Private' }}
         </span>
 
-        <span v-if="activeSelected" class="badge badge-primary badge-sm rounded-xl shadow">
+        <span
+          v-if="activeSelected"
+          class="badge badge-primary badge-sm rounded-xl shadow"
+        >
           Selected
         </span>
       </div>
@@ -117,7 +121,10 @@
 
     <div
       v-else
-      :class="['flex flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3', compact ? 'h-44 sm:h-48' : 'aspect-[2/3]']"
+      :class="[
+        'flex flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3',
+        compact ? 'h-44 sm:h-48' : 'aspect-[2/3]',
+      ]"
     >
       <h2
         class="line-clamp-2 text-xl font-black leading-tight text-base-content"
@@ -142,7 +149,11 @@
     </div>
 
     <section
-      v-if="activeSelected && !compact && (showDescription || showStats || showModeButtons || showDebug)"
+      v-if="
+        activeSelected &&
+        !compact &&
+        (showDescription || showStats || showModeButtons || showDebug)
+      "
       class="mt-2 grid gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3"
       @click.stop
     >
@@ -376,7 +387,6 @@ const statRows = computed(() => [
   { key: 'might', label: 'Might', value: props.character.might || 'COMMON' },
   { key: 'wits', label: 'Wits', value: props.character.wits || 'COMMON' },
 ])
-
 
 function handleImageError() {
   hasImageError.value = true

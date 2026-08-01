@@ -305,8 +305,15 @@ function setWorkspaceSheetOpen(value: boolean): void {
 
 watch(
   () => route.fullPath,
-  (path) => {
+  (path, previousPath) => {
     navStore.recordVisit(path)
+
+    if (previousPath !== undefined) {
+      void import('@/stores/achievementStore').then(
+        ({ useAchievementStore }) =>
+          useAchievementStore().rewardAchievementForPath(path),
+      )
+    }
   },
   { immediate: true },
 )

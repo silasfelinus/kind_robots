@@ -48,6 +48,11 @@ assert.ok(
   'Authenticated award records must remain an authoritative scoped snapshot.',
 )
 assert.ok(
+  source.includes('fetchAchievements(true)') &&
+    source.includes('fetchAchievementRecords(true)'),
+  'Initialization must refresh both catalog and award records after cache hydration.',
+)
+assert.ok(
   source.includes('const activeScoreFetches = ref(0)') &&
     source.includes('loadingScores.value = activeScoreFetches.value > 0'),
   'Score loading must remain accurate across concurrent leaderboard requests.',

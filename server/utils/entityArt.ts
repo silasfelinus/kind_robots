@@ -12,6 +12,7 @@ export type EntityArtType =
   | 'reward'
   | 'facet'
   | 'project'
+  | 'achievement'
 
 export type EntityArtMode = 'recreate' | 'img2img'
 
@@ -114,6 +115,14 @@ const ENTITY_FIELDS: Record<
       primary: false,
     },
   },
+  achievement: {
+    imagePath: {
+      label: 'Achievement',
+      width: 1024,
+      height: 1024,
+      primary: true,
+    },
+  },
   project: {
     imagePath: {
       label: 'Icon',
@@ -201,13 +210,15 @@ export function normalizeEntityArtType(value: unknown): EntityArtType {
     type === 'scenario' ||
     type === 'reward' ||
     type === 'facet' ||
-    type === 'project'
+    type === 'project' ||
+    type === 'achievement'
   ) {
     return type
   }
   throw createError({
     statusCode: 400,
-    message: 'Choose Bot, Character, Scenario, Reward, Facet, or Project.',
+    message:
+      'Choose Bot, Character, Scenario, Reward, Facet, Project, or Achievement.',
   })
 }
 
@@ -271,6 +282,10 @@ export async function getEntityArtRecord(
       return (await db.project.findUnique({ where: { id: entityId } })) as
         | EntityArtRecord
         | null
+    case 'achievement':
+      return (await db.achievement.findUnique({ where: { id: entityId } })) as
+        | EntityArtRecord
+        | null
   }
 }
 
@@ -317,6 +332,7 @@ function recordTitle(entityType: EntityArtType, record: EntityArtRecord): string
   return (
     safeText(record.title) ||
     safeText(record.name) ||
+    safeText(record.label) ||
     `${entityType} ${record.id}`
   )
 }
@@ -481,6 +497,14 @@ async function updateEntityRecord(
       })) as EntityArtRecord
     case 'reward':
       return (await db.reward.update({
+        where: { id: input.entityId },
+        data: {
+          imagePath: input.imagePath,
+          artImageId: input.artImageId,
+        },
+      })) as EntityArtRecord
+    case 'achievement':
+      return (await db.achievement.update({
         where: { id: input.entityId },
         data: {
           imagePath: input.imagePath,
@@ -717,6 +741,12 @@ function contextLines(
       ['Description', record.description],
       ['Flavor text', record.flavorText],
       ['Examples', record.examples],
+      ['Existing art prompt', record.artPrompt],
+    ],
+    achievement: [
+      ['Label', record.label],
+      ['Message', record.message],
+      ['Hint', record.tooltip],
       ['Existing art prompt', record.artPrompt],
     ],
     project: [

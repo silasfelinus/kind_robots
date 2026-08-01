@@ -19,14 +19,19 @@ import { PrismaClient } from '../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { achievementData } from '../training/achievementData'
 
+const LEGACY_TRIGGER_ALIASES: Record<string, string[]> = {
+  'first-character': ['fate'],
+  'achievement-tour': ['test'],
+}
+
 function createSeedPrismaClient(): PrismaClient {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) throw new Error('DATABASE_URL is missing')
   return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
 }
 
-// The fields we own from the catalog. `triggerCode` is the upsert key, so it is
-// applied only on create (updating it would move the row to a different bean).
+// The descriptive fields owned by the catalog. Generated `imagePath` and
+// `artImageId` are deliberately omitted so a reconciliation never erases art.
 function toUpsertData(achievement: (typeof achievementData)[number]) {
   return {
     label: achievement.label,
@@ -39,7 +44,6 @@ function toUpsertData(achievement: (typeof achievementData)[number]) {
     isActive: achievement.isActive ?? false,
     isRepeatable: achievement.isRepeatable ?? false,
     artPrompt: achievement.artPrompt,
-    imagePath: achievement.imagePath,
   }
 }
 
@@ -59,10 +63,35 @@ export async function upsertAchievement(
 ): Promise<void> {
   const triggerCode = achievement.triggerCode as string
   const data = toUpsertData(achievement)
-  await prisma.achievement.upsert({
+  const existing = await prisma.achievement.findUnique({
     where: { triggerCode },
-    update: data,
-    create: { ...data, triggerCode },
+  })
+
+  if (existing) {
+    await prisma.achievement.update({
+      where: { id: existing.id },
+      data,
+    })
+    return
+  }
+
+  const legacyCodes = LEGACY_TRIGGER_ALIASES[triggerCode] ?? []
+  const legacy = legacyCodes.length
+    ? await prisma.achievement.findFirst({
+        where: { triggerCode: { in: legacyCodes } },
+      })
+    : null
+
+  if (legacy) {
+    await prisma.achievement.update({
+      where: { id: legacy.id },
+      data: { ...data, triggerCode },
+    })
+    return
+  }
+
+  await prisma.achievement.create({
+    data: { ...data, triggerCode },
   })
 }
 

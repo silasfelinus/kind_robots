@@ -58,6 +58,7 @@ export type FacetMinAggregateOutputType = {
   cardPath: string | null
   heroPath: string | null
   icon: string | null
+  iconPath: string | null
   designer: string | null
   creationSource: $Enums.CreationSource | null
   userId: number | null
@@ -85,6 +86,7 @@ export type FacetMaxAggregateOutputType = {
   cardPath: string | null
   heroPath: string | null
   icon: string | null
+  iconPath: string | null
   designer: string | null
   creationSource: $Enums.CreationSource | null
   userId: number | null
@@ -112,6 +114,7 @@ export type FacetCountAggregateOutputType = {
   cardPath: number
   heroPath: number
   icon: number
+  iconPath: number
   designer: number
   creationSource: number
   userId: number
@@ -157,6 +160,7 @@ export type FacetMinAggregateInputType = {
   cardPath?: true
   heroPath?: true
   icon?: true
+  iconPath?: true
   designer?: true
   creationSource?: true
   userId?: true
@@ -184,6 +188,7 @@ export type FacetMaxAggregateInputType = {
   cardPath?: true
   heroPath?: true
   icon?: true
+  iconPath?: true
   designer?: true
   creationSource?: true
   userId?: true
@@ -211,6 +216,7 @@ export type FacetCountAggregateInputType = {
   cardPath?: true
   heroPath?: true
   icon?: true
+  iconPath?: true
   designer?: true
   creationSource?: true
   userId?: true
@@ -325,6 +331,7 @@ export type FacetGroupByOutputType = {
   cardPath: string | null
   heroPath: string | null
   icon: string | null
+  iconPath: string | null
   designer: string | null
   creationSource: $Enums.CreationSource
   userId: number | null
@@ -375,6 +382,7 @@ export type FacetWhereInput = {
   cardPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Facet"> | number | null
@@ -414,6 +422,7 @@ export type FacetOrderByWithRelationInput = {
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -457,6 +466,7 @@ export type FacetWhereUniqueInput = Prisma.AtLeast<{
   cardPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Facet"> | number | null
@@ -496,6 +506,7 @@ export type FacetOrderByWithAggregationInput = {
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -531,6 +542,7 @@ export type FacetScalarWhereWithAggregatesInput = {
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   heroPath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
+  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceWithAggregatesFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
@@ -557,6 +569,7 @@ export type FacetCreateInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -592,6 +605,7 @@ export type FacetUncheckedCreateInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -626,6 +640,7 @@ export type FacetUpdateInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -661,6 +676,7 @@ export type FacetUncheckedUpdateInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -696,6 +712,7 @@ export type FacetCreateManyInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -722,6 +739,7 @@ export type FacetUpdateManyMutationInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -745,6 +763,7 @@ export type FacetUncheckedUpdateManyInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -793,6 +812,7 @@ export type FacetCountOrderByAggregateInput = {
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -828,6 +848,7 @@ export type FacetMaxOrderByAggregateInput = {
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -855,6 +876,7 @@ export type FacetMinOrderByAggregateInput = {
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -1180,6 +1202,7 @@ export type FacetCreateWithoutFacetAliasInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -1214,6 +1237,7 @@ export type FacetUncheckedCreateWithoutFacetAliasInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1263,6 +1287,7 @@ export type FacetUpdateWithoutFacetAliasInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1297,6 +1322,7 @@ export type FacetUncheckedUpdateWithoutFacetAliasInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1330,6 +1356,7 @@ export type FacetCreateWithoutArtImageInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -1364,6 +1391,7 @@ export type FacetUncheckedCreateWithoutArtImageInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1427,6 +1455,7 @@ export type FacetScalarWhereInput = {
   cardPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Facet"> | number | null
@@ -1453,6 +1482,7 @@ export type FacetCreateWithoutArtCollectionInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -1487,6 +1517,7 @@ export type FacetUncheckedCreateWithoutArtCollectionInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1546,6 +1577,7 @@ export type FacetCreateWithoutDreamLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -1580,6 +1612,7 @@ export type FacetUncheckedCreateWithoutDreamLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1629,6 +1662,7 @@ export type FacetUpdateWithoutDreamLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1663,6 +1697,7 @@ export type FacetUncheckedUpdateWithoutDreamLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1696,6 +1731,7 @@ export type FacetCreateWithoutScenarioLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -1730,6 +1766,7 @@ export type FacetUncheckedCreateWithoutScenarioLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1779,6 +1816,7 @@ export type FacetUpdateWithoutScenarioLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1813,6 +1851,7 @@ export type FacetUncheckedUpdateWithoutScenarioLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1846,6 +1885,7 @@ export type FacetCreateWithoutArtImageLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -1880,6 +1920,7 @@ export type FacetUncheckedCreateWithoutArtImageLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -1929,6 +1970,7 @@ export type FacetUpdateWithoutArtImageLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1963,6 +2005,7 @@ export type FacetUncheckedUpdateWithoutArtImageLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1996,6 +2039,7 @@ export type FacetCreateWithoutArtCollectionLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -2030,6 +2074,7 @@ export type FacetUncheckedCreateWithoutArtCollectionLinksInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2079,6 +2124,7 @@ export type FacetUpdateWithoutArtCollectionLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2113,6 +2159,7 @@ export type FacetUncheckedUpdateWithoutArtCollectionLinksInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2146,6 +2193,7 @@ export type FacetCreateWithoutRelationsFromInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -2180,6 +2228,7 @@ export type FacetUncheckedCreateWithoutRelationsFromInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2218,6 +2267,7 @@ export type FacetCreateWithoutRelationsToInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -2252,6 +2302,7 @@ export type FacetUncheckedCreateWithoutRelationsToInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2301,6 +2352,7 @@ export type FacetUpdateWithoutRelationsFromInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2335,6 +2387,7 @@ export type FacetUncheckedUpdateWithoutRelationsFromInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2379,6 +2432,7 @@ export type FacetUpdateWithoutRelationsToInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2413,6 +2467,7 @@ export type FacetUncheckedUpdateWithoutRelationsToInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2446,6 +2501,7 @@ export type FacetCreateWithoutPackInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -2480,6 +2536,7 @@ export type FacetUncheckedCreateWithoutPackInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2539,6 +2596,7 @@ export type FacetCreateWithoutReactionsInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -2573,6 +2631,7 @@ export type FacetUncheckedCreateWithoutReactionsInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2622,6 +2681,7 @@ export type FacetUpdateWithoutReactionsInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2656,6 +2716,7 @@ export type FacetUncheckedUpdateWithoutReactionsInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2689,6 +2750,7 @@ export type FacetCreateWithoutUserInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   allowReviews?: boolean
@@ -2723,6 +2785,7 @@ export type FacetUncheckedCreateWithoutUserInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   artImageId?: number | null
@@ -2783,6 +2846,7 @@ export type FacetCreateManyArtImageInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2808,6 +2872,7 @@ export type FacetUpdateWithoutArtImageInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2842,6 +2907,7 @@ export type FacetUncheckedUpdateWithoutArtImageInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2876,6 +2942,7 @@ export type FacetUncheckedUpdateManyWithoutArtImageInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2902,6 +2969,7 @@ export type FacetCreateManyArtCollectionInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -2927,6 +2995,7 @@ export type FacetUpdateWithoutArtCollectionInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2961,6 +3030,7 @@ export type FacetUncheckedUpdateWithoutArtCollectionInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2995,6 +3065,7 @@ export type FacetUncheckedUpdateManyWithoutArtCollectionInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3021,6 +3092,7 @@ export type FacetCreateManyPackInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
@@ -3046,6 +3118,7 @@ export type FacetUpdateWithoutPackInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3080,6 +3153,7 @@ export type FacetUncheckedUpdateWithoutPackInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3114,6 +3188,7 @@ export type FacetUncheckedUpdateManyWithoutPackInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3140,6 +3215,7 @@ export type FacetCreateManyUserInput = {
   cardPath?: string | null
   heroPath?: string | null
   icon?: string | null
+  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   artImageId?: number | null
@@ -3165,6 +3241,7 @@ export type FacetUpdateWithoutUserInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3199,6 +3276,7 @@ export type FacetUncheckedUpdateWithoutUserInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3233,6 +3311,7 @@ export type FacetUncheckedUpdateManyWithoutUserInput = {
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3353,6 +3432,7 @@ export type FacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   cardPath?: boolean
   heroPath?: boolean
   icon?: boolean
+  iconPath?: boolean
   designer?: boolean
   creationSource?: boolean
   userId?: boolean
@@ -3395,6 +3475,7 @@ export type FacetSelectScalar = {
   cardPath?: boolean
   heroPath?: boolean
   icon?: boolean
+  iconPath?: boolean
   designer?: boolean
   creationSource?: boolean
   userId?: boolean
@@ -3455,6 +3536,7 @@ export type $FacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     cardPath: string | null
     heroPath: string | null
     icon: string | null
+    iconPath: string | null
     designer: string | null
     creationSource: $Enums.CreationSource
     userId: number | null

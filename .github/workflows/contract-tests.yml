@@ -104,6 +104,9 @@ jobs:
       - name: Admin-flag cast contract
         run: npm run test:admin-flag-casts
 
+      - name: UserRole expand migration contract
+        run: npm run test:user-role-expand
+
       - name: Unquoted reserved-word table identifier contract
         run: npm run test:no-unquoted-reserved-word-tables
 

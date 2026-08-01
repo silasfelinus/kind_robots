@@ -27,10 +27,38 @@ const PROJECT_SLUG = 'facet-catalog'
 const FACET_ART_VERSION = 'facet-multi-art-krea2-v2'
 
 const ART_VARIANTS = [
-  { field: 'imagePath', label: 'primary square catalog artwork', width: 1024, height: 1024, composition: 'One decisive square composition with excellent thumbnail readability.' },
-  { field: 'iconPath', label: 'icon logo artwork', width: 256, height: 256, composition: 'A bold logo-like emblem with a clean silhouette and no written text.' },
-  { field: 'cardPath', label: 'portrait card artwork', width: 512, height: 768, composition: 'A vertical 2:3 composition with clear foreground, middle ground, and room for card chrome.' },
-  { field: 'heroPath', label: 'wide hero artwork', width: 1280, height: 720, composition: 'A cinematic 16:9 composition with the focal subject safely inside the center region.' },
+  {
+    field: 'imagePath',
+    label: 'primary square catalog artwork',
+    width: 1024,
+    height: 1024,
+    composition:
+      'One decisive square composition with excellent thumbnail readability.',
+  },
+  {
+    field: 'iconPath',
+    label: 'icon logo artwork',
+    width: 256,
+    height: 256,
+    composition:
+      'A bold logo-like emblem with a clean silhouette and no written text.',
+  },
+  {
+    field: 'cardPath',
+    label: 'portrait card artwork',
+    width: 512,
+    height: 768,
+    composition:
+      'A vertical 2:3 composition with clear foreground, middle ground, and room for card chrome.',
+  },
+  {
+    field: 'heroPath',
+    label: 'wide hero artwork',
+    width: 1280,
+    height: 720,
+    composition:
+      'A cinematic 16:9 composition with the focal subject safely inside the center region.',
+  },
 ] as const
 
 type FacetArtField = (typeof ART_VARIANTS)[number]['field']
@@ -176,8 +204,8 @@ export function facetEntityMarker(
   facetId: number,
   field?: FacetArtField,
 ): string {
-  const entity = `\\\"entityType\\\":\\\"facet\\\",\\\"entityId\\\":${facetId},`
-  return field ? `${entity}\\\"field\\\":\\\"${field}\\\",` : entity
+  const entity = `"entityType":"facet","entityId":${facetId},`
+  return field ? `${entity}"field":"${field}",` : entity
 }
 
 export function facetArtVersionMarker(): string {
@@ -255,7 +283,12 @@ export function buildFacetArtPayload(
   identityPrompt: string,
   variant: FacetArtVariant,
 ) {
-  const promptString = buildFacetVariantPrompt(facet, profile, identityPrompt, variant)
+  const promptString = buildFacetVariantPrompt(
+    facet,
+    profile,
+    identityPrompt,
+    variant,
+  )
   const { workflow, seed } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
     negativePrompt: NEGATIVE_PROMPT,
@@ -472,7 +505,11 @@ async function main(): Promise<void> {
       for (const facet of facets as FacetRow[]) {
         const profile = profileByFacet.get(facet.id)
         if (!profile) {
-          blocked.push({ id: facet.id, title: facet.title, reasons: ['missing-profile'] })
+          blocked.push({
+            id: facet.id,
+            title: facet.title,
+            reasons: ['missing-profile'],
+          })
           continue
         }
         if (!profile.artRequired) {
@@ -493,7 +530,10 @@ async function main(): Promise<void> {
               (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
           )
           if (clean(facet[variant.field]) || primaryLinked) {
-            available.set(variant.field, (available.get(variant.field) ?? 0) + 1)
+            available.set(
+              variant.field,
+              (available.get(variant.field) ?? 0) + 1,
+            )
             continue
           }
           if (pendingFacetFields.has(`${facet.id}:${variant.field}`)) {

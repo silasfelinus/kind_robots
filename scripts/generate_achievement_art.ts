@@ -21,8 +21,8 @@ const PROJECT_SLUG = 'achievements'
 const SEED_USER_ID = 10
 const ACTIVE_JOB_STATUSES = ['PENDING', 'RUNNING'] as const
 
-function entityMarker(achievementId: number): string {
-  return `"entityType":"achievement","entityId":${achievementId}`
+export function achievementEntityMarker(achievementId: number): string {
+  return `"entityType":"achievement","entityId":${achievementId},`
 }
 
 export function buildAchievementArtPayload(achievement: {
@@ -92,7 +92,7 @@ async function main() {
             projectSlug: PROJECT_SLUG,
             userId: SEED_USER_ID,
             status: { in: [...ACTIVE_JOB_STATUSES] },
-            payload: { contains: entityMarker(achievement.id) },
+            payload: { contains: achievementEntityMarker(achievement.id) },
           },
           orderBy: { createdAt: 'desc' },
         })

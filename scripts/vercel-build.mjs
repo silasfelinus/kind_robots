@@ -89,6 +89,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Refining cultural genre labels and distinct speculative traditions',
   )
 
+  // Merge only genuine synonyms after all profile and alias curation. The merge
+  // migrates every assignment and artwork link into the art-backed canonical row.
+  run(
+    tsxBinary,
+    ['utils/scripts/mergeFacetPersonalitySynonyms.ts', '--apply'],
+    'Merging exact Personality Facet synonyms',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

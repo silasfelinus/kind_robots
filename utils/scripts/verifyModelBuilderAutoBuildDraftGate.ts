@@ -17,13 +17,13 @@
 // approval-while-drafting guard) -- just reached via a discarded return value
 // instead of a concurrency race. The GENERATE_ASSETS stage two lines below
 // already gets this right (`const generated = await generateItemAsset(itemId
-// ); if (!generated) return false`), which is exactly the shape this checker
-// requires for the PITCH and FIELDS_AND_PROMPTS drafts too.
+// ); if (!generated) return 'failed'`), which is exactly the shape this
+// checker requires for the PITCH and FIELDS_AND_PROMPTS drafts too.
 //
 // This asserts the textual shape of the fix stays in place: every
 // `await draftText(itemId, 'FIELD')` call inside autoBuildItem() is assigned
 // to a local (not a bare/discarded statement), and an `if (!VAR) return
-// false` guard on that same local appears strictly between the draftText
+// 'failed'` guard on that same local appears strictly between the draftText
 // call and the next call to approveStage() for that field's stage --
 // deliberately scoped to this one function/bug, mirroring
 // verifyModelBuilderCompletionGate.ts's preference for explicit, narrow
@@ -37,6 +37,9 @@
 // commit" click is still running fires a second, concurrent request for the
 // same stage -- the GENERATE_ASSETS case burns a real duplicate art
 // generation call, since neither call's in-flight state blocks the other.
+// Both of these entry guards return 'skipped' (not 'failed') -- t-037 gave
+// autoBuildItem() a three-way outcome ('committed' | 'skipped' | 'failed') so
+// batchAutoBuild/autoBuildRun can tell "busy, try again" apart from "broken."
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -76,7 +79,7 @@ export function checkAutoBuildDraftGate(content: string): string[] {
 
   const claimIndex = fn.body.indexOf('autoBuildingItemSingleton.claim(item.id)')
   const reentrancyGuard =
-    /if\s*\(\s*state\.autoBuildingItemId\s*===\s*item\.id\s*\)\s*return false/.exec(
+    /if\s*\(\s*state\.autoBuildingItemId\s*===\s*item\.id\s*\)\s*return 'skipped'/.exec(
       fn.body,
     )
   if (
@@ -85,16 +88,16 @@ export function checkAutoBuildDraftGate(content: string): string[] {
     reentrancyGuard.index > claimIndex
   ) {
     errors.push(
-      `${FN_NAME}() must return false when state.autoBuildingItemId already ` +
-        'equals item.id before claiming autoBuildingItemSingleton. Without ' +
-        'that entry guard, the item-level Auto action can overlap with batch ' +
-        'or run-level auto-build for the same item and duplicate draft, render, ' +
-        'or commit work.',
+      `${FN_NAME}() must return 'skipped' when state.autoBuildingItemId ` +
+        'already equals item.id before claiming autoBuildingItemSingleton. ' +
+        'Without that entry guard, the item-level Auto action can overlap ' +
+        'with batch or run-level auto-build for the same item and duplicate ' +
+        'draft, render, or commit work.',
     )
   }
 
   const manualActionGuard =
-    /state\.generatingItemId\s*===\s*item\.id[\s\S]{0,200}state\.committingItemId\s*===\s*item\.id[\s\S]{0,200}draftingField\.value\?\.itemId\s*===\s*item\.id[\s\S]{0,80}return false/.exec(
+    /state\.generatingItemId\s*===\s*item\.id[\s\S]{0,200}state\.committingItemId\s*===\s*item\.id[\s\S]{0,200}draftingField\.value\?\.itemId\s*===\s*item\.id[\s\S]{0,80}return 'skipped'/.exec(
       fn.body,
     )
   if (
@@ -103,14 +106,17 @@ export function checkAutoBuildDraftGate(content: string): string[] {
     manualActionGuard.index > claimIndex
   ) {
     errors.push(
-      `${FN_NAME}() must return false when a manual single-stage action ` +
+      `${FN_NAME}() must return 'skipped' when a manual single-stage action ` +
         '(state.generatingItemId, state.committingItemId, or ' +
         "draftingField.value's itemId already matching item.id) is in " +
         'flight for this item, before claiming autoBuildingItemSingleton. ' +
         'Without that guard, clicking Auto while a manual "Generate ' +
         'candidate" / "Draft with AI" / "Execute commit" is still running ' +
         'fires a second, concurrent request for the same stage -- for ' +
-        'GENERATE_ASSETS this burns a real duplicate art-generation call.',
+        'GENERATE_ASSETS this burns a real duplicate art-generation call. ' +
+        "Returning 'skipped' (not 'failed') here also matters for " +
+        'batchAutoBuild/autoBuildRun: it lets them report this item as busy ' +
+        'rather than broken.',
     )
   }
 
@@ -152,10 +158,10 @@ export function checkAutoBuildDraftGate(content: string): string[] {
     }
     const between = fn.body.slice(callEnd, callEnd + approveMatch.index)
 
-    const guardPattern = new RegExp(`if \\(!${varName}\\)\\s*return false`)
+    const guardPattern = new RegExp(`if \\(!${varName}\\)\\s*return 'failed'`)
     if (!guardPattern.test(between)) {
       errors.push(
-        `${FN_NAME}() does not check \`if (!${varName}) return false\` ` +
+        `${FN_NAME}() does not check \`if (!${varName}) return 'failed'\` ` +
           `between drafting '${field}' and approveStage(itemId, ` +
           `'${stageKey}'). Without this guard, a failed '${field}' draft ` +
           '(network error, "the model returned nothing useful", or an ' +

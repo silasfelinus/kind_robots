@@ -552,12 +552,16 @@
                   Resume unchanged
                 </button>
                 <button
-                  v-if="job.status === 'PENDING' || job.status === 'RUNNING'"
+                  v-if="
+                    job.status === 'PENDING' ||
+                    job.status === 'RUNNING' ||
+                    job.status === 'FAILED'
+                  "
                   type="button"
                   class="btn btn-ghost btn-xs rounded-2xl text-error"
                   @click="artJobStore.cancelJob(job.id)"
                 >
-                  Cancel
+                  {{ job.status === 'FAILED' ? 'Clear failure' : 'Cancel' }}
                 </button>
               </div>
             </div>

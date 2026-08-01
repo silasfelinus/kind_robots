@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
   let response
 
   try {
-    const data = await prisma.achievement.findMany()
+    const data = await prisma.achievement.findMany({
+      where: { isActive: true },
+      orderBy: { id: 'asc' },
+    })
 
     // Set response for successful fetch
     response = {
@@ -34,5 +37,8 @@ export default defineEventHandler(async (event) => {
 
 // Function to fetch all Achievements
 export async function fetchAllAchievements(): Promise<Achievement[]> {
-  return await prisma.achievement.findMany()
+  return await prisma.achievement.findMany({
+    where: { isActive: true },
+    orderBy: { id: 'asc' },
+  })
 }

@@ -59,6 +59,9 @@ jobs:
       - name: Verify final Facet catalog directives
         run: npx tsx utils/scripts/verifyFacetCatalogDirectives.ts
 
+      - name: Verify retired Facet cleanup and artwork queue
+        run: npx tsx utils/scripts/verifyFacetCatalogMaintenance.ts
+
       - name: Verify whole-catalog Facet audit
         run: npx tsx utils/scripts/verifyFacetCatalogAudit.ts
 

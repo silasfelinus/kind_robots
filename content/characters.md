@@ -12,7 +12,7 @@ channelKey: play
 tabKey: characters
 dashboardKey: character
 dashboardTab: characters
-cards: characterCards
+cards: navCards
 loadingMessage: Loading character builder...
 refreshLabel: Refresh characters
 ---

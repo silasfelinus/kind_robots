@@ -12,7 +12,7 @@ icon: kind-icon:mask
 route: /builder
 modelType: character
 sort: 20
-cards: character-builder
+cards: builderCards
 requiredBeforeNext:
   - name
 ---

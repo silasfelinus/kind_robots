@@ -12,7 +12,7 @@ icon: kind-icon:palette
 route: /builder
 modelType: art
 sort: 60
-cards: art
+cards: builderCards
 requiredBeforeNext:
   - style
 ---

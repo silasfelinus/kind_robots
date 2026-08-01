@@ -13,16 +13,32 @@
         </p>
       </div>
 
-      <button
-        v-if="failedJobIds.length"
-        type="button"
-        class="btn btn-error btn-sm rounded-2xl"
-        :disabled="submitting"
-        @click="requeueFailedOnPage"
-      >
-        <span v-if="submitting" class="loading loading-spinner loading-xs" />
-        Requeue failed on this page ({{ failedJobIds.length }})
-      </button>
+      <div v-if="failedJobIds.length" class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-outline btn-error btn-sm rounded-2xl"
+          :disabled="Boolean(submitting)"
+          @click="cancelFailedOnPage"
+        >
+          <span
+            v-if="submitting === 'cancel'"
+            class="loading loading-spinner loading-xs"
+          />
+          Clear failed on this page ({{ failedJobIds.length }})
+        </button>
+        <button
+          type="button"
+          class="btn btn-error btn-sm rounded-2xl"
+          :disabled="Boolean(submitting)"
+          @click="requeueFailedOnPage"
+        >
+          <span
+            v-if="submitting === 'requeue'"
+            class="loading loading-spinner loading-xs"
+          />
+          Requeue failed on this page ({{ failedJobIds.length }})
+        </button>
+      </div>
     </div>
 
     <p
@@ -56,7 +72,7 @@ type SelectedFailedRequeueResult = {
 }
 
 const artJobStore = useArtJobStore()
-const submitting = ref(false)
+const submitting = ref<false | 'cancel' | 'requeue'>(false)
 const message = ref('')
 const hasFailures = ref(false)
 
@@ -75,7 +91,7 @@ async function requeueFailedOnPage(): Promise<void> {
   )
   if (!confirmed) return
 
-  submitting.value = true
+  submitting.value = 'requeue'
   message.value = ''
   hasFailures.value = false
 
@@ -98,6 +114,40 @@ async function requeueFailedOnPage(): Promise<void> {
       response.data.failedCount > 0 || response.data.skippedCount > 0
     message.value = response.message
 
+    await Promise.all([artJobStore.fetchJobs(), artJobStore.fetchStats()])
+  } finally {
+    submitting.value = false
+  }
+}
+async function cancelFailedOnPage(): Promise<void> {
+  const jobIds = failedJobIds.value
+  if (!jobIds.length || submitting.value) return
+
+  const confirmed = window.confirm(
+    `Clear the ${jobIds.length} failed ArtJobs currently shown on page ${artJobStore.jobPage}? They will be marked cancelled and removed from the failed queue.`,
+  )
+  if (!confirmed) return
+
+  submitting.value = 'cancel'
+  message.value = ''
+  hasFailures.value = false
+
+  try {
+    const results = await Promise.all(
+      jobIds.map((id) =>
+        performFetch(`/api/art/queue/${id}/cancel`, {
+          method: 'POST',
+          body: JSON.stringify({
+            reason: 'Cleared from failed queue by admin.',
+          }),
+        }),
+      ),
+    )
+    const failedCount = results.filter((response) => !response.success).length
+    hasFailures.value = failedCount > 0
+    message.value = failedCount
+      ? `Cleared ${jobIds.length - failedCount} of ${jobIds.length} failed ArtJobs. ${failedCount} could not be cleared.`
+      : `Cleared ${jobIds.length} failed ArtJobs from this page.`
     await Promise.all([artJobStore.fetchJobs(), artJobStore.fetchStats()])
   } finally {
     submitting.value = false

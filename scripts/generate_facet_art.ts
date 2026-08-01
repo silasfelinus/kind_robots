@@ -1,10 +1,9 @@
 // /scripts/generate_facet_art.ts
 //
 // Audits the complete active Facet catalog and creates durable, deduplicated
-// primary-image ArtJobs for entries that are clean enough to illustrate.
+// ArtJobs for every missing Facet image, icon, card, and hero slot.
 // Structural oddities are reported and skipped rather than rewarded with art.
-// This intentionally queues only imagePath. Card, hero, and future icon slots
-// belong to the upcoming multi-art schema migration.
+// Existing curated artwork is never replaced.
 //
 // Usage:
 //   npx tsx scripts/generate_facet_art.ts
@@ -25,8 +24,17 @@ import {
 
 const WRITE = process.argv.includes('--write')
 const PROJECT_SLUG = 'facet-catalog'
-const PRIMARY_FIELD = 'imagePath'
-const FACET_ART_VERSION = 'facet-primary-krea2-v1'
+const FACET_ART_VERSION = 'facet-multi-art-krea2-v2'
+
+const ART_VARIANTS = [
+  { field: 'imagePath', label: 'primary square catalog artwork', width: 1024, height: 1024, composition: 'One decisive square composition with excellent thumbnail readability.' },
+  { field: 'iconPath', label: 'icon logo artwork', width: 256, height: 256, composition: 'A bold logo-like emblem with a clean silhouette and no written text.' },
+  { field: 'cardPath', label: 'portrait card artwork', width: 512, height: 768, composition: 'A vertical 2:3 composition with clear foreground, middle ground, and room for card chrome.' },
+  { field: 'heroPath', label: 'wide hero artwork', width: 1280, height: 720, composition: 'A cinematic 16:9 composition with the focal subject safely inside the center region.' },
+] as const
+
+type FacetArtField = (typeof ART_VARIANTS)[number]['field']
+type FacetArtVariant = (typeof ART_VARIANTS)[number]
 const NEGATIVE_PROMPT =
   'readable text, caption, watermark, signature, logo, UI, frame, border, duplicate subject, cropped subject, illegible anatomy'
 
@@ -60,6 +68,7 @@ type FacetRow = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  iconPath: string | null
   icon: string | null
   artImageId: number | null
   artCollectionId: number | null
@@ -91,6 +100,7 @@ type FacetSnapshot = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  iconPath: string | null
 }
 
 function asObject(value: unknown): JsonObject {
@@ -162,8 +172,12 @@ function taxonomyGuidance(taxonomy: string): string {
   }
 }
 
-export function facetEntityMarker(facetId: number): string {
-  return `\"entityType\":\"facet\",\"entityId\":${facetId},`
+export function facetEntityMarker(
+  facetId: number,
+  field?: FacetArtField,
+): string {
+  const entity = `\\\"entityType\\\":\\\"facet\\\",\\\"entityId\\\":${facetId},`
+  return field ? `${entity}\\\"field\\\":\\\"${field}\\\",` : entity
 }
 
 export function facetArtVersionMarker(): string {
@@ -201,16 +215,18 @@ export function buildFacetIdentityPrompt(
     .trim()
 }
 
-export function buildFacetPrimaryPrompt(
+export function buildFacetVariantPrompt(
   facet: FacetRow,
   profile: ProfileRow,
   identityPrompt: string,
+  variant: FacetArtVariant,
 ): string {
   const label = profile.groupLabel || profile.taxonomy.replaceAll('_', ' ')
   return [
     identityPrompt,
-    `Create this as the primary square catalog artwork for Kind Robots ${label}: ${facet.title}.`,
-    'One decisive composition, polished fantasy-software illustration, excellent thumbnail readability, rich controlled lighting, crisp subject separation, no text, no logo, no watermark.',
+    `Create this as ${variant.label} for Kind Robots ${label}: ${facet.title}.`,
+    variant.composition,
+    'Polished fantasy-software illustration, rich controlled lighting, crisp subject separation, no text, no watermark.',
   ].join('\n\n')
 }
 
@@ -229,6 +245,7 @@ function facetSnapshot(
     imagePath: facet.imagePath,
     cardPath: facet.cardPath,
     heroPath: facet.heroPath,
+    iconPath: facet.iconPath,
   }
 }
 
@@ -236,13 +253,14 @@ export function buildFacetArtPayload(
   facet: FacetRow,
   profile: ProfileRow,
   identityPrompt: string,
+  variant: FacetArtVariant,
 ) {
-  const promptString = buildFacetPrimaryPrompt(facet, profile, identityPrompt)
+  const promptString = buildFacetVariantPrompt(facet, profile, identityPrompt, variant)
   const { workflow, seed } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
     negativePrompt: NEGATIVE_PROMPT,
-    width: 1024,
-    height: 1024,
+    width: variant.width,
+    height: variant.height,
     steps: 8,
     cfg: 1,
   })
@@ -253,8 +271,8 @@ export function buildFacetArtPayload(
       promptString,
       basePromptString: identityPrompt,
       negativePrompt: NEGATIVE_PROMPT,
-      width: 1024,
-      height: 1024,
+      width: variant.width,
+      height: variant.height,
       steps: 8,
       cfg: 1,
       seed,
@@ -268,7 +286,7 @@ export function buildFacetArtPayload(
       entityArt: {
         entityType: 'facet',
         entityId: facet.id,
-        field: PRIMARY_FIELD,
+        field: variant.field,
         preserveOriginal: true,
         mode: 'recreate',
       },
@@ -277,11 +295,12 @@ export function buildFacetArtPayload(
         taxonomy: profile.taxonomy,
         groupKey: profile.groupKey,
         sourceRank: profile.sourceRank,
+        variant: variant.field,
       },
     },
     {
       projectSlug: PROJECT_SLUG,
-      idempotencyKey: `facet:${facet.id}:${PRIMARY_FIELD}:${FACET_ART_VERSION}`,
+      idempotencyKey: `facet:${facet.id}:${variant.field}:${FACET_ART_VERSION}`,
       requireCompletionProof: true,
     },
   ).payload
@@ -332,6 +351,7 @@ async function main(): Promise<void> {
               imagePath: true,
               cardPath: true,
               heroPath: true,
+              iconPath: true,
               icon: true,
               artImageId: true,
               artCollectionId: true,
@@ -383,13 +403,16 @@ async function main(): Promise<void> {
       const linkedCollections = new Set(
         artCollectionLinks.map((link) => link.facetId),
       )
-      const pendingFacetIds = new Set<number>()
+      const pendingFacetFields = new Set<string>()
       for (const job of jobs) {
         const match = job.payload.match(
-          /\"entityType\":\"facet\",\"entityId\":(\d+),/,
+          /"entityType":"facet","entityId":(\d+),"field":"([^"]+)",/,
         )
         const id = Number(match?.[1])
-        if (Number.isInteger(id) && id > 0) pendingFacetIds.add(id)
+        const field = match?.[2]
+        if (Number.isInteger(id) && id > 0 && field) {
+          pendingFacetFields.add(`${id}:${field}`)
+        }
       }
 
       const auditInputs: FacetAuditInput[] = (facets as FacetRow[]).map(
@@ -414,6 +437,7 @@ async function main(): Promise<void> {
               facet.imagePath ||
                 facet.cardPath ||
                 facet.heroPath ||
+                facet.iconPath ||
                 facet.icon ||
                 facet.artImageId !== null ||
                 facet.artCollectionId !== null ||
@@ -432,39 +456,27 @@ async function main(): Promise<void> {
         if (blockers.length) blockersByFacet.set(candidate.id, blockers)
       }
 
-      const available: number[] = []
+      const available = new Map<FacetArtField, number>(
+        ART_VARIANTS.map((variant) => [variant.field, 0]),
+      )
       const notRequired: number[] = []
-      const reused: number[] = []
+      const reused: Array<{ id: number; field: FacetArtField }> = []
       const blocked: Array<{ id: number; title: string; reasons: string[] }> = []
       const queue: Array<{
         facet: FacetRow
         profile: ProfileRow
         identityPrompt: string
+        variant: FacetArtVariant
       }> = []
 
       for (const facet of facets as FacetRow[]) {
         const profile = profileByFacet.get(facet.id)
         if (!profile) {
-          blocked.push({
-            id: facet.id,
-            title: facet.title,
-            reasons: ['missing-profile'],
-          })
+          blocked.push({ id: facet.id, title: facet.title, reasons: ['missing-profile'] })
           continue
         }
         if (!profile.artRequired) {
           notRequired.push(facet.id)
-          continue
-        }
-
-        // A card, hero, or emoji icon does not satisfy the primary image slot.
-        const primaryArtBacked = Boolean(
-          facet.imagePath ||
-            facet.artImageId !== null ||
-            linkedPrimaryArt.has(facet.id),
-        )
-        if (primaryArtBacked) {
-          available.push(facet.id)
           continue
         }
 
@@ -473,21 +485,32 @@ async function main(): Promise<void> {
           blocked.push({ id: facet.id, title: facet.title, reasons: blockers })
           continue
         }
-        if (pendingFacetIds.has(facet.id)) {
-          reused.push(facet.id)
-          continue
-        }
 
-        queue.push({
-          facet,
-          profile,
-          identityPrompt: buildFacetIdentityPrompt(facet, profile),
-        })
+        const identityPrompt = buildFacetIdentityPrompt(facet, profile)
+        for (const variant of ART_VARIANTS) {
+          const primaryLinked = Boolean(
+            variant.field === 'imagePath' &&
+              (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
+          )
+          if (clean(facet[variant.field]) || primaryLinked) {
+            available.set(variant.field, (available.get(variant.field) ?? 0) + 1)
+            continue
+          }
+          if (pendingFacetFields.has(`${facet.id}:${variant.field}`)) {
+            reused.push({ id: facet.id, field: variant.field })
+            continue
+          }
+          queue.push({ facet, profile, identityPrompt, variant })
+        }
       }
 
       if (WRITE) {
-        const promptUpdates = queue.filter(
-          (entry) => !clean(entry.facet.artPrompt),
+        const promptUpdates = Array.from(
+          new Map(
+            queue
+              .filter((entry) => !clean(entry.facet.artPrompt))
+              .map((entry) => [entry.facet.id, entry]),
+          ).values(),
         )
         await runWithConcurrency(promptUpdates, 8, async (entry) => {
           await prisma.facet.update({
@@ -506,6 +529,7 @@ async function main(): Promise<void> {
               entry.facet,
               entry.profile,
               entry.identityPrompt,
+              entry.variant,
             ),
           ),
         }))
@@ -519,7 +543,7 @@ async function main(): Promise<void> {
         }
 
         console.log(
-          `Facet art: ${inserted} queued, ${reused.length} pending job(s) reused, ${available.length} primary image(s) already available, ${blocked.length} entry/entries held for catalog review.`,
+          `Facet art: ${inserted} variant job(s) queued, ${reused.length} pending job(s) reused, ${blocked.length} entry/entries held for catalog review.`,
         )
       }
 
@@ -529,10 +553,10 @@ async function main(): Promise<void> {
             mode: WRITE ? 'write' : 'dry-run',
             projectSlug: PROJECT_SLUG,
             version: FACET_ART_VERSION,
-            primaryField: PRIMARY_FIELD,
+            fields: ART_VARIANTS.map((variant) => variant.field),
             totals: {
               active: facets.length,
-              available: available.length,
+              available: Object.fromEntries(available),
               notRequired: notRequired.length,
               pendingReused: reused.length,
               queued: queue.length,
@@ -544,9 +568,9 @@ async function main(): Promise<void> {
               qualityGate:
                 'Do not generate art for duplicate, malformed, composite, taxonomy-leaking, cargo-cult, or unreviewed legacy Facets.',
               scope:
-                'Queue primary imagePath art only. Card, hero, and icon variants wait for the multi-art schema.',
+                'Queue every missing imagePath, iconPath, cardPath, and heroPath independently without replacing curated art.',
               dedupe:
-                'Reuse current-version PENDING or RUNNING jobs; a missing image after a completed job may be repaired by a new job.',
+                'Reuse current-version PENDING or RUNNING jobs per Facet and field; a missing image after a completed job may be repaired by a new job.',
             },
           },
           null,

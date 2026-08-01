@@ -113,6 +113,15 @@ if (!isVercelBuild || isProductionDeployment) {
     'Repairing subject themes and remaining genre hybrids',
   )
 
+  // Apply the user-reviewed catalog model last: merge specialist duplicates into
+  // canonical aliases, make punk families genres, remove global MOOD Facets, and
+  // physically delete migrated duplicate and recipe-shell records.
+  run(
+    tsxBinary,
+    ['utils/scripts/applyFacetCatalogDirectives.ts', '--apply'],
+    'Applying final Facet catalog directives and deleting historical shells',
+  )
+
   // Read the entire post-curation catalog and print a ranked next-batch queue.
   // This never mutates data or blocks deployment while cleanup is still in motion.
   run(

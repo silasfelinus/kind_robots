@@ -1,6 +1,7 @@
 // /nuxt.config.ts
 import { execFileSync } from 'node:child_process'
 import tailwindcss from '@tailwindcss/vite'
+import { DEFAULT_STARTUP_ANIMATION_SRC } from './utils/startupAnimations'
 
 const requireEnv = (key: string) => {
   const value = process.env[key]
@@ -32,7 +33,7 @@ const buildId =
   process.env.NUXT_PUBLIC_BUILD_ID ||
   'development'
 
-const startupAnimationSrc = '/images/startup-animations/launch-04.webp'
+const startupAnimationSrc = DEFAULT_STARTUP_ANIMATION_SRC
 
 /*
  * The build targets 'esnext', so nothing lowers syntax and nothing polyfills

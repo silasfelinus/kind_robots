@@ -81,6 +81,14 @@ if (!isVercelBuild || isProductionDeployment) {
     'Curating art-backed house genres and related genre families',
   )
 
+  // Refine broad or invented cultural labels after the structural genre passes.
+  // Renames happen only when no art is attached; legacy labels remain aliases.
+  run(
+    tsxBinary,
+    ['utils/scripts/curateFacetCulturalGenres.ts', '--apply'],
+    'Refining cultural genre labels and distinct speculative traditions',
+  )
+
   run(
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],

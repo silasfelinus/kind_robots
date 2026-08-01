@@ -15,6 +15,7 @@ import {
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useGeneratorStore } from '@/stores/generatorStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -654,6 +655,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
         selectedCharacter.value = merged
         characterForm.value = toCharacterForm(merged)
         await updateArtImagePath()
+        void useAchievementStore().rewardAchievementByCode('first-character')
 
         return merged
       }

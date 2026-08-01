@@ -101,7 +101,7 @@ export const useUserStore = defineStore('userStore', () => {
     isLoggedIn.value ? (user.value?.id ?? null) : null,
   )
   const username = computed(() => user.value?.username ?? 'Kind Guest')
-  const karma = computed(() => user.value?.karma ?? 1000)
+  const karma = computed(() => user.value?.karma ?? 0)
   const mana = computed(() => user.value?.mana ?? 0)
   const role = computed(() => user.value?.Role ?? 'USER')
   const isAdmin = computed(
@@ -834,27 +834,27 @@ export const useUserStore = defineStore('userStore', () => {
       ])
 
       const count = achievementStore.achievementCountForUser
-      const updatedKarma = count * 1000
       const updatedMana = count
 
+      // Karma is no longer set here: it is owned entirely by the server-side
+      // KarmaTransaction ledger (server/utils/karma.ts). Overwriting it with
+      // achievementCount * 1000 bypassed that ledger and contradicted it.
       const latestUser = await flushSpecificUserPatch({
-        karma: updatedKarma,
         mana: updatedMana,
       } as UserPatch)
 
       if (latestUser) {
         users.value = updateUserFields(users.value, currentUserId, {
-          karma: updatedKarma,
           mana: updatedMana,
         })
 
-        return { success: true, message: 'Karma and mana updated.' }
+        return { success: true, message: 'Mana updated.' }
       }
 
-      throw new Error('Failed to update karma and mana.')
+      throw new Error('Failed to update mana.')
     } catch (error) {
       handleError(error, 'updateKarmaAndMana')
-      return { success: false, message: 'Failed to update karma and mana.' }
+      return { success: false, message: 'Failed to update mana.' }
     }
   }
 

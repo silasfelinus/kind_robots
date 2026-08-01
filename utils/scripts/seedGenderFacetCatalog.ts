@@ -160,8 +160,11 @@ async function saveCandidate(candidate: GenderCandidate): Promise<number> {
           isActive: true,
         },
       })
-    : await prisma.facet.create({
-        data: {
+    : await prisma.facet.upsert({
+        // Multiple production deploys may seed simultaneously. A slug upsert
+        // makes the stale-snapshot create path converge instead of throwing P2002.
+        where: { slug },
+        create: {
           title: candidate.title,
           slug,
           kind: 'OTHER',
@@ -172,6 +175,14 @@ async function saveCandidate(candidate: GenderCandidate): Promise<number> {
           userId: 1,
           isPublic: true,
           isMature: false,
+          isActive: true,
+        },
+        update: {
+          title: candidate.title,
+          kind: 'OTHER',
+          description: candidate.description,
+          imagePath: candidate.imagePath,
+          designer: 'facet-catalog',
           isActive: true,
         },
       })
@@ -255,21 +266,38 @@ async function backfillCharacterGender(
     const facetId = lookupKey ? facetIdByLookupKey.get(lookupKey) : undefined
     if (!facetId) continue
 
-    await prisma.$transaction([
-      prisma.characterFacet.deleteMany({
-        where: { characterId: character.id, fieldKey: 'gender' },
-      }),
-      prisma.characterFacet.create({
-        data: {
+    // Install the desired link first, then remove obsolete gender links. This
+    // is idempotent, safe across overlapping deploys, and avoids a long-running
+    // transaction whose 5-second commit timeout failed under production load.
+    await prisma.characterFacet.upsert({
+      where: {
+        characterId_facetId_fieldKey: {
           characterId: character.id,
           facetId,
           fieldKey: 'gender',
-          sortOrder: 0,
-          weight: 1,
-          source: 'MIGRATED',
         },
-      }),
-    ])
+      },
+      create: {
+        characterId: character.id,
+        facetId,
+        fieldKey: 'gender',
+        sortOrder: 0,
+        weight: 1,
+        source: 'MIGRATED',
+      },
+      update: {
+        sortOrder: 0,
+        weight: 1,
+        source: 'MIGRATED',
+      },
+    })
+    await prisma.characterFacet.deleteMany({
+      where: {
+        characterId: character.id,
+        fieldKey: 'gender',
+        facetId: { not: facetId },
+      },
+    })
     linked++
   }
 

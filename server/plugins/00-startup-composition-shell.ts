@@ -24,11 +24,37 @@
  * and starts only once the app is actually running.
  */
 
+import {
+  DEFAULT_STARTUP_ANIMATION_SRC,
+  STARTUP_ANIMATION_META_NAME,
+  STARTUP_ANIMATION_SOURCES,
+} from '../../utils/startupAnimations'
+
 const RELEASE_DELAY_MS = 6000
 const RELEASE_FADE_MS = 500
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:html', (html) => {
+    const launchSrc =
+      STARTUP_ANIMATION_SOURCES[
+        Math.floor(Math.random() * STARTUP_ANIMATION_SOURCES.length)
+      ] ?? DEFAULT_STARTUP_ANIMATION_SRC
+
+    // Nuxt has already rendered the Vue intro with the deterministic default.
+    // Replace it in the completed response and publish the same choice in a
+    // meta tag so hydration initializes with the identical image. The preload,
+    // boot cameo, and Vue intro therefore never disagree or flash two launches.
+    const useSelectedLaunch = (markup: string) =>
+      markup.replaceAll(DEFAULT_STARTUP_ANIMATION_SRC, launchSrc)
+
+    html.head = html.head.map(useSelectedLaunch)
+    html.body = html.body.map(useSelectedLaunch)
+    html.bodyAppend = html.bodyAppend.map(useSelectedLaunch)
+    html.bodyPrepend = html.bodyPrepend.map(useSelectedLaunch)
+    html.head.push(
+      `<meta name="${STARTUP_ANIMATION_META_NAME}" content="${launchSrc}">`,
+    )
+
     html.bodyPrepend.unshift(`
       <style>
         .kr-boot-cover {
@@ -146,7 +172,7 @@ export default defineNitroPlugin((nitroApp) => {
 
           <div class="kr-boot-cover__media-frame">
             <img
-              src="/images/startup-animations/launch-04.webp"
+              src="${launchSrc}"
               alt=""
               class="kr-boot-cover__media"
               width="720"

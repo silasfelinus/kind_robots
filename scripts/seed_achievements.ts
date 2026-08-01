@@ -27,13 +27,13 @@ const LEGACY_TRIGGER_ALIASES: Record<string, string[]> = {
   'achievement-tour': ['test'],
 }
 
-const RETIRED_TRIGGER_MAPPINGS: Record<string, string> = {
-  pitchmaster: 'artmaker',
-  Artist: 'artmaker',
-  matchmaker: 'memory-master',
-  button: 'rebel-button',
-  milestone: 'achievement-tour',
-}
+const RETIRED_TRIGGER_CODES = [
+  'pitchmaster',
+  'Artist',
+  'matchmaker',
+  'button',
+  'milestone',
+] as const
 
 // The descriptive fields owned by the catalog. Generated `imagePath` and
 // `artImageId` are deliberately omitted so a reconciliation never erases art.
@@ -100,76 +100,50 @@ export async function upsertAchievement(
   })
 }
 
-export async function reconcileRetiredAchievements(
+export async function deleteRetiredAchievements(
   prisma: PrismaClient,
-): Promise<void> {
-  for (const [retiredCode, canonicalCode] of Object.entries(
-    RETIRED_TRIGGER_MAPPINGS,
-  )) {
-    const retired = await prisma.achievement.findUnique({
-      where: { triggerCode: retiredCode },
-    })
-    const canonical = await prisma.achievement.findUnique({
-      where: { triggerCode: canonicalCode },
-    })
-    if (!retired || !canonical || retired.id === canonical.id) continue
+): Promise<number> {
+  const retired = await prisma.achievement.findMany({
+    where: { triggerCode: { in: [...RETIRED_TRIGGER_CODES] } },
+    select: { id: true, triggerCode: true },
+  })
+  const retiredIds = retired.map((achievement) => achievement.id)
+  if (!retiredIds.length) return 0
 
-    const records = await prisma.achievementRecord.findMany({
-      where: { achievementId: retired.id },
-      orderBy: { id: 'asc' },
+  const records = await prisma.achievementRecord.findMany({
+    where: { achievementId: { in: retiredIds } },
+    select: { id: true },
+  })
+  const recordIds = records.map((record) => record.id)
+
+  if (recordIds.length) {
+    await prisma.lifeAchievementUnlock.updateMany({
+      where: { achievementRecordId: { in: recordIds } },
+      data: { achievementRecordId: null },
     })
-
-    for (const record of records) {
-      const existing = await prisma.achievementRecord.findFirst({
-        where: {
-          achievementId: canonical.id,
-          userId: record.userId,
-        },
-        orderBy: { id: 'asc' },
-      })
-
-      if (!existing) {
-        await prisma.achievementRecord.update({
-          where: { id: record.id },
-          data: { achievementId: canonical.id },
-        })
-        continue
-      }
-
-      await prisma.lifeAchievementUnlock.updateMany({
-        where: { achievementRecordId: record.id },
-        data: { achievementRecordId: existing.id },
-      })
-      await prisma.achievementRecord.update({
-        where: { id: existing.id },
-        data: {
-          isConfirmed: existing.isConfirmed || record.isConfirmed,
-          createdAt:
-            existing.createdAt <= record.createdAt
-              ? existing.createdAt
-              : record.createdAt,
-        },
-      })
-      await prisma.achievementRecord.delete({ where: { id: record.id } })
-    }
-
-    await prisma.lifeAchievement.updateMany({
-      where: { achievementId: retired.id },
-      data: { achievementId: canonical.id },
+    await prisma.achievementRecord.deleteMany({
+      where: { id: { in: recordIds } },
     })
-    await prisma.lifeEnding.updateMany({
-      where: { achievementId: retired.id },
-      data: { achievementId: canonical.id },
-    })
-    await prisma.achievement.update({
-      where: { id: retired.id },
-      data: { isActive: false },
-    })
-
-    console.log(
-      `  retired ${retiredCode} -> ${canonicalCode}; migrated ${records.length} award record(s)`,
-    )
   }
+
+  await prisma.lifeAchievement.updateMany({
+    where: { achievementId: { in: retiredIds } },
+    data: { achievementId: null },
+  })
+  await prisma.lifeEnding.updateMany({
+    where: { achievementId: { in: retiredIds } },
+    data: { achievementId: null },
+  })
+
+  const deleted = await prisma.achievement.deleteMany({
+    where: { id: { in: retiredIds } },
+  })
+  console.log(
+    `  deleted ${deleted.count} retired achievement(s) and ${records.length} alpha award record(s): ${retired
+      .map((achievement) => achievement.triggerCode)
+      .join(', ')}`,
+  )
+  return deleted.count
 }
 
 async function main() {
@@ -206,7 +180,7 @@ async function main() {
         )
       }
 
-      await reconcileRetiredAchievements(prisma)
+      await deleteRetiredAchievements(prisma)
 
       const after = await prisma.achievement.count()
       const activeAfter = await prisma.achievement.count({

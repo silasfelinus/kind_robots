@@ -5,6 +5,7 @@
     "one-header": [
       "components/conductor/project-front-page.vue",
       "components/pages/registration-form.vue",
+      "components/pages/serendipity-page.vue",
       "pages/admin/wonderlab-review-generator.vue",
       "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
@@ -60,13 +61,13 @@
       "content/taskmaster.md"
     ],
     "ghost-prop": [
-      "components/art/art-manager.vue → <art-gallery>",
-      "components/art/art-manager.vue → <art-test>",
-      "components/user/user-manager.vue → <chat-gallery>",
-      "components/user/user-manager.vue → <theme-gallery>",
-      "components/wonderlab/lab-manager.vue → <lab-interact>",
-      "components/wonderlab/lab-manager.vue → <memory-dungeon>",
-      "components/wonderlab/lab-manager.vue → <screen-fx>"
+      "components/art/art-manager.vue \u2192 <art-gallery>",
+      "components/art/art-manager.vue \u2192 <art-test>",
+      "components/user/user-manager.vue \u2192 <chat-gallery>",
+      "components/user/user-manager.vue \u2192 <theme-gallery>",
+      "components/wonderlab/lab-manager.vue \u2192 <lab-interact>",
+      "components/wonderlab/lab-manager.vue \u2192 <memory-dungeon>",
+      "components/wonderlab/lab-manager.vue \u2192 <screen-fx>"
     ],
     "zero-scroll": [
       "components/coloring/coloring-book-page.vue",

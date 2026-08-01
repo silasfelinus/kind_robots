@@ -1,7 +1,7 @@
 <!-- /components/content/pages/registration-form.vue -->
 <template>
   <div
-    class="bg-base-300 flex flex-col items-center rounded-2xl h-full p-4 sm:p-8"
+    class="bg-base-300 flex flex-col items-center rounded-2xl h-full min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-8"
   >
     <h1 class="text-6xl font-bold mb-6 text-center">Kind Robots</h1>
     <div v-if="isLoggedIn" class="text-lg mb-6 text-center">

@@ -7,7 +7,9 @@
   still lives in the Styler tab; this is the one-tap front door.
 -->
 <template>
-  <div class="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 sm:p-6">
+  <div
+    class="mx-auto flex h-full min-h-0 w-full max-w-4xl flex-col gap-4 overflow-y-auto overscroll-contain p-4 sm:p-6"
+  >
     <header class="flex flex-col gap-2">
       <div class="flex flex-wrap items-center gap-2">
         <span class="text-3xl leading-none">🖍️</span>

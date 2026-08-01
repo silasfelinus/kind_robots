@@ -1,6 +1,8 @@
 <!-- /components/content/pages/about-page.vue -->
 <template>
-  <div class="flex flex-col items-center gap-4 bg-base-200 py-6 px-4">
+  <div
+    class="flex h-full min-h-0 flex-col items-center gap-4 overflow-y-auto overscroll-contain bg-base-200 py-6 px-4"
+  >
     <div class="w-full max-w-2xl">
       <!-- Section header -->
       <div class="mb-6 flex flex-col items-center gap-2 text-center">

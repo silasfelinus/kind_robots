@@ -99,7 +99,7 @@
           <fx-region region="page" />
 
           <div
-            class="relative z-10 h-full min-h-0 w-full overflow-x-visible overflow-y-auto overscroll-y-contain"
+            class="relative z-10 h-full min-h-0 w-full overflow-x-visible overflow-hidden"
           >
             <NuxtPage />
           </div>

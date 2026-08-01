@@ -1,5 +1,7 @@
 <template>
-  <section class="mx-auto flex w-full max-w-6xl flex-col gap-4 p-3">
+  <section
+    class="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-col gap-4 overflow-y-auto overscroll-contain p-3"
+  >
     <header class="flex flex-wrap items-center justify-between gap-2">
       <div>
         <h1 class="text-xl font-semibold">⚗️ Build Bench</h1>

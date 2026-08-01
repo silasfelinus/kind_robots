@@ -1,6 +1,6 @@
 <template>
   <div
-    class="privacy-page max-w-3xl mx-auto px-6 py-12 text-base leading-relaxed"
+    class="privacy-page h-full min-h-0 max-w-3xl mx-auto overflow-y-auto overscroll-contain px-6 py-12 text-base leading-relaxed"
   >
     <header class="mb-10">
       <h1 class="text-4xl font-bold mb-2">Privacy Policy</h1>

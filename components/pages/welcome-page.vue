@@ -1,7 +1,7 @@
 <!-- /components/content/pages/welcome-page.vue -->
 <template>
   <div
-    class="min-h-screen bg-linear-to-r from-primary to-secondary flex flex-col"
+    class="h-full min-h-0 bg-linear-to-r from-primary to-secondary flex flex-col"
   >
     <div class="grow p-6 md:p-12 overflow-auto">
       <site-header>

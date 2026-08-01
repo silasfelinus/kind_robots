@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-dvh w-full items-center justify-center bg-cover bg-center"
+    class="flex h-full min-h-0 w-full items-center justify-center overflow-y-auto overscroll-contain bg-cover bg-center"
     style="background-image: url('/images/background/error.png')"
   >
     <div class="rounded-2xl bg-base-100/60 p-8 text-center shadow-lg">

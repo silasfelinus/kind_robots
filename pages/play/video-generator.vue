@@ -1,5 +1,7 @@
 <template>
-  <div class="mx-auto max-w-5xl space-y-6 p-6">
+  <div
+    class="mx-auto h-full min-h-0 max-w-5xl space-y-6 overflow-y-auto overscroll-contain p-6"
+  >
     <header class="space-y-1">
       <h1 class="text-2xl font-bold">🎬 Video Generator</h1>
       <p class="text-sm opacity-70">

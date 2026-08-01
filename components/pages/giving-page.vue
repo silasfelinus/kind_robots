@@ -1,6 +1,8 @@
 <!-- /components/content/pages/giving-page.vue -->
 <template>
-  <div class="mx-auto max-w-4xl space-y-6 px-4 py-2 sm:px-6 lg:px-8">
+  <div
+    class="mx-auto h-full min-h-0 max-w-4xl space-y-6 overflow-y-auto overscroll-contain px-4 py-2 sm:px-6 lg:px-8"
+  >
     <div
       class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
     >

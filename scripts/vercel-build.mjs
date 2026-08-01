@@ -134,12 +134,29 @@ if (!isVercelBuild || isProductionDeployment) {
     'Applying final Facet catalog directives and deleting historical shells',
   )
 
+  // Older merge scripts may encounter pre-existing rows and temporarily mark them
+  // inactive. Move every remaining edge and artwork reference, then remove those
+  // shells and transient recipe records completely.
+  run(
+    tsxBinary,
+    ['utils/scripts/cleanupRetiredFacetShells.ts', '--apply'],
+    'Migrating and deleting all retired Facet shells',
+  )
+
   // Read the entire post-curation catalog and print a ranked next-batch queue.
   // This never mutates data or blocks deployment while cleanup is still in motion.
   run(
     tsxBinary,
     ['utils/scripts/auditFacetCatalogOddities.ts', '--top=60'],
     'Auditing the complete Facet catalog for remaining oddities',
+  )
+
+  // Queue one primary square artwork only for clean, active, art-required Facets.
+  // Card, hero, and icon variants wait for the multi-art schema migration.
+  run(
+    tsxBinary,
+    ['scripts/generate_facet_art.ts', '--write'],
+    'Queueing missing primary Facet artwork after the full catalog audit',
   )
 
   run(

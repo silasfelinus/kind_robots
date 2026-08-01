@@ -122,7 +122,7 @@ assert.ok(
 )
 assert.ok(
   source('app.vue').includes('<achievement-popup') &&
-    source('app.vue').includes('rewardAchievementForPath(route.path)'),
+    source('app.vue').includes('rewardAchievementForPath(path)'),
   'The global popup and subsequent route awards must stay mounted.',
 )
 

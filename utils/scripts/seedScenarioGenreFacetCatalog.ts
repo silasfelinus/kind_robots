@@ -205,8 +205,12 @@ async function saveCandidate(
           isActive: true,
         },
       })
-    : await prisma.facet.create({
-        data: {
+    : await prisma.facet.upsert({
+        // Production deployments can overlap. The catalog snapshot above may
+        // legitimately become stale before this write, so create-by-slug must
+        // be atomic rather than a read followed by an unguarded insert.
+        where: { slug },
+        create: {
           title: candidate.title,
           slug,
           kind: 'GENRE',
@@ -217,6 +221,14 @@ async function saveCandidate(
           userId: 1,
           isPublic: true,
           isMature: false,
+          isActive: true,
+        },
+        update: {
+          title: candidate.title,
+          kind: 'GENRE',
+          description: candidate.description,
+          imagePath: candidate.imagePath,
+          designer: 'facet-catalog',
           isActive: true,
         },
       })

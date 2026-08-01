@@ -111,13 +111,6 @@ export interface GalleryItem {
   badges?: Array<{ label: string; class?: string }>
 }
 
-const DEFAULT_GALLERY_MODES: GalleryModeOption[] = [
-  { value: 'cards', label: 'Cards', abbr: 'C' },
-  { value: 'heroes', label: 'Heroes', abbr: 'H' },
-  { value: 'icons', label: 'Icons', abbr: 'I' },
-  { value: 'list', label: 'List', abbr: 'L' },
-]
-
 const props = withDefaults(
   defineProps<{
     items: GalleryItem[]
@@ -130,7 +123,12 @@ const props = withDefaults(
   }>(),
   {
     mode: 'cards',
-    modes: () => DEFAULT_GALLERY_MODES,
+    modes: () => [
+      { value: 'cards', label: 'Cards', abbr: 'C' },
+      { value: 'heroes', label: 'Heroes', abbr: 'H' },
+      { value: 'icons', label: 'Icons', abbr: 'I' },
+      { value: 'list', label: 'List', abbr: 'L' },
+    ],
     loading: false,
     error: '',
     emptyLabel: 'items',

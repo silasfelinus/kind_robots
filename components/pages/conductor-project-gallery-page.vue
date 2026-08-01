@@ -12,9 +12,6 @@
         {{ blockedTasks.length }} blocked
       </button>
       <div class="flex-1" />
-      <div class="flex gap-0.5">
-        <button v-for="mode in modes" :key="mode.value" class="btn btn-xs px-2" :class="galleryMode === mode.value ? 'btn-primary' : 'btn-ghost'" :title="mode.label" @click="galleryMode = mode.value">{{ mode.abbr }}</button>
-      </div>
       <button class="btn btn-ghost btn-xs gap-1" :disabled="loading" @click="refresh">
         <span v-if="loading" class="loading loading-spinner loading-xs" />
         <Icon v-else name="kind-icon:refresh" class="size-3.5" />
@@ -59,44 +56,19 @@
     </section>
 
     <main class="min-h-0 flex-1 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-3">
-      <div v-if="loading && !allItems.length" class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div v-for="n in 8" :key="n" class="h-56 animate-pulse rounded-2xl bg-base-200" />
-      </div>
-      <div v-else-if="error" class="flex min-h-64 flex-col items-center justify-center gap-2 text-error">
-        <Icon name="kind-icon:warning" class="size-10" /><b>{{ error }}</b>
-      </div>
-      <div v-else-if="!galleryItems.length" class="flex min-h-64 flex-col items-center justify-center text-center">
-        <Icon name="kind-icon:cards" class="size-12 text-base-content/20" />
-        <b>No {{ filterLabel.toLowerCase() }} projects.</b>
-      </div>
-      <section v-else :class="gridClass">
-        <button v-for="item in galleryItems" :key="item.id" class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg" :class="itemClass" @click="open(item)">
-          <div class="relative overflow-hidden" :class="imageWrapClass">
-            <img :src="displayImage(item)" :alt="item.title" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-            <div class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent" />
-            <div class="absolute left-2 top-2 flex gap-1">
-              <span class="badge badge-xs" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
-              <span v-if="item.drift" class="badge badge-warning badge-xs">drift</span>
-            </div>
-            <img v-if="galleryMode !== 'icons'" :src="item.icon" alt="" class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow" />
-          </div>
-          <div class="p-3" :class="galleryMode === 'icons' ? 'text-center' : ''">
-            <div class="flex items-start gap-2" :class="galleryMode === 'icons' ? 'justify-center' : ''">
-              <div class="min-w-0 flex-1">
-                <h2 class="truncate font-black">{{ item.title }}</h2>
-                <p v-if="galleryMode !== 'icons'" class="line-clamp-2 text-xs text-base-content/55">{{ item.description }}</p>
-              </div>
-              <span class="badge badge-xs" :class="priorityClass(item.priority)">{{ item.priority }}</span>
-            </div>
-            <div class="mt-2 flex items-center gap-2 text-xs text-base-content/45">
-              <span>{{ item.progress }}%</span><span>{{ item.done }}/{{ item.total }} done</span>
-              <span v-if="item.blocked" class="font-bold text-error">{{ item.blocked }} blocked</span>
-              <span v-if="item.needsHuman" class="font-bold text-accent">{{ item.needsHuman }} need you</span>
-            </div>
-            <div class="mt-1.5 h-1 overflow-hidden rounded-full bg-base-content/10"><div class="h-full bg-primary" :style="{ width: `${item.progress}%` }" /></div>
-          </div>
-        </button>
-      </section>
+      <kr-gallery
+        :items="galleryItems"
+        :mode="galleryMode"
+        :loading="loading"
+        :error="error"
+        :empty-label="`${filterLabel.toLowerCase()} projects`"
+        @update:mode="galleryMode = $event"
+        @open="(item) => open(item as Item)"
+      >
+        <template #item-trailing="{ item }">
+          <span class="badge badge-xs" :class="priorityClass((item as Item).priority)">{{ (item as Item).priority }}</span>
+        </template>
+      </kr-gallery>
     </main>
   </section>
 </template>
@@ -108,24 +80,34 @@ import { useConductorStore } from '@/stores/conductorStore'
 import { useProjectStore, type ProjectPriorityLevel, type ProjectWithRelations } from '@/stores/projectStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
+import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import type { GalleryMode } from '@/components/gallery/kr-gallery.vue'
 
 const IMG_BASE = 'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
-type Mode = 'cards' | 'heroes' | 'icons' | 'list'
 type Status = 'ACTIVE' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
 type Filter = Status | 'ALL'
-type Item = { id: number; slug: string; title: string; description: string; status: Status; dbStatus: Status; priority: ProjectPriorityLevel; progress: number; done: number; total: number; blocked: number; needsHuman: number; icon: string; card: string; hero: string; updated: number; drift: boolean; hasConductor: boolean }
+type Item = { id: number; slug: string; title: string; description: string; status: Status; dbStatus: Status; priority: ProjectPriorityLevel; progress: number; done: number; total: number; blocked: number; needsHuman: number; icon: string; card: string; hero: string; meta: string; progressPercent: number; badges: Array<{ label: string; class?: string }>; updated: number; drift: boolean; hasConductor: boolean }
 type BlockedTask = ConductorTask & { projectSlug: string; projectTitle: string }
 
-const modes = [{ value: 'cards' as const, label: 'Cards', abbr: 'C' }, { value: 'heroes' as const, label: 'Heroes', abbr: 'H' }, { value: 'icons' as const, label: 'Icons', abbr: 'I' }, { value: 'list' as const, label: 'List', abbr: 'L' }]
+const GALLERY_KEY = 'conductor-project-gallery'
 const filters = [{ value: 'ACTIVE' as const, label: 'Active', icon: 'kind-icon:sparkles' }, { value: 'PAUSED' as const, label: 'Paused', icon: 'kind-icon:pause' }, { value: 'DONE' as const, label: 'Completed', icon: 'kind-icon:check-circle' }, { value: 'BRAINSTORM' as const, label: 'Ideas', icon: 'kind-icon:lightbulb' }, { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' }, { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' }]
+const IS_MODE = (value: string): value is GalleryMode => value === 'cards' || value === 'heroes' || value === 'icons' || value === 'list'
+const IS_FILTER = (value: string): value is Filter => filters.some((entry) => entry.value === value) || value === 'ALL'
 
 const projects = useProjectStore()
 const conductor = useConductorStore()
 const page = usePageStore()
 const todos = useTodoStore()
-const galleryMode = ref<Mode>('cards')
-const filter = ref<Filter>('ACTIVE')
+const galleryPrefs = useGalleryPreferenceStore()
+const galleryMode = computed({
+  get: () => galleryPrefs.get<GalleryMode>(GALLERY_KEY, 'mode', 'cards', IS_MODE),
+  set: (value: GalleryMode) => galleryPrefs.set(GALLERY_KEY, 'mode', value),
+})
+const filter = computed({
+  get: () => galleryPrefs.get<Filter>(GALLERY_KEY, 'filter', 'ACTIVE', IS_FILTER),
+  set: (value: Filter) => galleryPrefs.set(GALLERY_KEY, 'filter', value),
+})
 const showSync = ref(false)
 const showBlocked = ref(false)
 const loading = computed(() => projects.loading || conductor.pending)
@@ -144,6 +126,10 @@ function image(record: ProjectWithRelations, source: ConductorProject | undefine
   return revision(direct, record.updatedAt ? new Date(record.updatedAt).getTime() : 0)
 }
 
+const statusLabel = (value: Status) => value === 'DONE' ? 'Completed' : value === 'BRAINSTORM' ? 'Idea' : value.charAt(0) + value.slice(1).toLowerCase()
+const statusClass = (value: Status) => value === 'DONE' ? 'badge-success' : value === 'PAUSED' ? 'badge-warning' : value === 'ARCHIVED' ? 'badge-ghost' : value === 'BRAINSTORM' ? 'badge-secondary' : 'badge-primary'
+const priorityClass = (value: ProjectPriorityLevel) => value === 'HIGH' ? 'badge-error' : value === 'LOW' ? 'badge-ghost' : 'badge-warning'
+
 function toItem(record: ProjectWithRelations): Item {
   const slug = slugFor(record)
   const source = conductorBySlug.value.get(slug)
@@ -152,7 +138,15 @@ function toItem(record: ProjectWithRelations): Item {
   const blocked = source?.tasks.filter((task) => task.status === 'blocked').length || 0
   const needsHuman = source?.tasks.filter((task) => task.status === 'needs-human').length || 0
   const done = source?.tasks.filter((task) => task.status === 'done').length || 0
-  return { id: record.id, slug, title: record.title || source?.name || slug, description: record.flavorText || record.description || record.goal || source?.notesFromSilas || 'Kind Robots project.', status, dbStatus: record.status as Status, priority, progress: source?.progress ?? (status === 'DONE' ? 100 : 0), done, total: source?.tasks.length || record._count?.Todos || 0, blocked, needsHuman, icon: image(record, source, 'icon'), card: image(record, source, 'card'), hero: image(record, source, 'hero'), updated: record.updatedAt ? new Date(record.updatedAt).getTime() : 0, drift: Boolean(source && (record.status !== status || record.priority !== priority || record.isActive !== (status !== 'ARCHIVED'))), hasConductor: Boolean(source) }
+  const total = source?.tasks.length || record._count?.Todos || 0
+  const progress = source?.progress ?? (status === 'DONE' ? 100 : 0)
+  const drift = Boolean(source && (record.status !== status || record.priority !== priority || record.isActive !== (status !== 'ARCHIVED')))
+  const metaParts = [`${progress}%`, `${done}/${total} done`]
+  if (blocked) metaParts.push(`${blocked} blocked`)
+  if (needsHuman) metaParts.push(`${needsHuman} need you`)
+  const badges = [{ label: statusLabel(status), class: statusClass(status) }]
+  if (drift) badges.push({ label: 'drift', class: 'badge-warning' })
+  return { id: record.id, slug, title: record.title || source?.name || slug, description: record.flavorText || record.description || record.goal || source?.notesFromSilas || 'Kind Robots project.', status, dbStatus: record.status as Status, priority, progress, done, total, blocked, needsHuman, icon: image(record, source, 'icon'), card: image(record, source, 'card'), hero: image(record, source, 'hero'), meta: metaParts.join(' · '), progressPercent: progress, badges, updated: record.updatedAt ? new Date(record.updatedAt).getTime() : 0, drift, hasConductor: Boolean(source) }
 }
 
 const allItems = computed(() => projects.projects.map(toItem))
@@ -163,23 +157,14 @@ const syncIssueCount = computed(() => driftItems.value.length + databaseOnly.val
 const blockedTasks = computed<BlockedTask[]>(() => conductor.projects.flatMap((project) => project.tasks.filter((task) => task.status === 'blocked').map((task) => ({ ...task, projectSlug: project.slug, projectTitle: projects.projectForSlug(project.slug)?.title || project.name || project.slug }))))
 const filterLabel = computed(() => filters.find((entry) => entry.value === filter.value)?.label || 'All')
 const galleryItems = computed(() => { const list = filter.value === 'ALL' ? allItems.value : allItems.value.filter((item) => item.status === filter.value); const order: Record<ProjectPriorityLevel, number> = { HIGH: 0, NORMAL: 1, LOW: 2 }; return [...list].sort((a, b) => order[a.priority] - order[b.priority] || b.updated - a.updated || a.title.localeCompare(b.title)) })
-const gridClass = computed(() => galleryMode.value === 'list' ? 'flex flex-col gap-2' : galleryMode.value === 'heroes' ? 'grid gap-4 lg:grid-cols-2' : galleryMode.value === 'icons' ? 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5' : 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4')
-const itemClass = computed(() => galleryMode.value === 'list' ? 'grid md:grid-cols-[12rem_1fr]' : '')
-const imageWrapClass = computed(() => galleryMode.value === 'heroes' ? 'min-h-64' : galleryMode.value === 'icons' ? 'mx-auto mt-3 size-24 rounded-2xl' : galleryMode.value === 'list' ? 'min-h-40' : 'aspect-[4/3]')
-const displayImage = (item: Item) => galleryMode.value === 'heroes' || galleryMode.value === 'list' ? item.hero : galleryMode.value === 'icons' ? item.icon : item.card
 const filterCount = (value: Filter) => value === 'ALL' ? allItems.value.length : allItems.value.filter((item) => item.status === value).length
 
 const workspaceCards = computed<BuilderCard[]>(() => [{ key: 'overview', label: 'Overview', title: 'Overview', icon: 'kind-icon:gearhammer', tagline: '', narrative: '', restoresFields: [], steps: [], deckImage: '/images/projects/overview-card.webp', payload: {} }, ...allItems.value.filter((item) => item.status !== 'ARCHIVED').map((item) => ({ key: item.slug, label: item.title, title: item.title, icon: 'kind-icon:document', tagline: '', narrative: '', restoresFields: [], steps: [], deckImage: item.card, payload: {} }))])
 watch(workspaceCards, (cards) => { page.setCards(cards); if (!page.workspaceCardKey) page.setWorkspaceCardKey('overview') }, { immediate: true })
-watch(galleryMode, (value) => { if (import.meta.client) localStorage.setItem('conductor-gallery-mode', value) })
-watch(filter, (value) => { if (import.meta.client) localStorage.setItem('conductor-project-filter', value) })
 
-onMounted(async () => { if (import.meta.client) { const mode = localStorage.getItem('conductor-gallery-mode') as Mode | null; if (mode && modes.some((entry) => entry.value === mode)) galleryMode.value = mode; const saved = localStorage.getItem('conductor-project-filter') as Filter | null; if (saved && filters.some((entry) => entry.value === saved)) filter.value = saved } await load(true) })
+onMounted(async () => { await load(true) })
 const load = (force: boolean) => Promise.all([projects.fetchProjects({ includeInactive: true, includeMature: true }, force), conductor.fetchProjects(force), todos.hasLoaded ? todos.fetchTodos(force) : Promise.resolve()])
 const refresh = () => load(true)
 async function open(item: Item) { await projects.fetchProject(item.id); page.setWorkspaceCardKey(item.slug) }
 async function openSlug(slug: string) { const item = allItems.value.find((entry) => entry.slug === slug); if (item) await open(item) }
-const statusLabel = (value: Status) => value === 'DONE' ? 'Completed' : value === 'BRAINSTORM' ? 'Idea' : value.charAt(0) + value.slice(1).toLowerCase()
-const statusClass = (value: Status) => value === 'DONE' ? 'badge-success' : value === 'PAUSED' ? 'badge-warning' : value === 'ARCHIVED' ? 'badge-ghost' : value === 'BRAINSTORM' ? 'badge-secondary' : 'badge-primary'
-const priorityClass = (value: ProjectPriorityLevel) => value === 'HIGH' ? 'badge-error' : value === 'LOW' ? 'badge-ghost' : 'badge-warning'
 </script>

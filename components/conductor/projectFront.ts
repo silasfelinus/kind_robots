@@ -6,9 +6,8 @@
 // page always renders something styled even when no public DB row exists yet.
 //
 // Conventions verified against ecosystem-map/TAB-INTEGRATION.md and
-// kind_robots/sample/new-section.md. Art paths mirror
-// conductor-overview-gallery-page.vue (local public asset first, conductor repo
-// raw asset as the fallback).
+// kind_robots/sample/new-section.md. Art paths mirror the canonical project
+// gallery fallback chain (local public asset first, conductor repo raw asset).
 
 const CONDUCTOR_IMAGE_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'

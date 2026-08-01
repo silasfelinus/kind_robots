@@ -143,6 +143,7 @@ model Bot {
   artPrompt            String?                @db.Text
   imagePath            String?                @db.VarChar(764)
   icon                 String?
+  iconPath             String?                @db.Text
   cardPath             String?                @db.Text
   heroPath             String?                @db.Text
   allowReviews         Boolean                @default(false)
@@ -193,6 +194,7 @@ model Character {
   honorific            String?                @default("adventurer") @db.VarChar(256)
   imagePath            String?                @db.VarChar(764)
   icon                 String?
+  iconPath             String?                @db.Text
   cardPath             String?                @db.Text
   heroPath             String?                @db.Text
   allowReviews         Boolean                @default(false)
@@ -1149,6 +1151,7 @@ model Reward {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime?   @default(now()) @updatedAt
   icon         String?     @db.VarChar(256)
+  iconPath     String?     @db.Text
   collection   String?     @db.VarChar(764)
   rarity       Rarity      @default(COMMON)
   userId       Int?        @default(1)
@@ -1195,6 +1198,7 @@ model Scenario {
   artImageId           Int?
   imagePath            String?
   icon                 String?
+  iconPath             String?               @db.Text
   cardPath             String?               @db.Text
   heroPath             String?               @db.Text
   allowReviews         Boolean               @default(false)

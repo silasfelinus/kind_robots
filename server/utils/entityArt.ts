@@ -56,6 +56,7 @@ type EntityArtRecord = Record<string, unknown> & {
   avatarImage?: string | null
   cardPath?: string | null
   heroPath?: string | null
+  iconPath?: string | null
 }
 
 type EntityArtFieldConfig = {
@@ -77,10 +78,15 @@ const ENTITY_FIELDS: Record<
    * ever render one layout. Facet keeps its own larger sizes; churning them
    * would invalidate art that already exists.
    *
-   * Note there is no `icon` art slot: `Bot.icon`/`Character.icon`/`Scenario.icon`
-   * hold an icon NAME (e.g. 'mdi:radio-tower'), not a path. The small square
-   * render is the primary field (avatarImage / imagePath), same as `project`
-   * labels imagePath 'Icon'.
+   * ICON vs ICONPATH -- these are different things and the distinction matters
+   * (Silas, 2026-08-01). `icon` is a NAME for an existing simple icon in the
+   * Kind Robots set (e.g. 'kind-icon:bot'); it is never an art slot and never
+   * generated. `iconPath` points at a fully developed logo image and IS an art
+   * slot, rendered at 256x256 so small grid cells stop reusing a 1024px
+   * portrait. `project` still labels its `imagePath` 'Icon' for backward
+   * compatibility -- see server/api/conductor/project-art-complete.post.ts,
+   * which maps that field onto the ArtImage `iconPath` variant. Migrating
+   * project onto a real iconPath column is deliberately left for t-009.
    */
   bot: {
     avatarImage: {
@@ -88,6 +94,12 @@ const ENTITY_FIELDS: Record<
       width: 1024,
       height: 1024,
       primary: true,
+    },
+    iconPath: {
+      label: 'Icon',
+      width: 256,
+      height: 256,
+      primary: false,
     },
     cardPath: {
       label: 'Card',
@@ -109,6 +121,12 @@ const ENTITY_FIELDS: Record<
       height: 1024,
       primary: true,
     },
+    iconPath: {
+      label: 'Icon',
+      width: 256,
+      height: 256,
+      primary: false,
+    },
     cardPath: {
       label: 'Card',
       width: 512,
@@ -129,6 +147,12 @@ const ENTITY_FIELDS: Record<
       height: 864,
       primary: true,
     },
+    iconPath: {
+      label: 'Icon',
+      width: 256,
+      height: 256,
+      primary: false,
+    },
     cardPath: {
       label: 'Card',
       width: 512,
@@ -148,6 +172,12 @@ const ENTITY_FIELDS: Record<
       width: 1024,
       height: 1024,
       primary: true,
+    },
+    iconPath: {
+      label: 'Icon',
+      width: 256,
+      height: 256,
+      primary: false,
     },
     cardPath: {
       label: 'Card',
@@ -550,7 +580,9 @@ async function updateEntityRecord(
       ? { cardPath: input.imagePath }
       : input.field === 'heroPath'
         ? { heroPath: input.imagePath }
-        : null
+        : input.field === 'iconPath'
+          ? { iconPath: input.imagePath }
+          : null
 
   switch (input.entityType) {
     case 'bot':

@@ -115,6 +115,7 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     artImageId: scenario.artImageId ?? null,
     imagePath: scenario.imagePath ?? null,
     icon: scenario.icon ?? null,
+    iconPath: scenario.iconPath ?? null,
     cardPath: scenario.cardPath ?? null,
     heroPath: scenario.heroPath ?? null,
     allowReviews: scenario.allowReviews ?? false,

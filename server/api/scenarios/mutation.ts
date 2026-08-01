@@ -22,6 +22,7 @@ const scenarioMutationFields = [
   'artImageId',
   'imagePath',
   'icon',
+  'iconPath',
   'cardPath',
   'heroPath',
   'allowReviews',
@@ -105,6 +106,7 @@ type ScenarioBoundaryOptions = {
 const nullableTextFields = [
   'imagePath',
   'icon',
+  'iconPath',
   'cardPath',
   'heroPath',
   'locations',
@@ -683,6 +685,9 @@ export async function buildScenarioUpdateInput(
   }
   if ('icon' in body) {
     data.icon = normalizeScenarioNullableString(body.icon, 'icon')
+  }
+  if ('iconPath' in body) {
+    data.iconPath = normalizeScenarioNullableString(body.iconPath, 'iconPath')
   }
   if ('cardPath' in body) {
     data.cardPath = normalizeScenarioNullableString(body.cardPath, 'cardPath')

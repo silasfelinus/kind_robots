@@ -11,7 +11,7 @@
       <button
         type="button"
         class="btn btn-xs btn-ghost ml-auto gap-1 rounded-lg text-primary"
-        :disabled="isAutoBuilding"
+        :disabled="isAutoBuilding || isManualActionInFlight"
         title="Draft, generate, and commit this item automatically"
         @click="store.autoBuildItem(item.id)"
       >
@@ -362,6 +362,19 @@ function isDrafting(field: DraftField): boolean {
     store.draftingField?.field === field
   )
 }
+
+// A manual single-stage action already in flight for this item blocks Auto
+// too -- the store's autoBuildItem guard mirrors this, but the button must
+// disable in step or a click here is silently swallowed with no feedback.
+const isManualActionInFlight = computed(
+  () =>
+    isGenerating.value ||
+    isQueued.value ||
+    isCommitting.value ||
+    isDrafting('pitch') ||
+    isDrafting('fields') ||
+    isDrafting('artPrompt'),
+)
 
 function draft(field: DraftField): void {
   store.draftText(props.itemId, field)

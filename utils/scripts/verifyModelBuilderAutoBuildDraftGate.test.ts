@@ -57,6 +57,14 @@ const FIXED_FIXTURE = `
 
     if (state.autoBuildingItemId === item.id) return false
 
+    if (
+      state.generatingItemId === item.id ||
+      state.committingItemId === item.id ||
+      draftingField.value?.itemId === item.id
+    ) {
+      return false
+    }
+
     const isAsset = item.action === 'ASSET_ONLY'
     const wantArt = state.includeArt && item.generation === 'image'
 
@@ -111,10 +119,11 @@ const MISSING_FIXTURE = `
 const buggyErrors = checkAutoBuildDraftGate(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
-  4,
+  5,
   'expected the pre-fix shape (three discarded draftText results plus the ' +
-    'missing same-item reentrancy guard) to raise 4 errors, got ' +
-    `${buggyErrors.length}: ${JSON.stringify(buggyErrors)}`,
+    'missing same-item reentrancy guard plus the missing manual-action-in-' +
+    `flight guard) to raise 5 errors, got ${buggyErrors.length}: ` +
+    JSON.stringify(buggyErrors),
 )
 assert.ok(
   buggyErrors.some((e) => e.includes("'pitch'") && e.includes('discarded')),
@@ -131,6 +140,12 @@ assert.ok(
 assert.ok(
   buggyErrors.some((e) => e.includes('autoBuildingItemId')),
   'expected a violation for the missing same-item reentrancy guard',
+)
+assert.ok(
+  buggyErrors.some(
+    (e) => e.includes('generatingItemId') && e.includes('manual'),
+  ),
+  'expected a violation for the missing manual-action-in-flight guard',
 )
 
 const fixedErrors = checkAutoBuildDraftGate(FIXED_FIXTURE)
@@ -151,6 +166,30 @@ assert.equal(
   'expected exactly one violation when only the same-item reentrancy guard is missing',
 )
 assert.ok(reentrantErrors[0]!.includes('autoBuildingItemId'))
+
+const NO_MANUAL_GUARD_FIXTURE = FIXED_FIXTURE.replace(
+  `
+    if (
+      state.generatingItemId === item.id ||
+      state.committingItemId === item.id ||
+      draftingField.value?.itemId === item.id
+    ) {
+      return false
+    }
+`,
+  '',
+)
+const noManualGuardErrors = checkAutoBuildDraftGate(NO_MANUAL_GUARD_FIXTURE)
+assert.equal(
+  noManualGuardErrors.length,
+  1,
+  'expected exactly one violation when only the manual-action-in-flight guard is missing, got ' +
+    JSON.stringify(noManualGuardErrors),
+)
+assert.ok(
+  noManualGuardErrors[0]!.includes('generatingItemId') &&
+    noManualGuardErrors[0]!.includes('manual'),
+)
 
 const missingFnErrors = checkAutoBuildDraftGate(MISSING_FIXTURE)
 assert.equal(

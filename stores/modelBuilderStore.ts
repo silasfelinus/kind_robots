@@ -1374,6 +1374,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
     if (state.autoBuildingItemId === item.id) return false
 
+    // A manual single-stage action (Generate candidate / Draft with AI /
+    // Execute commit) already in flight for this item must block Auto too --
+    // otherwise Auto walks straight into the same stage and fires a second,
+    // concurrent request (generateItemAsset's own approved-stage guard only
+    // catches the case where the first call already resolved to approved; it
+    // does nothing while both calls are still racing mid-flight).
+    if (
+      state.generatingItemId === item.id ||
+      state.committingItemId === item.id ||
+      draftingField.value?.itemId === item.id
+    ) {
+      return false
+    }
+
     const isAsset = item.action === 'ASSET_ONLY'
     const wantArt = state.includeArt && item.generation === 'image'
 

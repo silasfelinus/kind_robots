@@ -95,10 +95,14 @@
           type="button"
           class="btn btn-xs btn-primary rounded-lg"
           :disabled="batching"
+          :title="autoBuildGroupTitle"
           @click="store.batchAutoBuild(group.outputKey)"
         >
           <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
           Auto-build group
+          <span v-if="busyCount" class="badge badge-xs badge-ghost"
+            >{{ busyCount }} busy</span
+          >
         </button>
       </div>
     </section>
@@ -215,6 +219,23 @@ const wantArt = computed(
 )
 const fields = computed(() =>
   group.value ? fieldSpecFor(group.value.targetModel) : [],
+)
+
+// Pre-run advisory (t-038): how many items in this group are mid-manual-action
+// right now, so a click on "Auto-build group" doesn't surprise the user with a
+// lower-than-expected committed count -- those items will just be skipped.
+const busyCount = computed(
+  () =>
+    group.value?.items.filter((item) =>
+      store.isItemManualActionInFlight(item.id),
+    ).length ?? 0,
+)
+const autoBuildGroupTitle = computed(() =>
+  busyCount.value
+    ? `${busyCount.value} item${busyCount.value === 1 ? '' : 's'} in this group ` +
+      `${busyCount.value === 1 ? 'has' : 'have'} a manual action in progress ` +
+      'right now and will be skipped this pass -- retry after it finishes.'
+    : undefined,
 )
 
 const onlyEmpty = ref(false)

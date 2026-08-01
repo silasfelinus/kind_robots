@@ -1374,6 +1374,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // distinction so a busy-but-fine item doesn't read the same as a broken one.
   type AutoBuildOutcome = 'committed' | 'skipped' | 'failed'
 
+  // Mirrors model-builder-item-panel.vue's per-item isManualActionInFlight
+  // computed (generating / queued / committing / drafting any field) so a
+  // batch or run trigger can show the same "N busy" signal *before* starting
+  // — those items would otherwise just silently come back 'skipped' from
+  // autoBuildItem below, with no feedback until the run/batch finishes (t-038).
+  function isItemManualActionInFlight(itemId: string): boolean {
+    const item = findItem(itemId)
+    return (
+      state.generatingItemId === itemId ||
+      Boolean(item?.queueState) ||
+      state.committingItemId === itemId ||
+      draftingField.value?.itemId === itemId
+    )
+  }
+
   // Run one item through every gate automatically with sensible defaults: draft
   // what's empty, generate art only when wanted, and commit. "Create directly"
   // for CREATE/UPDATE items when art is off. Returns the outcome so batch/run
@@ -1847,6 +1862,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     previewCommit,
     commitItem,
     toggleIncludeArt,
+    isItemManualActionInFlight,
     autoBuildItem,
     autoBuildRun,
     batchDraftField,

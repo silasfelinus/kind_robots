@@ -15,13 +15,16 @@
           type="button"
           class="btn btn-xs btn-primary rounded-xl"
           :disabled="store.autoBuilding"
-          title="Draft, generate, and commit every item automatically"
+          :title="autoBuildAllTitle"
           @click="store.autoBuildRun()"
         >
           <span v-if="store.autoBuilding" class="loading loading-dots loading-xs" />
           <template v-else>
             <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
             Auto-build all
+            <span v-if="busyCount" class="badge badge-xs badge-ghost"
+              >{{ busyCount }} busy</span
+            >
           </template>
         </button>
         <button
@@ -158,6 +161,23 @@ const stages = BUILD_STAGES
 const run = computed(() => store.run)
 const recipeLabel = computed(() =>
   run.value ? getRecipe(run.value.recipeKey)?.label : '',
+)
+
+// Pre-run advisory (t-038): how many items in the whole run are mid-manual-
+// action right now, so a click on "Auto-build all" doesn't surprise the user
+// with a lower-than-expected committed count -- those items will just be
+// skipped this pass.
+const busyCount = computed(
+  () =>
+    run.value?.items.filter((item) => store.isItemManualActionInFlight(item.id))
+      .length ?? 0,
+)
+const autoBuildAllTitle = computed(() =>
+  busyCount.value
+    ? `${busyCount.value} item${busyCount.value === 1 ? '' : 's'} in this run ` +
+      `${busyCount.value === 1 ? 'has' : 'have'} a manual action in progress ` +
+      'right now and will be skipped this pass -- retry after it finishes.'
+    : 'Draft, generate, and commit every item automatically',
 )
 
 // The source record we're building from — snapshot survives resume; fall back to

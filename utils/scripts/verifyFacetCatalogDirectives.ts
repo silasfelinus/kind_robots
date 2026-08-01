@@ -25,6 +25,7 @@ for (const required of [
   "canonicalSlug: 'solarpunk'",
   "canonicalSlug: 'steampunk'",
   "canonicalSlug: 'circuscore'",
+  "finalSlug: 'circus'",
   "title: 'Circus'",
   "'Circuspunk'",
   "'Carnivalpunk'",
@@ -34,8 +35,10 @@ for (const required of [
   "taxonomy: 'ART_DIRECTION'",
   "taxonomy: 'THEME'",
   "where: { taxonomy: 'MOOD' }",
+  "'merged-and-deleted'",
   'prisma.facet.delete',
   "groupKey: 'genre-recipe'",
+  "duplicateSlug === 'carnival'",
 ]) {
   assert.ok(directive.includes(required), `Missing directive contract: ${required}`)
 }
@@ -45,7 +48,7 @@ assert.ok(
   'Africanfuturism must be an alias of Afrofuturism.',
 )
 assert.ok(
-  directive.includes("action: 'merged-and-deleted'"),
+  directive.includes('await prisma.facet.delete({ where: { id: duplicate.id } })'),
   'Duplicate merges must physically delete old records.',
 )
 assert.ok(

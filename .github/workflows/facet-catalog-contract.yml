@@ -50,6 +50,9 @@ jobs:
       - name: Verify Facet taxonomy leak repairs
         run: npx tsx utils/scripts/verifyFacetTaxonomyLeaks.ts
 
+      - name: Verify Facet genre leak repairs
+        run: npx tsx utils/scripts/verifyFacetGenreLeaks.ts
+
       - name: Verify Facet seed policy
         run: node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
 

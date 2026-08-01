@@ -11,21 +11,8 @@
 import prisma from './prisma'
 import {
   DAVINCI_DIMENSIONS,
-  DAVINCI_PASS_VALUE,
   resolveOutcomeKey,
-  type DaVinciDimension,
 } from './davinciDimensions'
-
-// The dimension vocabulary and outcome math live in ./davinciDimensions so
-// they can be imported without ./prisma, which throws at module load when
-// DATABASE_URL is unset (as it is in the contract-tests job). Re-exported here
-// so every existing importer of this module is unaffected.
-export {
-  DAVINCI_DIMENSIONS,
-  DAVINCI_PASS_VALUE,
-  resolveOutcomeKey,
-  type DaVinciDimension,
-}
 
 export interface ResolveLifeRunResult {
   outcomeKey: string

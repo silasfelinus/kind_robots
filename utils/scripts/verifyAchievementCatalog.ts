@@ -176,13 +176,13 @@ assert.ok(
   'Catalog reconciliation must preserve generated achievement art.',
 )
 assert.ok(
-  seed.includes("pitchmaster: 'artmaker'") &&
-    seed.includes("Artist: 'artmaker'") &&
-    seed.includes("matchmaker: 'memory-master'") &&
-    seed.includes("button: 'rebel-button'") &&
-    seed.includes("milestone: 'achievement-tour'") &&
-    seed.includes('reconcileRetiredAchievements(prisma)'),
-  'Retired DB achievements must migrate earned records into canonical goals.',
+  ['pitchmaster', 'Artist', 'matchmaker', 'button', 'milestone'].every((code) =>
+    seed.includes(`'${code}'`),
+  ) &&
+    seed.includes('deleteRetiredAchievements(prisma)') &&
+    seed.includes('achievementRecord.deleteMany') &&
+    seed.includes('achievement.deleteMany'),
+  'Retired alpha definitions and award records must be removed.',
 )
 
 const achievementsApi = source('server/api/achievements/index.get.ts')

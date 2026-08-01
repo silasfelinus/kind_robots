@@ -34,6 +34,18 @@ if (!isVercelBuild || isProductionDeployment) {
     'Applying production migrations',
   )
 
+  run(
+    tsxBinary,
+    ['scripts/seed_achievements.ts', '--write'],
+    'Reconciling canonical Achievement catalog',
+  )
+
+  run(
+    tsxBinary,
+    ['scripts/generate_achievement_art.ts', '--write'],
+    'Queueing missing Achievement artwork',
+  )
+
   const facetSeedDecision = resolveFacetCatalogSeedDecision()
   if (facetSeedDecision.run) {
     // runFacetCatalogSeed.ts normalizes source synonyms before importing

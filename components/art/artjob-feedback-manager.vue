@@ -93,15 +93,9 @@
                 <span class="font-mono text-xs font-semibold">#{{ job.id }}</span>
                 <span
                   class="badge badge-sm rounded-2xl"
-                  :class="verdictClass(curatorFeedback(job)?.verdict)"
+                  :class="verdictClass(humanFeedback(job)?.verdict)"
                 >
-                  {{ curatorFeedback(job)?.verdict || 'CURATED' }}
-                </span>
-                <span
-                  v-if="curatorFeedback(job)?.score !== null"
-                  class="badge badge-outline badge-sm rounded-2xl"
-                >
-                  {{ curatorFeedback(job)?.score }}/100
+                  {{ humanFeedback(job)?.verdict || 'NEEDS REVIEW' }}
                 </span>
                 <span
                   v-if="job.projectSlug"
@@ -118,10 +112,11 @@
           </div>
 
           <div
+            v-if="curatorFeedback(job)"
             class="mt-3 rounded-2xl border border-info/30 bg-info/10 p-3 text-xs"
           >
             <div class="flex items-center justify-between gap-2">
-              <span class="font-semibold">Conductor's read</span>
+              <span class="font-semibold">Archived curator note</span>
               <span class="text-[10px] text-base-content/50">
                 {{ formatDate(curatorFeedback(job)?.createdAt) }}
               </span>
@@ -222,29 +217,11 @@
         v-else
         class="flex min-h-56 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
       >
-        <span v-if="artJobStore.loadingTrainerJobs">Loading curated jobs…</span>
-        <template v-else-if="reviewMode === 'pending'">
-          <span>
-            Nothing is waiting for feedback. Ask Conductor to curate the day's
-            finished art and it'll show up here.
-          </span>
-          <button
-            type="button"
-            class="btn btn-secondary btn-sm rounded-2xl"
-            :disabled="requestingCuration"
-            @click="requestCuration"
-          >
-            <span
-              v-if="requestingCuration"
-              class="loading loading-spinner loading-xs"
-            />
-            Request Conductor curation
-          </button>
-          <span v-if="curationNote" class="text-xs text-base-content/60">
-            {{ curationNote }}
-          </span>
-        </template>
-        <span v-else>No curated jobs match this filter.</span>
+        <span v-if="artJobStore.loadingTrainerJobs">Loading finished art…</span>
+        <span v-else-if="reviewMode === 'pending'">
+          You're all caught up — every finished render has your verdict.
+        </span>
+        <span v-else>No finished art matches this filter.</span>
       </div>
     </div>
   </section>
@@ -264,15 +241,13 @@ type ReviewMode = 'pending' | 'reviewed' | 'all'
 const artJobStore = useArtJobStore()
 const reviewMode = ref<ReviewMode>('pending')
 const savingIds = ref<number[]>([])
-const requestingCuration = ref(false)
-const curationNote = ref('')
 const notesByJob = reactive<Record<number, string>>({})
 const tagsByJob = reactive<Record<number, string[]>>({})
 
 const reviewModes: Array<{ value: ReviewMode; label: string }> = [
   { value: 'pending', label: 'Needs feedback' },
   { value: 'reviewed', label: 'Reviewed' },
-  { value: 'all', label: 'All curated' },
+  { value: 'all', label: 'All' },
 ]
 
 const feedbackTags = [
@@ -451,28 +426,6 @@ async function saveFeedback(
     })
   } finally {
     savingIds.value = savingIds.value.filter((id) => id !== job.id)
-  }
-}
-
-async function requestCuration(): Promise<void> {
-  if (requestingCuration.value) return
-  requestingCuration.value = true
-  curationNote.value = ''
-  try {
-    const result = await artJobStore.requestWindowCuration()
-    if (!result) {
-      curationNote.value =
-        'No finished art in this window to curate yet — generate some first.'
-      return
-    }
-    const queued = result.requested.length + result.alreadyQueued.length
-    curationNote.value = result.requested.length
-      ? `Queued ${result.requested.length} job(s) for Conductor. Verdicts appear here after the next sweep.`
-      : queued
-        ? 'Already queued — waiting on Conductor to curate.'
-        : 'No eligible finished jobs to curate in this window.'
-  } finally {
-    requestingCuration.value = false
   }
 }
 </script>

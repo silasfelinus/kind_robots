@@ -49,6 +49,7 @@ export type FacetCatalogEntry = {
   imagePath: string | null
   cardPath: string | null
   heroPath: string | null
+  iconPath: string | null
   icon: string | null
   groupKey: string | null
   groupLabel: string | null

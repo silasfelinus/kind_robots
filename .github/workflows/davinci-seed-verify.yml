@@ -1,10 +1,11 @@
 name: Da Vinci Seed Verify
 
 # Nightly cross-repo regression check (conductor davinci/t-012): generate
-# fresh ending seed data with conductor's deterministic generator, apply this
-# repo's Prisma schema to a scratch MariaDB service, and run the 15-check
-# importer verification suite. Catches payload-shape drift between the
-# conductor generator and the kind_robots importer/schema automatically.
+# fresh ending seed data with conductor's deterministic generator, normalize
+# the current generator field names at the repo boundary, apply this repo's
+# Prisma schema to a scratch MariaDB service, and run the 15-check importer
+# verification suite. Catches payload-shape drift between the conductor
+# generator and the kind_robots importer/schema automatically.
 #
 # Also runs the play-loop regression (davinci/t-011) against the same
 # database once the endings are seeded: create-run -> record-choice ->
@@ -15,9 +16,16 @@ on:
   schedule:
     - cron: '17 9 * * *' # nightly ~2am Pacific
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/davinci-seed-verify.yml'
+      - 'utils/scripts/normalizeDaVinciSeedPayload.ts'
+      - 'utils/scripts/seedDaVinciEndings.ts'
+      - 'utils/scripts/verifyDaVinciSeed.ts'
+      - 'utils/scripts/verifyDaVinciPlayLoop.ts'
 
 concurrency:
-  group: davinci-seed-verify
+  group: davinci-seed-verify-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -64,10 +72,12 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0' # cypress unused in this job
 
-      - name: Generate seed data from conductor
+      - name: Generate and normalize seed data from conductor
         run: |
           python3 conductor-src/scripts/generate_davinci_endings.py \
-            --format jsonl --output /tmp/davinci-endings.jsonl
+            --format jsonl --output /tmp/davinci-endings-generated.jsonl
+          npx tsx utils/scripts/normalizeDaVinciSeedPayload.ts \
+            /tmp/davinci-endings-generated.jsonl /tmp/davinci-endings.jsonl
           wc -l /tmp/davinci-endings.jsonl
 
       - name: Apply Prisma schema to scratch database

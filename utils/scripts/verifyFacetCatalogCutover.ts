@@ -260,7 +260,11 @@ async function main(): Promise<void> {
   forbidText(files.variants, text.variants, 'prisma.dream.findMany')
   forbidText(files.variants, text.variants, 'dreamToRandomListItem')
 
-  requireText(files.vercelBuild, text.vercelBuild, 'seedFacetCatalog.ts')
+  requireText(
+    files.vercelBuild,
+    text.vercelBuild,
+    'run_facet_catalog_maintenance.ts',
+  )
   requireText(files.vercelBuild, text.vercelBuild, 'Applying production migrations')
 
   await requireMissingPath(

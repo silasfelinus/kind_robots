@@ -8,10 +8,10 @@ const directivePath = path.join(
   root,
   'utils/scripts/applyFacetCatalogDirectives.ts',
 )
-const buildPath = path.join(root, 'scripts/vercel-build.mjs')
+const runnerPath = path.join(root, 'scripts/run_facet_catalog_maintenance.ts')
 
 const directive = fs.readFileSync(directivePath, 'utf8')
-const build = fs.readFileSync(buildPath, 'utf8')
+const runner = fs.readFileSync(runnerPath, 'utf8')
 
 for (const required of [
   "canonicalSlug: 'afrofuturism'",
@@ -64,10 +64,10 @@ assert.ok(
   'Epic must remain a rarity, not survive as an atmosphere title.',
 )
 
-const hook = "['utils/scripts/applyFacetCatalogDirectives.ts', '--apply']"
-assert.ok(build.includes(hook), 'Production build must apply catalog directives.')
+const hook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
+assert.ok(runner.includes(hook), 'Production build must apply catalog directives.')
 assert.ok(
-  build.indexOf(hook) < build.indexOf('auditFacetCatalogOddities.ts'),
+  runner.indexOf(hook) < runner.indexOf('auditFacetCatalogOddities.ts'),
   'Catalog directives must run before the whole-catalog audit.',
 )
 

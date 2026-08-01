@@ -47,116 +47,14 @@ if (!isVercelBuild || isProductionDeployment) {
   )
 
   const facetSeedDecision = resolveFacetCatalogSeedDecision()
-  if (facetSeedDecision.run) {
-    // runFacetCatalogSeed.ts normalizes source synonyms before importing
-    // seedFacetCatalog.ts; the latter remains the canonical catalog writer.
-    run(
-      tsxBinary,
-      ['utils/scripts/runFacetCatalogSeed.ts', '--apply'],
-      `Seeding canonical Facet catalog and Character assignments (${facetSeedDecision.reason})`,
-    )
-  } else {
-    console.log(
-      `[vercel-build] Skipping unchanged canonical Facet catalog seed: ${facetSeedDecision.reason}`,
-    )
-  }
-
-  // RewardFacet is stored outside the legacy canonical merge script. Move those
-  // links first so retiring a duplicate Facet can never cascade-delete item traits.
   run(
     tsxBinary,
-    ['utils/scripts/mergeRewardFacetDuplicateLinks.ts', '--apply'],
-    'Preserving Reward Facets across canonical merges',
-  )
-
-  // Cheap and idempotent: retain this on every production build so any partial
-  // historical cleanup converges even when the 1,300-record catalog seed is skipped.
-  run(
-    tsxBinary,
-    ['utils/scripts/mergeCanonicalFacetDuplicates.ts', '--apply'],
-    'Merging legacy duplicate Facets into canonical records',
-  )
-
-  // Apply the reviewed taxonomy last. The source seeders retain historical Builder
-  // vocabulary and otherwise re-promote entries to random GENRE weight 1.
-  run(
-    tsxBinary,
-    ['utils/scripts/curateFacetCatalog.ts', '--apply'],
-    'Applying durable Facet curation batches',
-  )
-
-  // Keep art-backed house genres as distinct authored concepts. Relate them to
-  // broader reusable genres instead of flattening their tone into false aliases.
-  run(
-    tsxBinary,
-    ['utils/scripts/curateFacetHouseGenres.ts', '--apply'],
-    'Curating art-backed house genres and related genre families',
-  )
-
-  // Refine broad or invented cultural labels after the structural genre passes.
-  // Renames happen only when no art is attached; legacy labels remain aliases.
-  run(
-    tsxBinary,
-    ['utils/scripts/curateFacetCulturalGenres.ts', '--apply'],
-    'Refining cultural genre labels and distinct speculative traditions',
-  )
-
-  // Merge only genuine synonyms after all profile and alias curation. The merge
-  // migrates every assignment and artwork link into the art-backed canonical row.
-  run(
-    tsxBinary,
-    ['utils/scripts/mergeFacetPersonalitySynonyms.ts', '--apply'],
-    'Merging exact Personality Facet synonyms',
-  )
-
-  // Repair high-confidence classification leaks and remove prompt cargo cult from
-  // random selection without deleting manually useful legacy records.
-  run(
-    tsxBinary,
-    ['utils/scripts/curateFacetTaxonomyLeaks.ts', '--apply'],
-    'Repairing Facet taxonomy leaks and low-value random controls',
-  )
-
-  // Separate subject and cast controls from narrative form, then decompose the
-  // remaining scenario-list hybrids into reusable genre, mood, setting, and theme.
-  run(
-    tsxBinary,
-    ['utils/scripts/curateFacetGenreLeaks.ts', '--apply'],
-    'Repairing subject themes and remaining genre hybrids',
-  )
-
-  // Apply the user-reviewed catalog model last: merge specialist duplicates into
-  // canonical aliases, make punk families genres, remove global MOOD Facets, and
-  // physically delete migrated duplicate and recipe-shell records.
-  run(
-    tsxBinary,
-    ['utils/scripts/applyFacetCatalogDirectives.ts', '--apply'],
-    'Applying final Facet catalog directives and deleting historical shells',
-  )
-
-  // Older merge scripts may encounter pre-existing rows and temporarily mark them
-  // inactive. Move every remaining edge and artwork reference, then remove those
-  // shells and transient recipe records completely.
-  run(
-    tsxBinary,
-    ['utils/scripts/cleanupRetiredFacetShells.ts', '--apply'],
-    'Migrating and deleting all retired Facet shells',
-  )
-
-  // Read the entire post-curation catalog and print a ranked next-batch queue.
-  // This never mutates data or blocks deployment while cleanup is still in motion.
-  run(
-    tsxBinary,
-    ['utils/scripts/auditFacetCatalogOddities.ts', '--top=60'],
-    'Auditing the complete Facet catalog for remaining oddities',
-  )
-
-  // Queue one primary square artwork only for clean, active, art-required Facets.
-  // Card, hero, and icon variants wait for the multi-art schema migration.
-  run(
-    tsxBinary,
-    ['scripts/generate_facet_art.ts', '--write'],
-    'Queueing missing primary Facet artwork after the full catalog audit',
+    [
+      'scripts/run_facet_catalog_maintenance.ts',
+      facetSeedDecision.run ? '--seed' : '--skip-seed',
+      `--reason=${facetSeedDecision.reason}`,
+    ],
+    'Running serialized Facet catalog maintenance',
   )
 
   run(

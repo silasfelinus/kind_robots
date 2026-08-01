@@ -9,10 +9,12 @@ const cleanupPath = path.join(
   'utils/scripts/cleanupRetiredFacetShells.ts',
 )
 const artPath = path.join(root, 'scripts/generate_facet_art.ts')
+const runnerPath = path.join(root, 'scripts/run_facet_catalog_maintenance.ts')
 const buildPath = path.join(root, 'scripts/vercel-build.mjs')
 
 const cleanup = fs.readFileSync(cleanupPath, 'utf8')
 const art = fs.readFileSync(artPath, 'utf8')
+const runner = fs.readFileSync(runnerPath, 'utf8')
 const build = fs.readFileSync(buildPath, 'utf8')
 
 for (const required of [
@@ -79,28 +81,56 @@ assert.ok(
   'Current-version queued or running jobs must be reused.',
 )
 
-const directivesHook =
-  "['utils/scripts/applyFacetCatalogDirectives.ts', '--apply']"
-const cleanupHook =
-  "['utils/scripts/cleanupRetiredFacetShells.ts', '--apply']"
-const auditHook = "['utils/scripts/auditFacetCatalogOddities.ts', '--top=60']"
-const artHook = "['scripts/generate_facet_art.ts', '--write']"
-
-for (const hook of [directivesHook, cleanupHook, auditHook, artHook]) {
-  assert.ok(build.includes(hook), `Production build is missing ${hook}.`)
+for (const required of [
+  "const LOCK_NAME = 'kind-robots:facet-catalog-maintenance'",
+  'SELECT GET_LOCK(?, ?) AS acquired',
+  'SELECT RELEASE_LOCK(?) AS released',
+  'connection?.ping()',
+  "script: 'utils/scripts/runFacetCatalogSeed.ts'",
+  "script: 'utils/scripts/applyFacetCatalogDirectives.ts'",
+  "script: 'utils/scripts/cleanupRetiredFacetShells.ts'",
+  "script: 'utils/scripts/auditFacetCatalogOddities.ts'",
+  "script: 'scripts/generate_facet_art.ts'",
+]) {
+  assert.ok(runner.includes(required), `Missing serialized runner contract: ${required}`)
 }
 
+const seedHook = "script: 'utils/scripts/runFacetCatalogSeed.ts'"
+const directivesHook =
+  "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
+const cleanupHook =
+  "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
+const auditHook = "script: 'utils/scripts/auditFacetCatalogOddities.ts'"
+const artHook = "script: 'scripts/generate_facet_art.ts'"
+
 assert.ok(
-  build.indexOf(directivesHook) < build.indexOf(cleanupHook),
+  runner.indexOf(seedHook) < runner.indexOf(directivesHook),
+  'Canonical seed must run before final catalog directives.',
+)
+assert.ok(
+  runner.indexOf(directivesHook) < runner.indexOf(cleanupHook),
   'Final curation directives must run before retired shell cleanup.',
 )
 assert.ok(
-  build.indexOf(cleanupHook) < build.indexOf(auditHook),
+  runner.indexOf(cleanupHook) < runner.indexOf(auditHook),
   'Retired shell cleanup must finish before the whole-catalog audit.',
 )
 assert.ok(
-  build.indexOf(auditHook) < build.indexOf(artHook),
+  runner.indexOf(auditHook) < runner.indexOf(artHook),
   'The whole-catalog audit must run before Facet artwork is queued.',
+)
+
+assert.ok(
+  build.includes("'scripts/run_facet_catalog_maintenance.ts'"),
+  'Production build must invoke the single serialized Facet maintenance runner.',
+)
+assert.ok(
+  build.includes("facetSeedDecision.run ? '--seed' : '--skip-seed'"),
+  'Production build must preserve the canonical seed policy when invoking the runner.',
+)
+assert.ok(
+  !build.includes("['utils/scripts/runFacetCatalogSeed.ts', '--apply']"),
+  'Production build must not bypass the serialized Facet maintenance runner.',
 )
 
 console.log('Facet catalog maintenance and artwork queue contract verified.')

@@ -165,6 +165,11 @@ assert.ok(
     seed.includes("['achievement-tour', ['test']]"),
   'Legacy DB rows must be reconciled without losing earned records.',
 )
+assert.ok(
+  !seed.includes('imagePath: achievement.imagePath') &&
+    !seed.includes('artImageId: achievement.artImageId'),
+  'Catalog reconciliation must preserve generated achievement art.',
+)
 
 const build = source('scripts/vercel-build.mjs')
 const seedIndex = build.indexOf("['scripts/seed_achievements.ts', '--write']")

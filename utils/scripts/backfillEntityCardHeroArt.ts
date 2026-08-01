@@ -1,6 +1,6 @@
 // /utils/scripts/backfillEntityCardHeroArt.ts
 /*
- * Bulk-enqueue Card and Hero art for entities that gained those slots in
+ * Bulk-enqueue Icon, Card and Hero art for entities that gained those slots in
  * migration 20260801220000_entity_card_hero_icon_art (conductor
  * interface-vision/t-007).
  *
@@ -31,19 +31,32 @@
  *   # Actually enqueue a small first batch:
  *   npx tsx utils/scripts/backfillEntityCardHeroArt.ts --type bot --field cardPath --limit 5 --apply
  *
- * NOTE: this script has never been executed -- the sandbox it was written in has
- * no database and no relay. The dry run is the safe way to prove the payload and
- * auth before spending anything.
+ * STATUS -- what has and has not been proven:
+ *   PROVEN against production on 2026-08-01, at zero cost. A probe POST to
+ *   /api/art/enqueue with entityArt {entityType:'bot', field:'cardPath'} returned
+ *   400 "Invalid bot image field." That is the RIGHT failure and it establishes
+ *   three things: authAndGate runs before field validation, so Bearer
+ *   KR_API_TOKEN authenticates and the mana gate passes; no mana was charged,
+ *   because gate.commit only fires on success and the request threw first; and
+ *   the payload shape is accepted up to the field name.
+ *   NOT YET USABLE: cardPath/heroPath/iconPath are rejected until the migrations
+ *   in this PR are deployed and the new ENTITY_FIELDS slots ship with them.
+ *   Re-run the probe after deploy -- when it stops saying "Invalid ... image
+ *   field", the backfill is live.
+ *   NOT PROVEN: the candidate query. It goes through Prisma, which needs direct
+ *   MySQL. That works from Silas's machine but not from the CI sandbox, where
+ *   port 5544 is not reachable.
  */
 import prisma from '../../server/utils/prisma'
 
 type BackfillType = 'bot' | 'character' | 'reward' | 'scenario'
-type SlotField = 'cardPath' | 'heroPath'
+type SlotField = 'iconPath' | 'cardPath' | 'heroPath'
 
 const SLOTS: Record<
   SlotField,
   { label: string; width: number; height: number }
 > = {
+  iconPath: { label: 'Icon', width: 256, height: 256 },
   cardPath: { label: 'Card', width: 512, height: 768 },
   heroPath: { label: 'Hero', width: 1280, height: 720 },
 }
@@ -149,7 +162,9 @@ async function main(): Promise<void> {
   const fieldArg = arg('field') as SlotField | undefined
 
   const types = typeArg ? [typeArg] : TYPES
-  const fields: SlotField[] = fieldArg ? [fieldArg] : ['cardPath', 'heroPath']
+  const fields: SlotField[] = fieldArg
+    ? [fieldArg]
+    : ['iconPath', 'cardPath', 'heroPath']
 
   for (const type of types) {
     if (!TYPES.includes(type)) throw new Error(`Unknown --type ${type}`)

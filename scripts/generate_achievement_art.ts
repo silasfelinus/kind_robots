@@ -13,17 +13,14 @@
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  createScriptPrismaClient,
+  withDatabaseRetry,
+} from './lib/databaseRetry'
 
 const PROJECT_SLUG = 'achievements'
 const SEED_USER_ID = 10
 const ACTIVE_JOB_STATUSES = ['PENDING', 'RUNNING'] as const
-
-function createSeedPrismaClient(): PrismaClient {
-  const databaseUrl = process.env.DATABASE_URL
-  if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
-}
 
 function entityMarker(achievementId: number): string {
   return `"entityType":"achievement","entityId":${achievementId}`
@@ -67,78 +64,80 @@ export function buildAchievementArtPayload(achievement: {
 
 async function main() {
   const WRITE = process.argv.includes('--write')
-  const prisma = createSeedPrismaClient()
 
-  try {
-    const achievements = await prisma.achievement.findMany({
-      where: {
-        AND: [
-          { artPrompt: { not: null } },
-          { OR: [{ imagePath: null }, { imagePath: '' }] },
-        ],
-      },
-      orderBy: { id: 'asc' },
-      select: {
-        id: true,
-        label: true,
-        triggerCode: true,
-        artPrompt: true,
-      },
-    })
-
-    let queued = 0
-    let reused = 0
-
-    for (const achievement of achievements) {
-      const existing = await prisma.artJob.findFirst({
+  await withDatabaseRetry('achievement artwork queue', async () => {
+    const prisma = createScriptPrismaClient()
+    try {
+      const achievements = await prisma.achievement.findMany({
         where: {
-          projectSlug: PROJECT_SLUG,
-          userId: SEED_USER_ID,
-          status: { in: [...ACTIVE_JOB_STATUSES] },
-          payload: { contains: entityMarker(achievement.id) },
+          AND: [
+            { artPrompt: { not: null } },
+            { OR: [{ imagePath: null }, { imagePath: '' }] },
+          ],
         },
-        orderBy: { createdAt: 'desc' },
-      })
-
-      if (existing) {
-        reused += 1
-        console.log(
-          `  reuse ArtJob ${existing.id}: ${achievement.triggerCode} — ${achievement.label}`,
-        )
-        continue
-      }
-
-      if (!WRITE) {
-        console.log(
-          `  [dry run] queue: ${achievement.triggerCode} — ${achievement.label}`,
-        )
-        continue
-      }
-
-      const job = await prisma.artJob.create({
-        data: {
-          engine: 'A1111',
-          userId: SEED_USER_ID,
-          projectSlug: PROJECT_SLUG,
-          priority: 5,
-          payload: JSON.stringify(buildAchievementArtPayload(achievement)),
+        orderBy: { id: 'asc' },
+        select: {
+          id: true,
+          label: true,
+          triggerCode: true,
+          artPrompt: true,
         },
       })
 
-      queued += 1
+      let queued = 0
+      let reused = 0
+
+      for (const achievement of achievements) {
+        const existing = await prisma.artJob.findFirst({
+          where: {
+            projectSlug: PROJECT_SLUG,
+            userId: SEED_USER_ID,
+            status: { in: [...ACTIVE_JOB_STATUSES] },
+            payload: { contains: entityMarker(achievement.id) },
+          },
+          orderBy: { createdAt: 'desc' },
+        })
+
+        if (existing) {
+          reused += 1
+          console.log(
+            `  reuse ArtJob ${existing.id}: ${achievement.triggerCode} — ${achievement.label}`,
+          )
+          continue
+        }
+
+        if (!WRITE) {
+          console.log(
+            `  [dry run] queue: ${achievement.triggerCode} — ${achievement.label}`,
+          )
+          continue
+        }
+
+        const job = await prisma.artJob.create({
+          data: {
+            engine: 'A1111',
+            userId: SEED_USER_ID,
+            projectSlug: PROJECT_SLUG,
+            priority: 5,
+            payload: JSON.stringify(buildAchievementArtPayload(achievement)),
+          },
+        })
+
+        queued += 1
+        console.log(
+          `  queued ArtJob ${job.id}: ${achievement.triggerCode} — ${achievement.label}`,
+        )
+      }
+
       console.log(
-        `  queued ArtJob ${job.id}: ${achievement.triggerCode} — ${achievement.label}`,
+        WRITE
+          ? `Achievement art: ${queued} queued, ${reused} active job(s) reused, ${achievements.length} missing image(s) inspected.`
+          : `[dry run] ${achievements.length - reused} job(s) would be queued; ${reused} active job(s) already exist.`,
       )
+    } finally {
+      await prisma.$disconnect()
     }
-
-    console.log(
-      WRITE
-        ? `Achievement art: ${queued} queued, ${reused} active job(s) reused, ${achievements.length} missing image(s) inspected.`
-        : `[dry run] ${achievements.length - reused} job(s) would be queued; ${reused} active job(s) already exist.`,
-    )
-  } finally {
-    await prisma.$disconnect()
-  }
+  })
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

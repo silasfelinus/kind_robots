@@ -45,6 +45,7 @@ export type ProjectFrontSection = {
 export type ProjectFrontStat = {
   label: string
   value: string
+  icon?: string
 }
 
 /**

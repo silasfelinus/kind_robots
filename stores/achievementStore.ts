@@ -32,6 +32,11 @@ const achievementsStorageKey = 'achievements'
 const achievementRecordsStorageKey = 'achievementRecords'
 const pendingGuestAchievementsStorageKey = 'pendingGuestAchievements'
 
+const routeAchievementCodes: Record<string, string> = {
+  '/achievements': 'achievement-tour',
+  '/amibot': 'amibot',
+}
+
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
 
@@ -309,7 +314,10 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         hydrateFromLocalStorage()
 
         if (options.fetchRemote) {
-          await Promise.all([fetchAchievements(), fetchAchievementRecords()])
+          await Promise.all([
+            fetchAchievements(true),
+            fetchAchievementRecords(true),
+          ])
         }
 
         isInitialized.value = true
@@ -801,6 +809,13 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     return rewardAchievement(achievement.id)
   }
 
+  async function rewardAchievementForPath(path: string) {
+    const pathname = String(path || '').split(/[?#]/, 1)[0] || '/'
+    const code = routeAchievementCodes[pathname]
+    if (!code) return
+    return rewardAchievementByCode(code)
+  }
+
   async function clearAllAchievementRecords() {
     try {
       const response = await performFetch(`/api/achievements/records/clear/`, {
@@ -853,6 +868,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     deactivateAchievement,
     rewardAchievement,
     rewardAchievementByCode,
+    rewardAchievementForPath,
     migratePendingGuestAchievements,
 
     addAchievementRecord,

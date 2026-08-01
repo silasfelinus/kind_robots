@@ -19,6 +19,7 @@ export type FacetSummary = Pick<
   | 'imagePath'
   | 'cardPath'
   | 'heroPath'
+  | 'iconPath'
   | 'icon'
   | 'artImageId'
   | 'artCollectionId'
@@ -53,6 +54,7 @@ export const facetSummarySelect = {
   imagePath: true,
   cardPath: true,
   heroPath: true,
+  iconPath: true,
   icon: true,
   artImageId: true,
   artCollectionId: true,

@@ -161,8 +161,8 @@ assert.ok(
 
 const seed = source('scripts/seed_achievements.ts')
 assert.ok(
-  seed.includes("['first-character', ['fate']]") &&
-    seed.includes("['achievement-tour', ['test']]"),
+  seed.includes("'first-character': ['fate']") &&
+    seed.includes("'achievement-tour': ['test']"),
   'Legacy DB rows must be reconciled without losing earned records.',
 )
 assert.ok(

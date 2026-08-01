@@ -44,6 +44,7 @@ export async function withDatabaseRetry<T>(
   label: string,
   operation: (attempt: number) => Promise<T>,
   maxAttempts = 3,
+  retryDelayMs = 2_000,
 ): Promise<T> {
   let lastError: unknown
 
@@ -56,7 +57,7 @@ export async function withDatabaseRetry<T>(
         throw error
       }
 
-      const delayMs = attempt * 2_000
+      const delayMs = attempt * retryDelayMs
       console.warn(
         `[database-retry] ${label} attempt ${attempt}/${maxAttempts} hit a transient connection error; retrying in ${delayMs}ms.`,
       )

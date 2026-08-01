@@ -8,6 +8,7 @@ import {
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { validateApiKey } from '../../../../utils/validateKey'
+import { userIsAdmin } from '../../../../utils/authUser'
 
 function fail(
   event: Parameters<Parameters<typeof defineEventHandler>[0]>[0],
@@ -59,9 +60,9 @@ export default defineEventHandler(async (event) => {
       )
     }
 
-    const authUser = user as { id: number; isAdmin?: boolean }
-
-    if (authUser.id !== requestedUserId && !authUser.isAdmin) {
+    // validateApiKey returns `{ id, Role }` and never an `isAdmin` flag, so the
+    // admin branch has to be derived from Role through the canonical predicate.
+    if (user.id !== requestedUserId && !userIsAdmin(user)) {
       return fail(
         event,
         new Error('You can only fetch your own human chats.'),

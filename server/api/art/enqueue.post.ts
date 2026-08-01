@@ -279,7 +279,7 @@ export default defineEventHandler(async (event) => {
       frames: videoFrames,
       serverId: body?.serverId ?? null,
     })
-    const isAdmin = Boolean((gate.user as { isAdmin?: boolean }).isAdmin)
+    const isAdmin = gate.isAdmin
     const entityArt = body?.entityArt
       ? await prepareEntityArtEnqueue(event, prisma, body.entityArt, {
           user: { id: gate.user.id },

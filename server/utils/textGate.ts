@@ -14,6 +14,9 @@ type TextGateResult = {
   user: {
     id: number
   }
+  // See comfyGate.ts: `user` is narrowed to `{ id }`, so admin checks must read
+  // this flag rather than casting `gate.user` to a shape it does not have.
+  isAdmin: boolean
   cost: number
   free: boolean
   commit: (
@@ -29,7 +32,7 @@ export async function authAndTextGate(
   // t-015: shared machine auth (session JWT, user apiKey, or beta admin
   // token) via requireMachineUser, replacing the inline apiKey-only lookup.
   // Mirrors comfyGate.authAndGate.
-  const { user } = await requireMachineUser(event)
+  const { user, isAdmin } = await requireMachineUser(event)
 
   const gate = await manaGate(event, {
     kind: 'text',
@@ -43,6 +46,7 @@ export async function authAndTextGate(
 
   return {
     user: { id: user.id },
+    isAdmin,
     cost: gate.cost,
     free: gate.free,
     commit: gate.commit,

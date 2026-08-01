@@ -30,7 +30,7 @@ for (const required of [
   'facetRelation.createMany',
   'reaction.updateMany',
   'migrateArtJobs',
-  "action: 'migrated-and-deleted'",
+  "'migrated-and-deleted'",
   'await prisma.facet.delete',
   'remainingMergedShells',
   'remainingRecipeProfiles',
@@ -75,7 +75,7 @@ assert.ok(
   'Current queue must remain primary-image-only until the multi-art schema lands.',
 )
 assert.ok(
-  art.includes('status: { in: [\'PENDING\', \'RUNNING\'] }'),
+  art.includes("status: { in: ['PENDING', 'RUNNING'] }"),
   'Current-version queued or running jobs must be reused.',
 )
 

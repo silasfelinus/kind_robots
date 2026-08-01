@@ -60,7 +60,7 @@ async function main(): Promise<void> {
     curation: 'utils/seeds/facetCatalogCuration.ts',
     curator: 'utils/scripts/curateFacetCatalog.ts',
     build: 'scripts/vercel-build.mjs',
-    package: 'package.json',
+    workflow: '.github/workflows/facet-catalog-contract.yml',
   } as const
 
   const entries = await Promise.all(
@@ -119,9 +119,8 @@ async function main(): Promise<void> {
     'curateFacetCatalog.ts',
   )
 
-  requireText(files.package, text.package, 'facet:curate:dry')
-  requireText(files.package, text.package, 'facet:curate:apply')
-  requireText(files.package, text.package, 'verifyFacetCuration.ts')
+  requireText(files.workflow, text.workflow, 'Verify Facet curation batches')
+  requireText(files.workflow, text.workflow, 'verifyFacetCuration.ts')
 
   process.stdout.write('Facet curation contract verified.\n')
 }

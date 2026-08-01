@@ -36,6 +36,10 @@ name: Facet Catalog Maintenance
 #   TS_OAUTH_SECRET
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/facet-art-sweep-trigger'
   schedule:
     - cron: '41 10 * * 1' # Mondays, 10:41 UTC ≈ 2:41am Pacific
   workflow_dispatch:

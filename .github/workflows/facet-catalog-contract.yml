@@ -44,6 +44,9 @@ jobs:
       - name: Verify cultural genre curation
         run: npx tsx utils/scripts/verifyFacetCulturalGenres.ts
 
+      - name: Verify Personality synonym merges
+        run: npx tsx utils/scripts/verifyFacetPersonalitySynonyms.ts
+
       - name: Verify Facet seed policy
         run: node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
 

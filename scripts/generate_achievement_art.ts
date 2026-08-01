@@ -12,7 +12,6 @@
 
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
-import { PrismaClient } from '../prisma/generated/prisma/client'
 import {
   createScriptPrismaClient,
   withDatabaseRetry,

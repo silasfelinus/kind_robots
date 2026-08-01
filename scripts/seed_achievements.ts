@@ -106,10 +106,12 @@ export async function reconcileRetiredAchievements(
   for (const [retiredCode, canonicalCode] of Object.entries(
     RETIRED_TRIGGER_MAPPINGS,
   )) {
-    const [retired, canonical] = await Promise.all([
-      prisma.achievement.findUnique({ where: { triggerCode: retiredCode } }),
-      prisma.achievement.findUnique({ where: { triggerCode: canonicalCode } }),
-    ])
+    const retired = await prisma.achievement.findUnique({
+      where: { triggerCode: retiredCode },
+    })
+    const canonical = await prisma.achievement.findUnique({
+      where: { triggerCode: canonicalCode },
+    })
     if (!retired || !canonical || retired.id === canonical.id) continue
 
     const records = await prisma.achievementRecord.findMany({
@@ -187,10 +189,10 @@ async function main() {
   await withDatabaseRetry('achievement catalog reconciliation', async () => {
     const prisma = createScriptPrismaClient()
     try {
-      const [before, activeBefore] = await Promise.all([
-        prisma.achievement.count(),
-        prisma.achievement.count({ where: { isActive: true } }),
-      ])
+      const before = await prisma.achievement.count()
+      const activeBefore = await prisma.achievement.count({
+        where: { isActive: true },
+      })
       console.log(
         `Existing achievements in DB: ${before} total, ${activeBefore} active`,
       )
@@ -206,10 +208,10 @@ async function main() {
 
       await reconcileRetiredAchievements(prisma)
 
-      const [after, activeAfter] = await Promise.all([
-        prisma.achievement.count(),
-        prisma.achievement.count({ where: { isActive: true } }),
-      ])
+      const after = await prisma.achievement.count()
+      const activeAfter = await prisma.achievement.count({
+        where: { isActive: true },
+      })
       console.log(
         `Done. Totals now: ${after} stored, ${activeAfter} active achievements.`,
       )

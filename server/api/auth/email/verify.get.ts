@@ -1,7 +1,6 @@
 // /server/api/auth/email/verify.get.ts
 // Public: consume an EMAIL_VERIFY token (?token=) and stamp User.emailVerified.
-// Redirects to a friendly landing page rather than returning raw JSON, since
-// this URL is opened directly from an email client.
+// Redirects to a public landing page rather than an authenticated account surface.
 import { defineEventHandler, getQuery, sendRedirect } from 'h3'
 import prisma from '../../../utils/prisma'
 import { appBaseUrl } from '../../../utils/email'
@@ -13,7 +12,11 @@ export default defineEventHandler(async (event) => {
 
   const result = await consumeAuthToken(token, 'EMAIL_VERIFY')
   if (!result.ok) {
-    return sendRedirect(event, `${base}/account?verify=invalid`, 302)
+    return sendRedirect(
+      event,
+      `${base}/email-confirmation?action=email-verification&status=invalid`,
+      302,
+    )
   }
 
   await prisma.user.update({
@@ -21,5 +24,9 @@ export default defineEventHandler(async (event) => {
     data: { emailVerified: new Date() },
   })
 
-  return sendRedirect(event, `${base}/account?verify=success`, 302)
+  return sendRedirect(
+    event,
+    `${base}/email-confirmation?action=email-verification&status=success`,
+    302,
+  )
 })

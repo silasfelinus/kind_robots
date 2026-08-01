@@ -1,11 +1,15 @@
 // /server/utils/email.ts
 // Brevo (Sendinblue) transactional email. All sends go through
-// `sendTransactionalEmail`, which never throws — a mail outage must never turn
-// an account action (register, password change, restrict) into a 500. Callers
-// get `{ sent: boolean }` and can log/ignore as appropriate.
-// `useRuntimeConfig` is auto-imported by Nitro (see server/utils/authGuard.ts).
+// `sendTransactionalEmail`, which never throws. A mail outage must never turn
+// an account action into a 500. Callers get `{ sent: boolean }` and can
+// log or ignore the result as appropriate.
 
 const BREVO_ENDPOINT = 'https://api.brevo.com/v3/smtp/email'
+const DEFAULT_APP_BASE_URL = 'https://kind-robots.vercel.app'
+const LEGACY_APP_BASE_URLS = new Set([
+  'http://kindrobots.org',
+  'https://kindrobots.org',
+])
 
 export type SendEmailInput = {
   to: string
@@ -21,19 +25,28 @@ export type SendEmailResult = {
   error?: string
 }
 
+function normalizeAppBaseUrl(value: string): string {
+  const normalized = value.trim().replace(/\/$/, '')
+
+  if (!normalized || LEGACY_APP_BASE_URLS.has(normalized)) {
+    return DEFAULT_APP_BASE_URL
+  }
+
+  return normalized
+}
+
 function brevoConfig() {
   const config = useRuntimeConfig()
   return {
     apiKey: String(config.brevoApiKey || ''),
     senderEmail: String(config.brevoSenderEmail || 'hello@kindrobots.org'),
     senderName: String(config.brevoSenderName || 'Kind Robots'),
-    baseUrl: String(config.public?.appBaseUrl || 'https://kindrobots.org'),
+    baseUrl: normalizeAppBaseUrl(String(config.public?.appBaseUrl || '')),
   }
 }
 
-/** Public base URL used to build links inside emails. */
 export function appBaseUrl(): string {
-  return brevoConfig().baseUrl.replace(/\/$/, '')
+  return brevoConfig().baseUrl
 }
 
 export async function sendTransactionalEmail(
@@ -42,7 +55,7 @@ export async function sendTransactionalEmail(
   const { apiKey, senderEmail, senderName } = brevoConfig()
 
   if (!apiKey) {
-    console.warn('[email] BREVO_API_KEY not set — skipping send to', input.to)
+    console.warn('[email] BREVO_API_KEY not set, skipping send to', input.to)
     return { sent: false, skipped: true }
   }
 
@@ -84,8 +97,6 @@ function stripHtml(html: string): string {
     .trim()
 }
 
-// --- Shared shell ---------------------------------------------------------
-
 function shell(title: string, bodyHtml: string): string {
   return `<!doctype html><html><body style="margin:0;background:#f4f4f7;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2430;">
   <div style="max-width:520px;margin:0 auto;padding:32px 16px;">
@@ -103,8 +114,6 @@ function button(href: string, label: string): string {
   return `<p style="margin:24px 0;"><a href="${href}" style="display:inline-block;background:#6366f1;color:#fff;text-decoration:none;padding:12px 22px;border-radius:12px;font-weight:600;">${label}</a></p>
   <p style="font-size:13px;color:#8a8f9c;margin:0;">Or paste this link into your browser:<br><span style="word-break:break-all;">${href}</span></p>`
 }
-
-// --- Named helpers --------------------------------------------------------
 
 export function sendVerificationEmail(to: string, name: string, token: string) {
   const url = `${appBaseUrl()}/api/auth/email/verify?token=${encodeURIComponent(token)}`

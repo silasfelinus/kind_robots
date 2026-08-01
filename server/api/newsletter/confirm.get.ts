@@ -13,7 +13,11 @@ export default defineEventHandler(async (event) => {
 
   const result = await consumeAuthToken(token, 'NEWSLETTER_CONFIRM')
   if (!result.ok) {
-    return sendRedirect(event, `${base}/account?newsletter=invalid`, 302)
+    return sendRedirect(
+      event,
+      `${base}/email-confirmation?action=newsletter&status=invalid`,
+      302,
+    )
   }
 
   const updated = await prisma.user.update({
@@ -32,5 +36,9 @@ export default defineEventHandler(async (event) => {
 
   await syncBrevoContact(updated)
 
-  return sendRedirect(event, `${base}/account?newsletter=success`, 302)
+  return sendRedirect(
+    event,
+    `${base}/email-confirmation?action=newsletter&status=success`,
+    302,
+  )
 })

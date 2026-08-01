@@ -12,6 +12,8 @@
 
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
+import { buildKrea2WorkflowFromRequest } from '../server/api/comfy/krea2/utils/workflow'
+import { enrichArtJobPayload } from '../server/utils/artJobProvenance'
 import {
   createScriptPrismaClient,
   withDatabaseRetry,
@@ -19,10 +21,16 @@ import {
 
 const PROJECT_SLUG = 'achievements'
 const SEED_USER_ID = 10
-const ACTIVE_JOB_STATUSES = ['PENDING', 'RUNNING'] as const
+
+export const ACHIEVEMENT_ART_ENGINE = 'COMFY' as const
+export const ACHIEVEMENT_ART_VERSION = 'comfy-krea2-v1'
 
 export function achievementEntityMarker(achievementId: number): string {
   return `"entityType":"achievement","entityId":${achievementId},`
+}
+
+export function achievementArtVersionMarker(): string {
+  return `"achievementArtVersion":"${ACHIEVEMENT_ART_VERSION}"`
 }
 
 export function buildAchievementArtPayload(achievement: {
@@ -35,30 +43,51 @@ export function buildAchievementArtPayload(achievement: {
     throw new Error(`Achievement ${achievement.id} has no artPrompt`)
   }
 
-  return {
-    promptString,
-    negativePrompt:
-      'readable text, caption, watermark, signature, logo, UI, frame, border',
+  const negativePrompt =
+    'readable text, caption, watermark, signature, logo, UI, frame, border'
+  const { workflow, seed } = buildKrea2WorkflowFromRequest({
+    prompt: promptString,
+    negativePrompt,
     width: 1024,
     height: 1024,
-    steps: 28,
-    cfg: 3,
-    save: {
-      isPublic: true,
-      isMature: false,
-      designer: 'achievement-catalog',
+    steps: 8,
+    cfg: 1,
+  })
+
+  return enrichArtJobPayload(
+    ACHIEVEMENT_ART_ENGINE,
+    {
+      promptString,
+      negativePrompt,
+      width: 1024,
+      height: 1024,
+      steps: 8,
+      cfg: 1,
+      seed,
+      workflow,
+      save: {
+        isPublic: true,
+        isMature: false,
+        designer: 'achievement-catalog',
+      },
+      entityArt: {
+        entityType: 'achievement',
+        entityId: achievement.id,
+        field: 'imagePath',
+        preserveOriginal: true,
+        mode: 'recreate',
+      },
+      achievementArtVersion: ACHIEVEMENT_ART_VERSION,
+      achievement: {
+        triggerCode: achievement.triggerCode,
+      },
     },
-    entityArt: {
-      entityType: 'achievement',
-      entityId: achievement.id,
-      field: 'imagePath',
-      preserveOriginal: true,
-      mode: 'recreate',
+    {
+      projectSlug: PROJECT_SLUG,
+      idempotencyKey: `achievement:${achievement.id}:${ACHIEVEMENT_ART_VERSION}`,
+      requireCompletionProof: true,
     },
-    achievement: {
-      triggerCode: achievement.triggerCode,
-    },
-  }
+  ).payload
 }
 
 async function main() {
@@ -91,8 +120,10 @@ async function main() {
           where: {
             projectSlug: PROJECT_SLUG,
             userId: SEED_USER_ID,
-            status: { in: [...ACTIVE_JOB_STATUSES] },
-            payload: { contains: achievementEntityMarker(achievement.id) },
+            AND: [
+              { payload: { contains: achievementEntityMarker(achievement.id) } },
+              { payload: { contains: achievementArtVersionMarker() } },
+            ],
           },
           orderBy: { createdAt: 'desc' },
         })
@@ -100,7 +131,7 @@ async function main() {
         if (existing) {
           reused += 1
           console.log(
-            `  reuse ArtJob ${existing.id}: ${achievement.triggerCode} — ${achievement.label}`,
+            `  reuse ArtJob ${existing.id} (${existing.status}): ${achievement.triggerCode} — ${achievement.label}`,
           )
           continue
         }
@@ -114,7 +145,7 @@ async function main() {
 
         const job = await prisma.artJob.create({
           data: {
-            engine: 'A1111',
+            engine: ACHIEVEMENT_ART_ENGINE,
             userId: SEED_USER_ID,
             projectSlug: PROJECT_SLUG,
             priority: 5,
@@ -130,8 +161,8 @@ async function main() {
 
       console.log(
         WRITE
-          ? `Achievement art: ${queued} queued, ${reused} active job(s) reused, ${achievements.length} missing image(s) inspected.`
-          : `[dry run] ${achievements.length - reused} job(s) would be queued; ${reused} active job(s) already exist.`,
+          ? `Achievement art: ${queued} queued, ${reused} same-version job(s) reused, ${achievements.length} missing image(s) inspected.`
+          : `[dry run] ${achievements.length - reused} job(s) would be queued; ${reused} same-version job(s) already exist.`,
       )
     } finally {
       await prisma.$disconnect()

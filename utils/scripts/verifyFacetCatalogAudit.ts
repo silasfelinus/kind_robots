@@ -11,7 +11,7 @@ function fixture(
     id: overrides.id,
     title: overrides.title,
     slug: overrides.slug ?? overrides.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    taxonomy: overrides.taxonomy ?? 'OTHER',
+    taxonomy: overrides.taxonomy === undefined ? 'OTHER' : overrides.taxonomy,
     groupKey: overrides.groupKey ?? null,
     groupLabel: overrides.groupLabel ?? null,
     isRandomizable: overrides.isRandomizable ?? true,

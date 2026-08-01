@@ -171,6 +171,15 @@ assert.ok(
   'Catalog reconciliation must preserve generated achievement art.',
 )
 
+const databaseRetry = source('scripts/lib/databaseRetry.ts')
+assert.ok(
+  databaseRetry.includes('createDatabaseAdapter') &&
+    databaseRetry.includes('isTransientDatabaseError') &&
+    seed.includes('withDatabaseRetry') &&
+    generator.includes('withDatabaseRetry'),
+  'Production achievement maintenance must use the shared adapter and bounded retries.',
+)
+
 const build = source('scripts/vercel-build.mjs')
 const seedIndex = build.indexOf("['scripts/seed_achievements.ts', '--write']")
 const artIndex = build.indexOf(

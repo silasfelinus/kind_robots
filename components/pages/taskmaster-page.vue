@@ -4,18 +4,15 @@
      users choose story ingredients, never image-model settings. -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
+    class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
   >
-    <header class="flex items-start gap-3">
+    <header class="flex shrink-0 items-start gap-3">
       <div
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-secondary/30 bg-secondary/10 text-secondary"
       >
         <Icon name="kind-icon:gearhammer" class="size-6" />
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-bold uppercase tracking-wide text-secondary/70">
-          Taskmaster
-        </p>
         <h2 class="text-2xl font-black leading-tight">
           Turn the next real thing into an adventure
         </h2>
@@ -48,232 +45,235 @@
       </div>
     </header>
 
-    <div
-      v-if="!store.session"
-      class="space-y-5 rounded-2xl border border-secondary/20 bg-secondary/5 p-4"
-    >
-      <div>
-        <h3 class="text-xs font-bold uppercase tracking-wide text-secondary/70">
-          Build the quest
-        </h3>
-        <p class="mt-1 text-xs leading-relaxed text-base-content/55">
-          Story choices direct the art automatically. Model, sampler, step-count,
-          and other generator controls stay out of the way.
-        </p>
-      </div>
+    <LazyKrNarratorStage :stage-image="tabImage" class="shrink-0" />
 
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs font-bold uppercase tracking-wide">
-            What do you need to accomplish?
-          </span>
-        </div>
-        <textarea
-          v-model="taskInput"
-          rows="2"
-          class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
-          placeholder="Clean the garage, finish the proposal, decide which feature ships next…"
-          :disabled="store.isWeaving"
-        />
-        <div class="label py-1">
-          <span class="label-text-alt text-base-content/45">
-            You can enter a task directly, link a project below, or use both.
-          </span>
-        </div>
-      </label>
+    <div class="kr-scroll space-y-4">
+      <template v-if="!store.session">
+        <TaskmasterSampleTasks />
 
-      <label class="form-control w-full max-w-xl">
-        <div class="label py-1">
-          <span class="label-text text-xs font-bold uppercase tracking-wide">
-            Project or task source (optional)
-          </span>
+        <div class="space-y-5 rounded-2xl border border-secondary/20 bg-secondary/5 p-4">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wide text-secondary/70">
+              Build the quest
+            </h3>
+            <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+              Story choices direct the art automatically. Model, sampler, step-count,
+              and other generator controls stay out of the way.
+            </p>
+          </div>
+
+          <label class="form-control w-full">
+            <div class="label py-1">
+              <span class="label-text text-xs font-bold uppercase tracking-wide">
+                What do you need to accomplish?
+              </span>
+            </div>
+            <textarea
+              v-model="taskInput"
+              rows="2"
+              class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
+              placeholder="Clean the garage, finish the proposal, decide which feature ships next…"
+              :disabled="store.isWeaving"
+            />
+            <div class="label py-1">
+              <span class="label-text-alt text-base-content/45">
+                You can enter a task directly, link a project below, or use both.
+              </span>
+            </div>
+          </label>
+
+          <label class="form-control w-full max-w-xl">
+            <div class="label py-1">
+              <span class="label-text text-xs font-bold uppercase tracking-wide">
+                Project or task source (optional)
+              </span>
+            </div>
+            <select
+              v-model="selectedProjectSlug"
+              class="select select-bordered w-full rounded-xl"
+              :disabled="store.isWeaving"
+            >
+              <option value="">No linked project</option>
+              <option
+                v-for="project in projectStore.activeProjects"
+                :key="project.slug ?? project.id"
+                :value="project.slug"
+              >
+                {{ project.title || project.slug }}
+              </option>
+            </select>
+          </label>
+
+          <div class="space-y-2">
+            <p class="text-xs font-bold uppercase tracking-wide text-base-content/55">
+              Tone
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="tone in TASKMASTER_TONES"
+                :key="tone"
+                type="button"
+                class="btn btn-sm rounded-xl capitalize"
+                :class="
+                  tone === selectedTone
+                    ? 'btn-secondary'
+                    : 'btn-ghost border border-base-300 bg-base-100'
+                "
+                :aria-pressed="tone === selectedTone"
+                @click="selectedTone = tone"
+              >
+                {{ tone }}
+              </button>
+            </div>
+          </div>
+
+          <NarrativeIngredientPicker
+            v-model="selectedLocationSlug"
+            :items="locationOptions"
+            label="Setting"
+            helper="Choose a reusable LOCATION Dream. Artwork is shown when the location already has it."
+            empty-label="Anywhere"
+            empty-description="Let Taskmaster choose a setting that fits the objective and tone."
+            empty-icon="kind-icon:dream"
+            empty-state="No active LOCATION Dreams are available yet."
+            :disabled="store.isWeaving"
+            :loading="dreamStore.loading"
+            :error="dreamStore.error"
+            :initial-limit="5"
+          />
+
+          <NarrativeIngredientPicker
+            v-model="selectedGrammarSlug"
+            :items="grammarOptions"
+            label="Genre, mood, and style"
+            helper="Choose from the canonical Facet library. Cards use Facet artwork first and fall back to the Facet icon."
+            empty-label="Any adventure"
+            empty-description="Let Taskmaster choose the genre and story grammar automatically."
+            empty-icon="kind-icon:story"
+            empty-state="No active narrative Facets are available yet."
+            :disabled="store.isWeaving"
+            :loading="facetStore.loading"
+            :error="facetStore.error"
+            :initial-limit="8"
+          />
+
+          <label class="form-control w-full">
+            <div class="label py-1">
+              <span class="label-text text-xs font-bold uppercase tracking-wide">
+                Extra flavor (optional)
+              </span>
+            </div>
+            <input
+              v-model="vibeInput"
+              type="text"
+              placeholder="storm-lit, clockwork, defiant"
+              class="input input-bordered w-full rounded-xl bg-base-100"
+              :disabled="store.isWeaving"
+            />
+          </label>
+
+          <p v-if="store.errorMessage" class="text-xs text-error">
+            {{ store.errorMessage }}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-secondary rounded-xl"
+              :disabled="store.isWeaving || !canBegin"
+              @click="begin(false)"
+            >
+              <span
+                v-if="store.isWeaving"
+                class="loading loading-dots loading-sm"
+              />
+              <template v-else>
+                <Icon name="kind-icon:gearhammer" class="size-4" /> Begin quest
+              </template>
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost rounded-xl border border-base-300 bg-base-100"
+              :disabled="store.isWeaving || !canBegin"
+              @click="begin(true)"
+            >
+              <Icon name="kind-icon:wand" class="size-4" /> Surprise me
+            </button>
+            <p v-if="!canBegin" class="text-xs text-base-content/50">
+              Enter an objective or choose a linked project to begin.
+            </p>
+          </div>
         </div>
-        <select
-          v-model="selectedProjectSlug"
-          class="select select-bordered w-full rounded-xl"
-          :disabled="store.isWeaving"
+      </template>
+
+      <div
+        v-else-if="store.session.status === 'draft'"
+        class="space-y-4 rounded-2xl border border-secondary/25 bg-secondary/5 p-4"
+      >
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wide text-secondary/70">
+            Review the practical plan
+          </p>
+          <h3 class="mt-1 text-xl font-black">The quest starts with real checkpoints</h3>
+          <p class="mt-1 text-sm leading-relaxed text-base-content/60">
+            Taskmaster will weave these actions into the fiction in order. The plan is
+            saved before narration begins, and no external task changes happen without
+            an explicit Apply action.
+          </p>
+        </div>
+        <article
+          v-for="(checkpoint, index) in store.session.checkpoints"
+          :key="checkpoint.id"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <option value="">No linked project</option>
-          <option
-            v-for="project in projectStore.activeProjects"
-            :key="project.slug ?? project.id"
-            :value="project.slug"
-          >
-            {{ project.title || project.slug }}
-          </option>
-        </select>
-      </label>
-
-      <div class="space-y-2">
-        <p class="text-xs font-bold uppercase tracking-wide text-base-content/55">
-          Tone
-        </p>
+          <div class="flex items-start gap-3">
+            <span class="badge badge-secondary badge-sm mt-0.5 rounded-xl">
+              {{ index + 1 }}
+            </span>
+            <div class="min-w-0 flex-1">
+              <p class="font-bold">{{ checkpoint.title }}</p>
+              <p v-if="checkpoint.detail" class="mt-1 text-xs text-base-content/55">
+                {{ checkpoint.detail }}
+              </p>
+              <p class="mt-1 text-[0.7rem] uppercase tracking-wide text-base-content/40">
+                {{ checkpoint.sourceKind.replace('-', ' ') }}
+              </p>
+            </div>
+          </div>
+        </article>
         <div class="flex flex-wrap gap-2">
           <button
-            v-for="tone in TASKMASTER_TONES"
-            :key="tone"
             type="button"
-            class="btn btn-sm rounded-xl capitalize"
-            :class="
-              tone === selectedTone
-                ? 'btn-secondary'
-                : 'btn-ghost border border-base-300 bg-base-100'
-            "
-            :aria-pressed="tone === selectedTone"
-            @click="selectedTone = tone"
+            class="btn btn-secondary rounded-xl"
+            :disabled="store.isWeaving || !store.session.checkpoints.length"
+            @click="store.startQuest()"
           >
-            {{ tone }}
+            <Icon name="kind-icon:story" class="size-4" /> Start the adventure
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost rounded-xl border border-base-300 bg-base-100"
+            :disabled="store.isWeaving"
+            @click="startOver"
+          >
+            Edit setup
           </button>
         </div>
       </div>
 
-      <NarrativeIngredientPicker
-        v-model="selectedLocationSlug"
-        :items="locationOptions"
-        label="Setting"
-        helper="Choose a reusable LOCATION Dream. Artwork is shown when the location already has it."
-        empty-label="Anywhere"
-        empty-description="Let Taskmaster choose a setting that fits the objective and tone."
-        empty-icon="kind-icon:dream"
-        empty-state="No active LOCATION Dreams are available yet."
-        :disabled="store.isWeaving"
-        :loading="dreamStore.loading"
-        :error="dreamStore.error"
-        :initial-limit="5"
-      />
-
-      <NarrativeIngredientPicker
-        v-model="selectedGrammarSlug"
-        :items="grammarOptions"
-        label="Genre, mood, and style"
-        helper="Choose from the canonical Facet library. Cards use Facet artwork first and fall back to the Facet icon."
-        empty-label="Any adventure"
-        empty-description="Let Taskmaster choose the genre and story grammar automatically."
-        empty-icon="kind-icon:story"
-        empty-state="No active narrative Facets are available yet."
-        :disabled="store.isWeaving"
-        :loading="facetStore.loading"
-        :error="facetStore.error"
-        :initial-limit="8"
-      />
-
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs font-bold uppercase tracking-wide">
-            Extra flavor (optional)
-          </span>
+      <template v-else>
+        <div
+          v-if="store.session.seed.taskTitle"
+          class="rounded-2xl border border-info/30 bg-info/5 p-3"
+        >
+          <p class="text-[0.7rem] font-bold uppercase tracking-wide text-info/80">
+            Real objective
+          </p>
+          <p class="mt-1 text-sm font-semibold">
+            {{ store.session.seed.taskTitle }}
+          </p>
         </div>
-        <input
-          v-model="vibeInput"
-          type="text"
-          placeholder="storm-lit, clockwork, defiant"
-          class="input input-bordered w-full rounded-xl bg-base-100"
-          :disabled="store.isWeaving"
-        />
-      </label>
 
-      <p v-if="store.errorMessage" class="text-xs text-error">
-        {{ store.errorMessage }}
-      </p>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-secondary rounded-xl"
-          :disabled="store.isWeaving || !canBegin"
-          @click="begin(false)"
-        >
-          <span
-            v-if="store.isWeaving"
-            class="loading loading-dots loading-sm"
-          />
-          <template v-else>
-            <Icon name="kind-icon:gearhammer" class="size-4" /> Begin quest
-          </template>
-        </button>
-        <button
-          type="button"
-          class="btn btn-ghost rounded-xl border border-base-300 bg-base-100"
-          :disabled="store.isWeaving || !canBegin"
-          @click="begin(true)"
-        >
-          <Icon name="kind-icon:wand" class="size-4" /> Surprise me
-        </button>
-        <p v-if="!canBegin" class="text-xs text-base-content/50">
-          Enter an objective or choose a linked project to begin.
-        </p>
-      </div>
-    </div>
-
-    <div
-      v-else-if="store.session.status === 'draft'"
-      class="space-y-4 rounded-2xl border border-secondary/25 bg-secondary/5 p-4"
-    >
-      <div>
-        <p class="text-xs font-bold uppercase tracking-wide text-secondary/70">
-          Review the practical plan
-        </p>
-        <h3 class="mt-1 text-xl font-black">The quest starts with real checkpoints</h3>
-        <p class="mt-1 text-sm leading-relaxed text-base-content/60">
-          Taskmaster will weave these actions into the fiction in order. The plan is
-          saved before narration begins, and no external task changes happen without
-          an explicit Apply action.
-        </p>
-      </div>
-      <article
-        v-for="(checkpoint, index) in store.session.checkpoints"
-        :key="checkpoint.id"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3"
-      >
-        <div class="flex items-start gap-3">
-          <span class="badge badge-secondary badge-sm mt-0.5 rounded-xl">
-            {{ index + 1 }}
-          </span>
-          <div class="min-w-0 flex-1">
-            <p class="font-bold">{{ checkpoint.title }}</p>
-            <p v-if="checkpoint.detail" class="mt-1 text-xs text-base-content/55">
-              {{ checkpoint.detail }}
-            </p>
-            <p class="mt-1 text-[0.7rem] uppercase tracking-wide text-base-content/40">
-              {{ checkpoint.sourceKind.replace('-', ' ') }}
-            </p>
-          </div>
-        </div>
-      </article>
-      <div class="flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="btn btn-secondary rounded-xl"
-          :disabled="store.isWeaving || !store.session.checkpoints.length"
-          @click="store.startQuest()"
-        >
-          <Icon name="kind-icon:story" class="size-4" /> Start the adventure
-        </button>
-        <button
-          type="button"
-          class="btn btn-ghost rounded-xl border border-base-300 bg-base-100"
-          :disabled="store.isWeaving"
-          @click="startOver"
-        >
-          Edit setup
-        </button>
-      </div>
-    </div>
-
-    <div v-else class="flex min-h-0 flex-1 flex-col gap-3">
-      <div
-        v-if="store.session.seed.taskTitle"
-        class="rounded-2xl border border-info/30 bg-info/5 p-3"
-      >
-        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-info/80">
-          Real objective
-        </p>
-        <p class="mt-1 text-sm font-semibold">
-          {{ store.session.seed.taskTitle }}
-        </p>
-      </div>
-
-      <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
         <section
           v-if="store.session.checkpoints.length"
           class="space-y-3 rounded-2xl border border-secondary/20 bg-secondary/5 p-3"
@@ -442,76 +442,88 @@
             </div>
           </article>
         </div>
-      </div>
-
-      <section
-        v-if="!store.isComplete && store.awaitingAnswer && store.currentCheckpoint"
-        class="space-y-2 rounded-2xl border border-info/25 bg-info/5 p-3"
-      >
-        <div>
-          <p class="text-[0.7rem] font-bold uppercase tracking-wide text-info/75">
-            What happened in the real world?
-          </p>
-          <p class="mt-1 text-xs text-base-content/55">
-            Choose the honest checkpoint outcome, then describe what happened below.
-          </p>
-        </div>
-        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          <button
-            v-for="outcome in checkpointOutcomes"
-            :key="outcome.value"
-            type="button"
-            class="rounded-xl border p-2 text-left text-xs transition"
-            :class="
-              selectedOutcome === outcome.value
-                ? 'border-info bg-info text-info-content'
-                : 'border-base-300 bg-base-100 hover:border-info/50'
-            "
-            :aria-pressed="selectedOutcome === outcome.value"
-            @click="selectedOutcome = outcome.value"
-          >
-            <span class="font-bold">{{ outcome.label }}</span>
-            <span class="mt-0.5 block opacity-70">{{ outcome.helper }}</span>
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-if="store.canClose"
-        class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-success/30 bg-success/5 p-3"
-      >
-        <div>
-          <p class="text-sm font-bold text-success">All checkpoints have an outcome</p>
-          <p class="mt-0.5 text-xs text-base-content/55">
-            Finish the quest for a practical recap of completed, blocked, deferred,
-            and missing-information items.
-          </p>
-        </div>
-        <button
-          type="button"
-          class="btn btn-success btn-sm rounded-xl"
-          @click="store.closeStory()"
-        >
-          Finish the quest
-        </button>
-      </section>
-
-      <NarrativeResponseComposer
-        v-if="!store.isComplete && !store.canClose"
-        v-model="answerInput"
-        :options="store.currentBeat?.question.options ?? []"
-        :disabled="!store.awaitingAnswer"
-        :loading="store.isWeaving"
-        :placeholder="
-          store.awaitingAnswer
-            ? 'What do you do?'
-            : 'Taskmaster is building the next scene…'
-        "
-        button-label="Continue"
-        hint="Story answers become proposed progress first. Real task changes still require an explicit Apply action."
-        @submit="submitAnswer"
-      />
+      </template>
     </div>
+
+    <section
+      v-if="
+        store.session &&
+        store.session.status !== 'draft' &&
+        !store.isComplete &&
+        store.awaitingAnswer &&
+        store.currentCheckpoint
+      "
+      class="shrink-0 space-y-2 rounded-2xl border border-info/25 bg-info/5 p-3"
+    >
+      <div>
+        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-info/75">
+          What happened in the real world?
+        </p>
+        <p class="mt-1 text-xs text-base-content/55">
+          Choose the honest checkpoint outcome, then describe what happened below.
+        </p>
+      </div>
+      <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <button
+          v-for="outcome in checkpointOutcomes"
+          :key="outcome.value"
+          type="button"
+          class="rounded-xl border p-2 text-left text-xs transition"
+          :class="
+            selectedOutcome === outcome.value
+              ? 'border-info bg-info text-info-content'
+              : 'border-base-300 bg-base-100 hover:border-info/50'
+          "
+          :aria-pressed="selectedOutcome === outcome.value"
+          @click="selectedOutcome = outcome.value"
+        >
+          <span class="font-bold">{{ outcome.label }}</span>
+          <span class="mt-0.5 block opacity-70">{{ outcome.helper }}</span>
+        </button>
+      </div>
+    </section>
+
+    <section
+      v-if="store.session && store.session.status !== 'draft' && store.canClose"
+      class="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-2xl border border-success/30 bg-success/5 p-3"
+    >
+      <div>
+        <p class="text-sm font-bold text-success">All checkpoints have an outcome</p>
+        <p class="mt-0.5 text-xs text-base-content/55">
+          Finish the quest for a practical recap of completed, blocked, deferred,
+          and missing-information items.
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-success btn-sm rounded-xl"
+        @click="store.closeStory()"
+      >
+        Finish the quest
+      </button>
+    </section>
+
+    <NarrativeResponseComposer
+      v-if="
+        store.session &&
+        store.session.status !== 'draft' &&
+        !store.isComplete &&
+        !store.canClose
+      "
+      v-model="answerInput"
+      class="shrink-0"
+      :options="store.currentBeat?.question.options ?? []"
+      :disabled="!store.awaitingAnswer"
+      :loading="store.isWeaving"
+      :placeholder="
+        store.awaitingAnswer
+          ? 'What do you do?'
+          : 'Taskmaster is building the next scene…'
+      "
+      button-label="Continue"
+      hint="Story answers become proposed progress first. Real task changes still require an explicit Apply action."
+      @submit="submitAnswer"
+    />
   </section>
 </template>
 
@@ -519,6 +531,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
+import { getDashboardTabImagePath } from '@/stores/helpers/dashboardHelper'
 import { useProjectStore } from '@/stores/projectStore'
 import {
   TASKMASTER_TONES,
@@ -537,6 +550,10 @@ const store = useTaskmasterStore()
 const dreamStore = useDreamStore()
 const facetStore = useFacetStore()
 const projectStore = useProjectStore()
+
+const tabImage = computed(() =>
+  getDashboardTabImagePath('scenario', 'taskmaster'),
+)
 
 const taskInput = ref('')
 const selectedTone = ref<TaskmasterTone>('adventurous')

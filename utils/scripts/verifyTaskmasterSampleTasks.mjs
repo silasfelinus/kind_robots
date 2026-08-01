@@ -6,8 +6,15 @@ const samples = fs.readFileSync(
   'components/taskmaster/taskmaster-sample-tasks.vue',
   'utf8',
 )
+const page = fs.readFileSync('components/pages/taskmaster-page.vue', 'utf8')
 
-assert.match(content, /:taskmaster-sample-tasks\s+\n:taskmaster-page/)
+// interface-vision/t-006: content/taskmaster.md now mounts exactly one
+// top-level MDC component (:taskmaster-page) to satisfy the layout
+// contract's one-mdc rule. TaskmasterSampleTasks is composed inside
+// taskmaster-page.vue instead of as a second sibling MDC block.
+assert.match(content, /^:taskmaster-page\s*$/m)
+assert.doesNotMatch(content, /:taskmaster-sample-tasks/)
+assert.match(page, /<TaskmasterSampleTasks/)
 assert.match(
   samples,
   /Look at my conductor repo and help me clear any current human gates\./,

@@ -54,16 +54,19 @@
     </div>
 
     <section
-      v-if="activeTab === 'dashboard' && !isLoggedIn"
+      v-if="activeTab === 'profile' && !isLoggedIn"
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 rounded-2xl border border-base-300 bg-base-200 p-8"
     >
       <div class="flex flex-col items-center gap-3 text-center">
-        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15">
+        <div
+          class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15"
+        >
           <Icon name="kind-icon:user" class="h-8 w-8 text-primary" />
         </div>
         <h2 class="text-xl font-black text-base-content">Welcome, guest</h2>
         <p class="max-w-xs text-sm text-base-content/60">
-          Log in to save your progress, set an avatar, and access your full account.
+          Log in to save your progress, set an avatar, and access your full
+          account.
         </p>
       </div>
       <NuxtLink to="/login" class="btn btn-primary rounded-xl px-8">
@@ -73,7 +76,7 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'dashboard'"
+      v-else-if="activeTab === 'profile'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <user-dashboard class="min-h-0 flex-1" />
@@ -213,10 +216,10 @@ async function logout(): Promise<void> {
 }
 
 function onAvatarChosen(_artImage: ArtImage): void {
-  navStore.setDashboardTab(dashboardKey, 'dashboard', 'avatar chosen')
+  navStore.setDashboardTab(dashboardKey, 'profile', 'avatar chosen')
 }
 
 function closePicker(): void {
-  navStore.setDashboardTab(dashboardKey, 'dashboard', 'avatar picker closed')
+  navStore.setDashboardTab(dashboardKey, 'profile', 'avatar picker closed')
 }
 </script>

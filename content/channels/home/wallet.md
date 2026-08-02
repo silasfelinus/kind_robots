@@ -3,7 +3,7 @@ contentType: tab
 channelKey: home
 tabKey: wallet
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 label: Wallet
 title: Wallet
 subtitle: Your karma and mana, in one place

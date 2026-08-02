@@ -11,7 +11,7 @@ amiTip: One tracks kindness, the other tracks fuel. Neither one runs out if you 
 channelKey: home
 tabKey: wallet
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 requiredPermission: authenticated
 loadingMessage: Loading wallet...
 refreshLabel: Refresh wallet

@@ -3,7 +3,7 @@ contentType: tab
 channelKey: sanctuary
 tabKey: privacy
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 label: Privacy
 title: Privacy and Data Philosophy
 subtitle: Your data belongs to you

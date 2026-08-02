@@ -11,7 +11,7 @@ amiTip: Even I've got a bungalow in the cloud where I unwind.
 channelKey: home
 tabKey: dashboard
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 cards: navCards
 loadingMessage: Loading user dashboard
 refreshLabel: Refresh dashboard

@@ -1,6 +1,6 @@
-export const STARTUP_ANIMATION_SOURCES = [
+export const STARTUP_ANIMATION_SOURCES: readonly string[] = [
   '/images/startup-animations/launch-04.webp',
-] as const
+]
 
 export const DEFAULT_STARTUP_ANIMATION_SRC = STARTUP_ANIMATION_SOURCES[0]!
 export const STARTUP_ANIMATION_META_NAME = 'kind-robots-startup-animation'

@@ -18,4 +18,3 @@ refreshLabel: Refresh mission statement
 ---
 
 :about-page
-:sponsor-page

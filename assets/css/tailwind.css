@@ -155,10 +155,6 @@ body,
   background-color: transparent !important;
 }
 
-.kr-boot-curtain {
-  display: none !important;
-}
-
 /*
  * interface-vision/t-017: the four :has() overrides that used to patch the
  * public project gallery (components/pages/conductor-page.vue) are gone —
@@ -207,7 +203,6 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * the reading surface is the majority case in this app.
    */
   body {
-    @apply text-sm md:text-base lg:text-lg xl:text-xl;
     font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
   }
 

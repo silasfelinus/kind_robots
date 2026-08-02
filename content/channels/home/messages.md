@@ -3,7 +3,7 @@ contentType: tab
 channelKey: home
 tabKey: messages
 dashboardKey: user
-dashboardTab: messages
+dashboardTab: chats
 label: Messages
 title: Direct Messages
 subtitle: Your conversations

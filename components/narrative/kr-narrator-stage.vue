@@ -63,17 +63,19 @@
     </div>
 
     <div class="kr-toolbar flex-wrap gap-2 border-t border-primary/10 pt-3">
-      <button
-        v-for="topic in topicButtons"
-        :key="topic.key"
-        type="button"
-        class="btn btn-outline btn-xs rounded-2xl"
+      <!-- The quick topics were the seed for kr-choice-list: the same
+           pick-one-from-a-few idea that workspace-narrator and the scenarios
+           choice-* trio each re-implemented. Adopting it here puts the shared
+           component in Storymaker's and Taskmaster's real render path at once,
+           since both mount this stage. -->
+      <kr-choice-list
+        layout="row"
+        :choices="topicChoices"
         :disabled="isNarratorResponding"
-        @click="selectTopic(topic)"
-      >
-        <Icon :name="topic.icon" class="h-3.5 w-3.5" />
-        {{ topic.title }}
-      </button>
+        :show-index="false"
+        label="Narrator topics"
+        @select="selectTopicByKey"
+      />
 
       <div class="flex min-w-0 flex-1 items-center gap-2">
         <input
@@ -139,6 +141,7 @@ const narrationText = computed(() => {
   return lastReply || narratorIntro.value
 })
 
+
 const topicButtons = computed(() => {
   return narratorThreads.value.slice(0, 4).map((thread) => {
     const topic = thread.Topic
@@ -150,6 +153,24 @@ const topicButtons = computed(() => {
     }
   })
 })
+
+/*
+ * kr-choice-list speaks {key,label,hint,icon}; the narrator's threads speak
+ * {key,title,icon}. Adapt here rather than reshaping narratorStore, so the
+ * shared component never has to learn a store's vocabulary.
+ */
+const topicChoices = computed(() =>
+  topicButtons.value.map((topic) => ({
+    key: topic.key,
+    label: topic.title,
+    icon: topic.icon,
+  })),
+)
+
+function selectTopicByKey(choice: { key: string }): void {
+  const topic = topicButtons.value.find((entry) => entry.key === choice.key)
+  if (topic) selectTopic(topic)
+}
 
 function selectTopic(topic: { prompt: string }): void {
   if (topic.prompt) {

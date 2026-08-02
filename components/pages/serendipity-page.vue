@@ -8,7 +8,7 @@
 -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4 md:p-6"
+    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4 md:p-6"
     data-animation-surface
   >
     <header class="flex flex-wrap items-center justify-between gap-3">
@@ -19,7 +19,7 @@
           <Icon name="kind-icon:butterfly" class="h-7 w-7" />
         </span>
         <div>
-          <h1 class="text-2xl font-black tracking-tight">Serendipity</h1>
+          <p class="text-2xl font-black tracking-tight">Serendipity</p>
           <p class="text-sm text-base-content/60">
             Talk to Kind Robots through your Amazon Echo.
           </p>
@@ -100,7 +100,7 @@
       </form>
     </div>
 
-    <div class="grid flex-1 gap-4 md:grid-cols-[1fr,16rem]">
+    <div class="grid min-h-0 flex-1 gap-4 md:grid-cols-[1fr,16rem]">
       <!-- Message feed -->
       <div
         class="flex min-h-48 flex-col rounded-xl border border-base-300 bg-base-100"

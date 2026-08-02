@@ -3,8 +3,6 @@
   "recorded": "2026-08-02",
   "violations": {
     "one-header": [
-      "components/pages/registration-form.vue",
-      "components/pages/serendipity-page.vue",
       "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
       "pages/admin/wonderlab-reviews.vue"
@@ -29,7 +27,6 @@
       "components/navigation/workspace-narrator.vue",
       "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
-      "components/pages/serendipity-page.vue",
       "components/rewards/reward-interact.vue",
       "components/scenarios/scenario-gallery.vue",
       "components/scenarios/scenario-interact.vue",
@@ -68,7 +65,6 @@
       "components/pages/kaizen-popup.vue",
       "components/pages/kind-prompts.vue",
       "components/pages/rebel-button.vue",
-      "components/pages/registration-form.vue",
       "components/pages/social-page.vue",
       "pages/auth/google.vue",
       "pages/build-bench.vue"

@@ -113,6 +113,9 @@ jobs:
       - name: CHILD maturity restriction contract
         run: npm run test:child-maturity
 
+      - name: Narrative conversation kit contract
+        run: npm run test:narrative-kit
+
       - name: Unquoted reserved-word table identifier contract
         run: npm run test:no-unquoted-reserved-word-tables
 

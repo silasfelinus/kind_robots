@@ -3,7 +3,7 @@ contentType: tab
 channelKey: sanctuary
 tabKey: giving
 dashboardKey: giftshop
-dashboardTab: giving
+dashboardTab: community
 label: Giving
 title: Give Directly to Against Malaria
 subtitle: We never touch the money

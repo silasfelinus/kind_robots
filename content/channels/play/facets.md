@@ -3,7 +3,7 @@ contentType: tab
 channelKey: play
 tabKey: facets
 dashboardKey: facets
-dashboardTab: facets
+dashboardTab: library
 label: Facets
 title: Facets
 subtitle: Browse the reusable flavor of the ecosystem

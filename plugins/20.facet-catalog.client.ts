@@ -209,63 +209,74 @@ function hydrateSystemBuilder(
 }
 
 /*
- * MUST NOT be an async plugin. Nuxt awaits the promise a plugin returns before
- * it mounts the Vue app, so awaiting this catalog fetch here held the entire
- * application hostage to one network round trip — up to its own 10s timeout,
- * and indefinitely if the request never settled. Nothing rendered in that
- * window: no loading overlay, no startup controls, no site.
- *
- * The Builders this hydrates are re-registered when the fetch resolves, so
- * running it in the background is correct; callers already tolerate an
- * unpopulated catalog (the `!catalog.entries.length` bail below predates this).
+ * This catalog is Builder-only and mutates shared card definitions. Starting
+ * the fetch from plugin setup made every route download up to 1,000 Facets
+ * while Vue was hydrating, which could both hit the request timeout and change
+ * Builder data underneath hydration. Wait until the app is mounted, then load
+ * only when /builder is active.
  */
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin((nuxtApp) => {
   const catalog = useFacetCatalogStore()
+  const router = useRouter()
+  let hydrationPromise: Promise<void> | null = null
 
-  void (async () => {
-    try {
-      await catalog.fetchCatalog({ includeMature: true, take: 1000 }, true)
-      if (!catalog.entries.length) return
+  const hydrateCatalog = async (): Promise<void> => {
+    await catalog.fetchCatalog({ includeMature: true, take: 1000 }, true)
+    if (!catalog.entries.length) return
 
-      /*
-       * Imported here rather than at module scope. Nuxt bundles every plugin
-       * into the eager entry chunk, so static imports of these decks put the
-       * whole builder card graph (~14 card modules plus the seed tables they
-       * pull in) into the payload that must execute before the app can mount —
-       * on every page, for every visitor, to hydrate Builders that are not on
-       * screen yet. Nothing here is needed for first paint.
-       */
-      const [
-        { ADVENTURE_CARDS },
-        { ART_CARDS },
-        { BOT_CARDS },
-        { DREAM_CARDS },
-        { REWARD_CARDS },
-        { SCENARIO_CARDS },
-        { ensureBuildersRegistered },
-      ] = await Promise.all([
-        import('@/stores/helpers/adventureCards'),
-        import('@/stores/helpers/artCards'),
-        import('@/stores/helpers/botCards'),
-        import('@/stores/helpers/dreamCards'),
-        import('@/stores/helpers/rewardCards'),
-        import('@/stores/helpers/scenarioCards'),
-        import('@/stores/registerBuilderStore'),
-      ])
+    /*
+     * Imported here rather than at module scope. Nuxt bundles every plugin
+     * into the eager entry chunk, so static imports of these decks put the
+     * whole builder card graph (~14 card modules plus the seed tables they
+     * pull in) into the payload that must execute before the app can mount.
+     */
+    const [
+      { ADVENTURE_CARDS },
+      { ART_CARDS },
+      { BOT_CARDS },
+      { DREAM_CARDS },
+      { REWARD_CARDS },
+      { SCENARIO_CARDS },
+      { ensureBuildersRegistered },
+    ] = await Promise.all([
+      import('@/stores/helpers/adventureCards'),
+      import('@/stores/helpers/artCards'),
+      import('@/stores/helpers/botCards'),
+      import('@/stores/helpers/dreamCards'),
+      import('@/stores/helpers/rewardCards'),
+      import('@/stores/helpers/scenarioCards'),
+      import('@/stores/registerBuilderStore'),
+    ])
 
-      hydrateBuilderCards(ADVENTURE_CARDS, catalog)
-      hydrateBuilderCards(SCENARIO_CARDS, catalog)
-      hydrateBotBuilder(BOT_CARDS, catalog)
-      hydrateArtBuilder(ART_CARDS, catalog)
-      hydrateSystemBuilder(DREAM_CARDS, catalog)
-      hydrateSystemBuilder(REWARD_CARDS, catalog)
+    hydrateBuilderCards(ADVENTURE_CARDS, catalog)
+    hydrateBuilderCards(SCENARIO_CARDS, catalog)
+    hydrateBotBuilder(BOT_CARDS, catalog)
+    hydrateArtBuilder(ART_CARDS, catalog)
+    hydrateSystemBuilder(DREAM_CARDS, catalog)
+    hydrateSystemBuilder(REWARD_CARDS, catalog)
 
-      // Registration stores the same mutable card graphs. Re-register after the
-      // async catalog fetch so mounted Builders observe canonical choices immediately.
-      // Generator methods read this same catalog directly and need no runtime patching.
-      ensureBuildersRegistered(true)
-    } catch (error) {
-      console.error('[facet-catalog] Canonical Facet hydration failed.', error)
-    }
-  })()
+    // Registration stores the same mutable card graphs. Re-register after the
+    // async catalog fetch so mounted Builders observe canonical choices immediately.
+    // Generator methods read this same catalog directly and need no runtime patching.
+    ensureBuildersRegistered(true)
+  }
+
+  const hydrateForRoute = (path: string): void => {
+    if (path !== '/builder' || catalog.entries.length || hydrationPromise) return
+
+    hydrationPromise = hydrateCatalog()
+      .catch((error) => {
+        console.error('[facet-catalog] Canonical Facet hydration failed.', error)
+      })
+      .finally(() => {
+        hydrationPromise = null
+      })
+  }
+
+  nuxtApp.hook('app:mounted', () => {
+    hydrateForRoute(router.currentRoute.value.path)
+    router.afterEach((to) => {
+      hydrateForRoute(to.path)
+    })
+  })
 })

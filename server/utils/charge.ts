@@ -1,6 +1,7 @@
 // /server/utils/charge.ts
 import { applyMana, usdToMana } from './mana'
 import type { Role } from '~/prisma/generated/prisma/client'
+import { userIsAdmin, userHasRole } from './authUser'
 
 type Plan = 'community' | 'byok' | 'local' | 'family'
 
@@ -16,7 +17,7 @@ export async function chargeForGeneration(opts: {
   const reason = kind === 'art' ? 'GENERATION_ART' : 'GENERATION_TEXT'
 
   // FAMILY: free on admin token, logged at zero for visibility
-  if (user.Role === 'FAMILY' || plan === 'family') {
+  if (userHasRole(user, 'FAMILY') || plan === 'family') {
     await applyMana({
       userId: user.id,
       amount: 0,
@@ -55,7 +56,7 @@ export async function chargeForGeneration(opts: {
   })
 
   // ADMIN: refund immediately so the test shows real cost but doesn't drain
-  if (user.Role === 'ADMIN') {
+  if (userIsAdmin(user)) {
     await applyMana({
       userId: user.id,
       amount: cost,

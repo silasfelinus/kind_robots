@@ -13,6 +13,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { resolveServer, getServerEndpoint } from '../../utils/serverResolver'
 import { awardKarma } from '../../utils/karma'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
     // Only the prompt owner, an admin, or the render relay (server key) may drive
     // this prompt through the art state machine and rebind its artImageId.
     const isServerKey = kind === 'server'
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     if (!isAdmin && !isServerKey && prompt.userId !== user.id) {
       throw createError({
         statusCode: 403,

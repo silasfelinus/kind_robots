@@ -4,6 +4,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { createReward, type RewardMutationInput } from './'
 import { assertRewardMutationInput, rewardCreateFields } from './mutation'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event) => {
       context: 'Reward create payload',
     })
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const data = await createReward(rewardData, user.id, isAdmin)
 
     event.node.res.statusCode = 201

@@ -5,6 +5,7 @@ import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { updateRewardById, type RewardMutationInput } from './index'
 import { assertRewardMutationInput, rewardPatchFields } from './mutation'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   const rewardId = Number(event.context.params?.id)
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (existingReward.userId !== user.id && user.Role !== 'ADMIN') {
+    if (existingReward.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this reward.',
@@ -80,7 +81,7 @@ export default defineEventHandler(async (event) => {
       requireNonEmpty: true,
     })
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const data = await updateRewardById(rewardId, rewardData, user.id, isAdmin)
 
     event.node.res.statusCode = 200

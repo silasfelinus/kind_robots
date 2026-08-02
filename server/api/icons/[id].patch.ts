@@ -8,6 +8,7 @@ import {
   findExistingSmartIcon,
   hasSmartIconUpdate,
 } from './create'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -50,7 +51,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (existingIcon.userId !== user.id && user.Role !== 'ADMIN') {
+    if (existingIcon.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this SmartIcon.',

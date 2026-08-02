@@ -8,6 +8,7 @@ import {
   WELCOME_TITLE,
   sendWelcomeMessage,
 } from '../../utils/welcomeMessage'
+import { userIsAdmin } from '../../utils/authUser'
 
 type WelcomeBody = {
   markAsRead?: boolean
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const isServerKey = kind === 'server'
 
     if (!isAdmin && !isServerKey) {

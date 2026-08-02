@@ -7,6 +7,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { enforceProjectCap } from '@/server/utils/projectCap'
+import { userIsAdmin, userRoles } from '@/server/utils/authUser'
 
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/
 
@@ -85,8 +86,12 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 409, message: `Slug '${slug}' is already taken.` })
     }
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    await enforceProjectCap({ userId: user.id, userRole: user.Role, isAdmin })
+    const isAdmin = userIsAdmin(user)
+    await enforceProjectCap({
+      userId: user.id,
+      userRoles: [...userRoles(user)],
+      isAdmin,
+    })
 
     const scaffoldCommand =
       `python scripts/new_app.py ${slug} --title ${shellSingleQuote(title)}` +

@@ -21,6 +21,7 @@ import {
   characterMutationSelect,
   type CharacterMutationResult,
 } from './selects'
+import { userIsAdmin } from '../../utils/authUser'
 
 const transactionMaxWaitMs = 10_000
 const transactionTimeoutMs = 30_000
@@ -173,7 +174,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const slugs = await resolveCharacterSlugs(characters, user.id)
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const createInputs = await Promise.all(
       characters.map(async (characterData, index) => {
         await assertCharacterRelationsAttachable(

@@ -6,16 +6,22 @@ export const FREE_PROJECT_LIMIT = 2
 
 /**
  * Throws HTTP 403 if the user has reached the free project cap.
- * No-op for admins (id=1 or Role=ADMIN), FAMILY role, and active members.
+ * No-op for admins (id=1 or ADMIN), FAMILY accounts, and active members.
+ *
+ * `userRoles` is the COMPLETE role set, not just `User.Role`. Both exemptions
+ * here are permissive, so reading only the primary column would start capping a
+ * user who holds ADMIN or FAMILY as a secondary role.
  */
 export async function enforceProjectCap(input: {
   userId: number
-  userRole: string | null | undefined
+  userRoles: readonly string[] | null | undefined
   isAdmin: boolean
 }): Promise<void> {
   if (input.isAdmin) return
-  const role = String(input.userRole ?? '').toUpperCase()
-  if (role === 'ADMIN' || role === 'FAMILY') return
+  const roles = new Set(
+    (input.userRoles ?? []).map((role) => String(role).toUpperCase()),
+  )
+  if (roles.has('ADMIN') || roles.has('FAMILY')) return
 
   const userRecord = await prisma.user.findUnique({
     where: { id: input.userId },

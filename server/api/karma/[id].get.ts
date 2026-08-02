@@ -3,6 +3,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // You can only read your own karma — unless you're ADMIN.
-    if (user.id !== id && user.Role !== 'ADMIN') {
+    if (user.id !== id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to view this karma balance.',

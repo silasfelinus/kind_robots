@@ -5,6 +5,7 @@ import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { assertOnlyFields } from '@/server/utils/chatApi'
 import { todoMutationFields } from './mutation'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 const todoPriorities = ['LOW', 'NORMAL', 'HIGH'] as const
 const todoCategories = [
@@ -96,7 +97,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, message: 'Project not found.' })
       }
 
-      if (auth.user.Role !== 'ADMIN' && project.userId !== userId) {
+      if (!userIsAdmin(auth.user) && project.userId !== userId) {
         throw createError({
           statusCode: 403,
           message: 'You do not have permission to add Todos to this Project.',
@@ -114,7 +115,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 404, message: 'Dream not found.' })
       }
 
-      if (auth.user.Role !== 'ADMIN' && dream.userId !== userId) {
+      if (!userIsAdmin(auth.user) && dream.userId !== userId) {
         throw createError({
           statusCode: 403,
           message: 'You do not have permission to add Todos to this Dream.',

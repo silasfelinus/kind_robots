@@ -3,6 +3,7 @@ import { createError, defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (icon.userId !== user.id && user.Role !== 'ADMIN') {
+    if (icon.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You are not authorized to delete this SmartIcon.',

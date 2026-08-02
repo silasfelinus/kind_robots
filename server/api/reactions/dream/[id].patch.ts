@@ -9,6 +9,7 @@ import {
   Reaction_reactionCategory,
   type Prisma,
 } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../../utils/authUser'
 
 type DreamReactionPatchBody = {
   reactionType?: unknown
@@ -78,7 +79,7 @@ export default defineEventHandler(async (event) => {
 
     // The target Dream must exist and be public or owned by the reacting user
     // (admins bypass), matching POST /api/reactions (audit F-2 residual).
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const targetDreamId: number = dreamId
     await assertReactionContentTargetAccessible({
       find: () =>

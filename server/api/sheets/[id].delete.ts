@@ -3,6 +3,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
       existing.userId === user.id ||
       existing.Dream?.userId === user.id ||
       existing.Project?.userId === user.id
-    if (user.Role !== 'ADMIN' && !isOwner) {
+    if (!userIsAdmin(user) && !isOwner) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to delete this PitchSheet.',

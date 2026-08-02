@@ -9,6 +9,7 @@ import {
   sanitizePitchSheetPayload,
 } from '@/server/utils/pitchSheets/payload'
 import { pitchSheetMutationSelect } from '../selects'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let dreamId = 0
@@ -33,7 +34,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (dream.userId !== user.id && user.Role !== 'ADMIN') {
+    if (dream.userId !== user.id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: `You are not authorized to create a PitchSheet for Dream ${dreamId}.`,

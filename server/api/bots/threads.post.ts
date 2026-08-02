@@ -3,6 +3,7 @@ import { defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { validateApiKey } from '../../utils/validateKey'
 import { errorHandler } from '../../utils/error'
+import { userIsAdmin } from '../../utils/authUser'
 
 export const config = {
   maxDuration: 60,
@@ -53,7 +54,7 @@ export default defineEventHandler(async (event) => {
     // NarratorThread rows are global, non-user-owned content. Match the sibling
     // transitions/expressions routes: only admins or server keys may write them.
     const isServerKey = auth.kind === 'server'
-    const isAdmin = auth.user?.Role === 'ADMIN' || auth.user?.id === 1
+    const isAdmin = Boolean(auth.user && userIsAdmin(auth.user))
     if (!isAdmin && !isServerKey) {
       event.node.res.statusCode = 403
       return {

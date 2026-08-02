@@ -5,6 +5,7 @@
 
 import type { RelationType } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
+import { userHasRole } from './authUser'
 
 // The inverse role for the OTHER user when a relation is accepted.
 // FRIEND is symmetric; PARENT/CHILD swap; REFEREE/BLOCK have no owned inverse.
@@ -108,11 +109,14 @@ export async function acceptPair(rowId: number) {
 // their CHILD role back to USER. Safe with multiple parents: only reverts
 // once the last family link is gone. Never touches non-CHILD roles.
 export async function maybeRevertChildRole(userId: number): Promise<void> {
+  // UserRoles is included so a user who holds CHILD only as a secondary role
+  // -- the whole point of multi-role -- is still seen here. Selecting `Role`
+  // alone would skip the revert and strand them as a child forever.
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, Role: true },
+    select: { id: true, Role: true, UserRoles: { select: { role: true } } },
   })
-  if (!user || user.Role !== 'CHILD') return
+  if (!user || !userHasRole(user, 'CHILD')) return
 
   // Any remaining accepted link where this user is the child?
   const stillChild = await prisma.userRelation.findFirst({

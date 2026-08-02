@@ -13,6 +13,7 @@ import {
   extractPlaceholderKeys,
   normalizeVariantKey,
 } from '~/server/utils/promptVariants'
+import { userIsAdmin } from '../../utils/authUser'
 
 type VariantsBody = {
   basePrompt?: unknown
@@ -120,7 +121,7 @@ export default defineEventHandler(async (event) => {
         taxonomies: requestedFacetTaxonomies,
         randomizableOnly: true,
         userId: auth.user.id,
-        isAdmin: auth.user.Role === 'ADMIN' || auth.user.id === 1,
+        isAdmin: userIsAdmin(auth.user),
       })
 
       for (const [placeholder, taxonomies] of Object.entries(

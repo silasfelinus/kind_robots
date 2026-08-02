@@ -21,6 +21,7 @@ import {
   stripCharacterCompatibilityFields,
 } from './compatibility'
 import { characterMutationSelect } from './selects'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event) => {
     assertCharacterCreateCompatibility(rawBody)
 
     const body = stripCharacterCompatibilityFields(rawBody)
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
 
     await assertCharacterRelationsAttachable(body, user.id, isAdmin)
 

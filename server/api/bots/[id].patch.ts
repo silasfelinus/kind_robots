@@ -9,6 +9,7 @@ import { syncBotFacetsInTransaction } from '../../utils/botFacetSync'
 import type { Bot, Prisma } from '~/prisma/generated/prisma/client'
 import { botMutationSelect } from './selects'
 import { assertBotRelationsAttachable } from './relations'
+import { userIsAdmin } from '../../utils/authUser'
 
 type BotPatchBody = Partial<Omit<Bot, 'userId'>> &
   Record<string, unknown> & {
@@ -159,7 +160,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
+    const isAdmin = Boolean(user && userIsAdmin(user))
     const isOwner = user?.id === existingBot.userId
 
     if (!isAdmin && !isServerKey && !isOwner) {

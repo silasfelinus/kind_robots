@@ -5,6 +5,7 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import { buildPitchSheetFromDream } from '@/server/utils/pitchSheets/defaults'
 import type { DreamType, Prisma } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 export const config = {
   maxDuration: 60,
@@ -140,7 +141,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isServerKey = kind === 'server'
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
 
     if (!isAdmin && !isServerKey) {
       throw createError({

@@ -51,12 +51,20 @@ function getBetaAdminUserId(): number {
   return Number.isInteger(raw) && raw > 0 ? raw : 1
 }
 
+// Every user-resolving path here loads the UserRole join table alongside the
+// user, so `AuthUser.roles` is the complete set and downstream guards never
+// have to issue a second query to answer "is this user an admin". The include
+// is the reason `userIsAdmin` can stay synchronous and no call site signature
+// had to change when roles went plural.
+const WITH_ROLES = { UserRoles: { select: { role: true } } } as const
+
 async function getUserById(id: number): Promise<AuthUser | null> {
   const user = await prisma.user.findUnique({
     where: { id },
+    include: WITH_ROLES,
   })
 
-  return user ? withAdminFlag(user) : null
+  return user ? withAdminFlag(user, user.UserRoles) : null
 }
 
 async function validateJwtAuth(token: string): Promise<AuthGuardResult | null> {
@@ -110,11 +118,12 @@ async function validateUserApiKeyAuth(
 
   const user = await prisma.user.findFirst({
     where: { apiKey: token },
+    include: WITH_ROLES,
   })
 
   if (!user || user.isActive === false) return null
 
-  const authUser = withAdminFlag(user)
+  const authUser = withAdminFlag(user, user.UserRoles)
 
   return {
     user: authUser,

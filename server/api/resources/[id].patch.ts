@@ -7,6 +7,7 @@ import { validateApiKey } from '../../utils/validateKey'
 import { resourceMutationSelect } from './selects'
 import { assertOwnershipIsUnchanged } from './compatibility'
 import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
 
 type ResourcePatchBody = Partial<Omit<Resource, 'userId'>> &
   Record<string, unknown> & {
@@ -62,7 +63,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isOwner = existingResource.userId === user.id
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
 
     if (!isOwner && !isAdmin) {
       throw createError({

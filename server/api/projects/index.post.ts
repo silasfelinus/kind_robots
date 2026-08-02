@@ -22,6 +22,7 @@ import {
   projectStatuses,
 } from './index'
 import { projectMutationSelect } from './selects'
+import { userRoles } from '~/server/utils/authUser'
 
 type ProjectCreateBody = {
   title?: unknown
@@ -123,7 +124,7 @@ export default defineEventHandler(async (event) => {
     if (isActive && (status === 'ACTIVE' || status === 'PAUSED')) {
       await enforceProjectCap({
         userId: auth.user.id,
-        userRole: auth.user.Role,
+        userRoles: [...userRoles(auth.user)],
         isAdmin: auth.isAdmin || auth.user.id === 1,
       })
     }

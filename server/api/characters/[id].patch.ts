@@ -18,6 +18,7 @@ import {
   stripCharacterCompatibilityFields,
 } from './compatibility'
 import { characterMutationSelect } from './selects'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isServerKey = kind === 'server'
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const isOwner = existingCharacter.userId === user.id
 
     if (!isAdmin && !isServerKey && !isOwner) {

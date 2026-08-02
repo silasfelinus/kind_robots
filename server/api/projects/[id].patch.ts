@@ -23,6 +23,7 @@ import {
   projectStatuses,
 } from './index'
 import { projectMutationSelect } from './selects'
+import { userRoles } from '~/server/utils/authUser'
 
 type ProjectPatchBody = Record<string, unknown>
 
@@ -67,7 +68,7 @@ export default defineEventHandler(async (event) => {
     ) {
       await enforceProjectCap({
         userId: auth.user.id,
-        userRole: auth.user.Role,
+        userRoles: [...userRoles(auth.user)],
         isAdmin: auth.isAdmin || auth.user.id === 1,
       })
     }

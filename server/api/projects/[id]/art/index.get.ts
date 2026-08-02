@@ -8,6 +8,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { getProjectId } from '../../index'
+import { userIsAdmin } from '../../../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
         mayView = Boolean(
           auth.isValid &&
             auth.user &&
-            (auth.user.Role === 'ADMIN' || auth.user.id === project.userId),
+            (userIsAdmin(auth.user) || auth.user.id === project.userId),
         )
       } catch {
         mayView = false

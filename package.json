@@ -82,6 +82,7 @@
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",
     "test:admin-flag-casts": "tsx utils/scripts/verifyAdminFlagCasts.ts",
     "test:user-role-expand": "tsx utils/scripts/verifyUserRoleExpand.ts",
+    "test:user-role-predicates": "tsx utils/scripts/verifyUserRolePredicates.ts",
     "test:no-unquoted-reserved-word-tables": "tsx utils/scripts/verifyNoUnquotedReservedWordTables.ts",
     "test:fetch-generic-pinning": "tsx utils/scripts/verifyFetchGenericPinning.ts",
     "test:existing-owner-id-nullability": "tsx utils/scripts/verifyExistingOwnerIdNullability.ts",

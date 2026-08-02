@@ -169,12 +169,19 @@ assert.ok(
 )
 
 assert.ok(
-  startupAnimations.includes('{ length: 12 }') &&
-    startupAnimations.includes("padStart(2, '0')") &&
-    bootCover.includes('Math.floor(Math.random() * STARTUP_ANIMATION_SOURCES.length)') &&
-    bootCover.includes('markup.replaceAll(DEFAULT_STARTUP_ANIMATION_SRC, launchSrc)') &&
+  startupAnimations.includes(
+    "'/images/startup-animations/launch-04.webp'",
+  ) &&
+    !startupAnimations.includes('{ length: 12 }') &&
+    !startupAnimations.includes("padStart(2, '0')") &&
+    bootCover.includes(
+      'Math.floor(Math.random() * STARTUP_ANIMATION_SOURCES.length)',
+    ) &&
+    bootCover.includes(
+      'markup.replaceAll(DEFAULT_STARTUP_ANIMATION_SRC, launchSrc)',
+    ) &&
     bootCover.includes('STARTUP_ANIMATION_META_NAME'),
-  'All 12 launch WebPs must be eligible, and the preload, boot cameo, SSR intro, and hydrated intro must share one random choice.',
+  'Only verified launch WebPs may be eligible, and the preload, boot cameo, SSR intro, and hydrated intro must share the selected file.',
 )
 
 assert.ok(

@@ -3,7 +3,6 @@
   "recorded": "2026-08-02",
   "violations": {
     "one-header": [
-      "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
       "pages/admin/wonderlab-reviews.vue"
     ],

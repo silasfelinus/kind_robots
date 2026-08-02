@@ -54,15 +54,17 @@ model FacetProfile {
 }
 
 model CharacterFacet {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   characterId Int
   facetId     Int
-  fieldKey    String   @db.VarChar(64)
-  sortOrder   Int      @default(0)
-  weight      Float    @default(1)
-  source      String   @default("CURATED") @db.VarChar(64)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  fieldKey    String    @db.VarChar(64)
+  sortOrder   Int       @default(0)
+  weight      Float     @default(1)
+  source      String    @default("CURATED") @db.VarChar(64)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  Character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  Facet       Facet     @relation(fields: [facetId], references: [id], onDelete: Cascade)
 
   @@unique([characterId, facetId, fieldKey])
   @@index([characterId, fieldKey, sortOrder])
@@ -79,6 +81,8 @@ model BotFacet {
   source    String   @default("CURATED") @db.VarChar(64)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  Bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  Facet     Facet    @relation(fields: [facetId], references: [id], onDelete: Cascade)
 
   @@unique([botId, facetId, fieldKey])
   @@index([botId, fieldKey, sortOrder])
@@ -95,6 +99,8 @@ model RewardFacet {
   source    String   @default("CURATED") @db.VarChar(64)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  Reward    Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  Facet     Facet    @relation(fields: [facetId], references: [id], onDelete: Cascade)
 
   @@unique([rewardId, facetId, fieldKey])
   @@index([rewardId, fieldKey, sortOrder])

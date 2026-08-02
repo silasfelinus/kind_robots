@@ -264,6 +264,8 @@ export type BotFacetWhereInput = {
   source?: Prisma.StringFilter<"BotFacet"> | string
   createdAt?: Prisma.DateTimeFilter<"BotFacet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BotFacet"> | Date | string
+  Bot?: Prisma.XOR<Prisma.BotScalarRelationFilter, Prisma.BotWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }
 
 export type BotFacetOrderByWithRelationInput = {
@@ -276,6 +278,8 @@ export type BotFacetOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  Bot?: Prisma.BotOrderByWithRelationInput
+  Facet?: Prisma.FacetOrderByWithRelationInput
   _relevance?: Prisma.BotFacetOrderByRelevanceInput
 }
 
@@ -293,6 +297,8 @@ export type BotFacetWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringFilter<"BotFacet"> | string
   createdAt?: Prisma.DateTimeFilter<"BotFacet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BotFacet"> | Date | string
+  Bot?: Prisma.XOR<Prisma.BotScalarRelationFilter, Prisma.BotWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }, "id" | "botId_facetId_fieldKey">
 
 export type BotFacetOrderByWithAggregationInput = {
@@ -328,14 +334,14 @@ export type BotFacetScalarWhereWithAggregatesInput = {
 }
 
 export type BotFacetCreateInput = {
-  botId: number
-  facetId: number
   fieldKey: string
   sortOrder?: number
   weight?: number
   source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  Bot: Prisma.BotCreateNestedOneWithoutFacetLinksInput
+  Facet: Prisma.FacetCreateNestedOneWithoutBotLinksInput
 }
 
 export type BotFacetUncheckedCreateInput = {
@@ -351,14 +357,14 @@ export type BotFacetUncheckedCreateInput = {
 }
 
 export type BotFacetUpdateInput = {
-  botId?: Prisma.IntFieldUpdateOperationsInput | number
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.FloatFieldUpdateOperationsInput | number
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Bot?: Prisma.BotUpdateOneRequiredWithoutFacetLinksNestedInput
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutBotLinksNestedInput
 }
 
 export type BotFacetUncheckedUpdateInput = {
@@ -386,8 +392,6 @@ export type BotFacetCreateManyInput = {
 }
 
 export type BotFacetUpdateManyMutationInput = {
-  botId?: Prisma.IntFieldUpdateOperationsInput | number
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -472,6 +476,295 @@ export type BotFacetSumOrderByAggregateInput = {
   weight?: Prisma.SortOrder
 }
 
+export type BotFacetListRelationFilter = {
+  every?: Prisma.BotFacetWhereInput
+  some?: Prisma.BotFacetWhereInput
+  none?: Prisma.BotFacetWhereInput
+}
+
+export type BotFacetOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type BotFacetCreateNestedManyWithoutBotInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutBotInput, Prisma.BotFacetUncheckedCreateWithoutBotInput> | Prisma.BotFacetCreateWithoutBotInput[] | Prisma.BotFacetUncheckedCreateWithoutBotInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutBotInput | Prisma.BotFacetCreateOrConnectWithoutBotInput[]
+  createMany?: Prisma.BotFacetCreateManyBotInputEnvelope
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+}
+
+export type BotFacetUncheckedCreateNestedManyWithoutBotInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutBotInput, Prisma.BotFacetUncheckedCreateWithoutBotInput> | Prisma.BotFacetCreateWithoutBotInput[] | Prisma.BotFacetUncheckedCreateWithoutBotInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutBotInput | Prisma.BotFacetCreateOrConnectWithoutBotInput[]
+  createMany?: Prisma.BotFacetCreateManyBotInputEnvelope
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+}
+
+export type BotFacetUpdateManyWithoutBotNestedInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutBotInput, Prisma.BotFacetUncheckedCreateWithoutBotInput> | Prisma.BotFacetCreateWithoutBotInput[] | Prisma.BotFacetUncheckedCreateWithoutBotInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutBotInput | Prisma.BotFacetCreateOrConnectWithoutBotInput[]
+  upsert?: Prisma.BotFacetUpsertWithWhereUniqueWithoutBotInput | Prisma.BotFacetUpsertWithWhereUniqueWithoutBotInput[]
+  createMany?: Prisma.BotFacetCreateManyBotInputEnvelope
+  set?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  disconnect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  delete?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  update?: Prisma.BotFacetUpdateWithWhereUniqueWithoutBotInput | Prisma.BotFacetUpdateWithWhereUniqueWithoutBotInput[]
+  updateMany?: Prisma.BotFacetUpdateManyWithWhereWithoutBotInput | Prisma.BotFacetUpdateManyWithWhereWithoutBotInput[]
+  deleteMany?: Prisma.BotFacetScalarWhereInput | Prisma.BotFacetScalarWhereInput[]
+}
+
+export type BotFacetUncheckedUpdateManyWithoutBotNestedInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutBotInput, Prisma.BotFacetUncheckedCreateWithoutBotInput> | Prisma.BotFacetCreateWithoutBotInput[] | Prisma.BotFacetUncheckedCreateWithoutBotInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutBotInput | Prisma.BotFacetCreateOrConnectWithoutBotInput[]
+  upsert?: Prisma.BotFacetUpsertWithWhereUniqueWithoutBotInput | Prisma.BotFacetUpsertWithWhereUniqueWithoutBotInput[]
+  createMany?: Prisma.BotFacetCreateManyBotInputEnvelope
+  set?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  disconnect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  delete?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  update?: Prisma.BotFacetUpdateWithWhereUniqueWithoutBotInput | Prisma.BotFacetUpdateWithWhereUniqueWithoutBotInput[]
+  updateMany?: Prisma.BotFacetUpdateManyWithWhereWithoutBotInput | Prisma.BotFacetUpdateManyWithWhereWithoutBotInput[]
+  deleteMany?: Prisma.BotFacetScalarWhereInput | Prisma.BotFacetScalarWhereInput[]
+}
+
+export type BotFacetCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutFacetInput, Prisma.BotFacetUncheckedCreateWithoutFacetInput> | Prisma.BotFacetCreateWithoutFacetInput[] | Prisma.BotFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutFacetInput | Prisma.BotFacetCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.BotFacetCreateManyFacetInputEnvelope
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+}
+
+export type BotFacetUncheckedCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutFacetInput, Prisma.BotFacetUncheckedCreateWithoutFacetInput> | Prisma.BotFacetCreateWithoutFacetInput[] | Prisma.BotFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutFacetInput | Prisma.BotFacetCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.BotFacetCreateManyFacetInputEnvelope
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+}
+
+export type BotFacetUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutFacetInput, Prisma.BotFacetUncheckedCreateWithoutFacetInput> | Prisma.BotFacetCreateWithoutFacetInput[] | Prisma.BotFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutFacetInput | Prisma.BotFacetCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.BotFacetUpsertWithWhereUniqueWithoutFacetInput | Prisma.BotFacetUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.BotFacetCreateManyFacetInputEnvelope
+  set?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  disconnect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  delete?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  update?: Prisma.BotFacetUpdateWithWhereUniqueWithoutFacetInput | Prisma.BotFacetUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.BotFacetUpdateManyWithWhereWithoutFacetInput | Prisma.BotFacetUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.BotFacetScalarWhereInput | Prisma.BotFacetScalarWhereInput[]
+}
+
+export type BotFacetUncheckedUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.BotFacetCreateWithoutFacetInput, Prisma.BotFacetUncheckedCreateWithoutFacetInput> | Prisma.BotFacetCreateWithoutFacetInput[] | Prisma.BotFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.BotFacetCreateOrConnectWithoutFacetInput | Prisma.BotFacetCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.BotFacetUpsertWithWhereUniqueWithoutFacetInput | Prisma.BotFacetUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.BotFacetCreateManyFacetInputEnvelope
+  set?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  disconnect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  delete?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  connect?: Prisma.BotFacetWhereUniqueInput | Prisma.BotFacetWhereUniqueInput[]
+  update?: Prisma.BotFacetUpdateWithWhereUniqueWithoutFacetInput | Prisma.BotFacetUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.BotFacetUpdateManyWithWhereWithoutFacetInput | Prisma.BotFacetUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.BotFacetScalarWhereInput | Prisma.BotFacetScalarWhereInput[]
+}
+
+export type BotFacetCreateWithoutBotInput = {
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Facet: Prisma.FacetCreateNestedOneWithoutBotLinksInput
+}
+
+export type BotFacetUncheckedCreateWithoutBotInput = {
+  id?: number
+  facetId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BotFacetCreateOrConnectWithoutBotInput = {
+  where: Prisma.BotFacetWhereUniqueInput
+  create: Prisma.XOR<Prisma.BotFacetCreateWithoutBotInput, Prisma.BotFacetUncheckedCreateWithoutBotInput>
+}
+
+export type BotFacetCreateManyBotInputEnvelope = {
+  data: Prisma.BotFacetCreateManyBotInput | Prisma.BotFacetCreateManyBotInput[]
+  skipDuplicates?: boolean
+}
+
+export type BotFacetUpsertWithWhereUniqueWithoutBotInput = {
+  where: Prisma.BotFacetWhereUniqueInput
+  update: Prisma.XOR<Prisma.BotFacetUpdateWithoutBotInput, Prisma.BotFacetUncheckedUpdateWithoutBotInput>
+  create: Prisma.XOR<Prisma.BotFacetCreateWithoutBotInput, Prisma.BotFacetUncheckedCreateWithoutBotInput>
+}
+
+export type BotFacetUpdateWithWhereUniqueWithoutBotInput = {
+  where: Prisma.BotFacetWhereUniqueInput
+  data: Prisma.XOR<Prisma.BotFacetUpdateWithoutBotInput, Prisma.BotFacetUncheckedUpdateWithoutBotInput>
+}
+
+export type BotFacetUpdateManyWithWhereWithoutBotInput = {
+  where: Prisma.BotFacetScalarWhereInput
+  data: Prisma.XOR<Prisma.BotFacetUpdateManyMutationInput, Prisma.BotFacetUncheckedUpdateManyWithoutBotInput>
+}
+
+export type BotFacetScalarWhereInput = {
+  AND?: Prisma.BotFacetScalarWhereInput | Prisma.BotFacetScalarWhereInput[]
+  OR?: Prisma.BotFacetScalarWhereInput[]
+  NOT?: Prisma.BotFacetScalarWhereInput | Prisma.BotFacetScalarWhereInput[]
+  id?: Prisma.IntFilter<"BotFacet"> | number
+  botId?: Prisma.IntFilter<"BotFacet"> | number
+  facetId?: Prisma.IntFilter<"BotFacet"> | number
+  fieldKey?: Prisma.StringFilter<"BotFacet"> | string
+  sortOrder?: Prisma.IntFilter<"BotFacet"> | number
+  weight?: Prisma.FloatFilter<"BotFacet"> | number
+  source?: Prisma.StringFilter<"BotFacet"> | string
+  createdAt?: Prisma.DateTimeFilter<"BotFacet"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"BotFacet"> | Date | string
+}
+
+export type BotFacetCreateWithoutFacetInput = {
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Bot: Prisma.BotCreateNestedOneWithoutFacetLinksInput
+}
+
+export type BotFacetUncheckedCreateWithoutFacetInput = {
+  id?: number
+  botId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BotFacetCreateOrConnectWithoutFacetInput = {
+  where: Prisma.BotFacetWhereUniqueInput
+  create: Prisma.XOR<Prisma.BotFacetCreateWithoutFacetInput, Prisma.BotFacetUncheckedCreateWithoutFacetInput>
+}
+
+export type BotFacetCreateManyFacetInputEnvelope = {
+  data: Prisma.BotFacetCreateManyFacetInput | Prisma.BotFacetCreateManyFacetInput[]
+  skipDuplicates?: boolean
+}
+
+export type BotFacetUpsertWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.BotFacetWhereUniqueInput
+  update: Prisma.XOR<Prisma.BotFacetUpdateWithoutFacetInput, Prisma.BotFacetUncheckedUpdateWithoutFacetInput>
+  create: Prisma.XOR<Prisma.BotFacetCreateWithoutFacetInput, Prisma.BotFacetUncheckedCreateWithoutFacetInput>
+}
+
+export type BotFacetUpdateWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.BotFacetWhereUniqueInput
+  data: Prisma.XOR<Prisma.BotFacetUpdateWithoutFacetInput, Prisma.BotFacetUncheckedUpdateWithoutFacetInput>
+}
+
+export type BotFacetUpdateManyWithWhereWithoutFacetInput = {
+  where: Prisma.BotFacetScalarWhereInput
+  data: Prisma.XOR<Prisma.BotFacetUpdateManyMutationInput, Prisma.BotFacetUncheckedUpdateManyWithoutFacetInput>
+}
+
+export type BotFacetCreateManyBotInput = {
+  id?: number
+  facetId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BotFacetUpdateWithoutBotInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutBotLinksNestedInput
+}
+
+export type BotFacetUncheckedUpdateWithoutBotInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  facetId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BotFacetUncheckedUpdateManyWithoutBotInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  facetId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BotFacetCreateManyFacetInput = {
+  id?: number
+  botId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BotFacetUpdateWithoutFacetInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Bot?: Prisma.BotUpdateOneRequiredWithoutFacetLinksNestedInput
+}
+
+export type BotFacetUncheckedUpdateWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  botId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BotFacetUncheckedUpdateManyWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  botId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type BotFacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -484,6 +777,8 @@ export type BotFacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  Bot?: boolean | Prisma.BotDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["botFacet"]>
 
 
@@ -501,10 +796,17 @@ export type BotFacetSelectScalar = {
 }
 
 export type BotFacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "botId" | "facetId" | "fieldKey" | "sortOrder" | "weight" | "source" | "createdAt" | "updatedAt", ExtArgs["result"]["botFacet"]>
+export type BotFacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Bot?: boolean | Prisma.BotDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
+}
 
 export type $BotFacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BotFacet"
-  objects: {}
+  objects: {
+    Bot: Prisma.$BotPayload<ExtArgs>
+    Facet: Prisma.$FacetPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     botId: number
@@ -855,6 +1157,8 @@ readonly fields: BotFacetFieldRefs;
  */
 export interface Prisma__BotFacetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Bot<T extends Prisma.BotDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BotDefaultArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -910,6 +1214,10 @@ export type BotFacetFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
+  /**
    * Filter, which BotFacet to fetch.
    */
   where: Prisma.BotFacetWhereUniqueInput
@@ -928,6 +1236,10 @@ export type BotFacetFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
+  /**
    * Filter, which BotFacet to fetch.
    */
   where: Prisma.BotFacetWhereUniqueInput
@@ -945,6 +1257,10 @@ export type BotFacetFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the BotFacet
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
   /**
    * Filter, which BotFacet to fetch.
    */
@@ -994,6 +1310,10 @@ export type BotFacetFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
+  /**
    * Filter, which BotFacet to fetch.
    */
   where?: Prisma.BotFacetWhereInput
@@ -1041,6 +1361,10 @@ export type BotFacetFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the BotFacet
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
   /**
    * Filter, which BotFacets to fetch.
    */
@@ -1090,6 +1414,10 @@ export type BotFacetCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
+  /**
    * The data needed to create a BotFacet.
    */
   data: Prisma.XOR<Prisma.BotFacetCreateInput, Prisma.BotFacetUncheckedCreateInput>
@@ -1118,6 +1446,10 @@ export type BotFacetUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the BotFacet
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
   /**
    * The data needed to update a BotFacet.
    */
@@ -1159,6 +1491,10 @@ export type BotFacetUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
+  /**
    * The filter to search for the BotFacet to update in case it exists.
    */
   where: Prisma.BotFacetWhereUniqueInput
@@ -1184,6 +1520,10 @@ export type BotFacetDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the BotFacet
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
   /**
    * Filter which BotFacet to delete.
    */
@@ -1216,4 +1556,8 @@ export type BotFacetDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the BotFacet
    */
   omit?: Prisma.BotFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BotFacetInclude<ExtArgs> | null
 }

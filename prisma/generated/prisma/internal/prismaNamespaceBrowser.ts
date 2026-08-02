@@ -72,6 +72,7 @@ export const ModelName = {
   Facet: 'Facet',
   DreamFacet: 'DreamFacet',
   ScenarioFacet: 'ScenarioFacet',
+  ProjectFacet: 'ProjectFacet',
   ProjectArtImage: 'ProjectArtImage',
   ProjectArtCollection: 'ProjectArtCollection',
   FacetArtImage: 'FacetArtImage',
@@ -661,6 +662,15 @@ export const ScenarioFacetScalarFieldEnum = {
 } as const
 
 export type ScenarioFacetScalarFieldEnum = (typeof ScenarioFacetScalarFieldEnum)[keyof typeof ScenarioFacetScalarFieldEnum]
+
+
+export const ProjectFacetScalarFieldEnum = {
+  projectId: 'projectId',
+  facetId: 'facetId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectFacetScalarFieldEnum = (typeof ProjectFacetScalarFieldEnum)[keyof typeof ProjectFacetScalarFieldEnum]
 
 
 export const ProjectArtImageScalarFieldEnum = {

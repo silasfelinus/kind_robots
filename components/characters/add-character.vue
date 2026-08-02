@@ -319,6 +319,11 @@
         </div>
       </section>
 
+      <character-facet-picker
+        v-model="characterFacetIds"
+        :character-id="currentCharacterId"
+      />
+
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
         <div
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
@@ -500,6 +505,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { Rarity } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { useCharacterStore, type Character } from '@/stores/characterStore'
+import { useCharacterFacetStore } from '@/stores/characterFacetStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
 type CharacterFieldKey = keyof Character & string
@@ -528,9 +534,11 @@ const emit = defineEmits<{
 const characterStore = useCharacterStore()
 const artStore = useArtStore()
 const uploadStore = useUploadStore()
+const characterFacetStore = useCharacterFacetStore()
 const isGeneratingFields = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
+const characterFacetIds = ref<number[]>([])
 
 const mode = computed(() => props.mode)
 const title = computed(() =>
@@ -554,6 +562,12 @@ const characterImage = computed(() => {
     '/images/character-placeholder.webp'
   )
 })
+const currentCharacterId = computed(
+  () =>
+    characterStore.selectedCharacter?.id ??
+    characterStore.characterForm.id ??
+    null,
+)
 
 const rarities: Rarity[] = [
   'COMMON',
@@ -652,7 +666,7 @@ const fieldsToUpgrade = computed(() => {
     .filter((field) => {
       return (
         Boolean(characterStore.useGenerated[field.key]) &&
-        !Boolean(characterStore.keepField[field.key])
+        !characterStore.keepField[field.key]
       )
     })
     .map((field) => field.key)
@@ -747,6 +761,7 @@ function configureCharacterImageUpload(): void {
 
 function resetForAdd(): void {
   characterStore.startAddingCharacter()
+  characterFacetIds.value = []
   statusMessage.value = ''
 }
 
@@ -851,12 +866,30 @@ async function generateSelectedFields(): Promise<void> {
 }
 
 async function saveCharacter(): Promise<void> {
+  const wasAdding = mode.value === 'add'
   const result = await characterStore.saveCharacter()
 
   if (!result.success) {
     statusTone.value = 'error'
     statusMessage.value = result.message
     return
+  }
+
+  // In add mode, Facets picked before the Character had an ID are only
+  // staged locally by character-facet-picker.vue (it no-ops persistence
+  // without a characterId). Attach them now that saveCharacter() resolved
+  // a real ID, mirroring reward-manager.vue's deferred-persist handling.
+  if (wasAdding && characterFacetIds.value.length && currentCharacterId.value) {
+    const facetResult = await characterFacetStore.replaceCharacterFacets(
+      currentCharacterId.value,
+      characterFacetIds.value,
+    )
+    if (!facetResult.success) {
+      statusTone.value = 'error'
+      statusMessage.value =
+        facetResult.message || 'Character saved, but Facets could not be attached.'
+      return
+    }
   }
 
   statusTone.value = 'success'

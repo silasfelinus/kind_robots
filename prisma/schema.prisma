@@ -165,6 +165,7 @@ model Bot {
   Prompts              Prompt[]
   Reactions            Reaction[]
   Dreams               Dream[]                @relation("BotToDream")
+  FacetLinks           BotFacet[]
 
   @@index([userId], map: "Bot_userId_fkey")
   @@index([serverId], map: "Bot_serverId_fkey")
@@ -227,6 +228,7 @@ model Character {
   Dreams               Dream[]                @relation("CharacterToDream")
   Rewards              Reward[]               @relation("CharacterToReward")
   Scenarios            Scenario[]             @relation("CharacterToScenario")
+  FacetLinks           CharacterFacet[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -452,6 +454,7 @@ model Project {
   ArtImageLinks      ProjectArtImage[]
   Reactions          Reaction[]
   Todos              Todo[]
+  FacetLinks         ProjectFacet[]
 
   @@index([userId])
   @@index([managerBotId])
@@ -504,6 +507,10 @@ model Facet {
   RelationsTo        FacetRelation[]      @relation("FacetRelationTo")
   Reactions          Reaction[]
   ScenarioLinks      ScenarioFacet[]
+  ProjectLinks       ProjectFacet[]
+  CharacterLinks     CharacterFacet[]
+  BotLinks           BotFacet[]
+  RewardLinks        RewardFacet[]
 
   @@index([userId])
   @@index([kind])
@@ -533,6 +540,17 @@ model ScenarioFacet {
   Scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
 
   @@id([scenarioId, facetId])
+  @@index([facetId])
+}
+
+model ProjectFacet {
+  projectId Int
+  facetId   Int
+  createdAt DateTime @default(now())
+  Facet     Facet    @relation(fields: [facetId], references: [id], onDelete: Cascade)
+  Project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, facetId])
   @@index([facetId])
 }
 
@@ -1178,6 +1196,7 @@ model Reward {
   Pack         Pack?       @relation(fields: [packId], references: [id])
   Characters   Character[] @relation("CharacterToReward")
   Dreams       Dream[]     @relation("DreamToReward")
+  FacetLinks   RewardFacet[]
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])

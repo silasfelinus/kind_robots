@@ -8,7 +8,7 @@
 -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4 md:p-6"
+    class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 md:p-6"
     data-animation-surface
   >
     <header class="flex flex-wrap items-center justify-between gap-3">
@@ -110,7 +110,7 @@
         >
           Message feed
         </div>
-        <div class="flex flex-1 flex-col gap-2 overflow-y-auto p-3">
+        <div class="kr-scroll flex flex-col gap-2 p-3">
           <p
             v-if="voice.recentMessages.length === 0"
             class="text-sm text-base-content/50"

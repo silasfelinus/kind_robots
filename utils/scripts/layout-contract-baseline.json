@@ -46,7 +46,6 @@
       "components/pages/mermaids-page.vue",
       "components/pages/privacy-page.vue",
       "components/pages/rebel-button.vue",
-      "components/pages/serendipity-page.vue",
       "components/pages/storybook-library-page.vue",
       "components/pages/super-form.vue",
       "components/pages/wallet-page.vue",

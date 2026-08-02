@@ -48,6 +48,7 @@
     "zero-scroll": [
       "components/pages/conductor-art-gallery.vue",
       "components/pages/kaizen-popup.vue",
+      "components/pages/rebel-button.vue",
       "components/pages/social-page.vue",
       "pages/auth/google.vue",
       "pages/build-bench.vue"

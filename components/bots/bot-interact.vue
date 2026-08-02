@@ -106,81 +106,48 @@
           </div>
         </div>
 
-        <div ref="chatLogRef" class="min-h-0 overflow-y-auto bg-base-200 p-4">
-          <div
-            v-if="sessionChats.length === 0"
-            class="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-center text-base-content/45"
-          >
-            <Icon name="kind-icon:chat" class="h-16 w-16 text-primary/60" />
-
-            <div>
-              <p class="text-lg font-bold">Start the conversation</p>
-              <p class="mt-1 text-sm">
-                Use a starter prompt, or type something suspiciously brilliant.
-              </p>
-            </div>
-          </div>
-
-          <div v-else class="flex flex-col gap-4">
-            <article
-              v-for="chat in sessionChats"
-              :key="chat.id"
-              class="flex flex-col gap-3"
+        <!-- The bot chat log is kr-chat-window (interface-vision Phase 5).
+             It was the fourth copy of the same idea: user/bot pairs, a portrait,
+             three bouncing dots while the model writes. The window owns the
+             scroll and follows the conversation itself, so chatLogRef and
+             scrollToBottom are gone with it. -->
+        <kr-chat-window
+          class="bg-base-200 p-4"
+          :turns="chatTurns"
+          :label="`${selectedBotName} conversation`"
+          :is-streaming="isResponding"
+          :streaming-label="`${selectedBotName} is thinking…`"
+          :prose="false"
+        >
+          <template #footer>
+            <div
+              v-if="sessionChats.length === 0"
+              class="flex min-h-72 flex-col items-center justify-center gap-3 text-center text-base-content/45"
             >
-              <div class="flex flex-row-reverse gap-3">
-                <div
-                  class="max-w-[80%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
-                >
-                  <p class="whitespace-pre-wrap">
-                    {{ chat.content }}
-                  </p>
-                </div>
+              <Icon name="kind-icon:chat" class="h-16 w-16 text-primary/60" />
+
+              <div>
+                <p class="text-lg font-bold">Start the conversation</p>
+                <p class="mt-1 text-sm">
+                  Use a starter prompt, or type something suspiciously
+                  brilliant.
+                </p>
               </div>
-
-              <div class="flex flex-row gap-3">
-                <img
-                  :src="selectedBotImage"
-                  :alt="selectedBotName"
-                  class="h-9 w-9 shrink-0 self-end rounded-full border border-base-300 object-cover"
-                />
-
-                <div
-                  class="max-w-[80%] rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
-                >
-                  <span
-                    v-if="!chat.botResponse"
-                    class="flex items-center gap-1 py-1 text-base-content/60"
-                  >
-                    <span class="bot-dot" />
-                    <span class="bot-dot delay-150" />
-                    <span class="bot-dot delay-300" />
-                  </span>
-
-                  <p v-else class="whitespace-pre-wrap text-base-content/80">
-                    {{ chat.botResponse }}
-                  </p>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
+            </div>
+          </template>
+        </kr-chat-window>
 
         <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
-          <div
-            v-if="parsedUserPrompts.length"
-            class="mb-3 flex flex-wrap gap-2"
-          >
-            <button
-              v-for="prompt in parsedUserPrompts"
-              :key="prompt.id"
-              class="btn btn-xs btn-outline rounded-full"
-              type="button"
-              :disabled="isResponding"
-              @click="usePrompt(prompt.text)"
-            >
-              {{ prompt.text }}
-            </button>
-          </div>
+          <!-- Starter prompts were a sixth hand-rolled pick-one row. -->
+          <kr-choice-list
+            class="mb-3"
+            layout="row"
+            label="Starter prompts"
+            :choices="promptChoices"
+            :disabled="isResponding"
+            :show-index="false"
+            @select="usePrompt($event.label)"
+          />
 
           <div class="mb-2 flex flex-wrap items-center gap-2">
             <button
@@ -416,6 +383,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePromptStore } from '@/stores/promptStore'
@@ -438,7 +406,6 @@ const promptStore = usePromptStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
 
-const chatLogRef = ref<HTMLElement | null>(null)
 const message = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
@@ -562,6 +529,43 @@ const canSend = computed(() => {
   )
 })
 
+/*
+ * The session as kr-chat-window turns.
+ *
+ * A stored chat is one record holding BOTH sides of an exchange, so each one
+ * becomes a user turn followed by the bot's reply. A record still awaiting a
+ * reply contributes only the user turn — the window's streaming placeholder
+ * stands in for it, which is what the three bouncing dots used to do by hand.
+ */
+const chatTurns = computed<NarrativeTurn[]>(() => {
+  const turns: NarrativeTurn[] = []
+
+  for (const chat of sessionChats.value) {
+    turns.push({ id: `ask-${chat.id}`, text: chat.content, from: 'user' })
+
+    if (chat.botResponse) {
+      turns.push({
+        id: `reply-${chat.id}`,
+        text: chat.botResponse,
+        from: 'narrator',
+        speaker: selectedBotName.value,
+        portrait: selectedBotImage.value,
+      })
+    }
+  }
+
+  return turns
+})
+
+/* The bot's userIntro starters as shared-list choices. Keyed by text rather
+   than the parsed index so a re-parse cannot reshuffle which button is which. */
+const promptChoices = computed(() =>
+  parsedUserPrompts.value.map((prompt) => ({
+    key: prompt.text,
+    label: prompt.text,
+  })),
+)
+
 const promptPreview = computed(() => {
   const bot = botStore.currentBot
 
@@ -583,14 +587,6 @@ const promptPreview = computed(() => {
 function setStatus(messageText: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = messageText
   statusTone.value = tone
-}
-
-function scrollToBottom() {
-  const el = chatLogRef.value
-
-  if (!el) return
-
-  el.scrollTop = el.scrollHeight
 }
 
 function newChat() {
@@ -657,7 +653,6 @@ async function sendMessage() {
     message.value = ''
 
     await nextTick()
-    scrollToBottom()
 
     if (typeof chatStore.streamResponse === 'function') {
       const messages = buildMessagesForBotResponse()
@@ -674,7 +669,6 @@ async function sendMessage() {
     }
 
     await nextTick()
-    scrollToBottom()
   } catch (error) {
     setStatus(
       error instanceof Error
@@ -738,45 +732,4 @@ watch(
     }
   },
 )
-
-watch(
-  () => sessionChats.value.map((chat) => chat.botResponse).join(''),
-  async () => {
-    await nextTick()
-    scrollToBottom()
-  },
-)
 </script>
-
-<style scoped>
-.bot-dot {
-  display: inline-block;
-  height: 0.375rem;
-  width: 0.375rem;
-  border-radius: 9999px;
-  background: currentColor;
-  animation: bot-bounce 1s ease-in-out infinite;
-}
-
-.delay-150 {
-  animation-delay: 150ms;
-}
-
-.delay-300 {
-  animation-delay: 300ms;
-}
-
-@keyframes bot-bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.65);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>

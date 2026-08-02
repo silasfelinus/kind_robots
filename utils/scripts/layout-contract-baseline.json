@@ -57,9 +57,7 @@
       "pages/admin/wonderlab-review-generator.vue",
       "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
-      "pages/admin/wonderlab-reviews.vue",
-      "pages/coloring-page.vue",
-      "pages/resources.vue"
+      "pages/admin/wonderlab-reviews.vue"
     ]
   }
 }

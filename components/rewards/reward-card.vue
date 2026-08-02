@@ -284,6 +284,15 @@ const imageCandidates = computed<string[]>(() => {
   const candidates: string[] = []
   const image = embeddedArtImage.value || artImage.value
 
+  // The reward's own purpose-built card art leads the chain. It is rendered at
+  // card aspect for exactly this slot, so it should beat the generic ArtImage
+  // and the slug-derived guess. Rewards whose cardPath has not rendered yet
+  // simply start at the next candidate, and the onerror handler still advances
+  // through the rest if this one fails to load.
+  const cardPath = props.reward.cardPath?.trim()
+
+  if (cardPath) candidates.push(cardPath)
+
   // Path-first: try the art image's own path, the reward's imagePath, and the
   // slug-derived path before any inline base64. The <img> onerror handler
   // advances through this list, so base64 stays a graceful fallback.

@@ -53,6 +53,20 @@ export default defineEventHandler(async (event) => {
     const { user, isAdmin } = await requireApiUser(event)
 
     const result = await prisma.$transaction(async (tx) => {
+      const lockedRecords = await tx.$queryRaw<Array<{ id: number }>>`
+        SELECT id
+        FROM \`AchievementRecord\`
+        WHERE id = ${recordId}
+        FOR UPDATE
+      `
+
+      if (!lockedRecords.length) {
+        throw createError({
+          statusCode: 404,
+          message: 'Achievement Record not found.',
+        })
+      }
+
       const existingRecord = await tx.achievementRecord.findUnique({
         where: { id: recordId },
         select: {
@@ -71,7 +85,7 @@ export default defineEventHandler(async (event) => {
       if (!existingRecord) {
         throw createError({
           statusCode: 404,
-          message: 'Achievement Record not found.',
+          message: 'Achievement Record not found after locking.',
         })
       }
 
@@ -82,26 +96,12 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      const confirmation = isConfirmed
-        ? await tx.achievementRecord.updateMany({
-            where: {
-              id: recordId,
-              isConfirmed: false,
-            },
-            data: { isConfirmed: true },
-          })
-        : null
-      const shouldGrantRewards = confirmation?.count === 1
-      const data = isConfirmed
-        ? await tx.achievementRecord.findUniqueOrThrow({
-            where: { id: recordId },
-          })
-        : await tx.achievementRecord.update({
-            where: { id: recordId },
-            data: { isConfirmed: false },
-          })
+      const data = await tx.achievementRecord.update({
+        where: { id: recordId },
+        data: { isConfirmed },
+      })
 
-      if (!shouldGrantRewards) {
+      if (!isConfirmed) {
         return {
           data,
           reward: {
@@ -114,31 +114,54 @@ export default defineEventHandler(async (event) => {
 
       const refId = String(existingRecord.id)
       const note = `Achievement confirmed: ${existingRecord.Achievement.label}`
-      const karmaAward = await awardKarma({
-        userId: existingRecord.userId,
-        reason: 'ACHIEVEMENT_CONFIRMED',
-        amount: existingRecord.Achievement.karma,
-        refId,
-        note,
-        tx,
-      })
-      const manaAward = await applyMana({
-        userId: existingRecord.userId,
-        amount: ACHIEVEMENT_MANA_REWARD,
-        reason: 'ACHIEVEMENT_CONFIRMED',
-        refId,
-        note,
-        tx,
-      })
+      const [existingKarmaAward, existingManaAward] = await Promise.all([
+        tx.karmaTransaction.findFirst({
+          where: {
+            userId: existingRecord.userId,
+            reason: 'ACHIEVEMENT_CONFIRMED',
+            refId,
+          },
+          select: { id: true },
+        }),
+        tx.manaTransaction.findFirst({
+          where: {
+            userId: existingRecord.userId,
+            reason: 'ACHIEVEMENT_CONFIRMED',
+            refId,
+          },
+          select: { id: true },
+        }),
+      ])
+
+      const karmaAward = existingKarmaAward
+        ? null
+        : await awardKarma({
+            userId: existingRecord.userId,
+            reason: 'ACHIEVEMENT_CONFIRMED',
+            amount: existingRecord.Achievement.karma,
+            refId,
+            note,
+            tx,
+          })
+      const manaAward = existingManaAward
+        ? null
+        : await applyMana({
+            userId: existingRecord.userId,
+            amount: ACHIEVEMENT_MANA_REWARD,
+            reason: 'ACHIEVEMENT_CONFIRMED',
+            refId,
+            note,
+            tx,
+          })
 
       return {
         data,
         reward: {
-          granted: true,
-          karma: existingRecord.Achievement.karma,
-          mana: ACHIEVEMENT_MANA_REWARD,
+          granted: Boolean(karmaAward || manaAward),
+          karma: karmaAward ? existingRecord.Achievement.karma : 0,
+          mana: manaAward ? ACHIEVEMENT_MANA_REWARD : 0,
           karmaBalance: karmaAward?.balance ?? null,
-          manaBalance: manaAward.balance,
+          manaBalance: manaAward?.balance ?? null,
         },
       }
     })

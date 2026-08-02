@@ -45,7 +45,7 @@
                 v-model="search"
                 type="search"
                 class="input input-bordered input-sm rounded-xl"
-                placeholder="Search label, code, or description"
+                placeholder="Search label, trigger, or message"
               />
             </label>
 
@@ -54,7 +54,7 @@
               <span class="badge badge-warning">{{ missingArtCount }} without art</span>
             </div>
 
-            <div class="max-h-[65vh] space-y-2 overflow-y-auto pr-1">
+            <div class="space-y-2 pr-1">
               <button
                 v-for="achievement in filteredAchievements"
                 :key="achievement.id"
@@ -76,7 +76,9 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-sm font-black">{{ achievement.label }}</p>
-                  <p class="truncate text-xs text-base-content/50">{{ achievement.code }}</p>
+                  <p class="truncate text-xs text-base-content/50">
+                    {{ achievement.triggerCode || achievement.message }}
+                  </p>
                 </div>
                 <span
                   class="size-2 shrink-0 rounded-full"
@@ -97,12 +99,15 @@
             <div class="kr-panel p-4">
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p class="text-xs font-black uppercase tracking-wide text-primary">
-                    {{ selectedAchievement.code }}
+                  <p
+                    v-if="selectedAchievement.triggerCode"
+                    class="text-xs font-black uppercase tracking-wide text-primary"
+                  >
+                    {{ selectedAchievement.triggerCode }}
                   </p>
                   <h2 class="mt-1 text-xl font-black">{{ selectedAchievement.label }}</h2>
                   <p class="mt-2 max-w-3xl text-sm text-base-content/60">
-                    {{ selectedAchievement.description }}
+                    {{ selectedAchievement.message }}
                   </p>
                 </div>
                 <span class="badge" :class="selectedAchievement.isActive ? 'badge-success' : 'badge-ghost'">
@@ -160,7 +165,7 @@ const filteredAchievements = computed(() => {
   const query = search.value.trim().toLowerCase()
   if (!query) return achievements.value
   return achievements.value.filter((achievement) =>
-    [achievement.label, achievement.code, achievement.description]
+    [achievement.label, achievement.triggerCode, achievement.message, achievement.tooltip]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query)),
   )

@@ -438,6 +438,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       while (nextIndex < ids.length) {
         const id = ids[nextIndex]
         nextIndex += 1
+        if (id === undefined) return
 
         const res = await performFetch<ArtImage>(
           `/api/art/image/${id}?includeImageData=true`,

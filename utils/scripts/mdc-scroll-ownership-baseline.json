@@ -1,0 +1,30 @@
+{
+  "note": "MDC-mounted components that already declare a scroll owner. RATCHET: this allow-list may only shrink.",
+  "recorded": "2026-08-02",
+  "violations": [
+    "components/academy/academy-manager.vue",
+    "components/art/art-manager.vue",
+    "components/art/hair-studio-manager.vue",
+    "components/art/stylist-manager.vue",
+    "components/bots/bot-manager.vue",
+    "components/conductor/voice-lab-page.vue",
+    "components/giftshop/giftshop-manager.vue",
+    "components/home/home-feed-placeholder.vue",
+    "components/model-builder/model-builder-manager.vue",
+    "components/pages/appmaker-page.vue",
+    "components/pages/for-you-manager.vue",
+    "components/pages/serendipity-page.vue",
+    "components/pages/storybook-library-page.vue",
+    "components/pages/taskmaster-page.vue",
+    "components/pages/wishmaster-page.vue",
+    "components/rewards/reward-manager.vue",
+    "components/scenarios/scenario-manager.vue",
+    "components/servers/server-manager.vue",
+    "components/ui/ui-gallery.vue",
+    "components/user/chat-gallery.vue",
+    "components/user/login-page.vue",
+    "components/user/messenger.vue",
+    "components/user/user-manager.vue",
+    "components/wonderlab/mural-manager.vue"
+  ]
+}

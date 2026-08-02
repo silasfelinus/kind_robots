@@ -7,7 +7,13 @@
     data-art-context
     :class="[
       'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
+      // Panel cards (bot, character, reward, scenario) inset their art and want
+      // the padding. Poster cards (dream) run their art edge-to-edge with the
+      // title overlaid, and padding would frame it in a way the design does not
+      // want. A typed prop rather than a `p-0!` override in cardClass, because
+      // nothing else in this repo uses Tailwind's important modifier and a
+      // class-string fight is a worse contract than a boolean.
+      padded ? (compact ? 'gap-2 p-3' : 'gap-4 p-4') : 'gap-0 p-0',
       selected ? 'border-primary bg-primary/10' : 'border-base-300',
       normalizedCardClass,
     ]"
@@ -88,6 +94,8 @@ const props = withDefaults(
   defineProps<{
     selected?: boolean
     compact?: boolean
+    /** False for full-bleed poster cards whose art reaches the card edge. */
+    padded?: boolean
     showReaction?: boolean
     allowReviews?: boolean | null
     targetId?: number | null
@@ -103,6 +111,7 @@ const props = withDefaults(
   {
     selected: false,
     compact: false,
+    padded: true,
     showReaction: true,
     allowReviews: true,
     targetId: null,

@@ -4,6 +4,75 @@
   themes: all;
 }
 
+/*
+ * ── STORYBOOK — the house aesthetic (interface-vision t-002) ────────────
+ *
+ * Silas, 2026-08-02: "Let's run with Storybook as the design. I don't want to
+ * build three different layouts, we're already trying to make clear decisions
+ * and have VISION."
+ *
+ * Chosen from three mockups at /storymaker-mockups; Theater and Playground are
+ * retired, not kept as options. The brief calls it "a plate tipped into warm
+ * paper": light printed ground, generous margins, illustration-forward, serif
+ * text that reads as caption to picture.
+ *
+ * This is a daisyUI THEME rather than a pile of component overrides, and that
+ * is the whole leverage. Every .kr-* primitive below is written against the
+ * semantic tokens (base-200 canvas, base-100 raised surface, base-300 border,
+ * primary action), so defining them once here restyles the entire app without
+ * touching a single component. The mockup's hardcoded hex values were promoted
+ * into these tokens so the palette lives in exactly one place.
+ *
+ * Theme SWITCHING stays — theme-gallery, the Theme model, and per-user themes
+ * are a real feature. Storybook is the default and the design reference, not
+ * the only option. `default: true` sets it as daisyUI's fallback; the runtime
+ * default lives in stores/themeStore.ts and must agree.
+ */
+@plugin "daisyui/theme" {
+  name: 'storybook';
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Paper is the canvas; plate is anything raised onto it. */
+  --color-base-100: oklch(99% 0.008 85); /* plate — cards, panels, headers */
+  --color-base-200: oklch(95.2% 0.021 85); /* paper #f7f1e3 — page ground */
+  --color-base-300: oklch(89% 0.028 82); /* deckle edge — borders, dividers */
+  --color-base-content: oklch(31% 0.021 55); /* ink #3a3128 */
+
+  /* Terracotta: drop caps, speaker names, every primary action. */
+  --color-primary: oklch(57% 0.117 45); /* #b4653a */
+  --color-primary-content: oklch(95.2% 0.021 85);
+
+  /* Muted ink-wash for secondary chrome, sage for quiet accents. */
+  --color-secondary: oklch(47% 0.041 60);
+  --color-secondary-content: oklch(97% 0.014 85);
+  --color-accent: oklch(60% 0.068 145);
+  --color-accent-content: oklch(97% 0.014 85);
+  --color-neutral: oklch(31% 0.021 55);
+  --color-neutral-content: oklch(95.2% 0.021 85);
+
+  /* Status colors kept legible against paper rather than screen-bright. */
+  --color-info: oklch(56% 0.079 235);
+  --color-info-content: oklch(97% 0.014 85);
+  --color-success: oklch(56% 0.093 150);
+  --color-success-content: oklch(97% 0.014 85);
+  --color-warning: oklch(68% 0.124 70);
+  --color-warning-content: oklch(25% 0.021 55);
+  --color-error: oklch(52% 0.152 27);
+  --color-error-content: oklch(97% 0.014 85);
+
+  /* Printed matter: softly rounded plates, no hard chrome edges. */
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1.5px;
+  --depth: 1;
+  --noise: 0;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -90,8 +159,38 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 }
 
 @layer base {
+  /*
+   * Storybook's type. The mockup set `font-serif` per element; promoting it to
+   * the body means prose reads as printed matter everywhere without each
+   * component opting in. UI chrome that should stay sans — buttons, inputs,
+   * badges, code — is exempted below rather than the other way round, because
+   * the reading surface is the majority case in this app.
+   */
   body {
     @apply text-sm md:text-base lg:text-lg xl:text-xl;
+    font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  }
+
+  /* Generous leading for narration; the 65ch measure lives on .kr-prose. */
+  p {
+    line-height: 1.8;
+  }
+
+  /* Controls and code stay sans — serif buttons read as a mistake, not a choice. */
+  button,
+  input,
+  optgroup,
+  select,
+  textarea,
+  code,
+  pre,
+  kbd,
+  samp,
+  .badge,
+  .btn,
+  .tab {
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      sans-serif;
   }
 
   button,
@@ -182,6 +281,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   /* A titled block of related content — consistent vertical rhythm. */
   .kr-section {
     @apply space-y-4;
+  }
+
+  /*
+   * Reading column (STORYBOOK, interface-vision t-002). Narration, descriptions
+   * and any long-form prose go here. The 65ch measure is the single most
+   * load-bearing typographic decision in the aesthetic — text set to the full
+   * width of a panel stops reading as a storybook page no matter what the
+   * palette does. Taken straight from the chosen mockup's narration block.
+   */
+  .kr-prose {
+    @apply max-w-[65ch] leading-[1.8];
+  }
+
+  /* The terracotta drop cap that opens a narration block. */
+  .kr-dropcap::first-letter {
+    @apply float-left mr-2 mt-1 font-bold leading-[0.8] text-primary;
+    font-size: 3.25rem;
   }
 
   /* The workhorse raised surface: cards, panels, form groups. */

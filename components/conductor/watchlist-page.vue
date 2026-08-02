@@ -1,10 +1,10 @@
 <!-- /components/conductor/watchlist-page.vue -->
 <template>
-  <ProjectFrontPage slug="media-watchlist" :fallback="config">
+  <project-front-page class="kr-surface" slug="media-watchlist" :fallback="config">
     <template #interactive>
       <WatchlistBrowse />
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

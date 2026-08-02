@@ -1,6 +1,6 @@
 <!-- /components/conductor/sketchy-page.vue -->
 <template>
-  <ProjectFrontPage slug="sketchy" :fallback="config">
+  <project-front-page class="kr-surface" slug="sketchy" :fallback="config">
     <template #interactive>
       <section
         class="flex flex-col items-start gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
@@ -71,7 +71,7 @@
         </p>
       </section>
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

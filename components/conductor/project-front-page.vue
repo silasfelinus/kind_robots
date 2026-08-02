@@ -6,9 +6,8 @@
   specific interactive UI goes in the #interactive slot.
 -->
 <template>
-  <div
-    class="flex h-full min-h-0 w-full flex-col overflow-y-auto overscroll-contain bg-base-200"
-  >
+  <div class="kr-surface bg-base-200">
+    <div class="kr-scroll flex w-full flex-col overscroll-contain">
     <!-- HERO -->
     <header class="relative w-full overflow-hidden">
       <div
@@ -190,6 +189,7 @@
           {{ launch.label }}
         </a>
       </section>
+    </div>
     </div>
   </div>
 </template>

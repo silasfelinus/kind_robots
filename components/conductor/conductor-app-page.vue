@@ -1,6 +1,6 @@
 <!-- /components/conductor/conductor-app-page.vue -->
 <template>
-  <ProjectFrontPage slug="conductor-app" :fallback="config">
+  <project-front-page class="kr-surface" slug="conductor-app" :fallback="config">
     <template #interactive>
       <section
         class="flex flex-col items-start gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
@@ -46,7 +46,7 @@
         </p>
       </section>
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,6 @@
 <!-- /components/conductor/newsfeed-page.vue -->
 <template>
-  <ProjectFrontPage slug="newsfeed" :fallback="config">
+  <project-front-page class="kr-surface" slug="newsfeed" :fallback="config">
     <template #interactive>
       <section
         class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
@@ -9,7 +9,7 @@
         <NewsfeedFeed />
       </section>
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

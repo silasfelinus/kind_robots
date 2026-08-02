@@ -4,7 +4,7 @@
   component; individual cards link to the dedicated /play/challenges/[slug] arena.
 -->
 <template>
-  <ProjectFrontPage slug="challenge-center" :fallback="config">
+  <project-front-page class="kr-surface" slug="challenge-center" :fallback="config">
     <template #interactive>
       <section
         class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
@@ -257,7 +257,7 @@
         </div>
       </section>
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,7 @@
 <!-- /components/coloring/coloring-book-page.vue -->
 <template>
-  <ProjectFrontPage
+  <project-front-page
+    class="kr-surface"
     slug="coloring-book"
     :fallback="config"
     :show-deliverables="false"
@@ -17,7 +18,7 @@
         <coloring-book-studio />
       </div>
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

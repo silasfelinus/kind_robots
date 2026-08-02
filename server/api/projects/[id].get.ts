@@ -4,6 +4,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { projectInclude } from './index'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
         const auth = await validateApiKey(event)
         if (auth.isValid && auth.user) {
           userId = auth.user.id
-          isAdmin = auth.user.Role === 'ADMIN'
+          isAdmin = userIsAdmin(auth.user)
         }
       } catch {}
     }

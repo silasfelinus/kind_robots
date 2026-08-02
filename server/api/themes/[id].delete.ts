@@ -3,6 +3,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
     if (
       existing.userId != null &&
       existing.userId !== user.id &&
-      user.Role !== 'ADMIN'
+      !userIsAdmin(user)
     ) {
       throw createError({
         statusCode: 403,

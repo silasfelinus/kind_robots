@@ -8,6 +8,7 @@ import {
   rewardBatchCreateFields,
   REWARD_BATCH_LIMIT,
 } from './mutation'
+import { userIsAdmin } from '../../utils/authUser'
 
 type RewardBatchBody =
   | RewardMutationInput[]
@@ -91,7 +92,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     const { count, rewards, errors } = await createRewardsBatch(
       rewardsData,
       user.id,

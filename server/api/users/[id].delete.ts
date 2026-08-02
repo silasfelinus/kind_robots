@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const requestingUserId = user?.id
     const isSelf = requestingUserId === targetUserId
     const isAdmin = Boolean(
-      user && userIsAdmin({ id: user.id, Role: user.Role }),
+      user && userIsAdmin(user),
     )
 
     if (!isValid || (!isSelf && !isAdmin)) {
@@ -34,9 +34,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // UserRoles is required, not optional: this is the guard that stops one
+    // admin deleting another, so it must see an ADMIN that exists only in the
+    // join table. Selecting `Role` alone would silently leave such an account
+    // unprotected.
     const targetUser = await prisma.user.findUnique({
       where: { id: targetUserId },
-      select: { id: true, Role: true },
+      select: { id: true, Role: true, UserRoles: { select: { role: true } } },
     })
 
     if (!targetUser) {

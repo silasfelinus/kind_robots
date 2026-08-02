@@ -3,6 +3,7 @@ import { defineEventHandler, createError, getRouterParam } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
+    const isAdmin = Boolean(user && userIsAdmin(user))
     const isOwner = user?.id === bot.userId
 
     if (!isAdmin && !isServerKey && !isOwner) {

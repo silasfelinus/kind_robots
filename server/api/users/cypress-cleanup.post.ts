@@ -25,7 +25,7 @@ const clampInteger = (
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-    if (!isValid || !user || !userIsAdmin({ id: user.id, Role: user.Role })) {
+    if (!isValid || !user || !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'Administrator access is required for Cypress cleanup.',
@@ -55,13 +55,21 @@ export default defineEventHandler(async (event) => {
       ? 1
       : clampInteger(body?.limit, DEFAULT_LIMIT, 1, MAX_LIMIT)
     const cutoff = new Date(Date.now() - maxAgeMs)
+    // Both halves of the admin guard are required. `Role` is only the PRIMARY
+    // role, so on its own it would happily match -- and therefore delete -- a
+    // user whose admin-ness lives in the UserRole join table. This is the
+    // protective direction of the check, so it has to be the stricter one.
+    const NOT_ADMIN: Prisma.UserWhereInput = {
+      Role: { not: 'ADMIN' },
+      UserRoles: { none: { role: 'ADMIN' } },
+    }
     const where: Prisma.UserWhereInput = exactUsername
       ? {
-          Role: { not: 'ADMIN' },
+          ...NOT_ADMIN,
           username: exactUsername,
         }
       : {
-          Role: { not: 'ADMIN' },
+          ...NOT_ADMIN,
           createdAt: { lte: cutoff },
           OR: [
             { username: { startsWith: 'cypress-' } },

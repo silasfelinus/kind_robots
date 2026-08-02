@@ -7,6 +7,7 @@ import type {
   ExpressionTransition,
   Prisma,
 } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
 
 // Allow up to 60s on Vercel (Pro). Harmless on platforms that ignore it.
 export const config = {
@@ -142,7 +143,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
+    const isAdmin = Boolean(user && userIsAdmin(user))
 
     if (!isAdmin && !isServerKey) {
       throw createError({

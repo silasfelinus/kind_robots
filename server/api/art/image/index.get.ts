@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { userRoles } from '../../../utils/authUser'
 
 type QueryValue = string | number | boolean | null | undefined | QueryValue[]
 
@@ -11,6 +12,7 @@ type ValidatedUser = {
   id?: number | null
   Role?: string | null
   role?: string | null
+  roles?: string[] | null
   isAdmin?: boolean | null
   showMature?: boolean | null
 }
@@ -34,12 +36,20 @@ function readBoolean(value: unknown, fallback = false): boolean {
   return fallback
 }
 
+// The sibling route (art/image/[id].get.ts) also grants SYSTEM; this one used
+// to accept 'superadmin', which is not a value in the Role enum and so never
+// matched anything. Dropping that dead branch rather than porting it. The ADMIN
+// half now goes through the canonical predicate so a user holding ADMIN as a
+// secondary role is not silently denied.
 function isAdminUser(user: ValidatedUser | null | undefined): boolean {
   if (!user) return false
+  if (user.isAdmin) return true
 
-  const role = String(user.Role || user.role || '').toLowerCase()
-
-  return Boolean(user.isAdmin || role === 'admin' || role === 'superadmin')
+  return userRoles({
+    id: user.id ?? 0,
+    Role: user.Role ?? user.role,
+    roles: user.roles,
+  }).has('ADMIN')
 }
 
 async function getArtImageAccessContext(

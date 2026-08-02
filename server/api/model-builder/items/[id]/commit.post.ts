@@ -22,6 +22,7 @@ import {
   legacyFacetKindForTaxonomy,
   normalizeFacetTaxonomy,
 } from '~/server/utils/facetProfileInput'
+import { userIsAdmin } from '../../../../utils/authUser'
 
 type TransactionClient = Parameters<
   Parameters<typeof prisma.$transaction>[0]
@@ -513,7 +514,7 @@ export default defineEventHandler(async (event) => {
     const dryRun = body?.dryRun === true
     const syncOptions: SyncOptions = {
       userId: auth.user.id,
-      isAdmin: auth.user.Role === 'ADMIN' || auth.user.id === 1,
+      isAdmin: userIsAdmin(auth.user),
     }
 
     const item = await prisma.modelBuildItem.findUnique({

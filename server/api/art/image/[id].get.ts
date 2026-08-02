@@ -4,6 +4,7 @@ import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
+import { userRoles } from '../../../utils/authUser'
 
 type QueryValue = string | number | boolean | null | undefined | QueryValue[]
 
@@ -11,6 +12,7 @@ type ValidatedUser = {
   id?: number | null
   Role?: string | null
   role?: string | null
+  roles?: string[] | null
   isAdmin?: boolean | null
   showMature?: boolean | null
 }
@@ -42,12 +44,21 @@ function readBoolean(value: unknown, fallback = false): boolean {
   return fallback
 }
 
+// SYSTEM is treated as admin here (and only here) so internal render callbacks
+// can read any image. That extra grant is preserved; the ADMIN half now goes
+// through the canonical predicate so a user who holds ADMIN as a secondary role
+// -- their primary being CHILD or FAMILY -- is not silently denied.
 function isAdminUser(user: ValidatedUser | null | undefined): boolean {
   if (!user) return false
+  if (user.isAdmin) return true
 
-  const role = String(user.Role || user.role || '').toLowerCase()
+  const roles = userRoles({
+    id: user.id ?? 0,
+    Role: user.Role ?? user.role,
+    roles: user.roles,
+  })
 
-  return Boolean(user.isAdmin || role === 'admin' || role === 'system')
+  return roles.has('ADMIN') || roles.has('SYSTEM')
 }
 
 async function getAccessContext(event: H3Event): Promise<AccessContext> {

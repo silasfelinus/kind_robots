@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import type { ExpressionMedia, Prisma } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
 
 export const config = {
   maxDuration: 60,
@@ -208,7 +209,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isServerKey = kind === 'server'
-    const isAdmin = user?.Role === 'ADMIN' || user?.id === 1
+    const isAdmin = Boolean(user && userIsAdmin(user))
 
     if (!isAdmin && !isServerKey) {
       throw createError({

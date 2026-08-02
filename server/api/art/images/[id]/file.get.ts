@@ -10,6 +10,7 @@ import {
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { validateApiKey } from '~/server/utils/validateKey'
+import { userIsAdmin } from '../../../../utils/authUser'
 
 const CONTENT_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -51,7 +52,7 @@ export default defineEventHandler(async (event) => {
         mayView = Boolean(
           auth.isValid &&
             auth.user &&
-            (auth.user.Role === 'ADMIN' || auth.user.id === image.userId),
+            (userIsAdmin(auth.user) || auth.user.id === image.userId),
         )
       } catch {
         mayView = false

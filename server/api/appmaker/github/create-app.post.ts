@@ -10,6 +10,7 @@ import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { enforceProjectCap } from '@/server/utils/projectCap'
 import { listInstallationRepositories } from '@/server/utils/appmakerGithub'
+import { userIsAdmin, userRoles } from '@/server/utils/authUser'
 
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/
 
@@ -140,8 +141,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
-    await enforceProjectCap({ userId: user.id, userRole: user.Role, isAdmin })
+    const isAdmin = userIsAdmin(user)
+    await enforceProjectCap({
+      userId: user.id,
+      userRoles: [...userRoles(user)],
+      isAdmin,
+    })
 
     const { project, appRepo, todo } = await prisma.$transaction(async (tx) => {
       const project = await tx.project.create({

@@ -6,6 +6,7 @@ import { validateApiKey } from '~/server/utils/validateKey'
 import { stringifyValues, parseTheme } from '@/server/api/themes/index'
 import { assertThemeMutationInput, themePatchFields } from './mutation'
 import type { Prisma } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id: number | undefined
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
     if (
       existing.userId != null &&
       existing.userId !== user.id &&
-      user.Role !== 'ADMIN'
+      !userIsAdmin(user)
     ) {
       throw createError({ statusCode: 403, message: 'Unauthorized.' })
     }

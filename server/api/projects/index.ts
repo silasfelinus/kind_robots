@@ -7,6 +7,7 @@ import type {
   ProjectStatus,
 } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
+import { userIsAdmin } from '../../utils/authUser'
 
 export const projectStatuses = new Set<ProjectStatus>([
   'ACTIVE',
@@ -192,7 +193,7 @@ export function assertProjectAccess(
   project: { userId: number | null },
   user: { id: number; Role?: string | null },
 ): void {
-  if (user.Role !== 'ADMIN' && project.userId !== user.id) {
+  if (!userIsAdmin(user) && project.userId !== user.id) {
     throw createError({
       statusCode: 403,
       message: 'You do not have permission to modify this Project.',

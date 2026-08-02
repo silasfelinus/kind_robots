@@ -8,6 +8,7 @@ import {
   sanitizePitchSheetPayload,
 } from '@/server/utils/pitchSheets/payload'
 import { pitchSheetMutationSelect } from './selects'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id = 0
@@ -48,7 +49,7 @@ export default defineEventHandler(async (event) => {
       existing.Dream?.userId === user.id ||
       existing.Project?.userId === user.id
 
-    if (user.Role !== 'ADMIN' && !isOwner) {
+    if (!userIsAdmin(user) && !isOwner) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this PitchSheet.',

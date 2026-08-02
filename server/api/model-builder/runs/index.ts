@@ -6,6 +6,7 @@ import type {
   ModelBuildStatus,
   ModelBuildItem,
 } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../../utils/authUser'
 
 export const modelBuildStatuses = new Set<ModelBuildStatus>([
   'DRAFT',
@@ -53,7 +54,7 @@ export function assertRunAccess(
   run: { userId: number | null },
   user: { id: number; Role?: string | null },
 ): void {
-  if (user.Role !== 'ADMIN' && run.userId !== user.id) {
+  if (!userIsAdmin(user) && run.userId !== user.id) {
     throw createError({
       statusCode: 403,
       message: 'You do not have permission to modify this build run.',

@@ -6,7 +6,11 @@ import { userIsAdmin } from './authUser'
 
 export type ValidateResult = {
   isValid: boolean
-  user?: { id: number; Role: string }
+  // `roles` is the complete set from the UserRole join table; `Role` remains
+  // the primary/display role. Callers must ask through userIsAdmin/userHasRole
+  // (server/utils/authUser.ts) rather than comparing `Role` directly -- an
+  // admin whose primary role is CHILD or FAMILY only appears in `roles`.
+  user?: { id: number; Role: string; roles: string[] }
   kind?: 'jwt' | 'user-api-key' | 'beta-admin-token' | 'server'
 }
 
@@ -48,10 +52,27 @@ function getBetaAdminUserId(): number {
   return Number.isInteger(raw) && raw > 0 ? raw : 1
 }
 
+// Mirrors authGuard.WITH_ROLES. This resolver uses explicit selects rather than
+// full-row loads, so the join table has to be named here too -- omitting it
+// would leave `roles` empty and quietly demote any user whose admin-ness lives
+// only in the join table.
+const ROLE_SELECT = {
+  id: true,
+  Role: true,
+  isActive: true,
+  UserRoles: { select: { role: true } },
+} as const
+
+function flattenRoles(user: {
+  UserRoles?: { role: string }[] | null
+}): string[] {
+  return (user.UserRoles ?? []).map((entry) => String(entry.role))
+}
+
 async function getAuthUser(id: number) {
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, Role: true, isActive: true },
+    select: ROLE_SELECT,
   })
 
   if (!user || !user.isActive) return null
@@ -75,7 +96,7 @@ async function validateJwtString(
 
     return {
       isValid: true,
-      user: { id: user.id, Role: user.Role },
+      user: { id: user.id, Role: user.Role, roles: flattenRoles(user) },
       kind: 'jwt',
     }
   } catch {
@@ -90,14 +111,14 @@ async function validateUserApiKeyString(
 
   const user = await prisma.user.findFirst({
     where: { apiKey: token },
-    select: { id: true, Role: true, isActive: true },
+    select: ROLE_SELECT,
   })
 
   if (!user || !user.isActive) return null
 
   return {
     isValid: true,
-    user: { id: user.id, Role: user.Role },
+    user: { id: user.id, Role: user.Role, roles: flattenRoles(user) },
     kind: 'user-api-key',
   }
 }
@@ -115,7 +136,7 @@ async function validateBetaAdminString(
 
   return {
     isValid: true,
-    user: { id: user.id, Role: user.Role },
+    user: { id: user.id, Role: user.Role, roles: flattenRoles(user) },
     kind: 'beta-admin-token',
   }
 }

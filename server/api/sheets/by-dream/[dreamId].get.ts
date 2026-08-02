@@ -3,6 +3,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let dreamId = 0
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event) => {
     const canView =
       data.isPublic &&
       (data.Dream?.isPublic ?? data.Project?.isPublic ?? false)
-    if (!canView && (!isValid || !user || (user.Role !== 'ADMIN' && !isOwner))) {
+    if (!canView && (!isValid || !user || (!userIsAdmin(user) && !isOwner))) {
       throw createError({ statusCode: 403, message: 'You are not authorized to view this PitchSheet.' })
     }
 

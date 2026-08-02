@@ -2,7 +2,7 @@
 import { createError, type H3Event } from 'h3'
 import prisma from './prisma'
 import { requireApiUser } from './authGuard'
-import { userIsAdmin } from './authUser'
+import { userIsAdmin, userRoles } from './authUser'
 import { applyMana } from './mana'
 import type { ManaReason } from './mana'
 import { resolveManaGateTarget } from './manaGateTarget'
@@ -92,7 +92,7 @@ export async function manaGate(
     // account, or every cross-app charge would silently cost nothing.
     isAdmin: onBehalfOfOtherUser ? userIsAdmin(user) : auth.isAdmin,
     isServerKey: onBehalfOfOtherUser ? false : auth.isServerKey,
-    userRole: user.Role,
+    userRoles: [...userRoles(user)],
     kind: input.kind,
   })
 
@@ -144,14 +144,23 @@ async function isFreeGeneration(input: {
   useOwnResource: boolean
   isAdmin: boolean
   isServerKey: boolean
-  userRole?: string | null
+  // The COMPLETE role set, not just the primary column. FAMILY is a permissive
+  // grant, so reading only `User.Role` would quietly start charging a user who
+  // holds FAMILY as a secondary role.
+  userRoles?: readonly string[] | null
   kind: ManaGateKind
 }): Promise<boolean> {
   if (input.kind === 'free') return true
   if (input.useOwnResource) return true
   if (input.isAdmin) return true
   if (input.isServerKey) return true
-  if (String(input.userRole ?? '').toUpperCase() === 'FAMILY') return true
+  if (
+    (input.userRoles ?? []).some(
+      (role) => String(role).toUpperCase() === 'FAMILY',
+    )
+  ) {
+    return true
+  }
 
   return await isFreeServerForUser({
     userId: input.userId,

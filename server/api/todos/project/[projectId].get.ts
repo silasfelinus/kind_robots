@@ -4,6 +4,7 @@ import { createError, defineEventHandler, H3Error } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
+import { userIsAdmin } from '@/server/utils/authUser'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,7 +24,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Project not found.' })
     }
 
-    if (auth.user.Role !== 'ADMIN' && project.userId !== auth.user.id) {
+    if (!userIsAdmin(auth.user) && project.userId !== auth.user.id) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to view this Project.',

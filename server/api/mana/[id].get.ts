@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import { maybeRefill } from '../../utils/refill'
+import { userIsAdmin } from '../../utils/authUser'
 
 export default defineEventHandler(async (event) => {
   let id
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // You can only read your own wallet — unless you're ADMIN.
-    if (user.id !== id && user.Role !== 'ADMIN') {
+    if (user.id !== id && !userIsAdmin(user)) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to view this wallet.',

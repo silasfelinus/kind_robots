@@ -9,6 +9,7 @@ import {
   Reaction_reactionCategory,
   type Prisma,
 } from '~/prisma/generated/prisma/client'
+import { userIsAdmin } from '../../utils/authUser'
 
 type ReactionBody = Record<string, unknown> & {
   reactionType?: unknown
@@ -400,7 +401,7 @@ export default defineEventHandler(async (event) => {
     const targets = getTargetFields(body)
     const targetWhere = buildTargetWhere(reactionCategory, targets)
 
-    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isAdmin = userIsAdmin(user)
     await assertReactionTargetAccessible(
       reactionCategory,
       targets,

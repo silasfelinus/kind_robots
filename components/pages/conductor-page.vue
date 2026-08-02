@@ -1393,9 +1393,9 @@ import {
   placementLiveUrl,
 } from '~/utils/projectPlacements'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import ConductorArtGallery from '@/components/pages/conductor-art-gallery.vue'
+import ConductorArtGallery from '@/components/conductor/conductor-art-gallery.vue'
 import ConductorProjectChat from '@/components/pages/conductor-project-chat.vue'
-import KaizenPopup from '@/components/pages/kaizen-popup.vue'
+import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
 type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'

@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'components/art/entity-art-manager.vue'
-      - 'components/pages/conductor-art-gallery.vue'
+      - 'components/conductor/conductor-art-gallery.vue'
       - 'components/bots/bot-interact.vue'
       - 'components/characters/character-interact.vue'
       - 'components/scenarios/scenario-interact.vue'

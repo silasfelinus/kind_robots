@@ -1,129 +1,139 @@
 <!-- /components/content/weird/rebel-button.vue -->
 <template>
-  <div
-    class="hero flex flex-col items-center justify-center bg-base-300 rounded-2xl border m-2 h-full w-full"
-  >
-    <div
-      class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"
-    >
-      <!-- Left Section -->
-      <div class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2">
-        <div class="bg-base-300 p-4 rounded-lg shadow-lg">
-          <click-leaderboard class="rounded-2xl m-2 p-2" />
-        </div>
-        <transition name="slide-fade-slow">
-          <div
-            v-if="state.topScore >= 100"
-            class="bg-base-300 p-4 rounded-lg shadow-lg"
-          ></div>
-        </transition>
-        <transition name="slide-fade">
-          <div
-            v-if="state.topScore >= 20 && state.pressCount >= 1"
-            class="bg-accent p-4 rounded-lg shadow-lg border m-2"
-          >
-            <h2 class="text-xl">Last Achievement</h2>
-            <p class="text-lg">
-              {{ state.lastAchievement }}
-            </p>
-          </div>
-        </transition>
-        <transition name="slide-fade-slow">
-          <div
-            v-if="state.topScore >= 21 && state.pressCount >= 1"
-            class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
-          >
-            <p class="text-lg">Previous message: {{ state.previousMessage }}</p>
-          </div>
-        </transition>
-      </div>
-
-      <!-- Center Section -->
-      <div class="flex flex-col items-center w-full md:w-1/3 space-y-4">
+  <main class="kr-surface">
+    <div class="kr-scroll">
+      <div
+        class="hero flex flex-col items-center justify-center bg-base-300 rounded-2xl border m-2 min-h-full w-full"
+      >
         <div
-          ref="buttonRef"
-          :class="`button w-full h-60 rounded-lg flex items-center justify-center transition text-2xl border font-bold shadow-lg p-2 ${
-            state.pressed ? 'bg-accent text-default' : 'bg-primary text-default'
-          }`"
-          @click="pressedButton"
+          class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"
         >
-          {{ state.buttonText }}
-        </div>
-        <div v-if="state.pressed" class="text-center">
-          <button
-            class="text-blue-500 p-2 rounded-lg mb-4"
-            @click="openResetPopup"
+          <!-- Left Section -->
+          <div
+            class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2"
           >
-            Reset
-          </button>
-          <p class="text-lg">
-            Button has been pressed {{ state.pressCount }} times.
-          </p>
-        </div>
-      </div>
+            <div class="bg-base-300 p-4 rounded-lg shadow-lg">
+              <click-leaderboard class="rounded-2xl m-2 p-2" />
+            </div>
+            <transition name="slide-fade-slow">
+              <div
+                v-if="state.topScore >= 100"
+                class="bg-base-300 p-4 rounded-lg shadow-lg"
+              ></div>
+            </transition>
+            <transition name="slide-fade">
+              <div
+                v-if="state.topScore >= 20 && state.pressCount >= 1"
+                class="bg-accent p-4 rounded-lg shadow-lg border m-2"
+              >
+                <h2 class="text-xl">Last Achievement</h2>
+                <p class="text-lg">
+                  {{ state.lastAchievement }}
+                </p>
+              </div>
+            </transition>
+            <transition name="slide-fade-slow">
+              <div
+                v-if="state.topScore >= 21 && state.pressCount >= 1"
+                class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
+              >
+                <p class="text-lg">
+                  Previous message: {{ state.previousMessage }}
+                </p>
+              </div>
+            </transition>
+          </div>
 
-      <!-- Right Section -->
-      <div class="flex flex-col items-center w-full md:w-1/3 space-y-4">
+          <!-- Center Section -->
+          <div class="flex flex-col items-center w-full md:w-1/3 space-y-4">
+            <div
+              ref="buttonRef"
+              :class="`button w-full h-60 rounded-lg flex items-center justify-center transition text-2xl border font-bold shadow-lg p-2 ${
+                state.pressed
+                  ? 'bg-accent text-default'
+                  : 'bg-primary text-default'
+              }`"
+              @click="pressedButton"
+            >
+              {{ state.buttonText }}
+            </div>
+            <div v-if="state.pressed" class="text-center">
+              <button
+                class="text-blue-500 p-2 rounded-lg mb-4"
+                @click="openResetPopup"
+              >
+                Reset
+              </button>
+              <p class="text-lg">
+                Button has been pressed {{ state.pressCount }} times.
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Section -->
+          <div class="flex flex-col items-center w-full md:w-1/3 space-y-4">
+            <transition name="slide-fade">
+              <div
+                v-if="state.showLeaderboard && state.topScore >= 10"
+                class="bg-accent p-4 rounded-lg shadow-lg border m-2"
+              >
+                <h2 class="text-2xl mb-2">Leaderboard</h2>
+                <p class="text-lg">Top Score: {{ state.topScore }}</p>
+              </div>
+            </transition>
+            <transition name="slide-fade-slow">
+              <div
+                v-if="state.topScore >= 30"
+                class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
+              >
+                <!-- Butterfly Toggle Component -->
+                You've unlocked our mascot AMI - The Anti-Malaria Intelligence.
+                AMI's job is to flutter around (for now), but eventually she'll
+                help raise funds to fight malaria.
+                <swarm-icon />
+              </div>
+            </transition>
+            <transition name="slide-fade-slow">
+              <div
+                v-if="state.topScore >= 40"
+                class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
+              >
+                <!-- Theme Select -->
+                Feel free to change the theme!
+                <theme-toggle />
+              </div>
+            </transition>
+          </div>
+        </div>
+        <!-- Reset Popup -->
         <transition name="slide-fade">
           <div
-            v-if="state.showLeaderboard && state.topScore >= 10"
-            class="bg-accent p-4 rounded-lg shadow-lg border m-2"
+            v-if="state.showResetPopup"
+            class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-black"
+            @click.self="state.showResetPopup = false"
           >
-            <h2 class="text-2xl mb-2">Leaderboard</h2>
-            <p class="text-lg">Top Score: {{ state.topScore }}</p>
-          </div>
-        </transition>
-        <transition name="slide-fade-slow">
-          <div
-            v-if="state.topScore >= 30"
-            class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
-          >
-            <!-- Butterfly Toggle Component -->
-            You've unlocked our mascot AMI - The Anti-Malaria Intelligence.
-            AMI's job is to flutter around (for now), but eventually she'll help
-            raise funds to fight malaria.
-            <swarm-icon />
-          </div>
-        </transition>
-        <transition name="slide-fade-slow">
-          <div
-            v-if="state.topScore >= 40"
-            class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
-          >
-            <!-- Theme Select -->
-            Feel free to change the theme!
-            <theme-toggle />
+            <div class="bg-white p-4 rounded-lg">
+              <p>Are you sure you want to reset the leaderboard?</p>
+              <div class="flex justify-end space-x-4 mt-4">
+                <button
+                  class="bg-red-500 text-white px-4 py-2 rounded-lg"
+                  @click="state.showResetPopup = false"
+                >
+                  Cancel
+                </button>
+                <button
+                  class="bg-green-500 text-white px-4 py-2 rounded-lg"
+                  @click="reset"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
           </div>
         </transition>
       </div>
     </div>
-    <!-- Reset Popup -->
-    <transition name="slide-fade">
-      <div
-        v-if="state.showResetPopup"
-        class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-black"
-        @click.self="state.showResetPopup = false"
-      >
-        <div class="bg-white p-4 rounded-lg">
-          <p>Are you sure you want to reset the leaderboard?</p>
-          <div class="flex justify-end space-x-4 mt-4">
-            <button
-              class="bg-red-500 text-white px-4 py-2 rounded-lg"
-              @click="state.showResetPopup = false"
-            >
-              Cancel
-            </button>
-            <button
-              class="bg-green-500 text-white px-4 py-2 rounded-lg"
-              @click="reset"
-            >
-              Confirm
-            </button>
-          </div>
-        </div>
-      </div>
-    </transition>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">

@@ -41,7 +41,7 @@ expectContains('server/utils/entityArt.ts', [
   'entityArtHistoryPrefix',
 ])
 
-expectContains('components/pages/conductor-art-gallery.vue', [
+expectContains('components/conductor/conductor-art-gallery.vue', [
   "'/api/art/enqueue'",
   "entityType: 'project'",
   'queued as ArtJob',
@@ -51,7 +51,7 @@ expectContains('components/pages/conductor-art-gallery.vue', [
   '/api/art/entities/project/${projectId}/replace',
 ])
 
-const projectGallerySource = read('components/pages/conductor-art-gallery.vue')
+const projectGallerySource = read('components/conductor/conductor-art-gallery.vue')
 for (const obsolete of [
   "'/api/conductor/art-request'",
   '/art/prepare-generation',

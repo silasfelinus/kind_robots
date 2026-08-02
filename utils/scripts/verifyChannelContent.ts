@@ -2,6 +2,7 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { validateNavManifest, type NavManifestEntry } from '@/utils/navManifest'
 import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
 
 type FrontMatter = Record<string, string>
@@ -14,16 +15,12 @@ type NavigationDocument = {
   route: string
   requiredRole: string
   requiredPermission: string
+  dashboardKey: string
+  dashboardTab: string
+  cardsKey: string
 }
 
-const expectedChannels = [
-  'home',
-  'plan',
-  'build',
-  'play',
-  'sanctuary',
-  'admin',
-]
+const expectedChannels = ['home', 'plan', 'build', 'play', 'sanctuary', 'admin']
 const allowedRoles = new Set([
   'SYSTEM',
   'USER',
@@ -96,21 +93,17 @@ async function readDocument(file: string): Promise<NavigationDocument> {
     route: frontMatter.route ?? '',
     requiredRole: (frontMatter.requiredRole ?? '').toUpperCase(),
     requiredPermission: (frontMatter.requiredPermission ?? '').toLowerCase(),
+    dashboardKey: frontMatter.dashboardKey ?? '',
+    dashboardTab: frontMatter.dashboardTab ?? '',
+    cardsKey: frontMatter.cards ?? '',
   }
 }
 
-function addError(
-  errors: string[],
-  document: NavigationDocument,
-  message: string,
-): void {
+function addError(errors: string[], document: NavigationDocument, message: string): void {
   errors.push(`${document.file}: ${message}`)
 }
 
-function validateAccess(
-  errors: string[],
-  document: NavigationDocument,
-): void {
+function validateAccess(errors: string[], document: NavigationDocument): void {
   if (document.requiredRole && !allowedRoles.has(document.requiredRole)) {
     addError(errors, document, `unknown requiredRole ${document.requiredRole}`)
   }
@@ -137,10 +130,7 @@ function validateKey(
   }
 }
 
-function validateChannelDocument(
-  errors: string[],
-  document: NavigationDocument,
-): void {
+function validateChannelDocument(errors: string[], document: NavigationDocument): void {
   if (!document.contentType) addError(errors, document, 'missing contentType')
   if (!document.channelKey) addError(errors, document, 'missing channelKey')
   if (!['channel', 'tab'].includes(document.contentType)) {
@@ -152,10 +142,7 @@ function validateChannelDocument(
   validateAccess(errors, document)
 }
 
-function validatePageDocument(
-  errors: string[],
-  document: NavigationDocument,
-): void {
+function validatePageDocument(errors: string[], document: NavigationDocument): void {
   if (document.contentType && document.contentType !== 'page') {
     addError(errors, document, `unexpected page contentType ${document.contentType}`)
   }
@@ -171,9 +158,7 @@ async function main(): Promise<void> {
   const errors: string[] = []
   const channels = documents.filter((item) => item.contentType === 'channel')
   const tabs = documents.filter((item) => item.contentType === 'tab')
-  const channelsByKey = new Map(
-    channels.map((channel) => [channel.channelKey, channel]),
-  )
+  const channelsByKey = new Map(channels.map((channel) => [channel.channelKey, channel]))
   const tabsByLocation = new Map<string, NavigationDocument>()
   const tabsByChannelRoute = new Map<string, NavigationDocument[]>()
 
@@ -181,9 +166,7 @@ async function main(): Promise<void> {
 
   for (const channel of channels) {
     if (!channel.defaultTab) addError(errors, channel, 'missing defaultTab')
-    if (!channel.route.startsWith('/')) {
-      addError(errors, channel, 'route must start with /')
-    }
+    if (!channel.route.startsWith('/')) addError(errors, channel, 'route must start with /')
     if (!expectedChannels.includes(channel.channelKey)) {
       addError(errors, channel, `unexpected top-level channel ${channel.channelKey}`)
     }
@@ -204,11 +187,8 @@ async function main(): Promise<void> {
 
     const location = `${tab.channelKey}/${tab.tabKey}`
     const duplicate = tabsByLocation.get(location)
-    if (duplicate) {
-      errors.push(`${tab.file}: duplicates ${location} from ${duplicate.file}`)
-    } else {
-      tabsByLocation.set(location, tab)
-    }
+    if (duplicate) errors.push(`${tab.file}: duplicates ${location} from ${duplicate.file}`)
+    else tabsByLocation.set(location, tab)
 
     const routeLocation = `${tab.channelKey}:${tab.route}`
     const routeTabs = tabsByChannelRoute.get(routeLocation) ?? []
@@ -228,9 +208,7 @@ async function main(): Promise<void> {
       errors.push(`${slug}: unknown placement channel ${placement.channelKey}`)
     }
     const location = `${placement.channelKey}/${placement.tabKey}`
-    if (!tabsByLocation.has(location)) {
-      errors.push(`${slug}: unknown placement tab ${location}`)
-    }
+    if (!tabsByLocation.has(location)) errors.push(`${slug}: unknown placement tab ${location}`)
   }
 
   const pageFiles = (await markdownFiles(contentDirectory)).filter(
@@ -247,9 +225,36 @@ async function main(): Promise<void> {
       continue
     }
     const location = `${page.channelKey}/${page.tabKey}`
-    if (!tabsByLocation.has(location)) {
-      addError(errors, page, `references unknown tab ${location}`)
-    }
+    if (!tabsByLocation.has(location)) addError(errors, page, `references unknown tab ${location}`)
+  }
+
+  const manifestEntries: NavManifestEntry[] = tabs.map((tab) => ({
+    file: tab.file,
+    channelKey: tab.channelKey,
+    tabKey: tab.tabKey,
+    dashboardKey: tab.dashboardKey,
+    dashboardTab: tab.dashboardTab,
+    cardsKey: tab.cardsKey,
+    route: tab.route,
+  }))
+  const manifestIssues = validateNavManifest(manifestEntries)
+  const manifestWarnings = manifestIssues.filter((issue) => issue.severity === 'warning')
+  const manifestErrors = manifestIssues.filter((issue) => issue.severity === 'error')
+
+  for (const warning of manifestWarnings) {
+    console.warn(
+      `- ${warning.file} (${warning.channelKey}/${warning.tabKey}): ${warning.message}`,
+    )
+  }
+  if (manifestWarnings.length) {
+    console.warn(
+      `Channel content contract: ${manifestWarnings.length} nav manifest warning(s) reported above (tracked by interface-vision/t-034, not yet CI-blocking).`,
+    )
+  }
+  for (const error of manifestErrors) {
+    errors.push(
+      `${error.file} (${error.channelKey}/${error.tabKey}): ${error.message}`,
+    )
   }
 
   if (errors.length) {
@@ -263,7 +268,7 @@ async function main(): Promise<void> {
     (routeTabs) => routeTabs.length > 1,
   )
   console.log(
-    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route groups, ${allowedRoles.size} roles, and ${allowedPermissions.size} capabilities.`,
+    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route groups, ${allowedRoles.size} roles, ${allowedPermissions.size} capabilities, ${manifestWarnings.length} nav manifest warnings, and 0 nav manifest errors.`,
   )
 }
 

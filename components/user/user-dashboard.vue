@@ -3,23 +3,6 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto overscroll-contain rounded-2xl bg-base-200 p-3 sm:p-4"
   >
-    <header
-      class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-    >
-      <span
-        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
-      >
-        <Icon name="kind-icon:user" class="h-5 w-5" />
-      </span>
-
-      <div class="min-w-0">
-        <h1 class="text-xl font-black text-base-content">User Dashboard</h1>
-        <p class="truncate text-xs text-base-content/55">
-          Profile, avatar, settings, and your magnificent heap of creations.
-        </p>
-      </div>
-    </header>
-
     <div
       class="grid w-full grid-cols-1 gap-4 xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]"
     >
@@ -139,8 +122,8 @@
                 Dashboard maturity toggle
               </span>
               <span class="block text-xs text-base-content/55">
-                Show a quick 18+ visibility control in the workspace header. This
-                preference stays in this browser.
+                Show a quick 18+ visibility control in the workspace header.
+                This preference stays in this browser.
               </span>
             </span>
           </span>

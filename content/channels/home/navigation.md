@@ -3,7 +3,7 @@ contentType: tab
 channelKey: home
 tabKey: navigation
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 label: Navigation
 title: Navigation Overview
 subtitle: Your personal roadmap

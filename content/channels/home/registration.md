@@ -3,7 +3,7 @@ contentType: tab
 channelKey: home
 tabKey: registration
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 label: Register
 title: Join Kind Robots
 subtitle: Welcome to the community

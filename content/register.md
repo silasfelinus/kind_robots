@@ -12,7 +12,7 @@ dottiTip: If people register for an account, then we can customize their experie
 channelKey: home
 tabKey: registration
 dashboardKey: user
-dashboardTab: dashboard
+dashboardTab: profile
 cards: navCards
 loadingMessage: Loading registration
 refreshLabel: Refresh registration

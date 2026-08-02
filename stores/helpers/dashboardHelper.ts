@@ -1025,10 +1025,10 @@ export const dashboardConfigs = {
   user: {
     key: 'user',
     label: 'User',
-    defaultTab: 'dashboard',
+    defaultTab: 'profile',
     tabs: [
       {
-        key: 'dashboard',
+        key: 'profile',
         label: 'Dashboard',
         icon: 'kind-icon:dashboard',
         title: 'User Dashboard',
@@ -1147,7 +1147,8 @@ export const dashboardConfigs = {
         label: 'Anim. Manager',
         icon: 'kind-icon:trophy',
         title: 'Animation Manager',
-        summary: 'Gallery and promotion workspace for Screen FX build attempts.',
+        summary:
+          'Gallery and promotion workspace for Screen FX build attempts.',
         image: tabImage('wonder', 'animation-manager'),
         flourish: '✦',
         tagline: 'Preview, compare, promote, polish, or retire a build.',

@@ -42,7 +42,6 @@ export interface DashboardShellState {
 }
 
 const fallbackDashboardKey = 'user'
-const fallbackDashboardTab = 'dashboard'
 
 function getFallbackDashboardKey(): DashboardKey {
   if (fallbackDashboardKey in dashboardConfigs) {
@@ -55,10 +54,6 @@ function getFallbackDashboardKey(): DashboardKey {
 }
 
 function getFallbackDashboardTab(dashboardKey: DashboardKey): string {
-  if (isDashboardTabKey(dashboardKey, fallbackDashboardTab)) {
-    return fallbackDashboardTab
-  }
-
   return dashboardConfigs[dashboardKey].defaultTab
 }
 

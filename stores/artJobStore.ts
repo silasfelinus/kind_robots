@@ -210,6 +210,11 @@ type ArtJobState = {
 }
 
 const MAX_JOB_IMAGES = 240
+// Loading the queue used to fire every image request at once with Promise.all.
+// A full trainer page can contain hundreds of DB-backed image blobs, so that
+// burst exhausted the per-instance MariaDB pool and returned 503s. Keep the
+// browser below the gallery's established concurrency of four.
+const JOB_IMAGE_LOAD_CONCURRENCY = 4
 const DEFAULT_JOB_PAGE_SIZE = 20
 const MAX_JOB_PAGE_SIZE = 100
 
@@ -428,8 +433,12 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
     if (!ids.length) return
 
-    await Promise.all(
-      ids.map(async (id) => {
+    let nextIndex = 0
+    const worker = async () => {
+      while (nextIndex < ids.length) {
+        const id = ids[nextIndex]
+        nextIndex += 1
+
         const res = await performFetch<ArtImage>(
           `/api/art/image/${id}?includeImageData=true`,
           { method: 'GET' },
@@ -441,7 +450,14 @@ export const useArtJobStore = defineStore('artJobStore', () => {
           state.imageInfoById[id] = info
           state.imageSrcById[id] = info.src
         }
-      }),
+      }
+    }
+
+    await Promise.all(
+      Array.from(
+        { length: Math.min(JOB_IMAGE_LOAD_CONCURRENCY, ids.length) },
+        worker,
+      ),
     )
   }
 

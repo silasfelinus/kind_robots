@@ -1,352 +1,359 @@
 <template>
-  <div
-    class="mx-auto h-full min-h-0 max-w-5xl space-y-6 overflow-y-auto overscroll-contain p-6"
-  >
-    <header class="space-y-1">
-      <p class="text-sm opacity-70">
-        Animate a still into a short clip. Pick a first image (and an optional
-        end image), describe the motion, set the length, and queue it to the
-        Comfy studio engine.
-      </p>
-    </header>
-
-    <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
-      You need to be signed in to queue a clip — generation is billed to your
-      account's mana.
-    </div>
-
-    <!-- Engine selector -->
-    <section class="space-y-2">
-      <label class="font-semibold">Engine</label>
-      <div class="flex gap-2">
-        <button
-          v-for="opt in engines"
-          :key="opt.value"
-          type="button"
-          class="btn btn-sm"
-          :class="engine === opt.value ? 'btn-accent' : 'btn-outline'"
-          @click="selectEngine(opt.value)"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
-      <p class="text-xs opacity-60">{{ activeEngine.hint }}</p>
-    </section>
-
-    <!-- Generation presets -->
-    <section class="space-y-2">
-      <label class="font-semibold">Preset</label>
-      <div class="grid gap-2 sm:grid-cols-3">
-        <button
-          type="button"
-          class="btn h-auto min-h-0 justify-start py-3 text-left"
-          :class="videoPresetId === '' ? 'btn-accent' : 'btn-outline'"
-          @click="selectVideoPreset('')"
-        >
-          <span class="flex flex-col items-start">
-            <span class="font-semibold">Custom</span>
-            <span class="text-xs font-normal opacity-70">
-              Keep the manual controls below.
-            </span>
-          </span>
-        </button>
-        <button
-          v-for="preset in availableVideoPresets"
-          :key="preset.id"
-          type="button"
-          class="btn h-auto min-h-0 justify-start py-3 text-left"
-          :class="videoPresetId === preset.id ? 'btn-accent' : 'btn-outline'"
-          @click="selectVideoPreset(preset.id)"
-        >
-          <span class="flex flex-col items-start">
-            <span class="font-semibold">{{ preset.label }}</span>
-            <span class="text-xs font-normal opacity-70">
-              {{ preset.description }}
-            </span>
-          </span>
-        </button>
-      </div>
-      <p class="text-xs opacity-60">
-        Presets fill the editable controls below; changing a value still
-        overrides the preset for this render.
-      </p>
-    </section>
-
-    <!-- Images -->
-    <section class="grid gap-4 md:grid-cols-2">
-      <!-- First image (required) -->
-      <div class="space-y-2 rounded-lg border border-base-300 p-3">
-        <div class="flex items-center justify-between">
-          <label class="font-semibold"
-            >First image <span class="text-error">*</span></label
-          >
-          <button
-            type="button"
-            class="btn btn-xs btn-outline"
-            @click="useLogoAsFirst"
-          >
-            Use logo
-          </button>
-        </div>
-        <input
-          type="file"
-          accept="image/*"
-          class="file-input file-input-bordered file-input-sm w-full"
-          @change="(e) => onFileChange(e, 'first')"
-        />
-        <div
-          v-if="firstImage"
-          class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
-        >
-          <img :src="firstImage" class="max-h-full max-w-full object-contain" />
-          <button
-            type="button"
-            class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
-            title="Clear"
-            @click="firstImage = ''"
-          >
-            ✕
-          </button>
-        </div>
-        <p v-else class="text-xs opacity-50">
-          Required — the clip starts from this frame.
+  <div class="kr-surface">
+    <div class="kr-scroll mx-auto max-w-5xl space-y-6 p-6">
+      <header class="space-y-1">
+        <p class="text-sm opacity-70">
+          Animate a still into a short clip. Pick a first image (and an optional
+          end image), describe the motion, set the length, and queue it to the
+          Comfy studio engine.
         </p>
+      </header>
+
+      <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
+        You need to be signed in to queue a clip — generation is billed to your
+        account's mana.
       </div>
 
-      <!-- Second image (optional) -->
-      <div class="space-y-2 rounded-lg border border-base-300 p-3">
-        <label class="font-semibold"
-          >End image <span class="opacity-50">(optional)</span></label
-        >
-        <input
-          type="file"
-          accept="image/*"
-          class="file-input file-input-bordered file-input-sm w-full"
-          @change="(e) => onFileChange(e, 'second')"
-        />
-        <div
-          v-if="secondImage"
-          class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
-        >
-          <img
-            :src="secondImage"
-            class="max-h-full max-w-full object-contain"
+      <!-- Engine selector -->
+      <section class="space-y-2">
+        <label class="font-semibold">Engine</label>
+        <div class="flex gap-2">
+          <button
+            v-for="opt in engines"
+            :key="opt.value"
+            type="button"
+            class="btn btn-sm"
+            :class="engine === opt.value ? 'btn-accent' : 'btn-outline'"
+            @click="selectEngine(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+        <p class="text-xs opacity-60">{{ activeEngine.hint }}</p>
+      </section>
+
+      <!-- Generation presets -->
+      <section class="space-y-2">
+        <label class="font-semibold">Preset</label>
+        <div class="grid gap-2 sm:grid-cols-3">
+          <button
+            type="button"
+            class="btn h-auto min-h-0 justify-start py-3 text-left"
+            :class="videoPresetId === '' ? 'btn-accent' : 'btn-outline'"
+            @click="selectVideoPreset('')"
+          >
+            <span class="flex flex-col items-start">
+              <span class="font-semibold">Custom</span>
+              <span class="text-xs font-normal opacity-70">
+                Keep the manual controls below.
+              </span>
+            </span>
+          </button>
+          <button
+            v-for="preset in availableVideoPresets"
+            :key="preset.id"
+            type="button"
+            class="btn h-auto min-h-0 justify-start py-3 text-left"
+            :class="videoPresetId === preset.id ? 'btn-accent' : 'btn-outline'"
+            @click="selectVideoPreset(preset.id)"
+          >
+            <span class="flex flex-col items-start">
+              <span class="font-semibold">{{ preset.label }}</span>
+              <span class="text-xs font-normal opacity-70">
+                {{ preset.description }}
+              </span>
+            </span>
+          </button>
+        </div>
+        <p class="text-xs opacity-60">
+          Presets fill the editable controls below; changing a value still
+          overrides the preset for this render.
+        </p>
+      </section>
+
+      <!-- Images -->
+      <section class="grid gap-4 md:grid-cols-2">
+        <!-- First image (required) -->
+        <div class="space-y-2 rounded-lg border border-base-300 p-3">
+          <div class="flex items-center justify-between">
+            <label class="font-semibold"
+              >First image <span class="text-error">*</span></label
+            >
+            <button
+              type="button"
+              class="btn btn-xs btn-outline"
+              @click="useLogoAsFirst"
+            >
+              Use logo
+            </button>
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            class="file-input file-input-bordered file-input-sm w-full"
+            @change="(e) => onFileChange(e, 'first')"
           />
+          <div
+            v-if="firstImage"
+            class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
+          >
+            <img
+              :src="firstImage"
+              class="max-h-full max-w-full object-contain"
+            />
+            <button
+              type="button"
+              class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
+              title="Clear"
+              @click="firstImage = ''"
+            >
+              ✕
+            </button>
+          </div>
+          <p v-else class="text-xs opacity-50">
+            Required — the clip starts from this frame.
+          </p>
+        </div>
+
+        <!-- Second image (optional) -->
+        <div class="space-y-2 rounded-lg border border-base-300 p-3">
+          <label class="font-semibold"
+            >End image <span class="opacity-50">(optional)</span></label
+          >
+          <input
+            type="file"
+            accept="image/*"
+            class="file-input file-input-bordered file-input-sm w-full"
+            @change="(e) => onFileChange(e, 'second')"
+          />
+          <div
+            v-if="secondImage"
+            class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
+          >
+            <img
+              :src="secondImage"
+              class="max-h-full max-w-full object-contain"
+            />
+            <button
+              type="button"
+              class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
+              title="Clear"
+              @click="secondImage = ''"
+            >
+              ✕
+            </button>
+          </div>
+          <p v-else class="text-xs opacity-50">
+            If set, the clip morphs from the first image to this one.
+          </p>
+        </div>
+      </section>
+
+      <!-- Prompt -->
+      <section class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="font-semibold">Motion prompt</label>
           <button
             type="button"
-            class="btn btn-circle btn-error btn-xs absolute top-1 right-1"
-            title="Clear"
-            @click="secondImage = ''"
+            class="btn btn-xs btn-ghost"
+            @click="prompt = WINK_PRESET"
           >
-            ✕
+            ✨ Wink &amp; grin preset
           </button>
         </div>
-        <p v-else class="text-xs opacity-50">
-          If set, the clip morphs from the first image to this one.
-        </p>
-      </div>
-    </section>
+        <textarea
+          v-model="prompt"
+          rows="3"
+          class="textarea textarea-bordered w-full"
+          placeholder="Describe how the image should move…"
+        />
+        <details class="text-sm">
+          <summary class="cursor-pointer opacity-70">
+            Negative prompt (optional)
+          </summary>
+          <textarea
+            v-model="negativePrompt"
+            rows="2"
+            class="textarea textarea-bordered mt-2 w-full"
+            placeholder="Leave blank for the sensible default."
+          />
+        </details>
+      </section>
 
-    <!-- Prompt -->
-    <section class="space-y-2">
-      <div class="flex items-center justify-between">
-        <label class="font-semibold">Motion prompt</label>
-        <button
-          type="button"
-          class="btn btn-xs btn-ghost"
-          @click="prompt = WINK_PRESET"
-        >
-          ✨ Wink &amp; grin preset
-        </button>
-      </div>
-      <textarea
-        v-model="prompt"
-        rows="3"
-        class="textarea textarea-bordered w-full"
-        placeholder="Describe how the image should move…"
+      <video-lora-picker
+        v-model="loraResourceId"
+        v-model:strength="loraStrength"
+        :engine="engine"
       />
+
+      <content-visibility-controls
+        v-model:is-mature="isMature"
+        v-model:is-public="isPublic"
+        :disabled="videoStore.isBusy"
+      />
+
+      <!-- Output format -->
+      <section class="space-y-2">
+        <label class="font-semibold">Output format</label>
+        <div class="flex gap-2">
+          <button
+            v-for="opt in outputFormats"
+            :key="opt.value"
+            type="button"
+            class="btn btn-sm"
+            :class="outputFormat === opt.value ? 'btn-accent' : 'btn-outline'"
+            @click="outputFormat = opt.value"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+        <p class="text-xs opacity-60">{{ activeOutputFormat.hint }}</p>
+      </section>
+
+      <!-- Controls -->
+      <section class="grid gap-4 sm:grid-cols-3">
+        <div class="space-y-1">
+          <label class="text-sm font-semibold">Time (seconds)</label>
+          <input
+            v-model.number="durationSeconds"
+            type="number"
+            min="0.5"
+            max="30"
+            step="0.5"
+            class="input input-bordered w-full"
+          />
+        </div>
+        <div class="space-y-1">
+          <label class="text-sm font-semibold">FPS</label>
+          <input
+            v-model.number="fps"
+            type="number"
+            min="1"
+            max="60"
+            step="1"
+            class="input input-bordered w-full"
+          />
+        </div>
+        <div class="space-y-1">
+          <label class="text-sm font-semibold">Loop</label>
+          <label class="flex h-12 cursor-pointer items-center gap-2">
+            <input
+              v-model="loop"
+              type="checkbox"
+              class="toggle toggle-accent"
+            />
+            <span class="text-sm opacity-70">{{
+              loop ? 'Seamless loop' : 'Play once'
+            }}</span>
+          </label>
+        </div>
+      </section>
+
       <details class="text-sm">
         <summary class="cursor-pointer opacity-70">
-          Negative prompt (optional)
+          Advanced (size &amp; seed)
         </summary>
-        <textarea
-          v-model="negativePrompt"
-          rows="2"
-          class="textarea textarea-bordered mt-2 w-full"
-          placeholder="Leave blank for the sensible default."
-        />
+        <div class="mt-2 grid gap-4 sm:grid-cols-3">
+          <div class="space-y-1">
+            <label class="text-sm">Width</label>
+            <input
+              v-model.number="width"
+              type="number"
+              min="64"
+              max="2048"
+              step="8"
+              class="input input-bordered input-sm w-full"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="text-sm">Height</label>
+            <input
+              v-model.number="height"
+              type="number"
+              min="64"
+              max="2048"
+              step="8"
+              class="input input-bordered input-sm w-full"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="text-sm">Seed (blank = random)</label>
+            <input
+              v-model="seedInput"
+              type="number"
+              min="0"
+              class="input input-bordered input-sm w-full"
+            />
+          </div>
+        </div>
+        <p class="mt-1 text-xs opacity-50">
+          Estimated frames: {{ estimatedFrames }} ({{ durationSeconds }}s ×
+          {{ fps }}fps)
+        </p>
       </details>
-    </section>
 
-    <video-lora-picker
-      v-model="loraResourceId"
-      v-model:strength="loraStrength"
-      :engine="engine"
-    />
-
-    <content-visibility-controls
-      v-model:is-mature="isMature"
-      v-model:is-public="isPublic"
-      :disabled="videoStore.isBusy"
-    />
-
-    <!-- Output format -->
-    <section class="space-y-2">
-      <label class="font-semibold">Output format</label>
-      <div class="flex gap-2">
+      <!-- Generate -->
+      <section class="space-y-3">
         <button
-          v-for="opt in outputFormats"
-          :key="opt.value"
           type="button"
-          class="btn btn-sm"
-          :class="outputFormat === opt.value ? 'btn-accent' : 'btn-outline'"
-          @click="outputFormat = opt.value"
+          class="btn btn-accent btn-lg w-full"
+          :disabled="!canGenerate"
+          @click="generate"
         >
-          {{ opt.label }}
+          <span
+            v-if="videoStore.isBusy"
+            class="loading loading-spinner loading-sm"
+          />
+          {{ generateLabel }}
         </button>
-      </div>
-      <p class="text-xs opacity-60">{{ activeOutputFormat.hint }}</p>
-    </section>
 
-    <!-- Controls -->
-    <section class="grid gap-4 sm:grid-cols-3">
-      <div class="space-y-1">
-        <label class="text-sm font-semibold">Time (seconds)</label>
-        <input
-          v-model.number="durationSeconds"
-          type="number"
-          min="0.5"
-          max="30"
-          step="0.5"
-          class="input input-bordered w-full"
-        />
-      </div>
-      <div class="space-y-1">
-        <label class="text-sm font-semibold">FPS</label>
-        <input
-          v-model.number="fps"
-          type="number"
-          min="1"
-          max="60"
-          step="1"
-          class="input input-bordered w-full"
-        />
-      </div>
-      <div class="space-y-1">
-        <label class="text-sm font-semibold">Loop</label>
-        <label class="flex h-12 cursor-pointer items-center gap-2">
-          <input v-model="loop" type="checkbox" class="toggle toggle-accent" />
-          <span class="text-sm opacity-70">{{
-            loop ? 'Seamless loop' : 'Play once'
-          }}</span>
-        </label>
-      </div>
-    </section>
-
-    <details class="text-sm">
-      <summary class="cursor-pointer opacity-70">
-        Advanced (size &amp; seed)
-      </summary>
-      <div class="mt-2 grid gap-4 sm:grid-cols-3">
-        <div class="space-y-1">
-          <label class="text-sm">Width</label>
-          <input
-            v-model.number="width"
-            type="number"
-            min="64"
-            max="2048"
-            step="8"
-            class="input input-bordered input-sm w-full"
-          />
+        <div
+          v-if="videoStore.state.message"
+          class="text-center text-sm opacity-70"
+        >
+          {{ videoStore.state.message }}
+          <span v-if="videoStore.state.jobId" class="opacity-50">
+            (job #{{ videoStore.state.jobId }})
+          </span>
         </div>
-        <div class="space-y-1">
-          <label class="text-sm">Height</label>
-          <input
-            v-model.number="height"
-            type="number"
-            min="64"
-            max="2048"
-            step="8"
-            class="input input-bordered input-sm w-full"
-          />
-        </div>
-        <div class="space-y-1">
-          <label class="text-sm">Seed (blank = random)</label>
-          <input
-            v-model="seedInput"
-            type="number"
-            min="0"
-            class="input input-bordered input-sm w-full"
-          />
-        </div>
-      </div>
-      <p class="mt-1 text-xs opacity-50">
-        Estimated frames: {{ estimatedFrames }} ({{ durationSeconds }}s ×
-        {{ fps }}fps)
-      </p>
-    </details>
 
-    <!-- Generate -->
-    <section class="space-y-3">
-      <button
-        type="button"
-        class="btn btn-accent btn-lg w-full"
-        :disabled="!canGenerate"
-        @click="generate"
-      >
-        <span
-          v-if="videoStore.isBusy"
-          class="loading loading-spinner loading-sm"
+        <div
+          v-if="videoStore.state.error"
+          class="alert alert-error text-sm"
+          role="alert"
+        >
+          {{ videoStore.state.error }}
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section v-if="videoStore.state.videoSrc" class="space-y-2">
+        <h2 class="font-semibold">Result</h2>
+        <img
+          v-if="videoStore.resultIsImage"
+          :src="videoStore.state.videoSrc"
+          class="w-full rounded-lg border border-base-300 bg-black object-contain"
+          alt="Generated clip"
         />
-        {{ generateLabel }}
-      </button>
-
-      <div
-        v-if="videoStore.state.message"
-        class="text-center text-sm opacity-70"
-      >
-        {{ videoStore.state.message }}
-        <span v-if="videoStore.state.jobId" class="opacity-50">
-          (job #{{ videoStore.state.jobId }})
-        </span>
-      </div>
-
-      <div
-        v-if="videoStore.state.error"
-        class="alert alert-error text-sm"
-        role="alert"
-      >
-        {{ videoStore.state.error }}
-      </div>
-    </section>
-
-    <!-- Result -->
-    <section v-if="videoStore.state.videoSrc" class="space-y-2">
-      <h2 class="font-semibold">Result</h2>
-      <img
-        v-if="videoStore.resultIsImage"
-        :src="videoStore.state.videoSrc"
-        class="w-full rounded-lg border border-base-300 bg-black object-contain"
-        alt="Generated clip"
-      />
-      <video
-        v-else
-        :src="videoStore.state.videoSrc"
-        class="w-full rounded-lg border border-base-300 bg-black"
-        :loop="loop"
-        controls
-        autoplay
-        muted
-        playsinline
-      />
-      <a
-        :href="videoStore.state.videoSrc"
-        :download="downloadFilename"
-        class="btn btn-sm btn-outline"
-      >
-        ⬇ Download clip
-      </a>
-    </section>
+        <video
+          v-else
+          :src="videoStore.state.videoSrc"
+          class="w-full rounded-lg border border-base-300 bg-black"
+          :loop="loop"
+          controls
+          autoplay
+          muted
+          playsinline
+        />
+        <a
+          :href="videoStore.state.videoSrc"
+          :download="downloadFilename"
+          class="btn btn-sm btn-outline"
+        >
+          ⬇ Download clip
+        </a>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -415,7 +422,9 @@ const outputFormats = [
 
 const outputFormat = ref<VideoOutputFormat>('webp')
 const activeOutputFormat = computed(
-  () => outputFormats.find((f) => f.value === outputFormat.value) ?? outputFormats[0]!,
+  () =>
+    outputFormats.find((f) => f.value === outputFormat.value) ??
+    outputFormats[0]!,
 )
 
 const firstImage = ref('')

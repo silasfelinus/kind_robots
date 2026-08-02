@@ -1,7 +1,7 @@
 <!-- /pages/users/[id].vue -->
 <template>
-  <section class="h-full min-h-0 overflow-y-auto p-4 sm:p-6">
-    <div class="mx-auto max-w-2xl">
+  <section class="kr-surface">
+    <div class="kr-scroll mx-auto max-w-2xl p-4 sm:p-6">
       <NuxtLink
         to="/plan/wonderlab"
         class="btn btn-ghost btn-sm mb-4 rounded-xl"
@@ -14,7 +14,9 @@
         v-if="user"
         class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
       >
-        <div class="h-28 bg-linear-to-br from-primary/25 via-secondary/15 to-accent/20" />
+        <div
+          class="h-28 bg-linear-to-br from-primary/25 via-secondary/15 to-accent/20"
+        />
         <div class="px-5 pb-6 sm:px-8">
           <div
             class="-mt-14 flex size-28 items-center justify-center overflow-hidden rounded-3xl border-4 border-base-100 bg-base-200 shadow-md"
@@ -25,12 +27,18 @@
               :alt="displayName"
               class="h-full w-full object-cover"
             />
-            <Icon v-else name="kind-icon:user" class="size-12 text-primary/60" />
+            <Icon
+              v-else
+              name="kind-icon:user"
+              class="size-12 text-primary/60"
+            />
           </div>
 
           <div class="mt-4 flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-xs font-black uppercase tracking-widest text-primary">
+              <p
+                class="text-xs font-black uppercase tracking-widest text-primary"
+              >
                 Public Kind Robots profile
               </p>
               <p class="mt-1 break-words text-3xl font-black">
@@ -48,7 +56,9 @@
             </span>
           </div>
 
-          <p class="mt-5 rounded-2xl bg-base-200/70 p-4 text-sm leading-relaxed text-base-content/70">
+          <p
+            class="mt-5 rounded-2xl bg-base-200/70 p-4 text-sm leading-relaxed text-base-content/70"
+          >
             This member has chosen to make their Kind Robots profile public.
           </p>
         </div>
@@ -99,7 +109,9 @@ type PublicUserResponse = {
 
 const route = useRoute()
 const userId = computed(() => {
-  const raw = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+  const raw = Array.isArray(route.params.id)
+    ? route.params.id[0]
+    : route.params.id
   const parsed = Number(raw)
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
 })
@@ -113,7 +125,9 @@ const { data, status } = await useAsyncData<PublicUserResponse>(
   },
 )
 
-const user = computed(() => (data.value?.success ? data.value.data ?? null : null))
+const user = computed(() =>
+  data.value?.success ? (data.value.data ?? null) : null,
+)
 const displayName = computed(
   () =>
     user.value?.designerName?.trim() ||

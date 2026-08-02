@@ -1,10 +1,8 @@
 <!-- /components/content/butterfly/sponsor-page.vue -->
 <template>
-  <div
-    class="h-full min-h-0 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-  >
+  <div class="kr-surface">
     <div
-      class="bg-base-300 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
+      class="kr-scroll max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-base-300 p-6 rounded-lg shadow-xl text-center text-default space-y-6"
     >
       <p class="text-4xl font-semibold">
         Greetings, friends of all species and circuits!

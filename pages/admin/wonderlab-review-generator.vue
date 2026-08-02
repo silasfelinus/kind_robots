@@ -7,7 +7,7 @@
       <p class="text-xs font-black uppercase tracking-widest text-primary">
         WonderLab Editorial
       </p>
-      <h1 class="mt-2 text-3xl font-black">Generate a personality review draft</h1>
+      <p class="mt-2 text-3xl font-black">Generate a personality review draft</p>
       <p class="mt-2 text-sm leading-relaxed text-base-content/60">
         This creates a proposed draft only. A curator must review, approve, and separately
         publish it from the curator workspace.

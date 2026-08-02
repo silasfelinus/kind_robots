@@ -5,7 +5,6 @@
     "one-header": [
       "components/pages/registration-form.vue",
       "components/pages/serendipity-page.vue",
-      "pages/admin/wonderlab-review-generator.vue",
       "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
       "pages/admin/wonderlab-reviews.vue"

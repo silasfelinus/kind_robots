@@ -208,9 +208,10 @@ assert.ok(
     confirmationApi.includes('awardKarma') &&
     confirmationApi.includes('applyMana') &&
     confirmationApi.includes("reason: 'ACHIEVEMENT_CONFIRMED'") &&
-    confirmationApi.includes('achievementRecord.updateMany') &&
-    confirmationApi.includes('confirmation?.count === 1'),
-  'First confirmation must atomically grant karma and mana through their ledgers.',
+    confirmationApi.includes('FOR UPDATE') &&
+    confirmationApi.includes('existingKarmaAward') &&
+    confirmationApi.includes('existingManaAward'),
+  'Confirmation must atomically grant each missing ledger reward exactly once.',
 )
 assert.ok(
   source('server/utils/karma.ts').includes('tx?: TransactionClient') &&

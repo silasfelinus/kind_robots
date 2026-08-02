@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { resourceGallerySelect, resourceGalleryWhere } from './gallery'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const resourceId = Number(event.context.params?.id)
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
           resourceGalleryWhere({
             userId: auth?.user.id ?? null,
             isAdmin: auth?.isAdmin ?? false,
-            showMature: Boolean(auth?.user.showMature),
+            showMature: effectiveShowMature(auth?.user),
           }),
         ],
       },

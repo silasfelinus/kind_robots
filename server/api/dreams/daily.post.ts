@@ -8,6 +8,7 @@ import {
   buildDailyDreamFacetBlueprint,
   type DailyDreamBlueprint,
 } from '~/server/utils/dailyDreamFacetBlueprint'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 type DailyDreamRequest = {
   dateKey?: string | null
@@ -58,7 +59,7 @@ export default defineEventHandler(async (event) => {
     const blueprintOptions = {
       userId: auth.user.id,
       isAdmin: auth.isAdmin,
-      includeMature: Boolean(body?.isMature && auth.user.showMature),
+      includeMature: Boolean(body?.isMature && effectiveShowMature(auth.user)),
       dateKey,
     }
     const blueprint = await buildDailyDreamFacetBlueprint({
@@ -107,7 +108,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isPublic = body?.isPublic ?? false
-    const isMature = Boolean(body?.isMature && auth.user.showMature)
+    const isMature = Boolean(body?.isMature && effectiveShowMature(auth.user))
 
     let created
     try {

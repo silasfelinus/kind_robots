@@ -7,7 +7,9 @@ import { mergeRecordsById } from './helpers/recordMerge'
 import { useAchievementStore } from './achievementStore'
 import { generateUsername } from '@/utils/generateUsername'
 import {
+  effectiveShowMature,
   hasUserRole,
+  isMaturityRestricted as clientIsMaturityRestricted,
   isUserAdmin,
   primaryUserRole,
   resolveUserRoles,
@@ -137,7 +139,11 @@ export const useUserStore = defineStore('userStore', () => {
   )
   const avatarImage = computed(() => user.value?.avatarImage ?? 'default')
   const apiKey = computed(() => user.value?.apiKey ?? null)
-  const showMature = computed(() => user.value?.showMature ?? false)
+  // Restriction applied: a CHILD reads false even with showMature set, and even
+  // when they are also an ADMIN. Mirrors the server's effectiveShowMature so the
+  // UI does not offer content the API will refuse.
+  const showMature = computed(() => effectiveShowMature(user.value))
+  const isMaturityRestricted = computed(() => clientIsMaturityRestricted(user.value))
   const matchRecord = computed(() => user.value?.matchRecord ?? 0)
   const clickRecord = computed(() => user.value?.clickRecord ?? 0)
 
@@ -920,6 +926,7 @@ export const useUserStore = defineStore('userStore', () => {
     isAdmin,
     isFamily,
     isChild,
+    isMaturityRestricted,
     isMember,
     avatarImage,
     apiKey,

@@ -1,250 +1,252 @@
 <template>
-  <section
-    class="relative flex h-full min-h-0 w-full items-center justify-center overflow-y-auto overscroll-contain bg-base-300 px-3 py-4 text-base-content sm:px-6 sm:py-8"
-  >
+  <section class="kr-surface bg-base-300 text-base-content">
     <div
-      class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style="background-image: url('/images/utility/login.webp')"
-    />
-
-    <div
-      class="absolute inset-0 bg-linear-to-b from-base-300/10 via-base-300/15 to-base-300/45"
-    />
-
-    <div
-      class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]"
-    />
-
-    <div
-      class="pointer-events-none absolute left-4 top-5 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-xl backdrop-blur-md sm:block"
-    >
-      ✨ empathy.exe loaded
-    </div>
-
-    <div
-      class="pointer-events-none absolute bottom-5 right-4 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-xl backdrop-blur-md md:block"
-    >
-      🦋 tiny robot sanctuary
-    </div>
-
-    <main
-      class="relative z-10 flex w-full max-w-md flex-col rounded-4xl border border-white/45 bg-base-100/88 p-4 shadow-[0_24px_80px_rgba(20,25,70,0.34)] backdrop-blur-xl sm:p-6 lg:max-w-lg"
+      class="kr-scroll relative flex w-full items-center justify-center px-3 py-4 sm:px-6 sm:py-8"
     >
       <div
-        class="absolute -inset-px -z-10 rounded-4xl bg-linear-to-br from-primary/35 via-secondary/20 to-accent/35 opacity-70 blur-sm"
+        class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style="background-image: url('/images/utility/login.webp')"
       />
 
       <div
-        class="mb-5 rounded-3xl border border-white/50 bg-white/25 p-4 text-center shadow-inner backdrop-blur-md sm:p-5"
+        class="absolute inset-0 bg-linear-to-b from-base-300/10 via-base-300/15 to-base-300/45"
+      />
+
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]"
+      />
+
+      <div
+        class="pointer-events-none absolute left-4 top-5 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-xl backdrop-blur-md sm:block"
       >
-        <div class="mb-3 flex items-center justify-center gap-2">
-          <span
-            class="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_18px_rgba(59,130,246,0.9)] animate-dot-1"
-          />
-          <Icon
-            name="kind-icon:butterfly"
-            class="h-10 w-10 text-secondary drop-shadow-lg sm:h-12 sm:w-12 animate-float"
-          />
-          <span
-            class="h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_18px_rgba(236,72,153,0.9)] animate-dot-3"
-          />
-        </div>
-
-        <p
-          class="font-display text-4xl font-black leading-none tracking-tight text-primary drop-shadow-sm sm:text-5xl"
-        >
-          Kind Robots
-        </p>
-
-        <p class="mt-3 text-lg font-extrabold text-secondary sm:text-xl">
-          Welcome back, friend 💜
-        </p>
-
-        <p class="mt-1 text-sm font-medium text-base-content/70 sm:text-base">
-          Sign in and let the tiny robots resume being suspiciously helpful.
-        </p>
+        ✨ empathy.exe loaded
       </div>
 
       <div
-        v-if="store.loading"
-        class="mb-5 flex flex-col items-center gap-3 rounded-2xl border border-info/30 bg-info/10 px-4 py-6 text-info"
+        class="pointer-events-none absolute bottom-5 right-4 hidden rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-xl backdrop-blur-md md:block"
       >
-        <Icon name="kind-icon:bubble-loading" class="text-3xl animate-spin" />
-        <span class="text-sm font-bold tracking-wide">
-          Authenticating the human...
-        </span>
+        🦋 tiny robot sanctuary
       </div>
 
-      <form
-        v-if="shouldShowLoginForm"
-        class="flex flex-col gap-4"
-        :autocomplete="stayLoggedIn ? 'on' : 'off'"
-        @submit.prevent="handleLogin"
+      <main
+        class="relative z-10 flex w-full max-w-md flex-col rounded-4xl border border-white/45 bg-base-100/88 p-4 shadow-[0_24px_80px_rgba(20,25,70,0.34)] backdrop-blur-xl sm:p-6 lg:max-w-lg"
       >
         <div
-          v-if="isKindGuest"
-          class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm font-semibold text-info"
-        >
-          You are browsing as Kind Guest. Sign in to use your own account.
-        </div>
+          class="absolute -inset-px -z-10 rounded-4xl bg-linear-to-br from-primary/35 via-secondary/20 to-accent/35 opacity-70 blur-sm"
+        />
 
-        <label for="login" class="flex flex-col gap-2">
-          <span class="pl-1 text-sm font-black text-base-content/80">
-            Username
-          </span>
-          <span
-            class="flex items-center gap-3 rounded-2xl border border-base-300/80 bg-base-100/90 px-4 py-3 shadow-sm transition-all duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/20"
-          >
+        <div
+          class="mb-5 rounded-3xl border border-white/50 bg-white/25 p-4 text-center shadow-inner backdrop-blur-md sm:p-5"
+        >
+          <div class="mb-3 flex items-center justify-center gap-2">
+            <span
+              class="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_18px_rgba(59,130,246,0.9)] animate-dot-1"
+            />
             <Icon
-              name="kind-icon:person"
-              class="h-5 w-5 shrink-0 text-primary"
+              name="kind-icon:butterfly"
+              class="h-10 w-10 text-secondary drop-shadow-lg sm:h-12 sm:w-12 animate-float"
             />
-            <input
-              id="login"
-              v-model="login"
-              type="text"
-              autocomplete="username"
-              placeholder="Enter your username"
-              required
-              class="min-w-0 flex-1 bg-transparent text-base font-semibold text-base-content outline-none placeholder:text-base-content/35"
+            <span
+              class="h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_18px_rgba(236,72,153,0.9)] animate-dot-3"
             />
-          </span>
-        </label>
+          </div>
 
-        <label for="password" class="flex flex-col gap-2">
-          <span class="pl-1 text-sm font-black text-base-content/80">
-            Password
-          </span>
-          <span
-            class="flex items-center gap-3 rounded-2xl border border-base-300/80 bg-base-100/90 px-4 py-3 shadow-sm transition-all duration-200 focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20"
+          <p
+            class="font-display text-4xl font-black leading-none tracking-tight text-primary drop-shadow-sm sm:text-5xl"
           >
-            <Icon
-              name="kind-icon:lock"
-              class="h-5 w-5 shrink-0 text-secondary"
-            />
-            <input
-              id="password"
-              v-model="password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="Enter your password"
-              required
-              class="min-w-0 flex-1 bg-transparent text-base font-semibold text-base-content outline-none placeholder:text-base-content/35"
-            />
-          </span>
-        </label>
+            Kind Robots
+          </p>
 
-        <div
-          class="rounded-2xl border border-base-300/70 bg-base-200/65 px-3 py-2"
-        >
-          <LoginPersister />
+          <p class="mt-3 text-lg font-extrabold text-secondary sm:text-xl">
+            Welcome back, friend 💜
+          </p>
+
+          <p class="mt-1 text-sm font-medium text-base-content/70 sm:text-base">
+            Sign in and let the tiny robots resume being suspiciously helpful.
+          </p>
         </div>
 
-        <button
-          type="submit"
-          class="group mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-primary via-secondary to-accent px-6 py-3.5 text-lg font-black text-primary-content shadow-[0_14px_34px_rgba(80,80,220,0.32)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(80,80,220,0.42)] active:translate-y-0"
-        >
-          <span>Sign In</span>
-          <Icon
-            name="kind-icon:sparkles"
-            class="h-5 w-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110"
-          />
-        </button>
-
         <div
-          class="flex flex-col items-center justify-center gap-2 text-sm font-semibold text-base-content/70 sm:flex-row"
+          v-if="store.loading"
+          class="mb-5 flex flex-col items-center gap-3 rounded-2xl border border-info/30 bg-info/10 px-4 py-6 text-info"
         >
-          <span>New here?</span>
-          <NuxtLink
-            to="/register"
-            class="rounded-full bg-secondary/10 px-3 py-1 font-black text-secondary transition hover:bg-secondary/20"
-          >
-            Create account
-          </NuxtLink>
+          <Icon name="kind-icon:bubble-loading" class="text-3xl animate-spin" />
+          <span class="text-sm font-bold tracking-wide">
+            Authenticating the human...
+          </span>
         </div>
-      </form>
 
-      <div
-        v-else
-        class="flex flex-col gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-center"
-      >
-        <Icon name="kind-icon:check" class="mx-auto h-10 w-10 text-success" />
-
-        <p class="text-lg font-black text-success">
-          You are already signed in.
-        </p>
-
-        <p class="text-sm font-semibold text-base-content/70">
-          The gate robot recognizes you. Slightly alarming, but convenient.
-        </p>
-
-        <NuxtLink to="/dashboard" class="btn btn-success rounded-2xl">
-          Go to Dashboard
-        </NuxtLink>
-      </div>
-
-      <div class="my-5 flex items-center gap-3">
-        <span class="h-px flex-1 bg-base-content/15" />
-        <span
-          class="rounded-full border border-base-content/10 bg-base-100/80 px-3 py-1 text-xs font-black uppercase tracking-widest text-base-content/45"
-        >
-          or
-        </span>
-        <span class="h-px flex-1 bg-base-content/15" />
-      </div>
-
-      <div
-        class="flex justify-center rounded-2xl border border-base-300/70 bg-base-100/70 p-2 shadow-sm"
-      >
-        <GoogleLogin />
-      </div>
-
-      <transition
-        enter-active-class="transition-all duration-200 ease-out"
-        enter-from-class="opacity-0 translate-y-2 scale-95"
-        leave-active-class="transition-all duration-150 ease-in"
-        leave-to-class="opacity-0 translate-y-2 scale-95"
-      >
-        <div
-          v-if="errorMessage"
-          class="mt-5 flex items-start gap-3 rounded-2xl border border-warning/35 bg-warning/15 p-4 shadow-sm"
+        <form
+          v-if="shouldShowLoginForm"
+          class="flex flex-col gap-4"
+          :autocomplete="stayLoggedIn ? 'on' : 'off'"
+          @submit.prevent="handleLogin"
         >
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-warning/25 text-warning"
+            v-if="isKindGuest"
+            class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm font-semibold text-info"
           >
-            <Icon name="kind-icon:warning" class="h-6 w-6" />
+            You are browsing as Kind Guest. Sign in to use your own account.
           </div>
 
-          <div class="min-w-0 flex-1">
-            <p class="text-sm font-black text-warning">
-              Oops, the gate robot got suspicious.
-            </p>
-            <p class="mt-1 text-sm leading-snug text-base-content/75">
-              {{ errorMessage }}
-            </p>
-
-            <div
-              v-if="userNotFound"
-              class="mt-3 flex flex-wrap items-center gap-2"
+          <label for="login" class="flex flex-col gap-2">
+            <span class="pl-1 text-sm font-black text-base-content/80">
+              Username
+            </span>
+            <span
+              class="flex items-center gap-3 rounded-2xl border border-base-300/80 bg-base-100/90 px-4 py-3 shadow-sm transition-all duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/20"
             >
-              <NuxtLink
-                to="/register"
-                class="btn btn-warning btn-xs rounded-full"
+              <Icon
+                name="kind-icon:person"
+                class="h-5 w-5 shrink-0 text-primary"
+              />
+              <input
+                id="login"
+                v-model="login"
+                type="text"
+                autocomplete="username"
+                placeholder="Enter your username"
+                required
+                class="min-w-0 flex-1 bg-transparent text-base font-semibold text-base-content outline-none placeholder:text-base-content/35"
+              />
+            </span>
+          </label>
+
+          <label for="password" class="flex flex-col gap-2">
+            <span class="pl-1 text-sm font-black text-base-content/80">
+              Password
+            </span>
+            <span
+              class="flex items-center gap-3 rounded-2xl border border-base-300/80 bg-base-100/90 px-4 py-3 shadow-sm transition-all duration-200 focus-within:border-secondary focus-within:ring-4 focus-within:ring-secondary/20"
+            >
+              <Icon
+                name="kind-icon:lock"
+                class="h-5 w-5 shrink-0 text-secondary"
+              />
+              <input
+                id="password"
+                v-model="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                required
+                class="min-w-0 flex-1 bg-transparent text-base font-semibold text-base-content outline-none placeholder:text-base-content/35"
+              />
+            </span>
+          </label>
+
+          <div
+            class="rounded-2xl border border-base-300/70 bg-base-200/65 px-3 py-2"
+          >
+            <LoginPersister />
+          </div>
+
+          <button
+            type="submit"
+            class="group mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-primary via-secondary to-accent px-6 py-3.5 text-lg font-black text-primary-content shadow-[0_14px_34px_rgba(80,80,220,0.32)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(80,80,220,0.42)] active:translate-y-0"
+          >
+            <span>Sign In</span>
+            <Icon
+              name="kind-icon:sparkles"
+              class="h-5 w-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110"
+            />
+          </button>
+
+          <div
+            class="flex flex-col items-center justify-center gap-2 text-sm font-semibold text-base-content/70 sm:flex-row"
+          >
+            <span>New here?</span>
+            <NuxtLink
+              to="/register"
+              class="rounded-full bg-secondary/10 px-3 py-1 font-black text-secondary transition hover:bg-secondary/20"
+            >
+              Create account
+            </NuxtLink>
+          </div>
+        </form>
+
+        <div
+          v-else
+          class="flex flex-col gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-center"
+        >
+          <Icon name="kind-icon:check" class="mx-auto h-10 w-10 text-success" />
+
+          <p class="text-lg font-black text-success">
+            You are already signed in.
+          </p>
+
+          <p class="text-sm font-semibold text-base-content/70">
+            The gate robot recognizes you. Slightly alarming, but convenient.
+          </p>
+
+          <NuxtLink to="/dashboard" class="btn btn-success rounded-2xl">
+            Go to Dashboard
+          </NuxtLink>
+        </div>
+
+        <div class="my-5 flex items-center gap-3">
+          <span class="h-px flex-1 bg-base-content/15" />
+          <span
+            class="rounded-full border border-base-content/10 bg-base-100/80 px-3 py-1 text-xs font-black uppercase tracking-widest text-base-content/45"
+          >
+            or
+          </span>
+          <span class="h-px flex-1 bg-base-content/15" />
+        </div>
+
+        <div
+          class="flex justify-center rounded-2xl border border-base-300/70 bg-base-100/70 p-2 shadow-sm"
+        >
+          <GoogleLogin />
+        </div>
+
+        <transition
+          enter-active-class="transition-all duration-200 ease-out"
+          enter-from-class="opacity-0 translate-y-2 scale-95"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-to-class="opacity-0 translate-y-2 scale-95"
+        >
+          <div
+            v-if="errorMessage"
+            class="mt-5 flex items-start gap-3 rounded-2xl border border-warning/35 bg-warning/15 p-4 shadow-sm"
+          >
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-warning/25 text-warning"
+            >
+              <Icon name="kind-icon:warning" class="h-6 w-6" />
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-black text-warning">
+                Oops, the gate robot got suspicious.
+              </p>
+              <p class="mt-1 text-sm leading-snug text-base-content/75">
+                {{ errorMessage }}
+              </p>
+
+              <div
+                v-if="userNotFound"
+                class="mt-3 flex flex-wrap items-center gap-2"
               >
-                Register
-              </NuxtLink>
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs rounded-full text-warning"
-                @click="handleRetryLogin"
-              >
-                Try again
-              </button>
+                <NuxtLink
+                  to="/register"
+                  class="btn btn-warning btn-xs rounded-full"
+                >
+                  Register
+                </NuxtLink>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-full text-warning"
+                  @click="handleRetryLogin"
+                >
+                  Try again
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </transition>
-    </main>
+        </transition>
+      </main>
+    </div>
   </section>
 </template>
 

@@ -6,12 +6,6 @@
     :style="shellVars"
   >
     <div
-      v-if="showBootCurtain && showLoader"
-      class="kr-boot-curtain"
-      aria-hidden="true"
-    />
-
-    <div
       v-if="showLoader"
       class="pointer-events-none fixed inset-0 z-48 bg-black"
       aria-hidden="true"
@@ -19,10 +13,7 @@
 
     <ClientOnly>
       <div v-if="showLoader" class="pointer-events-none fixed inset-0 z-50">
-        <kind-loader
-          @covered="handleLoaderCovered"
-          @pageReady="handlePageReady"
-        />
+        <kind-loader @pageReady="handlePageReady" />
       </div>
     </ClientOnly>
 
@@ -186,37 +177,15 @@ const route = useRoute()
 const { workspaceSheetOpen } = storeToRefs(navStore)
 
 const showLoader = ref(true)
-const showBootCurtain = ref(true)
 
 let failsafeTimeoutId: ReturnType<typeof setTimeout> | null = null
-let bootCurtainTimeoutId: ReturnType<typeof setTimeout> | null = null
-
-function releaseBootCurtain(): void {
-  if (!showBootCurtain.value) return
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      showBootCurtain.value = false
-    })
-  })
-}
-
-function handleLoaderCovered(): void {
-  releaseBootCurtain()
-}
 
 function handlePageReady(): void {
-  showBootCurtain.value = false
   showLoader.value = false
 
   if (failsafeTimeoutId) {
     clearTimeout(failsafeTimeoutId)
     failsafeTimeoutId = null
-  }
-
-  if (bootCurtainTimeoutId) {
-    clearTimeout(bootCurtainTimeoutId)
-    bootCurtainTimeoutId = null
   }
 }
 
@@ -334,11 +303,6 @@ useSeoMeta({
 })
 
 onMounted(async () => {
-  bootCurtainTimeoutId = setTimeout(() => {
-    showBootCurtain.value = false
-    bootCurtainTimeoutId = null
-  }, 1500)
-
   pageStore.initialize()
   await navStore.initialize()
 
@@ -366,11 +330,6 @@ onBeforeUnmount(() => {
   mdMedia?.removeEventListener('change', syncBreakpoints)
   xlMedia?.removeEventListener('change', syncBreakpoints)
 
-  if (bootCurtainTimeoutId) {
-    clearTimeout(bootCurtainTimeoutId)
-    bootCurtainTimeoutId = null
-  }
-
   if (failsafeTimeoutId) {
     clearTimeout(failsafeTimeoutId)
     failsafeTimeoutId = null
@@ -394,16 +353,6 @@ onBeforeUnmount(() => {
   .kr-main {
     padding-left: var(--sheet-w);
   }
-}
-
-.kr-boot-curtain {
-  position: fixed;
-  inset: 0;
-  z-index: 45;
-  background: #000;
-  pointer-events: none;
-  contain: layout paint style;
-  transform: translateZ(0);
 }
 
 .kr-sheet-slide-enter-active,

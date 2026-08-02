@@ -539,11 +539,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     skipReason:
       'The narrator remote depends on active page, narrator, expression, chat, and layout stores. It needs a dedicated workspace fixture rather than a naked mount.',
   },
-  'narrator-chat': {
-    title: 'Narrator Chat',
-    skipReason:
-      'Narrator Chat depends on a resolved narrator identity, thread context, and chat server selection.',
-  },
 }
 
 function normalizeFixtureKey(value: string): string {

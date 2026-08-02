@@ -70,7 +70,7 @@ async function main(): Promise<void> {
     create: 'server/api/bots/index.post.ts',
     patch: 'server/api/bots/[id].patch.ts',
     batch: 'server/api/bots/batch.post.ts',
-    get: 'server/api/bots/[id]/facets.get.ts',
+    put: 'server/api/bots/[id]/facets.put.ts',
     plugin: 'plugins/20.facet-catalog.client.ts',
     randomStore: 'stores/randomStore.ts',
     policy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
@@ -139,8 +139,8 @@ async function main(): Promise<void> {
     requireText(label, source, 'prisma.$transaction')
     requireText(label, source, 'syncBotFacetsInTransaction')
   }
-  requireText(files.get, text.get, 'loadBotFacetCatalog')
-  requireText(files.get, text.get, 'Bot is private.')
+  requireText(files.put, text.put, 'loadBotFacetCatalog')
+  requireText(files.put, text.put, 'You do not have permission to edit this Bot.')
   requireText(files.plugin, text.plugin, 'BOT_CARDS')
   requireText(files.plugin, text.plugin, 'hydrateBotBuilder')
   requireText(files.plugin, text.plugin, 'builderChoicesForBotField')

@@ -9,19 +9,14 @@ import {
 
 const components = [
   { id: 12, componentName: 'ComponentCard' },
-  { id: 25, componentName: 'narrator-chat' },
   { id: 41, componentName: 'WorkspaceNarrator' },
 ]
 
-assert.equal(normalizeWonderLabComponentQuery(['25', '41']), '25')
+assert.equal(normalizeWonderLabComponentQuery(['12', '41']), '12')
 assert.equal(normalizeWonderLabComponentQuery(null), '')
 assert.equal(normalizeWonderLabComponentName('WorkspaceNarrator'), 'workspace-narrator')
 
 assert.equal(findWonderLabComponentForQuery(components, '12')?.id, 12)
-assert.equal(
-  findWonderLabComponentForQuery(components, 'narrator-chat')?.id,
-  25,
-)
 assert.equal(
   findWonderLabComponentForQuery(components, 'workspace-narrator')?.id,
   41,

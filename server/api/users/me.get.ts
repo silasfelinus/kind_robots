@@ -15,6 +15,9 @@ export default defineEventHandler(async (event) => {
         username: user.username,
         email: user.email,
         Role: user.Role,
+        // The complete set, so the client's isUserAdmin/hasUserRole can answer
+        // correctly instead of reading only the primary column.
+        roles: [...new Set([user.Role, ...user.roles])],
         isAdmin: auth.isAdmin,
         isServerKey: auth.isServerKey,
         authKind: auth.kind,

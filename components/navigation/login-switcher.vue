@@ -89,7 +89,7 @@
             </span>
 
             <span class="block truncate text-xs text-base-content/60">
-              {{ account.relationship }} · {{ account.role }}
+              {{ account.relationship }} · {{ (account.roles?.length ? account.roles : [account.role]).join(' + ') }}
             </span>
           </span>
 

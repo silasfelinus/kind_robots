@@ -1,10 +1,18 @@
 // /utils/scripts/verifyUserRolePredicates.ts
 import {
+  VALID_ROLES,
+  parseRoleList,
   userHasRole,
   userIsAdmin,
   userRoles,
   withAdminFlag,
 } from '../../server/utils/authUser'
+import {
+  hasUserRole,
+  isUserAdmin,
+  primaryUserRole,
+  resolveUserRoles,
+} from '../userRoles'
 import type { User } from '../../prisma/generated/prisma/client'
 
 // Behavioural contract for the multi-role predicates in server/utils/authUser.ts.
@@ -131,6 +139,76 @@ const unflagged = withAdminFlag(asUser({ id: 42, Role: 'USER' }), [])
 check(
   !unflagged.isAdmin && unflagged.roles.length === 0,
   'withAdminFlag with no roles leaves a plain user unelevated',
+)
+
+// --- the client mirror (utils/userRoles.ts) --------------------------------
+// Two implementations exist because the server one is typed against Prisma and
+// accepts a raw `include: { UserRoles }` record. The SEMANTICS must not drift,
+// so the same cases are asserted against both.
+const MIRROR_CASES: [Record<string, unknown>, boolean][] = [
+  [{ id: 42, Role: 'CHILD', roles: ['CHILD', 'ADMIN'] }, true],
+  [{ id: 42, Role: 'FAMILY', roles: ['FAMILY', 'ADMIN'] }, true],
+  [{ id: 42, Role: 'USER', roles: ['USER'] }, false],
+  [{ id: 42, Role: 'ADMIN' }, true],
+  [{ id: 42, Role: 'ADMIN', roles: [] }, true],
+  [{ id: 42, Role: 'USER', roles: [] }, false],
+  [{ id: 1, Role: 'USER', roles: ['USER'] }, true],
+  [{ id: 42, Role: 'admin' }, true],
+]
+for (const [fields, expected] of MIRROR_CASES) {
+  const server = userIsAdmin(asUser(fields))
+  const client = isUserAdmin(fields)
+  check(
+    server === expected && client === expected,
+    `client and server agree on isAdmin for ${JSON.stringify(fields)} (both ${expected})`,
+  )
+}
+check(
+  hasUserRole({ id: 42, Role: 'ADMIN', roles: ['ADMIN', 'CHILD'] }, 'CHILD'),
+  'client hasUserRole finds a secondary role',
+)
+check(
+  !isUserAdmin(null) && !hasUserRole(undefined, 'ADMIN'),
+  'client predicates treat a missing user as unprivileged',
+)
+check(
+  primaryUserRole({ id: 42, Role: 'child', roles: ['CHILD', 'ADMIN'] }) === 'CHILD',
+  'client primaryUserRole returns the primary column, not the first of the set',
+)
+check(
+  primaryUserRole(null) === 'USER',
+  'client primaryUserRole defaults to USER',
+)
+check(
+  resolveUserRoles({ id: 42, Role: 'CHILD', roles: ['ADMIN'] }).size === 2,
+  'client resolveUserRoles unions the set with the primary column',
+)
+
+// --- parseRoleList (the admin write path) -----------------------------------
+check(
+  parseRoleList(['child', 'ADMIN']).join(',') === 'CHILD,ADMIN',
+  'parseRoleList uppercases and preserves order, primary first',
+)
+check(
+  parseRoleList(['ADMIN', 'ADMIN', 'CHILD']).length === 2,
+  'parseRoleList deduplicates',
+)
+for (const [input, why] of [
+  [['NOPE'], 'an unknown role'],
+  [[], 'an empty list'],
+  ['ADMIN', 'a bare string instead of an array'],
+] as [unknown, string][]) {
+  let threw = false
+  try {
+    parseRoleList(input)
+  } catch {
+    threw = true
+  }
+  check(threw, `parseRoleList rejects ${why}`)
+}
+check(
+  VALID_ROLES.length === 9 && VALID_ROLES.includes('FAMILY'),
+  'VALID_ROLES is the single shared list of assignable roles',
 )
 
 if (failures) {

@@ -6,6 +6,7 @@
 import type { RelationType } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { userHasRole } from './authUser'
+import { addUserRole, removeUserRole } from './userRoleWrites'
 
 // The inverse role for the OTHER user when a relation is accepted.
 // FRIEND is symmetric; PARENT/CHILD swap; REFEREE/BLOCK have no owned inverse.
@@ -40,20 +41,32 @@ function childIdFromRow(row: {
   return null
 }
 
-// Roles we will NOT overwrite when promoting a child — clobbering an elevated
-// account to CHILD would strip permissions. Only plain members get promoted.
+// Roles whose DISPLAY label we are willing to change to CHILD. An elevated
+// account keeps whatever primary role an admin gave it.
+//
+// This used to be a demotion guard: CHILD was written to the single `Role`
+// column, so promoting an ADMIN would have stripped their permissions and the
+// only safe move was to skip them entirely -- which is precisely the limitation
+// Silas hit ("I can't make say, a Child and Admin"). With the join table the
+// two facts are independent, so the guard shrinks to what it always meant.
 const PROMOTABLE_ROLES = ['USER', 'GUEST']
 
-// On accepting a PARENT/CHILD link, mark the child's account Role as CHILD
-// (only if they're a plain USER/GUEST, so we never demote an ADMIN/DESIGNER).
-// This is account-role automation, separate from the relation row itself.
+// On accepting a PARENT/CHILD link, mark the child's account as CHILD. This is
+// account-role automation, separate from the relation row itself.
 async function applyChildRole(childId: number): Promise<void> {
   const child = await prisma.user.findUnique({
     where: { id: childId },
     select: { id: true, Role: true },
   })
   if (!child) return
-  if (!PROMOTABLE_ROLES.includes(child.Role)) return // don't demote elevated roles
+
+  // Always additive -- an admin or designer who is also someone's child now
+  // gets CHILD alongside what they already hold instead of being skipped.
+  await addUserRole(childId, 'CHILD')
+
+  // The primary role is a label, so only relabel a plain member. Silently
+  // renaming an account an admin deliberately set is not this function's call.
+  if (!PROMOTABLE_ROLES.includes(child.Role)) return
 
   await prisma.user.update({
     where: { id: childId },
@@ -129,6 +142,12 @@ export async function maybeRevertChildRole(userId: number): Promise<void> {
     },
   })
   if (stillChild) return // still a child of someone — leave role alone
+
+  // Drop the join-table row unconditionally; only reset the primary label if
+  // CHILD is what it currently says. An admin who was also a child keeps
+  // ADMIN as their primary and simply stops being a child.
+  await removeUserRole(userId, 'CHILD')
+  if (String(user.Role).toUpperCase() !== 'CHILD') return
 
   await prisma.user.update({
     where: { id: userId },

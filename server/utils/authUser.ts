@@ -110,3 +110,51 @@ export function withAdminFlag(
     isAdmin: userIsAdmin(withRoles),
   }
 }
+
+/**
+ * Every assignable role, in schema order.
+ *
+ * One list, because there used to be two: this array was duplicated verbatim in
+ * users/[id]/admin.patch.ts and users/admin/create.post.ts, so adding a value to
+ * the Role enum meant remembering to update both or silently getting a 400 from
+ * one of them.
+ */
+export const VALID_ROLES: Role[] = [
+  'SYSTEM',
+  'USER',
+  'ASSISTANT',
+  'ADMIN',
+  'GUEST',
+  'BOT',
+  'DESIGNER',
+  'CHILD',
+  'FAMILY',
+]
+
+export function isValidRole(value: unknown): value is Role {
+  return (VALID_ROLES as string[]).includes(normalize(value))
+}
+
+/**
+ * Normalize a caller-supplied role list into a deduplicated, validated set.
+ *
+ * Throws the message rather than an H3 error so route handlers keep owning
+ * their own status codes.
+ */
+export function parseRoleList(input: unknown): Role[] {
+  if (!Array.isArray(input)) {
+    throw new Error('roles must be an array.')
+  }
+  const parsed: Role[] = []
+  for (const raw of input) {
+    const role = normalize(raw)
+    if (!isValidRole(role)) {
+      throw new Error(`Invalid role: ${String(raw)}.`)
+    }
+    if (!parsed.includes(role)) parsed.push(role)
+  }
+  if (!parsed.length) {
+    throw new Error('roles must contain at least one role.')
+  }
+  return parsed
+}

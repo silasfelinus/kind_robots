@@ -12,9 +12,27 @@ export type NavigationPermission =
   | string
 
 export type NavigationAccessContext = {
+  /** Primary/display role. For labels, not for deciding what a viewer may see. */
   role: string
+  /**
+   * The viewer's complete role set -- what channel visibility is filtered on.
+   *
+   * Optional, and absent means "single-role viewer", not "no roles": a context
+   * built by hand (the navigation contract verifiers do exactly this to express
+   * a GUEST or a USER) stays valid and falls back to `[role]` via
+   * `accessContextRoles` below. Making it required would force every such
+   * fixture to restate the same fact twice.
+   */
+  roles?: readonly string[]
   permissions: ReadonlySet<string>
   isAdmin: boolean
+}
+
+/** The role set to filter on, falling back to the primary role. */
+export function accessContextRoles(
+  context: NavigationAccessContext,
+): readonly string[] {
+  return context.roles?.length ? context.roles : [context.role]
 }
 
 export function permissionAllows(

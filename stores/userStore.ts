@@ -6,6 +6,12 @@ import { performFetch, handleError } from './utils'
 import { mergeRecordsById } from './helpers/recordMerge'
 import { useAchievementStore } from './achievementStore'
 import { generateUsername } from '@/utils/generateUsername'
+import {
+  hasUserRole,
+  isUserAdmin,
+  primaryUserRole,
+  resolveUserRoles,
+} from '@/utils/userRoles'
 import { useArtStore } from './artStore'
 import {
   getFromLocalStorage,
@@ -27,7 +33,17 @@ type RegisterUserData = {
   password?: string
 }
 
-type UserPatch = Partial<User>
+/**
+ * The user as the API actually sends it. `roles` is the complete set from the
+ * UserRole join table; Prisma's generated `User` only knows the scalar column.
+ *
+ * Optional on purpose -- an endpoint that has not been taught to send `roles`
+ * yet, or a cached payload from before the multi-role rollout, still resolves
+ * correctly through the primary column (see utils/userRoles.ts).
+ */
+type StoredUser = User & { roles?: string[] }
+
+type UserPatch = Partial<StoredUser>
 
 type InitializeOptions = {
   token?: string
@@ -75,13 +91,13 @@ function cleanPatch(fields: UserPatch): UserPatch {
 }
 
 export const useUserStore = defineStore('userStore', () => {
-  const user = ref<User | null>(null)
+  const user = ref<StoredUser | null>(null)
   const token = ref<string | undefined>()
   const loading = ref(false)
   const lastError = ref<string | null>(null)
   const stayLoggedIn = ref(true)
   const achievements = ref<number[]>([])
-  const users = ref<User[]>([])
+  const users = ref<StoredUser[]>([])
   const recipient = ref<User | null>(null)
   const googleToken = ref(false)
   const initialized = ref(false)
@@ -103,11 +119,16 @@ export const useUserStore = defineStore('userStore', () => {
   const username = computed(() => user.value?.username ?? 'Kind Guest')
   const karma = computed(() => user.value?.karma ?? 0)
   const mana = computed(() => user.value?.mana ?? 0)
-  const role = computed(() => user.value?.Role ?? 'USER')
-  const isAdmin = computed(
-    () => user.value?.Role === 'ADMIN' || user.value?.id === 1,
-  )
-  const isFamily = computed(() => user.value?.Role === 'FAMILY')
+  // `role` stays the PRIMARY/display role -- it is what labels and the
+  // single-valued `requiredRole` in content frontmatter compare against.
+  // Capability questions must go through `roles`/isAdmin/isFamily instead,
+  // which read the whole set: an admin whose primary role is CHILD or FAMILY is
+  // still an admin.
+  const role = computed(() => primaryUserRole(user.value))
+  const roles = computed(() => [...resolveUserRoles(user.value)])
+  const isAdmin = computed(() => isUserAdmin(user.value))
+  const isFamily = computed(() => hasUserRole(user.value, 'FAMILY'))
+  const isChild = computed(() => hasUserRole(user.value, 'CHILD'))
   const isMember = computed(
     () =>
       user.value?.isMember === true &&
@@ -215,7 +236,7 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  async function setUser(u: User) {
+  async function setUser(u: StoredUser) {
     user.value = u
     updateUserInList(u)
   }
@@ -895,8 +916,10 @@ export const useUserStore = defineStore('userStore', () => {
     karma,
     mana,
     role,
+    roles,
     isAdmin,
     isFamily,
+    isChild,
     isMember,
     avatarImage,
     apiKey,

@@ -63,7 +63,6 @@
       "pages/admin/wonderlab-review-rollout.vue",
       "pages/admin/wonderlab-reviews.vue",
       "pages/coloring-page.vue",
-      "pages/error.vue",
       "pages/resources.vue"
     ]
   }

@@ -22,7 +22,7 @@ const store = source(storePath)
 includesAll(pagePath, [
   '<NarrativeIngredientMultiPicker',
   '<NarrativeIngredientPicker',
-  '<NarrativeTranscript',
+  '<KrChatWindow',
   '<NarrativeResponseComposer',
   'Story bible',
   'store.beginStory',

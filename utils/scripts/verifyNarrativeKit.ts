@@ -61,6 +61,14 @@ check(
   /autoScroll/.test(chat),
   'auto-scroll is opt-out, so a reader reviewing an earlier scene can stay put',
 )
+// Trailing conversation-level content (Taskmaster's ledger, Dreams' musings)
+// must be able to sit INSIDE the scroll region. Without this slot a caller has
+// to put it in a sibling element, which means a second scroll region — the one
+// thing this component exists to remove.
+check(
+  /<slot name="footer" \/>/.test(chat),
+  'the chat window offers a footer slot inside its scroll region',
+)
 
 // --- no store coupling -------------------------------------------------------
 // The kit is presentational. The moment one of these imports a store it stops
@@ -107,6 +115,17 @@ for (const [path, source] of [
   )
 }
 
+// --- no second transcript ----------------------------------------------------
+// narrative-transcript.vue was kr-chat-window with different markup. Phase 3
+// deleted it and moved both products across. A file reappearing under that name
+// is the kit splitting in two again, which is exactly how it failed last time.
+check(
+  !readdirSync(resolve(root, 'components/narrative')).includes(
+    'narrative-transcript.vue',
+  ),
+  'the duplicate transcript has not come back',
+)
+
 // --- adoption ratchet --------------------------------------------------------
 // Purely informational today, and deliberately so: failing on non-adoption
 // before the surfaces have migrated would just block every unrelated PR. The
@@ -141,7 +160,15 @@ const KIT_USE =
  * the components were demonstrably live in both render paths -- understating
  * progress and, worse, hiding a regression if the stage stopped using them.
  */
-const INTERMEDIARIES = ['components/narrative/kr-narrator-stage.vue']
+const INTERMEDIARIES = [
+  'components/narrative/kr-narrator-stage.vue',
+  // Both of these are themselves mounted by the product pages, and both now
+  // render kit pieces internally (the composer's suggested-response row is a
+  // kr-choice-list; the art status' rendered illustration is a kr-art-plate).
+  // A surface that mounts either is on the kit whether it says so or not.
+  'components/narrative/narrative-response-composer.vue',
+  'components/narrative/narrative-art-status.vue',
+]
 const liveIntermediaries = INTERMEDIARIES.filter((path) => KIT_USE.test(read(path)))
 
 function adopts(path: string): boolean {

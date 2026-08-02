@@ -27,15 +27,28 @@ includesAll('components/narrative/narrative-ingredient-picker.vue', [
   "emit('update:modelValue', value)",
 ])
 
-includesAll('components/narrative/narrative-transcript.vue', [
+includesAll('components/narrative/kr-chat-window.vue', [
   'aria-live="polite"',
   ':aria-busy="isStreaming"',
-  'beat.answer?.text',
+  "turn.from === 'user'",
   'streamingText',
 ])
 
+/*
+ * The beat -> turn adapter is shared, not per-product. Both pages persist one
+ * record per scene and both render one message per speaker; deriving that
+ * mapping twice is the duplication this phase exists to remove, so pin the
+ * single implementation.
+ */
+includesAll('utils/narrativeTurns.ts', [
+  'narrativeBeatsToTurns',
+  'beatIdFromTurnId',
+  "from: 'narrator'",
+  "from: 'user'",
+])
+
 includesAll('components/narrative/narrative-response-composer.vue', [
-  'v-for="option in options"',
+  ':choices="optionChoices"',
   '@keydown.enter.exact.prevent="submit()"',
   "emit('submit', text)",
 ])
@@ -43,7 +56,7 @@ includesAll('components/narrative/narrative-response-composer.vue', [
 const taskmasterPage = source('components/pages/taskmaster-page.vue')
 for (const component of [
   '<NarrativeIngredientPicker',
-  '<NarrativeTranscript',
+  '<KrChatWindow',
   '<NarrativeResponseComposer',
 ]) {
   assert.ok(
@@ -59,6 +72,11 @@ assert.ok(
 assert.ok(
   !taskmasterPage.includes('v-for="dream in locationDreams"'),
   'Taskmaster must not restore its former duplicated location button loop',
+)
+assert.ok(
+  !taskmasterPage.includes('v-for="outcome in checkpointOutcomes"') &&
+    !taskmasterPage.includes('v-for="tone in TASKMASTER_TONES"'),
+  'Taskmaster must not restore its hand-rolled outcome or tone button grids',
 )
 
 const taskmasterStore = source('stores/taskmasterStore.ts')

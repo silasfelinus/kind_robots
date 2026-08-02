@@ -16,13 +16,7 @@
 -->
 <template>
   <figure
-    :class="[
-      'relative overflow-hidden bg-base-300',
-      framed
-        ? 'rounded-2xl border-[6px] border-base-100 shadow-[0_18px_44px_-18px_rgba(58,49,40,0.5)]'
-        : 'rounded-2xl border border-base-300',
-      aspectClass,
-    ]"
+    :class="['relative overflow-hidden bg-base-300', frameClass, aspectClass]"
   >
     <img
       v-if="src"
@@ -73,8 +67,14 @@ const props = withDefaults(
     alt?: string
     /** card is 2:3 portrait, hero 16:9, icon square, plate the 3:2 mockup shape. */
     shape?: 'card' | 'hero' | 'icon' | 'plate' | 'fill'
-    /** The white "tipped photo" border. Off for inline thumbnails. */
-    framed?: boolean
+    /**
+     * 'plate' is the white tipped-photo border the aesthetic is named for.
+     * 'thin' is a plain hairline for inline thumbnails.
+     * 'none' draws no border and no rounding, for a caller that already owns
+     * the frame — an inner radius inside an outer one leaves visible notches,
+     * so "unframed" has to mean genuinely unframed, not thinly framed.
+     */
+    frame?: 'plate' | 'thin' | 'none'
     eager?: boolean
     placeholderIcon?: string
   }>(),
@@ -84,11 +84,22 @@ const props = withDefaults(
     fallback: '',
     alt: '',
     shape: 'plate',
-    framed: true,
+    frame: 'plate',
     eager: false,
     placeholderIcon: 'kind-icon:image',
   },
 )
+
+const frameClass = computed(() => {
+  switch (props.frame) {
+    case 'thin':
+      return 'rounded-2xl border border-base-300'
+    case 'none':
+      return ''
+    default:
+      return 'rounded-2xl border-[6px] border-base-100 shadow-[0_18px_44px_-18px_rgba(58,49,40,0.5)]'
+  }
+})
 
 // A broken URL should fall back rather than leave a dead frame. Reset whenever
 // the source changes, or one bad image would poison every later one.

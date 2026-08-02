@@ -22,7 +22,7 @@ const enqueuePath = 'server/api/art/enqueue.post.ts'
 const recoveryPath = 'server/api/art/queue/narrative.get.ts'
 const storyStorePath = 'stores/storybookStore.ts'
 const taskStorePath = 'stores/taskmasterStore.ts'
-const transcriptPath = 'components/narrative/narrative-transcript.vue'
+const turnsPath = 'utils/narrativeTurns.ts'
 const statusPath = 'components/narrative/narrative-art-status.vue'
 const storyPagePath = 'components/conductor/storybook-page.vue'
 const taskPagePath = 'components/pages/taskmaster-page.vue'
@@ -158,9 +158,20 @@ assert.ok(
   'Narrative text generation must not wait for scene art rendering',
 )
 
-includesAll(transcriptPath, [
-  'art?: NarrativeArtJobState | null',
-  '<slot name="after-beat" :beat="beat" />',
+/*
+ * Per-beat art chrome used to hang off narrative-transcript.vue, which knew
+ * what a NarrativeArtJobState was. Its replacement, kr-chat-window, is
+ * deliberately domain-free so it can also serve bot chats and the Dreams dock —
+ * so the art assertion moved to where the knowledge actually lives: the shared
+ * beat->turn adapter (which turn owns the illustration) and the two pages
+ * (which render it). Pinning `art` on the presentational component again would
+ * re-couple it to one product's session shape.
+ */
+includesAll(turnsPath, [
+  'beatIdFromTurnId',
+  // Null for the reader's own turn is load-bearing: without it every scene's
+  // illustration would render twice, once beside the answer.
+  'null for anything else',
 ])
 includesAll(statusPath, [
   "art.status === 'queueing'",
@@ -172,16 +183,15 @@ includesAll(statusPath, [
   "@click=\"$emit('retry')\"",
   'Automatic story art',
 ])
-includesAll(storyPagePath, [
-  '#after-beat="{ beat }"',
-  '<NarrativeArtStatus',
-  '@retry="store.retryBeatArt(beat.id)"',
-])
-includesAll(taskPagePath, [
-  '#after-beat="{ beat }"',
-  '<NarrativeArtStatus',
-  '@retry="store.retryBeatArt(beat.id)"',
-])
+for (const pagePath of [storyPagePath, taskPagePath]) {
+  includesAll(pagePath, [
+    '#after-turn="{ turn }"',
+    '<NarrativeArtStatus',
+    'v-if="beatForTurn(turn)"',
+    ':art="beatForTurn(turn)?.art"',
+    '@retry="store.retryBeatArt(beatForTurn(turn)!.id)"',
+  ])
+}
 
 assert.ok(
   controller.includes('MAX_POLL_ATTEMPTS') &&

@@ -19,12 +19,21 @@
   chat without dragging a store with it.
 -->
 <template>
-  <div
+  <!--
+    A <section> with an accessible name, NOT role="log".
+
+    role="log" carries an implicit aria-live="polite", which would make the
+    whole transcript a live region on top of the explicit sr-only status below
+    — every arriving turn announced twice, once verbatim and once as a summary.
+    narrative-transcript.vue learned this the hard way and its contract still
+    asserts "the entire streaming transcript must not be a live region"; the
+    single sr-only status region stays the only announcement channel.
+  -->
+  <section
     ref="scrollEl"
     class="kr-scroll flex flex-col gap-4"
     :aria-label="label"
     :aria-busy="isStreaming"
-    role="log"
   >
     <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
       {{ statusAnnouncement }}
@@ -43,8 +52,17 @@
       :class="['flex gap-2', turn.from === 'user' ? 'flex-row-reverse' : '']"
       :aria-labelledby="turnHeadingId(index)"
     >
+      <!-- Narrator turns are numbered scenes; the reader's own turns are named
+           rather than numbered, so a screen reader walking the headings hears
+           the shape of the conversation instead of a run of ordinals. The
+           scene number counts narrator turns only — index would drift by one
+           per answer and call the third scene "Scene 5". -->
       <h3 :id="turnHeadingId(index)" class="sr-only">
-        {{ turn.from === 'user' ? 'Your response' : `Scene ${index + 1}` }}
+        {{
+          turn.from === 'user'
+            ? 'Your response'
+            : `Scene ${narratorTurnNumber(index)}`
+        }}
       </h3>
 
       <img
@@ -108,7 +126,14 @@
         {{ streamingLabel }}
       </span>
     </div>
-  </div>
+
+    <!-- Trailing content that belongs to the conversation rather than to any
+         one turn, and must scroll WITH it: Taskmaster's quest ledger and
+         completion recap, Dreams' musings. Without this the caller has to put
+         them in a sibling element, which means a second scroll region — the
+         exact thing this component exists to remove. -->
+    <slot name="footer" />
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -189,6 +214,15 @@ const statusAnnouncement = computed(() => {
 
 function turnHeadingId(index: number): string {
   return `${windowId}-turn-${index + 1}`
+}
+
+/** 1-based position of this turn among the narrator's turns only. */
+function narratorTurnNumber(index: number): number {
+  let count = 0
+  for (let i = 0; i <= index; i += 1) {
+    if (props.turns[i]?.from !== 'user') count += 1
+  }
+  return count
 }
 
 // Follow the conversation as it grows. Guarded on autoScroll so a surface that

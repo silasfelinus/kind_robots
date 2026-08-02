@@ -9,19 +9,18 @@
       {{ loading ? 'Generating the next scene.' : 'The response field is ready.' }}
     </p>
 
-    <fieldset v-if="options.length" class="flex flex-wrap gap-2">
-      <legend class="sr-only">Suggested responses</legend>
-      <button
-        v-for="option in options"
-        :key="option"
-        type="button"
-        class="btn btn-sm rounded-xl border border-secondary/30 bg-secondary/10 text-left normal-case hover:border-secondary/60 hover:bg-secondary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 motion-reduce:transform-none motion-reduce:transition-none"
-        :disabled="disabled || loading"
-        @click="submit(option)"
-      >
-        {{ option }}
-      </button>
-    </fieldset>
+    <!-- The suggested-response row was a fourth hand-rolled pick-one list. It
+         is kr-choice-list now, which keeps the named group (role="group" +
+         aria-label, where this had fieldset + sr-only legend) and gives the
+         composer the same choice affordance every other surface renders. -->
+    <kr-choice-list
+      layout="row"
+      label="Suggested responses"
+      :choices="optionChoices"
+      :disabled="disabled || loading"
+      :show-index="false"
+      @select="submit($event.label)"
+    />
 
     <div class="flex items-end gap-2">
       <label :for="textareaId" class="sr-only">Your response</label>
@@ -64,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, useId, watch } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -92,6 +91,12 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   submit: [value: string]
 }>()
+
+// Suggested responses arrive as plain strings; the shared list speaks
+// {key,label}. Adapt here rather than widening every caller.
+const optionChoices = computed(() =>
+  props.options.map((option) => ({ key: option, label: option })),
+)
 
 const fieldId = useId()
 const textareaId = `${fieldId}-response`

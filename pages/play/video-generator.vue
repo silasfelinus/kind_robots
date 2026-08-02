@@ -3,7 +3,6 @@
     class="mx-auto h-full min-h-0 max-w-5xl space-y-6 overflow-y-auto overscroll-contain p-6"
   >
     <header class="space-y-1">
-      <h1 class="text-2xl font-bold">🎬 Video Generator</h1>
       <p class="text-sm opacity-70">
         Animate a still into a short clip. Pick a first image (and an optional
         end image), describe the motion, set the length, and queue it to the

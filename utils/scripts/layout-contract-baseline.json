@@ -1,16 +1,14 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-08-01",
+  "recorded": "2026-08-02",
   "violations": {
     "one-header": [
-      "components/conductor/project-front-page.vue",
       "components/pages/registration-form.vue",
       "components/pages/serendipity-page.vue",
       "pages/admin/wonderlab-review-generator.vue",
       "pages/admin/wonderlab-review-plan.vue",
       "pages/admin/wonderlab-review-rollout.vue",
-      "pages/admin/wonderlab-reviews.vue",
-      "pages/play/video-generator.vue"
+      "pages/admin/wonderlab-reviews.vue"
     ],
     "one-scroll": [
       "components/academy/academy-manager.vue",

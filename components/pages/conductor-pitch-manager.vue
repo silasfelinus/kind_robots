@@ -1,6 +1,6 @@
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
+    class="kr-surface rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
   >
     <header class="shrink-0 border-b border-base-300/70 bg-base-100/85 p-4 backdrop-blur">
       <div class="flex flex-wrap items-start gap-3">
@@ -110,7 +110,7 @@
         {{ conductorStore.pitchUpdateError }}
       </div>
 
-      <main class="min-h-0 flex-1 overflow-y-auto pr-1">
+      <main class="kr-scroll pr-1">
         <div
           v-if="isLoading && !conductorStore.pitches.length"
           class="grid gap-3 lg:grid-cols-2"

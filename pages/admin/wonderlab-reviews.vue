@@ -9,7 +9,7 @@
           <p class="text-xs font-black uppercase tracking-widest text-primary">
             WonderLab Editorial
           </p>
-          <h1 class="mt-2 text-3xl font-black">Personality review drafts</h1>
+          <p class="mt-2 text-3xl font-black">Personality review drafts</p>
           <p class="mt-2 text-sm text-base-content/60">
             Nothing on this page publishes automatically. Approval and publication are
             separate curator actions.

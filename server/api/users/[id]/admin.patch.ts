@@ -7,19 +7,9 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireAdminApiUser } from '../../../utils/authGuard'
 import { logAdminAction } from '../../../utils/audit'
+import { isValidRole, parseRoleList } from '../../../utils/authUser'
+import { setUserRoles } from '../../../utils/userRoleWrites'
 import type { Role } from '~/prisma/generated/prisma/client'
-
-const VALID_ROLES: Role[] = [
-  'SYSTEM',
-  'USER',
-  'ASSISTANT',
-  'ADMIN',
-  'GUEST',
-  'BOT',
-  'DESIGNER',
-  'CHILD',
-  'FAMILY',
-]
 
 function toBool(v: unknown): boolean | undefined {
   if (typeof v === 'boolean') return v
@@ -40,15 +30,33 @@ export default defineEventHandler(async (event) => {
     const data: Record<string, unknown> = {}
     const changes: string[] = []
 
-    if ('Role' in body) {
-      const role = String(body.Role).toUpperCase() as Role
-      if (!VALID_ROLES.includes(role)) {
+    // `roles` (the full set) and `Role` (primary only) are both accepted, with
+    // `roles` winning when both are sent. Neither writes User.Role through
+    // `data` -- both funnel into setUserRoles, which owns the scalar and the
+    // join table together in one transaction. Two writers for one fact is
+    // exactly how the two would drift apart.
+    let roles: Role[] | null = null
+    if ('roles' in body) {
+      try {
+        roles = parseRoleList(body.roles)
+      } catch (error) {
+        throw createError({
+          statusCode: 400,
+          message: error instanceof Error ? error.message : 'Invalid roles.',
+        })
+      }
+      changes.push(`roles=${roles.join('+')}`)
+    } else if ('Role' in body) {
+      const role = String(body.Role).toUpperCase()
+      if (!isValidRole(role)) {
         throw createError({
           statusCode: 400,
           message: `Invalid role: ${role}.`,
         })
       }
-      data.Role = role
+      // A single-role write still goes through setUserRoles, so the join table
+      // never keeps a stale secondary the admin believed they had replaced.
+      roles = [role]
       changes.push(`role=${role}`)
     }
 
@@ -68,12 +76,14 @@ export default defineEventHandler(async (event) => {
       changes.push(`emailVerified=${verified}`)
     }
 
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(data).length === 0 && !roles) {
       throw createError({
         statusCode: 400,
         message: 'No admin-updatable fields provided.',
       })
     }
+
+    if (roles) await setUserRoles(userId, roles)
 
     const updated = await prisma.user.update({
       where: { id: userId },
@@ -82,6 +92,7 @@ export default defineEventHandler(async (event) => {
         id: true,
         username: true,
         Role: true,
+        UserRoles: { select: { role: true } },
         showMature: true,
         isPublic: true,
         emailVerified: true,
@@ -94,7 +105,21 @@ export default defineEventHandler(async (event) => {
       `Updated user ${updated.username} (#${userId}): ${changes.join(', ')}.`,
     )
 
-    return { success: true, message: 'User updated.', data: updated }
+    return {
+      success: true,
+      message: 'User updated.',
+      data: {
+        ...updated,
+        // Flattened so the client never has to know the relation's shape.
+        // Primary first, matching the order roles were applied in.
+        roles: [
+          updated.Role,
+          ...updated.UserRoles.map((entry) => entry.role).filter(
+            (role) => role !== updated.Role,
+          ),
+        ],
+      },
+    }
   } catch (err) {
     const handled = errorHandler(err)
     event.node.res.statusCode = handled.statusCode || 500

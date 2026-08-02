@@ -12,6 +12,7 @@ import {
 import {
   filterChannelsByPermission,
   navigationPermissions,
+  accessContextRoles,
   type NavigationAccessContext,
 } from '@/stores/helpers/navigationAccess'
 import { useUserStore } from '@/stores/userStore'
@@ -68,7 +69,12 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     const isAdmin = userStore.isAdmin
 
     return {
+      // `role` stays scalar for display and for permissionAllows, which has its
+      // own isAdmin escape hatch. The ADMIN coercion is kept so an admin whose
+      // PRIMARY role is CHILD or FAMILY still labels as ADMIN here; `roles`
+      // below is what actually drives channel visibility.
       role: isAdmin ? 'ADMIN' : userStore.role,
+      roles: userStore.roles,
       permissions: navigationPermissions({
         isLoggedIn: userStore.isLoggedIn,
         isMember: userStore.isMember,
@@ -82,7 +88,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
   const visibleChannels = computed(() => {
     const roleFiltered = filterChannelsByRole(
       channels.value,
-      accessContext.value.role,
+      accessContextRoles(accessContext.value),
     )
 
     return filterChannelsByPermission(roleFiltered, accessContext.value)

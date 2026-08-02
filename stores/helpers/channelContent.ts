@@ -208,8 +208,13 @@ function dialogue(camelCase: unknown, legacy: unknown): string {
   return text(camelCase) || text(legacy)
 }
 
-function roleAllows(requiredRole: string, role: string): boolean {
-  return !requiredRole || role === 'ADMIN' || requiredRole === role
+// Content frontmatter keeps a SINGLE `requiredRole` string -- only users became
+// plural. So this is a membership test against the viewer's role set, not a
+// pair of scalars.
+function roleAllows(requiredRole: string, roles: ReadonlySet<string>): boolean {
+  if (!requiredRole) return true
+  if (roles.has('ADMIN')) return true
+  return roles.has(requiredRole.trim().toUpperCase())
 }
 
 function resolveTab(
@@ -420,15 +425,26 @@ export function resolveChannels(
     .sort((a, b) => a.sort - b.sort || a.label.localeCompare(b.label))
 }
 
+/**
+ * `roles` accepts a single role or a set of them. The scalar form is kept
+ * because the navigation contract verifiers build single-role viewers by hand,
+ * and because a caller with one role should not have to wrap it.
+ */
 export function filterChannelsByRole(
   channels: ResolvedChannel[],
-  role: string,
+  roles: string | readonly string[],
 ): ResolvedChannel[] {
+  const roleSet = new Set(
+    (typeof roles === 'string' ? [roles] : roles)
+      .map((role) => String(role ?? '').trim().toUpperCase())
+      .filter(Boolean),
+  )
+
   return channels
-    .filter((channel) => roleAllows(channel.requiredRole, role))
+    .filter((channel) => roleAllows(channel.requiredRole, roleSet))
     .map((channel) => {
       const tabs = channel.tabs.filter((tab) =>
-        roleAllows(tab.requiredRole, role),
+        roleAllows(tab.requiredRole, roleSet),
       )
 
       return {

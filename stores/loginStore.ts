@@ -22,7 +22,14 @@ export type LoginRelationship =
 export type ManagedLogin = {
   userId: number
   username: string
+  /** Primary/display role. Always present, including on records persisted
+   *  before multi-role shipped. */
   role: string
+  /** The full role set, when known. OPTIONAL because this record is persisted
+   *  to localStorage: accounts saved before multi-role have only `role`, and a
+   *  required field would make every one of them fail to read back. Callers
+   *  fall back to `[role]`. */
+  roles?: string[]
   token: string
   googleToken: boolean
   avatarImage?: string | null
@@ -152,6 +159,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
       userId: currentUser.id,
       username: currentUser.username,
       role: currentUser.Role ?? 'USER',
+      roles: userStore.roles.length ? [...userStore.roles] : undefined,
       token: userStore.token,
       googleToken: userStore.googleToken,
       avatarImage: currentUser.avatarImage,
@@ -202,6 +210,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
 
       account.username = userStore.user.username
       account.role = userStore.user.Role ?? account.role
+      if (userStore.roles.length) account.roles = [...userStore.roles]
       account.avatarImage = userStore.user.avatarImage
       account.artImageId = userStore.user.artImageId
       account.lastUsedAt = new Date().toISOString()
@@ -229,6 +238,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
     userId: number
     username: string
     role?: string
+    roles?: string[]
     token: string
     googleToken?: boolean
     avatarImage?: string | null
@@ -245,6 +255,7 @@ export const useLoginManagerStore = defineStore('loginManagerStore', () => {
       userId: input.userId,
       username: input.username,
       role: input.role ?? existing?.role ?? 'USER',
+      roles: input.roles ?? existing?.roles,
       token: input.token,
       googleToken: input.googleToken ?? false,
       avatarImage: input.avatarImage ?? existing?.avatarImage ?? null,

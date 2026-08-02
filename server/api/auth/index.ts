@@ -150,7 +150,13 @@ export async function validateUserCredentials(
   password?: string,
 ) {
   try {
-    const user = await prisma.user.findUnique({ where: { username } })
+    const user = await prisma.user.findUnique({
+      where: { username },
+      // The login response seeds the client's userStore, so it has to carry the
+      // full role set. Without it the store falls back to the primary column and
+      // a CHILD-primary admin loses admin UI until the next /api/users/me.
+      include: { UserRoles: { select: { role: true } } },
+    })
 
     if (!user) {
       return null
@@ -171,9 +177,17 @@ export async function validateUserCredentials(
     // Never return the bcrypt password hash to any caller (login response,
     // client logs/caches). Callers that need to verify a password re-fetch and
     // compare server-side; nothing legitimately consumes this field.
-    const { password: _password, ...safeUser } = user
+    const { password: _password, UserRoles, ...safeUser } = user
 
-    return { user: safeUser, token }
+    return {
+      // `roles` replaces the relation, so the client never sees the join
+      // table's row shape. Primary first.
+      user: {
+        ...safeUser,
+        roles: [...new Set([user.Role, ...UserRoles.map((e) => e.role)])],
+      },
+      token,
+    }
   } catch (error: unknown) {
     console.error(
       `Failed to validate user credentials: ${errorHandler(error).message}`,

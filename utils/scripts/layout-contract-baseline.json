@@ -40,7 +40,6 @@
     ],
     "no-viewport": [],
     "one-mdc": [
-      "content/about.md",
       "content/conductor.md",
       "content/plan/wonderlab.md"
     ],

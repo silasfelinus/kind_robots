@@ -223,6 +223,17 @@ assert.ok(
   'KarmaReason and ManaReason must both identify achievement rewards.',
 )
 
+const rewardMigration = source(
+  'prisma/migrations/20260802122000_add_achievement_reward_reasons/migration.sql',
+)
+assert.ok(
+  rewardMigration.includes('record.userId = 1') &&
+    rewardMigration.includes("'theme', 'achievement-tour'") &&
+    rewardMigration.includes('SET record.isConfirmed = false') &&
+    !rewardMigration.includes('DELETE'),
+  'The two failed alpha confirmations must be re-opened without deleting achievement history.',
+)
+
 const achievementsApi = source('server/api/achievements/index.get.ts')
 assert.ok(
   achievementsApi.includes('where: { isActive: true }'),

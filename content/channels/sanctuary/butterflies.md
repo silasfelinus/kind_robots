@@ -3,7 +3,7 @@ contentType: tab
 channelKey: sanctuary
 tabKey: sanctuary
 dashboardKey: giftshop
-dashboardTab: sanctuary
+dashboardTab: community
 label: Butterflies
 title: Butterfly Sanctuary
 subtitle: Play with AMI's digital recreations

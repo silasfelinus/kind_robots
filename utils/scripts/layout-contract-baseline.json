@@ -20,7 +20,6 @@
       "components/dreams/dream-brainstorm.vue",
       "components/giftshop/giftshop-manager.vue",
       "components/navigation/channel-select.vue",
-      "components/navigation/workspace-narrator.vue",
       "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
       "components/rewards/reward-interact.vue",

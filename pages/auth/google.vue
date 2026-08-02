@@ -1,6 +1,14 @@
 <!-- /pages/auth/google.vue -->
 <template>
-  <div class="text-center p-6 text-info">Logging you in via Google…</div>
+  <main class="kr-surface">
+    <div class="kr-scroll">
+      <div
+        class="flex min-h-full items-center justify-center p-6 text-center text-info"
+      >
+        Logging you in via Google…
+      </div>
+    </div>
+  </main>
 </template>
 
 <script setup lang="ts">

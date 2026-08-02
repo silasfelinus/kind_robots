@@ -4,7 +4,11 @@
   Thin wrapper around <BuildBench>; the whole surface is the two-panel bench.
 -->
 <template>
-  <BuildBench />
+  <main class="kr-surface">
+    <div class="kr-scroll">
+      <BuildBench />
+    </div>
+  </main>
 </template>
 
 <script setup lang="ts">

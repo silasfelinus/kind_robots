@@ -1,4 +1,4 @@
-<!-- /components/pages/kaizen-popup.vue -->
+<!-- /components/conductor/kaizen-popup.vue -->
 <!-- A small trigger chip + modal explaining the Kaizen principle the
      project system is founded on. Drop-in anywhere on the conductor pages. -->
 <template>

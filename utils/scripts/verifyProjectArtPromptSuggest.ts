@@ -13,7 +13,7 @@ function expectContains(path: string, needles: string[]): void {
   }
 }
 
-expectContains('components/pages/conductor-art-gallery.vue', [
+expectContains('components/conductor/conductor-art-gallery.vue', [
   'maxlength="4000"',
   'generationPrompt',
   'imagePath',

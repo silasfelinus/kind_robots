@@ -1,4 +1,4 @@
-<!-- /components/pages/conductor-art-gallery.vue -->
+<!-- /components/conductor/conductor-art-gallery.vue -->
 <template>
   <section
     class="flex min-h-0 min-w-0 flex-col gap-3 overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 p-4"

@@ -495,6 +495,7 @@
               :allow-edit="false"
               :auto-load-image="false"
               :size="viewSize"
+              :earned-karma="earnedKarmaByImageId[image.id]"
               @select="handleImageCardClick"
               @delete="handleImageDeleted"
             />
@@ -626,6 +627,7 @@ import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+import { performFetch } from '@/stores/utils'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
 
@@ -936,6 +938,7 @@ const imagePage = ref(0)
 const folderPageSize = ref(24) // default 24
 const imagePageSize = ref(24)
 const hydratedImages = ref<Record<number, ArtImage>>({})
+const earnedKarmaByImageId = ref<Record<number, number>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
 const viewSize = ref<ViewSize>('md')
@@ -1163,6 +1166,7 @@ async function refreshGallery() {
           }),
     ])
 
+    void refreshEarnedKarma()
     await hydrateVisibleImages()
     successMessage.value = 'Gallery refreshed.'
   } catch (error) {
@@ -1235,6 +1239,7 @@ watch(
     showMature.value,
   ],
   async () => {
+    void refreshEarnedKarma()
     await hydrateVisibleImages()
   },
 )
@@ -1271,6 +1276,7 @@ async function initializeGallery() {
       await fetchArtImagesSafely()
     }
 
+    void refreshEarnedKarma()
     await hydrateVisibleImages()
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
@@ -1481,6 +1487,40 @@ function clearSelectedImage() {
   selectedImageForOverlay.value = null
   if (typeof artStore.deselectArtImage === 'function')
     artStore.deselectArtImage()
+}
+
+// interface-vision/t-046: batch-fetch earned karma for the current visible
+// page only (not the whole gallery), same "fetch on the rendered page, not
+// every filter keystroke" scoping as hydrateVisibleImages -- see
+// components/rewards/reward-gallery.vue for the reference wiring this
+// mirrors and server/api/economy/karma-earned.post.ts for the endpoint.
+async function refreshEarnedKarma() {
+  const ids = pagedActiveImages.value.map((image) => image.id)
+
+  if (!ids.length) {
+    earnedKarmaByImageId.value = {}
+    return
+  }
+
+  const res = await performFetch<
+    Array<{ refType: string; refId: string; earnedKarma: number }>
+  >('/api/economy/karma-earned', {
+    method: 'POST',
+    body: JSON.stringify({
+      items: ids.map((id) => ({ refType: 'artImage', refId: id })),
+    }),
+  })
+
+  if (!res.success || !Array.isArray(res.data)) return
+
+  const next: Record<number, number> = {}
+
+  for (const row of res.data) {
+    const id = Number(row.refId)
+    if (Number.isFinite(id)) next[id] = row.earnedKarma
+  }
+
+  earnedKarmaByImageId.value = next
 }
 
 async function hydrateVisibleImages() {

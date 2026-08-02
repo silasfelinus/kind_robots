@@ -1,11 +1,13 @@
 <!-- /components/pages/conductor-page.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden p-1.5 sm:p-2.5"
+  >
     <SnapshotModeBanner />
 
     <!-- COCKPIT BAR: unified slim context strip -->
     <div
-      class="flex shrink-0 flex-wrap items-center gap-x-2.5 gap-y-1 rounded-xl border border-base-300/70 bg-base-100/90 px-3 py-1.5"
+      class="kr-toolbar rounded-xl border border-base-300/70 bg-base-100/90 px-3 py-1.5"
     >
       <!-- Left: breadcrumb or page label -->
       <div class="flex min-w-0 items-center gap-1.5">
@@ -361,7 +363,7 @@
             </div>
           </form>
 
-          <div class="flex items-center gap-2">
+          <div class="kr-toolbar">
             <div
               v-if="todoFilter === 'OPEN'"
               role="tablist"
@@ -424,19 +426,14 @@
                 >
               </button>
             </div>
-            <div role="tablist" class="tabs tabs-boxed ml-auto">
-              <button
-                v-for="f in todoFilterOptions"
-                :key="f"
-                type="button"
-                role="tab"
-                class="tab text-xs"
-                :class="todoFilter === f ? 'tab-active' : ''"
-                @click="todoFilter = f"
-              >
+            <select
+              v-model="todoFilter"
+              class="select select-bordered select-xs ml-auto rounded-xl text-xs font-semibold"
+            >
+              <option v-for="f in todoFilterOptions" :key="f" :value="f">
                 {{ f.charAt(0) + f.slice(1).toLowerCase() }}
-              </button>
-            </div>
+              </option>
+            </select>
           </div>
 
           <!-- Honeydo inbox context banner (t-003) -->

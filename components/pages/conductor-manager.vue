@@ -1,24 +1,13 @@
 <template>
-  <div
-    class="relative h-full min-h-0 overflow-hidden rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
-  >
-    <div
-      class="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl"
+  <div class="kr-surface">
+    <WishmasterPage v-if="pageStore.workspaceCardKey === 'wishmaster'" />
+    <PortosPage v-else-if="pageStore.workspaceCardKey === 'portos'" />
+    <AppmakerPage v-else-if="pageStore.workspaceCardKey === 'appmaker'" />
+    <ConductorPitchManager
+      v-else-if="pageStore.workspaceCardKey === 'brainstorm'"
     />
-    <div
-      class="pointer-events-none absolute -bottom-32 -right-24 size-80 rounded-full bg-secondary/10 blur-3xl"
-    />
-
-    <div class="relative h-full min-h-0 p-1.5 sm:p-2.5">
-      <WishmasterPage v-if="pageStore.workspaceCardKey === 'wishmaster'" />
-      <PortosPage v-else-if="pageStore.workspaceCardKey === 'portos'" />
-      <AppmakerPage v-else-if="pageStore.workspaceCardKey === 'appmaker'" />
-      <ConductorPitchManager
-        v-else-if="pageStore.workspaceCardKey === 'brainstorm'"
-      />
-      <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
-      <ConductorPage v-else />
-    </div>
+    <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
+    <ConductorPage v-else />
   </div>
 </template>
 

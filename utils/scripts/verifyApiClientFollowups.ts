@@ -43,13 +43,10 @@ assert.deepEqual(
 const userStore = read('stores/userStore.ts')
 assert.match(userStore, /const userId = computed<number \| null>/)
 assert.match(userStore, /const authenticatedUserId = computed<number \| null>/)
-assert.match(userStore, /const currentUserId = user\.value\.id/)
 assert.doesNotMatch(
-  userStore.slice(
-    userStore.indexOf('async function updateKarmaAndMana'),
-    userStore.indexOf('async function spendMana'),
-  ),
-  /updateUserFields\(users\.value, userId\.value/,
+  userStore,
+  /updateKarmaAndMana/,
+  'Achievement rewards must never patch karma or mana through the client user store.',
 )
 
 const achievementStore = read('stores/achievementStore.ts')

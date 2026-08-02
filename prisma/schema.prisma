@@ -2099,6 +2099,7 @@ enum ManaReason {
   ADMIN_REFUND
   KARMA_CONVERSION
   ADJUSTMENT
+  ACHIEVEMENT_CONFIRMED
 }
 
 enum ScenarioOutputType {
@@ -2403,6 +2404,7 @@ enum KarmaReason {
   REFERRAL_SIGNUP
   REFERRAL_CUT
   ADMIN_ADJUSTMENT
+  ACHIEVEMENT_CONFIRMED
 }
 
 enum ChallengeType {

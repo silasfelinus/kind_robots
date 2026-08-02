@@ -19,7 +19,6 @@ import {
   getFromLocalStorage,
   saveToLocalStorage,
   removeFromLocalStorage,
-  updateUserFields,
   startLoading,
   stopLoading,
 } from './helpers/userHelper'
@@ -845,53 +844,6 @@ export const useUserStore = defineStore('userStore', () => {
     await updateUser(info)
   }
 
-  async function updateKarmaAndMana() {
-    if (!user.value || user.value.id === 10) {
-      return { success: false, message: 'Guest users do not update karma.' }
-    }
-
-    const currentUserId = user.value.id
-
-    try {
-      const achievementStore = useAchievementStore()
-
-      await Promise.all([
-        achievementStore.fetchAchievements(),
-        achievementStore.fetchAchievementRecords(),
-      ])
-
-      const count = achievementStore.achievementCountForUser
-      const updatedMana = count
-
-      // Karma is no longer set here: it is owned entirely by the server-side
-      // KarmaTransaction ledger (server/utils/karma.ts). Overwriting it with
-      // achievementCount * 1000 bypassed that ledger and contradicted it.
-      const latestUser = await flushSpecificUserPatch({
-        mana: updatedMana,
-      } as UserPatch)
-
-      if (latestUser) {
-        users.value = updateUserFields(users.value, currentUserId, {
-          mana: updatedMana,
-        })
-
-        return { success: true, message: 'Mana updated.' }
-      }
-
-      throw new Error('Failed to update mana.')
-    } catch (error) {
-      handleError(error, 'updateKarmaAndMana')
-      return { success: false, message: 'Failed to update mana.' }
-    }
-  }
-
-  async function flushSpecificUserPatch(
-    fields: UserPatch,
-  ): Promise<User | null> {
-    queueUserPatch(fields)
-    return flushUserPatchQueue()
-  }
-
   async function getUsernames(): Promise<string[]> {
     try {
       const res = await performFetch<string[]>('/api/users/usernames')
@@ -947,7 +899,6 @@ export const useUserStore = defineStore('userStore', () => {
     updateUser,
     updateUserInfo,
     updateUserToken,
-    updateKarmaAndMana,
     getFromLocalStorage,
     userImage,
     getUserNameByUserId,

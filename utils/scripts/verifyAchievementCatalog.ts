@@ -57,6 +57,10 @@ for (const achievement of achievementData) {
     validPageHints.has(String(achievement.pageHint || '')),
     `Achievement ${achievement.id} points at a retired route: ${achievement.pageHint}`,
   )
+  assert.ok(
+    achievement.karma > 0,
+    `Achievement ${achievement.id} must grant positive ledger-tracked karma.`,
+  )
 }
 
 for (const retiredCode of ['fate', 'test']) {
@@ -118,6 +122,17 @@ assert.ok(
     achievementStore.includes('fetchAchievementRecords(true)'),
   'Initialization must force a server refresh after local hydration.',
 )
+assert.ok(
+  !achievementStore.includes('updateKarmaAndMana') &&
+    achievementStore.includes('validateAndFetchUserData()'),
+  'Achievement confirmation must use server rewards and then refresh authoritative balances.',
+)
+
+const roadAhead = achievementData.find(
+  (achievement) => achievement.triggerCode === 'achievement-tour',
+)
+assert.equal(roadAhead?.karma, 1000)
+assert.equal(roadAhead?.isRepeatable, false)
 
 assert.ok(
   source('components/admin/kind-loader.vue').includes(
@@ -183,6 +198,40 @@ assert.ok(
     seed.includes('achievementRecord.deleteMany') &&
     seed.includes('achievement.deleteMany'),
   'Retired alpha definitions and award records must be removed.',
+)
+
+const confirmationApi = source(
+  'server/api/achievements/records/[id].patch.ts',
+)
+assert.ok(
+  confirmationApi.includes('prisma.$transaction') &&
+    confirmationApi.includes('awardKarma') &&
+    confirmationApi.includes('applyMana') &&
+    confirmationApi.includes("reason: 'ACHIEVEMENT_CONFIRMED'") &&
+    confirmationApi.includes('FOR UPDATE') &&
+    confirmationApi.includes('existingKarmaAward') &&
+    confirmationApi.includes('existingManaAward'),
+  'Confirmation must atomically grant each missing ledger reward exactly once.',
+)
+assert.ok(
+  source('server/utils/karma.ts').includes('tx?: TransactionClient') &&
+    source('server/utils/mana.ts').includes('tx?: TransactionClient'),
+  'Both ledger helpers must be able to join the confirmation transaction.',
+)
+assert.ok(
+  source('prisma/schema.prisma').match(/ACHIEVEMENT_CONFIRMED/g)?.length === 2,
+  'KarmaReason and ManaReason must both identify achievement rewards.',
+)
+
+const rewardMigration = source(
+  'prisma/migrations/20260802122000_add_achievement_reward_reasons/migration.sql',
+)
+assert.ok(
+  rewardMigration.includes('record.userId = 1') &&
+    rewardMigration.includes("'theme', 'achievement-tour'") &&
+    rewardMigration.includes('SET record.isConfirmed = false') &&
+    !rewardMigration.includes('DELETE'),
+  'The two failed alpha confirmations must be re-opened without deleting achievement history.',
 )
 
 const achievementsApi = source('server/api/achievements/index.get.ts')

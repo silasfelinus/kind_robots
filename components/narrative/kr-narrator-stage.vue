@@ -66,7 +66,7 @@
       <!-- The quick topics were the seed for kr-choice-list: the same
            pick-one-from-a-few idea that workspace-narrator and the scenarios
            choice-* trio each re-implemented. Adopting it here puts the shared
-           component in Storymaker's and Taskmaster's real render path at once,
+           component in Storybook's and Taskmaster's real render path at once,
            since both mount this stage. -->
       <kr-choice-list
         layout="row"

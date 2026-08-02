@@ -20,11 +20,11 @@ const controllerPath = 'composables/useNarrativeArtJobs.ts'
 const artStorePath = 'stores/artStore.ts'
 const enqueuePath = 'server/api/art/enqueue.post.ts'
 const recoveryPath = 'server/api/art/queue/narrative.get.ts'
-const storyStorePath = 'stores/storymakerStore.ts'
+const storyStorePath = 'stores/storybookStore.ts'
 const taskStorePath = 'stores/taskmasterStore.ts'
 const transcriptPath = 'components/narrative/narrative-transcript.vue'
 const statusPath = 'components/narrative/narrative-art-status.vue'
-const storyPagePath = 'components/conductor/storymaker-page.vue'
+const storyPagePath = 'components/conductor/storybook-page.vue'
 const taskPagePath = 'components/pages/taskmaster-page.vue'
 
 const profiles = source(profilesPath)
@@ -37,16 +37,16 @@ includesAll(profilesPath, [
   'steps: 4',
   "sampler: 'euler'",
   "scheduler: 'simple'",
-  "key: 'storymaker-narrative-krea4'",
-  "product: 'storymaker'",
-  "projectSlug: 'storymaker'",
+  "key: 'storybook-narrative-krea4'",
+  "product: 'storybook'",
+  "projectSlug: 'storybook'",
   "key: 'taskmaster-narrative-krea4'",
   "product: 'taskmaster'",
   "projectSlug: 'taskmaster'",
 ])
 
-const storymakerProfile = profiles.slice(
-  profiles.indexOf('  storymaker: {'),
+const storybookProfile = profiles.slice(
+  profiles.indexOf('  storybook: {'),
   profiles.indexOf('  taskmaster: {'),
 )
 const taskmasterProfile = profiles.slice(
@@ -54,7 +54,7 @@ const taskmasterProfile = profiles.slice(
   profiles.indexOf('\n  },\n}', profiles.indexOf('  taskmaster: {')) + 5,
 )
 for (const [label, profile] of [
-  ['Storymaker', storymakerProfile],
+  ['Storybook', storybookProfile],
   ['Taskmaster', taskmasterProfile],
 ]) {
   assert.ok(

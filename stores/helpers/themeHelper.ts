@@ -47,7 +47,7 @@ export const extraVars = [
 /**
  * Every theme name the app will apply to `data-theme`.
  *
- * The two `storymaker*` entries come FIRST because they are the house
+ * The two `storybook*` entries come FIRST because they are the house
  * aesthetic (interface-vision t-002), not stock daisyUI themes — both are
  * defined by `@plugin "daisyui/theme"` blocks in assets/css/tailwind.css. They
  * have to be listed here or setActiveTheme rejects them as "not found in
@@ -55,8 +55,8 @@ export const extraVars = [
  * are daisyUI's built-ins, kept so users can still theme-switch.
  */
 export const daisyuiThemes = [
-  'storymaker',
-  'storymaker-dark',
+  'storybook',
+  'storybook-dark',
   'light',
   'dark',
   'cupcake',

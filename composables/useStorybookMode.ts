@@ -1,8 +1,8 @@
-// /composables/useStorymakerMode.ts
+// /composables/useStorybookMode.ts
 import { computed, ref } from 'vue'
 
 /**
- * The reading mode for the Storymaker surface.
+ * The reading mode for the Storybook surface.
  *
  * Silas, 2026-08-02: "the story maker should let the user pick from all three,
  * but I would call them Classic (daisy ui defaults), story maker, and story
@@ -16,8 +16,8 @@ import { computed, ref } from 'vue'
  *                   reader picked globally, with standard app components. This
  *                   is the one that must NOT pin a theme, or it stops meaning
  *                   "daisyUI defaults" the moment someone changes theirs.
- *   storymaker      mockup B, the warm-paper plate. Default.
- *   storymaker-dark mockup A, the lit stage in a dark house.
+ *   storybook      mockup B, the warm-paper plate. Default.
+ *   storybook-dark mockup A, the lit stage in a dark house.
  *
  * The two non-classic modes are applied as `data-theme` on the story SUBTREE
  * rather than on <html>, so choosing one does not hijack the rest of the app --
@@ -25,10 +25,10 @@ import { computed, ref } from 'vue'
  * That is also why this is a separate preference from themeStore rather than a
  * second writer to it: two writers to `data-theme` on the root would race.
  */
-export type StorymakerMode = 'classic' | 'storymaker' | 'storymaker-dark'
+export type StorybookMode = 'classic' | 'storybook' | 'storybook-dark'
 
-export const STORYMAKER_MODES: {
-  key: StorymakerMode
+export const STORYBOOK_MODES: {
+  key: StorybookMode
   label: string
   hint: string
 }[] = [
@@ -38,30 +38,30 @@ export const STORYMAKER_MODES: {
     hint: 'Your own theme, standard layout',
   },
   {
-    key: 'storymaker',
-    label: 'Storymaker',
+    key: 'storybook',
+    label: 'Storybook',
     hint: 'Warm paper, serif narration',
   },
   {
-    key: 'storymaker-dark',
-    label: 'Storymaker Dark',
+    key: 'storybook-dark',
+    label: 'Storybook Dark',
     hint: 'A lit stage in a dark house',
   },
 ]
 
-const STORAGE_KEY = 'storymakerMode'
-const DEFAULT_MODE: StorymakerMode = 'storymaker'
+const STORAGE_KEY = 'storybookMode'
+const DEFAULT_MODE: StorybookMode = 'storybook'
 
-function isMode(value: unknown): value is StorymakerMode {
-  return STORYMAKER_MODES.some((mode) => mode.key === value)
+function isMode(value: unknown): value is StorybookMode {
+  return STORYBOOK_MODES.some((mode) => mode.key === value)
 }
 
-// Module-level so every Storymaker surface on the page agrees, and so the
+// Module-level so every Storybook surface on the page agrees, and so the
 // choice survives navigating between them within a session.
-const mode = ref<StorymakerMode>(DEFAULT_MODE)
+const mode = ref<StorybookMode>(DEFAULT_MODE)
 let hydrated = false
 
-function read(): StorymakerMode {
+function read(): StorybookMode {
   if (typeof window === 'undefined') return DEFAULT_MODE
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -71,7 +71,7 @@ function read(): StorymakerMode {
   }
 }
 
-export function useStorymakerMode() {
+export function useStorybookMode() {
   // Hydrate lazily rather than at module scope: this file is imported during
   // SSR, where localStorage does not exist, and reading it at import time would
   // also bake the first visitor's choice into the module for the whole process.
@@ -80,7 +80,7 @@ export function useStorymakerMode() {
     hydrated = true
   }
 
-  function setMode(next: StorymakerMode): void {
+  function setMode(next: StorybookMode): void {
     if (!isMode(next)) return
     mode.value = next
     if (typeof window === 'undefined') return
@@ -107,5 +107,5 @@ export function useStorymakerMode() {
   /** True when the reader wants the bespoke narrative treatment. */
   const isStoryStyled = computed(() => mode.value !== 'classic')
 
-  return { mode, setMode, dataTheme, isStoryStyled, modes: STORYMAKER_MODES }
+  return { mode, setMode, dataTheme, isStoryStyled, modes: STORYBOOK_MODES }
 }

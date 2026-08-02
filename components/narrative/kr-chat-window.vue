@@ -2,7 +2,7 @@
 <!--
   The scrolling message list, shared by every conversational surface.
 
-  Two implementations of this existed: narrative-transcript.vue (Storymaker,
+  Two implementations of this existed: narrative-transcript.vue (Storybook,
   Taskmaster) and workspace-narrator.vue's `seededMessages` loop (Dreams). They
   disagreed on everything cosmetic and agreed on the substance — a list of
   turns, a speaker, an optional portrait, an optional set of follow-up choices,

@@ -59,5 +59,5 @@ math. A dimension with no stat row fails by default.
 ## Boundary
 
 Everything stays inside the `Life*` models — no shared session tables with
-Storymaker (see `projects/davinci/docs/storymaker-boundary-comparison.md`
+Storybook (see `projects/davinci/docs/storybook-boundary-comparison.md`
 in the conductor repo).

@@ -169,7 +169,7 @@ async function refreshManagerData() {
 onMounted(async () => {
   await loadManagerData()
 
-  // Deep-link support: a caller (e.g. the storymaker front page's "Start a
+  // Deep-link support: a caller (e.g. the storybook front page's "Start a
   // new scenario" CTA) can land here with ?scenario=new to jump straight to
   // the add tab. This must run *after* loadManagerData, since the page's
   // own content frontmatter (dashboardTab: scenarios) already resolved the

@@ -114,7 +114,7 @@ for (const [path, source] of [
 // REGRESSION (a surface dropping back to a hand-rolled loop) is visible in CI
 // output rather than silent.
 const SURFACES = [
-  'components/conductor/storymaker-page.vue',
+  'components/conductor/storybook-page.vue',
   'components/pages/taskmaster-page.vue',
   'components/bots/bot-interact.vue',
   'components/rewards/reward-interact.vue',
@@ -136,7 +136,7 @@ const KIT_USE =
 /*
  * Count TRANSITIVE adoption, one level deep.
  *
- * Storymaker and Taskmaster reach the kit through kr-narrator-stage rather than
+ * Storybook and Taskmaster reach the kit through kr-narrator-stage rather than
  * mounting it themselves, and a counter that missed that would report 0/7 while
  * the components were demonstrably live in both render paths -- understating
  * progress and, worse, hiding a regression if the stage stopped using them.

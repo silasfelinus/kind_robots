@@ -22,7 +22,7 @@ const channel = fs.readFileSync(channelPath, 'utf8')
 const component = fs.readFileSync(componentPath, 'utf8')
 const dashboard = fs.readFileSync('stores/helpers/dashboardHelper.ts', 'utf8')
 const voiceLab = fs.readFileSync('components/conductor/voice-lab-page.vue', 'utf8')
-const boundary = fs.readFileSync('docs/products/storymaker-taskmaster-boundary.md', 'utf8')
+const boundary = fs.readFileSync('docs/products/storybook-taskmaster-boundary.md', 'utf8')
 
 assert.match(root, /^title: Serendipity$/m)
 assert.match(root, /^tabKey: serendipity$/m)

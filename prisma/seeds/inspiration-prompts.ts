@@ -45,7 +45,12 @@ const INSPIRATIONS: InspirationEntry[] = [
     imagePath: 'public/images/artcollections/art-generator-connect/art-generator-connect-inspiration-03.webp',
     artPrompt: t('A calm operations desk where failed placeholders are transformed into finished art assets by small robot technicians and luminous validation rails, crisp studio illustration, no text, no collage'),
   },
-  // storymaker
+  // storymaker — NOT renamed with the product (interface-vision t-002).
+  // These paths are where the files physically live on disk, under
+  // public/images/artcollections/storymaker/. ArtCollection.slug and the
+  // `folder-sync:storymaker` designer on the synced ArtImages mirror the same
+  // folder. Renaming the product does not move the bytes, and rewriting these
+  // would make the paths point at nothing.
   {
     imagePath: 'public/images/artcollections/storymaker/storymaker-inspiration-01.webp',
     artPrompt: t('A tabletop map blooming into multiple possible scenes at once: forest, airship, castle, sea cave, and dragon trail, with players shaping the story through glowing choice tokens, high-end cozy fantasy game art, no text, no collage'),

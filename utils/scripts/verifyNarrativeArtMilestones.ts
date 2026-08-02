@@ -1,10 +1,10 @@
 // /utils/scripts/verifyNarrativeArtMilestones.ts
 import assert from 'node:assert/strict'
 import type {
-  StorymakerBeat,
-  StorymakerSession,
-  StorymakerStateDelta,
-} from '../../stores/storymakerStore'
+  StorybookBeat,
+  StorybookSession,
+  StorybookStateDelta,
+} from '../../stores/storybookStore'
 import type {
   TaskmasterBeat,
   TaskmasterCheckpoint,
@@ -12,13 +12,13 @@ import type {
 } from '../../stores/taskmasterStore'
 import {
   MIN_BEATS_BETWEEN_ART,
-  STORYMAKER_INTERMEDIATE_ART_LIMIT,
+  STORYBOOK_INTERMEDIATE_ART_LIMIT,
   TASKMASTER_INTERMEDIATE_ART_LIMIT,
-  selectStorymakerArtMilestone,
+  selectStorybookArtMilestone,
   selectTaskmasterArtMilestone,
 } from '../narrativeArtMilestones'
 
-const emptyDelta = (): StorymakerStateDelta => ({
+const emptyDelta = (): StorybookStateDelta => ({
   consequences: [],
   relationshipShifts: [],
   inventoryAdd: [],
@@ -30,9 +30,9 @@ function storyBeat(
   narrative: string,
   options: {
     artMoment?: 'opening' | 'chapter' | 'location' | 'character-introduction' | 'pivotal-event' | 'finale'
-    delta?: StorymakerStateDelta
+    delta?: StorybookStateDelta
   } = {},
-): StorymakerBeat {
+): StorybookBeat {
   return {
     id,
     sessionId: 'story-session',
@@ -40,13 +40,13 @@ function storyBeat(
     question: 'What now?',
     stateDelta: options.delta ?? emptyDelta(),
     art: options.artMoment
-      ? ({ moment: options.artMoment } as StorymakerBeat['art'])
+      ? ({ moment: options.artMoment } as StorybookBeat['art'])
       : undefined,
     createdAt: new Date().toISOString(),
   }
 }
 
-function storySession(beats: StorymakerBeat[]): StorymakerSession {
+function storySession(beats: StorybookBeat[]): StorybookSession {
   return {
     id: 'story-session',
     userId: 1,
@@ -81,7 +81,7 @@ const pivotal = storyBeat('s2', 'The bridge collapses behind them.', {
 })
 let story = storySession([opening, quiet, pivotal])
 assert.equal(
-  selectStorymakerArtMilestone(story, pivotal),
+  selectStorybookArtMilestone(story, pivotal),
   'pivotal-event',
   'A state-changing beat should qualify after the cooldown',
 )
@@ -91,7 +91,7 @@ const tooSoon = storyBeat('s1b', 'A consequence arrives immediately.', {
 })
 story = storySession([opening, tooSoon])
 assert.equal(
-  selectStorymakerArtMilestone(story, tooSoon),
+  selectStorybookArtMilestone(story, tooSoon),
   null,
   'Opening art must enforce the minimum beat cooldown',
 )
@@ -99,7 +99,7 @@ assert.equal(
 const castIntro = storyBeat('s2c', 'Mara Vale steps from the smoke and raises a lantern.')
 story = storySession([opening, quiet, castIntro])
 assert.equal(
-  selectStorymakerArtMilestone(story, castIntro),
+  selectStorybookArtMilestone(story, castIntro),
   'character-introduction',
   'A selected cast member appearing for the first time should qualify',
 )
@@ -112,7 +112,7 @@ story = storySession([
   chapterBeat,
 ])
 assert.equal(
-  selectStorymakerArtMilestone(story, chapterBeat),
+  selectStorybookArtMilestone(story, chapterBeat),
   'chapter',
   'A deterministic chapter boundary should qualify',
 )
@@ -120,7 +120,7 @@ assert.equal(
 const locationBeat = storyBeat('s2l', 'They enter the observatory beyond the ridge.')
 story = storySession([opening, quiet, locationBeat])
 assert.equal(
-  selectStorymakerArtMilestone(story, locationBeat),
+  selectStorybookArtMilestone(story, locationBeat),
   'location',
   'A clear location transition should qualify when no stronger event applies',
 )
@@ -137,11 +137,11 @@ story = storySession([
   capped,
 ])
 assert.equal(
-  selectStorymakerArtMilestone(story, capped),
+  selectStorybookArtMilestone(story, capped),
   null,
-  'Storymaker must respect its intermediate-art limit',
+  'Storybook must respect its intermediate-art limit',
 )
-assert.equal(STORYMAKER_INTERMEDIATE_ART_LIMIT, 2)
+assert.equal(STORYBOOK_INTERMEDIATE_ART_LIMIT, 2)
 assert.equal(MIN_BEATS_BETWEEN_ART, 2)
 
 function checkpoint(

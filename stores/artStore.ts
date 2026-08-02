@@ -108,7 +108,7 @@ export type QueuedArtJob = {
 }
 
 export type NarrativeArtEnqueueContext = {
-  product: 'storymaker' | 'taskmaster'
+  product: 'storybook' | 'taskmaster'
   sessionId: string
   beatId: string
   moment: string

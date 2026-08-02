@@ -1,9 +1,9 @@
 // /utils/narrativeArtMilestones.ts
 import type {
-  StorymakerBeat,
-  StorymakerSession,
-  StorymakerStateDelta,
-} from '@/stores/storymakerStore'
+  StorybookBeat,
+  StorybookSession,
+  StorybookStateDelta,
+} from '@/stores/storybookStore'
 import type {
   TaskmasterBeat,
   TaskmasterCheckpointStatus,
@@ -11,14 +11,14 @@ import type {
 } from '@/stores/taskmasterStore'
 import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
-export const STORYMAKER_INTERMEDIATE_ART_LIMIT = 2
+export const STORYBOOK_INTERMEDIATE_ART_LIMIT = 2
 export const TASKMASTER_INTERMEDIATE_ART_LIMIT = 1
 export const MIN_BEATS_BETWEEN_ART = 2
 
 const LOCATION_TRANSITION_PATTERN =
   /\b(arriv(?:e|ed|ing)|enter(?:ed|ing)?|reach(?:ed|ing)?|cross(?:ed|ing)? into|step(?:ped|ping)? into|emerg(?:e|ed|ing) into|descend(?:ed|ing)? into|climb(?:ed|ing)? into)\b/i
 
-function hasMeaningfulStateDelta(delta: StorymakerStateDelta): boolean {
+function hasMeaningfulStateDelta(delta: StorybookStateDelta): boolean {
   return Boolean(
     delta.consequences.length ||
       delta.relationshipShifts.length ||
@@ -61,8 +61,8 @@ function normalizedText(value: string): string {
 }
 
 function newlyIntroducedCast(
-  session: StorymakerSession,
-  beat: StorymakerBeat,
+  session: StorybookSession,
+  beat: StorybookBeat,
   beatIndex: number,
 ): boolean {
   const current = normalizedText(beat.narrative)
@@ -79,21 +79,21 @@ function newlyIntroducedCast(
   })
 }
 
-function storyChapterBoundary(session: StorymakerSession, beatIndex: number): boolean {
+function storyChapterBoundary(session: StorybookSession, beatIndex: number): boolean {
   const sceneNumber = beatIndex + 1
   if (session.bible.structure === 'chaptered') return sceneNumber >= 4 && sceneNumber % 3 === 1
   if (session.bible.structure === 'episodic') return sceneNumber >= 5 && sceneNumber % 4 === 1
   return false
 }
 
-export function selectStorymakerArtMilestone(
-  session: StorymakerSession,
-  beat: StorymakerBeat,
+export function selectStorybookArtMilestone(
+  session: StorybookSession,
+  beat: StorybookBeat,
 ): NarrativeArtMoment | null {
   if (beat.art || session.status !== 'active') return null
   const beatIndex = session.beats.findIndex((entry) => entry.id === beat.id)
   if (beatIndex <= 0) return null
-  if (intermediateArtCount(session.beats) >= STORYMAKER_INTERMEDIATE_ART_LIMIT) {
+  if (intermediateArtCount(session.beats) >= STORYBOOK_INTERMEDIATE_ART_LIMIT) {
     return null
   }
   if (!hasArtCooldown(session.beats, beatIndex)) return null

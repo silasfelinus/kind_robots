@@ -2,10 +2,10 @@
 import { watch } from 'vue'
 import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
 import {
-  useStorymakerStore,
-  type StorymakerBeat,
-  type StorymakerIngredient,
-} from '@/stores/storymakerStore'
+  useStorybookStore,
+  type StorybookBeat,
+  type StorybookIngredient,
+} from '@/stores/storybookStore'
 import {
   useTaskmasterStore,
   type TaskmasterBeat,
@@ -13,11 +13,11 @@ import {
 } from '@/stores/taskmasterStore'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import {
-  selectStorymakerArtMilestone,
+  selectStorybookArtMilestone,
   selectTaskmasterArtMilestone,
 } from '@/utils/narrativeArtMilestones'
 
-const STORYMAKER_STORAGE_KEY = 'storymaker-session'
+const STORYBOOK_STORAGE_KEY = 'storybook-session'
 const TASKMASTER_STORAGE_KEY = 'taskmaster-session'
 
 function nowIso(): string {
@@ -25,7 +25,7 @@ function nowIso(): string {
 }
 
 function describeIngredient(
-  ingredient: StorymakerIngredient | TaskmasterIngredient,
+  ingredient: StorybookIngredient | TaskmasterIngredient,
 ): string {
   return [ingredient.title, ingredient.description, ingredient.flavorText]
     .filter(Boolean)
@@ -41,7 +41,7 @@ function persistSession(key: string, value: unknown): void {
 }
 
 export default defineNuxtPlugin(() => {
-  const storyStore = useStorymakerStore()
+  const storyStore = useStorybookStore()
   const taskStore = useTaskmasterStore()
   const artJobs = useNarrativeArtJobs()
   const seenStoryBeats = new Map<string, Set<string>>()
@@ -53,7 +53,7 @@ export default defineNuxtPlugin(() => {
     if (!active || !beat) return
     beat.art = art
     active.updatedAt = nowIso()
-    persistSession(STORYMAKER_STORAGE_KEY, active)
+    persistSession(STORYBOOK_STORAGE_KEY, active)
   }
 
   function updateTaskArt(beatId: string, art: NarrativeArtJobState): void {
@@ -65,15 +65,15 @@ export default defineNuxtPlugin(() => {
     persistSession(TASKMASTER_STORAGE_KEY, active)
   }
 
-  function requestStoryArt(beat: StorymakerBeat): void {
+  function requestStoryArt(beat: StorybookBeat): void {
     const active = storyStore.session
     if (!active) return
-    const moment = selectStorymakerArtMilestone(active, beat)
+    const moment = selectStorybookArtMilestone(active, beat)
     if (!moment) return
 
     void artJobs.enqueue(
       {
-        product: 'storymaker',
+        product: 'storybook',
         sessionId: active.id,
         beatId: beat.id,
         moment,

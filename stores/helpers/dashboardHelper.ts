@@ -900,16 +900,16 @@ export const dashboardConfigs = {
         route: '/stories',
       },
       {
-        key: 'storymaker',
-        label: 'Storymaker',
+        key: 'storybook',
+        label: 'Storybook',
         icon: 'kind-icon:story',
-        title: 'Storymaker',
+        title: 'Storybook',
         summary:
           'Weave characters, places, and treasures into a collaborative unfolding story.',
-        image: tabImage('scenario', 'storymaker'),
+        image: tabImage('scenario', 'storybook'),
         narrative:
-          'Storymaker is the long-form loom: bring your cast, settings, and rewards together and let the narrator help you spin a collaborative story that actually goes somewhere.',
-        route: '/storymaker',
+          'Storybook is the long-form loom: bring your cast, settings, and rewards together and let the narrator help you spin a collaborative story that actually goes somewhere.',
+        route: '/storybook',
       },
       {
         key: 'taskmaster',

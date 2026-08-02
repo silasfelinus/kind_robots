@@ -254,7 +254,7 @@ export async function resolveLifeRunEnding(
 // The durable-state substrate the Chat narrator will call later: create a run,
 // record a choice with its stat effects, and read a run back for resume. AI
 // narration is out of scope — these endpoints own state, not prose. Per the
-// Storymaker boundary doc, this stays inside the Life* models; no shared
+// Storybook boundary doc, this stays inside the Life* models; no shared
 // session tables.
 
 function withStatusCode(message: string, statusCode: number): Error {

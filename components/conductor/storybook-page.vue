@@ -1,9 +1,9 @@
-<!-- /components/conductor/storymaker-page.vue -->
+<!-- /components/conductor/storybook-page.vue -->
 <template>
   <!-- data-theme scopes the reading mode to THIS subtree, so picking
-       Storymaker Dark here does not hijack the rest of the app. Classic binds
+       Storybook Dark here does not hijack the rest of the app. Classic binds
        undefined, which Vue drops entirely, leaving the reader's global theme
-       in charge — see composables/useStorymakerMode.ts. -->
+       in charge — see composables/useStorybookMode.ts. -->
   <section
     :data-theme="dataTheme"
     class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -21,7 +21,7 @@
         <p class="mt-1 max-w-3xl text-sm leading-relaxed text-base-content/65">
           Shape a premise, gather reusable Kind Robots characters and Facets,
           review the story bible, and let a dedicated narrator carry your
-          choices forward. Storymaker creates fiction; it never turns the tale
+          choices forward. Storybook creates fiction; it never turns the tale
           into a task list.
         </p>
       </div>
@@ -169,7 +169,7 @@
             </h3>
             <div class="flex flex-wrap gap-2">
               <button
-                v-for="style in STORYMAKER_NARRATOR_STYLES"
+                v-for="style in STORYBOOK_NARRATOR_STYLES"
                 :key="style"
                 type="button"
                 class="btn btn-sm rounded-xl capitalize"
@@ -194,7 +194,7 @@
             </h3>
             <div class="grid gap-2 md:grid-cols-3">
               <button
-                v-for="structure in STORYMAKER_STRUCTURES"
+                v-for="structure in STORYBOOK_STRUCTURES"
                 :key="structure.value"
                 type="button"
                 class="rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm"
@@ -225,7 +225,7 @@
             <h2 class="text-lg font-black">The cast</h2>
             <p class="mt-1 text-xs leading-relaxed text-base-content/55">
               Choose up to five existing characters. Leaving the cast empty lets
-              Storymaker invent whoever the premise requires.
+              Storybook invent whoever the premise requires.
             </p>
           </div>
           <NarrativeIngredientMultiPicker
@@ -233,7 +233,7 @@
             :items="characterOptions"
             label="Characters"
             helper="Existing character art and personality travel into the story bible."
-            empty-state="No characters are available yet. Storymaker can still invent a cast from the premise."
+            empty-state="No characters are available yet. Storybook can still invent a cast from the premise."
             :loading="characterStore.loading || characterStore.isInitializing"
             :error="characterStore.error"
             :initial-limit="9"
@@ -260,7 +260,7 @@
             label="Primary setting"
             helper="Choose one reusable LOCATION Dream, or let the premise decide."
             empty-label="Invent a new place"
-            empty-description="Storymaker will derive the setting from the premise and selected Facets."
+            empty-description="Storybook will derive the setting from the premise and selected Facets."
             empty-icon="kind-icon:moon"
             empty-state="No LOCATION Dreams are available yet."
             :loading="dreamStore.loading"
@@ -314,7 +314,7 @@
           <div>
             <h2 class="text-lg font-black">Story bible</h2>
             <p class="mt-1 text-xs leading-relaxed text-base-content/55">
-              Review the creative contract before Storymaker writes the opening
+              Review the creative contract before Storybook writes the opening
               scene.
             </p>
           </div>
@@ -400,7 +400,7 @@
             />
             <span>
               Scene art will be directed from this bible automatically.
-              Storymaker will not ask for a model, sampler, dimensions, or step
+              Storybook will not ask for a model, sampler, dimensions, or step
               count.
             </span>
           </div>
@@ -501,14 +501,14 @@
           </div>
         </details>
 
-        <StorymakerStatePanel :session="store.session" />
+        <StorybookStatePanel :session="store.session" />
 
         <NarrativeTranscript
           :beats="store.session.beats"
           :is-streaming="store.isWeaving"
           :streaming-text="store.streamingText"
-          streaming-label="Storymaker is weaving the next scene…"
-          empty-label="Storymaker is preparing the opening scene."
+          streaming-label="Storybook is weaving the next scene…"
+          empty-label="Storybook is preparing the opening scene."
         >
           <template #after-beat="{ beat }">
             <NarrativeArtStatus
@@ -543,7 +543,7 @@
       :disabled="!store.awaitingAnswer"
       :loading="store.isWeaving"
       :placeholder="
-        store.awaitingAnswer ? 'What happens next?' : 'Storymaker is weaving…'
+        store.awaitingAnswer ? 'What happens next?' : 'Storybook is weaving…'
       "
       button-label="Continue story"
       hint="Your response changes this fictional branch. It does not update projects or real-world tasks."
@@ -560,23 +560,23 @@ import { useFacetStore } from '@/stores/facetStore'
 import { getDashboardTabImagePath } from '@/stores/helpers/dashboardHelper'
 import { useRewardStore } from '@/stores/rewardStore'
 import {
-  STORYMAKER_NARRATOR_STYLES,
-  STORYMAKER_STRUCTURES,
-  useStorymakerStore,
-  type StorymakerIngredient,
-} from '@/stores/storymakerStore'
+  STORYBOOK_NARRATOR_STYLES,
+  STORYBOOK_STRUCTURES,
+  useStorybookStore,
+  type StorybookIngredient,
+} from '@/stores/storybookStore'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
 
-const { mode, setMode, dataTheme, modes } = useStorymakerMode()
+const { mode, setMode, dataTheme, modes } = useStorybookMode()
 
-const store = useStorymakerStore()
+const store = useStorybookStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
 const facetStore = useFacetStore()
 const rewardStore = useRewardStore()
 
 const tabImage = computed(() =>
-  getDashboardTabImagePath('scenario', 'storymaker'),
+  getDashboardTabImagePath('scenario', 'storybook'),
 )
 
 const setupStep = ref(0)
@@ -692,7 +692,7 @@ const reviewTitle = computed(
 )
 const structureLabel = computed(
   () =>
-    STORYMAKER_STRUCTURES.find(
+    STORYBOOK_STRUCTURES.find(
       (item) => item.value === store.setupDraft.structure,
     )?.label || store.setupDraft.structure,
 )
@@ -712,7 +712,7 @@ function rarityLabel(value: string): string {
   return value.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-function toIngredient(option: NarrativeIngredientOption): StorymakerIngredient {
+function toIngredient(option: NarrativeIngredientOption): StorybookIngredient {
   const reward = rewardStore.rewards.find((item) => item.slug === option.slug)
   return {
     id: option.id,

@@ -38,23 +38,20 @@
       "components/wonderlab/mural-manager.vue",
       "components/wonderlab/wonderlab-preview-host.vue"
     ],
-    "no-viewport": [
-      "components/servers/chat-test.vue",
-      "components/wonderlab/new-eyeball.vue"
-    ],
+    "no-viewport": [],
     "one-mdc": [
       "content/about.md",
       "content/conductor.md",
       "content/plan/wonderlab.md"
     ],
     "ghost-prop": [
-      "components/art/art-manager.vue \u2192 <art-gallery>",
-      "components/art/art-manager.vue \u2192 <art-test>",
-      "components/user/user-manager.vue \u2192 <chat-gallery>",
-      "components/user/user-manager.vue \u2192 <theme-gallery>",
-      "components/wonderlab/lab-manager.vue \u2192 <lab-interact>",
-      "components/wonderlab/lab-manager.vue \u2192 <memory-dungeon>",
-      "components/wonderlab/lab-manager.vue \u2192 <screen-fx>"
+      "components/art/art-manager.vue → <art-gallery>",
+      "components/art/art-manager.vue → <art-test>",
+      "components/user/user-manager.vue → <chat-gallery>",
+      "components/user/user-manager.vue → <theme-gallery>",
+      "components/wonderlab/lab-manager.vue → <lab-interact>",
+      "components/wonderlab/lab-manager.vue → <memory-dungeon>",
+      "components/wonderlab/lab-manager.vue → <screen-fx>"
     ],
     "zero-scroll": [
       "components/pages/conductor-art-gallery.vue",

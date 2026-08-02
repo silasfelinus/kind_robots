@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center h-screen">
+  <div class="flex h-full min-h-[320px] items-center justify-center">
     <div
       class="bg-white rounded-full overflow-hidden shadow relative aspect-w-1 aspect-h-1"
       :style="eyeballStyle"

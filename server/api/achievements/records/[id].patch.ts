@@ -59,7 +59,6 @@ export default defineEventHandler(async (event) => {
           id: true,
           userId: true,
           achievementId: true,
-          isConfirmed: true,
           Achievement: {
             select: {
               karma: true,
@@ -83,11 +82,24 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      const shouldGrantRewards = isConfirmed && !existingRecord.isConfirmed
-      const data = await tx.achievementRecord.update({
-        where: { id: recordId },
-        data: { isConfirmed },
-      })
+      const confirmation = isConfirmed
+        ? await tx.achievementRecord.updateMany({
+            where: {
+              id: recordId,
+              isConfirmed: false,
+            },
+            data: { isConfirmed: true },
+          })
+        : null
+      const shouldGrantRewards = confirmation?.count === 1
+      const data = isConfirmed
+        ? await tx.achievementRecord.findUniqueOrThrow({
+            where: { id: recordId },
+          })
+        : await tx.achievementRecord.update({
+            where: { id: recordId },
+            data: { isConfirmed: false },
+          })
 
       if (!shouldGrantRewards) {
         return {

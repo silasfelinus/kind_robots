@@ -44,6 +44,7 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
 const contentDirectory = resolve(repositoryRoot, 'content')
 const channelsDirectory = resolve(contentDirectory, 'channels')
+const componentsDirectory = resolve(repositoryRoot, 'components')
 
 function cleanValue(value: string): string {
   const trimmed = value.trim()
@@ -80,6 +81,52 @@ async function markdownFiles(directory: string): Promise<string[]> {
       }),
     )
   ).flat()
+}
+
+/*
+ * Every component name an MDC block in a content file may legally mount.
+ *
+ * nuxt.config.ts registers components with `pathPrefix: false`, so the mount
+ * name is the BARE filename -- `components/navigation/navigation-health.vue`
+ * mounts as `:navigation-health`, not `:navigation-navigation-health`. Getting
+ * that wrong yields a component Vue silently cannot resolve, and the route
+ * renders nothing at all.
+ *
+ * Resolved from the files on disk rather than from `.nuxt/components.d.ts`,
+ * because that is a build artifact this script must not depend on -- it runs
+ * standalone in CI, before any `nuxi prepare`.
+ */
+async function componentMountNames(): Promise<Set<string>> {
+  const names = new Set<string>()
+  const walk = async (directory: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true })
+    for (const entry of entries) {
+      const path = resolve(directory, entry.name)
+      if (entry.isDirectory()) await walk(path)
+      else if (entry.isFile() && entry.name.endsWith('.vue')) {
+        names.add(entry.name.slice(0, -'.vue'.length))
+      }
+    }
+  }
+  await walk(componentsDirectory)
+  return names
+}
+
+/*
+ * Mount names used by a content file's MDC body.
+ *
+ * Same block shape verifyLayoutContract.ts already counts for its one-mdc rule
+ * (a line that is nothing but `:name` or `::name`), lifted here so the two
+ * scripts agree on what a mount is. That script knows which components a page
+ * mounts; it just never checked they exist.
+ */
+function mdcMounts(source: string): string[] {
+  const body = source.replace(/^---[\s\S]*?\n---\n/, '')
+  return body
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^:{1,2}[a-z][a-z0-9-]*$/.test(line))
+    .map((line) => line.replace(/^:{1,2}/, ''))
 }
 
 async function readDocument(file: string): Promise<NavigationDocument> {
@@ -228,6 +275,32 @@ async function main(): Promise<void> {
     if (!tabsByLocation.has(location)) addError(errors, page, `references unknown tab ${location}`)
   }
 
+  /*
+   * A mount that resolves to no component renders a BLANK page, and until now
+   * nothing checked it: this script and verifyNavManifest.ts both read only
+   * frontmatter. That is how /navigation-health and /project-placement -- two
+   * live admin tabs -- shipped mounting `:navigation-navigation-health` and
+   * `:projects-project-placement-manager`, neither of which exists.
+   */
+  const knownComponents = await componentMountNames()
+  let checkedMounts = 0
+  for (const file of pageFiles) {
+    const mounts = mdcMounts(await readFile(file, 'utf8'))
+    for (const mount of mounts) {
+      checkedMounts += 1
+      if (knownComponents.has(mount)) continue
+      const nearest = [...knownComponents].find(
+        (name) => mount.endsWith(name) || name.endsWith(mount),
+      )
+      errors.push(
+        `${relative(repositoryRoot, file)}: mounts :${mount}, which is not a component` +
+          (nearest
+            ? ` (components are registered with pathPrefix:false, so the mount is the bare filename — did you mean :${nearest}?)`
+            : ''),
+      )
+    }
+  }
+
   const manifestEntries: NavManifestEntry[] = tabs.map((tab) => ({
     file: tab.file,
     channelKey: tab.channelKey,
@@ -268,7 +341,7 @@ async function main(): Promise<void> {
     (routeTabs) => routeTabs.length > 1,
   )
   console.log(
-    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route groups, ${allowedRoles.size} roles, ${allowedPermissions.size} capabilities, ${manifestWarnings.length} nav manifest warnings, and 0 nav manifest errors.`,
+    `Channel content contract passed: ${channels.length} channels, ${tabs.length} tabs, ${placedPages} placed pages, ${Object.keys(PROJECT_PLACEMENTS).length} project placements, ${sharedRouteGroups.length} shared-route groups, ${allowedRoles.size} roles, ${allowedPermissions.size} capabilities, ${checkedMounts} MDC mounts resolved, ${manifestWarnings.length} nav manifest warnings, and 0 nav manifest errors.`,
   )
 }
 

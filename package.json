@@ -63,7 +63,7 @@
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts && tsx utils/scripts/verifyArtAssetSuggest.ts",
     "test:art-prompt-repair": "tsx utils/scripts/verifyArtPromptRepair.ts",
     "test:art-asset-suggest": "tsx utils/scripts/verifyArtAssetSuggest.ts",
-    "test:artjob-bulk-scope": "tsx utils/scripts/verifyArtJobBulkScope.ts",
+    "test:artjob-bulk-scope": "tsx utils/scripts/verifyArtJobBulkScope.ts && tsx utils/scripts/verifyArtJobBulkCancel.ts",
     "test:artjob-lora-override": "tsx utils/scripts/verifyArtJobLoraOverride.ts",
     "test:comfy-model-paths": "tsx utils/scripts/verifyComfyModelPaths.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",

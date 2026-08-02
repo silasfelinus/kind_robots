@@ -48,11 +48,11 @@
           </span>
         </div>
 
-        <h1
+        <p
           class="text-3xl font-black leading-tight text-base-content sm:text-5xl"
         >
           {{ view.title }}
-        </h1>
+        </p>
         <p
           v-if="view.tagline"
           class="max-w-2xl text-base font-semibold text-base-content/80 sm:text-lg"

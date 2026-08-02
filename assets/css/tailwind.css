@@ -34,30 +34,14 @@ body,
   display: none !important;
 }
 
-section:has(img[src*='projects/images']) .overflow-y-auto {
-  overflow-x: hidden;
-}
-
-section:has(img[src*='projects/images'])
-  .grid:has(> button[style*='aspect-ratio: 2/3']),
-section:has(img[src*='projects/images'])
-  .grid:has(> div[style*='aspect-ratio: 2/3']) {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-}
-
-section:has(img[src*='projects/images'])
-  .grid:has(> button[style*='aspect-ratio: 16/9']),
-section:has(img[src*='projects/images'])
-  .grid:has(> div[style*='aspect-ratio: 16/9']) {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-}
-
-section:has(img[src*='projects/images'])
-  .grid:has(> button > img[src*='-icon']),
-section:has(img[src*='projects/images']) .grid:has(> div > img[src*='-icon']) {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
-}
-
+/*
+ * interface-vision/t-017: the four :has() overrides that used to patch the
+ * public project gallery (components/pages/conductor-page.vue) are gone —
+ * that component now declares its auto-fit grid columns and overflow-x
+ * directly. The two remaining overrides below still patch the ADMIN project
+ * detail view in the same component, which is explicitly lowest priority
+ * (Silas, 2026-08-01: "admin based routes are last on priority").
+ */
 section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]']) {
   overflow-x: hidden;
   overflow-y: auto;

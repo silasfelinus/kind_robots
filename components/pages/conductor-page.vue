@@ -156,7 +156,10 @@
     </div>
 
     <!-- NON-ADMIN: public project gallery -->
-    <div v-if="!userStore.isAdmin" class="flex min-h-0 flex-1 overflow-y-auto">
+    <div
+      v-if="!userStore.isAdmin"
+      class="flex min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
+    >
       <div class="w-full pb-4">
         <div
           v-if="!projectStore.loaded"
@@ -171,7 +174,7 @@
         <template v-else>
           <div
             v-if="projectGalleryMode === 'icons'"
-            class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-3"
           >
             <div
               v-for="project in projectStore.publicProjects"
@@ -223,7 +226,7 @@
           </div>
           <div
             v-else-if="projectGalleryMode === 'heroes'"
-            class="grid gap-4 sm:grid-cols-2"
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4"
           >
             <div
               v-for="project in projectStore.publicProjects"
@@ -246,7 +249,10 @@
               </div>
             </div>
           </div>
-          <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            v-else
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4"
+          >
             <div
               v-for="project in projectStore.publicProjects"
               :key="project.id"

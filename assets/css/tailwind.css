@@ -5,16 +5,18 @@
 }
 
 /*
- * ── STORYBOOK — the house aesthetic (interface-vision t-002) ────────────
+ * ── STORYMAKER — the house aesthetic (interface-vision t-002) ───────────
  *
- * Silas, 2026-08-02: "Let's run with Storybook as the design. I don't want to
- * build three different layouts, we're already trying to make clear decisions
- * and have VISION."
+ * Silas, 2026-08-02: "Let's run with Storybook as the design." Then, refining:
+ * "the story maker should let the user pick from all three, but I would call
+ * them Classic (daisy ui defaults), story maker, and story maker-dark."
  *
- * Chosen from three mockups at /storymaker-mockups; Theater and Playground are
- * retired, not kept as options. The brief calls it "a plate tipped into warm
- * paper": light printed ground, generous margins, illustration-forward, serif
- * text that reads as caption to picture.
+ * So the warm-paper direction (mockup B, briefly shipped as `storybook`) is
+ * both the app-wide default AND the middle of three READING MODES offered on
+ * the Storymaker surface. Renamed to match what he calls it. The brief
+ * describes it as "a plate tipped into warm paper": light printed ground,
+ * generous margins, illustration-forward, serif text that reads as caption to
+ * picture.
  *
  * This is a daisyUI THEME rather than a pile of component overrides, and that
  * is the whole leverage. Every .kr-* primitive below is written against the
@@ -24,12 +26,12 @@
  * into these tokens so the palette lives in exactly one place.
  *
  * Theme SWITCHING stays — theme-gallery, the Theme model, and per-user themes
- * are a real feature. Storybook is the default and the design reference, not
+ * are a real feature. Storymaker is the default and the design reference, not
  * the only option. `default: true` sets it as daisyUI's fallback; the runtime
  * default lives in stores/themeStore.ts and must agree.
  */
 @plugin "daisyui/theme" {
-  name: 'storybook';
+  name: 'storymaker';
   default: true;
   prefersdark: false;
   color-scheme: light;
@@ -63,6 +65,60 @@
   --color-error-content: oklch(97% 0.014 85);
 
   /* Printed matter: softly rounded plates, no hard chrome edges. */
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1.5px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
+ * STORYMAKER-DARK — the same story surface after the house lights drop.
+ *
+ * Mockup A ("a lit stage in a dark house") renamed per Silas. Not an inverted
+ * palette: the hues are held and the LIGHTNESS is inverted, so terracotta stays
+ * terracotta and the art on the page still reads as the lit thing in the room.
+ * A naive dark theme would shift the accent and break that continuity.
+ *
+ * prefersdark makes this the automatic choice for a viewer whose OS asks for
+ * dark, which is the honest default for a reading surface.
+ */
+@plugin "daisyui/theme" {
+  name: 'storymaker-dark';
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  /* House lights down: the surround recedes, the plate stays raised. */
+  --color-base-100: oklch(23% 0.014 55); /* plate — cards, panels, headers */
+  --color-base-200: oklch(18% 0.012 55); /* the dark house — page ground */
+  --color-base-300: oklch(30% 0.016 55); /* borders, dividers */
+  --color-base-content: oklch(91% 0.014 85); /* warm cream, never pure white */
+
+  /* Same terracotta hue, lifted for contrast against the dark house. */
+  --color-primary: oklch(68% 0.124 45);
+  --color-primary-content: oklch(18% 0.012 55);
+
+  --color-secondary: oklch(72% 0.036 60);
+  --color-secondary-content: oklch(18% 0.012 55);
+  --color-accent: oklch(70% 0.078 145);
+  --color-accent-content: oklch(18% 0.012 55);
+  --color-neutral: oklch(30% 0.016 55);
+  --color-neutral-content: oklch(91% 0.014 85);
+
+  --color-info: oklch(70% 0.084 235);
+  --color-info-content: oklch(18% 0.012 55);
+  --color-success: oklch(70% 0.098 150);
+  --color-success-content: oklch(18% 0.012 55);
+  --color-warning: oklch(78% 0.124 70);
+  --color-warning-content: oklch(18% 0.012 55);
+  --color-error: oklch(65% 0.152 27);
+  --color-error-content: oklch(18% 0.012 55);
+
+  /* Identical geometry to the light mode — only the lights changed. */
   --radius-selector: 0.75rem;
   --radius-field: 0.75rem;
   --radius-box: 1rem;
@@ -144,7 +200,7 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 
 @layer base {
   /*
-   * Storybook's type. The mockup set `font-serif` per element; promoting it to
+   * Storymaker's type. The mockup set `font-serif` per element; promoting it to
    * the body means prose reads as printed matter everywhere without each
    * component opting in. UI chrome that should stay sans — buttons, inputs,
    * badges, code — is exempted below rather than the other way round, because

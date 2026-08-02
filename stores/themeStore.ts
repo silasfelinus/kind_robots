@@ -44,7 +44,7 @@ type ThemeInitializeOptions = {
   fetchShared?: boolean
 }
 
-// STORYBOOK is the house aesthetic (interface-vision t-002) and is defined as a
+// STORYMAKER is the house aesthetic (interface-vision t-002), defined as a
 // daisyUI theme in assets/css/tailwind.css. That definition carries
 // `default: true`; this constant is the RUNTIME default and the two must agree,
 // or a user with no stored preference gets daisyUI's fallback while the store
@@ -52,7 +52,26 @@ type ThemeInitializeOptions = {
 // cream-ish, which is why parts of the app already half-looked right. Now it is
 // deliberate. Theme switching is unaffected: this is the default, not the only
 // option.
-const defaultThemeName = 'storybook'
+const defaultThemeName = 'storymaker'
+
+/**
+ * Theme names that were renamed after shipping, mapped to what they are now.
+ *
+ * `storybook` was live for a few hours on 2026-08-02 before Silas renamed the
+ * aesthetic to match what he calls it. Anyone who loaded the site in that
+ * window has the old name in localStorage, and without this map they would fail
+ * the daisyuiThemes check and get silently reset to the default — losing an
+ * explicit choice if they had also picked something else since. Cheap to keep,
+ * and the only cost of removing it later is that a handful of stale entries
+ * fall back to the default anyway.
+ */
+const RENAMED_THEMES: Record<string, string> = {
+  storybook: 'storymaker',
+}
+
+function resolveStoredThemeName(stored: string): string {
+  return RENAMED_THEMES[stored] ?? stored
+}
 const themeStorageKey = 'theme'
 const themeFormStorageKey = 'themeForm'
 const showCustomStorageKey = 'showCustom'
@@ -441,8 +460,9 @@ export const useThemeStore = defineStore('themeStore', () => {
           showCustom.value = storedFlag === 'true'
         }
 
-        const storedTheme =
-          safeGetLocalStorage(themeStorageKey) || defaultThemeName
+        const storedTheme = resolveStoredThemeName(
+          safeGetLocalStorage(themeStorageKey) || defaultThemeName,
+        )
         const storedForm = safeParseThemeForm(
           safeGetLocalStorage(themeFormStorageKey),
         )

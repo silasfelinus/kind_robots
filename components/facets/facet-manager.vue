@@ -255,6 +255,7 @@ import {
   facetToProfileForm,
   type FacetProfileForm,
 } from '@/utils/facetProfileForm'
+import { resolveEntityArtwork } from '@/utils/artImageSrc'
 
 const facetStore = useFacetStore()
 const search = ref('')
@@ -320,7 +321,7 @@ function taxonomyLabel(taxonomy: FacetTaxonomy): string {
 }
 
 function facetArtwork(facet: FacetWithAliases): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || facet.iconPath || null
+  return resolveEntityArtwork(facet)
 }
 
 function setError(error: unknown, fallback: string): void {

@@ -164,6 +164,7 @@ import {
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import { resolveEntityArtwork } from '@/utils/artImageSrc'
 
 const props = withDefaults(
   defineProps<{
@@ -260,7 +261,7 @@ function taxonomyLabel(taxonomy: FacetTaxonomy): string {
 }
 
 function facetArtwork(facet: FacetWithAliases): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || null
+  return resolveEntityArtwork(facet)
 }
 
 function facetTitle(facet: FacetWithAliases): string {

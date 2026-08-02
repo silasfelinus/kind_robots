@@ -150,6 +150,7 @@ import {
 } from '@/stores/facetCatalogStore'
 import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import { resolveEntityArtwork } from '@/utils/artImageSrc'
 
 const props = withDefaults(
   defineProps<{
@@ -266,7 +267,7 @@ async function requestArtwork(facet: FacetCatalogEntry): Promise<void> {
 }
 
 function facetArtwork(facet: FacetCatalogEntry): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || null
+  return resolveEntityArtwork(facet)
 }
 
 function taxonomyLabel(taxonomy: string): string {

@@ -1,5 +1,7 @@
 // /utils/narrativeIngredients.ts
 
+import { resolveEntityArtwork } from '@/utils/artImageSrc'
+
 export type NarrativeIngredientOption = {
   id?: number | string
   slug: string
@@ -13,15 +15,12 @@ export type NarrativeIngredientOption = {
   badge?: string | null
 }
 
+// Kept as a named export because verifyNarrativePrimitives.ts pins it and the
+// ingredient pickers read better for it; the chain itself now lives in one place.
 export function narrativeIngredientArtwork(
   ingredient: NarrativeIngredientOption,
 ): string | null {
-  return (
-    ingredient.cardPath ||
-    ingredient.imagePath ||
-    ingredient.heroPath ||
-    null
-  )
+  return resolveEntityArtwork(ingredient)
 }
 
 export function narrativeIngredientSummary(

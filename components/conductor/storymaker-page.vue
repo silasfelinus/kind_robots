@@ -1,6 +1,11 @@
 <!-- /components/conductor/storymaker-page.vue -->
 <template>
+  <!-- data-theme scopes the reading mode to THIS subtree, so picking
+       Storymaker Dark here does not hijack the rest of the app. Classic binds
+       undefined, which Vue drops entirely, leaving the reader's global theme
+       in charge — see composables/useStorymakerMode.ts. -->
   <section
+    :data-theme="dataTheme"
     class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
   >
     <header class="flex shrink-0 flex-wrap items-start gap-3">
@@ -20,6 +25,29 @@
           into a task list.
         </p>
       </div>
+      <div
+        class="flex shrink-0 flex-wrap items-center gap-1 rounded-xl border border-base-300 bg-base-200/60 p-1"
+        role="group"
+        aria-label="Reading mode"
+      >
+        <button
+          v-for="option in modes"
+          :key="option.key"
+          type="button"
+          class="rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+          :class="
+            mode === option.key
+              ? 'bg-primary text-primary-content shadow-sm'
+              : 'text-base-content/60 hover:bg-base-300/60'
+          "
+          :title="option.hint"
+          :aria-pressed="mode === option.key"
+          @click="setMode(option.key)"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+
       <div v-if="store.session" class="flex shrink-0 flex-wrap gap-2">
         <button
           v-if="store.canFinish"
@@ -538,6 +566,8 @@ import {
   type StorymakerIngredient,
 } from '@/stores/storymakerStore'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
+
+const { mode, setMode, dataTheme, modes } = useStorymakerMode()
 
 const store = useStorymakerStore()
 const characterStore = useCharacterStore()

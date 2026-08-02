@@ -31,3 +31,14 @@ ALTER TABLE `ManaTransaction`
     'ADJUSTMENT',
     'ACHIEVEMENT_CONFIRMED'
   ) NOT NULL;
+
+-- Re-open the two confirmations made by the sole alpha user while the client
+-- balance patch was failing. The records remain earned; the next acknowledgement
+-- will pass through the new idempotent ledger transaction.
+UPDATE `AchievementRecord` AS record
+JOIN `Achievement` AS achievement
+  ON achievement.id = record.achievementId
+SET record.isConfirmed = false
+WHERE record.userId = 1
+  AND record.isConfirmed = true
+  AND achievement.triggerCode IN ('theme', 'achievement-tour');

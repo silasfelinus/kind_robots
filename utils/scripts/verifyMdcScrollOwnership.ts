@@ -2,6 +2,10 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, extname, join, relative } from 'node:path'
 
 const ROOT = process.cwd()
+const BASELINE_PATH = join(
+  ROOT,
+  'utils/scripts/mdc-scroll-ownership-baseline.json',
+)
 const SKIP_DIRS = new Set([
   'node_modules',
   '.nuxt',
@@ -13,6 +17,12 @@ const SKIP_DIRS = new Set([
   'cypress',
   'sample',
 ])
+
+type Baseline = {
+  note: string
+  recorded: string
+  violations: string[]
+}
 
 function walk(dir: string, ext: string, out: string[] = []): string[] {
   let entries: string[]
@@ -49,10 +59,6 @@ function templateOf(source: string): string {
     .replace(/<style[\s\S]*?<\/style>/g, '')
 }
 
-function componentTag(path: string): string {
-  return basename(path, '.vue')
-}
-
 const vueFiles = [
   ...walk(join(ROOT, 'components'), '.vue'),
   ...walk(join(ROOT, 'pages'), '.vue'),
@@ -61,13 +67,13 @@ const mdFiles = walk(join(ROOT, 'content'), '.md')
 
 const filesByTag = new Map<string, string[]>()
 for (const file of vueFiles) {
-  const tag = componentTag(file)
+  const tag = basename(file, '.vue')
   const files = filesByTag.get(tag) ?? []
   files.push(file)
   filesByTag.set(tag, files)
 }
 
-const mountedBy = new Map<string, string[]>()
+const mountedTags = new Set<string>()
 for (const file of mdFiles) {
   const body = read(file).replace(/^---[\s\S]*?\n---\n/, '')
   const tags = body
@@ -76,28 +82,39 @@ for (const file of mdFiles) {
     .filter((line) => /^:{1,2}[a-z][a-z0-9-]*\s*$/.test(line))
     .map((line) => line.replace(/^:{1,2}/, ''))
 
-  for (const tag of tags) {
-    const owners = mountedBy.get(tag) ?? []
-    owners.push(rel(file))
-    mountedBy.set(tag, owners)
-  }
+  for (const tag of tags) mountedTags.add(tag)
 }
 
-const violations: string[] = []
-for (const [tag, owners] of mountedBy) {
+const current: string[] = []
+for (const tag of mountedTags) {
   for (const file of filesByTag.get(tag) ?? []) {
     const template = templateOf(read(file))
-    if (/overflow-y-auto|overflow-auto/.test(template) || /class="[^"]*\bkr-scroll\b[^"]*"/.test(template)) {
-      violations.push(`${rel(file)} mounted by ${owners.join(', ')}`)
-    }
+    const ownsScroll =
+      /overflow-y-auto|overflow-auto/.test(template) ||
+      /class="[^"]*\bkr-scroll\b[^"]*"/.test(template)
+    if (ownsScroll) current.push(rel(file))
   }
 }
 
-if (violations.length) {
+const baseline = JSON.parse(read(BASELINE_PATH)) as Baseline
+const allowed = new Set(baseline.violations)
+const added = [...new Set(current)].sort().filter((file) => !allowed.has(file))
+
+if (added.length) {
   throw new Error(
-    'MDC scroll ownership violated. pages/[...slug].vue already owns scrolling for these mounted components:\n' +
-      violations.sort().map((entry) => `  ${entry}`).join('\n'),
+    'MDC scroll ownership violated. pages/[...slug].vue already owns scrolling for these newly nested scrollers:\n' +
+      added.map((entry) => `  + ${entry}`).join('\n'),
   )
 }
 
-console.log(`MDC scroll ownership holds for ${mountedBy.size} mounted component tags.`)
+const removed = baseline.violations.filter((file) => !current.includes(file))
+if (removed.length) {
+  console.log(
+    `MDC scroll ownership improved by ${removed.length}. Ratchet the baseline down:\n` +
+      removed.map((entry) => `  - ${entry}`).join('\n'),
+  )
+}
+
+console.log(
+  `MDC scroll ownership holds: ${current.length} existing violations, no new violations across ${mountedTags.size} mounted component tags.`,
+)

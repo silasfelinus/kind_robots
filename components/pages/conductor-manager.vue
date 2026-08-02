@@ -8,6 +8,7 @@
     />
     <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
     <ConductorPage v-else />
+    <PlanProjectsGrid />
   </div>
 </template>
 
@@ -17,6 +18,7 @@ import AppmakerPage from '@/components/pages/appmaker-page.vue'
 import ConductorProjectGalleryPage from '@/components/pages/conductor-project-gallery-page.vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import ConductorPitchManager from '@/components/pages/conductor-pitch-manager.vue'
+import PlanProjectsGrid from '@/components/conductor/plan-projects-grid.vue'
 import PortosPage from '@/components/pages/portos-page.vue'
 import WishmasterPage from '@/components/pages/wishmaster-page.vue'
 import { usePageStore } from '@/stores/pageStore'

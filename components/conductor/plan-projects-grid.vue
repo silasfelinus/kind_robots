@@ -1,9 +1,10 @@
-<!-- /components/pages/plan-projects-grid.vue -->
+<!-- /components/conductor/plan-projects-grid.vue -->
 <!--
   In-page directory of the Plan → Projects sub-items (the third nav level).
   Sourced directly from the content pages under /plan/projects/, so adding or
   removing a pitch page is the single source of truth — no separate registry.
-  Embedded via the `:plan-projects-grid` MDC directive in content/conductor.md.
+  Nested inside components/pages/conductor-manager.vue (the sole MDC mount for
+  content/conductor.md — see interface-vision/t-017's one-mdc sweep).
 -->
 <template>
   <section v-if="projects.length" class="mt-6 flex w-full flex-col gap-3">

@@ -248,7 +248,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import { resolveArtImageSrc, resolveArtVariantSrc } from '@/utils/artImageSrc'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -367,11 +367,17 @@ const computedCharacterImage = computed(() => {
     return rotatingFallbackImage.value
   }
 
-  // Path-first: prefer the art image's path, then its inline base64, then the
-  // character's own imagePath, then the rotating fallback.
-  return resolveArtImageSrc(
-    artImage.value,
-    props.character.imagePath || rotatingFallbackImage.value,
+  // The character's own purpose-built card art wins: it is rendered at card
+  // aspect for exactly this slot. Falls through to the old chain (art image
+  // path, its base64, imagePath, rotating fallback) for characters whose
+  // cardPath has not rendered yet.
+  return resolveArtVariantSrc(
+    props.character,
+    'card',
+    resolveArtImageSrc(
+      artImage.value,
+      props.character.imagePath || rotatingFallbackImage.value,
+    ),
   )
 })
 

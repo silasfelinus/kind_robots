@@ -44,7 +44,15 @@ type ThemeInitializeOptions = {
   fetchShared?: boolean
 }
 
-const defaultThemeName = 'retro'
+// STORYBOOK is the house aesthetic (interface-vision t-002) and is defined as a
+// daisyUI theme in assets/css/tailwind.css. That definition carries
+// `default: true`; this constant is the RUNTIME default and the two must agree,
+// or a user with no stored preference gets daisyUI's fallback while the store
+// reports something else. Was 'retro' — a stock theme that happened to be
+// cream-ish, which is why parts of the app already half-looked right. Now it is
+// deliberate. Theme switching is unaffected: this is the default, not the only
+// option.
+const defaultThemeName = 'storybook'
 const themeStorageKey = 'theme'
 const themeFormStorageKey = 'themeForm'
 const showCustomStorageKey = 'showCustom'

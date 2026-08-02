@@ -52,6 +52,48 @@ export function resolveArtImageSrc(
   return toArtDataUri(image?.imageData, image?.fileType) || fallback
 }
 
+export type ArtVariant = 'card' | 'hero' | 'icon'
+
+const VARIANT_PATH_KEYS = {
+  card: 'cardPath',
+  hero: 'heroPath',
+  icon: 'iconPath',
+} as const
+
+const VARIANT_DATA_KEYS = {
+  card: 'cardData',
+  hero: 'heroData',
+  icon: 'iconData',
+} as const
+
+/**
+ * Renderable source for a purpose-built art variant.
+ *
+ * These three slots have existed on the type since the card/hero/icon migration
+ * (interface-vision t-007), but until now nothing read them: the only resolvers
+ * were the full-size and thumbnail ones, so every card fell back to the entity's
+ * avatar or primary image. That left hundreds of rendered card images sitting in
+ * the database, invisible.
+ *
+ * Degrades deliberately: variant path -> variant base64 -> the full-size
+ * resolver -> `fallback`. A slot that has not rendered yet therefore behaves
+ * exactly as it did before rather than leaving a hole, which is what lets this
+ * ship while the render queue is still draining.
+ */
+export function resolveArtVariantSrc(
+  image: ArtImageSrcLike,
+  variant: ArtVariant,
+  fallback = '',
+): string {
+  const path = cleanValue(image?.[VARIANT_PATH_KEYS[variant]])
+  if (path) return path
+
+  const data = toArtDataUri(image?.[VARIANT_DATA_KEYS[variant]], image?.fileType)
+  if (data) return data
+
+  return resolveArtImageSrc(image, fallback)
+}
+
 // Renderable source for a thumbnail. Prefers thumbnailPath, then the full-size
 // path, then inline thumbnail/full base64, then `fallback`.
 export function resolveArtImageThumbSrc(

@@ -354,7 +354,13 @@ const avatarFallback = computed(() => {
 })
 
 const resolvedBotImage = computed(() => {
-  return loadedBotImage.value || avatarFallback.value
+  // The bot's own purpose-built card art wins over both the async-fetched
+  // ArtImage and the avatar. avatarImage is a portrait crop; cardPath is
+  // rendered at card aspect for exactly this slot. Bots whose cardPath has not
+  // rendered yet fall through to the previous behaviour unchanged.
+  return (
+    props.bot.cardPath?.trim() || loadedBotImage.value || avatarFallback.value
+  )
 })
 
 const canEdit = computed(() => {

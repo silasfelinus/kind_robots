@@ -331,11 +331,35 @@
                 </section>
               </Transition>
 
-              <div
-                ref="chatLogRef"
-                class="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-base-200/35 p-3"
+              <!--
+                The narrator's chat log is kr-chat-window now.
+
+                This was the THIRD copy of the same idea — a list of turns, a
+                speaker, a portrait, a set of follow-up choices, a placeholder
+                while the model writes — after narrative-transcript.vue and
+                kr-chat-window.vue. Phase 3 collapsed the first two; this is the
+                third, and it is the one workspace-narrator grew independently
+                while a shared component sat unused two directories away.
+
+                The dock chrome around it (card flip, musings toast, emoji
+                bursts, pin) stays local: that is genuinely Dreams' own, and
+                pushing it into the shared stage would bloat the piece every
+                other surface has to import.
+              -->
+              <kr-chat-window
+                class="bg-base-200/35 p-3"
+                :turns="narratorTurns"
+                :label="`${narratorName} conversation`"
+                :is-streaming="isNarratorResponding"
+                :streaming-label="`${narratorName} is thinking…`"
+                :empty-label="narratorIntro"
+                :prose="false"
+                @choose="selectStarterByKey"
               >
-                <div class="grid gap-3">
+                <!-- The topic's opening card is conversation-level rather than
+                     part of any one turn, so it rides in the footer slot and
+                     scrolls with the thread instead of pinning above it. -->
+                <template #footer>
                   <article
                     v-if="selectedTopicIntro"
                     class="rounded-3xl border border-primary/20 bg-primary/5 p-3"
@@ -359,128 +383,19 @@
                           {{ selectedTopicIntro }}
                         </p>
 
-                        <div
-                          v-if="selectedTopicStarters.length"
-                          class="mt-3 flex flex-wrap gap-2"
-                        >
-                          <button
-                            v-for="starter in selectedTopicStarters"
-                            :key="starter.key"
-                            type="button"
-                            class="btn btn-outline btn-xs rounded-2xl"
-                            @click="selectStarter(starter)"
-                          >
-                            {{ starter.label }}
-                          </button>
-                        </div>
+                        <kr-choice-list
+                          class="mt-3"
+                          layout="row"
+                          label="Conversation starters"
+                          :choices="starterChoices(selectedTopicStarters)"
+                          :show-index="false"
+                          @select="selectStarterByKey"
+                        />
                       </div>
                     </div>
                   </article>
-
-                  <article
-                    v-if="!seededMessages.length && !narratorSession.length"
-                    class="flex items-start gap-2"
-                  >
-                    <img
-                      :src="displayedNarratorImage"
-                      :alt="narratorName"
-                      class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover shadow-sm"
-                      loading="lazy"
-                    />
-
-                    <div
-                      class="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed text-base-content/85 shadow-sm"
-                    >
-                      {{ narratorIntro }}
-                    </div>
-                  </article>
-
-                  <article
-                    v-for="message in seededMessages"
-                    :key="message.id"
-                    class="flex max-w-[92%] gap-2"
-                  >
-                    <img
-                      :src="displayedNarratorImage"
-                      :alt="narratorName"
-                      class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
-                      loading="lazy"
-                    />
-
-                    <div
-                      class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
-                    >
-                      <p
-                        class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
-                      >
-                        {{ message.title }}
-                      </p>
-
-                      <p class="mt-1 whitespace-pre-wrap text-base-content/80">
-                        {{ message.body }}
-                      </p>
-
-                      <div
-                        v-if="message.followups.length"
-                        class="mt-3 flex flex-wrap gap-2"
-                      >
-                        <button
-                          v-for="starter in message.followups"
-                          :key="starter.key"
-                          type="button"
-                          class="btn btn-outline btn-xs rounded-2xl"
-                          @click="selectStarter(starter)"
-                        >
-                          {{ starter.label }}
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-
-                  <article
-                    v-for="chat in narratorSession"
-                    :key="chat.id"
-                    class="grid gap-2"
-                  >
-                    <div
-                      class="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm leading-relaxed text-primary-content"
-                    >
-                      <p class="whitespace-pre-wrap">
-                        {{ chat.content }}
-                      </p>
-                    </div>
-
-                    <div class="flex max-w-[90%] gap-2">
-                      <img
-                        :src="displayedNarratorImage"
-                        :alt="narratorName"
-                        class="h-8 w-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
-                        loading="lazy"
-                      />
-
-                      <div
-                        class="rounded-2xl rounded-bl-sm bg-base-100 px-3 py-2 text-sm leading-relaxed shadow-sm"
-                      >
-                        <span
-                          v-if="!chat.botResponse"
-                          class="flex items-center gap-1 py-1 text-base-content/60"
-                        >
-                          <span class="narrator-dot" />
-                          <span class="narrator-dot delay-150" />
-                          <span class="narrator-dot delay-300" />
-                        </span>
-
-                        <p
-                          v-else
-                          class="whitespace-pre-wrap text-base-content/80"
-                        >
-                          {{ chat.botResponse }}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                </div>
-              </div>
+                </template>
+              </kr-chat-window>
 
               <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
                 <section
@@ -648,6 +563,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { navigateTo } from '#app'
 import { storeToRefs } from 'pinia'
 import FlipCard from './flip-card.vue'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
+import type { NarrativeChoice } from '@/components/narrative/kr-choice-list.vue'
 import { useNarratorStore } from '@/stores/narratorStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -771,7 +688,6 @@ const {
   setStatus,
 } = narratorStore
 
-const chatLogRef = ref<HTMLElement | null>(null)
 const chatFaceOpen = ref(false)
 const showTopics = ref(false)
 const selectedTopicKey = ref('')
@@ -928,6 +844,83 @@ const selectedTopicStarters = computed(() => {
   return selectedTopic.value?.starters ?? []
 })
 
+/*
+ * The narrator's thread as kr-chat-window turns.
+ *
+ * Three sources feed one list, in the order they appeared on screen before:
+ * the seeded topic messages (each carrying its own follow-ups), then the live
+ * session, where every exchange is a user turn followed by the narrator's
+ * reply. An exchange still waiting on the model contributes only the user turn
+ * — the window's own streaming placeholder stands in for the reply, which is
+ * what the three bouncing dots used to do by hand.
+ *
+ * The intro is NOT a turn. It is the window's emptyLabel, so it disappears the
+ * moment a real turn arrives rather than sitting at the top of the thread
+ * forever, which is what the old `v-if="!seeded.length && !session.length"`
+ * article was working around.
+ */
+const narratorTurns = computed<NarrativeTurn[]>(() => {
+  const turns: NarrativeTurn[] = []
+
+  for (const message of seededMessages.value) {
+    turns.push({
+      id: `seeded-${message.id}`,
+      text: message.body,
+      from: 'narrator',
+      speaker: message.title,
+      portrait: displayedNarratorImage.value,
+      choices: starterChoices(message.followups),
+    })
+  }
+
+  for (const chat of narratorSession.value) {
+    turns.push({
+      id: `ask-${chat.id}`,
+      text: chat.content ?? '',
+      from: 'user',
+    })
+
+    if (chat.botResponse) {
+      turns.push({
+        id: `reply-${chat.id}`,
+        text: chat.botResponse,
+        from: 'narrator',
+        speaker: narratorName.value,
+        portrait: displayedNarratorImage.value,
+      })
+    }
+  }
+
+  return turns
+})
+
+/* ThreadStarter speaks {key,label,prompt,answer,action,path}; the shared list
+   speaks {key,label}. Adapt here rather than widening kr-choice-list. */
+function starterChoices(starters: ThreadStarter[]): NarrativeChoice[] {
+  return starters.map((starter) => ({
+    key: starter.key,
+    label: starter.label,
+  }))
+}
+
+/* Every starter reachable from the thread, so a choice emitted by key can be
+   resolved back to the record that carries its prompt/answer/route. Seeded
+   follow-ups and the current topic's starters can both be on screen at once. */
+function findStarter(key: string): ThreadStarter | null {
+  for (const message of seededMessages.value) {
+    const match = message.followups.find((starter) => starter.key === key)
+    if (match) return match
+  }
+  return (
+    selectedTopicStarters.value.find((starter) => starter.key === key) ?? null
+  )
+}
+
+async function selectStarterByKey(choice: NarrativeChoice): Promise<void> {
+  const starter = findStarter(choice.key)
+  if (starter) await selectStarter(starter)
+}
+
 function cardBackSrc(back: CardBack): string {
   return `/images/adventure/card/card-back${back}.webp`
 }
@@ -1048,8 +1041,6 @@ async function selectTopic(topic: TopicButton): Promise<void> {
     narratorMessage.value = topic.prompt
   }
 
-  await nextTick()
-  scrollChatToBottom()
 }
 
 async function selectStarter(starter: ThreadStarter): Promise<void> {
@@ -1072,8 +1063,6 @@ async function selectStarter(starter: ThreadStarter): Promise<void> {
     narratorMessage.value = starter.prompt
   }
 
-  await nextTick()
-  scrollChatToBottom()
 }
 
 function clearNarratorThread(): void {
@@ -1190,13 +1179,6 @@ function commitExpressionImage(): void {
     queuedNarratorImage.value || displayedNarratorImage.value
 }
 
-function scrollChatToBottom(): void {
-  const element = chatLogRef.value
-  if (!element) return
-
-  element.scrollTop = element.scrollHeight
-}
-
 watch(
   () => props.open,
   (value) => {
@@ -1261,14 +1243,6 @@ watch(activeBubble, async (message) => {
 
   await nextTick()
 })
-
-watch(
-  () => narratorSession.value.map((chat) => chat.botResponse).join(''),
-  async () => {
-    await nextTick()
-    scrollChatToBottom()
-  },
-)
 
 watch(
   topicButtons,
@@ -1367,23 +1341,6 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 0.25rem 0.45rem rgb(0 0 0 / 0.22));
 }
 
-.narrator-dot {
-  display: inline-block;
-  height: 0.375rem;
-  width: 0.375rem;
-  border-radius: 9999px;
-  background: currentColor;
-  animation: narrator-bounce 1s ease-in-out infinite;
-}
-
-.delay-150 {
-  animation-delay: 150ms;
-}
-
-.delay-300 {
-  animation-delay: 300ms;
-}
-
 .narrator-panel-enter-active,
 .narrator-panel-leave-active,
 .narrator-musing-enter-active,
@@ -1433,19 +1390,6 @@ onBeforeUnmount(() => {
   }
 }
 
-@keyframes narrator-bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.65);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
 @media (min-width: 768px) {
   .narrator-dock {
@@ -1469,8 +1413,7 @@ onBeforeUnmount(() => {
   .narrator-toast-leave-active,
   .narrator-topics-enter-active,
   .narrator-topics-leave-active,
-  .emoji-burst,
-  .narrator-dot {
+  .emoji-burst {
     animation: none;
     transition: none;
   }

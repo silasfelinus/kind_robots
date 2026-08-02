@@ -126,6 +126,20 @@ check(
   'the duplicate transcript has not come back',
 )
 
+// The THIRD copy was workspace-narrator's own seededMessages/followups loop,
+// grown independently while a shared component sat unused two directories away.
+// Pin its absence rather than trusting that nobody re-adds it.
+const dock = read('components/navigation/workspace-narrator.vue')
+check(
+  !/v-for="message in seededMessages"/.test(dock) &&
+    !/v-for="starter in (message\.followups|selectedTopicStarters)"/.test(dock),
+  'the narrator dock has not re-grown its own transcript or follow-up loop',
+)
+check(
+  (dock.match(/overflow-y-auto|overflow-auto/g) ?? []).length <= 1,
+  'the narrator dock keeps at most one scroll region of its own',
+)
+
 // --- adoption ratchet --------------------------------------------------------
 // Purely informational today, and deliberately so: failing on non-adoption
 // before the surfaces have migrated would just block every unrelated PR. The
@@ -168,6 +182,11 @@ const INTERMEDIARIES = [
   // A surface that mounts either is on the kit whether it says so or not.
   'components/narrative/narrative-response-composer.vue',
   'components/narrative/narrative-art-status.vue',
+  // Dreams reaches the kit through its slide-out dock rather than mounting the
+  // pieces itself. The dock's own chrome (card flip, musings, emoji bursts)
+  // stays local on purpose — it is genuinely Dreams', and folding it into the
+  // shared stage would bloat the piece every other surface imports.
+  'components/navigation/workspace-narrator.vue',
 ]
 const liveIntermediaries = INTERMEDIARIES.filter((path) => KIT_USE.test(read(path)))
 

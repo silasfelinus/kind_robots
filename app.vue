@@ -31,6 +31,7 @@
       <butterfly-layer class="pointer-events-none fixed inset-0 z-60" />
       <fx-clear-all />
       <achievement-popup />
+      <first-launch-intro />
     </ClientOnly>
 
     <section
@@ -173,9 +174,13 @@ import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
+import { useIntroStore } from '@/stores/introStore'
 
 const pageStore = usePageStore()
 const navStore = useNavStore()
+const userStore = useUserStore()
+const introStore = useIntroStore()
 const route = useRoute()
 
 const { workspaceSheetOpen } = storeToRefs(navStore)
@@ -311,6 +316,12 @@ watch(
       )
     }
   },
+  { immediate: true },
+)
+
+watch(
+  () => [userStore.user?.id, userStore.isGuest] as const,
+  () => introStore.maybeAutoOpen(),
   { immediate: true },
 )
 

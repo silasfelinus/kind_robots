@@ -68,6 +68,9 @@ jobs:
       - name: Verify Facet seed policy
         run: node utils/scripts/verifyFacetCatalogSeedPolicy.mjs
 
+      - name: Verify Facet seed target-slug serialization
+        run: npx tsx utils/scripts/verifyFacetSeedSlugSerialization.ts
+
       - name: Verify retired Facet sources
         run: |
           node utils/scripts/verifyFacetLegacySeedSnapshots.mjs

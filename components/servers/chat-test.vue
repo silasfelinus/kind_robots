@@ -480,7 +480,7 @@ function clear() {
   font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
+  min-height: 480px;
   display: flex;
   flex-direction: column;
 }

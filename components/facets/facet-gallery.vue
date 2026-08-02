@@ -97,7 +97,7 @@ import {
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
-import { resolveArtVariantSrc } from '@/utils/artImageSrc'
+import { resolveEntityArtwork } from '@/utils/artImageSrc'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 
 const catalog = useFacetCatalogStore()
@@ -114,18 +114,10 @@ const errorMessage = ref('')
  * this file no longer carries its own copy of the cardPath||imagePath||heroPath
  * chain that six components were each repeating.
  */
+// Feeds the "illustrated only" filter, which needs to know whether a facet has
+// ANY art rather than whether the card view happens to resolve one.
 function facetArtwork(facet: FacetCatalogEntry): string | null {
-  // Checks all three variants, not just the one the card view renders: the old
-  // hand-rolled chain was `cardPath || imagePath || heroPath || iconPath`, so a
-  // facet illustrated ONLY at hero or icon size counted as having art. Asking
-  // resolveArtVariantSrc for 'card' alone would have silently dropped those
-  // from the filter.
-  return (
-    resolveArtVariantSrc(facet, 'card') ||
-    resolveArtVariantSrc(facet, 'hero') ||
-    resolveArtVariantSrc(facet, 'icon') ||
-    null
-  )
+  return resolveEntityArtwork(facet)
 }
 
 function iconName(facet: FacetCatalogEntry): string {

@@ -108,6 +108,7 @@ import {
 } from '@/stores/facetStore'
 import { useCharacterFacetStore } from '@/stores/characterFacetStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import { resolveEntityArtwork } from '@/utils/artImageSrc'
 
 const props = withDefaults(
   defineProps<{
@@ -156,7 +157,7 @@ const searchResults = computed(() => {
 })
 
 function artwork(facet: FacetWithAliases): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || null
+  return resolveEntityArtwork(facet)
 }
 
 async function loadAssigned(): Promise<void> {

@@ -94,6 +94,33 @@ export function resolveArtVariantSrc(
   return resolveArtImageSrc(image, fallback)
 }
 
+/**
+ * Card-first display artwork for any entity that carries art, or null.
+ *
+ * This chain -- `cardPath || imagePath || heroPath [|| iconPath]` -- had been
+ * hand-written SIX times: utils/narrativeIngredients.ts, facet-gallery.vue,
+ * facet-manager.vue, facet-picker.vue, character-facet-picker.vue,
+ * reward-facet-picker.vue and art-facet-selector.vue each carried their own
+ * copy. They had already drifted: some included iconPath, some did not.
+ *
+ * Ordering is preserved rather than "improved". Asking resolveArtVariantSrc for
+ * each variant in turn yields cardPath -> cardData -> imagePath -> imageData ->
+ * heroPath -> ... -> iconPath, so the relative precedence of the three path
+ * fields matches every copy this replaces; the base64 fallbacks are a superset,
+ * reachable only where a path was absent and the old chain returned null.
+ *
+ * Returns null, not '', because every caller tested truthiness to decide
+ * between an <img> and a placeholder.
+ */
+export function resolveEntityArtwork(image: ArtImageSrcLike): string | null {
+  return (
+    resolveArtVariantSrc(image, 'card') ||
+    resolveArtVariantSrc(image, 'hero') ||
+    resolveArtVariantSrc(image, 'icon') ||
+    null
+  )
+}
+
 // Renderable source for a thumbnail. Prefers thumbnailPath, then the full-size
 // path, then inline thumbnail/full base64, then `fallback`.
 export function resolveArtImageThumbSrc(

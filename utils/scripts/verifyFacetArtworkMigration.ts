@@ -239,7 +239,10 @@ async function main(): Promise<void> {
     'cardPath: editForm.cardPath.trim() || null',
     'heroPath: editForm.heroPath.trim() || null',
     'artPrompt: editForm.artPrompt.trim() || null',
-    'return facet.cardPath || facet.imagePath || facet.heroPath || null',
+    // Was the literal chain `facet.cardPath || facet.imagePath || facet.heroPath`.
+    // That chain lived in six files and now lives in one (resolveEntityArtwork,
+    // utils/artImageSrc.ts), so this asserts the call rather than the copy.
+    'resolveEntityArtwork(facet)',
   ]) {
     requireText('components/facets/facet-manager.vue', facetManager, field)
   }

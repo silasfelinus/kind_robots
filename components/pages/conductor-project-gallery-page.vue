@@ -1,5 +1,5 @@
 <template>
-  <section class="flex h-full min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section class="kr-surface rounded-2xl border border-base-300 bg-base-200 p-3">
     <header class="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2">
       <Icon name="kind-icon:gearhammer" class="size-4 text-primary" />
       <strong>Projects</strong>
@@ -55,7 +55,7 @@
       </div>
     </section>
 
-    <main class="min-h-0 flex-1 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-3">
+    <main class="kr-scroll rounded-xl border border-base-300 bg-base-100 p-3">
       <kr-gallery
         :items="galleryItems"
         :mode="galleryMode"

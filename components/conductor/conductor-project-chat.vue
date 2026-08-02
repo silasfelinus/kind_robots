@@ -1,4 +1,4 @@
-<!-- /components/pages/conductor-project-chat.vue -->
+<!-- /components/conductor/conductor-project-chat.vue -->
 <!-- Direct AI contact for a single Project. Chats persist through projectId. -->
 <template>
   <div class="space-y-3 rounded-2xl border border-primary/20 bg-base-100 p-4">

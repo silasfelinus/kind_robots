@@ -3,7 +3,7 @@ contentType: tab
 channelKey: sanctuary
 tabKey: about
 dashboardKey: giftshop
-dashboardTab: about
+dashboardTab: community
 label: About
 title: About Kind Robots
 subtitle: Humans and robots building a kinder future

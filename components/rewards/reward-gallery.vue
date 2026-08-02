@@ -313,6 +313,7 @@
           :show-meta="showMeta"
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
+          :earned-karma="earnedKarmaByRewardId[reward.id]"
           @select="selectReward"
           @edit="startEditingRewardById"
           @delete="handleRewardDeleted"
@@ -323,11 +324,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useRewardStore } from '@/stores/rewardStore'
 import type { Rarity } from '@/stores/rewardStore'
 import { useUserStore } from '@/stores/userStore'
+import { performFetch } from '@/stores/utils'
+
+// interface-vision/t-019 reference wiring: reward-gallery is the one list view
+// that batch-fetches earned karma for its cards (see
+// server/api/economy/karma-earned.post.ts). The remaining eleven
+// reactable-card consumers can copy this pattern.
+const KARMA_EARNED_BATCH_LIMIT = 200
+
+type KarmaEarnedRow = {
+  refType: string
+  refId: string
+  earnedKarma: number
+}
 
 type GalleryVariant = 'grid' | 'dashboard' | 'row' | 'dropdown'
 
@@ -377,6 +391,7 @@ const searchQuery = ref('')
 const isLoading = ref(false)
 const showRewardForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
+const earnedKarmaByRewardId = ref<Record<number, number>>({})
 
 const rarityOrder: Record<Rarity, number> = {
   COMMON: 1,
@@ -490,6 +505,56 @@ const galleryRewards = computed<Reward[]>(() => {
 const visibleRewards = computed<Reward[]>(() => {
   return galleryRewards.value
 })
+
+// Fetch earned karma for the broader visible set (pre search/collection/rarity
+// refinement) rather than re-fetching on every keystroke — those filters only
+// narrow an already-fetched set.
+const visibleRewardIdsKey = computed(() =>
+  visibleRewards.value
+    .slice(0, KARMA_EARNED_BATCH_LIMIT)
+    .map((reward) => reward.id)
+    .join(','),
+)
+
+async function refreshEarnedKarma() {
+  const ids = visibleRewards.value
+    .slice(0, KARMA_EARNED_BATCH_LIMIT)
+    .map((reward) => reward.id)
+
+  if (!ids.length) {
+    earnedKarmaByRewardId.value = {}
+    return
+  }
+
+  const res = await performFetch<KarmaEarnedRow[]>(
+    '/api/economy/karma-earned',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        items: ids.map((id) => ({ refType: 'reward', refId: id })),
+      }),
+    },
+  )
+
+  if (!res.success || !Array.isArray(res.data)) return
+
+  const next: Record<number, number> = {}
+
+  for (const row of res.data) {
+    const id = Number(row.refId)
+    if (Number.isFinite(id)) next[id] = row.earnedKarma
+  }
+
+  earnedKarmaByRewardId.value = next
+}
+
+watch(
+  visibleRewardIdsKey,
+  () => {
+    void refreshEarnedKarma()
+  },
+  { immediate: true },
+)
 
 const collections = computed(() => {
   const set = new Set<string>()

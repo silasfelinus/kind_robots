@@ -9,6 +9,7 @@
     target-type="reward"
     reaction-category="REWARD"
     :target-title="rewardTitle"
+    :earned-karma="earnedKarma"
     @select="selectReward"
   >
     <template #actions>
@@ -242,6 +243,9 @@ const props = withDefaults(
     allowEdit?: boolean
     allowDelete?: boolean
     fallbackIcon?: string
+    /** Total karma this reward has earned from reactions to it. Omit/undefined
+     *  renders no badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     selected: false,
@@ -257,6 +261,7 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: true,
     fallbackIcon: 'kind-icon:gift',
+    earnedKarma: undefined,
   },
 )
 

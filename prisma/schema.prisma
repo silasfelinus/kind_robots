@@ -1619,10 +1619,17 @@ model KarmaTransaction {
   reason       KarmaReason
   balanceAfter Int
   refId        String?
+  /// Object-type tag for refId (e.g. "artImage", "dream", "prompt") — camelCase,
+  /// matching the ReactionTargetType/target-type convention used elsewhere
+  /// (reaction-card.vue, reactionStore.ts). Null where refId isn't an
+  /// unambiguous single-object reference (reaction id, bounty/referral proxy
+  /// ids, admin adjustments, etc.) — see server/api/economy/karma-earned.post.ts.
+  refType      String?
   note         String?     @db.Text
   User         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+  @@index([refType, refId])
 }
 
 /// Referral tracking — data layer only; cut payment logic is needs-human

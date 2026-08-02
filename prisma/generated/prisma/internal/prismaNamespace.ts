@@ -7156,6 +7156,7 @@ export const KarmaTransactionScalarFieldEnum = {
   reason: 'reason',
   balanceAfter: 'balanceAfter',
   refId: 'refId',
+  refType: 'refType',
   note: 'note'
 } as const
 
@@ -8260,6 +8261,7 @@ export type DownloadRequestOrderByRelevanceFieldEnum = (typeof DownloadRequestOr
 
 export const KarmaTransactionOrderByRelevanceFieldEnum = {
   refId: 'refId',
+  refType: 'refType',
   note: 'note'
 } as const
 

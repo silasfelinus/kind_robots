@@ -438,16 +438,27 @@ export default defineEventHandler(async (event) => {
       awardKarma({
         userId: user.id,
         reason: 'REACTION_GIVEN',
+        // REACTION_GIVEN is "earned by user action," not "earned by an
+        // object" — refId stays the Reaction's own id, no refType.
         refId: String(data.id),
       }).catch(() => {})
-      // Award content owner for receiving a reaction (fire-and-forget; gated by KARMA_LIVE)
+      // Award content owner for receiving a reaction (fire-and-forget; gated by KARMA_LIVE).
+      // Attribute this to the reacted-on OBJECT (refType/refId), not the Reaction
+      // row itself, so per-object earned-karma totals can be aggregated later.
+      const targetField = getExpectedTargetField(reactionCategory)
+      const targetRefId = targetField ? targets[targetField] : undefined
+      const targetRefType = targetField
+        ? targetField.replace(/Id$/, '')
+        : undefined
+
       getContentOwnerId(reactionCategory, targets)
         .then((ownerId) => {
           if (ownerId && ownerId !== user.id) {
             awardKarma({
               userId: ownerId,
               reason: 'REACTION_RECEIVED',
-              refId: String(data.id),
+              refId: targetRefId ? String(targetRefId) : String(data.id),
+              refType: targetRefId ? targetRefType : undefined,
             }).catch(() => {})
           }
         })

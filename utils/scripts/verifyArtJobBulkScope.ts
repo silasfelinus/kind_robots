@@ -7,7 +7,7 @@ import {
 assert.deepEqual(normalizeFailedArtJobIds(undefined), {
   ok: false,
   message:
-    'Provide jobIds with the explicit failed ArtJobs to requeue. Global failed-job retry is disabled.',
+    'Provide jobIds with the explicit failed ArtJobs to requeue. Global failed-job actions are disabled.',
 })
 
 assert.deepEqual(normalizeFailedArtJobIds([]), {
@@ -23,6 +23,11 @@ assert.deepEqual(normalizeFailedArtJobIds([12, 12, 27]), {
 assert.equal(normalizeFailedArtJobIds([1, '2']).ok, false)
 assert.equal(normalizeFailedArtJobIds([0]).ok, false)
 assert.equal(normalizeFailedArtJobIds([1.5]).ok, false)
+
+assert.deepEqual(normalizeFailedArtJobIds([], 'cancel'), {
+  ok: false,
+  message: 'Select at least one failed ArtJob to cancel.',
+})
 
 const maximumPage = Array.from(
   { length: MAX_FAILED_ART_JOB_REQUEUE_IDS },

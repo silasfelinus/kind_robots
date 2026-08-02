@@ -110,6 +110,9 @@ jobs:
       - name: UserRole predicate contract
         run: npm run test:user-role-predicates
 
+      - name: CHILD maturity restriction contract
+        run: npm run test:child-maturity
+
       - name: Unquoted reserved-word table identifier contract
         run: npm run test:no-unquoted-reserved-word-tables
 

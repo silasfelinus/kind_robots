@@ -72,3 +72,33 @@ export function isUserAdmin(user: RoleBearer | null | undefined): boolean {
 export function primaryUserRole(user: RoleBearer | null | undefined): string {
   return normalize(user?.Role) || 'USER'
 }
+
+/**
+ * Is this user barred from mature content, whatever they ask for?
+ *
+ * RESTRICTIVE WINS -- the precedence rule for the whole multi-role system. A
+ * CHILD who is also an ADMIN is still maturity-restricted: admin grants
+ * capability, it does not lift a safety restriction.
+ *
+ * Note the asymmetry with hasUserRole/isUserAdmin above. There, holding a role
+ * GRANTS something, so any source of it is enough. Here holding CHILD DENIES
+ * something, so a missed marker fails OPEN -- the wrong direction for a
+ * child-safety check. `resolveUserRoles` already unions every source, which is
+ * exactly what this needs.
+ *
+ * Mirrors isMaturityRestricted in server/utils/contentAccess.ts.
+ */
+export function isMaturityRestricted(
+  user: RoleBearer | null | undefined,
+): boolean {
+  if (!user) return true
+  return resolveUserRoles(user).has('CHILD')
+}
+
+/** The user's effective mature-content preference, restriction applied. */
+export function effectiveShowMature(
+  user: (RoleBearer & { showMature?: boolean | null }) | null | undefined,
+): boolean {
+  if (isMaturityRestricted(user)) return false
+  return user?.showMature === true
+}

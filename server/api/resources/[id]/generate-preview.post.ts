@@ -11,6 +11,7 @@ import { requireMachineUser } from '~/server/utils/authGuard'
 import { manaGate } from '~/server/utils/manaGate'
 import { estimateArtCostUsd } from '~/server/utils/manaCost'
 import { resourceGallerySelect, resourceGalleryWhere } from '../gallery'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 const A1111_RESOURCE_FAMILIES: SupportedServer[] = [
   SupportedServer.SD15,
@@ -85,7 +86,7 @@ export default defineEventHandler(async (event) => {
           resourceGalleryWhere({
             userId: auth.user.id,
             isAdmin: auth.isAdmin,
-            showMature: Boolean(auth.user.showMature),
+            showMature: effectiveShowMature(auth.user),
           }),
         ],
       },

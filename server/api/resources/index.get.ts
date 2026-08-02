@@ -8,6 +8,7 @@ import {
   resourceGalleryWhere,
   type ResourceGalleryRecord,
 } from './gallery'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
       where: resourceGalleryWhere({
         userId: auth?.user.id ?? null,
         isAdmin: auth?.isAdmin ?? false,
-        showMature: Boolean(auth?.user.showMature),
+        showMature: effectiveShowMature(auth?.user),
       }),
       select: resourceGallerySelect,
       orderBy: [{ customLabel: 'asc' }, { name: 'asc' }],

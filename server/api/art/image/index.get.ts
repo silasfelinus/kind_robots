@@ -5,6 +5,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 
 type QueryValue = string | number | boolean | null | undefined | QueryValue[]
 
@@ -68,10 +69,13 @@ async function getArtImageAccessContext(
       false,
     )
 
-    const userAllowsMature = Boolean(user?.showMature)
-    const showMature = isAuthenticated
-      ? requestedMature || userAllowsMature
-      : false
+    // isMaturityRestricted, not effectiveShowMature: `requestedMature` is a
+    // query parameter, so gating only the stored preference would let a CHILD
+    // opt themselves back in with ?showMature=true.
+    const showMature =
+      isAuthenticated &&
+      !isMaturityRestricted(user) &&
+      (requestedMature || user?.showMature === true)
 
     return {
       userId: isAuthenticated ? Number(user?.id) : null,

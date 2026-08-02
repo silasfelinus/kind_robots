@@ -5,6 +5,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { validateApiKey } from '../../../utils/validateKey'
 import { userRoles } from '../../../utils/authUser'
+import { isMaturityRestricted } from '../../../utils/contentAccess'
 
 type QueryValue = string | number | boolean | null | undefined | QueryValue[]
 
@@ -75,9 +76,12 @@ async function getAccessContext(event: H3Event): Promise<AccessContext> {
       false,
     )
 
-    const showMature = isAuthenticated
-      ? requestedMature || Boolean(user?.showMature)
-      : false
+    // See the sibling route: the request can opt DOWN but never past the
+    // restriction, or ?showMature=true would defeat it.
+    const showMature =
+      isAuthenticated &&
+      !isMaturityRestricted(user) &&
+      (requestedMature || user?.showMature === true)
 
     return {
       userId: isAuthenticated ? Number(user?.id) : null,

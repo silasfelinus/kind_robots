@@ -13,6 +13,7 @@ import { ofetch } from 'ofetch'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 const CIVITAI_MODELS_URL = 'https://civitai.com/api/v1/models'
 const CIVARCHIVE_MODEL_URL = 'https://civitaiarchive.com/api/models'
@@ -296,7 +297,7 @@ export default defineEventHandler(async (event) => {
     const q = String(query.q ?? '').trim()
     const source = String(query.source ?? 'civitai').toLowerCase()
     const type = normalizeBrowseType(query.type)
-    const allowMature = Boolean(auth.user.showMature)
+    const allowMature = effectiveShowMature(auth.user)
 
     let result: { cards: BrowseCard[]; nextCursor: string | null }
 

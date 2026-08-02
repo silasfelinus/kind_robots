@@ -11,4 +11,4 @@ dottiTip: AMI! I made a button and a sign to not press it and and visitors start
 amiTip: Maybe they're jellybean hunters? But in that case, they should definitely stop around 100 times or so.
 ---
 
-:lab-manager
+:rebel-button

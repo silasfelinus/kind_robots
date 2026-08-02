@@ -1,12 +1,18 @@
 // /utils/scripts/verifyChildMaturityRestriction.ts
 import {
-  effectiveShowMature,
-  isMaturityRestricted,
-} from '../../server/utils/contentAccess'
-import {
   effectiveShowMature as clientEffectiveShowMature,
   isMaturityRestricted as clientIsMaturityRestricted,
 } from '../userRoles'
+
+// contentAccess also owns database-backed grant helpers, so importing it initializes
+// the Prisma adapter even though this contract only exercises its pure maturity
+// predicates. Give module initialization a syntactically valid, never-connected URL;
+// production and database-backed workflows keep supplying their real URL.
+process.env.DATABASE_URL ??= 'mysql://contract:contract@127.0.0.1:3306/contract'
+const {
+  effectiveShowMature,
+  isMaturityRestricted,
+} = await import('../../server/utils/contentAccess')
 
 // The one behavioural change in the multi-role sequence, so it gets its own
 // contract.
@@ -61,8 +67,14 @@ check(
 const CHILD_SHAPES: [Record<string, unknown>, string][] = [
   [{ id: 42, Role: 'CHILD' }, 'the primary Role column'],
   [{ id: 42, Role: 'USER', roles: ['CHILD'] }, 'the roles array'],
-  [{ id: 42, Role: 'USER', UserRoles: [{ role: 'CHILD' }] }, 'a raw Prisma UserRoles include'],
-  [{ id: 42, Role: 'USER', role: 'child' }, 'the lowercase `role` alias used by the art routes'],
+  [
+    { id: 42, Role: 'USER', UserRoles: [{ role: 'CHILD' }] },
+    'a raw Prisma UserRoles include',
+  ],
+  [
+    { id: 42, Role: 'USER', role: 'child' },
+    'the lowercase `role` alias used by the art routes',
+  ],
   [{ id: 42, Role: 'child' }, 'a lowercase primary role'],
 ]
 for (const [shape, source] of CHILD_SHAPES) {
@@ -79,7 +91,12 @@ check(
   'an ordinary user who opted in still sees mature content',
 )
 check(
-  effectiveShowMature({ id: 42, Role: 'FAMILY', roles: ['FAMILY', 'ADMIN'], showMature: true }),
+  effectiveShowMature({
+    id: 42,
+    Role: 'FAMILY',
+    roles: ['FAMILY', 'ADMIN'],
+    showMature: true,
+  }),
   'FAMILY is not CHILD -- a family account that opted in is not restricted',
 )
 check(
@@ -111,7 +128,10 @@ function routeShowMature(
 }
 
 check(
-  !routeShowMature({ id: 42, Role: 'CHILD', roles: ['CHILD', 'ADMIN'] }, true),
+  !routeShowMature(
+    { id: 42, Role: 'CHILD', roles: ['CHILD', 'ADMIN'] },
+    true,
+  ),
   'a CHILD passing ?showMature=true is still denied (a restriction a query string can lift is not a restriction)',
 )
 check(
@@ -124,7 +144,12 @@ const MIRROR: Record<string, unknown>[] = [
   { id: 42, Role: 'CHILD', roles: ['CHILD', 'ADMIN'], showMature: true },
   { id: 42, Role: 'ADMIN', roles: ['ADMIN', 'CHILD'], showMature: true },
   { id: 42, Role: 'USER', showMature: true },
-  { id: 42, Role: 'FAMILY', roles: ['FAMILY', 'ADMIN'], showMature: true },
+  {
+    id: 42,
+    Role: 'FAMILY',
+    roles: ['FAMILY', 'ADMIN'],
+    showMature: true,
+  },
   { id: 42, Role: 'USER', showMature: false },
   { id: 1, Role: 'CHILD', showMature: true },
 ]

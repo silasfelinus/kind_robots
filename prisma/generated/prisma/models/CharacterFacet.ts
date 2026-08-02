@@ -264,6 +264,8 @@ export type CharacterFacetWhereInput = {
   source?: Prisma.StringFilter<"CharacterFacet"> | string
   createdAt?: Prisma.DateTimeFilter<"CharacterFacet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CharacterFacet"> | Date | string
+  Character?: Prisma.XOR<Prisma.CharacterScalarRelationFilter, Prisma.CharacterWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }
 
 export type CharacterFacetOrderByWithRelationInput = {
@@ -276,6 +278,8 @@ export type CharacterFacetOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  Character?: Prisma.CharacterOrderByWithRelationInput
+  Facet?: Prisma.FacetOrderByWithRelationInput
   _relevance?: Prisma.CharacterFacetOrderByRelevanceInput
 }
 
@@ -293,6 +297,8 @@ export type CharacterFacetWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringFilter<"CharacterFacet"> | string
   createdAt?: Prisma.DateTimeFilter<"CharacterFacet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CharacterFacet"> | Date | string
+  Character?: Prisma.XOR<Prisma.CharacterScalarRelationFilter, Prisma.CharacterWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }, "id" | "characterId_facetId_fieldKey">
 
 export type CharacterFacetOrderByWithAggregationInput = {
@@ -328,14 +334,14 @@ export type CharacterFacetScalarWhereWithAggregatesInput = {
 }
 
 export type CharacterFacetCreateInput = {
-  characterId: number
-  facetId: number
   fieldKey: string
   sortOrder?: number
   weight?: number
   source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  Character: Prisma.CharacterCreateNestedOneWithoutFacetLinksInput
+  Facet: Prisma.FacetCreateNestedOneWithoutCharacterLinksInput
 }
 
 export type CharacterFacetUncheckedCreateInput = {
@@ -351,14 +357,14 @@ export type CharacterFacetUncheckedCreateInput = {
 }
 
 export type CharacterFacetUpdateInput = {
-  characterId?: Prisma.IntFieldUpdateOperationsInput | number
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.FloatFieldUpdateOperationsInput | number
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Character?: Prisma.CharacterUpdateOneRequiredWithoutFacetLinksNestedInput
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutCharacterLinksNestedInput
 }
 
 export type CharacterFacetUncheckedUpdateInput = {
@@ -386,8 +392,6 @@ export type CharacterFacetCreateManyInput = {
 }
 
 export type CharacterFacetUpdateManyMutationInput = {
-  characterId?: Prisma.IntFieldUpdateOperationsInput | number
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -472,6 +476,295 @@ export type CharacterFacetSumOrderByAggregateInput = {
   weight?: Prisma.SortOrder
 }
 
+export type CharacterFacetListRelationFilter = {
+  every?: Prisma.CharacterFacetWhereInput
+  some?: Prisma.CharacterFacetWhereInput
+  none?: Prisma.CharacterFacetWhereInput
+}
+
+export type CharacterFacetOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type CharacterFacetCreateNestedManyWithoutCharacterInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutCharacterInput, Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput> | Prisma.CharacterFacetCreateWithoutCharacterInput[] | Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput | Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput[]
+  createMany?: Prisma.CharacterFacetCreateManyCharacterInputEnvelope
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+}
+
+export type CharacterFacetUncheckedCreateNestedManyWithoutCharacterInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutCharacterInput, Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput> | Prisma.CharacterFacetCreateWithoutCharacterInput[] | Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput | Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput[]
+  createMany?: Prisma.CharacterFacetCreateManyCharacterInputEnvelope
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+}
+
+export type CharacterFacetUpdateManyWithoutCharacterNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutCharacterInput, Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput> | Prisma.CharacterFacetCreateWithoutCharacterInput[] | Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput | Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput[]
+  upsert?: Prisma.CharacterFacetUpsertWithWhereUniqueWithoutCharacterInput | Prisma.CharacterFacetUpsertWithWhereUniqueWithoutCharacterInput[]
+  createMany?: Prisma.CharacterFacetCreateManyCharacterInputEnvelope
+  set?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  disconnect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  delete?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  update?: Prisma.CharacterFacetUpdateWithWhereUniqueWithoutCharacterInput | Prisma.CharacterFacetUpdateWithWhereUniqueWithoutCharacterInput[]
+  updateMany?: Prisma.CharacterFacetUpdateManyWithWhereWithoutCharacterInput | Prisma.CharacterFacetUpdateManyWithWhereWithoutCharacterInput[]
+  deleteMany?: Prisma.CharacterFacetScalarWhereInput | Prisma.CharacterFacetScalarWhereInput[]
+}
+
+export type CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutCharacterInput, Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput> | Prisma.CharacterFacetCreateWithoutCharacterInput[] | Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput | Prisma.CharacterFacetCreateOrConnectWithoutCharacterInput[]
+  upsert?: Prisma.CharacterFacetUpsertWithWhereUniqueWithoutCharacterInput | Prisma.CharacterFacetUpsertWithWhereUniqueWithoutCharacterInput[]
+  createMany?: Prisma.CharacterFacetCreateManyCharacterInputEnvelope
+  set?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  disconnect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  delete?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  update?: Prisma.CharacterFacetUpdateWithWhereUniqueWithoutCharacterInput | Prisma.CharacterFacetUpdateWithWhereUniqueWithoutCharacterInput[]
+  updateMany?: Prisma.CharacterFacetUpdateManyWithWhereWithoutCharacterInput | Prisma.CharacterFacetUpdateManyWithWhereWithoutCharacterInput[]
+  deleteMany?: Prisma.CharacterFacetScalarWhereInput | Prisma.CharacterFacetScalarWhereInput[]
+}
+
+export type CharacterFacetCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutFacetInput, Prisma.CharacterFacetUncheckedCreateWithoutFacetInput> | Prisma.CharacterFacetCreateWithoutFacetInput[] | Prisma.CharacterFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutFacetInput | Prisma.CharacterFacetCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.CharacterFacetCreateManyFacetInputEnvelope
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+}
+
+export type CharacterFacetUncheckedCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutFacetInput, Prisma.CharacterFacetUncheckedCreateWithoutFacetInput> | Prisma.CharacterFacetCreateWithoutFacetInput[] | Prisma.CharacterFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutFacetInput | Prisma.CharacterFacetCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.CharacterFacetCreateManyFacetInputEnvelope
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+}
+
+export type CharacterFacetUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutFacetInput, Prisma.CharacterFacetUncheckedCreateWithoutFacetInput> | Prisma.CharacterFacetCreateWithoutFacetInput[] | Prisma.CharacterFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutFacetInput | Prisma.CharacterFacetCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.CharacterFacetUpsertWithWhereUniqueWithoutFacetInput | Prisma.CharacterFacetUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.CharacterFacetCreateManyFacetInputEnvelope
+  set?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  disconnect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  delete?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  update?: Prisma.CharacterFacetUpdateWithWhereUniqueWithoutFacetInput | Prisma.CharacterFacetUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.CharacterFacetUpdateManyWithWhereWithoutFacetInput | Prisma.CharacterFacetUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.CharacterFacetScalarWhereInput | Prisma.CharacterFacetScalarWhereInput[]
+}
+
+export type CharacterFacetUncheckedUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterFacetCreateWithoutFacetInput, Prisma.CharacterFacetUncheckedCreateWithoutFacetInput> | Prisma.CharacterFacetCreateWithoutFacetInput[] | Prisma.CharacterFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.CharacterFacetCreateOrConnectWithoutFacetInput | Prisma.CharacterFacetCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.CharacterFacetUpsertWithWhereUniqueWithoutFacetInput | Prisma.CharacterFacetUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.CharacterFacetCreateManyFacetInputEnvelope
+  set?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  disconnect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  delete?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  connect?: Prisma.CharacterFacetWhereUniqueInput | Prisma.CharacterFacetWhereUniqueInput[]
+  update?: Prisma.CharacterFacetUpdateWithWhereUniqueWithoutFacetInput | Prisma.CharacterFacetUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.CharacterFacetUpdateManyWithWhereWithoutFacetInput | Prisma.CharacterFacetUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.CharacterFacetScalarWhereInput | Prisma.CharacterFacetScalarWhereInput[]
+}
+
+export type CharacterFacetCreateWithoutCharacterInput = {
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Facet: Prisma.FacetCreateNestedOneWithoutCharacterLinksInput
+}
+
+export type CharacterFacetUncheckedCreateWithoutCharacterInput = {
+  id?: number
+  facetId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CharacterFacetCreateOrConnectWithoutCharacterInput = {
+  where: Prisma.CharacterFacetWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterFacetCreateWithoutCharacterInput, Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput>
+}
+
+export type CharacterFacetCreateManyCharacterInputEnvelope = {
+  data: Prisma.CharacterFacetCreateManyCharacterInput | Prisma.CharacterFacetCreateManyCharacterInput[]
+  skipDuplicates?: boolean
+}
+
+export type CharacterFacetUpsertWithWhereUniqueWithoutCharacterInput = {
+  where: Prisma.CharacterFacetWhereUniqueInput
+  update: Prisma.XOR<Prisma.CharacterFacetUpdateWithoutCharacterInput, Prisma.CharacterFacetUncheckedUpdateWithoutCharacterInput>
+  create: Prisma.XOR<Prisma.CharacterFacetCreateWithoutCharacterInput, Prisma.CharacterFacetUncheckedCreateWithoutCharacterInput>
+}
+
+export type CharacterFacetUpdateWithWhereUniqueWithoutCharacterInput = {
+  where: Prisma.CharacterFacetWhereUniqueInput
+  data: Prisma.XOR<Prisma.CharacterFacetUpdateWithoutCharacterInput, Prisma.CharacterFacetUncheckedUpdateWithoutCharacterInput>
+}
+
+export type CharacterFacetUpdateManyWithWhereWithoutCharacterInput = {
+  where: Prisma.CharacterFacetScalarWhereInput
+  data: Prisma.XOR<Prisma.CharacterFacetUpdateManyMutationInput, Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterInput>
+}
+
+export type CharacterFacetScalarWhereInput = {
+  AND?: Prisma.CharacterFacetScalarWhereInput | Prisma.CharacterFacetScalarWhereInput[]
+  OR?: Prisma.CharacterFacetScalarWhereInput[]
+  NOT?: Prisma.CharacterFacetScalarWhereInput | Prisma.CharacterFacetScalarWhereInput[]
+  id?: Prisma.IntFilter<"CharacterFacet"> | number
+  characterId?: Prisma.IntFilter<"CharacterFacet"> | number
+  facetId?: Prisma.IntFilter<"CharacterFacet"> | number
+  fieldKey?: Prisma.StringFilter<"CharacterFacet"> | string
+  sortOrder?: Prisma.IntFilter<"CharacterFacet"> | number
+  weight?: Prisma.FloatFilter<"CharacterFacet"> | number
+  source?: Prisma.StringFilter<"CharacterFacet"> | string
+  createdAt?: Prisma.DateTimeFilter<"CharacterFacet"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CharacterFacet"> | Date | string
+}
+
+export type CharacterFacetCreateWithoutFacetInput = {
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Character: Prisma.CharacterCreateNestedOneWithoutFacetLinksInput
+}
+
+export type CharacterFacetUncheckedCreateWithoutFacetInput = {
+  id?: number
+  characterId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CharacterFacetCreateOrConnectWithoutFacetInput = {
+  where: Prisma.CharacterFacetWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterFacetCreateWithoutFacetInput, Prisma.CharacterFacetUncheckedCreateWithoutFacetInput>
+}
+
+export type CharacterFacetCreateManyFacetInputEnvelope = {
+  data: Prisma.CharacterFacetCreateManyFacetInput | Prisma.CharacterFacetCreateManyFacetInput[]
+  skipDuplicates?: boolean
+}
+
+export type CharacterFacetUpsertWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.CharacterFacetWhereUniqueInput
+  update: Prisma.XOR<Prisma.CharacterFacetUpdateWithoutFacetInput, Prisma.CharacterFacetUncheckedUpdateWithoutFacetInput>
+  create: Prisma.XOR<Prisma.CharacterFacetCreateWithoutFacetInput, Prisma.CharacterFacetUncheckedCreateWithoutFacetInput>
+}
+
+export type CharacterFacetUpdateWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.CharacterFacetWhereUniqueInput
+  data: Prisma.XOR<Prisma.CharacterFacetUpdateWithoutFacetInput, Prisma.CharacterFacetUncheckedUpdateWithoutFacetInput>
+}
+
+export type CharacterFacetUpdateManyWithWhereWithoutFacetInput = {
+  where: Prisma.CharacterFacetScalarWhereInput
+  data: Prisma.XOR<Prisma.CharacterFacetUpdateManyMutationInput, Prisma.CharacterFacetUncheckedUpdateManyWithoutFacetInput>
+}
+
+export type CharacterFacetCreateManyCharacterInput = {
+  id?: number
+  facetId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CharacterFacetUpdateWithoutCharacterInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutCharacterLinksNestedInput
+}
+
+export type CharacterFacetUncheckedUpdateWithoutCharacterInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  facetId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CharacterFacetUncheckedUpdateManyWithoutCharacterInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  facetId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CharacterFacetCreateManyFacetInput = {
+  id?: number
+  characterId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CharacterFacetUpdateWithoutFacetInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Character?: Prisma.CharacterUpdateOneRequiredWithoutFacetLinksNestedInput
+}
+
+export type CharacterFacetUncheckedUpdateWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CharacterFacetUncheckedUpdateManyWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type CharacterFacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -484,6 +777,8 @@ export type CharacterFacetSelect<ExtArgs extends runtime.Types.Extensions.Intern
   source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  Character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["characterFacet"]>
 
 
@@ -501,10 +796,17 @@ export type CharacterFacetSelectScalar = {
 }
 
 export type CharacterFacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "characterId" | "facetId" | "fieldKey" | "sortOrder" | "weight" | "source" | "createdAt" | "updatedAt", ExtArgs["result"]["characterFacet"]>
+export type CharacterFacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
+}
 
 export type $CharacterFacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CharacterFacet"
-  objects: {}
+  objects: {
+    Character: Prisma.$CharacterPayload<ExtArgs>
+    Facet: Prisma.$FacetPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     characterId: number
@@ -855,6 +1157,8 @@ readonly fields: CharacterFacetFieldRefs;
  */
 export interface Prisma__CharacterFacetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Character<T extends Prisma.CharacterDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CharacterDefaultArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -910,6 +1214,10 @@ export type CharacterFacetFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
+  /**
    * Filter, which CharacterFacet to fetch.
    */
   where: Prisma.CharacterFacetWhereUniqueInput
@@ -928,6 +1236,10 @@ export type CharacterFacetFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
+  /**
    * Filter, which CharacterFacet to fetch.
    */
   where: Prisma.CharacterFacetWhereUniqueInput
@@ -945,6 +1257,10 @@ export type CharacterFacetFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the CharacterFacet
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
   /**
    * Filter, which CharacterFacet to fetch.
    */
@@ -994,6 +1310,10 @@ export type CharacterFacetFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
+  /**
    * Filter, which CharacterFacet to fetch.
    */
   where?: Prisma.CharacterFacetWhereInput
@@ -1041,6 +1361,10 @@ export type CharacterFacetFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the CharacterFacet
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
   /**
    * Filter, which CharacterFacets to fetch.
    */
@@ -1090,6 +1414,10 @@ export type CharacterFacetCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
+  /**
    * The data needed to create a CharacterFacet.
    */
   data: Prisma.XOR<Prisma.CharacterFacetCreateInput, Prisma.CharacterFacetUncheckedCreateInput>
@@ -1118,6 +1446,10 @@ export type CharacterFacetUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the CharacterFacet
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
   /**
    * The data needed to update a CharacterFacet.
    */
@@ -1159,6 +1491,10 @@ export type CharacterFacetUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
+  /**
    * The filter to search for the CharacterFacet to update in case it exists.
    */
   where: Prisma.CharacterFacetWhereUniqueInput
@@ -1184,6 +1520,10 @@ export type CharacterFacetDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the CharacterFacet
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
   /**
    * Filter which CharacterFacet to delete.
    */
@@ -1216,4 +1556,8 @@ export type CharacterFacetDefaultArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the CharacterFacet
    */
   omit?: Prisma.CharacterFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterFacetInclude<ExtArgs> | null
 }

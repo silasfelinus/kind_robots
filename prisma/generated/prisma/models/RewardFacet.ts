@@ -264,6 +264,8 @@ export type RewardFacetWhereInput = {
   source?: Prisma.StringFilter<"RewardFacet"> | string
   createdAt?: Prisma.DateTimeFilter<"RewardFacet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RewardFacet"> | Date | string
+  Reward?: Prisma.XOR<Prisma.RewardScalarRelationFilter, Prisma.RewardWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }
 
 export type RewardFacetOrderByWithRelationInput = {
@@ -276,6 +278,8 @@ export type RewardFacetOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  Reward?: Prisma.RewardOrderByWithRelationInput
+  Facet?: Prisma.FacetOrderByWithRelationInput
   _relevance?: Prisma.RewardFacetOrderByRelevanceInput
 }
 
@@ -293,6 +297,8 @@ export type RewardFacetWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringFilter<"RewardFacet"> | string
   createdAt?: Prisma.DateTimeFilter<"RewardFacet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RewardFacet"> | Date | string
+  Reward?: Prisma.XOR<Prisma.RewardScalarRelationFilter, Prisma.RewardWhereInput>
+  Facet?: Prisma.XOR<Prisma.FacetScalarRelationFilter, Prisma.FacetWhereInput>
 }, "id" | "rewardId_facetId_fieldKey">
 
 export type RewardFacetOrderByWithAggregationInput = {
@@ -328,14 +334,14 @@ export type RewardFacetScalarWhereWithAggregatesInput = {
 }
 
 export type RewardFacetCreateInput = {
-  rewardId: number
-  facetId: number
   fieldKey: string
   sortOrder?: number
   weight?: number
   source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  Reward: Prisma.RewardCreateNestedOneWithoutFacetLinksInput
+  Facet: Prisma.FacetCreateNestedOneWithoutRewardLinksInput
 }
 
 export type RewardFacetUncheckedCreateInput = {
@@ -351,14 +357,14 @@ export type RewardFacetUncheckedCreateInput = {
 }
 
 export type RewardFacetUpdateInput = {
-  rewardId?: Prisma.IntFieldUpdateOperationsInput | number
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.FloatFieldUpdateOperationsInput | number
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Reward?: Prisma.RewardUpdateOneRequiredWithoutFacetLinksNestedInput
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutRewardLinksNestedInput
 }
 
 export type RewardFacetUncheckedUpdateInput = {
@@ -386,8 +392,6 @@ export type RewardFacetCreateManyInput = {
 }
 
 export type RewardFacetUpdateManyMutationInput = {
-  rewardId?: Prisma.IntFieldUpdateOperationsInput | number
-  facetId?: Prisma.IntFieldUpdateOperationsInput | number
   fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -472,6 +476,295 @@ export type RewardFacetSumOrderByAggregateInput = {
   weight?: Prisma.SortOrder
 }
 
+export type RewardFacetListRelationFilter = {
+  every?: Prisma.RewardFacetWhereInput
+  some?: Prisma.RewardFacetWhereInput
+  none?: Prisma.RewardFacetWhereInput
+}
+
+export type RewardFacetOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type RewardFacetCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutFacetInput, Prisma.RewardFacetUncheckedCreateWithoutFacetInput> | Prisma.RewardFacetCreateWithoutFacetInput[] | Prisma.RewardFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutFacetInput | Prisma.RewardFacetCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.RewardFacetCreateManyFacetInputEnvelope
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+}
+
+export type RewardFacetUncheckedCreateNestedManyWithoutFacetInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutFacetInput, Prisma.RewardFacetUncheckedCreateWithoutFacetInput> | Prisma.RewardFacetCreateWithoutFacetInput[] | Prisma.RewardFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutFacetInput | Prisma.RewardFacetCreateOrConnectWithoutFacetInput[]
+  createMany?: Prisma.RewardFacetCreateManyFacetInputEnvelope
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+}
+
+export type RewardFacetUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutFacetInput, Prisma.RewardFacetUncheckedCreateWithoutFacetInput> | Prisma.RewardFacetCreateWithoutFacetInput[] | Prisma.RewardFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutFacetInput | Prisma.RewardFacetCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.RewardFacetUpsertWithWhereUniqueWithoutFacetInput | Prisma.RewardFacetUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.RewardFacetCreateManyFacetInputEnvelope
+  set?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  disconnect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  delete?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  update?: Prisma.RewardFacetUpdateWithWhereUniqueWithoutFacetInput | Prisma.RewardFacetUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.RewardFacetUpdateManyWithWhereWithoutFacetInput | Prisma.RewardFacetUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.RewardFacetScalarWhereInput | Prisma.RewardFacetScalarWhereInput[]
+}
+
+export type RewardFacetUncheckedUpdateManyWithoutFacetNestedInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutFacetInput, Prisma.RewardFacetUncheckedCreateWithoutFacetInput> | Prisma.RewardFacetCreateWithoutFacetInput[] | Prisma.RewardFacetUncheckedCreateWithoutFacetInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutFacetInput | Prisma.RewardFacetCreateOrConnectWithoutFacetInput[]
+  upsert?: Prisma.RewardFacetUpsertWithWhereUniqueWithoutFacetInput | Prisma.RewardFacetUpsertWithWhereUniqueWithoutFacetInput[]
+  createMany?: Prisma.RewardFacetCreateManyFacetInputEnvelope
+  set?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  disconnect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  delete?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  update?: Prisma.RewardFacetUpdateWithWhereUniqueWithoutFacetInput | Prisma.RewardFacetUpdateWithWhereUniqueWithoutFacetInput[]
+  updateMany?: Prisma.RewardFacetUpdateManyWithWhereWithoutFacetInput | Prisma.RewardFacetUpdateManyWithWhereWithoutFacetInput[]
+  deleteMany?: Prisma.RewardFacetScalarWhereInput | Prisma.RewardFacetScalarWhereInput[]
+}
+
+export type RewardFacetCreateNestedManyWithoutRewardInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutRewardInput, Prisma.RewardFacetUncheckedCreateWithoutRewardInput> | Prisma.RewardFacetCreateWithoutRewardInput[] | Prisma.RewardFacetUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutRewardInput | Prisma.RewardFacetCreateOrConnectWithoutRewardInput[]
+  createMany?: Prisma.RewardFacetCreateManyRewardInputEnvelope
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+}
+
+export type RewardFacetUncheckedCreateNestedManyWithoutRewardInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutRewardInput, Prisma.RewardFacetUncheckedCreateWithoutRewardInput> | Prisma.RewardFacetCreateWithoutRewardInput[] | Prisma.RewardFacetUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutRewardInput | Prisma.RewardFacetCreateOrConnectWithoutRewardInput[]
+  createMany?: Prisma.RewardFacetCreateManyRewardInputEnvelope
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+}
+
+export type RewardFacetUpdateManyWithoutRewardNestedInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutRewardInput, Prisma.RewardFacetUncheckedCreateWithoutRewardInput> | Prisma.RewardFacetCreateWithoutRewardInput[] | Prisma.RewardFacetUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutRewardInput | Prisma.RewardFacetCreateOrConnectWithoutRewardInput[]
+  upsert?: Prisma.RewardFacetUpsertWithWhereUniqueWithoutRewardInput | Prisma.RewardFacetUpsertWithWhereUniqueWithoutRewardInput[]
+  createMany?: Prisma.RewardFacetCreateManyRewardInputEnvelope
+  set?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  disconnect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  delete?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  update?: Prisma.RewardFacetUpdateWithWhereUniqueWithoutRewardInput | Prisma.RewardFacetUpdateWithWhereUniqueWithoutRewardInput[]
+  updateMany?: Prisma.RewardFacetUpdateManyWithWhereWithoutRewardInput | Prisma.RewardFacetUpdateManyWithWhereWithoutRewardInput[]
+  deleteMany?: Prisma.RewardFacetScalarWhereInput | Prisma.RewardFacetScalarWhereInput[]
+}
+
+export type RewardFacetUncheckedUpdateManyWithoutRewardNestedInput = {
+  create?: Prisma.XOR<Prisma.RewardFacetCreateWithoutRewardInput, Prisma.RewardFacetUncheckedCreateWithoutRewardInput> | Prisma.RewardFacetCreateWithoutRewardInput[] | Prisma.RewardFacetUncheckedCreateWithoutRewardInput[]
+  connectOrCreate?: Prisma.RewardFacetCreateOrConnectWithoutRewardInput | Prisma.RewardFacetCreateOrConnectWithoutRewardInput[]
+  upsert?: Prisma.RewardFacetUpsertWithWhereUniqueWithoutRewardInput | Prisma.RewardFacetUpsertWithWhereUniqueWithoutRewardInput[]
+  createMany?: Prisma.RewardFacetCreateManyRewardInputEnvelope
+  set?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  disconnect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  delete?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  connect?: Prisma.RewardFacetWhereUniqueInput | Prisma.RewardFacetWhereUniqueInput[]
+  update?: Prisma.RewardFacetUpdateWithWhereUniqueWithoutRewardInput | Prisma.RewardFacetUpdateWithWhereUniqueWithoutRewardInput[]
+  updateMany?: Prisma.RewardFacetUpdateManyWithWhereWithoutRewardInput | Prisma.RewardFacetUpdateManyWithWhereWithoutRewardInput[]
+  deleteMany?: Prisma.RewardFacetScalarWhereInput | Prisma.RewardFacetScalarWhereInput[]
+}
+
+export type RewardFacetCreateWithoutFacetInput = {
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Reward: Prisma.RewardCreateNestedOneWithoutFacetLinksInput
+}
+
+export type RewardFacetUncheckedCreateWithoutFacetInput = {
+  id?: number
+  rewardId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RewardFacetCreateOrConnectWithoutFacetInput = {
+  where: Prisma.RewardFacetWhereUniqueInput
+  create: Prisma.XOR<Prisma.RewardFacetCreateWithoutFacetInput, Prisma.RewardFacetUncheckedCreateWithoutFacetInput>
+}
+
+export type RewardFacetCreateManyFacetInputEnvelope = {
+  data: Prisma.RewardFacetCreateManyFacetInput | Prisma.RewardFacetCreateManyFacetInput[]
+  skipDuplicates?: boolean
+}
+
+export type RewardFacetUpsertWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.RewardFacetWhereUniqueInput
+  update: Prisma.XOR<Prisma.RewardFacetUpdateWithoutFacetInput, Prisma.RewardFacetUncheckedUpdateWithoutFacetInput>
+  create: Prisma.XOR<Prisma.RewardFacetCreateWithoutFacetInput, Prisma.RewardFacetUncheckedCreateWithoutFacetInput>
+}
+
+export type RewardFacetUpdateWithWhereUniqueWithoutFacetInput = {
+  where: Prisma.RewardFacetWhereUniqueInput
+  data: Prisma.XOR<Prisma.RewardFacetUpdateWithoutFacetInput, Prisma.RewardFacetUncheckedUpdateWithoutFacetInput>
+}
+
+export type RewardFacetUpdateManyWithWhereWithoutFacetInput = {
+  where: Prisma.RewardFacetScalarWhereInput
+  data: Prisma.XOR<Prisma.RewardFacetUpdateManyMutationInput, Prisma.RewardFacetUncheckedUpdateManyWithoutFacetInput>
+}
+
+export type RewardFacetScalarWhereInput = {
+  AND?: Prisma.RewardFacetScalarWhereInput | Prisma.RewardFacetScalarWhereInput[]
+  OR?: Prisma.RewardFacetScalarWhereInput[]
+  NOT?: Prisma.RewardFacetScalarWhereInput | Prisma.RewardFacetScalarWhereInput[]
+  id?: Prisma.IntFilter<"RewardFacet"> | number
+  rewardId?: Prisma.IntFilter<"RewardFacet"> | number
+  facetId?: Prisma.IntFilter<"RewardFacet"> | number
+  fieldKey?: Prisma.StringFilter<"RewardFacet"> | string
+  sortOrder?: Prisma.IntFilter<"RewardFacet"> | number
+  weight?: Prisma.FloatFilter<"RewardFacet"> | number
+  source?: Prisma.StringFilter<"RewardFacet"> | string
+  createdAt?: Prisma.DateTimeFilter<"RewardFacet"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"RewardFacet"> | Date | string
+}
+
+export type RewardFacetCreateWithoutRewardInput = {
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  Facet: Prisma.FacetCreateNestedOneWithoutRewardLinksInput
+}
+
+export type RewardFacetUncheckedCreateWithoutRewardInput = {
+  id?: number
+  facetId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RewardFacetCreateOrConnectWithoutRewardInput = {
+  where: Prisma.RewardFacetWhereUniqueInput
+  create: Prisma.XOR<Prisma.RewardFacetCreateWithoutRewardInput, Prisma.RewardFacetUncheckedCreateWithoutRewardInput>
+}
+
+export type RewardFacetCreateManyRewardInputEnvelope = {
+  data: Prisma.RewardFacetCreateManyRewardInput | Prisma.RewardFacetCreateManyRewardInput[]
+  skipDuplicates?: boolean
+}
+
+export type RewardFacetUpsertWithWhereUniqueWithoutRewardInput = {
+  where: Prisma.RewardFacetWhereUniqueInput
+  update: Prisma.XOR<Prisma.RewardFacetUpdateWithoutRewardInput, Prisma.RewardFacetUncheckedUpdateWithoutRewardInput>
+  create: Prisma.XOR<Prisma.RewardFacetCreateWithoutRewardInput, Prisma.RewardFacetUncheckedCreateWithoutRewardInput>
+}
+
+export type RewardFacetUpdateWithWhereUniqueWithoutRewardInput = {
+  where: Prisma.RewardFacetWhereUniqueInput
+  data: Prisma.XOR<Prisma.RewardFacetUpdateWithoutRewardInput, Prisma.RewardFacetUncheckedUpdateWithoutRewardInput>
+}
+
+export type RewardFacetUpdateManyWithWhereWithoutRewardInput = {
+  where: Prisma.RewardFacetScalarWhereInput
+  data: Prisma.XOR<Prisma.RewardFacetUpdateManyMutationInput, Prisma.RewardFacetUncheckedUpdateManyWithoutRewardInput>
+}
+
+export type RewardFacetCreateManyFacetInput = {
+  id?: number
+  rewardId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RewardFacetUpdateWithoutFacetInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Reward?: Prisma.RewardUpdateOneRequiredWithoutFacetLinksNestedInput
+}
+
+export type RewardFacetUncheckedUpdateWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  rewardId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RewardFacetUncheckedUpdateManyWithoutFacetInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  rewardId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RewardFacetCreateManyRewardInput = {
+  id?: number
+  facetId: number
+  fieldKey: string
+  sortOrder?: number
+  weight?: number
+  source?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RewardFacetUpdateWithoutRewardInput = {
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Facet?: Prisma.FacetUpdateOneRequiredWithoutRewardLinksNestedInput
+}
+
+export type RewardFacetUncheckedUpdateWithoutRewardInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  facetId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RewardFacetUncheckedUpdateManyWithoutRewardInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  facetId?: Prisma.IntFieldUpdateOperationsInput | number
+  fieldKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type RewardFacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -484,6 +777,8 @@ export type RewardFacetSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  Reward?: boolean | Prisma.RewardDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rewardFacet"]>
 
 
@@ -501,10 +796,17 @@ export type RewardFacetSelectScalar = {
 }
 
 export type RewardFacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rewardId" | "facetId" | "fieldKey" | "sortOrder" | "weight" | "source" | "createdAt" | "updatedAt", ExtArgs["result"]["rewardFacet"]>
+export type RewardFacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Reward?: boolean | Prisma.RewardDefaultArgs<ExtArgs>
+  Facet?: boolean | Prisma.FacetDefaultArgs<ExtArgs>
+}
 
 export type $RewardFacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RewardFacet"
-  objects: {}
+  objects: {
+    Reward: Prisma.$RewardPayload<ExtArgs>
+    Facet: Prisma.$FacetPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     rewardId: number
@@ -855,6 +1157,8 @@ readonly fields: RewardFacetFieldRefs;
  */
 export interface Prisma__RewardFacetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Reward<T extends Prisma.RewardDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RewardDefaultArgs<ExtArgs>>): Prisma.Prisma__RewardClient<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Facet<T extends Prisma.FacetDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacetDefaultArgs<ExtArgs>>): Prisma.Prisma__FacetClient<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -910,6 +1214,10 @@ export type RewardFacetFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
+  /**
    * Filter, which RewardFacet to fetch.
    */
   where: Prisma.RewardFacetWhereUniqueInput
@@ -928,6 +1236,10 @@ export type RewardFacetFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
+  /**
    * Filter, which RewardFacet to fetch.
    */
   where: Prisma.RewardFacetWhereUniqueInput
@@ -945,6 +1257,10 @@ export type RewardFacetFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the RewardFacet
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
   /**
    * Filter, which RewardFacet to fetch.
    */
@@ -994,6 +1310,10 @@ export type RewardFacetFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
+  /**
    * Filter, which RewardFacet to fetch.
    */
   where?: Prisma.RewardFacetWhereInput
@@ -1041,6 +1361,10 @@ export type RewardFacetFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the RewardFacet
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
   /**
    * Filter, which RewardFacets to fetch.
    */
@@ -1090,6 +1414,10 @@ export type RewardFacetCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
+  /**
    * The data needed to create a RewardFacet.
    */
   data: Prisma.XOR<Prisma.RewardFacetCreateInput, Prisma.RewardFacetUncheckedCreateInput>
@@ -1118,6 +1446,10 @@ export type RewardFacetUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the RewardFacet
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
   /**
    * The data needed to update a RewardFacet.
    */
@@ -1159,6 +1491,10 @@ export type RewardFacetUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
+  /**
    * The filter to search for the RewardFacet to update in case it exists.
    */
   where: Prisma.RewardFacetWhereUniqueInput
@@ -1184,6 +1520,10 @@ export type RewardFacetDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the RewardFacet
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
   /**
    * Filter which RewardFacet to delete.
    */
@@ -1216,4 +1556,8 @@ export type RewardFacetDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the RewardFacet
    */
   omit?: Prisma.RewardFacetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RewardFacetInclude<ExtArgs> | null
 }

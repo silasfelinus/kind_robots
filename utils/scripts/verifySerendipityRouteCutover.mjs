@@ -37,7 +37,14 @@ assert.match(channel, /^title: Serendipity$/m)
 assert.match(channel, /^route: \/serendipity$/m)
 assert.doesNotMatch(channel, /^route: \/serendipity-voice$/m)
 
-assert.match(component, /<h1 class="text-2xl font-black tracking-tight">Serendipity<\/h1>/)
+// Semantic identity assertion, not an exact-tag lock: the layout-contract
+// (interface-vision/t-017) forbids page components from owning an <h1> — the
+// app shell renders the page title — so this only pins the visual identity
+// marker (bold text-2xl "Serendipity" label beside the icon), not its tag.
+assert.match(
+  component,
+  /<[a-z][a-z0-9]*[^>]*class="text-2xl font-black tracking-tight"[^>]*>Serendipity<\/[a-z][a-z0-9]*>/,
+)
 assert.doesNotMatch(component, /components\/pages\/serendipity-voice-page\.vue/)
 
 const serendipityTab = dashboard.match(

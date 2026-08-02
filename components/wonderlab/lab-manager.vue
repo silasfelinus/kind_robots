@@ -4,10 +4,7 @@
       v-if="activeTab === 'memory-dungeon'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-      <memory-dungeon
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
+      <memory-dungeon class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section

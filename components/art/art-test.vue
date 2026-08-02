@@ -4,6 +4,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
+
 type EndpointId = 'a1111' | 'sdxl' | 'flux' | 'kontext' | 'kombine'
 type EndpointMode = 'text' | 'remix' | 'combine'
 
@@ -710,6 +712,7 @@ onMounted(async () => {
 <template>
   <div class="flex min-h-full w-full flex-col gap-6">
     <div
+      v-if="showHeader"
       class="rounded-2xl border border-base-300 bg-base-200 p-4 shadow-lg md:p-6"
     >
       <div

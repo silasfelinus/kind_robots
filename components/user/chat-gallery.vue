@@ -5,7 +5,7 @@
   >
     <header class="flex shrink-0 flex-col gap-3">
       <div class="flex items-start justify-between gap-3">
-        <div class="flex flex-col gap-1">
+        <div v-if="showHeader" class="flex flex-col gap-1">
           <p class="text-xs font-bold uppercase tracking-wide text-primary">
             Message Timeline
           </p>
@@ -300,6 +300,8 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ChatActorKind =
   'user' | 'bot' | 'character' | 'dream' | 'system' | 'unknown'

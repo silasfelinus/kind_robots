@@ -67,6 +67,7 @@
     "test:artjob-lora-override": "tsx utils/scripts/verifyArtJobLoraOverride.ts",
     "test:comfy-model-paths": "tsx utils/scripts/verifyComfyModelPaths.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
+    "test:gallery-adoption": "tsx utils/scripts/verifyGalleryAdoption.ts",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "test:data-surface-manifest": "tsx utils/scripts/verifyDataSurfaceManifest.ts",
     "test:nav-manifest": "tsx utils/scripts/verifyNavManifest.ts",

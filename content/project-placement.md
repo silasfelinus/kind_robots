@@ -17,4 +17,4 @@ dottiTip: I made the placement migration visible so it cannot hide behind a stor
 amiTip: Excellent. Dangerous buttons should at least have labels.
 ---
 
-:projects-project-placement-manager
+:project-placement-manager

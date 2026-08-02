@@ -1,8 +1,10 @@
 <template>
   <LoginPage v-if="isLoginPath" />
 
+  <!-- A redirecting page must not paint its own body first; the prose in a
+       legacy stub is a description of the redirect, not content. -->
   <div
-    v-else-if="activePage?.body"
+    v-else-if="activePage?.body && !redirectTarget"
     class="content-host flex h-full min-h-0 w-full flex-col overflow-y-auto overscroll-contain rounded-2xl"
   >
     <ContentRenderer :value="activePage" />
@@ -54,7 +56,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useRoute } from '#app'
+import { navigateTo, useRoute } from '#app'
 import type { ContentCollectionItem } from '@nuxt/content'
 import { usePageStore } from '@/stores/pageStore'
 
@@ -66,6 +68,10 @@ type PagePayload = {
 type NarratedContentPage = ContentCollectionItem & {
   narrator?: unknown
   narratorSlug?: unknown
+}
+
+type RedirectingContentPage = ContentCollectionItem & {
+  redirect?: unknown
 }
 
 const route = useRoute()
@@ -150,6 +156,39 @@ const activePage = computed(() => {
   if (!hasResolvedCurrentPath.value) return null
 
   return normalizePageNarrator(pagePayload.value?.page ?? null)
+})
+
+/*
+ * Honour a `redirect:` frontmatter key on a legacy route.
+ *
+ * content/facet-gallery.md has carried `redirect: /facets` since the Facet
+ * browser was made canonical, and utils/scripts/verifyFacetGallery.ts accepts
+ * that key as one of the two valid states for the file -- but nothing ever read
+ * it, so the route rendered its own "this legacy route redirects to..." prose
+ * instead of redirecting. The contract described an intent the app did not
+ * implement.
+ *
+ * Guarded to same-origin paths only: a content file is data, and following an
+ * arbitrary absolute URL from it would turn any future content edit into an
+ * open redirect.
+ */
+const redirectTarget = computed(() => {
+  const raw = (activePage.value as RedirectingContentPage | null)?.redirect
+  if (typeof raw !== 'string') return ''
+
+  const target = raw.trim()
+  if (!target.startsWith('/') || target.startsWith('//')) return ''
+  return target === contentPath.value ? '' : target
+})
+
+// Redirect during SSR so the legacy URL never paints, and again on client-side
+// navigation into it.
+if (redirectTarget.value) {
+  await navigateTo(redirectTarget.value, { replace: true })
+}
+
+watch(redirectTarget, (target) => {
+  if (target) void navigateTo(target, { replace: true })
 })
 
 const isPageLoading = computed(() => {

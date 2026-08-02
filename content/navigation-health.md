@@ -13,4 +13,4 @@ dottiTip: The navigation has a navigation page now. I promise this is less silly
 amiTip: Maps need legends. Systems need mirrors.
 ---
 
-:navigation-navigation-health
+:navigation-health

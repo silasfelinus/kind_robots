@@ -8,7 +8,7 @@
     - Discover   browse Civitai / CivArchive + queue downloads (<lora-discover>)
 -->
 <template>
-  <div class="flex h-full min-h-0 w-full flex-col gap-3 p-3">
+  <div class="kr-surface p-3">
     <div role="tablist" class="tabs tabs-boxed w-fit self-center">
       <button
         v-for="tab in tabs"
@@ -24,7 +24,7 @@
       </button>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto">
+    <div class="kr-scroll">
       <resource-gallery v-if="activeTab === 'library'" />
       <lora-discover v-else />
     </div>

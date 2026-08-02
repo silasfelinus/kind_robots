@@ -9,7 +9,7 @@
           <p class="text-xs font-black uppercase tracking-widest text-primary">
             WonderLab Operations
           </p>
-          <h1 class="mt-2 text-3xl font-black">Personality review rollout audit</h1>
+          <p class="mt-2 text-3xl font-black">Personality review rollout audit</p>
           <p class="mt-2 max-w-3xl text-sm text-base-content/60">
             Read-only production checks for migrations, author identity, draft links,
             and duplicate prevention. This page never generates, approves, or publishes.

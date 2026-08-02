@@ -418,6 +418,7 @@ export const ModelName = {
   Facet: 'Facet',
   DreamFacet: 'DreamFacet',
   ScenarioFacet: 'ScenarioFacet',
+  ProjectFacet: 'ProjectFacet',
   ProjectArtImage: 'ProjectArtImage',
   ProjectArtCollection: 'ProjectArtCollection',
   FacetArtImage: 'FacetArtImage',
@@ -492,7 +493,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1879,6 +1880,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ScenarioFacetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ScenarioFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectFacet: {
+      payload: Prisma.$ProjectFacetPayload<ExtArgs>
+      fields: Prisma.ProjectFacetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectFacetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectFacetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectFacetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectFacetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectFacetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectFacetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectFacetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProjectFacetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>
+        }
+        update: {
+          args: Prisma.ProjectFacetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectFacetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectFacetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProjectFacetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectFacetPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectFacetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectFacet>
+        }
+        groupBy: {
+          args: Prisma.ProjectFacetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectFacetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectFacetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectFacetCountAggregateOutputType> | number
         }
       }
     }
@@ -6329,6 +6396,15 @@ export const ScenarioFacetScalarFieldEnum = {
 export type ScenarioFacetScalarFieldEnum = (typeof ScenarioFacetScalarFieldEnum)[keyof typeof ScenarioFacetScalarFieldEnum]
 
 
+export const ProjectFacetScalarFieldEnum = {
+  projectId: 'projectId',
+  facetId: 'facetId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectFacetScalarFieldEnum = (typeof ProjectFacetScalarFieldEnum)[keyof typeof ProjectFacetScalarFieldEnum]
+
+
 export const ProjectArtImageScalarFieldEnum = {
   projectId: 'projectId',
   artImageId: 'artImageId',
@@ -9027,6 +9103,7 @@ export type GlobalOmitConfig = {
   facet?: Prisma.FacetOmit
   dreamFacet?: Prisma.DreamFacetOmit
   scenarioFacet?: Prisma.ScenarioFacetOmit
+  projectFacet?: Prisma.ProjectFacetOmit
   projectArtImage?: Prisma.ProjectArtImageOmit
   projectArtCollection?: Prisma.ProjectArtCollectionOmit
   facetArtImage?: Prisma.FacetArtImageOmit

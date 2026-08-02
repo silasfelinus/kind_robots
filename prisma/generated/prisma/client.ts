@@ -170,6 +170,11 @@ export type DreamFacet = Prisma.DreamFacetModel
  */
 export type ScenarioFacet = Prisma.ScenarioFacetModel
 /**
+ * Model ProjectFacet
+ * 
+ */
+export type ProjectFacet = Prisma.ProjectFacetModel
+/**
  * Model ProjectArtImage
  * 
  */

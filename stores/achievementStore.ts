@@ -403,8 +403,6 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     persist()
 
     try {
-      await userStore.updateKarmaAndMana()
-
       const result = await updateAchievementRecord({
         id: record.id,
         isConfirmed: true,
@@ -423,6 +421,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
             result.message ?? 'Achievement dismissed locally but failed to sync.',
         }
       }
+
+      await userStore.validateAndFetchUserData()
 
       return {
         success: true,

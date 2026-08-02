@@ -8,6 +8,7 @@
     target-type="artImage"
     reaction-category="ART"
     :target-title="cardTitle"
+    :earned-karma="earnedKarma"
     @select="selectImage"
   >
     <template #actions>
@@ -338,6 +339,10 @@ const props = withDefaults(
     allowColoringPage?: boolean
     autoLoadImage?: boolean
     fallbackImage?: string
+    /** Total karma this image has earned from reactions/creation (see
+     *  server/api/economy/karma-earned.post.ts). Omit/undefined renders no
+     *  badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     selected: false,
@@ -359,6 +364,7 @@ const props = withDefaults(
     allowColoringPage: true,
     autoLoadImage: true,
     fallbackImage: '/images/backtree.webp',
+    earnedKarma: undefined,
   },
 )
 

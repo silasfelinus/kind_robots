@@ -17,7 +17,9 @@ function includesAll(path, values) {
 const storePath = 'stores/storybookStore.ts'
 const pagePath = 'components/conductor/storybook-page.vue'
 const panelPath = 'components/storybook/storybook-state-panel.vue'
-const transcriptPath = 'components/narrative/narrative-transcript.vue'
+// The transcript is kr-chat-window now — see verifyNarrativeAccessibility.mjs.
+// The hidden-state filtering asserted below moved across intact.
+const transcriptPath = 'components/narrative/kr-chat-window.vue'
 const store = source(storePath)
 const page = source(pagePath)
 

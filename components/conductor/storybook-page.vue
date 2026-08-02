@@ -82,8 +82,10 @@
 
     <LazyKrNarratorStage :stage-image="tabImage" class="shrink-0" />
 
-    <div class="kr-scroll space-y-4">
-      <div v-if="!store.session" class="space-y-4">
+    <!-- SETUP scrolls as a document: it is a four-step form that legitimately
+         runs past the fold, so the page owns the scroll here. -->
+    <div v-if="!store.session" class="kr-scroll space-y-4">
+      <div class="space-y-4">
         <nav
           class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-200/50 p-2 sm:grid-cols-4"
           aria-label="Story setup progress"
@@ -456,8 +458,14 @@
           </div>
         </footer>
       </div>
+    </div>
 
-      <template v-else>
+    <!-- READING owns no scroll of its own: the chat window is the single scroll
+         region, so the bible, the state panel and the composer stay pinned and
+         only the story moves. This is what the shared window buys — the page it
+         replaced had the transcript scrolling inside a scrolling page. -->
+    <div v-else class="flex min-h-0 flex-1 flex-col gap-3">
+      <div class="shrink-0 space-y-3">
         <details class="rounded-2xl border border-primary/25 bg-primary/5 p-3">
           <summary class="cursor-pointer text-sm font-black text-primary">
             {{ store.session.bible.title }} · Story bible
@@ -503,37 +511,45 @@
 
         <StorybookStatePanel :session="store.session" />
 
-        <NarrativeTranscript
-          :beats="store.session.beats"
-          :is-streaming="store.isWeaving"
-          :streaming-text="store.streamingText"
-          streaming-label="Storybook is weaving the next scene…"
-          empty-label="Storybook is preparing the opening scene."
-        >
-          <template #after-beat="{ beat }">
-            <NarrativeArtStatus
-              :art="beat.art"
-              :label="`Illustration from ${store.session?.bible.title || 'this story'}`"
-              @retry="store.retryBeatArt(beat.id)"
-            />
-          </template>
-        </NarrativeTranscript>
-
         <p v-if="store.errorMessage" class="text-xs text-error">
           {{ store.errorMessage }}
         </p>
+      </div>
 
-        <div
-          v-if="store.isComplete"
-          class="rounded-2xl border border-success/30 bg-success/5 p-4 text-center"
-        >
-          <p class="font-black text-success">The tale rests here</p>
-          <p class="mt-1 text-xs text-base-content/55">
-            The completed session remains saved in this browser until you begin
-            another.
-          </p>
-        </div>
-      </template>
+      <KrChatWindow
+        class="min-h-0 flex-1"
+        :turns="chatTurns"
+        label="Story transcript"
+        :is-streaming="store.isWeaving"
+        :streaming-text="store.streamingText"
+        streaming-label="Storybook is weaving the next scene…"
+        empty-label="Storybook is preparing the opening scene."
+      >
+        <template #after-turn="{ turn }">
+          <NarrativeArtStatus
+            v-if="beatForTurn(turn)"
+            class="mt-2"
+            :art="beatForTurn(turn)?.art"
+            :label="`Illustration from ${store.session?.bible.title || 'this story'}`"
+            @retry="store.retryBeatArt(beatForTurn(turn)!.id)"
+          />
+        </template>
+
+        <!-- The closing note scrolls WITH the tale rather than pinning below
+             it; it is the last page, not a status bar. -->
+        <template #footer>
+          <div
+            v-if="store.isComplete"
+            class="rounded-2xl border border-success/30 bg-success/5 p-4 text-center"
+          >
+            <p class="font-black text-success">The tale rests here</p>
+            <p class="mt-1 text-xs text-base-content/55">
+              The completed session remains saved in this browser until you
+              begin another.
+            </p>
+          </div>
+        </template>
+      </KrChatWindow>
     </div>
 
     <NarrativeResponseComposer
@@ -565,7 +581,12 @@ import {
   useStorybookStore,
   type StorybookIngredient,
 } from '@/stores/storybookStore'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
+import {
+  beatIdFromTurnId,
+  narrativeBeatsToTurns,
+} from '@/utils/narrativeTurns'
 
 const { mode, setMode, dataTheme, modes } = useStorybookMode()
 
@@ -583,6 +604,24 @@ const setupStep = ref(0)
 const furthestStep = ref(0)
 const answerInput = ref('')
 const newStoryArmed = ref(false)
+
+/*
+ * Beats persist as one record per scene (narration plus the reader's reply);
+ * the shared chat window speaks one message per speaker. narrativeBeatsToTurns
+ * is the single adapter between the two, so Taskmaster does not re-derive it.
+ */
+const chatTurns = computed(() =>
+  narrativeBeatsToTurns(store.session?.beats ?? []),
+)
+
+/* The beat a narration turn came from — null for the reader's own turns, so a
+   scene's illustration renders once rather than beside the answer as well. */
+function beatForTurn(turn: NarrativeTurn) {
+  const beatId = beatIdFromTurnId(turn.id)
+  if (!beatId) return null
+  return store.session?.beats.find((beat) => beat.id === beatId) ?? null
+}
+
 const setupSteps = [
   { label: 'Premise' },
   { label: 'Cast' },

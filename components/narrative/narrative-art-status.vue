@@ -9,12 +9,17 @@
     :aria-label="statusMessage"
     :aria-busy="isBusy"
   >
-    <img
+    <!-- The rendered illustration goes through the shared plate rather than a
+         local <img>. This component already owns the frame (border, rounding,
+         the status footer), so the plate is unframed here — it is here for the
+         resolver and the broken-image fallback, not the passe-partout. -->
+    <kr-art-plate
       v-if="art.status === 'done' && art.imagePath"
-      :src="art.imagePath"
+      :source="plateSource"
+      variant="hero"
+      shape="hero"
+      frame="none"
       :alt="altText"
-      class="aspect-video w-full object-cover"
-      loading="lazy"
     />
 
     <div
@@ -78,6 +83,11 @@ const props = defineProps<{
 defineEmits<{
   retry: []
 }>()
+
+/* A stable object rather than an inline literal: the plate watches `source` to
+   clear its broken-image flag, and a fresh literal every render would reset
+   that flag on any unrelated parent update. */
+const plateSource = computed(() => ({ imagePath: props.art?.imagePath ?? null }))
 
 const isBusy = computed(
   () =>

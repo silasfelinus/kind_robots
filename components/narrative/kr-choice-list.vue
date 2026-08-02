@@ -38,6 +38,10 @@
       :class="[
         'flex items-center gap-3 rounded-xl border-2 border-base-300 bg-base-100 text-left transition',
         'hover:-translate-y-0.5 hover:border-primary/50',
+        // The house pattern for every other narrative control: a visible focus
+        // ring, and no lift or transition for readers who asked for less motion.
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70',
+        'motion-reduce:transform-none motion-reduce:transition-none',
         'disabled:pointer-events-none disabled:opacity-50',
         layout === 'stack' ? 'w-full px-4 py-3' : 'px-3 py-2',
         selectedKey === choice.key ? 'border-primary ring-2 ring-primary/30' : '',

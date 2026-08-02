@@ -47,7 +47,13 @@
 
     <LazyKrNarratorStage :stage-image="tabImage" class="shrink-0" />
 
-    <div class="kr-scroll space-y-4">
+    <!-- SETUP and PLAN REVIEW scroll as documents — a long form and a full
+         checkpoint list both legitimately run past the fold, so the page owns
+         the scroll for those two states. The quest itself does not; see below. -->
+    <div
+      v-if="!store.session || store.session.status === 'draft'"
+      class="kr-scroll space-y-4"
+    >
       <template v-if="!store.session">
         <TaskmasterSampleTasks />
 
@@ -108,23 +114,15 @@
             <p class="text-xs font-bold uppercase tracking-wide text-base-content/55">
               Tone
             </p>
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="tone in TASKMASTER_TONES"
-                :key="tone"
-                type="button"
-                class="btn btn-sm rounded-xl capitalize"
-                :class="
-                  tone === selectedTone
-                    ? 'btn-secondary'
-                    : 'btn-ghost border border-base-300 bg-base-100'
-                "
-                :aria-pressed="tone === selectedTone"
-                @click="selectedTone = tone"
-              >
-                {{ tone }}
-              </button>
-            </div>
+            <kr-choice-list
+              layout="row"
+              label="Tone"
+              :choices="toneChoices"
+              :selected-key="selectedTone"
+              :disabled="store.isWeaving"
+              :show-index="false"
+              @select="selectedTone = $event.key as TaskmasterTone"
+            />
           </div>
 
           <NarrativeIngredientPicker
@@ -260,8 +258,15 @@
           </button>
         </div>
       </div>
+    </div>
 
-      <template v-else>
+    <!-- THE QUEST owns no scroll of its own. The chat window is the single
+         scroll region; the objective, the checkpoint rail, the outcome picker
+         and the composer stay pinned around it, so the two things a user needs
+         at all times — what they are actually doing, and what they answer with
+         — never scroll off. -->
+    <div v-else class="flex min-h-0 flex-1 flex-col gap-3">
+      <div class="shrink-0 space-y-3">
         <div
           v-if="store.session.seed.taskTitle"
           class="rounded-2xl border border-info/30 bg-info/5 p-3"
@@ -274,9 +279,12 @@
           </p>
         </div>
 
+        <!-- The current action stays visible; the full plan is one disclosure
+             away. Pinning an unbounded grid of every checkpoint would push the
+             story itself off the screen on a long quest. -->
         <section
           v-if="store.session.checkpoints.length"
-          class="space-y-3 rounded-2xl border border-secondary/20 bg-secondary/5 p-3"
+          class="rounded-2xl border border-secondary/20 bg-secondary/5 p-3"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -295,52 +303,43 @@
               {{ store.remainingCheckpoints.length }} remaining
             </span>
           </div>
-          <div class="grid gap-2 sm:grid-cols-2">
-            <article
-              v-for="checkpoint in store.session.checkpoints"
-              :key="checkpoint.id"
-              class="rounded-xl border border-base-300 bg-base-100 p-2.5 text-xs"
+          <details class="mt-2">
+            <summary
+              class="cursor-pointer text-[0.7rem] font-bold uppercase tracking-wide text-secondary/60"
             >
-              <div class="flex items-start justify-between gap-2">
-                <p class="font-bold">{{ checkpoint.title }}</p>
-                <span
-                  class="badge badge-sm rounded-xl"
-                  :class="
-                    checkpoint.status === 'completed'
-                      ? 'badge-success'
-                      : checkpoint.status === 'active'
-                        ? 'badge-secondary'
-                        : checkpoint.status === 'blocked' ||
-                            checkpoint.status === 'needs-info'
-                          ? 'badge-warning'
-                          : 'badge-ghost'
-                  "
-                >
-                  {{ checkpoint.status.replace('-', ' ') }}
-                </span>
-              </div>
-              <p v-if="checkpoint.proposedNote" class="mt-1 text-base-content/55">
-                {{ checkpoint.proposedNote }}
-              </p>
-            </article>
-          </div>
+              All {{ store.session.checkpoints.length }} checkpoints
+            </summary>
+            <div class="mt-2 grid gap-2 sm:grid-cols-2">
+              <article
+                v-for="checkpoint in store.session.checkpoints"
+                :key="checkpoint.id"
+                class="rounded-xl border border-base-300 bg-base-100 p-2.5 text-xs"
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <p class="font-bold">{{ checkpoint.title }}</p>
+                  <span
+                    class="badge badge-sm rounded-xl"
+                    :class="
+                      checkpoint.status === 'completed'
+                        ? 'badge-success'
+                        : checkpoint.status === 'active'
+                          ? 'badge-secondary'
+                          : checkpoint.status === 'blocked' ||
+                              checkpoint.status === 'needs-info'
+                            ? 'badge-warning'
+                            : 'badge-ghost'
+                    "
+                  >
+                    {{ checkpoint.status.replace('-', ' ') }}
+                  </span>
+                </div>
+                <p v-if="checkpoint.proposedNote" class="mt-1 text-base-content/55">
+                  {{ checkpoint.proposedNote }}
+                </p>
+              </article>
+            </div>
+          </details>
         </section>
-
-        <NarrativeTranscript
-          :beats="store.session.beats"
-          :is-streaming="store.isWeaving"
-          :streaming-text="store.streamingText"
-          streaming-label="Taskmaster is building the next scene…"
-          empty-label="Taskmaster is preparing the opening scene."
-        >
-          <template #after-beat="{ beat }">
-            <NarrativeArtStatus
-              :art="beat.art"
-              :label="`Illustration for ${store.session?.seed.taskTitle || 'this quest'}`"
-              @retry="store.retryBeatArt(beat.id)"
-            />
-          </template>
-        </NarrativeTranscript>
 
         <div
           v-if="store.currentHookContext && store.awaitingAnswer"
@@ -367,82 +366,107 @@
         <p v-if="store.errorMessage" class="text-xs text-error">
           {{ store.errorMessage }}
         </p>
+      </div>
 
-        <div
-          v-if="store.isComplete"
-          class="space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
-        >
-          <div class="text-center">
-            <p class="text-sm font-bold text-secondary">Quest complete</p>
-            <p class="mt-1 text-xs text-base-content/60">
-              Review any real-world updates below before applying them.
-            </p>
-          </div>
-          <dl
-            v-if="sessionRecap.length"
-            class="grid gap-2 text-xs leading-relaxed sm:grid-cols-2"
+      <KrChatWindow
+        class="min-h-0 flex-1"
+        :turns="chatTurns"
+        label="Story transcript"
+        :is-streaming="store.isWeaving"
+        :streaming-text="store.streamingText"
+        streaming-label="Taskmaster is building the next scene…"
+        empty-label="Taskmaster is preparing the opening scene."
+      >
+        <template #after-turn="{ turn }">
+          <NarrativeArtStatus
+            v-if="beatForTurn(turn)"
+            class="mt-2"
+            :art="beatForTurn(turn)?.art"
+            :label="`Illustration for ${store.session?.seed.taskTitle || 'this quest'}`"
+            @retry="store.retryBeatArt(beatForTurn(turn)!.id)"
+          />
+        </template>
+
+        <!-- Recap and ledger scroll WITH the quest. They belong to the end of
+             the story, and pinning them would eat the fold on completion —
+             exactly when the transcript is longest. -->
+        <template #footer>
+          <div
+            v-if="store.isComplete"
+            class="space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
           >
-            <div
-              v-for="item in sessionRecap"
-              :key="item.label"
-              class="rounded-xl border border-base-300 bg-base-100 p-3"
+            <div class="text-center">
+              <p class="text-sm font-bold text-secondary">Quest complete</p>
+              <p class="mt-1 text-xs text-base-content/60">
+                Review any real-world updates below before applying them.
+              </p>
+            </div>
+            <dl
+              v-if="sessionRecap.length"
+              class="grid gap-2 text-xs leading-relaxed sm:grid-cols-2"
             >
-              <dt class="font-bold text-base-content/70">{{ item.label }}</dt>
-              <dd class="mt-0.5 text-base-content/60">{{ item.value }}</dd>
-            </div>
-          </dl>
-        </div>
-
-        <div
-          v-if="store.pendingWriteBacks.length"
-          class="space-y-2 rounded-2xl border border-warning/30 bg-warning/5 p-4"
-        >
-          <div class="flex items-center gap-2">
-            <Icon name="kind-icon:gearhammer" class="size-4 text-warning" />
-            <h3 class="text-xs font-bold uppercase tracking-wide text-warning">
-              Quest ledger
-            </h3>
-          </div>
-          <p class="text-[0.7rem] leading-relaxed text-base-content/50">
-            Nothing is written automatically. Apply only the updates you want.
-          </p>
-          <article
-            v-for="item in store.pendingWriteBacks"
-            :key="item.beatId"
-            class="rounded-xl border border-base-300 bg-base-100 p-3 text-xs leading-relaxed"
-          >
-            <div class="flex items-start gap-2">
-              <div class="min-w-0 flex-1">
-                <p class="font-bold">{{ item.title }}</p>
-                <p class="mt-1 text-base-content/70">“{{ item.answer }}”</p>
-                <p class="mt-1 text-base-content/50">
-                  <span class="font-semibold">Apply will:</span>
-                  {{ item.proposedWrite }}
-                </p>
+              <div
+                v-for="item in sessionRecap"
+                :key="item.label"
+                class="rounded-xl border border-base-300 bg-base-100 p-3"
+              >
+                <dt class="font-bold text-base-content/70">{{ item.label }}</dt>
+                <dd class="mt-0.5 text-base-content/60">{{ item.value }}</dd>
               </div>
-              <span
-                v-if="item.status === 'written'"
-                class="badge badge-success badge-sm rounded-xl"
-              >
-                written
-              </span>
-              <button
-                v-else
-                type="button"
-                class="btn btn-warning btn-xs rounded-xl"
-                :disabled="item.status === 'queued'"
-                @click="store.applyWriteBack(item.beatId)"
-              >
-                <span
-                  v-if="item.status === 'queued'"
-                  class="loading loading-spinner loading-xs"
-                />
-                <template v-else>Apply</template>
-              </button>
+            </dl>
+          </div>
+
+          <div
+            v-if="store.pendingWriteBacks.length"
+            class="space-y-2 rounded-2xl border border-warning/30 bg-warning/5 p-4"
+          >
+            <div class="flex items-center gap-2">
+              <Icon name="kind-icon:gearhammer" class="size-4 text-warning" />
+              <h3 class="text-xs font-bold uppercase tracking-wide text-warning">
+                Quest ledger
+              </h3>
             </div>
-          </article>
-        </div>
-      </template>
+            <p class="text-[0.7rem] leading-relaxed text-base-content/50">
+              Nothing is written automatically. Apply only the updates you want.
+            </p>
+            <article
+              v-for="item in store.pendingWriteBacks"
+              :key="item.beatId"
+              class="rounded-xl border border-base-300 bg-base-100 p-3 text-xs leading-relaxed"
+            >
+              <div class="flex items-start gap-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold">{{ item.title }}</p>
+                  <p class="mt-1 text-base-content/70">“{{ item.answer }}”</p>
+                  <p class="mt-1 text-base-content/50">
+                    <span class="font-semibold">Apply will:</span>
+                    {{ item.proposedWrite }}
+                  </p>
+                </div>
+                <span
+                  v-if="item.status === 'written'"
+                  class="badge badge-success badge-sm rounded-xl"
+                >
+                  written
+                </span>
+                <button
+                  v-else
+                  type="button"
+                  class="btn btn-warning btn-xs rounded-xl"
+                  :disabled="item.status === 'queued'"
+                  @click="store.applyWriteBack(item.beatId)"
+                >
+                  <span
+                    v-if="item.status === 'queued'"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  <template v-else>Apply</template>
+                </button>
+              </div>
+            </article>
+          </div>
+        </template>
+      </KrChatWindow>
     </div>
 
     <section
@@ -463,24 +487,18 @@
           Choose the honest checkpoint outcome, then describe what happened below.
         </p>
       </div>
-      <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <button
-          v-for="outcome in checkpointOutcomes"
-          :key="outcome.value"
-          type="button"
-          class="rounded-xl border p-2 text-left text-xs transition"
-          :class="
-            selectedOutcome === outcome.value
-              ? 'border-info bg-info text-info-content'
-              : 'border-base-300 bg-base-100 hover:border-info/50'
-          "
-          :aria-pressed="selectedOutcome === outcome.value"
-          @click="selectedOutcome = outcome.value"
-        >
-          <span class="font-bold">{{ outcome.label }}</span>
-          <span class="mt-0.5 block opacity-70">{{ outcome.helper }}</span>
-        </button>
-      </div>
+      <!-- The honest-outcome picker was a fifth hand-rolled pick-one grid. It
+           is kr-choice-list now: same four outcomes, same aria-pressed, and the
+           helper text rides in as the choice's hint rather than as a second
+           span the shared component would have had to learn about. -->
+      <kr-choice-list
+        layout="row"
+        label="Checkpoint outcome"
+        :choices="outcomeChoices"
+        :selected-key="selectedOutcome"
+        :show-index="false"
+        @select="selectedOutcome = $event.key as TaskmasterCheckpointOutcome"
+      />
     </section>
 
     <section
@@ -540,11 +558,16 @@ import {
   type TaskmasterIngredient,
   type TaskmasterTone,
 } from '@/stores/taskmasterStore'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
 import {
   parseNarrativeTags,
   pickRandomNarrativeIngredient,
   type NarrativeIngredientOption,
 } from '@/utils/narrativeIngredients'
+import {
+  beatIdFromTurnId,
+  narrativeBeatsToTurns,
+} from '@/utils/narrativeTurns'
 
 const store = useTaskmasterStore()
 const dreamStore = useDreamStore()
@@ -574,6 +597,40 @@ const checkpointOutcomes: {
   { value: 'deferred', label: 'Deferred', helper: 'This is intentionally postponed.' },
   { value: 'needs-info', label: 'Needs info', helper: 'A question or missing fact comes next.' },
 ]
+
+/* The shared list speaks {key,label,hint}. Adapt the product's vocabulary here
+   rather than teaching kr-choice-list what a checkpoint outcome is. */
+const outcomeChoices = computed(() =>
+  checkpointOutcomes.map((outcome) => ({
+    key: outcome.value,
+    label: outcome.label,
+    hint: outcome.helper,
+  })),
+)
+
+// Tones are stored lowercase; the old buttons leaned on a `capitalize` class.
+// Capitalize in the adapter so the shared list needs no per-caller styling.
+const toneChoices = computed(() =>
+  TASKMASTER_TONES.map((tone) => ({
+    key: tone,
+    label: tone.charAt(0).toUpperCase() + tone.slice(1),
+  })),
+)
+
+/* Beats persist as one record per scene; the chat window speaks one message per
+   speaker. narrativeBeatsToTurns is shared with Storybook so neither product
+   re-derives the mapping. */
+const chatTurns = computed(() =>
+  narrativeBeatsToTurns(store.session?.beats ?? []),
+)
+
+/* The beat a narration turn came from — null for the user's own turns, so a
+   scene's illustration renders once rather than beside the answer as well. */
+function beatForTurn(turn: NarrativeTurn) {
+  const beatId = beatIdFromTurnId(turn.id)
+  if (!beatId) return null
+  return store.session?.beats.find((beat) => beat.id === beatId) ?? null
+}
 
 const canBegin = computed(
   () => Boolean(taskInput.value.trim() || selectedProjectSlug.value),

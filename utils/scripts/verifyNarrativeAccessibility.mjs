@@ -14,7 +14,14 @@ function includesAll(path, values) {
   }
 }
 
-const transcriptPath = 'components/narrative/narrative-transcript.vue'
+/*
+ * The transcript IS the chat window now (interface-vision Phase 3).
+ * narrative-transcript.vue and kr-chat-window.vue were the same component with
+ * different markup, so the duplicate is gone and every assertion below moved to
+ * the survivor. Each one is preserved or strengthened, never dropped — that is
+ * the only honest way to retarget a contract at a replacement.
+ */
+const transcriptPath = 'components/narrative/kr-chat-window.vue'
 const composerPath = 'components/narrative/narrative-response-composer.vue'
 const cardPath = 'components/narrative/narrative-ingredient-card.vue'
 const pickerPath = 'components/narrative/narrative-ingredient-picker.vue'
@@ -31,17 +38,38 @@ includesAll(transcriptPath, [
   ':aria-label="label"',
   ':aria-busy="isStreaming"',
   'role="status" aria-live="polite" aria-atomic="true"',
-  ':aria-labelledby="sceneHeadingId(index)"',
-  'Scene {{ index + 1 }}',
-  '<span class="sr-only">Your response: </span>',
+  ':aria-labelledby="turnHeadingId(index)"',
+  '`Scene ${narratorTurnNumber(index)}`',
+  // The reader's own turn is a named heading now rather than an inline
+  // "Your response: " prefix — a stronger guarantee, since a screen reader
+  // can navigate to it.
+  "'Your response'",
   'aria-hidden="true"',
   'statusAnnouncement',
 ])
+/*
+ * The old transcript's whole-region live-announcement bug, restated for the
+ * component that replaced it. role="log" carries an implicit
+ * aria-live="polite", so putting it on the scroll container would announce
+ * every arriving turn twice — once verbatim and once via the sr-only status
+ * region below it. The single status region is the only announcement channel.
+ */
+// Read the scroll container's own opening tag rather than the whole file: the
+// component explains in a comment WHY it avoids role="log", and a naive
+// substring search would trip over that explanation and report the bug it is
+// documenting the absence of.
+const scrollContainerTag = transcript.match(/<section\s[^>]*ref="scrollEl"[^>]*>/)?.[0]
 assert.ok(
-  !transcript.includes(
-    '<section class="space-y-3" aria-live="polite"',
-  ),
+  scrollContainerTag,
+  'The transcript must have a single identifiable scroll container',
+)
+assert.ok(
+  !/role="log"|role="alert"|aria-live=/.test(scrollContainerTag),
   'The entire streaming transcript must not be a live region',
+)
+assert.ok(
+  /<section\s[^>]*:aria-label="label"/.test(transcript),
+  'The transcript must be a named region so assistive tech can jump to it',
 )
 assert.ok(
   transcript.includes('visibleStreamingText') &&
@@ -50,8 +78,9 @@ assert.ok(
 )
 
 includesAll(composerPath, [
-  '<fieldset v-if="options.length"',
-  '<legend class="sr-only">Suggested responses</legend>',
+  // Suggested responses are kr-choice-list now. The named group survives —
+  // role="group" + aria-label there, where this was fieldset + sr-only legend.
+  'label="Suggested responses"',
   '<label :for="textareaId" class="sr-only">Your response</label>',
   ':aria-describedby="hint ? hintId : undefined"',
   ':aria-label="buttonLabel"',
@@ -60,9 +89,26 @@ includesAll(composerPath, [
   'role="status" aria-live="polite" aria-atomic="true"',
 ])
 
-for (const path of [cardPath, pickerPath, multiPickerPath, artStatusPath]) {
+const choiceListPath = 'components/narrative/kr-choice-list.vue'
+for (const path of [
+  cardPath,
+  pickerPath,
+  multiPickerPath,
+  artStatusPath,
+  // The shared choice list now renders the suggested-response row, the
+  // Taskmaster outcome picker, the tone row and the narrator's quick topics.
+  // It lifts on hover, so it owes readers the same reduced-motion respect.
+  choiceListPath,
+]) {
   includesAll(path, ['motion-reduce:transition-none'])
 }
+
+includesAll(choiceListPath, [
+  'role="group"',
+  ':aria-label="label"',
+  ':aria-pressed="selectedKey === choice.key"',
+  'focus-visible:ring-2',
+])
 
 includesAll(cardPath, [
   ':aria-pressed="selected"',

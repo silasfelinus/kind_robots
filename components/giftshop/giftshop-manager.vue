@@ -30,12 +30,73 @@
 
     <section class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
       <section
-        v-if="activeTab === 'community'"
+        v-if="
+          activeTab === 'community' ||
+          activeTab === 'mana' ||
+          activeTab === 'forum'
+        "
         class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-          <about-page />
-          <sponsor-page />
+        <div class="kr-scroll overscroll-contain p-4">
+          <template v-if="activeTab === 'community'">
+            <about-page />
+            <sponsor-page />
+          </template>
+
+          <div v-else-if="activeTab === 'mana'" class="flex flex-col gap-6">
+            <div
+              v-if="manaTopupNotice"
+              class="rounded-xl border p-3 text-center text-sm font-medium"
+              :class="
+                manaTopupNotice === 'success'
+                  ? 'border-success/40 bg-success/10 text-success'
+                  : 'border-warning/40 bg-warning/10 text-warning'
+              "
+            >
+              {{
+                manaTopupNotice === 'success'
+                  ? '⚡ Mana top-up complete — your balance updates below.'
+                  : 'Mana top-up cancelled. No charge was made.'
+              }}
+            </div>
+            <div
+              v-if="subscriptionNotice"
+              class="rounded-xl border p-3 text-center text-sm font-medium"
+              :class="
+                subscriptionNotice === 'success'
+                  ? 'border-success/40 bg-success/10 text-success'
+                  : 'border-warning/40 bg-warning/10 text-warning'
+              "
+            >
+              {{
+                subscriptionNotice === 'success'
+                  ? '🎫 Subscription active — thank you for supporting Kind Robots!'
+                  : 'Subscription checkout cancelled. No charge was made.'
+              }}
+            </div>
+            <mana-wallet />
+            <credit-purchase />
+            <subscription-manager />
+          </div>
+
+          <div
+            v-else
+            class="flex min-h-full flex-col items-center justify-center gap-3 text-center"
+          >
+            <Icon name="kind-icon:forum" class="h-12 w-12 text-primary" />
+
+            <div class="max-w-xl space-y-2">
+              <h2 class="text-2xl font-black text-base-content">
+                Giftshop Forum
+              </h2>
+
+              <p class="text-sm leading-relaxed text-base-content/70">
+                The butterflies are drafting community guidelines in glitter
+                ink. This tab is wired to the dashboard canon and ready for
+                the real forum component when it lands.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -44,68 +105,6 @@
         class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
       >
         <giftshop-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-      </section>
-
-      <section
-        v-else-if="activeTab === 'mana'"
-        class="flex h-full min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-4"
-      >
-        <div
-          v-if="manaTopupNotice"
-          class="rounded-xl border p-3 text-center text-sm font-medium"
-          :class="
-            manaTopupNotice === 'success'
-              ? 'border-success/40 bg-success/10 text-success'
-              : 'border-warning/40 bg-warning/10 text-warning'
-          "
-        >
-          {{
-            manaTopupNotice === 'success'
-              ? '⚡ Mana top-up complete — your balance updates below.'
-              : 'Mana top-up cancelled. No charge was made.'
-          }}
-        </div>
-        <div
-          v-if="subscriptionNotice"
-          class="rounded-xl border p-3 text-center text-sm font-medium"
-          :class="
-            subscriptionNotice === 'success'
-              ? 'border-success/40 bg-success/10 text-success'
-              : 'border-warning/40 bg-warning/10 text-warning'
-          "
-        >
-          {{
-            subscriptionNotice === 'success'
-              ? '🎫 Subscription active — thank you for supporting Kind Robots!'
-              : 'Subscription checkout cancelled. No charge was made.'
-          }}
-        </div>
-        <mana-wallet />
-        <credit-purchase />
-        <subscription-manager />
-      </section>
-
-      <section
-        v-else-if="activeTab === 'forum'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <div
-          class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 overflow-y-auto overscroll-contain p-6 text-center"
-        >
-          <Icon name="kind-icon:forum" class="h-12 w-12 text-primary" />
-
-          <div class="max-w-xl space-y-2">
-            <h2 class="text-2xl font-black text-base-content">
-              Giftshop Forum
-            </h2>
-
-            <p class="text-sm leading-relaxed text-base-content/70">
-              The butterflies are drafting community guidelines in glitter ink.
-              This tab is wired to the dashboard canon and ready for the real
-              forum component when it lands.
-            </p>
-          </div>
-        </div>
       </section>
 
       <div

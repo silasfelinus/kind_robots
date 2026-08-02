@@ -4,8 +4,6 @@
   "violations": {
     "one-header": [],
     "one-scroll": [
-      "components/academy/academy-manager.vue",
-      "components/achievements/achievement-gallery.vue",
       "components/animation/animation-manager.vue",
       "components/art/art-gallery.vue",
       "components/art/art-interact.vue",
@@ -17,7 +15,6 @@
       "components/characters/character-flip-card.vue",
       "components/characters/character-interact.vue",
       "components/dreams/dream-brainstorm.vue",
-      "components/giftshop/giftshop-manager.vue",
       "components/navigation/channel-select.vue",
       "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
@@ -31,7 +28,6 @@
       "components/user/chat-gallery.vue",
       "components/user/messenger.vue",
       "components/user/user-galleries.vue",
-      "components/user/user-manager.vue",
       "components/wonderlab/lab-interact.vue",
       "components/wonderlab/mural-manager.vue",
       "components/wonderlab/wonderlab-preview-host.vue"

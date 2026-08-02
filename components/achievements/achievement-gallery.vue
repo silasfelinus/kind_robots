@@ -34,12 +34,12 @@
       </button>
     </header>
 
-    <!-- ── Three-column grid ────────────────────────────────────────────── -->
-    <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-3">
+    <!-- ── Three-column grid — one shared scroll owner for the whole grid,
+         columns grow to content height instead of scrolling independently
+         (interface-vision t-047: one-scroll) ─────────────────────────── -->
+    <div class="kr-scroll grid grid-cols-1 gap-4 lg:grid-cols-3">
       <!-- Earned -->
-      <div
-        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100"
-      >
+      <div class="flex flex-col rounded-2xl border border-base-300 bg-base-100">
         <div class="flex items-center gap-2 border-b border-base-300 px-4 py-3">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-success/15 text-success"
@@ -51,7 +51,7 @@
             earnedAchievements.length
           }}</span>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto p-3">
+        <div class="p-3">
           <div v-if="earnedAchievements.length" class="grid grid-cols-1 gap-2">
             <EarnedAchievementCard
               v-for="earnedAchievement in earnedAchievements"
@@ -71,9 +71,7 @@
       </div>
 
       <!-- Leaderboard -->
-      <div
-        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100"
-      >
+      <div class="flex flex-col rounded-2xl border border-base-300 bg-base-100">
         <div class="flex items-center gap-2 border-b border-base-300 px-4 py-3">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary/15 text-secondary"
@@ -82,15 +80,13 @@
           </span>
           <h2 class="text-sm font-black text-base-content">Leaderboard</h2>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto p-3">
+        <div class="p-3">
           <achievement-leaderboard />
         </div>
       </div>
 
       <!-- Undiscovered -->
-      <div
-        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100"
-      >
+      <div class="flex flex-col rounded-2xl border border-base-300 bg-base-100">
         <div class="flex items-center gap-2 border-b border-base-300 px-4 py-3">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-base-300 text-base-content/50"
@@ -102,7 +98,7 @@
             unearnedAchievements.length
           }}</span>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto p-3">
+        <div class="p-3">
           <div
             v-if="unearnedAchievements.length"
             class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"

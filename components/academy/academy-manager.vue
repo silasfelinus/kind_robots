@@ -9,90 +9,78 @@
       fetch (see loadManagerData). Keeping these two branches first ensures a
       failed or slow art-server call never hides tabs that don't depend on it.
     -->
-    <section
-      v-if="activeTab === 'timeline'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <academy-timeline class="min-h-full w-full" @remix="goToRemix" />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'styles'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <academy-styles-browser class="min-h-full w-full" @remix="goToRemix" />
-      </div>
-    </section>
-
-    <div
-      v-else-if="isLoadingManager"
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-      class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
-    >
-      <div class="flex flex-col items-center gap-3 text-center">
-        <span
-          class="loading loading-spinner loading-lg text-primary"
-          aria-hidden="true"
+    <section class="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <div class="kr-scroll overscroll-contain p-3">
+        <academy-timeline
+          v-if="activeTab === 'timeline'"
+          class="min-h-full w-full"
+          @remix="goToRemix"
         />
-        <p class="text-sm text-base-content/70">
-          Dusting off the timeline, warming up the remix engine, and politely
-          waking thirty-three centuries of dead masters...
-        </p>
-      </div>
-    </div>
 
-    <div
-      v-else-if="managerError"
-      role="alert"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
-    >
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <span>{{ managerError }}</span>
-        <button
-          type="button"
-          class="btn btn-error btn-sm rounded-2xl"
-          @click="loadManagerData(true)"
-        >
-          Retry
-        </button>
-      </div>
-    </div>
+        <academy-styles-browser
+          v-else-if="activeTab === 'styles'"
+          class="min-h-full w-full"
+          @remix="goToRemix"
+        />
 
-    <section
-      v-else-if="activeTab === 'remix'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <academy-remix class="min-h-full w-full" />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'stylelab'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
         <div
+          v-else-if="isLoadingManager"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
+        >
+          <div class="flex flex-col items-center gap-3 text-center">
+            <span
+              class="loading loading-spinner loading-lg text-primary"
+              aria-hidden="true"
+            />
+            <p class="text-sm text-base-content/70">
+              Dusting off the timeline, warming up the remix engine, and
+              politely waking thirty-three centuries of dead masters...
+            </p>
+          </div>
+        </div>
+
+        <div
+          v-else-if="managerError"
+          role="alert"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span>{{ managerError }}</span>
+            <button
+              type="button"
+              class="btn btn-error btn-sm rounded-2xl"
+              @click="loadManagerData(true)"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+
+        <academy-remix
+          v-else-if="activeTab === 'remix'"
+          class="min-h-full w-full"
+        />
+
+        <div
+          v-else-if="activeTab === 'stylelab'"
           class="grid min-h-full gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
         >
           <art-styler class="min-h-0" :show-close="false" />
 
           <image-upload class="min-h-0" :show-model-connect="false" />
         </div>
+
+        <div
+          v-else
+          class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+        >
+          Unknown academy tab: {{ activeTab }}
+        </div>
       </div>
     </section>
-
-    <div
-      v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-    >
-      Unknown academy tab: {{ activeTab }}
-    </div>
   </section>
 </template>
 

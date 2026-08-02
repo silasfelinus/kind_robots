@@ -83,34 +83,23 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'avatars'"
+      v-else-if="
+        activeTab === 'avatars' ||
+        activeTab === 'friends' ||
+        activeTab === 'achievements'
+      "
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
     >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+      <div class="kr-scroll overscroll-contain p-4">
         <avatar-picker
+          v-if="activeTab === 'avatars'"
           default-collection-label="avatars"
           :dismissible="true"
           @selected="onAvatarChosen"
           @close="closePicker"
         />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'friends'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-        <friend-gallery />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'achievements'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
-        <achievement-gallery />
+        <friend-gallery v-else-if="activeTab === 'friends'" />
+        <achievement-gallery v-else />
       </div>
     </section>
 

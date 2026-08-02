@@ -208,7 +208,8 @@ assert.ok(
     confirmationApi.includes('awardKarma') &&
     confirmationApi.includes('applyMana') &&
     confirmationApi.includes("reason: 'ACHIEVEMENT_CONFIRMED'") &&
-    confirmationApi.includes('isConfirmed && !existingRecord.isConfirmed'),
+    confirmationApi.includes('achievementRecord.updateMany') &&
+    confirmationApi.includes('confirmation?.count === 1'),
   'First confirmation must atomically grant karma and mana through their ledgers.',
 )
 assert.ok(

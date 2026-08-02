@@ -11,6 +11,7 @@
 //   POST  /api/auth/password/reset             { token, newPassword }
 //   POST  /api/auth/email/send-verification
 //   PATCH /api/users/me/consent                { isPublic?, showMature?, ... }
+//   PATCH /api/users/me/intro                  { dismissed }
 //   POST  /api/newsletter/subscribe            { frequency }
 //   POST  /api/newsletter/unsubscribe
 
@@ -229,6 +230,23 @@ export const useAccountStore = defineStore('accountStore', () => {
     return result
   }
 
+  async function setIntroDismissed(dismissed: boolean): Promise<ActionResult> {
+    const result = await run(
+      'setIntroDismissed',
+      '/api/users/me/intro',
+      { dismissed },
+      'PATCH',
+    )
+
+    if (result.success) {
+      patchLocalUser({
+        introDismissedAt: dismissed ? new Date().toISOString() : null,
+      })
+    }
+
+    return result
+  }
+
   async function setNewsletterFrequency(
     frequency: NewsletterFrequency,
   ): Promise<ActionResult> {
@@ -272,6 +290,7 @@ export const useAccountStore = defineStore('accountStore', () => {
     resetPassword,
     sendVerificationEmail,
     updateConsent,
+    setIntroDismissed,
     setNewsletterFrequency,
     unsubscribeNewsletter,
   }

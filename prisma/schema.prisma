@@ -1432,6 +1432,7 @@ model User {
   restrictedAt           DateTime?
   restrictedById         Int?
   restrictedReason       String?                   @db.Text
+  introDismissedAt       DateTime?
   Achievements           AchievementRecord[]
   AppRepos               AppRepo[]
   ArtCollections         ArtCollection[]

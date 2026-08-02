@@ -1323,7 +1323,8 @@ export const UserScalarFieldEnum = {
   newsletterFrequency: 'newsletterFrequency',
   restrictedAt: 'restrictedAt',
   restrictedById: 'restrictedById',
-  restrictedReason: 'restrictedReason'
+  restrictedReason: 'restrictedReason',
+  introDismissedAt: 'introDismissedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]

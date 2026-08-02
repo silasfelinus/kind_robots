@@ -124,6 +124,7 @@ export type UserMinAggregateOutputType = {
   restrictedAt: Date | null
   restrictedById: number | null
   restrictedReason: string | null
+  introDismissedAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -196,6 +197,7 @@ export type UserMaxAggregateOutputType = {
   restrictedAt: Date | null
   restrictedById: number | null
   restrictedReason: string | null
+  introDismissedAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -268,6 +270,7 @@ export type UserCountAggregateOutputType = {
   restrictedAt: number
   restrictedById: number
   restrictedReason: number
+  introDismissedAt: number
   _all: number
 }
 
@@ -370,6 +373,7 @@ export type UserMinAggregateInputType = {
   restrictedAt?: true
   restrictedById?: true
   restrictedReason?: true
+  introDismissedAt?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -442,6 +446,7 @@ export type UserMaxAggregateInputType = {
   restrictedAt?: true
   restrictedById?: true
   restrictedReason?: true
+  introDismissedAt?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -514,6 +519,7 @@ export type UserCountAggregateInputType = {
   restrictedAt?: true
   restrictedById?: true
   restrictedReason?: true
+  introDismissedAt?: true
   _all?: true
 }
 
@@ -673,6 +679,7 @@ export type UserGroupByOutputType = {
   restrictedAt: Date | null
   restrictedById: number | null
   restrictedReason: string | null
+  introDismissedAt: Date | null
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -768,6 +775,7 @@ export type UserWhereInput = {
   restrictedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
+  introDismissedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   Achievements?: Prisma.AchievementRecordListRelationFilter
   AppRepos?: Prisma.AppRepoListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
@@ -886,6 +894,7 @@ export type UserOrderByWithRelationInput = {
   restrictedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   restrictedById?: Prisma.SortOrderInput | Prisma.SortOrder
   restrictedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  introDismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   Achievements?: Prisma.AchievementRecordOrderByRelationAggregateInput
   AppRepos?: Prisma.AppRepoOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
@@ -1008,6 +1017,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   restrictedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
+  introDismissedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   Achievements?: Prisma.AchievementRecordListRelationFilter
   AppRepos?: Prisma.AppRepoListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
@@ -1126,6 +1136,7 @@ export type UserOrderByWithAggregationInput = {
   restrictedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   restrictedById?: Prisma.SortOrderInput | Prisma.SortOrder
   restrictedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  introDismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -1206,6 +1217,7 @@ export type UserScalarWhereWithAggregatesInput = {
   restrictedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   restrictedById?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   restrictedReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  introDismissedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
 
 export type UserCreateInput = {
@@ -1276,6 +1288,7 @@ export type UserCreateInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -1394,6 +1407,7 @@ export type UserUncheckedCreateInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -1509,6 +1523,7 @@ export type UserUpdateInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -1627,6 +1642,7 @@ export type UserUncheckedUpdateInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -1744,6 +1760,7 @@ export type UserCreateManyInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -1814,6 +1831,7 @@ export type UserUpdateManyMutationInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -1886,6 +1904,7 @@ export type UserUncheckedUpdateManyInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -1984,6 +2003,7 @@ export type UserCountOrderByAggregateInput = {
   restrictedAt?: Prisma.SortOrder
   restrictedById?: Prisma.SortOrder
   restrictedReason?: Prisma.SortOrder
+  introDismissedAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -2070,6 +2090,7 @@ export type UserMaxOrderByAggregateInput = {
   restrictedAt?: Prisma.SortOrder
   restrictedById?: Prisma.SortOrder
   restrictedReason?: Prisma.SortOrder
+  introDismissedAt?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -2142,6 +2163,7 @@ export type UserMinOrderByAggregateInput = {
   restrictedAt?: Prisma.SortOrder
   restrictedById?: Prisma.SortOrder
   restrictedReason?: Prisma.SortOrder
+  introDismissedAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -2952,6 +2974,7 @@ export type UserCreateWithoutArtImagesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -3069,6 +3092,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -3188,6 +3212,7 @@ export type UserCreateWithoutArtImageInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -3304,6 +3329,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -3440,6 +3466,7 @@ export type UserUpdateWithoutArtImagesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -3557,6 +3584,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -3692,6 +3720,7 @@ export type UserScalarWhereInput = {
   restrictedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   restrictedById?: Prisma.IntNullableFilter<"User"> | number | null
   restrictedReason?: Prisma.StringNullableFilter<"User"> | string | null
+  introDismissedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
 }
 
 export type UserCreateWithoutArtCollectionsInput = {
@@ -3762,6 +3791,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -3879,6 +3909,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -4009,6 +4040,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -4126,6 +4158,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -4240,6 +4273,7 @@ export type UserCreateWithoutBotsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -4357,6 +4391,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -4487,6 +4522,7 @@ export type UserUpdateWithoutBotsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -4604,6 +4640,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -4718,6 +4755,7 @@ export type UserCreateWithoutCharactersInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -4835,6 +4873,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -4965,6 +5004,7 @@ export type UserUpdateWithoutCharactersInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -5082,6 +5122,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -5196,6 +5237,7 @@ export type UserCreateWithoutChatsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -5313,6 +5355,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -5443,6 +5486,7 @@ export type UserUpdateWithoutChatsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -5560,6 +5604,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -5674,6 +5719,7 @@ export type UserCreateWithoutDreamsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -5791,6 +5837,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -5921,6 +5968,7 @@ export type UserUpdateWithoutDreamsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -6038,6 +6086,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -6152,6 +6201,7 @@ export type UserCreateWithoutProjectsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -6269,6 +6319,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -6399,6 +6450,7 @@ export type UserUpdateWithoutProjectsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -6516,6 +6568,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -6630,6 +6683,7 @@ export type UserCreateWithoutFacetsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -6747,6 +6801,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -6877,6 +6932,7 @@ export type UserUpdateWithoutFacetsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -6994,6 +7050,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -7108,6 +7165,7 @@ export type UserCreateWithoutLogsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -7225,6 +7283,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -7355,6 +7414,7 @@ export type UserUpdateWithoutLogsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -7472,6 +7532,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -7586,6 +7647,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -7703,6 +7765,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -7833,6 +7896,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -7950,6 +8014,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -8064,6 +8129,7 @@ export type UserCreateWithoutOrdersInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -8181,6 +8247,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -8311,6 +8378,7 @@ export type UserUpdateWithoutOrdersInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -8428,6 +8496,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -8542,6 +8611,7 @@ export type UserCreateWithoutEntitlementsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -8659,6 +8729,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -8789,6 +8860,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -8906,6 +8978,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -9020,6 +9093,7 @@ export type UserCreateWithoutGrantsGivenInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -9137,6 +9211,7 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -9256,6 +9331,7 @@ export type UserCreateWithoutGrantsReceivedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -9373,6 +9449,7 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -9503,6 +9580,7 @@ export type UserUpdateWithoutGrantsGivenInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -9620,6 +9698,7 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -9745,6 +9824,7 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -9862,6 +9942,7 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -9976,6 +10057,7 @@ export type UserCreateWithoutPacksOwnedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -10093,6 +10175,7 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -10223,6 +10306,7 @@ export type UserUpdateWithoutPacksOwnedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -10340,6 +10424,7 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -10454,6 +10539,7 @@ export type UserCreateWithoutAchievementsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -10571,6 +10657,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -10701,6 +10788,7 @@ export type UserUpdateWithoutAchievementsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -10818,6 +10906,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -10932,6 +11021,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -11049,6 +11139,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -11179,6 +11270,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -11296,6 +11388,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -11410,6 +11503,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -11527,6 +11621,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -11646,6 +11741,7 @@ export type UserCreateWithoutPromptsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -11763,6 +11859,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -11893,6 +11990,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -12010,6 +12108,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -12135,6 +12234,7 @@ export type UserUpdateWithoutPromptsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -12252,6 +12352,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -12366,6 +12467,7 @@ export type UserCreateWithoutReactionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -12483,6 +12585,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -12613,6 +12716,7 @@ export type UserUpdateWithoutReactionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -12730,6 +12834,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -12844,6 +12949,7 @@ export type UserCreateWithoutResourcesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -12961,6 +13067,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -13091,6 +13198,7 @@ export type UserUpdateWithoutResourcesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -13208,6 +13316,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -13322,6 +13431,7 @@ export type UserCreateWithoutRewardsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -13439,6 +13549,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -13569,6 +13680,7 @@ export type UserUpdateWithoutRewardsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -13686,6 +13798,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -13800,6 +13913,7 @@ export type UserCreateWithoutScenariosInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -13917,6 +14031,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -14047,6 +14162,7 @@ export type UserUpdateWithoutScenariosInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -14164,6 +14280,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -14278,6 +14395,7 @@ export type UserCreateWithoutServersInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -14395,6 +14513,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -14525,6 +14644,7 @@ export type UserUpdateWithoutServersInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -14642,6 +14762,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -14756,6 +14877,7 @@ export type UserCreateWithoutSmartIconsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -14873,6 +14995,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -15003,6 +15126,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -15120,6 +15244,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -15234,6 +15359,7 @@ export type UserCreateWithoutThemesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -15351,6 +15477,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -15481,6 +15608,7 @@ export type UserUpdateWithoutThemesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -15598,6 +15726,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -15712,6 +15841,7 @@ export type UserCreateWithoutStylistClientsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -15829,6 +15959,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -15959,6 +16090,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -16076,6 +16208,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -16190,6 +16323,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -16307,6 +16441,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -16437,6 +16572,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -16554,6 +16690,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -16668,6 +16805,7 @@ export type UserCreateWithoutArtJobsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -16785,6 +16923,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -16915,6 +17054,7 @@ export type UserUpdateWithoutArtJobsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -17032,6 +17172,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -17146,6 +17287,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -17263,6 +17405,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -17393,6 +17536,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -17510,6 +17654,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -17624,6 +17769,7 @@ export type UserCreateWithoutReferredByInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -17741,6 +17887,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -17860,6 +18007,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -17977,6 +18125,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -18107,6 +18256,7 @@ export type UserUpdateWithoutReferredByInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -18224,6 +18374,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -18349,6 +18500,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -18466,6 +18618,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -18580,6 +18733,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -18697,6 +18851,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -18816,6 +18971,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -18933,6 +19089,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -19063,6 +19220,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -19180,6 +19338,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -19305,6 +19464,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -19422,6 +19582,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -19536,6 +19697,7 @@ export type UserCreateWithoutUserRolesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -19653,6 +19815,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -19783,6 +19946,7 @@ export type UserUpdateWithoutUserRolesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -19900,6 +20064,7 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -20014,6 +20179,7 @@ export type UserCreateWithoutChallengesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -20131,6 +20297,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -20261,6 +20428,7 @@ export type UserUpdateWithoutChallengesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -20378,6 +20546,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -20492,6 +20661,7 @@ export type UserCreateWithoutLifeRunsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -20609,6 +20779,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -20739,6 +20910,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -20856,6 +21028,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -20970,6 +21143,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -21087,6 +21261,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -21217,6 +21392,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -21334,6 +21510,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -21448,6 +21625,7 @@ export type UserCreateWithoutAuthTokensInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -21565,6 +21743,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -21695,6 +21874,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -21812,6 +21992,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -21926,6 +22107,7 @@ export type UserCreateWithoutConversationsInInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -22043,6 +22225,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -22173,6 +22356,7 @@ export type UserUpdateWithoutConversationsInInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -22290,6 +22474,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -22404,6 +22589,7 @@ export type UserCreateWithoutSentMessagesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -22521,6 +22707,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -22651,6 +22838,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -22768,6 +22956,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -22882,6 +23071,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -22999,6 +23189,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -23118,6 +23309,7 @@ export type UserCreateWithoutNotificationsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -23235,6 +23427,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -23365,6 +23558,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -23482,6 +23676,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -23607,6 +23802,7 @@ export type UserUpdateWithoutNotificationsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -23724,6 +23920,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -23838,6 +24035,7 @@ export type UserCreateWithoutGithubInstallationsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
@@ -23955,6 +24153,7 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
@@ -24085,6 +24284,7 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -24202,6 +24402,7 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -24316,6 +24517,7 @@ export type UserCreateWithoutAppReposInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -24433,6 +24635,7 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -24563,6 +24766,7 @@ export type UserUpdateWithoutAppReposInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -24680,6 +24884,7 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -24795,6 +25000,7 @@ export type UserCreateManyArtImageInput = {
   restrictedAt?: Date | string | null
   restrictedById?: number | null
   restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
 }
 
 export type UserUpdateWithoutArtImageInput = {
@@ -24865,6 +25071,7 @@ export type UserUpdateWithoutArtImageInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
@@ -24981,6 +25188,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
@@ -25097,6 +25305,7 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
   restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -25587,6 +25796,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   restrictedAt?: boolean
   restrictedById?: boolean
   restrictedReason?: boolean
+  introDismissedAt?: boolean
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -25708,9 +25918,10 @@ export type UserSelectScalar = {
   restrictedAt?: boolean
   restrictedById?: boolean
   restrictedReason?: boolean
+  introDismissedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "stripeSubscriptionId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "stripeSubscriptionId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason" | "introDismissedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
@@ -25881,6 +26092,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     restrictedAt: Date | null
     restrictedById: number | null
     restrictedReason: string | null
+    introDismissedAt: Date | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -26365,6 +26577,7 @@ export interface UserFieldRefs {
   readonly restrictedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly restrictedById: Prisma.FieldRef<"User", 'Int'>
   readonly restrictedReason: Prisma.FieldRef<"User", 'String'>
+  readonly introDismissedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 

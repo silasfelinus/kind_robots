@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
         avatarImage: user.avatarImage,
         artImageId: user.artImageId,
         isActive: user.isActive,
+        introDismissedAt: user.introDismissedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

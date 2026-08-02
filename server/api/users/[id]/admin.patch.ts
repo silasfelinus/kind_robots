@@ -105,16 +105,20 @@ export default defineEventHandler(async (event) => {
       `Updated user ${updated.username} (#${userId}): ${changes.join(', ')}.`,
     )
 
+    // UserRoles is destructured OUT, not just supplemented: returning both it
+    // and `roles` invites a client to read the raw relation shape, which is the
+    // coupling `roles` exists to avoid.
+    const { UserRoles, ...rest } = updated
+
     return {
       success: true,
       message: 'User updated.',
       data: {
-        ...updated,
-        // Flattened so the client never has to know the relation's shape.
+        ...rest,
         // Primary first, matching the order roles were applied in.
         roles: [
           updated.Role,
-          ...updated.UserRoles.map((entry) => entry.role).filter(
+          ...UserRoles.map((entry) => entry.role).filter(
             (role) => role !== updated.Role,
           ),
         ],

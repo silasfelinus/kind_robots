@@ -7,7 +7,7 @@
       <p class="text-xs font-black uppercase tracking-widest text-primary">
         WonderLab Editorial
       </p>
-      <h1 class="mt-2 text-3xl font-black">Personality review coverage plan</h1>
+      <p class="mt-2 text-3xl font-black">Personality review coverage plan</p>
       <p class="mt-2 max-w-4xl text-sm leading-relaxed text-base-content/60">
         Preview deterministic reviewer assignments and existing coverage before making
         any model calls. Batch generation creates proposed drafts only; it never approves

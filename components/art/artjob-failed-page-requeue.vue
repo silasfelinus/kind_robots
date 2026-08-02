@@ -8,7 +8,8 @@
       <div class="min-w-0">
         <h3 class="text-sm font-semibold">Failed-job recovery</h3>
         <p class="mt-1 text-xs text-base-content/60">
-          Only the failed jobs currently loaded on page {{ artJobStore.jobPage }}
+          Only the failed jobs currently loaded on page
+          {{ artJobStore.jobPage }}
           are eligible. Historical failures on other pages are untouched.
         </p>
       </div>
@@ -133,21 +134,21 @@ async function cancelFailedOnPage(): Promise<void> {
   hasFailures.value = false
 
   try {
-    const results = await Promise.all(
-      jobIds.map((id) =>
-        performFetch(`/api/art/queue/${id}/cancel`, {
-          method: 'POST',
-          body: JSON.stringify({
-            reason: 'Cleared from failed queue by admin.',
-          }),
-        }),
-      ),
-    )
-    const failedCount = results.filter((response) => !response.success).length
-    hasFailures.value = failedCount > 0
-    message.value = failedCount
-      ? `Cleared ${jobIds.length - failedCount} of ${jobIds.length} failed ArtJobs. ${failedCount} could not be cleared.`
-      : `Cleared ${jobIds.length} failed ArtJobs from this page.`
+    const response = await performFetch<{
+      cancelledCount: number
+      skippedCount: number
+    }>('/api/art/queue/cancel-failed', {
+      method: 'POST',
+      body: JSON.stringify({
+        jobIds,
+        reason: 'Cleared from failed queue by admin.',
+      }),
+    })
+
+    hasFailures.value = !response.success
+    message.value = response.success
+      ? response.message
+      : response.message || 'Failed to clear selected failed ArtJobs.'
     await Promise.all([artJobStore.fetchJobs(), artJobStore.fetchStats()])
   } finally {
     submitting.value = false

@@ -25,6 +25,11 @@ export async function awardKarma(opts: {
   reason: KarmaReason
   amount?: number
   refId?: string
+  /// Object-type tag for refId (e.g. "artImage", "dream", "prompt") — only
+  /// set this when refId unambiguously identifies a single object that
+  /// "earned" the karma. Leave undefined for reaction ids, bounty/referral
+  /// proxy ids, admin adjustments, etc. See server/api/economy/karma-earned.post.ts.
+  refType?: string
   note?: string
 }): Promise<{ balance: number; txnId: number } | null> {
   if (!KARMA_LIVE) return null
@@ -46,6 +51,7 @@ export async function awardKarma(opts: {
         reason: opts.reason,
         balanceAfter: next,
         refId: opts.refId,
+        refType: opts.refType,
         note: opts.note,
       },
     })

@@ -48,6 +48,7 @@ export type KarmaTransactionMinAggregateOutputType = {
   reason: $Enums.KarmaReason | null
   balanceAfter: number | null
   refId: string | null
+  refType: string | null
   note: string | null
 }
 
@@ -59,6 +60,7 @@ export type KarmaTransactionMaxAggregateOutputType = {
   reason: $Enums.KarmaReason | null
   balanceAfter: number | null
   refId: string | null
+  refType: string | null
   note: string | null
 }
 
@@ -70,6 +72,7 @@ export type KarmaTransactionCountAggregateOutputType = {
   reason: number
   balanceAfter: number
   refId: number
+  refType: number
   note: number
   _all: number
 }
@@ -97,6 +100,7 @@ export type KarmaTransactionMinAggregateInputType = {
   reason?: true
   balanceAfter?: true
   refId?: true
+  refType?: true
   note?: true
 }
 
@@ -108,6 +112,7 @@ export type KarmaTransactionMaxAggregateInputType = {
   reason?: true
   balanceAfter?: true
   refId?: true
+  refType?: true
   note?: true
 }
 
@@ -119,6 +124,7 @@ export type KarmaTransactionCountAggregateInputType = {
   reason?: true
   balanceAfter?: true
   refId?: true
+  refType?: true
   note?: true
   _all?: true
 }
@@ -217,6 +223,7 @@ export type KarmaTransactionGroupByOutputType = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId: string | null
+  refType: string | null
   note: string | null
   _count: KarmaTransactionCountAggregateOutputType | null
   _avg: KarmaTransactionAvgAggregateOutputType | null
@@ -251,6 +258,7 @@ export type KarmaTransactionWhereInput = {
   reason?: Prisma.EnumKarmaReasonFilter<"KarmaTransaction"> | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFilter<"KarmaTransaction"> | number
   refId?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
+  refType?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
   note?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -263,6 +271,7 @@ export type KarmaTransactionOrderByWithRelationInput = {
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
   refId?: Prisma.SortOrderInput | Prisma.SortOrder
+  refType?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.KarmaTransactionOrderByRelevanceInput
@@ -279,6 +288,7 @@ export type KarmaTransactionWhereUniqueInput = Prisma.AtLeast<{
   reason?: Prisma.EnumKarmaReasonFilter<"KarmaTransaction"> | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFilter<"KarmaTransaction"> | number
   refId?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
+  refType?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
   note?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -291,6 +301,7 @@ export type KarmaTransactionOrderByWithAggregationInput = {
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
   refId?: Prisma.SortOrderInput | Prisma.SortOrder
+  refType?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.KarmaTransactionCountOrderByAggregateInput
   _avg?: Prisma.KarmaTransactionAvgOrderByAggregateInput
@@ -310,6 +321,7 @@ export type KarmaTransactionScalarWhereWithAggregatesInput = {
   reason?: Prisma.EnumKarmaReasonWithAggregatesFilter<"KarmaTransaction"> | $Enums.KarmaReason
   balanceAfter?: Prisma.IntWithAggregatesFilter<"KarmaTransaction"> | number
   refId?: Prisma.StringNullableWithAggregatesFilter<"KarmaTransaction"> | string | null
+  refType?: Prisma.StringNullableWithAggregatesFilter<"KarmaTransaction"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"KarmaTransaction"> | string | null
 }
 
@@ -319,6 +331,7 @@ export type KarmaTransactionCreateInput = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId?: string | null
+  refType?: string | null
   note?: string | null
   User: Prisma.UserCreateNestedOneWithoutKarmaTransactionsInput
 }
@@ -331,6 +344,7 @@ export type KarmaTransactionUncheckedCreateInput = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId?: string | null
+  refType?: string | null
   note?: string | null
 }
 
@@ -340,6 +354,7 @@ export type KarmaTransactionUpdateInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutKarmaTransactionsNestedInput
 }
@@ -352,6 +367,7 @@ export type KarmaTransactionUncheckedUpdateInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -363,6 +379,7 @@ export type KarmaTransactionCreateManyInput = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId?: string | null
+  refType?: string | null
   note?: string | null
 }
 
@@ -372,6 +389,7 @@ export type KarmaTransactionUpdateManyMutationInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -383,6 +401,7 @@ export type KarmaTransactionUncheckedUpdateManyInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -410,6 +429,7 @@ export type KarmaTransactionCountOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  refType?: Prisma.SortOrder
   note?: Prisma.SortOrder
 }
 
@@ -428,6 +448,7 @@ export type KarmaTransactionMaxOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  refType?: Prisma.SortOrder
   note?: Prisma.SortOrder
 }
 
@@ -439,6 +460,7 @@ export type KarmaTransactionMinOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  refType?: Prisma.SortOrder
   note?: Prisma.SortOrder
 }
 
@@ -501,6 +523,7 @@ export type KarmaTransactionCreateWithoutUserInput = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId?: string | null
+  refType?: string | null
   note?: string | null
 }
 
@@ -511,6 +534,7 @@ export type KarmaTransactionUncheckedCreateWithoutUserInput = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId?: string | null
+  refType?: string | null
   note?: string | null
 }
 
@@ -551,6 +575,7 @@ export type KarmaTransactionScalarWhereInput = {
   reason?: Prisma.EnumKarmaReasonFilter<"KarmaTransaction"> | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFilter<"KarmaTransaction"> | number
   refId?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
+  refType?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
   note?: Prisma.StringNullableFilter<"KarmaTransaction"> | string | null
 }
 
@@ -561,6 +586,7 @@ export type KarmaTransactionCreateManyUserInput = {
   reason: $Enums.KarmaReason
   balanceAfter: number
   refId?: string | null
+  refType?: string | null
   note?: string | null
 }
 
@@ -570,6 +596,7 @@ export type KarmaTransactionUpdateWithoutUserInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -580,6 +607,7 @@ export type KarmaTransactionUncheckedUpdateWithoutUserInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -590,6 +618,7 @@ export type KarmaTransactionUncheckedUpdateManyWithoutUserInput = {
   reason?: Prisma.EnumKarmaReasonFieldUpdateOperationsInput | $Enums.KarmaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -603,6 +632,7 @@ export type KarmaTransactionSelect<ExtArgs extends runtime.Types.Extensions.Inte
   reason?: boolean
   balanceAfter?: boolean
   refId?: boolean
+  refType?: boolean
   note?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["karmaTransaction"]>
@@ -617,10 +647,11 @@ export type KarmaTransactionSelectScalar = {
   reason?: boolean
   balanceAfter?: boolean
   refId?: boolean
+  refType?: boolean
   note?: boolean
 }
 
-export type KarmaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "refId" | "note", ExtArgs["result"]["karmaTransaction"]>
+export type KarmaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "refId" | "refType" | "note", ExtArgs["result"]["karmaTransaction"]>
 export type KarmaTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -638,6 +669,14 @@ export type $KarmaTransactionPayload<ExtArgs extends runtime.Types.Extensions.In
     reason: $Enums.KarmaReason
     balanceAfter: number
     refId: string | null
+    /**
+     * Object-type tag for refId (e.g. "artImage", "dream", "prompt") — camelCase,
+     * matching the ReactionTargetType/target-type convention used elsewhere
+     * (reaction-card.vue, reactionStore.ts). Null where refId isn't an
+     * unambiguous single-object reference (reaction id, bounty/referral proxy
+     * ids, admin adjustments, etc.) — see server/api/economy/karma-earned.post.ts.
+     */
+    refType: string | null
     note: string | null
   }, ExtArgs["result"]["karmaTransaction"]>
   composites: {}
@@ -1016,6 +1055,7 @@ export interface KarmaTransactionFieldRefs {
   readonly reason: Prisma.FieldRef<"KarmaTransaction", 'KarmaReason'>
   readonly balanceAfter: Prisma.FieldRef<"KarmaTransaction", 'Int'>
   readonly refId: Prisma.FieldRef<"KarmaTransaction", 'String'>
+  readonly refType: Prisma.FieldRef<"KarmaTransaction", 'String'>
   readonly note: Prisma.FieldRef<"KarmaTransaction", 'String'>
 }
     

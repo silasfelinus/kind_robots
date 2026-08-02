@@ -195,6 +195,7 @@ export default defineEventHandler(async (event) => {
         userId: authenticatedUserId,
         reason: 'CONTENT_CREATED_PUBLIC',
         refId: String(data.id),
+        refType: 'prompt',
       }).catch(() => {})
     }
 

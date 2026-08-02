@@ -135,6 +135,7 @@ export default defineEventHandler(async (event) => {
         userId: user.id,
         reason: 'CONTENT_CREATED_PUBLIC',
         refId: String(artImage.id),
+        refType: 'artImage',
       })
     }
 

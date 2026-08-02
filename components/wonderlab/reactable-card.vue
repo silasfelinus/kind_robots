@@ -14,11 +14,20 @@
     @click="handleSelect"
   >
     <div
-      v-if="$slots.actions || showReactionButton"
+      v-if="$slots.actions || showReactionButton || normalizedEarnedKarma !== null"
       class="absolute right-2 top-2 z-30 flex items-center gap-2"
       @click.stop
     >
       <slot name="actions" />
+
+      <span
+        v-if="normalizedEarnedKarma !== null"
+        class="flex items-center gap-1 rounded-full bg-base-100 px-2 py-1 text-xs font-semibold text-amber-500 shadow"
+        title="Karma earned from reactions to this item"
+      >
+        <Icon name="kind-icon:star" class="h-3 w-3" />
+        {{ normalizedEarnedKarma }}
+      </span>
 
       <button
         v-if="showReactionButton"
@@ -86,6 +95,10 @@ const props = withDefaults(
     reactionCategory?: ReactionCategoryEnum | string
     targetTitle?: string | null
     cardClass?: string | string[] | Record<string, boolean> | null
+    /** Total karma this item's owner has earned from reactions to it (see
+     *  server/api/economy/karma-earned.post.ts). Omit/undefined renders
+     *  nothing — fully backward compatible with existing usages. */
+    earnedKarma?: number | null
   }>(),
   {
     selected: false,
@@ -97,6 +110,7 @@ const props = withDefaults(
     reactionCategory: undefined,
     targetTitle: '',
     cardClass: '',
+    earnedKarma: undefined,
   },
 )
 
@@ -126,6 +140,20 @@ const normalizedTargetTitle = computed(() => {
 
 const normalizedCardClass = computed(() => {
   return props.cardClass ?? ''
+})
+
+const normalizedEarnedKarma = computed<number | null>(() => {
+  if (props.earnedKarma === undefined || props.earnedKarma === null) {
+    return null
+  }
+
+  // Only render for a real, positive total -- a "★ 0" badge on every card
+  // that hasn't earned anything yet would be noise, not signal.
+  if (!Number.isFinite(props.earnedKarma) || props.earnedKarma <= 0) {
+    return null
+  }
+
+  return props.earnedKarma
 })
 
 const canRenderReactionCard = computed(() => {

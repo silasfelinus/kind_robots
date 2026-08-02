@@ -23,6 +23,7 @@
  *   3. no-viewport   — no h-screen/100vh inside a shell that is already h-dvh
  *   4. one-mdc       — a content page mounts one component, not several
  *   5. ghost-prop    — don't pass :show-header to a component that never declared it
+ *   6. root-surface  — page components start with a shared kr-surface/kr-stage root
  */
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative, basename, extname } from 'node:path'
@@ -37,6 +38,7 @@ type RuleId =
   | 'one-mdc'
   | 'ghost-prop'
   | 'zero-scroll'
+  | 'root-surface'
 
 type Baseline = {
   note: string
@@ -52,6 +54,8 @@ const RULE_TITLES: Record<RuleId, string> = {
   'ghost-prop': ':show-header passed to a component that never declared it',
   'zero-scroll':
     'standalone page components with no scroll region of their own (app.vue no longer scrolls for them)',
+  'root-surface':
+    'page components whose root wrapper does not use kr-surface or kr-stage',
 }
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
@@ -122,6 +126,15 @@ function countMatches(haystack: string, pattern: RegExp): number {
   return (haystack.match(pattern) ?? []).length
 }
 
+function rootClassList(template: string): string | null {
+  const root = template.match(/<template\b[^>]*>([\s\S]*)<\/template>/)?.[1]?.trim()
+  const openingTag = root?.match(/^<([a-z][\w-]*)\b([^>]*)>/)
+  if (!openingTag) return null
+
+  const attributes = openingTag[2] ?? ''
+  return attributes.match(/\bclass\s*=\s*["']([^"']*)["']/)?.[1] ?? ''
+}
+
 function collect(): Record<RuleId, string[]> {
   const vueFiles = [
     ...walk(join(ROOT, 'components'), '.vue'),
@@ -136,6 +149,7 @@ function collect(): Record<RuleId, string[]> {
     'one-mdc': [],
     'ghost-prop': [],
     'zero-scroll': [],
+    'root-surface': [],
   }
 
   /*
@@ -174,9 +188,20 @@ function collect(): Record<RuleId, string[]> {
     const source = read(file)
     const template = templateOf(source)
     const r = rel(file)
+    const pageComponent = isPageComponent(file)
 
-    if (isPageComponent(file) && /<h1[\s>]/.test(template)) {
+    if (pageComponent && /<h1[\s>]/.test(template)) {
       violations['one-header'].push(r)
+    }
+
+    if (pageComponent) {
+      const rootClasses = rootClassList(template)
+      if (
+        rootClasses === null ||
+        !/(?:^|\s)kr-(?:surface|stage)(?:\s|$)/.test(rootClasses)
+      ) {
+        violations['root-surface'].push(r)
+      }
     }
 
     /*
@@ -196,7 +221,7 @@ function collect(): Record<RuleId, string[]> {
     if (scrollers > 1) violations['one-scroll'].push(r)
     if (
       scrollers === 0 &&
-      isPageComponent(file) &&
+      pageComponent &&
       !mdcMountedComponents.has(basename(file, '.vue'))
     ) {
       violations['zero-scroll'].push(r)

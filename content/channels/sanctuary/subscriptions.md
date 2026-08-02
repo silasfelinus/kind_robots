@@ -3,7 +3,7 @@ contentType: tab
 channelKey: sanctuary
 tabKey: subscriptions
 dashboardKey: giftshop
-dashboardTab: subscriptions
+dashboardTab: community
 label: Support Plans
 title: Support Kind Robots Monthly
 subtitle: Power our circuits

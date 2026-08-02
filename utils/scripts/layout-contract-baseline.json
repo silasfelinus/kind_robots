@@ -54,7 +54,6 @@
       "components/conductor/watchlist-page.vue",
       "components/pages/about-page.vue",
       "components/pages/appmaker-page.vue",
-      "components/pages/click-leaderboard.vue",
       "components/pages/conductor-page.vue",
       "components/pages/conductor-pitch-manager.vue",
       "components/pages/conductor-project-chat.vue",
@@ -66,7 +65,6 @@
       "components/pages/portos-page.vue",
       "components/pages/privacy-page.vue",
       "components/pages/serendipity-page.vue",
-      "components/pages/sponsor-page.vue",
       "components/pages/storybook-library-page.vue",
       "components/pages/super-form.vue",
       "components/pages/wallet-page.vue",
@@ -81,13 +79,7 @@
       "pages/admin/wonderlab-reviews.vue",
       "pages/coloring-page.vue",
       "pages/error.vue",
-      "pages/music-mentor.vue",
-      "pages/plan/wonderlab/commentary-guide.vue",
-      "pages/play/challenges/[slug].vue",
-      "pages/play/challenges/leaderboard.vue",
-      "pages/play/video-generator.vue",
-      "pages/resources.vue",
-      "pages/users/[id].vue"
+      "pages/resources.vue"
     ]
   }
 }

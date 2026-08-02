@@ -3,7 +3,7 @@
   <section class="screen-fx-shell">
     <div class="fx-panel">
       <div class="fx-header">
-        <div class="fx-title">
+        <div v-if="showHeader" class="fx-title">
           <span class="fx-logo">
             <Icon name="kind-icon:sparkles" class="h-7 w-7" />
           </span>
@@ -166,6 +166,8 @@ import {
   type FxPlacementState,
 } from '@/stores/animationStore'
 import type { AnimationEffectId, FxRegion } from '@/stores/animationCatalog'
+
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const animationStore = useAnimationStore()
 

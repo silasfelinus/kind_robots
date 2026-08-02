@@ -6,7 +6,7 @@
     <header
       class="grid shrink-0 grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 xl:grid-cols-[auto_minmax(0,1fr)_auto]"
     >
-      <div class="flex items-center gap-3">
+      <div v-if="showHeader" class="flex items-center gap-3">
         <div
           class="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-accent bg-accent/10"
         >
@@ -542,6 +542,8 @@ import {
   type WonderLabReviewFilter,
   type WonderLabStatusFilter,
 } from '@/utils/wonderlab/museumQuery'
+
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const statusOptions: Array<{
   value: ComponentStatus

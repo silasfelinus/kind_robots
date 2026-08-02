@@ -9,7 +9,7 @@
       <div
         class="flex flex-col gap-3 bg-linear-to-br from-primary/12 via-secondary/10 to-accent/10 p-3 lg:flex-row lg:items-center lg:justify-between"
       >
-        <div class="flex min-w-0 items-center gap-3">
+        <div v-if="showHeader" class="flex min-w-0 items-center gap-3">
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary shadow-sm"
           >
@@ -397,6 +397,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
+
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ThemeFilter = 'all' | 'default' | 'shared'
 

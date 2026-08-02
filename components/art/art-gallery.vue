@@ -5,6 +5,7 @@
   >
     <!-- ── Header ─────────────────────────────────────────────────────── -->
     <header
+      v-if="showHeader"
       class="shrink-0 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
     >
       <!-- Title + controls row -->
@@ -891,9 +892,11 @@ type GalleryCollection = ArtCollection & {
 const props = withDefaults(
   defineProps<{
     dropdownMode?: boolean
+    showHeader?: boolean
   }>(),
   {
     dropdownMode: false,
+    showHeader: true,
   },
 )
 

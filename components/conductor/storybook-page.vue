@@ -1,9 +1,9 @@
 <!-- /components/conductor/storybook-page.vue -->
+<!-- data-theme scopes the reading mode to THIS subtree, so picking
+     Storybook Dark here does not hijack the rest of the app. Classic binds
+     undefined, which Vue drops entirely, leaving the reader's global theme
+     in charge — see composables/useStorybookMode.ts. -->
 <template>
-  <!-- data-theme scopes the reading mode to THIS subtree, so picking
-       Storybook Dark here does not hijack the rest of the app. Classic binds
-       undefined, which Vue drops entirely, leaving the reader's global theme
-       in charge — see composables/useStorybookMode.ts. -->
   <section
     :data-theme="dataTheme"
     class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"

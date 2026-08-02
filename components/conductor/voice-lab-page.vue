@@ -1,6 +1,6 @@
 <!-- /components/conductor/voice-lab-page.vue -->
 <template>
-  <ProjectFrontPage slug="alexa-integration" :fallback="config">
+  <project-front-page class="kr-surface" slug="alexa-integration" :fallback="config">
     <template #interactive>
       <section
         class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
@@ -121,7 +121,7 @@
         </div>
       </section>
     </template>
-  </ProjectFrontPage>
+  </project-front-page>
 </template>
 
 <script setup lang="ts">

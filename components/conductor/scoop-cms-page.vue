@@ -1,6 +1,6 @@
 <!-- /components/conductor/scoop-cms-page.vue -->
 <template>
-  <ProjectFrontPage slug="humboldt-scoop-cms" :fallback="config" />
+  <project-front-page class="kr-surface" slug="humboldt-scoop-cms" :fallback="config" />
 </template>
 
 <script setup lang="ts">

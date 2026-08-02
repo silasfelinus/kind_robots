@@ -1,0 +1,49 @@
+name: Apply final one-header ratchet
+
+on:
+  push:
+    branches:
+      - worker/interface-vision-t-017-20260802T091218Z-k7p4
+    paths:
+      - .github/workflows/t017-final-one-header-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/interface-vision-t-017-20260802T091218Z-k7p4
+      - name: Apply scoped patch
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          page = Path('pages/admin/wonderlab-reviews.vue')
+          text = page.read_text()
+          old = '<h1 class="mt-2 text-3xl font-black">Personality review drafts</h1>'
+          new = '<p class="mt-2 text-3xl font-black">Personality review drafts</p>'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one page title match, found {text.count(old)}')
+          page.write_text(text.replace(old, new))
+
+          baseline = Path('utils/scripts/layout-contract-baseline.json')
+          data = json.loads(baseline.read_text())
+          expected = ['pages/admin/wonderlab-reviews.vue']
+          if data['violations']['one-header'] != expected:
+              raise SystemExit(f'unexpected one-header baseline: {data["violations"]["one-header"]!r}')
+          data['violations']['one-header'] = []
+          baseline.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          rm .github/workflows/t017-final-one-header-patch.yml
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add pages/admin/wonderlab-reviews.vue utils/scripts/layout-contract-baseline.json .github/workflows/t017-final-one-header-patch.yml
+          git commit -m "fix(layout): remove final duplicate page title"
+          git push origin HEAD:worker/interface-vision-t-017-20260802T091218Z-k7p4

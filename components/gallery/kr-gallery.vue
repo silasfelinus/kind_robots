@@ -48,10 +48,25 @@
       >
         <div class="relative overflow-hidden" :class="imageWrapClass">
           <img
+            v-if="displayImage(item)"
             :src="displayImage(item)"
             :alt="item.title"
             class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
+          <!-- Art-absent placeholder. Without this an unillustrated row renders
+               <img src="">, which browsers treat as "reload the current page"
+               and paint as a broken image. Galleries whose rows are routinely
+               unillustrated (facets, where art is queued rather than required)
+               could not adopt this shell at all until it degraded properly. -->
+          <div
+            v-else
+            class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
+          >
+            <Icon :name="item.placeholderIcon || 'kind-icon:image'" class="size-8" />
+            <span v-if="item.placeholderLabel" class="text-[10px] uppercase tracking-wide">
+              {{ item.placeholderLabel }}
+            </span>
+          </div>
           <div class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent" />
           <div v-if="item.badges?.length" class="absolute left-2 top-2 flex gap-1">
             <span v-for="badge in item.badges" :key="badge.label" class="badge badge-xs" :class="badge.class">
@@ -90,6 +105,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import {
+  resolveArtVariantSrc,
+  type ArtImageSrcLike,
+  type ArtVariant,
+} from '@/utils/artImageSrc'
 
 export type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
 
@@ -103,12 +123,28 @@ export interface GalleryItem {
   id: string | number
   title: string
   description?: string
+  /*
+   * Pre-resolved variant URLs. Use these when the caller's resolution is
+   * genuinely domain-specific -- conductor-project-gallery-page.vue, for one,
+   * merges a remote conductor record, detects canonical paths and appends a
+   * cache-busting revision, none of which a generic resolver can do.
+   */
   icon?: string
   card?: string
   hero?: string
+  /*
+   * The raw record instead, for the ordinary case. kr-gallery resolves it
+   * through resolveArtVariantSrc, so a consumer stops hand-rolling the
+   * cardPath || imagePath || heroPath || iconPath chain -- six components were
+   * each carrying their own copy of exactly that when this was added.
+   */
+  source?: ArtImageSrcLike
   meta?: string
   progressPercent?: number
   badges?: Array<{ label: string; class?: string }>
+  /** Shown when nothing resolves. Defaults to a generic image glyph. */
+  placeholderIcon?: string
+  placeholderLabel?: string
 }
 
 const props = withDefaults(
@@ -160,8 +196,30 @@ const imageWrapClass = computed(() =>
         ? 'min-h-40'
         : 'aspect-[4/3]',
 )
+/*
+ * Which art variant this mode wants. Heroes and list are wide, icons is square,
+ * cards is the 4:3 default.
+ */
+const modeVariant = computed<ArtVariant>(() =>
+  props.mode === 'heroes' || props.mode === 'list'
+    ? 'hero'
+    : props.mode === 'icons'
+      ? 'icon'
+      : 'card',
+)
+
 function displayImage(item: GalleryItem): string {
-  const variant = props.mode === 'heroes' || props.mode === 'list' ? item.hero : props.mode === 'icons' ? item.icon : item.card
-  return variant || item.card || item.icon || item.hero || ''
+  const preResolved =
+    modeVariant.value === 'hero'
+      ? item.hero
+      : modeVariant.value === 'icon'
+        ? item.icon
+        : item.card
+
+  // A caller that pre-resolved wins outright; only fall back across variants
+  // for callers that pre-resolved SOME of them.
+  if (preResolved) return preResolved
+  if (item.source) return resolveArtVariantSrc(item.source, modeVariant.value)
+  return item.card || item.icon || item.hero || ''
 }
 </script>

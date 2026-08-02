@@ -67,69 +67,16 @@
         <span class="badge badge-secondary badge-sm">{{ group.entries.length }}</span>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        <article
-          v-for="facet in group.entries"
-          :key="facet.id"
-          class="group overflow-hidden rounded-2xl border border-base-300 bg-base-100 transition-all hover:shadow-lg"
-        >
-          <div class="relative flex h-40 items-center justify-center bg-base-200">
-            <img
-              v-if="facetArtwork(facet)"
-              :src="facetArtwork(facet) || ''"
-              :alt="`${facet.title} artwork`"
-              class="size-full object-cover"
-              loading="lazy"
-            />
-            <div
-              v-else
-              class="flex size-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-base-200 to-base-300 text-base-content/40"
-            >
-              <Icon
-                :name="iconName(facet)"
-                class="size-8"
-              />
-              <span class="text-[10px] uppercase tracking-wide">
-                {{ facet.artRequired ? 'art pending' : 'no art' }}
-              </span>
-            </div>
-          </div>
-
-          <div class="space-y-1.5 p-3">
-            <div class="flex flex-wrap items-center gap-1">
-              <span class="badge badge-outline badge-xs">
-                {{ taxonomyLabel(facet.taxonomy) }}
-              </span>
-              <span v-if="facet.groupLabel" class="badge badge-ghost badge-xs">
-                {{ facet.groupLabel }}
-              </span>
-            </div>
-            <h3 class="truncate text-sm font-bold" :title="facet.title">
-              {{ facet.title }}
-            </h3>
-            <p
-              v-if="facet.description"
-              class="line-clamp-2 text-xs text-base-content/60"
-            >
-              {{ facet.description }}
-            </p>
-            <p
-              v-else-if="facet.flavorText"
-              class="line-clamp-2 text-xs italic text-base-content/50"
-            >
-              {{ facet.flavorText }}
-            </p>
-            <p
-              v-if="facet.aliases.length"
-              class="truncate text-[11px] text-base-content/35"
-              :title="facet.aliases.join(' · ')"
-            >
-              {{ facet.aliases.join(' · ') }}
-            </p>
-
-          </div>
-        </article>
-      </div>
+      <!-- One kr-gallery per taxonomy group. The shell owns no scroll region,
+           so mounting it N times is structurally fine, and `:modes="[]"` drops
+           the view-mode bar -- this gallery is a fixed-shape taxonomy showcase,
+           not a mode-switching browser. -->
+      <kr-gallery
+        :items="group.entries.map(toGalleryItem)"
+        mode="cards"
+        :modes="[]"
+        empty-label="facets"
+      />
     </div>
 
     <p
@@ -150,6 +97,8 @@ import {
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
+import { resolveArtVariantSrc } from '@/utils/artImageSrc'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 
 const catalog = useFacetCatalogStore()
 
@@ -158,13 +107,48 @@ const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const artOnly = ref(false)
 const errorMessage = ref('')
 
+/*
+ * Kept for the `artOnly` filter below, which needs to know whether a facet has
+ * ANY art regardless of which variant the current view would pick. Rendering no
+ * longer uses it -- kr-gallery resolves the variant itself from `source`, so
+ * this file no longer carries its own copy of the cardPath||imagePath||heroPath
+ * chain that six components were each repeating.
+ */
 function facetArtwork(facet: FacetCatalogEntry): string | null {
-  return facet.cardPath || facet.imagePath || facet.heroPath || facet.iconPath || null
+  // Checks all three variants, not just the one the card view renders: the old
+  // hand-rolled chain was `cardPath || imagePath || heroPath || iconPath`, so a
+  // facet illustrated ONLY at hero or icon size counted as having art. Asking
+  // resolveArtVariantSrc for 'card' alone would have silently dropped those
+  // from the filter.
+  return (
+    resolveArtVariantSrc(facet, 'card') ||
+    resolveArtVariantSrc(facet, 'hero') ||
+    resolveArtVariantSrc(facet, 'icon') ||
+    null
+  )
 }
 
 function iconName(facet: FacetCatalogEntry): string {
   const icon = facet.icon?.trim()
   return icon && icon.includes(':') ? icon : 'kind-icon:tag'
+}
+
+function toGalleryItem(facet: FacetCatalogEntry): GalleryItem {
+  const badges = [{ label: taxonomyLabel(facet.taxonomy), class: 'badge-outline' }]
+  if (facet.groupLabel) badges.push({ label: facet.groupLabel, class: 'badge-ghost' })
+
+  return {
+    id: facet.id,
+    title: facet.title,
+    description: facet.description || facet.flavorText || '',
+    source: facet,
+    badges,
+    meta: facet.aliases.length ? facet.aliases.join(' · ') : '',
+    placeholderIcon: iconName(facet),
+    // Distinguishes "queued for art" from "never getting art" — the catalog
+    // marks which facets are meant to be illustrated.
+    placeholderLabel: facet.artRequired ? 'art pending' : 'no art',
+  }
 }
 
 function taxonomyLabel(taxonomy: FacetTaxonomy): string {

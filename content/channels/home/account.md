@@ -3,7 +3,7 @@ contentType: tab
 channelKey: home
 tabKey: account
 dashboardKey: user
-dashboardTab: account
+dashboardTab: profile
 label: Account
 title: Account & Privacy
 subtitle: Your settings, your consent

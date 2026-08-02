@@ -267,6 +267,21 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false,
   },
+
+  /*
+   * Storymaker was renamed to Storybook on 2026-08-02 (interface-vision t-002).
+   * The old path was a real, linkable route, so it redirects rather than 404s —
+   * a rename the user chose should not cost them their bookmarks or break any
+   * link already shared.
+   *
+   * 301 rather than 302 because this is permanent: there is no plan to bring
+   * /storymaker back, and a permanent code lets crawlers and browsers stop
+   * asking.
+   */
+  routeRules: {
+    '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
+  },
+
   nitro: {
     prerender: {
       crawlLinks: false,

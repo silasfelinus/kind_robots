@@ -62,14 +62,14 @@ assert.ok(
 )
 
 const taskmasterStore = source('stores/taskmasterStore.ts')
-const storymakerPage = source('components/conductor/storymaker-page.vue')
+const storybookPage = source('components/conductor/storybook-page.vue')
 assert.ok(
   taskmasterStore.includes("defineStore('taskmasterStore'"),
   'Taskmaster must retain its own product store',
 )
 assert.ok(
-  !storymakerPage.includes('useTaskmasterStore'),
-  'Storymaker must not inherit the Taskmaster state machine',
+  !storybookPage.includes('useTaskmasterStore'),
+  'Storybook must not inherit the Taskmaster state machine',
 )
 
 console.log(

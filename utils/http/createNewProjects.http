@@ -23,14 +23,14 @@ Authorization: Bearer {{token}}
 }
 
 ###
-# 2. Storymaker
+# 2. Storybook
 POST {{baseUrl}}/api/dreams
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "title": "Storymaker",
-  "slug": "storymaker",
+  "title": "Storybook",
+  "slug": "storybook",
   "dreamType": "PROJECT",
   "projectStatus": "BRAINSTORM",
   "description": "Phase 3 of Kind Robots: a full collaborative storytelling engine built on Bots, Characters, Dreams, Rewards, Scenarios, and Chats. Two modes: Exquisite Corpse (async turn-taking) and Guided Adventure (LLM-narrated multi-stage journey). Solo or group play, branching choices, character stat spends, unlockable rewards.",

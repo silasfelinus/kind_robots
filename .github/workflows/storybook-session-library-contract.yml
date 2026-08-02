@@ -1,4 +1,4 @@
-name: Storymaker Branch State Contract
+name: Storybook Session Library Contract
 
 on:
   push:
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: storymaker-branch-state-${{ github.ref }}
+  group: storybook-session-library-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify:
-    name: Storymaker fictional state contract
+    name: Storybook session library contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -26,5 +26,5 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Verify Storymaker branch state
-        run: node utils/scripts/verifyStorymakerBranchState.mjs
+      - name: Verify Storybook session library
+        run: node utils/scripts/verifyStorybookSessionLibrary.mjs

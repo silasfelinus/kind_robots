@@ -1,15 +1,15 @@
 ---
 contentType: tab
 channelKey: play
-tabKey: storymaker
+tabKey: storybook
 dashboardKey: scenario
-dashboardTab: storymaker
-label: Storymaker
-title: Storymaker
+dashboardTab: storybook
+label: Storybook
+title: Storybook
 subtitle: Weave a story from reusable ingredients
 description: Combine characters, places, rewards, art, and prompts into an unfolding narrative.
 icon: kind-icon:book
-route: /storymaker
+route: /storybook
 sort: 90
 ---
 

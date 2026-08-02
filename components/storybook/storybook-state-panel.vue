@@ -1,4 +1,4 @@
-<!-- /components/storymaker/storymaker-state-panel.vue -->
+<!-- /components/storybook/storybook-state-panel.vue -->
 <template>
   <details
     class="rounded-2xl border border-secondary/25 bg-secondary/5 p-3"
@@ -103,10 +103,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { StorymakerSession } from '@/stores/storymakerStore'
+import type { StorybookSession } from '@/stores/storybookStore'
 
 const props = defineProps<{
-  session: StorymakerSession
+  session: StorybookSession
 }>()
 
 const recentConsequences = computed(() =>

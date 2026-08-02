@@ -1,4 +1,4 @@
-// /utils/scripts/verifyStorymakerSessionLibrary.mjs
+// /utils/scripts/verifyStorybookSessionLibrary.mjs
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -14,17 +14,17 @@ function includesAll(path, values) {
   }
 }
 
-const libraryPath = 'composables/useStorymakerLibrary.ts'
-const shellPath = 'components/pages/storymaker-library-page.vue'
-const contentPath = 'content/storymaker.md'
-const storePath = 'stores/storymakerStore.ts'
+const libraryPath = 'composables/useStorybookLibrary.ts'
+const shellPath = 'components/pages/storybook-library-page.vue'
+const contentPath = 'content/storybook.md'
+const storePath = 'stores/storybookStore.ts'
 
 const library = source(libraryPath)
 const shell = source(shellPath)
 const store = source(storePath)
 
 includesAll(libraryPath, [
-  "const LIBRARY_STORAGE_KEY = 'storymaker-session-library-v1'",
+  "const LIBRARY_STORAGE_KEY = 'storybook-session-library-v1'",
   'const MAX_LIBRARY_SESSIONS = 20',
   'entry.userId === userId',
   'function openStory(',
@@ -64,11 +64,11 @@ assert.ok(
   !library.includes('useTaskmasterStore') &&
     !library.includes('useTodoStore') &&
     !library.includes('useConductorStore'),
-  'Storymaker lifecycle management must remain fiction-only',
+  'Storybook lifecycle management must remain fiction-only',
 )
 
 includesAll(shellPath, [
-  '<StorymakerPage />',
+  '<StorybookPage />',
   'Story library',
   'Recent stories',
   'library.openStory(',
@@ -82,23 +82,23 @@ includesAll(shellPath, [
   'library.archiveCurrent()',
 ])
 
-includesAll(contentPath, [':storymaker-library-page'])
+includesAll(contentPath, [':storybook-library-page'])
 assert.ok(
-  !source(contentPath).includes(':storymaker-page\n'),
+  !source(contentPath).includes(':storybook-page\n'),
   'The route must mount the lifecycle shell instead of bypassing it',
 )
 
 includesAll(storePath, [
-  "defineStore('storymakerStore'",
+  "defineStore('storybookStore'",
   'resumeNarrativeArtJobs',
   'retryBeatArt',
   'beginStory',
 ])
 assert.ok(
-  !store.includes('storymaker-session-library-v1'),
+  !store.includes('storybook-session-library-v1'),
   'The proven generation store must remain independent from library presentation state',
 )
 
 console.log(
-  'Storymaker session-library contract passed: account-scoped recent stories, direct-open, safe duplicate identities, restart, export, and generation-store separation are present.',
+  'Storybook session-library contract passed: account-scoped recent stories, direct-open, safe duplicate identities, restart, export, and generation-store separation are present.',
 )

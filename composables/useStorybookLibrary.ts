@@ -1,19 +1,19 @@
-// /composables/useStorymakerLibrary.ts
+// /composables/useStorybookLibrary.ts
 import { computed, proxyRefs, ref, watch } from 'vue'
 import {
-  useStorymakerStore,
-  type StorymakerBible,
-  type StorymakerSession,
-} from '@/stores/storymakerStore'
+  useStorybookStore,
+  type StorybookBible,
+  type StorybookSession,
+} from '@/stores/storybookStore'
 import { useUserStore } from '@/stores/userStore'
 
-export type StorymakerLibraryExport = {
+export type StorybookLibraryExport = {
   filename: string
   mimeType: 'text/markdown' | 'application/json'
   content: string
 }
 
-const LIBRARY_STORAGE_KEY = 'storymaker-session-library-v1'
+const LIBRARY_STORAGE_KEY = 'storybook-session-library-v1'
 const MAX_LIBRARY_SESSIONS = 20
 
 function nowIso(): string {
@@ -23,11 +23,11 @@ function nowIso(): string {
 function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
-    : `storymaker-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+    : `storybook-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-function cloneSession(value: StorymakerSession): StorymakerSession {
-  const copy = JSON.parse(JSON.stringify(value)) as StorymakerSession
+function cloneSession(value: StorybookSession): StorybookSession {
+  const copy = JSON.parse(JSON.stringify(value)) as StorybookSession
   return {
     ...copy,
     bible: {
@@ -48,10 +48,10 @@ function exportFilename(title: string, extension: 'md' | 'json'): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 72)
-  return `${slug || 'storymaker-story'}.${extension}`
+  return `${slug || 'storybook-story'}.${extension}`
 }
 
-function restartInput(bible: StorymakerBible) {
+function restartInput(bible: StorybookBible) {
   return {
     title: bible.title,
     premise: bible.premise,
@@ -65,10 +65,10 @@ function restartInput(bible: StorymakerBible) {
   }
 }
 
-export function useStorymakerLibrary() {
-  const storyStore = useStorymakerStore()
+export function useStorybookLibrary() {
+  const storyStore = useStorybookStore()
   const userStore = useUserStore()
-  const library = ref<StorymakerSession[]>([])
+  const library = ref<StorybookSession[]>([])
   const initialized = ref(false)
 
   const recentStories = computed(() => {
@@ -83,11 +83,11 @@ export function useStorymakerLibrary() {
     try {
       localStorage.setItem(LIBRARY_STORAGE_KEY, JSON.stringify(library.value))
     } catch {
-      // A storage quota should not break the active Storymaker session.
+      // A storage quota should not break the active Storybook session.
     }
   }
 
-  function upsert(value: StorymakerSession): void {
+  function upsert(value: StorybookSession): void {
     const copy = cloneSession(value)
     library.value = [
       copy,
@@ -103,7 +103,7 @@ export function useStorymakerLibrary() {
     try {
       const raw = localStorage.getItem(LIBRARY_STORAGE_KEY)
       if (raw) {
-        const parsed = JSON.parse(raw) as StorymakerSession[]
+        const parsed = JSON.parse(raw) as StorybookSession[]
         library.value = Array.isArray(parsed)
           ? parsed
               .map(cloneSession)
@@ -119,7 +119,7 @@ export function useStorymakerLibrary() {
     if (storyStore.session) upsert(storyStore.session)
   }
 
-  function findStory(sessionId: string): StorymakerSession | null {
+  function findStory(sessionId: string): StorybookSession | null {
     return recentStories.value.find((entry) => entry.id === sessionId) ?? null
   }
 
@@ -131,7 +131,7 @@ export function useStorymakerLibrary() {
     return true
   }
 
-  function remapDuplicate(source: StorymakerSession): StorymakerSession {
+  function remapDuplicate(source: StorybookSession): StorybookSession {
     const duplicate = cloneSession(source)
     const createdAt = nowIso()
     const sessionId = makeId()
@@ -215,7 +215,7 @@ export function useStorymakerLibrary() {
   function buildExport(
     sessionId = storyStore.session?.id,
     format: 'markdown' | 'json' = 'markdown',
-  ): StorymakerLibraryExport | null {
+  ): StorybookLibraryExport | null {
     if (!sessionId) return null
     const source =
       storyStore.session?.id === sessionId

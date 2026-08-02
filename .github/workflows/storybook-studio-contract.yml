@@ -1,4 +1,4 @@
-name: Storymaker Studio Contract
+name: Storybook Studio Contract
 
 on:
   push:
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: storymaker-studio-${{ github.ref }}
+  group: storybook-studio-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify:
-    name: Dedicated Storymaker studio contract
+    name: Dedicated Storybook studio contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -26,5 +26,5 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Verify Storymaker studio
-        run: node utils/scripts/verifyStorymakerStudio.mjs
+      - name: Verify Storybook studio
+        run: node utils/scripts/verifyStorybookStudio.mjs

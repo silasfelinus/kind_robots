@@ -138,10 +138,10 @@ export const tutorialChannels = {
         image: tutorialImage('scenario', 'taskmaster'),
       },
       {
-        key: 'storymaker',
-        title: 'Storymaker',
+        key: 'storybook',
+        title: 'Storybook',
         body: 'Bring your characters, settings, and rewards together and let the narrator turn choices into consequences with teeth — the long-form loom that gathers everything else into one unfolding story.',
-        image: tutorialImage('scenario', 'storymaker'),
+        image: tutorialImage('scenario', 'storybook'),
       },
     ],
   },

@@ -10,7 +10,7 @@ on:
       - 'components/pages/serendipity-page.vue'
       - 'components/conductor/voice-lab-page.vue'
       - 'stores/helpers/dashboardHelper.ts'
-      - 'docs/products/storymaker-taskmaster-boundary.md'
+      - 'docs/products/storybook-taskmaster-boundary.md'
       - 'docs/contracts/serendipity-route-contract.md'
       - 'utils/scripts/verifySerendipityRouteCutover.mjs'
   pull_request:
@@ -22,7 +22,7 @@ on:
       - 'components/pages/serendipity-page.vue'
       - 'components/conductor/voice-lab-page.vue'
       - 'stores/helpers/dashboardHelper.ts'
-      - 'docs/products/storymaker-taskmaster-boundary.md'
+      - 'docs/products/storybook-taskmaster-boundary.md'
       - 'docs/contracts/serendipity-route-contract.md'
       - 'utils/scripts/verifySerendipityRouteCutover.mjs'
   workflow_dispatch:

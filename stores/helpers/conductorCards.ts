@@ -176,8 +176,8 @@ export const CONDUCTOR_CARDS: ConductorCard[] = [
     9,
   ),
   card(
-    'storymaker',
-    'Storymaker',
+    'storybook',
+    'Storybook',
     'kind-icon:book',
     'Structured story creation',
     'A software surface for drafting, organizing, and expanding story ideas into reusable narrative artifacts.',

@@ -1,4 +1,4 @@
-// /utils/scripts/verifyStorymakerBranchState.mjs
+// /utils/scripts/verifyStorybookBranchState.mjs
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -14,17 +14,17 @@ function includesAll(path, values) {
   }
 }
 
-const storePath = 'stores/storymakerStore.ts'
-const pagePath = 'components/conductor/storymaker-page.vue'
-const panelPath = 'components/storymaker/storymaker-state-panel.vue'
+const storePath = 'stores/storybookStore.ts'
+const pagePath = 'components/conductor/storybook-page.vue'
+const panelPath = 'components/storybook/storybook-state-panel.vue'
 const transcriptPath = 'components/narrative/narrative-transcript.vue'
 const store = source(storePath)
 const page = source(pagePath)
 
 includesAll(storePath, [
-  'StorymakerBranchChoice',
-  'StorymakerConsequence',
-  'StorymakerInventoryItem',
+  'StorybookBranchChoice',
+  'StorybookConsequence',
+  'StorybookInventoryItem',
   'branchHistory: []',
   'consequences: []',
   'inventory: []',
@@ -46,15 +46,15 @@ includesAll(storePath, [
 
 assert.ok(
   !store.includes('useTaskmasterStore'),
-  'Storymaker state must remain independent from Taskmaster',
+  'Storybook state must remain independent from Taskmaster',
 )
 assert.ok(
   !store.includes('useTodoStore'),
-  'Storymaker inventory and consequences must remain fictional',
+  'Storybook inventory and consequences must remain fictional',
 )
 assert.ok(
   !store.includes("performFetch('/api/conductor"),
-  'Storymaker choices must not write to Conductor',
+  'Storybook choices must not write to Conductor',
 )
 
 includesAll(pagePath, [
@@ -62,7 +62,7 @@ includesAll(pagePath, [
   'store.setupDraft.rewardSlugs',
   'Possible story Rewards',
   'rewardStore.initialize({ fetchRemote: true })',
-  '<StorymakerStatePanel',
+  '<StorybookStatePanel',
   'rewards: selectedRewards.value.map(toIngredient)',
 ])
 
@@ -82,11 +82,11 @@ includesAll(transcriptPath, [
 
 assert.ok(
   !page.includes('applyWriteBack'),
-  'Storymaker state UI must not expose Taskmaster write-back controls',
+  'Storybook state UI must not expose Taskmaster write-back controls',
 )
 
 console.log(
-  'Storymaker branch-state contract passed: reader choices, constrained ' +
+  'Storybook branch-state contract passed: reader choices, constrained ' +
     'fictional consequences, selected Reward inventory, saved-session migration, ' +
     'hidden state metadata, and the Taskmaster/write-back boundary are present.',
 )

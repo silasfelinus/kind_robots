@@ -1,5 +1,5 @@
-// /stores/storymakerStore.ts
-// Storymaker owns creative story sessions. It never imports Taskmaster state or
+// /stores/storybookStore.ts
+// Storybook owns creative story sessions. It never imports Taskmaster state or
 // task write-back behavior; the two products share presentation only.
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
@@ -9,19 +9,19 @@ import { useUserStore } from '@/stores/userStore'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
-export type StorymakerStructure = 'short-story' | 'chaptered' | 'episodic'
-export type StorymakerNarratorStyle =
+export type StorybookStructure = 'short-story' | 'chaptered' | 'episodic'
+export type StorybookNarratorStyle =
   | 'cinematic'
   | 'playful'
   | 'storybook'
   | 'mysterious'
   | 'intimate'
 
-export type StorymakerSetupDraft = {
+export type StorybookSetupDraft = {
   title: string
   premise: string
-  narratorStyle: StorymakerNarratorStyle
-  structure: StorymakerStructure
+  narratorStyle: StorybookNarratorStyle
+  structure: StorybookStructure
   castSlugs: string[]
   locationSlug: string | null
   facetSlugs: string[]
@@ -29,7 +29,7 @@ export type StorymakerSetupDraft = {
   notes: string
 }
 
-export type StorymakerIngredient = {
+export type StorybookIngredient = {
   id?: number | string
   slug: string
   title: string
@@ -41,43 +41,43 @@ export type StorymakerIngredient = {
   effect?: string | null
 }
 
-export type StorymakerBible = {
+export type StorybookBible = {
   title: string
   premise: string
-  narratorStyle: StorymakerNarratorStyle
-  structure: StorymakerStructure
-  cast: StorymakerIngredient[]
-  location?: StorymakerIngredient
-  facets: StorymakerIngredient[]
-  rewards: StorymakerIngredient[]
+  narratorStyle: StorybookNarratorStyle
+  structure: StorybookStructure
+  cast: StorybookIngredient[]
+  location?: StorybookIngredient
+  facets: StorybookIngredient[]
+  rewards: StorybookIngredient[]
   notes?: string
   createdAt: string
 }
 
-export type StorymakerAnswer = {
+export type StorybookAnswer = {
   text: string
   capturedAt: string
 }
 
-export type StorymakerStateDelta = {
+export type StorybookStateDelta = {
   consequences: string[]
   relationshipShifts: string[]
   inventoryAdd: string[]
   inventoryRemove: string[]
 }
 
-export type StorymakerBeat = {
+export type StorybookBeat = {
   id: string
   sessionId: string
   narrative: string
   question: string
-  answer?: StorymakerAnswer
+  answer?: StorybookAnswer
   art?: NarrativeArtJobState
-  stateDelta: StorymakerStateDelta
+  stateDelta: StorybookStateDelta
   createdAt: string
 }
 
-export type StorymakerBranchChoice = {
+export type StorybookBranchChoice = {
   id: string
   beatId: string
   question: string
@@ -85,7 +85,7 @@ export type StorymakerBranchChoice = {
   createdAt: string
 }
 
-export type StorymakerConsequence = {
+export type StorybookConsequence = {
   id: string
   beatId: string
   kind: 'consequence' | 'relationship'
@@ -93,45 +93,45 @@ export type StorymakerConsequence = {
   createdAt: string
 }
 
-export type StorymakerInventoryItem = {
-  ingredient: StorymakerIngredient
+export type StorybookInventoryItem = {
+  ingredient: StorybookIngredient
   beatId: string
   acquiredAt: string
 }
 
-export type StorymakerSession = {
+export type StorybookSession = {
   id: string
   userId: number | null
-  bible: StorymakerBible
-  beats: StorymakerBeat[]
-  branchHistory: StorymakerBranchChoice[]
-  consequences: StorymakerConsequence[]
-  inventory: StorymakerInventoryItem[]
+  bible: StorybookBible
+  beats: StorybookBeat[]
+  branchHistory: StorybookBranchChoice[]
+  consequences: StorybookConsequence[]
+  inventory: StorybookInventoryItem[]
   stateVersion: 1
   status: 'active' | 'complete'
   createdAt: string
   updatedAt: string
 }
 
-export type StorymakerStartInput = {
+export type StorybookStartInput = {
   title?: string
   premise: string
-  narratorStyle: StorymakerNarratorStyle
-  structure: StorymakerStructure
-  cast: StorymakerIngredient[]
-  location?: StorymakerIngredient
-  facets: StorymakerIngredient[]
-  rewards: StorymakerIngredient[]
+  narratorStyle: StorybookNarratorStyle
+  structure: StorybookStructure
+  cast: StorybookIngredient[]
+  location?: StorybookIngredient
+  facets: StorybookIngredient[]
+  rewards: StorybookIngredient[]
   notes?: string
 }
 
-const STORAGE_KEY = 'storymaker-session'
-const DRAFT_STORAGE_KEY = 'storymaker-setup-draft'
+const STORAGE_KEY = 'storybook-session'
+const DRAFT_STORAGE_KEY = 'storybook-setup-draft'
 const STATE_OPEN = '[STORY_STATE]'
 const STATE_CLOSE = '[/STORY_STATE]'
 const MAX_STATE_ITEMS = 3
 
-export const STORYMAKER_NARRATOR_STYLES: StorymakerNarratorStyle[] = [
+export const STORYBOOK_NARRATOR_STYLES: StorybookNarratorStyle[] = [
   'cinematic',
   'playful',
   'storybook',
@@ -139,8 +139,8 @@ export const STORYMAKER_NARRATOR_STYLES: StorymakerNarratorStyle[] = [
   'intimate',
 ]
 
-export const STORYMAKER_STRUCTURES: {
-  value: StorymakerStructure
+export const STORYBOOK_STRUCTURES: {
+  value: StorybookStructure
   label: string
   description: string
 }[] = [
@@ -161,7 +161,7 @@ export const STORYMAKER_STRUCTURES: {
   },
 ]
 
-const PERSONA = `You are Storymaker, a generous fiction narrator inside Kind Robots.
+const PERSONA = `You are Storybook, a generous fiction narrator inside Kind Robots.
 You create an original second-person story from a story bible supplied by the reader.
 The reader is the protagonist unless the premise clearly says otherwise.
 
@@ -184,7 +184,7 @@ short strings. Inventory arrays may contain only exact Reward slugs listed in th
 story bible. Use empty arrays when nothing changes. The state block is not prose
 and must never be described to the reader.`
 
-function emptyStateDelta(): StorymakerStateDelta {
+function emptyStateDelta(): StorybookStateDelta {
   return {
     consequences: [],
     relationshipShifts: [],
@@ -193,7 +193,7 @@ function emptyStateDelta(): StorymakerStateDelta {
   }
 }
 
-function defaultDraft(): StorymakerSetupDraft {
+function defaultDraft(): StorybookSetupDraft {
   return {
     title: '',
     premise: '',
@@ -214,7 +214,7 @@ function nowIso(): string {
 function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
-    : `storymaker-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+    : `storybook-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
 function cleanStateStrings(value: unknown): string[] {
@@ -246,7 +246,7 @@ function derivedTitle(premise: string): string {
   return first.length > 54 ? `${first.slice(0, 51).trim()}…` : first
 }
 
-function ingredientDescription(ingredient: StorymakerIngredient): string {
+function ingredientDescription(ingredient: StorybookIngredient): string {
   return [
     ingredient.title,
     ingredient.description,
@@ -258,7 +258,7 @@ function ingredientDescription(ingredient: StorymakerIngredient): string {
     .join(' — ')
 }
 
-function normalizeRestoredSession(value: StorymakerSession): StorymakerSession {
+function normalizeRestoredSession(value: StorybookSession): StorybookSession {
   const bible = {
     ...value.bible,
     rewards: Array.isArray(value.bible?.rewards) ? value.bible.rewards : [],
@@ -279,13 +279,13 @@ function normalizeRestoredSession(value: StorymakerSession): StorymakerSession {
   }
 }
 
-export const useStorymakerStore = defineStore('storymakerStore', () => {
+export const useStorybookStore = defineStore('storybookStore', () => {
   const chatStore = useChatStore()
   const userStore = useUserStore()
   const narrativeArtJobs = useNarrativeArtJobs()
 
-  const setupDraft = ref<StorymakerSetupDraft>(defaultDraft())
-  const session = ref<StorymakerSession | null>(null)
+  const setupDraft = ref<StorybookSetupDraft>(defaultDraft())
+  const session = ref<StorybookSession | null>(null)
   const isWeaving = ref(false)
   const errorMessage = ref('')
 
@@ -334,12 +334,12 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
       if (draftRaw) {
         setupDraft.value = {
           ...defaultDraft(),
-          ...(JSON.parse(draftRaw) as Partial<StorymakerSetupDraft>),
+          ...(JSON.parse(draftRaw) as Partial<StorybookSetupDraft>),
         }
       }
       if (sessionRaw && !session.value) {
         session.value = normalizeRestoredSession(
-          JSON.parse(sessionRaw) as StorymakerSession,
+          JSON.parse(sessionRaw) as StorybookSession,
         )
         resumeNarrativeArtJobs()
       }
@@ -358,13 +358,13 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
   }
 
   function narrativeArtContext(
-    beat: StorymakerBeat,
+    beat: StorybookBeat,
     moment: NarrativeArtMoment,
   ) {
     const active = session.value
     if (!active) return null
     return {
-      product: 'storymaker' as const,
+      product: 'storybook' as const,
       sessionId: active.id,
       beatId: beat.id,
       moment,
@@ -379,7 +379,7 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
   }
 
   function requestBeatArt(
-    beat: StorymakerBeat,
+    beat: StorybookBeat,
     moment: NarrativeArtMoment,
   ): void {
     if (beat.art) return
@@ -413,7 +413,7 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
     persist()
   }
 
-  function buildBible(input: StorymakerStartInput): StorymakerBible {
+  function buildBible(input: StorybookStartInput): StorybookBible {
     return {
       title: input.title?.trim() || derivedTitle(input.premise),
       premise: input.premise.trim(),
@@ -428,7 +428,7 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
     }
   }
 
-  function biblePrompt(bible: StorymakerBible): string {
+  function biblePrompt(bible: StorybookBible): string {
     const parts = [
       `Title: ${bible.title}`,
       `Premise: ${bible.premise}`,
@@ -477,7 +477,7 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
       .join('\n\n')
   }
 
-  function statePrompt(active: StorymakerSession): string {
+  function statePrompt(active: StorybookSession): string {
     const inventory = active.inventory.length
       ? active.inventory.map((item) => item.ingredient.slug).join(', ')
       : 'empty'
@@ -504,8 +504,8 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
 
   function parseGeneratedBeat(
     rawText: string,
-    bible: StorymakerBible,
-  ): { narrative: string; stateDelta: StorymakerStateDelta } {
+    bible: StorybookBible,
+  ): { narrative: string; stateDelta: StorybookStateDelta } {
     const start = rawText.lastIndexOf(STATE_OPEN)
     const end = rawText.lastIndexOf(STATE_CLOSE)
     if (start < 0 || end <= start) {
@@ -538,9 +538,9 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
   }
 
   function applyStateDelta(
-    active: StorymakerSession,
+    active: StorybookSession,
     beatId: string,
-    delta: StorymakerStateDelta,
+    delta: StorybookStateDelta,
   ) {
     const createdAt = nowIso()
     const existingTexts = new Set(
@@ -607,12 +607,12 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
         active.bible,
       )
       if (!parsed.narrative) {
-        errorMessage.value = 'Storymaker went quiet. Try the scene again.'
+        errorMessage.value = 'Storybook went quiet. Try the scene again.'
         return false
       }
 
       const beatId = makeId()
-      const beat: StorymakerBeat = {
+      const beat: StorybookBeat = {
         id: beatId,
         sessionId: active.id,
         narrative: parsed.narrative,
@@ -642,7 +642,7 @@ export const useStorymakerStore = defineStore('storymakerStore', () => {
     }
   }
 
-  async function beginStory(input: StorymakerStartInput): Promise<boolean> {
+  async function beginStory(input: StorybookStartInput): Promise<boolean> {
     if (!input.premise.trim() || isWeaving.value) return false
     const createdAt = nowIso()
     const bible = buildBible(input)

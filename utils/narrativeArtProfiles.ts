@@ -1,11 +1,11 @@
 // /utils/narrativeArtProfiles.ts
 //
-// Storymaker creates stories. Taskmaster uses stories to finish tasks.
+// Storybook creates stories. Taskmaster uses stories to finish tasks.
 // Neither experience asks the user to configure image-generation internals.
 // Product code selects one of these centralized profiles and derives the prompt
 // from narrative state, Facets, characters, locations, and the target surface.
 
-export type NarrativeProduct = 'storymaker' | 'taskmaster'
+export type NarrativeProduct = 'storybook' | 'taskmaster'
 
 export type NarrativeArtMoment =
   | 'opening'
@@ -45,17 +45,17 @@ export const NARRATIVE_ART_PROFILES: Record<
   NarrativeProduct,
   NarrativeArtProfile
 > = {
-  storymaker: {
-    key: 'storymaker-narrative-krea4',
-    product: 'storymaker',
+  storybook: {
+    key: 'storybook-narrative-krea4',
+    product: 'storybook',
     engine: 'krea2',
     steps: 4,
     cfg: 1,
     sampler: 'euler',
     scheduler: 'simple',
     denoise: 1,
-    designer: 'storymaker-auto-director',
-    projectSlug: 'storymaker',
+    designer: 'storybook-auto-director',
+    projectSlug: 'storybook',
     defaultSurface: 'scene-landscape',
     styleDirective:
       'cinematic illustrated-story moment, expressive characters, strong environmental storytelling, polished composition, coherent visual continuity',

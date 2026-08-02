@@ -39,7 +39,7 @@ jobs:
           const fs = require('node:fs')
           const plugin = fs.readFileSync('plugins/narrative-milestone-art.client.ts', 'utf8')
           for (const token of [
-            'selectStorymakerArtMilestone',
+            'selectStorybookArtMilestone',
             'selectTaskmasterArtMilestone',
             'seenStoryBeats',
             'seenTaskBeats',

@@ -130,10 +130,10 @@ function expectNoHorizontalOverflow(): void {
   })
 }
 
-function preloadStorymaker(window: Window): void {
-  window.localStorage.setItem('storymaker-session', JSON.stringify(storyOne))
+function preloadStorybook(window: Window): void {
+  window.localStorage.setItem('storybook-session', JSON.stringify(storyOne))
   window.localStorage.setItem(
-    'storymaker-session-library-v1',
+    'storybook-session-library-v1',
     JSON.stringify([storyOne, storyTwo]),
   )
 }
@@ -155,9 +155,9 @@ function expectAccessibleTranscript(): void {
 
 describe('Narrative accessibility and resume acceptance', () => {
   for (const viewport of viewports) {
-    it(`resumes Storymaker with labeled transcript and response controls on ${viewport.name}`, () => {
+    it(`resumes Storybook with labeled transcript and response controls on ${viewport.name}`, () => {
       cy.viewport(viewport.width, viewport.height)
-      cy.visit('/storymaker', { onBeforeLoad: preloadStorymaker })
+      cy.visit('/storybook', { onBeforeLoad: preloadStorybook })
 
       cy.contains('The lantern pauses before a sealed brass door', {
         timeout: 30_000,
@@ -176,10 +176,10 @@ describe('Narrative accessibility and resume acceptance', () => {
     })
   }
 
-  it('opens a saved Storymaker branch directly from the URL', () => {
+  it('opens a saved Storybook branch directly from the URL', () => {
     cy.viewport(1280, 800)
-    cy.visit('/storymaker?story=story-accessibility-two', {
-      onBeforeLoad: preloadStorymaker,
+    cy.visit('/storybook?story=story-accessibility-two', {
+      onBeforeLoad: preloadStorybook,
     })
 
     cy.contains('At midnight, every brass branch turns toward a single silver pear', {

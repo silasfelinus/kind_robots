@@ -46,7 +46,7 @@ assert.ok(
 assert.ok(
   transcript.includes('visibleStreamingText') &&
     transcript.includes("const marker = '[STORY_STATE]'"),
-  'Accessibility work must retain hidden Storymaker state filtering',
+  'Accessibility work must retain hidden Storybook state filtering',
 )
 
 includesAll(composerPath, [
@@ -96,13 +96,13 @@ includesAll(artStatusPath, [
 ])
 
 includesAll(specPath, [
-  '/storymaker',
-  '/storymaker?story=story-accessibility-two',
+  '/storybook',
+  '/storybook?story=story-accessibility-two',
   '/taskmaster',
   '1440',
   '390',
-  'storymaker-session',
-  'storymaker-session-library-v1',
+  'storybook-session',
+  'storybook-session-library-v1',
   'taskmaster-session',
   'expectAccessibleTranscript',
   'expectNoHorizontalOverflow',

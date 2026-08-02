@@ -1,14 +1,14 @@
-# Storymaker and Taskmaster product boundary
+# Storybook and Taskmaster product boundary
 
 This boundary is intentional and permanent.
 
-## Storymaker
+## Storybook
 
-**Storymaker creates stories.**
+**Storybook creates stories.**
 
-Storymaker is the deluxe creative storytelling studio. It owns imaginative setup, story bibles, narrators, casts, worlds, branching choices, persistent narrative state, inventory and rewards, save/resume, and automatically directed illustrations.
+Storybook is the deluxe creative storytelling studio. It owns imaginative setup, story bibles, narrators, casts, worlds, branching choices, persistent narrative state, inventory and rewards, save/resume, and automatically directed illustrations.
 
-Storymaker must not inherit HONEYDO completion, project-task write-back, needs-human decisions, or practical task checkpoint behavior.
+Storybook must not inherit HONEYDO completion, project-task write-back, needs-human decisions, or practical task checkpoint behavior.
 
 ## Taskmaster
 
@@ -16,7 +16,7 @@ Storymaker must not inherit HONEYDO completion, project-task write-back, needs-h
 
 Taskmaster owns direct objective entry, project and HONEYDO selection, practical checkpoints, narrative framing, blocked/deferred outcomes, explicit progress review, and confirmed write-back.
 
-Taskmaster may reuse narrative presentation primitives, Facet selectors, entity cards, transcript components, and art infrastructure, but its store and state machine remain separate from Storymaker.
+Taskmaster may reuse narrative presentation primitives, Facet selectors, entity cards, transcript components, and art infrastructure, but its store and state machine remain separate from Storybook.
 
 ## Permanent implementation invariants
 
@@ -40,7 +40,7 @@ The application is still in alpha. Temporary development paths are not compatibi
 
 ## Automatic art direction
 
-Neither Storymaker nor Taskmaster asks the user to choose an art engine, model, sampler, scheduler, step count, CFG, denoise value, or dimensions.
+Neither Storybook nor Taskmaster asks the user to choose an art engine, model, sampler, scheduler, step count, CFG, denoise value, or dimensions.
 
 Product code selects a centralized narrative art profile and derives the prompt from:
 

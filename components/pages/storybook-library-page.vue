@@ -1,4 +1,4 @@
-<!-- /components/pages/storymaker-library-page.vue -->
+<!-- /components/pages/storybook-library-page.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden">
     <header
@@ -155,13 +155,13 @@
       >
         <p class="font-bold">No saved stories yet</p>
         <p class="mt-1 text-xs text-base-content/50">
-          Your first Storymaker session will appear here automatically.
+          Your first Storybook session will appear here automatically.
         </p>
       </div>
     </section>
 
     <div class="min-h-0 flex-1 overflow-hidden">
-      <StorymakerPage />
+      <StorybookPage />
     </div>
   </section>
 </template>
@@ -169,11 +169,11 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStorymakerLibrary } from '@/composables/useStorymakerLibrary'
-import { useStorymakerStore } from '@/stores/storymakerStore'
+import { useStorybookLibrary } from '@/composables/useStorybookLibrary'
+import { useStorybookStore } from '@/stores/storybookStore'
 
-const storyStore = useStorymakerStore()
-const library = useStorymakerLibrary()
+const storyStore = useStorybookStore()
+const library = useStorybookLibrary()
 const route = useRoute()
 const router = useRouter()
 

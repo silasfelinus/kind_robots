@@ -14,7 +14,7 @@
   Purely presentational — it owns no store and no fetch, so it drops into a
   narrator stage, a chat bubble, or a scenario editor without dragging state
   along. All colour comes from daisyUI semantic tokens, so it inherits whichever
-  reading mode the surrounding subtree declares (see useStorymakerMode) with no
+  reading mode the surrounding subtree declares (see useStorybookMode) with no
   per-mode branching here.
 -->
 <template>

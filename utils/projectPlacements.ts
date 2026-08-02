@@ -52,10 +52,10 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'model-builder',
     route: '/model-builder',
   },
-  storymaker: {
+  storybook: {
     channelKey: 'play',
-    tabKey: 'storymaker',
-    route: '/storymaker',
+    tabKey: 'storybook',
+    route: '/storybook',
   },
   sketchy: {
     channelKey: 'plan',

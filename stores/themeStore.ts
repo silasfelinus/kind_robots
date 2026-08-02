@@ -44,29 +44,33 @@ type ThemeInitializeOptions = {
   fetchShared?: boolean
 }
 
-// STORYMAKER is the house aesthetic (interface-vision t-002), defined as a
+// STORYBOOK is the house aesthetic (interface-vision t-002), defined as a
 // daisyUI theme in assets/css/tailwind.css. That definition carries
 // `default: true`; this constant is the RUNTIME default and the two must agree,
 // or a user with no stored preference gets daisyUI's fallback while the store
-// reports something else. Was 'retro' — a stock theme that happened to be
-// cream-ish, which is why parts of the app already half-looked right. Now it is
-// deliberate. Theme switching is unaffected: this is the default, not the only
-// option.
-const defaultThemeName = 'storymaker'
+// reports something else. It was 'retro' before t-002 — a stock theme that
+// happened to be cream-ish, which is why parts of the app already half-looked
+// right; now it is deliberate. Theme switching is unaffected: this is the
+// default, not the only option.
+const defaultThemeName = 'storybook'
 
 /**
  * Theme names that were renamed after shipping, mapped to what they are now.
  *
- * `storybook` was live for a few hours on 2026-08-02 before Silas renamed the
- * aesthetic to match what he calls it. Anyone who loaded the site in that
- * window has the old name in localStorage, and without this map they would fail
- * the daisyuiThemes check and get silently reset to the default — losing an
- * explicit choice if they had also picked something else since. Cheap to keep,
- * and the only cost of removing it later is that a handful of stale entries
- * fall back to the default anyway.
+ * The house theme was named twice on 2026-08-02: shipped as `storybook`,
+ * renamed to `storymaker` a few hours later, then settled back on `storybook`
+ * once Silas decided it "makes a better name". Anyone who loaded the site
+ * inside the middle window has `storymaker` in localStorage; without this map
+ * they fail the daisyuiThemes check and get silently reset, losing an explicit
+ * choice if they had picked something else since.
+ *
+ * Only the middle name needs mapping — `storybook` is a valid name again, so it
+ * resolves to itself with no entry. A self-mapping entry would be a no-op that
+ * looks like protection, which is worse than none.
  */
 const RENAMED_THEMES: Record<string, string> = {
-  storybook: 'storymaker',
+  storymaker: 'storybook',
+  'storymaker-dark': 'storybook-dark',
 }
 
 function resolveStoredThemeName(stored: string): string {

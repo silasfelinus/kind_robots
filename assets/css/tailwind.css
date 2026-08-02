@@ -5,18 +5,17 @@
 }
 
 /*
- * ── STORYMAKER — the house aesthetic (interface-vision t-002) ───────────
+ * ── STORYBOOK — the house aesthetic (interface-vision t-002) ───────────
  *
- * Silas, 2026-08-02: "Let's run with Storybook as the design." Then, refining:
- * "the story maker should let the user pick from all three, but I would call
- * them Classic (daisy ui defaults), story maker, and story maker-dark."
+ * Silas, 2026-08-02, settling the name after trying it both ways: "I actually
+ * really like the Storybook theme, and think that it makes a better name than
+ * Storymaker, lets go with Storybook as the name of the route/app."
  *
- * So the warm-paper direction (mockup B, briefly shipped as `storybook`) is
- * both the app-wide default AND the middle of three READING MODES offered on
- * the Storymaker surface. Renamed to match what he calls it. The brief
- * describes it as "a plate tipped into warm paper": light printed ground,
- * generous margins, illustration-forward, serif text that reads as caption to
- * picture.
+ * The warm-paper direction (mockup B) is both the app-wide default AND the
+ * middle of three READING MODES on the Storybook surface — Classic (the
+ * reader's own daisyUI theme), Storybook, Storybook Dark. The brief describes
+ * it as "a plate tipped into warm paper": light printed ground, generous
+ * margins, illustration-forward, serif text that reads as caption to picture.
  *
  * This is a daisyUI THEME rather than a pile of component overrides, and that
  * is the whole leverage. Every .kr-* primitive below is written against the
@@ -26,12 +25,12 @@
  * into these tokens so the palette lives in exactly one place.
  *
  * Theme SWITCHING stays — theme-gallery, the Theme model, and per-user themes
- * are a real feature. Storymaker is the default and the design reference, not
+ * are a real feature. Storybook is the default and the design reference, not
  * the only option. `default: true` sets it as daisyUI's fallback; the runtime
  * default lives in stores/themeStore.ts and must agree.
  */
 @plugin "daisyui/theme" {
-  name: 'storymaker';
+  name: 'storybook';
   default: true;
   prefersdark: false;
   color-scheme: light;
@@ -76,7 +75,7 @@
 }
 
 /*
- * STORYMAKER-DARK — the same story surface after the house lights drop.
+ * STORYBOOK-DARK — the same story surface after the house lights drop.
  *
  * Mockup A ("a lit stage in a dark house") renamed per Silas. Not an inverted
  * palette: the hues are held and the LIGHTNESS is inverted, so terracotta stays
@@ -87,7 +86,7 @@
  * dark, which is the honest default for a reading surface.
  */
 @plugin "daisyui/theme" {
-  name: 'storymaker-dark';
+  name: 'storybook-dark';
   default: false;
   prefersdark: true;
   color-scheme: dark;
@@ -196,7 +195,7 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 
 @layer base {
   /*
-   * Storymaker's type. The mockup set `font-serif` per element; promoting it to
+   * Storybook's type. The mockup set `font-serif` per element; promoting it to
    * the body means prose reads as printed matter everywhere without each
    * component opting in. UI chrome that should stay sans — buttons, inputs,
    * badges, code — is exempted below rather than the other way round, because

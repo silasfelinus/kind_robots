@@ -37,10 +37,7 @@
       "components/wonderlab/wonderlab-preview-host.vue"
     ],
     "no-viewport": [],
-    "one-mdc": [
-      "content/conductor.md",
-      "content/plan/wonderlab.md"
-    ],
+    "one-mdc": [],
     "ghost-prop": [],
     "zero-scroll": [
       "components/pages/conductor-art-gallery.vue",

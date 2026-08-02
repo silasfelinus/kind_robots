@@ -143,12 +143,21 @@ assert.match(healthSource, /entriesBySourceKey/)
 assert.match(healthSource, /entriesBySourcePath/)
 assert.match(healthSource, /canonicalEntry \|\|/)
 
+// Semantic identity assertion, not an exact-mount lock: the layout-contract
+// (interface-vision/t-017, one-mdc rule) forbids a content page from mounting
+// more than one MDC component, so component-registry-health is nested inside
+// lab-manager.vue's own template (gated to the /plan/wonderlab route, since
+// lab-manager is reused by four other content pages that never showed it)
+// rather than mounted a second time directly from the .md file.
 const contentSource = await readFile('content/plan/wonderlab.md', 'utf8')
-assert.match(contentSource, /:component-registry-health/)
 assert.match(contentSource, /:lab-manager/)
-assert.ok(
-  contentSource.indexOf(':component-registry-health') <
-    contentSource.indexOf(':lab-manager'),
+assert.doesNotMatch(contentSource, /:component-registry-health/)
+
+const labManagerSource = await readFile(
+  'components/wonderlab/lab-manager.vue',
+  'utf8',
 )
+assert.match(labManagerSource, /ComponentRegistryHealth/)
+assert.match(labManagerSource, /\/plan\/wonderlab/)
 
 console.log('WonderLab canonical registry health verification passed.')

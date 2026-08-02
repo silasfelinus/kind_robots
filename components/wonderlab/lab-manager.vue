@@ -1,5 +1,7 @@
 <template>
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+    <ComponentRegistryHealth v-if="isWonderlabRoute" class="shrink-0" />
+
     <section
       v-if="activeTab === 'memory-dungeon'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
@@ -50,6 +52,7 @@ import { useRoute } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
 
 import AnimationManager from '@/components/animation/animation-manager.vue'
+import ComponentRegistryHealth from '@/components/wonderlab/component-registry-health.vue'
 import LabInteract from '@/components/wonderlab/lab-interact.vue'
 import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
@@ -87,4 +90,15 @@ const activeTab = computed<LabTab>(() => {
 
   return fallbackTab
 })
+
+/*
+ * component-registry-health is content/plan/wonderlab.md's own museum-page
+ * panel, not a generic lab-manager feature — the other four content pages
+ * that mount :lab-manager (memory, screenfx, animation-manager, button) never
+ * showed it. Gate on the explicit route, not activeTab, so an unmapped page
+ * that happens to fall back to the 'wonder-lab' tab doesn't pick it up too.
+ */
+const isWonderlabRoute = computed(
+  () => route.path.replace(/\/+$/, '') === '/plan/wonderlab',
+)
 </script>

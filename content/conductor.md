@@ -17,5 +17,3 @@ refreshLabel: Refresh Plan
 ---
 
 :conductor-manager
-
-:plan-projects-grid

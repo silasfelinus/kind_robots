@@ -33,7 +33,25 @@ export const DATA_SURFACES: DataSurfaceEntry[] = [
     id: 'honeydo-inbox',
     label: 'Global honeydo queue',
     dataSource: 'stores/todoStore.ts: todoStore.honeyDoTodos',
-    navEntry: { channelKey: 'home', tabKey: 'for-you' },
+    // Silas, 2026-08-02: "we have a just for you section in home that ostensibly
+    // is for ai deliverables? I don't know, it never has anything, just delete it
+    // unless it has a particular need [...] but if so, it should be completely
+    // hidden if it's not used."
+    //
+    // It never has anything because NOTHING EVER WRITES A HONEYDO TODO. The
+    // consumer half is real -- taskmasterStore.ts builds checkpoints from
+    // honeyDoTodos, and conductor-page.vue has a HONEYDO tab -- but the producer
+    // was never built: conductor's agents write `category: "AGENT"`
+    // (scripts/ci_janitor.py, scripts/new_app.py), and the only way a HONEYDO
+    // exists at all is a human picking it from conductor-page's dropdown. So the
+    // page's promise, "action items your AI assigned to you", has never been true.
+    //
+    // The /for-you route and this surface stay (deep-linkable, and honeydo keeps
+    // a home the moment a producer exists); the nav TAB is gone, which is the
+    // "completely hidden if it's not used" half of the instruction. Wire navEntry
+    // back the moment something writes a HONEYDO.
+    navEntry: null,
+    acknowledgedGap: 'interface-vision/t-056',
   },
   {
     id: 'video-generator',

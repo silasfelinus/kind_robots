@@ -1,162 +1,162 @@
 <!-- /pages/admin/wonderlab-reviews.vue -->
 <template>
-  <main
-    class="mx-auto h-full min-h-0 max-w-7xl space-y-4 overflow-y-auto overscroll-contain p-4 md:p-6"
-  >
-    <header class="rounded-3xl border border-base-300 bg-base-100 p-5">
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-black uppercase tracking-widest text-primary">
-            WonderLab Editorial
-          </p>
-          <p class="mt-2 text-3xl font-black">Personality review drafts</p>
-          <p class="mt-2 text-sm text-base-content/60">
-            Nothing on this page publishes automatically. Approval and publication are
-            separate curator actions.
-          </p>
-        </div>
-        <div class="flex gap-2">
-          <NuxtLink to="/plan/wonderlab" class="btn btn-outline btn-sm">WonderLab</NuxtLink>
-          <button class="btn btn-primary btn-sm" :disabled="loading" @click="loadDrafts">
-            <span v-if="loading" class="loading loading-spinner loading-xs" />
-            Refresh
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <div v-if="!ready" class="grid min-h-52 place-items-center rounded-3xl bg-base-100">
-      <span class="loading loading-spinner loading-lg text-primary" />
-    </div>
-
-    <div v-else-if="!userStore.isAdmin" class="rounded-3xl border border-error/40 bg-error/10 p-8 text-center">
-      <h2 class="text-xl font-black">Administrator access required</h2>
-      <p class="mt-2 text-sm">The server independently protects every editorial API.</p>
-    </div>
-
-    <template v-else>
-      <section class="grid gap-4 xl:grid-cols-[1fr_360px]">
-        <div class="rounded-3xl border border-base-300 bg-base-100 p-4">
-          <div class="grid gap-3 sm:grid-cols-3">
-            <label class="form-control">
-              <span class="label-text text-xs font-bold">Status</span>
-              <select v-model="statusFilter" class="select select-bordered select-sm mt-1">
-                <option value="">All statuses</option>
-                <option v-for="status in statuses" :key="status" :value="status">
-                  {{ label(status) }}
-                </option>
-              </select>
-            </label>
-            <label class="form-control">
-              <span class="label-text text-xs font-bold">Component ID</span>
-              <input v-model="componentFilter" type="number" min="1" class="input input-bordered input-sm mt-1" />
-            </label>
-            <label class="form-control">
-              <span class="label-text text-xs font-bold">Search loaded drafts</span>
-              <input v-model="search" type="search" class="input input-bordered input-sm mt-1" />
-            </label>
+  <main class="kr-surface mx-auto max-w-7xl">
+    <div class="kr-scroll space-y-4 p-4 md:p-6">
+      <header class="rounded-3xl border border-base-300 bg-base-100 p-5">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-widest text-primary">
+              WonderLab Editorial
+            </p>
+            <p class="mt-2 text-3xl font-black">Personality review drafts</p>
+            <p class="mt-2 text-sm text-base-content/60">
+              Nothing on this page publishes automatically. Approval and publication are
+              separate curator actions.
+            </p>
           </div>
-          <p class="mt-3 text-sm text-base-content/55">
-            {{ filteredDrafts.length }} of {{ drafts.length }} drafts
-          </p>
+          <div class="flex gap-2">
+            <NuxtLink to="/plan/wonderlab" class="btn btn-outline btn-sm">WonderLab</NuxtLink>
+            <button class="btn btn-primary btn-sm" :disabled="loading" @click="loadDrafts">
+              <span v-if="loading" class="loading loading-spinner loading-xs" />
+              Refresh
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div v-if="!ready" class="grid min-h-52 place-items-center rounded-3xl bg-base-100">
+        <span class="loading loading-spinner loading-lg text-primary" />
+      </div>
+
+      <div v-else-if="!userStore.isAdmin" class="rounded-3xl border border-error/40 bg-error/10 p-8 text-center">
+        <h2 class="text-xl font-black">Administrator access required</h2>
+        <p class="mt-2 text-sm">The server independently protects every editorial API.</p>
+      </div>
+
+      <template v-else>
+        <section class="grid gap-4 xl:grid-cols-[1fr_360px]">
+          <div class="rounded-3xl border border-base-300 bg-base-100 p-4">
+            <div class="grid gap-3 sm:grid-cols-3">
+              <label class="form-control">
+                <span class="label-text text-xs font-bold">Status</span>
+                <select v-model="statusFilter" class="select select-bordered select-sm mt-1">
+                  <option value="">All statuses</option>
+                  <option v-for="status in statuses" :key="status" :value="status">
+                    {{ label(status) }}
+                  </option>
+                </select>
+              </label>
+              <label class="form-control">
+                <span class="label-text text-xs font-bold">Component ID</span>
+                <input v-model="componentFilter" type="number" min="1" class="input input-bordered input-sm mt-1" />
+              </label>
+              <label class="form-control">
+                <span class="label-text text-xs font-bold">Search loaded drafts</span>
+                <input v-model="search" type="search" class="input input-bordered input-sm mt-1" />
+              </label>
+            </div>
+            <p class="mt-3 text-sm text-base-content/55">
+              {{ filteredDrafts.length }} of {{ drafts.length }} drafts
+            </p>
+          </div>
+
+          <details class="rounded-3xl border border-base-300 bg-base-100 p-4">
+            <summary class="cursor-pointer font-black">Create a curator-written draft</summary>
+            <form class="mt-4 grid gap-3" @submit.prevent="createDraft">
+              <div class="grid grid-cols-2 gap-2">
+                <input v-model="createForm.componentId" required type="number" min="1" class="input input-bordered input-sm" placeholder="Component ID" />
+                <select v-model="createForm.authorKind" class="select select-bordered select-sm">
+                  <option value="BOT">Bot</option>
+                  <option value="CHARACTER">Character</option>
+                </select>
+              </div>
+              <input v-model="createForm.authorId" required type="number" min="1" class="input input-bordered input-sm" placeholder="Reviewer ID" />
+              <textarea v-model="createForm.comment" required maxlength="20000" rows="4" class="textarea textarea-bordered" placeholder="Reviewer-specific museum commentary" />
+              <div class="grid grid-cols-2 gap-2">
+                <select v-model.number="createForm.rating" class="select select-bordered select-sm">
+                  <option v-for="rating in ratings" :key="rating" :value="rating">{{ rating }} stars</option>
+                </select>
+                <select v-model="createForm.reactionType" class="select select-bordered select-sm">
+                  <option value="">Automatic reaction</option>
+                  <option v-for="reaction in reactions" :key="reaction" :value="reaction">{{ reaction }}</option>
+                </select>
+              </div>
+              <button class="btn btn-secondary btn-sm" :disabled="creating">
+                <span v-if="creating" class="loading loading-spinner loading-xs" />
+                Create proposed draft
+              </button>
+            </form>
+          </details>
+        </section>
+
+        <p v-if="notice" class="rounded-2xl border p-3 text-sm" :class="noticeError ? 'border-error/40 bg-error/10 text-error' : 'border-success/40 bg-success/10 text-success'">
+          {{ notice }}
+        </p>
+
+        <div v-if="loading && !drafts.length" class="grid gap-4 md:grid-cols-2">
+          <div v-for="n in 4" :key="n" class="h-72 animate-pulse rounded-3xl bg-base-200" />
         </div>
 
-        <details class="rounded-3xl border border-base-300 bg-base-100 p-4">
-          <summary class="cursor-pointer font-black">Create a curator-written draft</summary>
-          <form class="mt-4 grid gap-3" @submit.prevent="createDraft">
-            <div class="grid grid-cols-2 gap-2">
-              <input v-model="createForm.componentId" required type="number" min="1" class="input input-bordered input-sm" placeholder="Component ID" />
-              <select v-model="createForm.authorKind" class="select select-bordered select-sm">
-                <option value="BOT">Bot</option>
-                <option value="CHARACTER">Character</option>
-              </select>
-            </div>
-            <input v-model="createForm.authorId" required type="number" min="1" class="input input-bordered input-sm" placeholder="Reviewer ID" />
-            <textarea v-model="createForm.comment" required maxlength="20000" rows="4" class="textarea textarea-bordered" placeholder="Reviewer-specific museum commentary" />
-            <div class="grid grid-cols-2 gap-2">
-              <select v-model.number="createForm.rating" class="select select-bordered select-sm">
+        <div v-else-if="!filteredDrafts.length" class="rounded-3xl border border-dashed border-base-300 bg-base-100 p-10 text-center">
+          <h2 class="text-xl font-black">No matching drafts</h2>
+        </div>
+
+        <section v-else class="grid gap-4 lg:grid-cols-2">
+          <article v-for="draft in filteredDrafts" :key="draft.id" class="rounded-3xl border border-base-300 bg-base-100 p-4">
+            <header class="flex items-start gap-3">
+              <div class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl bg-primary/10">
+                <img v-if="draft.author.avatarImage" :src="imagePath(draft.author.avatarImage)" :alt="draft.author.name" class="size-full object-cover" />
+                <Icon v-else name="kind-icon:sparkles" class="size-5 text-primary" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap justify-between gap-2">
+                  <div>
+                    <h2 class="font-black">{{ draft.author.name }}</h2>
+                    <p class="text-sm text-base-content/60">
+                      {{ draft.componentTitle || draft.componentName }} · #{{ draft.componentId }}
+                    </p>
+                  </div>
+                  <span class="badge" :class="statusClass(draft.status)">{{ label(draft.status) }}</span>
+                </div>
+                <p class="mt-1 text-xs text-base-content/50">
+                  {{ draft.author.kind }} · {{ draft.author.role }} · Draft #{{ draft.id }}
+                  <span v-if="draft.publishedReactionId"> · Reaction #{{ draft.publishedReactionId }}</span>
+                </p>
+              </div>
+            </header>
+
+            <textarea v-model="editor(draft).comment" rows="7" maxlength="20000" class="textarea textarea-bordered mt-4 w-full" :disabled="terminal(draft.status)" />
+
+            <details class="mt-3 rounded-2xl bg-base-200/60 p-3">
+              <summary class="cursor-pointer text-xs font-black uppercase">Original and provenance</summary>
+              <p class="mt-3 whitespace-pre-wrap text-sm">{{ draft.generatedComment }}</p>
+              <p class="mt-3 text-xs text-base-content/55">
+                {{ draft.promptVersion }} · {{ draft.generationProvider || 'Manual' }} ·
+                {{ draft.generationModel || 'Curator' }}
+              </p>
+            </details>
+
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <select v-model.number="editor(draft).rating" class="select select-bordered select-sm" :disabled="terminal(draft.status)">
                 <option v-for="rating in ratings" :key="rating" :value="rating">{{ rating }} stars</option>
               </select>
-              <select v-model="createForm.reactionType" class="select select-bordered select-sm">
+              <select v-model="editor(draft).reactionType" class="select select-bordered select-sm" :disabled="terminal(draft.status)">
                 <option value="">Automatic reaction</option>
                 <option v-for="reaction in reactions" :key="reaction" :value="reaction">{{ reaction }}</option>
               </select>
             </div>
-            <button class="btn btn-secondary btn-sm" :disabled="creating">
-              <span v-if="creating" class="loading loading-spinner loading-xs" />
-              Create proposed draft
-            </button>
-          </form>
-        </details>
-      </section>
 
-      <p v-if="notice" class="rounded-2xl border p-3 text-sm" :class="noticeError ? 'border-error/40 bg-error/10 text-error' : 'border-success/40 bg-success/10 text-success'">
-        {{ notice }}
-      </p>
-
-      <div v-if="loading && !drafts.length" class="grid gap-4 md:grid-cols-2">
-        <div v-for="n in 4" :key="n" class="h-72 animate-pulse rounded-3xl bg-base-200" />
-      </div>
-
-      <div v-else-if="!filteredDrafts.length" class="rounded-3xl border border-dashed border-base-300 bg-base-100 p-10 text-center">
-        <h2 class="text-xl font-black">No matching drafts</h2>
-      </div>
-
-      <section v-else class="grid gap-4 lg:grid-cols-2">
-        <article v-for="draft in filteredDrafts" :key="draft.id" class="rounded-3xl border border-base-300 bg-base-100 p-4">
-          <header class="flex items-start gap-3">
-            <div class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl bg-primary/10">
-              <img v-if="draft.author.avatarImage" :src="imagePath(draft.author.avatarImage)" :alt="draft.author.name" class="size-full object-cover" />
-              <Icon v-else name="kind-icon:sparkles" class="size-5 text-primary" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap justify-between gap-2">
-                <div>
-                  <h2 class="font-black">{{ draft.author.name }}</h2>
-                  <p class="text-sm text-base-content/60">
-                    {{ draft.componentTitle || draft.componentName }} · #{{ draft.componentId }}
-                  </p>
-                </div>
-                <span class="badge" :class="statusClass(draft.status)">{{ label(draft.status) }}</span>
-              </div>
-              <p class="mt-1 text-xs text-base-content/50">
-                {{ draft.author.kind }} · {{ draft.author.role }} · Draft #{{ draft.id }}
-                <span v-if="draft.publishedReactionId"> · Reaction #{{ draft.publishedReactionId }}</span>
-              </p>
-            </div>
-          </header>
-
-          <textarea v-model="editor(draft).comment" rows="7" maxlength="20000" class="textarea textarea-bordered mt-4 w-full" :disabled="terminal(draft.status)" />
-
-          <details class="mt-3 rounded-2xl bg-base-200/60 p-3">
-            <summary class="cursor-pointer text-xs font-black uppercase">Original and provenance</summary>
-            <p class="mt-3 whitespace-pre-wrap text-sm">{{ draft.generatedComment }}</p>
-            <p class="mt-3 text-xs text-base-content/55">
-              {{ draft.promptVersion }} · {{ draft.generationProvider || 'Manual' }} ·
-              {{ draft.generationModel || 'Curator' }}
-            </p>
-          </details>
-
-          <div class="mt-3 grid grid-cols-2 gap-2">
-            <select v-model.number="editor(draft).rating" class="select select-bordered select-sm" :disabled="terminal(draft.status)">
-              <option v-for="rating in ratings" :key="rating" :value="rating">{{ rating }} stars</option>
-            </select>
-            <select v-model="editor(draft).reactionType" class="select select-bordered select-sm" :disabled="terminal(draft.status)">
-              <option value="">Automatic reaction</option>
-              <option v-for="reaction in reactions" :key="reaction" :value="reaction">{{ reaction }}</option>
-            </select>
-          </div>
-
-          <footer class="mt-4 flex flex-wrap gap-2 border-t border-base-300 pt-4">
-            <button v-if="!terminal(draft.status)" class="btn btn-outline btn-sm" :disabled="busy(draft.id)" @click="save(draft)">Save</button>
-            <button v-if="['PROPOSED', 'REJECTED', 'FAILED'].includes(draft.status)" class="btn btn-success btn-sm" :disabled="busy(draft.id)" @click="approve(draft)">Approve</button>
-            <button v-if="['PROPOSED', 'APPROVED', 'FAILED'].includes(draft.status)" class="btn btn-error btn-outline btn-sm" :disabled="busy(draft.id)" @click="changeStatus(draft, 'REJECTED')">Reject</button>
-            <button v-if="['REJECTED', 'FAILED', 'APPROVED'].includes(draft.status)" class="btn btn-warning btn-outline btn-sm" :disabled="busy(draft.id)" @click="changeStatus(draft, 'PROPOSED')">Reopen</button>
-            <button v-if="draft.status === 'APPROVED'" class="btn btn-primary btn-sm" :disabled="busy(draft.id)" @click="publishDraft(draft)">Publish approved review</button>
-          </footer>
-        </article>
-      </section>
-    </template>
+            <footer class="mt-4 flex flex-wrap gap-2 border-t border-base-300 pt-4">
+              <button v-if="!terminal(draft.status)" class="btn btn-outline btn-sm" :disabled="busy(draft.id)" @click="save(draft)">Save</button>
+              <button v-if="['PROPOSED', 'REJECTED', 'FAILED'].includes(draft.status)" class="btn btn-success btn-sm" :disabled="busy(draft.id)" @click="approve(draft)">Approve</button>
+              <button v-if="['PROPOSED', 'APPROVED', 'FAILED'].includes(draft.status)" class="btn btn-error btn-outline btn-sm" :disabled="busy(draft.id)" @click="changeStatus(draft, 'REJECTED')">Reject</button>
+              <button v-if="['REJECTED', 'FAILED', 'APPROVED'].includes(draft.status)" class="btn btn-warning btn-outline btn-sm" :disabled="busy(draft.id)" @click="changeStatus(draft, 'PROPOSED')">Reopen</button>
+              <button v-if="draft.status === 'APPROVED'" class="btn btn-primary btn-sm" :disabled="busy(draft.id)" @click="publishDraft(draft)">Publish approved review</button>
+            </footer>
+          </article>
+        </section>
+      </template>
+    </div>
   </main>
 </template>
 

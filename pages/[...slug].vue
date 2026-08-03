@@ -1,57 +1,59 @@
 <template>
-  <LoginPage v-if="isLoginPath" />
+  <div class="kr-unbound h-full min-h-0">
+    <LoginPage v-if="isLoginPath" />
 
-  <!-- A redirecting page must not paint its own body first; the prose in a
-       legacy stub is a description of the redirect, not content. -->
-  <div
-    v-else-if="activePage?.body && !redirectTarget"
-    class="content-host flex h-full min-h-0 w-full flex-col overflow-y-auto overscroll-contain rounded-2xl"
-  >
-    <ContentRenderer :value="activePage" />
+    <!-- A redirecting page must not paint its own body first; the prose in a
+         legacy stub is a description of the redirect, not content. -->
+    <div
+      v-else-if="activePage?.body && !redirectTarget"
+      class="content-host flex h-full min-h-0 w-full flex-col overflow-y-auto overscroll-contain rounded-2xl"
+    >
+      <ContentRenderer :value="activePage" />
+    </div>
+
+    <div
+      v-else-if="isPageLoading"
+      class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
+    >
+      <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
+
+      <p class="text-base font-bold text-info">Loading page…</p>
+
+      <p class="max-w-xl text-sm text-base-content/60">
+        Looking for {{ contentPath }}
+      </p>
+    </div>
+
+    <div
+      v-else-if="error"
+      class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-error/40 bg-error/5 p-6 text-center"
+    >
+      <Icon name="kind-icon:alert" class="h-10 w-10 text-error" />
+
+      <p class="text-base font-bold text-error">Content query failed</p>
+
+      <p class="max-w-xl text-sm text-base-content/70">
+        Nuxt Content could not load {{ contentPath }}.
+      </p>
+    </div>
+
+    <div
+      v-else
+      class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
+    >
+      <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
+
+      <p class="text-base font-bold text-warning">Page not found</p>
+
+      <p class="max-w-xl text-sm text-base-content/60">
+        No Nuxt Content page was found for {{ contentPath }}.
+      </p>
+    </div>
+
+    <ClientOnly>
+      <error-popup />
+    </ClientOnly>
   </div>
-
-  <div
-    v-else-if="isPageLoading"
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
-  >
-    <Icon name="kind-icon:spinner" class="h-10 w-10 animate-spin text-info" />
-
-    <p class="text-base font-bold text-info">Loading page…</p>
-
-    <p class="max-w-xl text-sm text-base-content/60">
-      Looking for {{ contentPath }}
-    </p>
-  </div>
-
-  <div
-    v-else-if="error"
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-error/40 bg-error/5 p-6 text-center"
-  >
-    <Icon name="kind-icon:alert" class="h-10 w-10 text-error" />
-
-    <p class="text-base font-bold text-error">Content query failed</p>
-
-    <p class="max-w-xl text-sm text-base-content/70">
-      Nuxt Content could not load {{ contentPath }}.
-    </p>
-  </div>
-
-  <div
-    v-else
-    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
-  >
-    <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
-
-    <p class="text-base font-bold text-warning">Page not found</p>
-
-    <p class="max-w-xl text-sm text-base-content/60">
-      No Nuxt Content page was found for {{ contentPath }}.
-    </p>
-  </div>
-
-  <ClientOnly>
-    <error-popup />
-  </ClientOnly>
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,6 @@
 <!-- /components/pages/storybook-library-page.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden">
+  <section class="kr-surface">
     <header
       class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
     >

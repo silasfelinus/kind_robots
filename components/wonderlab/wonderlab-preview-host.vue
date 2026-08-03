@@ -83,80 +83,87 @@
       </div>
     </header>
 
-    <div
-      v-if="fixture?.skipReason"
-      class="mt-3 rounded-2xl border border-info/30 bg-info/10 p-4"
-    >
-      <div class="flex items-start gap-3">
-        <Icon name="kind-icon:info" class="mt-0.5 size-5 shrink-0 text-info" />
-        <div>
-          <p class="font-black text-info-content">Context fixture required</p>
-          <p class="mt-1 text-sm leading-relaxed text-base-content/70">
-            {{ fixture.skipReason }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-else-if="previewNotFound"
-      class="mt-3 rounded-2xl border border-dashed border-warning/40 bg-warning/5 p-5 text-center"
-    >
-      <Icon name="kind-icon:search" class="mx-auto size-8 text-warning" />
-      <p class="mt-2 font-black">Component source not found</p>
-      <p class="mt-1 text-sm text-base-content/60">
-        The manifest or database path may be stale. No database record was
-        changed.
-      </p>
-    </div>
-
-    <div
-      v-else-if="previewError"
-      class="mt-3 rounded-2xl border border-error/40 bg-error/5 p-4"
-    >
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <p class="font-black text-error">Preview error contained</p>
-          <pre
-            class="mt-2 max-h-48 overflow-auto whitespace-pre-wrap text-xs text-error/80"
-          >{{ previewError }}</pre>
-        </div>
-
-        <button
-          type="button"
-          class="btn btn-error btn-outline btn-xs shrink-0 rounded-xl"
-          @click="resetPreview"
-        >
-          Retry
-        </button>
-      </div>
-    </div>
-
-    <div
-      v-else
-      class="mt-3 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-4 shadow-inner"
-    >
+    <div class="mt-3 overflow-auto">
       <div
-        class="mx-auto w-full transition-[max-width] duration-200"
-        :class="viewportClass"
-        :style="previewStyle"
+        v-if="fixture?.skipReason"
+        class="rounded-2xl border border-info/30 bg-info/10 p-4"
       >
-        <Suspense v-if="dynamicComponent">
-          <component
-            :is="dynamicComponent"
-            :key="renderKey"
-            v-bind="fixture?.props || {}"
+        <div class="flex items-start gap-3">
+          <Icon
+            name="kind-icon:info"
+            class="mt-0.5 size-5 shrink-0 text-info"
           />
+          <div>
+            <p class="font-black text-info-content">Context fixture required</p>
+            <p class="mt-1 text-sm leading-relaxed text-base-content/70">
+              {{ fixture.skipReason }}
+            </p>
+          </div>
+        </div>
+      </div>
 
-          <template #fallback>
-            <div class="flex min-h-40 items-center justify-center">
-              <span class="loading loading-spinner loading-md text-primary" />
-            </div>
-          </template>
-        </Suspense>
+      <div
+        v-else-if="previewNotFound"
+        class="rounded-2xl border border-dashed border-warning/40 bg-warning/5 p-5 text-center"
+      >
+        <Icon name="kind-icon:search" class="mx-auto size-8 text-warning" />
+        <p class="mt-2 font-black">Component source not found</p>
+        <p class="mt-1 text-sm text-base-content/60">
+          The manifest or database path may be stale. No database record was
+          changed.
+        </p>
+      </div>
 
-        <div v-else class="flex min-h-40 items-center justify-center">
-          <span class="loading loading-spinner loading-md text-primary" />
+      <div
+        v-else-if="previewError"
+        class="rounded-2xl border border-error/40 bg-error/5 p-4"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-black text-error">Preview error contained</p>
+            <pre
+              class="mt-2 whitespace-pre-wrap text-xs text-error/80"
+            >{{ previewError }}</pre>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-error btn-outline btn-xs shrink-0 rounded-xl"
+            @click="resetPreview"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-inner"
+      >
+        <div
+          class="mx-auto w-full transition-[max-width] duration-200"
+          :class="viewportClass"
+          :style="previewStyle"
+        >
+          <Suspense v-if="dynamicComponent">
+            <component
+              :is="dynamicComponent"
+              :key="renderKey"
+              v-bind="fixture?.props || {}"
+            />
+
+            <template #fallback>
+              <div class="flex min-h-40 items-center justify-center">
+                <span
+                  class="loading loading-spinner loading-md text-primary"
+                />
+              </div>
+            </template>
+          </Suspense>
+
+          <div v-else class="flex min-h-40 items-center justify-center">
+            <span class="loading loading-spinner loading-md text-primary" />
+          </div>
         </div>
       </div>
     </div>

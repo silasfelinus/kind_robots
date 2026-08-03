@@ -27,8 +27,7 @@
       "components/user/messenger.vue",
       "components/user/user-galleries.vue",
       "components/wonderlab/lab-interact.vue",
-      "components/wonderlab/mural-manager.vue",
-      "components/wonderlab/wonderlab-preview-host.vue"
+      "components/wonderlab/mural-manager.vue"
     ],
     "no-viewport": [],
     "one-mdc": [],

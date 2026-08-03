@@ -62,12 +62,29 @@ export const GALLERY_MODES: readonly GalleryModeOption[] = [
 export const IS_GALLERY_MODE = (value: string): value is GalleryMode =>
   GALLERY_MODES.some((mode) => mode.value === value)
 
-/** The variant a given mode should ask kr-art-plate to load. */
+/**
+ * Which stored art a given mode should load. `list` takes hero art because its
+ * row is a wide 12rem-art strip, not a portrait card — this mirrors kr-gallery,
+ * which is the proven implementation and the authority here.
+ */
 export const MODE_VARIANT: Record<GalleryMode, ArtVariant> = {
   cards: 'card',
   heroes: 'hero',
   icons: 'icon',
-  list: 'card',
+  list: 'hero',
+}
+
+/**
+ * The grid/stack each mode lays its items out in. Lifted verbatim from
+ * kr-gallery so a gallery that cannot yet adopt the whole shell still lays out
+ * identically to one that has. `list` is a VERTICAL stack — a horizontal
+ * scrolling strip is a different thing entirely and is never a mode.
+ */
+export const MODE_GRID_CLASS: Record<GalleryMode, string> = {
+  cards: 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  heroes: 'grid gap-4 lg:grid-cols-2',
+  icons: 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5',
+  list: 'flex flex-col gap-2',
 }
 
 /**

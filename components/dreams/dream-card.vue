@@ -17,13 +17,16 @@
     reaction-category="DREAM"
     :target-title="dreamTitle"
     :earned-karma="earnedKarma"
-    :card-class="['h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl', cardClass]"
+    :card-class="[
+      'h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl',
+      cardClass,
+    ]"
     @select="emit('choose', dream)"
   >
     <figure
       v-if="showImage"
-      class="relative h-full min-h-64 w-full overflow-hidden bg-base-300"
-      :class="compact ? 'aspect-video' : 'aspect-4/5'"
+      class="relative w-full overflow-hidden bg-base-300"
+      :class="figureClass"
     >
       <img
         v-if="previewImage"
@@ -161,6 +164,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { DreamWithRelations } from '@/stores/dreamStore'
+import type { ArtVariant } from '@/utils/galleryVocabulary'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
@@ -179,6 +183,13 @@ const props = withDefaults(
     allowEdit?: boolean
     allowDelete?: boolean
     imageFit?: 'cover' | 'contain'
+    /**
+     * Which stored art to show, and at what aspect — the shared card/hero/icon
+     * vocabulary (utils/galleryVocabulary.ts). This is what makes the gallery's
+     * Cards/Heroes/Icons toggle mean something; without it every mode rendered
+     * an identical portrait poster.
+     */
+    variant?: ArtVariant
     /** Total karma this Dream has earned from reactions (see
      *  server/api/economy/karma-earned.post.ts). Omit/undefined renders no
      *  badge — see components/wonderlab/reactable-card.vue. */
@@ -197,6 +208,7 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: false,
     imageFit: 'cover',
+    variant: 'card',
     earnedKarma: undefined,
   },
 )
@@ -265,8 +277,7 @@ const collectionStoreArt = computed<Partial<ArtImage>[]>(() => {
   for (const collectionId of dreamCollectionIds.value) {
     const images =
       (collectionStore.getCollectionImages?.(collectionId) as
-        | Partial<ArtImage>[]
-        | undefined) ?? []
+        Partial<ArtImage>[] | undefined) ?? []
     for (const image of images) {
       if (image?.id) seen.set(image.id, image)
     }
@@ -311,13 +322,41 @@ const primaryArt = computed<Partial<ArtImage> | null>(() => {
   return null
 })
 
+/**
+ * The variant's own stored path first, then the generic ones. Half the Dreams
+ * have no cardPath at all, so the chain past the first entry is the common
+ * case rather than the exception — a mode must still render something when its
+ * dedicated art was never generated.
+ *
+ * There is deliberately no `icon` branch: unlike Bot, Character, Reward and
+ * Scenario, the Dream model never got an `iconPath` column (`icon` on Dream is
+ * a name, not a path — see the split in #1258). Icons mode therefore shows
+ * card art cropped square, which is why it is a real mode rather than a broken
+ * one. Giving Dream an iconPath is a schema change, tracked separately.
+ */
 const explicitDreamImagePath = computed(() => {
+  const variantPath =
+    props.variant === 'hero' ? props.dream.heroPath : props.dream.cardPath
+
   return (
+    normalizeImagePath(variantPath) ||
     normalizeImagePath(props.dream.cardPath) ||
     normalizeImagePath(props.dream.imagePath) ||
     normalizeImagePath(props.dream.highlightImage) ||
     ''
   )
+})
+
+/**
+ * Aspect per variant, matching kr-gallery's imageWrapClass so a Dream in
+ * Heroes mode is the same shape as a Project in Heroes mode. `compact` is the
+ * embedded-strip case and keeps its own 16:9 regardless.
+ */
+const figureClass = computed(() => {
+  if (props.compact) return 'aspect-video h-full min-h-64'
+  if (props.variant === 'hero') return 'aspect-video h-full min-h-64'
+  if (props.variant === 'icon') return 'aspect-square h-full'
+  return 'aspect-4/5 h-full min-h-64'
 })
 
 const fallbackCollectionArt = computed<Partial<ArtImage> | null>(() => {

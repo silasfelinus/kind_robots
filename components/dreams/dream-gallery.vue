@@ -9,10 +9,14 @@
     >
       <!-- Wraps, rather than scrolling sideways. This row used to be
            `overflow-x-auto whitespace-nowrap` with shrink-0 controls, so on a
-           tablet the layout picker (Grid/Row/Reel/Hero/Swipe) sat off the right
-           edge behind a scrollbar nobody found -- Silas reviewed /dreams and
-           reported the view control as "cut off on the right side" without
-           knowing the modes existed. A hidden control is a missing control. -->
+           tablet the view picker sat off the right edge behind a scrollbar
+           nobody found -- Silas reviewed /dreams and reported the control as
+           "cut off on the right side" without knowing the modes existed. A
+           hidden control is a missing control.
+
+           The picker is a button group rather than a <select> for the same
+           reason: a dropdown hides every option but one, and the four views
+           are the point. -->
       <div class="kr-toolbar min-w-0">
         <div
           v-if="showHeader"
@@ -64,16 +68,25 @@
           </option>
         </select>
 
-        <select
+        <div
           v-if="showControls"
-          v-model="galleryMode"
-          class="select select-bordered select-sm h-9 w-28 shrink-0 rounded-2xl bg-base-200"
-          aria-label="Dream gallery layout"
+          class="flex shrink-0 gap-0.5"
+          role="group"
+          aria-label="Dream gallery view"
         >
-          <option v-for="mode in modeOptions" :key="mode.value" :value="mode.value">
+          <button
+            v-for="mode in modeOptions"
+            :key="mode.value"
+            type="button"
+            class="btn btn-sm h-9 rounded-2xl px-3"
+            :class="galleryMode === mode.value ? 'btn-primary' : 'btn-ghost'"
+            :title="mode.label"
+            :aria-pressed="galleryMode === mode.value"
+            @click="galleryMode = mode.value"
+          >
             {{ mode.label }}
-          </option>
-        </select>
+          </button>
+        </div>
 
         <button
           v-if="showControls"
@@ -338,6 +351,7 @@
             :selected="dreamStore.selectedDream?.id === dream.id"
             :is-selected="dreamStore.selectedDream?.id === dream.id"
             :compact="isCompact"
+            :variant="modeVariant"
             :show-image="showImages"
             :show-actions="showCardActions"
             :show-description="showDescriptions"
@@ -355,7 +369,6 @@
             @delete="handleDreamDeleted"
           />
         </div>
-
       </div>
     </section>
   </section>
@@ -369,7 +382,12 @@ import type {
   Reward,
   Scenario,
 } from '~/prisma/generated/prisma/client'
-import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
+import {
+  GALLERY_MODES,
+  MODE_GRID_CLASS,
+  MODE_VARIANT,
+  type GalleryMode,
+} from '@/utils/galleryVocabulary'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
@@ -462,21 +480,13 @@ const searchQuery = ref('')
 const showMineOnly = ref(false)
 const showArchived = ref(false)
 const isLoading = ref(false)
-const galleryMode = ref<GalleryMode>(props.variant === 'row' ? 'list' : 'cards')
+const galleryMode = ref<GalleryMode>('cards')
 
-/**
- * Dreams offers only the two modes it can currently honour. `heroes` and
- * `icons` are held back because dream-card takes no variant/shape prop yet and
- * would render them identically to `cards` — a label that lies about what it
- * does, which is the whole reason this vocabulary was consolidated. When
- * dream-card moves onto kr-entity-card-body it inherits variant support, and
- * this filter is what gets deleted to expand the control to all four.
- */
-const modeOptions = computed(() =>
-  GALLERY_MODES.filter(
-    (mode) => mode.value === 'cards' || mode.value === 'list',
-  ),
-)
+/** All four. dream-card honours each via its `variant` prop. */
+const modeOptions = GALLERY_MODES
+
+/** Which stored art the current mode asks dream-card for. */
+const modeVariant = computed(() => MODE_VARIANT[galleryMode.value])
 const earnedKarmaByDreamId = ref<Record<number, number>>({})
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
@@ -494,11 +504,20 @@ const isCompact = computed(() => {
   return props.compact || props.variant === 'row' || isDropdownMode.value
 })
 
-const layoutClass = computed(() => {
-  return galleryMode.value === 'list' || props.variant === 'row'
-    ? 'dream-row'
-    : 'dream-grid'
-})
+/**
+ * `dream-row` is a horizontal scroll-snap FILMSTRIP, and it exists only for the
+ * embedded `variant="row"` prop — a Dream strip sitting inside another page.
+ * It is not a view mode and must never be reachable from the mode toggle: an
+ * earlier pass wired `list` to it on the assumption that "row" and "list" were
+ * the same idea, which put a horizontal carousel behind a button labelled List
+ * and left the rest of an xl viewport empty.
+ *
+ * The four real modes lay out through the shared MODE_GRID_CLASS, so Dreams
+ * matches the Project gallery exactly.
+ */
+const layoutClass = computed(() =>
+  props.variant === 'row' ? 'dream-row' : MODE_GRID_CLASS[galleryMode.value],
+)
 
 const currentUserId = computed(() => {
   return userStore.userId ?? userStore.user?.id ?? null
@@ -594,12 +613,15 @@ async function refreshEarnedKarma() {
     return
   }
 
-  const res = await performFetch<KarmaEarnedRow[]>('/api/economy/karma-earned', {
-    method: 'POST',
-    body: JSON.stringify({
-      items: ids.map((id) => ({ refType: 'dream', refId: id })),
-    }),
-  })
+  const res = await performFetch<KarmaEarnedRow[]>(
+    '/api/economy/karma-earned',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        items: ids.map((id) => ({ refType: 'dream', refId: id })),
+      }),
+    },
+  )
 
   if (!res.success || !Array.isArray(res.data)) return
 
@@ -1053,15 +1075,18 @@ function uniqueById<T extends { id?: number | null }>(items: T[]) {
 </script>
 
 <style scoped>
+/* Retained for callers asking for the legacy grid directly; the mode toggle
+   now lays out through the shared MODE_GRID_CLASS instead. Widened from 220px,
+   which read as cramped on a wide screen. */
 .dream-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: 1rem;
   align-items: stretch;
 }
 
 .dream-grid > * {
-  min-height: 20rem;
+  min-height: 24rem;
 }
 
 .dream-row {

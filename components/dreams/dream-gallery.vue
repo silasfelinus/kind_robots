@@ -34,32 +34,62 @@
           </span>
         </div>
 
+        <!-- Truncates to "41/41 shown • 41 active • N..." on a phone, where it
+             says nothing and still claims a min-w-28 flex-1 slot that forces a
+             wrap. The count badge above already carries the useful number. -->
         <p
-          class="min-w-28 max-w-72 flex-1 truncate text-xs font-medium text-base-content/60"
+          class="hidden min-w-28 max-w-72 flex-1 truncate text-xs font-medium text-base-content/60 sm:block"
           :class="dreamStore.error ? 'text-error' : ''"
           :title="dreamStore.error || statusLine"
         >
           {{ dreamStore.error || statusLine }}
         </p>
 
+        <!-- The error still has to reach a phone, so it gets its own line
+             rather than riding on the status paragraph that mobile hides. -->
+        <p
+          v-if="dreamStore.error"
+          class="w-full truncate text-xs font-medium text-error sm:hidden"
+          :title="dreamStore.error"
+        >
+          {{ dreamStore.error }}
+        </p>
+
+        <!-- Search is an icon until asked for. A full-width input costs an
+             entire toolbar row on a phone for a control most visits never
+             touch; at sm+ there is room, so it stays permanently expanded. -->
+        <button
+          v-if="showControls && !searchOpen"
+          type="button"
+          class="btn btn-sm h-9 shrink-0 rounded-2xl sm:hidden"
+          :class="searchQuery ? 'btn-secondary' : 'btn-outline'"
+          aria-label="Search Dreams"
+          @click="openSearch"
+        >
+          <Icon name="kind-icon:search" class="h-4 w-4" />
+        </button>
+
         <label
           v-if="showControls"
-          class="input input-bordered input-sm flex h-9 min-w-48 flex-1 items-center gap-2 rounded-2xl bg-base-200 sm:min-w-60 lg:max-w-md"
+          class="input input-bordered input-sm h-9 items-center gap-2 rounded-2xl bg-base-200 sm:flex sm:min-w-60 sm:flex-1 lg:max-w-md"
+          :class="searchOpen ? 'flex w-full' : 'hidden'"
         >
           <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
           <input
+            ref="searchInput"
             v-model="searchQuery"
             class="grow bg-transparent"
             type="search"
             aria-label="Search Dreams"
             placeholder="Search Dreams..."
+            @blur="closeSearchIfEmpty"
           />
         </label>
 
         <select
           v-if="showControls"
           v-model="selectedType"
-          class="select select-bordered select-sm h-9 w-32 shrink-0 rounded-2xl bg-base-200"
+          class="select select-bordered select-sm h-9 w-24 shrink-0 rounded-2xl bg-base-200 sm:w-32"
           aria-label="Dream type filter"
         >
           <option value="all">All types</option>
@@ -68,6 +98,10 @@
           </option>
         </select>
 
+        <!-- Named toggles at sm+ (Silas: "they would be perfect on larger
+             displays"), single-letter below it. Four labelled buttons are
+             ~260px of a 390px phone; four abbreviations are ~130px and keep
+             every view one tap away, which a <select> would not. -->
         <div
           v-if="showControls"
           class="flex shrink-0 gap-0.5"
@@ -78,13 +112,15 @@
             v-for="mode in modeOptions"
             :key="mode.value"
             type="button"
-            class="btn btn-sm h-9 rounded-2xl px-3"
+            class="btn btn-sm h-9 rounded-2xl px-2 sm:px-3"
             :class="galleryMode === mode.value ? 'btn-primary' : 'btn-ghost'"
             :title="mode.label"
+            :aria-label="mode.label"
             :aria-pressed="galleryMode === mode.value"
             @click="galleryMode = mode.value"
           >
-            {{ mode.label }}
+            <span class="sm:hidden">{{ mode.abbr }}</span>
+            <span class="hidden sm:inline">{{ mode.label }}</span>
           </button>
         </div>
 
@@ -375,7 +411,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type {
   ArtImage,
   Character,
@@ -481,6 +517,26 @@ const showMineOnly = ref(false)
 const showArchived = ref(false)
 const isLoading = ref(false)
 const galleryMode = ref<GalleryMode>('cards')
+
+/**
+ * Mobile-only: the search field starts collapsed to its icon and expands on
+ * tap. At sm+ the label is permanently visible via CSS, so this flag is
+ * irrelevant there and never needs to be set.
+ */
+const searchOpen = ref(false)
+const searchInput = ref<HTMLInputElement | null>(null)
+
+function openSearch(): void {
+  searchOpen.value = true
+  // The input does not exist until the flag flips, so focus after the patch.
+  nextTick(() => searchInput.value?.focus())
+}
+
+function closeSearchIfEmpty(): void {
+  // Re-collapse only when nothing was typed; a live query must stay visible or
+  // the list looks filtered for no discoverable reason.
+  if (!searchQuery.value) searchOpen.value = false
+}
 
 /** All four. dream-card honours each via its `variant` prop. */
 const modeOptions = GALLERY_MODES

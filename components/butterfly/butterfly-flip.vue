@@ -8,15 +8,17 @@
     >
       <div
         v-if="!isFlipped || !useFlipEffect"
-        class="flip-card-front w-full h-full backface-hidden overflow-y-auto"
+        class="flip-card-front w-full h-full backface-hidden"
         :class="{ fade: !useFlipEffect }"
+        :style="{ overflowY: isFlipped ? 'hidden' : 'auto' }"
       >
         <slot name="front"></slot>
       </div>
       <div
         v-if="isFlipped || !useFlipEffect"
-        class="flip-card-back w-full h-full backface-hidden transform-back overflow-y-auto"
+        class="flip-card-back w-full h-full backface-hidden transform-back"
         :class="{ fade: !useFlipEffect }"
+        :style="{ overflowY: isFlipped ? 'auto' : 'hidden' }"
       >
         <slot name="back"></slot>
       </div>

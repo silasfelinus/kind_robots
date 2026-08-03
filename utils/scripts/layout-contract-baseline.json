@@ -9,7 +9,6 @@
       "components/art/art-interact.vue",
       "components/art/art-styler.vue",
       "components/art/artjob-editor.vue",
-      "components/butterfly/butterfly-flip.vue",
       "components/butterfly/butterfly-sanctuary.vue",
       "components/characters/character-flip-card.vue",
       "components/characters/character-interact.vue",

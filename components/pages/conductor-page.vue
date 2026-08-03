@@ -153,12 +153,12 @@
       </template>
     </div>
 
-    <!-- NON-ADMIN: public project gallery -->
-    <div
-      v-if="!userStore.isAdmin"
-      class="flex min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
-    >
-      <div class="w-full pb-4">
+    <!-- Shared scroll owner: admin and non-admin bodies are mutually
+         exclusive (fixed per user role, never both mounted at once), so
+         one region covers both instead of each declaring its own. -->
+    <div class="kr-scroll">
+      <!-- NON-ADMIN: public project gallery -->
+      <div v-if="!userStore.isAdmin" class="w-full overflow-x-hidden pb-4">
         <div
           v-if="!projectStore.loaded"
           class="grid grid-cols-2 gap-2 sm:grid-cols-4"
@@ -289,878 +289,64 @@
           </p>
         </template>
       </div>
-    </div>
 
-    <!-- ADMIN VIEW -->
-    <template v-else>
-      <!-- Initial load skeleton -->
-      <div
-        v-if="pending && !conductorStore.hasLoaded"
-        class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4"
-      >
+      <!-- ADMIN VIEW -->
+      <template v-else>
+        <!-- Initial load skeleton -->
         <div
-          v-for="n in 4"
-          :key="n"
-          class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
-        />
-      </div>
-
-      <div
-        v-if="conductorStore.hasLoaded"
-        class="flex min-h-0 flex-1 flex-col overflow-y-auto"
-      >
-        <!-- TASKS -->
-        <div v-if="viewMode === 'tasks'" class="flex flex-col gap-4 pb-4">
-          <form
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 space-y-3"
-            @submit.prevent="submitNewTodo"
-          >
-            <h4
-              class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-            >
-              New Task
-            </h4>
-            <input
-              v-model="newTodoTitle"
-              type="text"
-              placeholder="What needs doing?"
-              class="input input-bordered w-full rounded-xl"
-              :disabled="todoStore.loading"
-            />
-            <textarea
-              v-model="newTodoDescription"
-              :placeholder="
-                newTodoCategory === 'AGENT'
-                  ? 'Context for the agent — project name, specific instructions, relevant files...'
-                  : newTodoCategory === 'KAIZEN'
-                    ? 'What improvement do you want to make?'
-                    : 'What do you need to do?'
-              "
-              class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
-              rows="3"
-              :disabled="todoStore.loading"
-            />
-            <div class="flex flex-wrap items-center gap-2">
-              <select
-                v-model="newTodoCategory"
-                class="select select-bordered select-sm rounded-xl"
-              >
-                <option value="AGENT">🤖 Agent Task</option>
-                <option value="KAIZEN">✨ Kaizen</option>
-                <option value="HONEYDO">🍯 Honey Do</option>
-              </select>
-              <select
-                v-model="newTodoPriority"
-                class="select select-bordered select-sm rounded-xl"
-              >
-                <option value="HIGH">🔴 High</option>
-                <option value="NORMAL">🟡 Normal</option>
-                <option value="LOW">🟢 Low</option>
-              </select>
-              <button
-                type="submit"
-                class="btn btn-primary btn-sm ml-auto rounded-xl"
-                :disabled="!newTodoTitle.trim() || todoStore.loading"
-              >
-                <Icon name="kind-icon:plus" class="size-4" /> Add
-              </button>
-            </div>
-          </form>
-
-          <div class="kr-toolbar">
-            <div
-              v-if="todoFilter === 'OPEN'"
-              role="tablist"
-              class="tabs tabs-boxed"
-            >
-              <button
-                type="button"
-                role="tab"
-                class="tab gap-1 text-xs"
-                :class="taskTab === 'AGENT' ? 'tab-active' : ''"
-                @click="taskTab = 'AGENT'"
-              >
-                🤖 Agent
-                <span
-                  v-if="todoStore.regularAgentTodos.length"
-                  class="badge badge-xs badge-primary"
-                  >{{ todoStore.regularAgentTodos.length }}</span
-                >
-              </button>
-              <button
-                type="button"
-                role="tab"
-                class="tab gap-1 text-xs"
-                :class="taskTab === 'SERENDIPITY' ? 'tab-active' : ''"
-                @click="taskTab = 'SERENDIPITY'"
-              >
-                ✨ Story
-                <span
-                  v-if="todoStore.serendipityAgentTodos.length"
-                  class="badge badge-xs badge-secondary"
-                  >{{ todoStore.serendipityAgentTodos.length }}</span
-                >
-              </button>
-              <button
-                type="button"
-                role="tab"
-                class="tab gap-1 text-xs"
-                :class="taskTab === 'KAIZEN' ? 'tab-active' : ''"
-                @click="taskTab = 'KAIZEN'"
-              >
-                ✨ Kaizen
-                <span
-                  v-if="todoStore.kaizenTodos.length"
-                  class="badge badge-xs badge-secondary"
-                  >{{ todoStore.kaizenTodos.length }}</span
-                >
-              </button>
-              <button
-                type="button"
-                role="tab"
-                class="tab gap-1 text-xs"
-                :class="taskTab === 'HONEYDO' ? 'tab-active' : ''"
-                @click="taskTab = 'HONEYDO'"
-              >
-                🍯 Honey Do
-                <span
-                  v-if="todoStore.honeyDoTodos.length"
-                  class="badge badge-xs badge-accent"
-                  >{{ todoStore.honeyDoTodos.length }}</span
-                >
-              </button>
-            </div>
-            <select
-              v-model="todoFilter"
-              class="select select-bordered select-xs ml-auto rounded-xl text-xs font-semibold"
-            >
-              <option v-for="f in todoFilterOptions" :key="f" :value="f">
-                {{ f.charAt(0) + f.slice(1).toLowerCase() }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Honeydo inbox context banner (t-003) -->
+          v-if="pending && !conductorStore.hasLoaded"
+          class="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4"
+        >
           <div
-            v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'"
-            class="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3"
-          >
-            <p class="text-xs font-semibold text-accent/80">
-              🍯 Honey-Do Queue
-            </p>
-            <p class="mt-0.5 text-xs text-base-content/50">
-              Action items your AI assigned to you. These help your projects
-              along — check them off as you go.
-            </p>
-            <p
-              v-if="highPriorityHoneyDos > 0"
-              class="mt-1 text-xs font-semibold text-error"
-            >
-              {{ highPriorityHoneyDos }} high-priority item{{
-                highPriorityHoneyDos > 1 ? 's' : ''
-              }}
-              need your attention.
-            </p>
-          </div>
-
-          <div class="space-y-2">
-            <template v-if="todoStore.loading && !filteredTodos.length">
-              <div
-                v-for="n in 3"
-                :key="n"
-                class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
-              />
-            </template>
-            <template v-for="todo in filteredTodos" :key="todo.id">
-              <honeydo-card
-                v-if="todo.category === 'HONEYDO'"
-                :todo="todo"
-                :show-relative-time="false"
-                :show-category-badge="todoFilter !== 'OPEN'"
-                show-archive-action
-                show-delete-action
-                @toggle-done="todoStore.toggleDone(todo)"
-                @archive="todoStore.archiveTodo(todo.id)"
-                @delete="todoStore.deleteTodo(todo.id)"
-              />
-              <div
-                v-else
-                class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
-                :class="[
-                  todo.status === 'DONE'
-                    ? 'opacity-60 border-base-300 bg-base-100'
-                    : 'border-base-300 bg-base-100',
-                ]"
-              >
-                <div class="flex items-center gap-3">
-                  <button
-                    type="button"
-                    class="shrink-0 transition-colors"
-                    :class="
-                      todo.status === 'DONE'
-                        ? 'text-success'
-                        : 'text-base-content/30 hover:text-success'
-                    "
-                    @click="todoStore.toggleDone(todo)"
-                  >
-                    <Icon
-                      :name="
-                        todo.status === 'DONE'
-                          ? 'kind-icon:check-circle'
-                          : 'kind-icon:circle'
-                      "
-                      class="size-5"
-                    />
-                  </button>
-                  <span
-                    class="min-w-0 flex-1 truncate text-sm font-medium"
-                    :class="
-                      todo.status === 'DONE'
-                        ? 'line-through text-base-content/40'
-                        : ''
-                    "
-                    >{{ todo.title }}</span
-                  >
-                  <span
-                    v-if="todo.priority === 'HIGH'"
-                    class="badge badge-error badge-xs shrink-0"
-                    >🔴 high</span
-                  >
-                  <span
-                    v-else-if="todo.priority === 'LOW'"
-                    class="badge badge-ghost badge-xs shrink-0"
-                    >🟢 low</span
-                  >
-                  <span
-                    v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'"
-                    class="badge badge-secondary badge-xs shrink-0"
-                    >✨ kaizen</span
-                  >
-                  <span
-                    v-if="todoStore.isSerendipityAgentTodo(todo)"
-                    class="badge badge-secondary badge-xs shrink-0"
-                    >✨ story</span
-                  >
-                  <div class="flex shrink-0 gap-1">
-                    <button
-                      v-if="todo.status !== 'ARCHIVED'"
-                      type="button"
-                      class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
-                      title="Archive"
-                      @click="todoStore.archiveTodo(todo.id)"
-                    >
-                      <Icon name="kind-icon:archive" class="size-3" />
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
-                      title="Delete"
-                      @click="todoStore.deleteTodo(todo.id)"
-                    >
-                      <Icon name="kind-icon:x" class="size-3" />
-                    </button>
-                  </div>
-                </div>
-                <p
-                  v-if="todo.description"
-                  class="ml-8 text-xs leading-relaxed text-base-content/50"
-                >
-                  {{ todo.description }}
-                </p>
-              </div>
-            </template>
-            <div
-              v-if="!todoStore.loading && !filteredTodos.length"
-              class="py-8 text-center"
-            >
-              <template v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'">
-                <Icon
-                  name="kind-icon:check-circle"
-                  class="mx-auto mb-2 size-8 text-success/40"
-                />
-                <p class="text-sm font-semibold text-base-content/50">
-                  No honey-dos right now.
-                </p>
-                <p class="mt-1 text-xs text-base-content/30">
-                  When your AI assigns you an action item, it shows up here.
-                </p>
-              </template>
-              <p v-else class="text-sm text-base-content/50">
-                No {{ todoFilter.toLowerCase() }} tasks.
-              </p>
-            </div>
-          </div>
+            v-for="n in 4"
+            :key="n"
+            class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+          />
         </div>
 
-        <!-- PROJECT DETAIL -->
-        <div v-else-if="selectedProject" class="flex flex-col gap-4 pb-4">
-          <div
-            class="relative min-h-[180px] overflow-hidden rounded-2xl sm:min-h-[220px] xl:min-h-[260px]"
-          >
-            <div
-              class="absolute inset-0"
-              :class="kindBgGradient(selectedProject.kind)"
-            />
-            <img
-              v-if="!heroFailed"
-              :src="projectHeroPath(selectedProject.slug)"
-              :alt="selectedProject.name"
-              class="absolute inset-0 h-full w-full object-cover"
-              @error="heroFailed = true"
-            />
-            <div
-              class="absolute inset-0 bg-linear-to-t from-base-300/90 via-base-300/30 to-transparent"
-            />
-            <div class="absolute inset-x-0 bottom-0 flex items-end gap-4 p-4">
-              <div
-                class="relative size-14 shrink-0 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl"
-              >
-                <img
-                  v-if="!iconFailed"
-                  :src="projectIconPath(selectedProject.slug)"
-                  :alt="selectedProject.name"
-                  class="h-full w-full object-cover"
-                  @error="iconFailed = true"
-                />
-                <div
-                  v-else
-                  class="flex h-full w-full items-center justify-center"
-                  :class="kindIconClass(selectedProject.kind)"
-                >
-                  <Icon :name="kindIcon(selectedProject.kind)" class="size-7" />
-                </div>
-              </div>
-              <div class="min-w-0 flex-1">
-                <h3 class="truncate text-xl font-black leading-tight">
-                  {{
-                    linkedProject?.title ||
-                    selectedProject.name ||
-                    selectedProject.slug
-                  }}
-                </h3>
-                <p class="text-xs text-base-content/60">
-                  {{ selectedProject.progress }}% complete &middot;
-                  {{ selectedProject.tasks.length }} tasks
-                </p>
-              </div>
-              <span
-                v-if="linkedProject?.status === 'BRAINSTORM'"
-                class="badge badge-secondary badge-sm shrink-0"
-                >brainstorm</span
-              >
-              <span
-                v-else
-                class="badge badge-sm shrink-0"
-                :class="kindBadgeClass(selectedProject.kind)"
-                >{{ selectedProject.kind }}</span
-              >
-            </div>
-          </div>
-
-          <div class="flex shrink-0 flex-wrap gap-2">
-            <span
-              v-for="[status, count] in taskStatusSummary(selectedProject)"
-              :key="status"
-              class="badge badge-sm gap-1"
-              :class="taskBadgeClass(status)"
+        <div v-if="conductorStore.hasLoaded" class="flex flex-col">
+          <!-- TASKS -->
+          <div v-if="viewMode === 'tasks'" class="flex flex-col gap-4 pb-4">
+            <form
+              class="rounded-2xl border border-base-300 bg-base-100 p-4 space-y-3"
+              @submit.prevent="submitNewTodo"
             >
-              <Icon :name="taskIcon(status)" class="size-3" />{{ count }}
-              {{ status }}
-            </span>
-          </div>
-
-          <div
-            v-if="linkedProject"
-            class="flex shrink-0 flex-wrap items-center gap-2"
-          >
-            <select
-              class="select select-bordered select-sm rounded-xl font-bold"
-              :class="
-                prioritySelectClass(
-                  linkedProject.priority as ProjectPriorityLevel,
-                )
-              "
-              :value="linkedProject.priority"
-              :disabled="projectSaving"
-              @change="handlePriorityChange"
-            >
-              <option value="HIGH">🔴 HIGH</option>
-              <option value="NORMAL">🟡 NORMAL</option>
-              <option value="LOW">🟢 LOW</option>
-            </select>
-            <select
-              class="select select-bordered select-sm rounded-xl text-xs font-semibold"
-              :value="linkedProject.status"
-              :disabled="projectSaving"
-              @change="handleProjectStatusChange"
-            >
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="PAUSED">PAUSED</option>
-              <option value="BRAINSTORM">BRAINSTORM</option>
-              <option value="DONE">DONE</option>
-              <option value="ARCHIVED">ARCHIVED</option>
-            </select>
-            <button
-              type="button"
-              class="btn btn-sm gap-1.5 rounded-xl"
-              :class="
-                linkedProject.isPublic
-                  ? 'btn-success'
-                  : 'btn-ghost border border-base-300'
-              "
-              :disabled="projectSaving"
-              @click="patchProject({ isPublic: !linkedProject.isPublic })"
-            >
-              <Icon
-                :name="
-                  linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
-                "
-                class="size-3.5"
-              />
-              {{ linkedProject.isPublic ? 'Public' : 'Private' }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm gap-1.5 rounded-xl"
-              :class="
-                linkedProject.isMature
-                  ? 'btn-warning'
-                  : 'btn-ghost border border-base-300'
-              "
-              :disabled="projectSaving"
-              @click="patchProject({ isMature: !linkedProject.isMature })"
-            >
-              <Icon name="kind-icon:warning" class="size-3.5" />{{
-                linkedProject.isMature ? 'Mature' : 'Safe'
-              }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm gap-1.5 rounded-xl"
-              :class="
-                linkedProject.allowReviews
-                  ? 'btn-accent'
-                  : 'btn-ghost border border-base-300'
-              "
-              :disabled="projectSaving"
-              @click="
-                patchProject({ allowReviews: !linkedProject.allowReviews })
-              "
-            >
-              <Icon name="kind-icon:chat" class="size-3.5" />{{
-                linkedProject.allowReviews ? 'Reviews On' : 'Reviews Off'
-              }}
-            </button>
-            <span
-              v-if="projectSaving"
-              class="loading loading-spinner loading-xs self-center text-primary"
-            />
-            <span
-              v-if="projectSaveMessage"
-              class="self-center text-xs"
-              :class="projectSaveError ? 'text-error' : 'text-success'"
-              >{{ projectSaveMessage }}</span
-            >
-          </div>
-
-          <div
-            class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
-          >
-            <div
-              v-if="linkedProject"
-              class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
-              <div class="flex items-center gap-2">
-                <Icon name="kind-icon:dream" class="size-4 text-primary" />
-                <h4
-                  class="text-xs font-bold uppercase tracking-wide text-base-content/60"
-                >
-                  Project Intent
-                </h4>
-                <span class="ml-auto text-xs text-base-content/30"
-                  >Click any field to edit — saves on blur</span
-                >
-              </div>
-              <div class="form-control">
-                <label class="label py-0.5"
-                  ><span class="label-text text-xs font-semibold"
-                    >Goal — what does 100% look like?</span
-                  ></label
-                >
-                <textarea
-                  class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
-                  rows="3"
-                  placeholder="One clear paragraph: what precisely does this project look like when it's complete?"
-                  :value="linkedProject.goal ?? ''"
-                  :disabled="projectSaving"
-                  @blur="autosave('goal', $event)"
-                />
-              </div>
-              <div class="form-control">
-                <label class="label py-0.5"
-                  ><span class="label-text text-xs font-semibold"
-                    >Description</span
-                  ></label
-                >
-                <textarea
-                  class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
-                  rows="8"
-                  placeholder="What is this project?"
-                  :value="linkedProject.description ?? ''"
-                  :disabled="projectSaving"
-                  @blur="autosave('description', $event)"
-                />
-              </div>
-              <div class="form-control">
-                <label class="label py-0.5"
-                  ><span class="label-text text-xs font-semibold"
-                    >Intent / Pitch</span
-                  ></label
-                >
-                <textarea
-                  class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
-                  rows="6"
-                  placeholder="Core constraint or north star"
-                  :value="linkedProject.pitch ?? ''"
-                  :disabled="projectSaving"
-                  @blur="autosave('pitch', $event)"
-                />
-              </div>
-              <div class="form-control">
-                <label class="label py-0.5"
-                  ><span class="label-text text-xs font-semibold"
-                    >Flavor Text</span
-                  ></label
-                >
-                <input
-                  type="text"
-                  class="input input-bordered rounded-xl text-sm"
-                  placeholder="Short tagline"
-                  :value="linkedProject.flavorText ?? ''"
-                  :disabled="projectSaving"
-                  @blur="autosave('flavorText', $event)"
-                />
-              </div>
-              <div class="grid gap-3 sm:grid-cols-2">
-                <div class="form-control">
-                  <label class="label py-0.5"
-                    ><span class="label-text text-xs font-semibold"
-                      >Live URL</span
-                    ></label
-                  >
-                  <input
-                    type="url"
-                    class="input input-bordered rounded-xl text-sm"
-                    placeholder="https://..."
-                    :value="linkedProject.liveUrl ?? ''"
-                    :disabled="projectSaving"
-                    @blur="autosave('liveUrl', $event)"
-                  />
-                </div>
-                <div class="form-control">
-                  <label class="label py-0.5"
-                    ><span class="label-text text-xs font-semibold"
-                      >Repo URL</span
-                    ></label
-                  >
-                  <input
-                    type="url"
-                    class="input input-bordered rounded-xl text-sm"
-                    placeholder="https://github.com/..."
-                    :value="linkedProject.repoUrl ?? ''"
-                    :disabled="projectSaving"
-                    @blur="autosave('repoUrl', $event)"
-                  />
-                </div>
-              </div>
-              <div class="flex flex-wrap gap-2 pt-1">
-                <a
-                  v-if="linkedProject.liveUrl"
-                  :href="linkedProject.liveUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-xs btn-outline gap-1"
-                >
-                  <Icon name="kind-icon:external-link" class="size-3" /> Live
-                  Site
-                </a>
-                <a
-                  v-if="linkedProject.repoUrl"
-                  :href="linkedProject.repoUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-xs btn-outline gap-1"
-                >
-                  <Icon name="kind-icon:code" class="size-3" /> Repo
-                </a>
-              </div>
-            </div>
-            <div
-              v-else
-              class="rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
-            >
-              <Icon
-                name="kind-icon:dream"
-                class="mx-auto mb-1 size-5 opacity-40"
-              />
-              No Project record linked for
-              <strong>{{ selectedProject.slug }}</strong>
-            </div>
-
-            <ConductorArtGallery
-              :slug="selectedProject.slug"
-              :hero-path="projectHeroPath(selectedProject.slug)"
-              :card-path="projectCardPath(selectedProject.slug)"
-              :icon-path="projectIconPath(selectedProject.slug)"
-            />
-          </div>
-
-          <!-- PROJECT ASSISTANT -->
-          <div v-if="linkedProject" class="shrink-0">
-            <ConductorProjectChat
-              :project-id="linkedProject.id"
-              :project-title="linkedProject.title || selectedProject.slug"
-              :project-context="projectContextText"
-            />
-          </div>
-
-          <div
-            v-if="selectedProject.notesFromSilas"
-            class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
-          >
-            <p
-              class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70"
-            >
-              Notes from Silas
-            </p>
-            {{ selectedProject.notesFromSilas }}
-          </div>
-
-          <div class="grid min-h-0 gap-4 sm:grid-cols-2">
-            <div v-if="selectedProject.milestones.length">
               <h4
-                class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
               >
-                Milestones
+                New Task
               </h4>
-              <div class="space-y-2">
-                <div
-                  v-for="milestone in selectedProject.milestones"
-                  :key="milestone.id"
-                  class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-                >
-                  <div
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
-                    :class="milestoneIconClass(milestone.status)"
-                  >
-                    <Icon
-                      :name="milestoneIcon(milestone.status)"
-                      class="size-3.5"
-                    />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold">
-                      {{ milestone.title }}
-                    </p>
-                    <p class="text-xs text-base-content/50">
-                      weight {{ milestone.weight }}
-                      <span v-if="milestoneTaskCounts.get(milestone.id)?.total"
-                        >&middot;
-                        {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
-                          milestoneTaskCounts.get(milestone.id)?.total
-                        }}
-                        done</span
-                      >
-                    </p>
-                  </div>
-                  <span
-                    class="badge badge-sm shrink-0"
-                    :class="milestoneBadgeClass(milestone.status)"
-                    >{{ milestone.status }}</span
-                  >
-                </div>
-              </div>
-            </div>
-            <div v-if="selectedProject.tasks.length">
-              <h4
-                class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
-              >
-                Tasks ({{ selectedProject.tasks.length }})
-              </h4>
-              <div class="space-y-2">
-                <div
-                  v-for="task in activeTasks"
-                  :key="task.id"
-                  class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-                >
-                  <div class="flex items-start gap-3">
-                    <div
-                      class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
-                      :class="taskIconClass(task.status)"
-                    >
-                      <Icon :name="taskIcon(task.status)" class="size-3" />
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-sm font-semibold leading-snug">
-                        {{ task.title }}
-                      </p>
-                      <div
-                        class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
-                      >
-                        <span>{{ task.id }}</span>
-                        <span v-if="task.milestone"
-                          >&middot; {{ task.milestone }}</span
-                        >
-                        <span v-if="task.gateHuman" class="text-accent"
-                          >&middot; gate</span
-                        >
-                        <span v-if="task.owner">&middot; {{ task.owner }}</span>
-                        <span v-if="task.passes > 0" class="text-warning"
-                          >&middot; pass {{ task.passes }}/3</span
-                        >
-                      </div>
-                      <div
-                        class="mt-1 flex flex-wrap items-center gap-1.5 text-xs"
-                      >
-                        <span
-                          v-if="task.stakes && task.stakes !== 'reversible'"
-                          class="badge badge-xs"
-                          :class="stakesBadgeClass(task.stakes)"
-                          >{{ task.stakes }}</span
-                        >
-                        <span v-if="task.dependsOn" class="text-base-content/30"
-                          >depends:
-                          {{
-                            Array.isArray(task.dependsOn)
-                              ? task.dependsOn.join(', ')
-                              : task.dependsOn
-                          }}</span
-                        >
-                        <span
-                          v-if="task.gateHuman && task.approvedByHuman"
-                          class="text-success"
-                          >✓ approved</span
-                        >
-                        <span
-                          v-if="task.gateHuman && !task.approvedByHuman"
-                          class="text-accent/70"
-                          >awaiting approval</span
-                        >
-                        <span
-                          v-if="task.updated"
-                          class="ml-auto text-base-content/25"
-                          >{{ relativeTime(task.updated) }}</span
-                        >
-                      </div>
-                      <p
-                        v-if="task.note"
-                        class="mt-1.5 line-clamp-3 text-xs leading-relaxed text-base-content/50"
-                      >
-                        {{ task.note }}
-                      </p>
-                    </div>
-                    <span
-                      class="badge badge-sm shrink-0"
-                      :class="taskBadgeClass(task.status)"
-                      >{{ task.status }}</span
-                    >
-                  </div>
-                </div>
-              </div>
-
-              <!-- COMPLETED TASKS DISCLOSURE, PER MILESTONE (t-015) -->
-              <div v-if="doneTasksByMilestone.length" class="mt-2 space-y-2">
-                <details
-                  v-for="group in doneTasksByMilestone"
-                  :key="group.id"
-                  class="group rounded-2xl border border-base-300 bg-base-200/50"
-                >
-                  <summary
-                    class="flex cursor-pointer list-none items-center gap-2 px-4 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
-                  >
-                    <Icon
-                      name="kind-icon:chevron-right"
-                      class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
-                    />
-                    <span class="truncate">{{ group.title }}</span>
-                    <span class="text-base-content/40"
-                      >&middot; Completed ({{ group.tasks.length }})</span
-                    >
-                  </summary>
-                  <div class="space-y-1.5 px-3 pb-3 pt-1">
-                    <div
-                      v-for="task in group.tasks"
-                      :key="task.id"
-                      class="flex items-start gap-2 rounded-xl border border-base-300/60 bg-base-100/60 px-3 py-2"
-                    >
-                      <Icon
-                        name="kind-icon:check"
-                        class="mt-0.5 size-3.5 shrink-0 text-success/70"
-                      />
-                      <div class="min-w-0 flex-1">
-                        <p
-                          class="truncate text-xs font-medium text-base-content/70"
-                        >
-                          {{ task.title }}
-                        </p>
-                        <div
-                          class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-base-content/40"
-                        >
-                          <span>{{ task.id }}</span>
-                          <span
-                            v-if="task.gateHuman && task.approvedByHuman"
-                            class="text-success"
-                            >&middot; ✓ approved</span
-                          >
-                          <span v-if="task.updated" class="ml-auto">{{
-                            relativeTime(task.updated)
-                          }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </details>
-              </div>
-            </div>
-          </div>
-
-          <!-- PROJECT TASK CREATION (t-002) -->
-          <div
-            v-if="linkedProject"
-            class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
-            <h4
-              class="mb-3 text-xs font-bold uppercase tracking-wide text-base-content/50"
-            >
-              Add Task to This Project
-            </h4>
-            <form class="space-y-2" @submit.prevent="submitProjectTask">
               <input
-                v-model="projectTaskTitle"
+                v-model="newTodoTitle"
                 type="text"
                 placeholder="What needs doing?"
-                class="input input-bordered w-full rounded-xl text-sm"
-                :disabled="projectTaskSubmitting"
+                class="input input-bordered w-full rounded-xl"
+                :disabled="todoStore.loading"
               />
               <textarea
-                v-model="projectTaskDescription"
-                placeholder="Optional context..."
-                class="textarea textarea-bordered w-full rounded-xl text-sm"
-                rows="2"
-                :disabled="projectTaskSubmitting"
+                v-model="newTodoDescription"
+                :placeholder="
+                  newTodoCategory === 'AGENT'
+                    ? 'Context for the agent — project name, specific instructions, relevant files...'
+                    : newTodoCategory === 'KAIZEN'
+                      ? 'What improvement do you want to make?'
+                      : 'What do you need to do?'
+                "
+                class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
+                rows="3"
+                :disabled="todoStore.loading"
               />
               <div class="flex flex-wrap items-center gap-2">
                 <select
-                  v-model="projectTaskCategory"
+                  v-model="newTodoCategory"
                   class="select select-bordered select-sm rounded-xl"
                 >
                   <option value="AGENT">🤖 Agent Task</option>
                   <option value="KAIZEN">✨ Kaizen</option>
                   <option value="HONEYDO">🍯 Honey Do</option>
-                  <option value="DESIRED_FEATURE">⭐ Feature Idea</option>
                 </select>
                 <select
-                  v-model="projectTaskPriority"
+                  v-model="newTodoPriority"
                   class="select select-bordered select-sm rounded-xl"
                 >
                   <option value="HIGH">🔴 High</option>
@@ -1170,203 +356,1026 @@
                 <button
                   type="submit"
                   class="btn btn-primary btn-sm ml-auto rounded-xl"
-                  :disabled="!projectTaskTitle.trim() || projectTaskSubmitting"
+                  :disabled="!newTodoTitle.trim() || todoStore.loading"
                 >
-                  <span
-                    v-if="projectTaskSubmitting"
-                    class="loading loading-spinner loading-xs"
-                  />
-                  Add Task
+                  <Icon name="kind-icon:plus" class="size-4" /> Add
                 </button>
               </div>
             </form>
-          </div>
 
-          <!-- KAIZEN + POLISH PROMPT (t-004, t-006) -->
-          <div
-            v-if="linkedProject"
-            class="shrink-0 space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
-          >
-            <div class="flex items-center gap-2">
-              <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
-              <h4
-                class="text-xs font-bold uppercase tracking-wide text-secondary/70"
-              >
-                Kaizen — Improvements
-              </h4>
-            </div>
-            <div v-if="projectKaizens.length" class="space-y-2">
+            <div class="kr-toolbar">
               <div
-                v-for="kaizen in projectKaizens"
-                :key="kaizen.id"
-                class="flex items-start gap-2 rounded-xl border border-secondary/20 bg-base-100 px-3 py-2"
+                v-if="todoFilter === 'OPEN'"
+                role="tablist"
+                class="tabs tabs-boxed"
               >
-                <Icon
-                  name="kind-icon:sparkles"
-                  class="mt-0.5 size-3.5 shrink-0 text-secondary/50"
-                />
-                <div class="min-w-0 flex-1">
-                  <p class="text-sm leading-snug">{{ kaizen.title }}</p>
-                  <p
-                    v-if="kaizen.description"
-                    class="mt-0.5 text-xs text-base-content/50"
-                  >
-                    {{ kaizen.description }}
-                  </p>
-                </div>
                 <button
                   type="button"
-                  class="btn btn-ghost btn-xs rounded-lg text-success"
-                  :disabled="todoStore.loading"
-                  @click="todoStore.updateTodo(kaizen.id, { status: 'DONE' })"
+                  role="tab"
+                  class="tab gap-1 text-xs"
+                  :class="taskTab === 'AGENT' ? 'tab-active' : ''"
+                  @click="taskTab = 'AGENT'"
                 >
-                  done
+                  🤖 Agent
+                  <span
+                    v-if="todoStore.regularAgentTodos.length"
+                    class="badge badge-xs badge-primary"
+                    >{{ todoStore.regularAgentTodos.length }}</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="tab gap-1 text-xs"
+                  :class="taskTab === 'SERENDIPITY' ? 'tab-active' : ''"
+                  @click="taskTab = 'SERENDIPITY'"
+                >
+                  ✨ Story
+                  <span
+                    v-if="todoStore.serendipityAgentTodos.length"
+                    class="badge badge-xs badge-secondary"
+                    >{{ todoStore.serendipityAgentTodos.length }}</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="tab gap-1 text-xs"
+                  :class="taskTab === 'KAIZEN' ? 'tab-active' : ''"
+                  @click="taskTab = 'KAIZEN'"
+                >
+                  ✨ Kaizen
+                  <span
+                    v-if="todoStore.kaizenTodos.length"
+                    class="badge badge-xs badge-secondary"
+                    >{{ todoStore.kaizenTodos.length }}</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="tab gap-1 text-xs"
+                  :class="taskTab === 'HONEYDO' ? 'tab-active' : ''"
+                  @click="taskTab = 'HONEYDO'"
+                >
+                  🍯 Honey Do
+                  <span
+                    v-if="todoStore.honeyDoTodos.length"
+                    class="badge badge-xs badge-accent"
+                    >{{ todoStore.honeyDoTodos.length }}</span
+                  >
                 </button>
               </div>
-            </div>
-            <p v-else class="text-xs text-base-content/40">
-              No active kaizens for this project.
-            </p>
-            <form
-              class="flex flex-col gap-2"
-              @submit.prevent="submitPolishPrompt"
-            >
-              <label class="label py-0"
-                ><span
-                  class="label-text text-xs font-semibold text-secondary/80"
-                  >How can I make this look better?</span
-                ></label
+              <select
+                v-model="todoFilter"
+                class="select select-bordered select-xs ml-auto rounded-xl text-xs font-semibold"
               >
-              <div class="flex gap-2">
+                <option v-for="f in todoFilterOptions" :key="f" :value="f">
+                  {{ f.charAt(0) + f.slice(1).toLowerCase() }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Honeydo inbox context banner (t-003) -->
+            <div
+              v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'"
+              class="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3"
+            >
+              <p class="text-xs font-semibold text-accent/80">
+                🍯 Honey-Do Queue
+              </p>
+              <p class="mt-0.5 text-xs text-base-content/50">
+                Action items your AI assigned to you. These help your projects
+                along — check them off as you go.
+              </p>
+              <p
+                v-if="highPriorityHoneyDos > 0"
+                class="mt-1 text-xs font-semibold text-error"
+              >
+                {{ highPriorityHoneyDos }} high-priority item{{
+                  highPriorityHoneyDos > 1 ? 's' : ''
+                }}
+                need your attention.
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <template v-if="todoStore.loading && !filteredTodos.length">
+                <div
+                  v-for="n in 3"
+                  :key="n"
+                  class="h-16 animate-pulse rounded-2xl border border-base-300 bg-base-200"
+                />
+              </template>
+              <template v-for="todo in filteredTodos" :key="todo.id">
+                <honeydo-card
+                  v-if="todo.category === 'HONEYDO'"
+                  :todo="todo"
+                  :show-relative-time="false"
+                  :show-category-badge="todoFilter !== 'OPEN'"
+                  show-archive-action
+                  show-delete-action
+                  @toggle-done="todoStore.toggleDone(todo)"
+                  @archive="todoStore.archiveTodo(todo.id)"
+                  @delete="todoStore.deleteTodo(todo.id)"
+                />
+                <div
+                  v-else
+                  class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
+                  :class="[
+                    todo.status === 'DONE'
+                      ? 'opacity-60 border-base-300 bg-base-100'
+                      : 'border-base-300 bg-base-100',
+                  ]"
+                >
+                  <div class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      class="shrink-0 transition-colors"
+                      :class="
+                        todo.status === 'DONE'
+                          ? 'text-success'
+                          : 'text-base-content/30 hover:text-success'
+                      "
+                      @click="todoStore.toggleDone(todo)"
+                    >
+                      <Icon
+                        :name="
+                          todo.status === 'DONE'
+                            ? 'kind-icon:check-circle'
+                            : 'kind-icon:circle'
+                        "
+                        class="size-5"
+                      />
+                    </button>
+                    <span
+                      class="min-w-0 flex-1 truncate text-sm font-medium"
+                      :class="
+                        todo.status === 'DONE'
+                          ? 'line-through text-base-content/40'
+                          : ''
+                      "
+                      >{{ todo.title }}</span
+                    >
+                    <span
+                      v-if="todo.priority === 'HIGH'"
+                      class="badge badge-error badge-xs shrink-0"
+                      >🔴 high</span
+                    >
+                    <span
+                      v-else-if="todo.priority === 'LOW'"
+                      class="badge badge-ghost badge-xs shrink-0"
+                      >🟢 low</span
+                    >
+                    <span
+                      v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'"
+                      class="badge badge-secondary badge-xs shrink-0"
+                      >✨ kaizen</span
+                    >
+                    <span
+                      v-if="todoStore.isSerendipityAgentTodo(todo)"
+                      class="badge badge-secondary badge-xs shrink-0"
+                      >✨ story</span
+                    >
+                    <div class="flex shrink-0 gap-1">
+                      <button
+                        v-if="todo.status !== 'ARCHIVED'"
+                        type="button"
+                        class="btn btn-ghost btn-xs rounded-lg text-base-content/30 hover:text-base-content"
+                        title="Archive"
+                        @click="todoStore.archiveTodo(todo.id)"
+                      >
+                        <Icon name="kind-icon:archive" class="size-3" />
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-xs rounded-lg text-base-content/20 hover:text-error"
+                        title="Delete"
+                        @click="todoStore.deleteTodo(todo.id)"
+                      >
+                        <Icon name="kind-icon:x" class="size-3" />
+                      </button>
+                    </div>
+                  </div>
+                  <p
+                    v-if="todo.description"
+                    class="ml-8 text-xs leading-relaxed text-base-content/50"
+                  >
+                    {{ todo.description }}
+                  </p>
+                </div>
+              </template>
+              <div
+                v-if="!todoStore.loading && !filteredTodos.length"
+                class="py-8 text-center"
+              >
+                <template v-if="taskTab === 'HONEYDO' && todoFilter === 'OPEN'">
+                  <Icon
+                    name="kind-icon:check-circle"
+                    class="mx-auto mb-2 size-8 text-success/40"
+                  />
+                  <p class="text-sm font-semibold text-base-content/50">
+                    No honey-dos right now.
+                  </p>
+                  <p class="mt-1 text-xs text-base-content/30">
+                    When your AI assigns you an action item, it shows up here.
+                  </p>
+                </template>
+                <p v-else class="text-sm text-base-content/50">
+                  No {{ todoFilter.toLowerCase() }} tasks.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROJECT DETAIL -->
+          <div v-else-if="selectedProject" class="flex flex-col gap-4 pb-4">
+            <div
+              class="relative min-h-[180px] overflow-hidden rounded-2xl sm:min-h-[220px] xl:min-h-[260px]"
+            >
+              <div
+                class="absolute inset-0"
+                :class="kindBgGradient(selectedProject.kind)"
+              />
+              <img
+                v-if="!heroFailed"
+                :src="projectHeroPath(selectedProject.slug)"
+                :alt="selectedProject.name"
+                class="absolute inset-0 h-full w-full object-cover"
+                @error="heroFailed = true"
+              />
+              <div
+                class="absolute inset-0 bg-linear-to-t from-base-300/90 via-base-300/30 to-transparent"
+              />
+              <div class="absolute inset-x-0 bottom-0 flex items-end gap-4 p-4">
+                <div
+                  class="relative size-14 shrink-0 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl"
+                >
+                  <img
+                    v-if="!iconFailed"
+                    :src="projectIconPath(selectedProject.slug)"
+                    :alt="selectedProject.name"
+                    class="h-full w-full object-cover"
+                    @error="iconFailed = true"
+                  />
+                  <div
+                    v-else
+                    class="flex h-full w-full items-center justify-center"
+                    :class="kindIconClass(selectedProject.kind)"
+                  >
+                    <Icon
+                      :name="kindIcon(selectedProject.kind)"
+                      class="size-7"
+                    />
+                  </div>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h3 class="truncate text-xl font-black leading-tight">
+                    {{
+                      linkedProject?.title ||
+                      selectedProject.name ||
+                      selectedProject.slug
+                    }}
+                  </h3>
+                  <p class="text-xs text-base-content/60">
+                    {{ selectedProject.progress }}% complete &middot;
+                    {{ selectedProject.tasks.length }} tasks
+                  </p>
+                </div>
+                <span
+                  v-if="linkedProject?.status === 'BRAINSTORM'"
+                  class="badge badge-secondary badge-sm shrink-0"
+                  >brainstorm</span
+                >
+                <span
+                  v-else
+                  class="badge badge-sm shrink-0"
+                  :class="kindBadgeClass(selectedProject.kind)"
+                  >{{ selectedProject.kind }}</span
+                >
+              </div>
+            </div>
+
+            <div class="flex shrink-0 flex-wrap gap-2">
+              <span
+                v-for="[status, count] in taskStatusSummary(selectedProject)"
+                :key="status"
+                class="badge badge-sm gap-1"
+                :class="taskBadgeClass(status)"
+              >
+                <Icon :name="taskIcon(status)" class="size-3" />{{ count }}
+                {{ status }}
+              </span>
+            </div>
+
+            <div
+              v-if="linkedProject"
+              class="flex shrink-0 flex-wrap items-center gap-2"
+            >
+              <select
+                class="select select-bordered select-sm rounded-xl font-bold"
+                :class="
+                  prioritySelectClass(
+                    linkedProject.priority as ProjectPriorityLevel,
+                  )
+                "
+                :value="linkedProject.priority"
+                :disabled="projectSaving"
+                @change="handlePriorityChange"
+              >
+                <option value="HIGH">🔴 HIGH</option>
+                <option value="NORMAL">🟡 NORMAL</option>
+                <option value="LOW">🟢 LOW</option>
+              </select>
+              <select
+                class="select select-bordered select-sm rounded-xl text-xs font-semibold"
+                :value="linkedProject.status"
+                :disabled="projectSaving"
+                @change="handleProjectStatusChange"
+              >
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="PAUSED">PAUSED</option>
+                <option value="BRAINSTORM">BRAINSTORM</option>
+                <option value="DONE">DONE</option>
+                <option value="ARCHIVED">ARCHIVED</option>
+              </select>
+              <button
+                type="button"
+                class="btn btn-sm gap-1.5 rounded-xl"
+                :class="
+                  linkedProject.isPublic
+                    ? 'btn-success'
+                    : 'btn-ghost border border-base-300'
+                "
+                :disabled="projectSaving"
+                @click="patchProject({ isPublic: !linkedProject.isPublic })"
+              >
+                <Icon
+                  :name="
+                    linkedProject.isPublic
+                      ? 'kind-icon:eye'
+                      : 'kind-icon:eye-off'
+                  "
+                  class="size-3.5"
+                />
+                {{ linkedProject.isPublic ? 'Public' : 'Private' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm gap-1.5 rounded-xl"
+                :class="
+                  linkedProject.isMature
+                    ? 'btn-warning'
+                    : 'btn-ghost border border-base-300'
+                "
+                :disabled="projectSaving"
+                @click="patchProject({ isMature: !linkedProject.isMature })"
+              >
+                <Icon name="kind-icon:warning" class="size-3.5" />{{
+                  linkedProject.isMature ? 'Mature' : 'Safe'
+                }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm gap-1.5 rounded-xl"
+                :class="
+                  linkedProject.allowReviews
+                    ? 'btn-accent'
+                    : 'btn-ghost border border-base-300'
+                "
+                :disabled="projectSaving"
+                @click="
+                  patchProject({ allowReviews: !linkedProject.allowReviews })
+                "
+              >
+                <Icon name="kind-icon:chat" class="size-3.5" />{{
+                  linkedProject.allowReviews ? 'Reviews On' : 'Reviews Off'
+                }}
+              </button>
+              <span
+                v-if="projectSaving"
+                class="loading loading-spinner loading-xs self-center text-primary"
+              />
+              <span
+                v-if="projectSaveMessage"
+                class="self-center text-xs"
+                :class="projectSaveError ? 'text-error' : 'text-success'"
+                >{{ projectSaveMessage }}</span
+              >
+            </div>
+
+            <div
+              class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+            >
+              <div
+                v-if="linkedProject"
+                class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+              >
+                <div class="flex items-center gap-2">
+                  <Icon name="kind-icon:dream" class="size-4 text-primary" />
+                  <h4
+                    class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >
+                    Project Intent
+                  </h4>
+                  <span class="ml-auto text-xs text-base-content/30"
+                    >Click any field to edit — saves on blur</span
+                  >
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Goal — what does 100% look like?</span
+                    ></label
+                  >
+                  <textarea
+                    class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
+                    rows="3"
+                    placeholder="One clear paragraph: what precisely does this project look like when it's complete?"
+                    :value="linkedProject.goal ?? ''"
+                    :disabled="projectSaving"
+                    @blur="autosave('goal', $event)"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Description</span
+                    ></label
+                  >
+                  <textarea
+                    class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
+                    rows="8"
+                    placeholder="What is this project?"
+                    :value="linkedProject.description ?? ''"
+                    :disabled="projectSaving"
+                    @blur="autosave('description', $event)"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Intent / Pitch</span
+                    ></label
+                  >
+                  <textarea
+                    class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
+                    rows="6"
+                    placeholder="Core constraint or north star"
+                    :value="linkedProject.pitch ?? ''"
+                    :disabled="projectSaving"
+                    @blur="autosave('pitch', $event)"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="label py-0.5"
+                    ><span class="label-text text-xs font-semibold"
+                      >Flavor Text</span
+                    ></label
+                  >
+                  <input
+                    type="text"
+                    class="input input-bordered rounded-xl text-sm"
+                    placeholder="Short tagline"
+                    :value="linkedProject.flavorText ?? ''"
+                    :disabled="projectSaving"
+                    @blur="autosave('flavorText', $event)"
+                  />
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <div class="form-control">
+                    <label class="label py-0.5"
+                      ><span class="label-text text-xs font-semibold"
+                        >Live URL</span
+                      ></label
+                    >
+                    <input
+                      type="url"
+                      class="input input-bordered rounded-xl text-sm"
+                      placeholder="https://..."
+                      :value="linkedProject.liveUrl ?? ''"
+                      :disabled="projectSaving"
+                      @blur="autosave('liveUrl', $event)"
+                    />
+                  </div>
+                  <div class="form-control">
+                    <label class="label py-0.5"
+                      ><span class="label-text text-xs font-semibold"
+                        >Repo URL</span
+                      ></label
+                    >
+                    <input
+                      type="url"
+                      class="input input-bordered rounded-xl text-sm"
+                      placeholder="https://github.com/..."
+                      :value="linkedProject.repoUrl ?? ''"
+                      :disabled="projectSaving"
+                      @blur="autosave('repoUrl', $event)"
+                    />
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <a
+                    v-if="linkedProject.liveUrl"
+                    :href="linkedProject.liveUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-xs btn-outline gap-1"
+                  >
+                    <Icon name="kind-icon:external-link" class="size-3" /> Live
+                    Site
+                  </a>
+                  <a
+                    v-if="linkedProject.repoUrl"
+                    :href="linkedProject.repoUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-xs btn-outline gap-1"
+                  >
+                    <Icon name="kind-icon:code" class="size-3" /> Repo
+                  </a>
+                </div>
+              </div>
+              <div
+                v-else
+                class="rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
+              >
+                <Icon
+                  name="kind-icon:dream"
+                  class="mx-auto mb-1 size-5 opacity-40"
+                />
+                No Project record linked for
+                <strong>{{ selectedProject.slug }}</strong>
+              </div>
+
+              <ConductorArtGallery
+                :slug="selectedProject.slug"
+                :hero-path="projectHeroPath(selectedProject.slug)"
+                :card-path="projectCardPath(selectedProject.slug)"
+                :icon-path="projectIconPath(selectedProject.slug)"
+              />
+            </div>
+
+            <!-- PROJECT ASSISTANT -->
+            <div v-if="linkedProject" class="shrink-0">
+              <ConductorProjectChat
+                :project-id="linkedProject.id"
+                :project-title="linkedProject.title || selectedProject.slug"
+                :project-context="projectContextText"
+              />
+            </div>
+
+            <div
+              v-if="selectedProject.notesFromSilas"
+              class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
+            >
+              <p
+                class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70"
+              >
+                Notes from Silas
+              </p>
+              {{ selectedProject.notesFromSilas }}
+            </div>
+
+            <div class="grid min-h-0 gap-4 sm:grid-cols-2">
+              <div v-if="selectedProject.milestones.length">
+                <h4
+                  class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+                >
+                  Milestones
+                </h4>
+                <div class="space-y-2">
+                  <div
+                    v-for="milestone in selectedProject.milestones"
+                    :key="milestone.id"
+                    class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+                  >
+                    <div
+                      class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
+                      :class="milestoneIconClass(milestone.status)"
+                    >
+                      <Icon
+                        :name="milestoneIcon(milestone.status)"
+                        class="size-3.5"
+                      />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="truncate text-sm font-semibold">
+                        {{ milestone.title }}
+                      </p>
+                      <p class="text-xs text-base-content/50">
+                        weight {{ milestone.weight }}
+                        <span
+                          v-if="milestoneTaskCounts.get(milestone.id)?.total"
+                          >&middot;
+                          {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
+                            milestoneTaskCounts.get(milestone.id)?.total
+                          }}
+                          done</span
+                        >
+                      </p>
+                    </div>
+                    <span
+                      class="badge badge-sm shrink-0"
+                      :class="milestoneBadgeClass(milestone.status)"
+                      >{{ milestone.status }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div v-if="selectedProject.tasks.length">
+                <h4
+                  class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+                >
+                  Tasks ({{ selectedProject.tasks.length }})
+                </h4>
+                <div class="space-y-2">
+                  <div
+                    v-for="task in activeTasks"
+                    :key="task.id"
+                    class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+                  >
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
+                        :class="taskIconClass(task.status)"
+                      >
+                        <Icon :name="taskIcon(task.status)" class="size-3" />
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold leading-snug">
+                          {{ task.title }}
+                        </p>
+                        <div
+                          class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
+                        >
+                          <span>{{ task.id }}</span>
+                          <span v-if="task.milestone"
+                            >&middot; {{ task.milestone }}</span
+                          >
+                          <span v-if="task.gateHuman" class="text-accent"
+                            >&middot; gate</span
+                          >
+                          <span v-if="task.owner"
+                            >&middot; {{ task.owner }}</span
+                          >
+                          <span v-if="task.passes > 0" class="text-warning"
+                            >&middot; pass {{ task.passes }}/3</span
+                          >
+                        </div>
+                        <div
+                          class="mt-1 flex flex-wrap items-center gap-1.5 text-xs"
+                        >
+                          <span
+                            v-if="task.stakes && task.stakes !== 'reversible'"
+                            class="badge badge-xs"
+                            :class="stakesBadgeClass(task.stakes)"
+                            >{{ task.stakes }}</span
+                          >
+                          <span
+                            v-if="task.dependsOn"
+                            class="text-base-content/30"
+                            >depends:
+                            {{
+                              Array.isArray(task.dependsOn)
+                                ? task.dependsOn.join(', ')
+                                : task.dependsOn
+                            }}</span
+                          >
+                          <span
+                            v-if="task.gateHuman && task.approvedByHuman"
+                            class="text-success"
+                            >✓ approved</span
+                          >
+                          <span
+                            v-if="task.gateHuman && !task.approvedByHuman"
+                            class="text-accent/70"
+                            >awaiting approval</span
+                          >
+                          <span
+                            v-if="task.updated"
+                            class="ml-auto text-base-content/25"
+                            >{{ relativeTime(task.updated) }}</span
+                          >
+                        </div>
+                        <p
+                          v-if="task.note"
+                          class="mt-1.5 line-clamp-3 text-xs leading-relaxed text-base-content/50"
+                        >
+                          {{ task.note }}
+                        </p>
+                      </div>
+                      <span
+                        class="badge badge-sm shrink-0"
+                        :class="taskBadgeClass(task.status)"
+                        >{{ task.status }}</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- COMPLETED TASKS DISCLOSURE, PER MILESTONE (t-015) -->
+                <div v-if="doneTasksByMilestone.length" class="mt-2 space-y-2">
+                  <details
+                    v-for="group in doneTasksByMilestone"
+                    :key="group.id"
+                    class="group rounded-2xl border border-base-300 bg-base-200/50"
+                  >
+                    <summary
+                      class="flex cursor-pointer list-none items-center gap-2 px-4 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
+                    >
+                      <Icon
+                        name="kind-icon:chevron-right"
+                        class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                      />
+                      <span class="truncate">{{ group.title }}</span>
+                      <span class="text-base-content/40"
+                        >&middot; Completed ({{ group.tasks.length }})</span
+                      >
+                    </summary>
+                    <div class="space-y-1.5 px-3 pb-3 pt-1">
+                      <div
+                        v-for="task in group.tasks"
+                        :key="task.id"
+                        class="flex items-start gap-2 rounded-xl border border-base-300/60 bg-base-100/60 px-3 py-2"
+                      >
+                        <Icon
+                          name="kind-icon:check"
+                          class="mt-0.5 size-3.5 shrink-0 text-success/70"
+                        />
+                        <div class="min-w-0 flex-1">
+                          <p
+                            class="truncate text-xs font-medium text-base-content/70"
+                          >
+                            {{ task.title }}
+                          </p>
+                          <div
+                            class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-base-content/40"
+                          >
+                            <span>{{ task.id }}</span>
+                            <span
+                              v-if="task.gateHuman && task.approvedByHuman"
+                              class="text-success"
+                              >&middot; ✓ approved</span
+                            >
+                            <span v-if="task.updated" class="ml-auto">{{
+                              relativeTime(task.updated)
+                            }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </div>
+
+            <!-- PROJECT TASK CREATION (t-002) -->
+            <div
+              v-if="linkedProject"
+              class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
+              <h4
+                class="mb-3 text-xs font-bold uppercase tracking-wide text-base-content/50"
+              >
+                Add Task to This Project
+              </h4>
+              <form class="space-y-2" @submit.prevent="submitProjectTask">
                 <input
-                  v-model="polishPrompt"
+                  v-model="projectTaskTitle"
                   type="text"
-                  placeholder="Any visual or UX idea for this project..."
+                  placeholder="What needs doing?"
+                  class="input input-bordered w-full rounded-xl text-sm"
+                  :disabled="projectTaskSubmitting"
+                />
+                <textarea
+                  v-model="projectTaskDescription"
+                  placeholder="Optional context..."
+                  class="textarea textarea-bordered w-full rounded-xl text-sm"
+                  rows="2"
+                  :disabled="projectTaskSubmitting"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <select
+                    v-model="projectTaskCategory"
+                    class="select select-bordered select-sm rounded-xl"
+                  >
+                    <option value="AGENT">🤖 Agent Task</option>
+                    <option value="KAIZEN">✨ Kaizen</option>
+                    <option value="HONEYDO">🍯 Honey Do</option>
+                    <option value="DESIRED_FEATURE">⭐ Feature Idea</option>
+                  </select>
+                  <select
+                    v-model="projectTaskPriority"
+                    class="select select-bordered select-sm rounded-xl"
+                  >
+                    <option value="HIGH">🔴 High</option>
+                    <option value="NORMAL">🟡 Normal</option>
+                    <option value="LOW">🟢 Low</option>
+                  </select>
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-sm ml-auto rounded-xl"
+                    :disabled="
+                      !projectTaskTitle.trim() || projectTaskSubmitting
+                    "
+                  >
+                    <span
+                      v-if="projectTaskSubmitting"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Add Task
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- KAIZEN + POLISH PROMPT (t-004, t-006) -->
+            <div
+              v-if="linkedProject"
+              class="shrink-0 space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
+            >
+              <div class="flex items-center gap-2">
+                <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
+                <h4
+                  class="text-xs font-bold uppercase tracking-wide text-secondary/70"
+                >
+                  Kaizen — Improvements
+                </h4>
+              </div>
+              <div v-if="projectKaizens.length" class="space-y-2">
+                <div
+                  v-for="kaizen in projectKaizens"
+                  :key="kaizen.id"
+                  class="flex items-start gap-2 rounded-xl border border-secondary/20 bg-base-100 px-3 py-2"
+                >
+                  <Icon
+                    name="kind-icon:sparkles"
+                    class="mt-0.5 size-3.5 shrink-0 text-secondary/50"
+                  />
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm leading-snug">{{ kaizen.title }}</p>
+                    <p
+                      v-if="kaizen.description"
+                      class="mt-0.5 text-xs text-base-content/50"
+                    >
+                      {{ kaizen.description }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-lg text-success"
+                    :disabled="todoStore.loading"
+                    @click="todoStore.updateTodo(kaizen.id, { status: 'DONE' })"
+                  >
+                    done
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-xs text-base-content/40">
+                No active kaizens for this project.
+              </p>
+              <form
+                class="flex flex-col gap-2"
+                @submit.prevent="submitPolishPrompt"
+              >
+                <label class="label py-0"
+                  ><span
+                    class="label-text text-xs font-semibold text-secondary/80"
+                    >How can I make this look better?</span
+                  ></label
+                >
+                <div class="flex gap-2">
+                  <input
+                    v-model="polishPrompt"
+                    type="text"
+                    placeholder="Any visual or UX idea for this project..."
+                    class="input input-bordered input-sm flex-1 rounded-xl text-sm"
+                    :disabled="polishSubmitting"
+                  />
+                  <button
+                    type="submit"
+                    class="btn btn-secondary btn-sm rounded-xl"
+                    :disabled="!polishPrompt.trim() || polishSubmitting"
+                  >
+                    <span
+                      v-if="polishSubmitting"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    <Icon v-else name="kind-icon:sparkles" class="size-3.5" />
+                  </button>
+                </div>
+                <p v-if="polishMessage" class="text-xs text-success">
+                  {{ polishMessage }}
+                </p>
+              </form>
+            </div>
+
+            <!-- DESIRED FEATURES (t-007) -->
+            <div
+              v-if="linkedProject"
+              class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
+              <div class="flex items-center gap-2">
+                <Icon name="kind-icon:check" class="size-4 text-primary" />
+                <h4
+                  class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+                >
+                  Feature Wishlist
+                </h4>
+              </div>
+              <div v-if="projectFeatures.length" class="space-y-1.5">
+                <div
+                  v-for="(feature, idx) in projectFeatures"
+                  :key="feature.id"
+                  class="group flex items-center gap-2 rounded-xl border px-3 py-2 transition-colors"
+                  :class="
+                    feature.status === 'ARCHIVED'
+                      ? 'border-base-300/50 bg-base-200/50 opacity-50'
+                      : 'border-base-300 bg-base-200'
+                  "
+                >
+                  <div class="flex shrink-0 flex-col">
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs h-4 min-h-0 rounded px-1 py-0 opacity-40 hover:opacity-100 disabled:opacity-20"
+                      :disabled="idx === 0 || todoStore.loading"
+                      @click="moveFeatureUp(idx)"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs h-4 min-h-0 rounded px-1 py-0 opacity-40 hover:opacity-100 disabled:opacity-20"
+                      :disabled="
+                        idx === projectFeatures.length - 1 || todoStore.loading
+                      "
+                      @click="moveFeatureDown(idx)"
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <p
+                    class="min-w-0 flex-1 text-sm leading-snug"
+                    :class="
+                      feature.status === 'ARCHIVED'
+                        ? 'line-through text-base-content/40'
+                        : ''
+                    "
+                  >
+                    {{ feature.title }}
+                  </p>
+                  <div
+                    v-if="feature.status !== 'ARCHIVED'"
+                    class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs rounded-lg text-xs text-primary"
+                      :disabled="todoStore.loading"
+                      @click="promoteFeatureToTask(feature.id)"
+                    >
+                      → task
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs rounded-lg text-xs text-base-content/30"
+                      :disabled="todoStore.loading"
+                      @click="retireFeature(feature.id)"
+                    >
+                      retire
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p v-else class="text-xs text-base-content/40">
+                No feature ideas yet.
+              </p>
+              <form class="flex gap-2" @submit.prevent="addDesiredFeature">
+                <input
+                  v-model="newFeatureTitle"
+                  type="text"
+                  placeholder="New feature idea..."
                   class="input input-bordered input-sm flex-1 rounded-xl text-sm"
-                  :disabled="polishSubmitting"
+                  :disabled="newFeatureSubmitting"
                 />
                 <button
                   type="submit"
-                  class="btn btn-secondary btn-sm rounded-xl"
-                  :disabled="!polishPrompt.trim() || polishSubmitting"
+                  class="btn btn-outline btn-sm rounded-xl"
+                  :disabled="!newFeatureTitle.trim() || newFeatureSubmitting"
                 >
                   <span
-                    v-if="polishSubmitting"
+                    v-if="newFeatureSubmitting"
                     class="loading loading-spinner loading-xs"
                   />
-                  <Icon v-else name="kind-icon:sparkles" class="size-3.5" />
+                  Add
                 </button>
-              </div>
-              <p v-if="polishMessage" class="text-xs text-success">
-                {{ polishMessage }}
-              </p>
-            </form>
-          </div>
-
-          <!-- DESIRED FEATURES (t-007) -->
-          <div
-            v-if="linkedProject"
-            class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
-            <div class="flex items-center gap-2">
-              <Icon name="kind-icon:check" class="size-4 text-primary" />
-              <h4
-                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-              >
-                Feature Wishlist
-              </h4>
+              </form>
             </div>
-            <div v-if="projectFeatures.length" class="space-y-1.5">
-              <div
-                v-for="(feature, idx) in projectFeatures"
-                :key="feature.id"
-                class="group flex items-center gap-2 rounded-xl border px-3 py-2 transition-colors"
-                :class="
-                  feature.status === 'ARCHIVED'
-                    ? 'border-base-300/50 bg-base-200/50 opacity-50'
-                    : 'border-base-300 bg-base-200'
-                "
-              >
-                <div class="flex shrink-0 flex-col">
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs h-4 min-h-0 rounded px-1 py-0 opacity-40 hover:opacity-100 disabled:opacity-20"
-                    :disabled="idx === 0 || todoStore.loading"
-                    @click="moveFeatureUp(idx)"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs h-4 min-h-0 rounded px-1 py-0 opacity-40 hover:opacity-100 disabled:opacity-20"
-                    :disabled="
-                      idx === projectFeatures.length - 1 || todoStore.loading
-                    "
-                    @click="moveFeatureDown(idx)"
-                  >
-                    ▼
-                  </button>
-                </div>
-                <p
-                  class="min-w-0 flex-1 text-sm leading-snug"
-                  :class="
-                    feature.status === 'ARCHIVED'
-                      ? 'line-through text-base-content/40'
-                      : ''
-                  "
-                >
-                  {{ feature.title }}
-                </p>
-                <div
-                  v-if="feature.status !== 'ARCHIVED'"
-                  class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100"
-                >
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-lg text-xs text-primary"
-                    :disabled="todoStore.loading"
-                    @click="promoteFeatureToTask(feature.id)"
-                  >
-                    → task
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-lg text-xs text-base-content/30"
-                    :disabled="todoStore.loading"
-                    @click="retireFeature(feature.id)"
-                  >
-                    retire
-                  </button>
-                </div>
-              </div>
-            </div>
-            <p v-else class="text-xs text-base-content/40">
-              No feature ideas yet.
-            </p>
-            <form class="flex gap-2" @submit.prevent="addDesiredFeature">
-              <input
-                v-model="newFeatureTitle"
-                type="text"
-                placeholder="New feature idea..."
-                class="input input-bordered input-sm flex-1 rounded-xl text-sm"
-                :disabled="newFeatureSubmitting"
-              />
-              <button
-                type="submit"
-                class="btn btn-outline btn-sm rounded-xl"
-                :disabled="!newFeatureTitle.trim() || newFeatureSubmitting"
-              >
-                <span
-                  v-if="newFeatureSubmitting"
-                  class="loading loading-spinner loading-xs"
-                />
-                Add
-              </button>
-            </form>
           </div>
         </div>
-      </div>
-    </template>
+      </template>
+    </div>
   </section>
 </template>
 
@@ -1527,10 +1536,12 @@ const sortedActiveProjects = computed(() =>
     }
     const pa =
       (projectRecordForSlug(a.slug)?.priority as
-        ProjectPriorityLevel | undefined) ?? 'NORMAL'
+        | ProjectPriorityLevel
+        | undefined) ?? 'NORMAL'
     const pb =
       (projectRecordForSlug(b.slug)?.priority as
-        ProjectPriorityLevel | undefined) ?? 'NORMAL'
+        | ProjectPriorityLevel
+        | undefined) ?? 'NORMAL'
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
 )

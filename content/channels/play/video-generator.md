@@ -2,8 +2,6 @@
 contentType: tab
 channelKey: play
 tabKey: video-generator
-dashboardKey: art
-dashboardTab: video
 label: Video Gen
 title: Video Generator
 subtitle: Animate a still into a short clip

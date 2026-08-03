@@ -1,85 +1,85 @@
 <!-- /pages/admin/wonderlab-review-rollout.vue -->
 <template>
-  <main
-    class="mx-auto h-full min-h-0 max-w-6xl space-y-4 overflow-y-auto overscroll-contain p-4 md:p-6"
-  >
-    <header class="rounded-3xl border border-base-300 bg-base-100 p-5">
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-black uppercase tracking-widest text-primary">
-            WonderLab Operations
-          </p>
-          <p class="mt-2 text-3xl font-black">Personality review rollout audit</p>
-          <p class="mt-2 max-w-3xl text-sm text-base-content/60">
-            Read-only production checks for migrations, author identity, draft links,
-            and duplicate prevention. This page never generates, approves, or publishes.
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <NuxtLink to="/admin/wonderlab-review-plan" class="btn btn-outline btn-sm">
-            Coverage plan
-          </NuxtLink>
-          <NuxtLink to="/admin/wonderlab-reviews" class="btn btn-outline btn-sm">
-            Curator workspace
-          </NuxtLink>
-          <button class="btn btn-primary btn-sm" :disabled="loading" @click="loadAudit">
-            <span v-if="loading" class="loading loading-spinner loading-xs" />
-            Run audit
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <section v-if="!ready" class="grid min-h-52 place-items-center rounded-3xl bg-base-100">
-      <span class="loading loading-spinner loading-lg text-primary" />
-    </section>
-
-    <section v-else-if="!userStore.isAdmin" class="rounded-3xl border border-error/40 bg-error/10 p-8 text-center">
-      <h2 class="text-xl font-black">Administrator access required</h2>
-    </section>
-
-    <template v-else>
-      <p v-if="notice" class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error">
-        {{ notice }}
-      </p>
-
-      <section v-if="audit" class="rounded-3xl border p-5" :class="audit.ready ? 'border-success/40 bg-success/10' : 'border-warning/40 bg-warning/10'">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+  <main class="kr-surface mx-auto max-w-6xl">
+    <div class="kr-scroll space-y-4 p-4 md:p-6">
+      <header class="rounded-3xl border border-base-300 bg-base-100 p-5">
+        <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p class="text-xs font-black uppercase tracking-widest">Rollout state</p>
-            <h2 class="mt-1 text-2xl font-black">
-              {{ audit.ready ? 'Ready' : 'Blocked' }}
-            </h2>
-            <p class="mt-1 text-sm text-base-content/60">
-              {{ audit.databaseName || 'No database' }} · checked {{ formatDate(audit.checkedAt) }}
+            <p class="text-xs font-black uppercase tracking-widest text-primary">
+              WonderLab Operations
+            </p>
+            <p class="mt-2 text-3xl font-black">Personality review rollout audit</p>
+            <p class="mt-2 max-w-3xl text-sm text-base-content/60">
+              Read-only production checks for migrations, author identity, draft links,
+              and duplicate prevention. This page never generates, approves, or publishes.
             </p>
           </div>
-          <Icon :name="audit.ready ? 'kind-icon:check' : 'kind-icon:warning'" class="size-12" />
+          <div class="flex flex-wrap gap-2">
+            <NuxtLink to="/admin/wonderlab-review-plan" class="btn btn-outline btn-sm">
+              Coverage plan
+            </NuxtLink>
+            <NuxtLink to="/admin/wonderlab-reviews" class="btn btn-outline btn-sm">
+              Curator workspace
+            </NuxtLink>
+            <button class="btn btn-primary btn-sm" :disabled="loading" @click="loadAudit">
+              <span v-if="loading" class="loading loading-spinner loading-xs" />
+              Run audit
+            </button>
+          </div>
         </div>
+      </header>
+
+      <section v-if="!ready" class="grid min-h-52 place-items-center rounded-3xl bg-base-100">
+        <span class="loading loading-spinner loading-lg text-primary" />
       </section>
 
-      <section v-if="audit" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <div v-for="metric in metricCards" :key="metric.label" class="stat rounded-3xl border border-base-300 bg-base-100">
-          <div class="stat-title text-xs">{{ metric.label }}</div>
-          <div class="stat-value text-2xl">{{ metric.value }}</div>
-        </div>
+      <section v-else-if="!userStore.isAdmin" class="rounded-3xl border border-error/40 bg-error/10 p-8 text-center">
+        <h2 class="text-xl font-black">Administrator access required</h2>
       </section>
 
-      <section v-if="audit" class="grid gap-3 md:grid-cols-2">
-        <article v-for="entry in audit.checks" :key="entry.key" class="rounded-3xl border bg-base-100 p-4" :class="entry.ok ? 'border-success/30' : 'border-error/40'">
-          <div class="flex items-start gap-3">
-            <Icon :name="entry.ok ? 'kind-icon:check' : 'kind-icon:warning'" class="mt-0.5 size-5 shrink-0" :class="entry.ok ? 'text-success' : 'text-error'" />
-            <div class="min-w-0">
-              <h3 class="font-black">{{ entry.label }}</h3>
-              <p class="mt-1 text-sm text-base-content/65">{{ entry.detail }}</p>
-              <p class="mt-2 truncate font-mono text-xs text-base-content/45">
-                {{ entry.value }}
+      <template v-else>
+        <p v-if="notice" class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error">
+          {{ notice }}
+        </p>
+
+        <section v-if="audit" class="rounded-3xl border p-5" :class="audit.ready ? 'border-success/40 bg-success/10' : 'border-warning/40 bg-warning/10'">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-black uppercase tracking-widest">Rollout state</p>
+              <h2 class="mt-1 text-2xl font-black">
+                {{ audit.ready ? 'Ready' : 'Blocked' }}
+              </h2>
+              <p class="mt-1 text-sm text-base-content/60">
+                {{ audit.databaseName || 'No database' }} · checked {{ formatDate(audit.checkedAt) }}
               </p>
             </div>
+            <Icon :name="audit.ready ? 'kind-icon:check' : 'kind-icon:warning'" class="size-12" />
           </div>
-        </article>
-      </section>
-    </template>
+        </section>
+
+        <section v-if="audit" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div v-for="metric in metricCards" :key="metric.label" class="stat rounded-3xl border border-base-300 bg-base-100">
+            <div class="stat-title text-xs">{{ metric.label }}</div>
+            <div class="stat-value text-2xl">{{ metric.value }}</div>
+          </div>
+        </section>
+
+        <section v-if="audit" class="grid gap-3 md:grid-cols-2">
+          <article v-for="entry in audit.checks" :key="entry.key" class="rounded-3xl border bg-base-100 p-4" :class="entry.ok ? 'border-success/30' : 'border-error/40'">
+            <div class="flex items-start gap-3">
+              <Icon :name="entry.ok ? 'kind-icon:check' : 'kind-icon:warning'" class="mt-0.5 size-5 shrink-0" :class="entry.ok ? 'text-success' : 'text-error'" />
+              <div class="min-w-0">
+                <h3 class="font-black">{{ entry.label }}</h3>
+                <p class="mt-1 text-sm text-base-content/65">{{ entry.detail }}</p>
+                <p class="mt-2 truncate font-mono text-xs text-base-content/45">
+                  {{ entry.value }}
+                </p>
+              </div>
+            </div>
+          </article>
+        </section>
+      </template>
+    </div>
   </main>
 </template>
 

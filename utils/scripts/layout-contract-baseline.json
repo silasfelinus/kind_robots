@@ -40,11 +40,7 @@
       "components/pages/appmaker-page.vue",
       "components/pages/memory-dungeon.vue",
       "components/pages/wishmaster-page.vue",
-      "pages/[...slug].vue",
-      "pages/admin/wonderlab-review-generator.vue",
-      "pages/admin/wonderlab-review-plan.vue",
-      "pages/admin/wonderlab-review-rollout.vue",
-      "pages/admin/wonderlab-reviews.vue"
+      "pages/[...slug].vue"
     ]
   }
 }

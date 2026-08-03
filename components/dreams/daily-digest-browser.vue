@@ -206,13 +206,25 @@ const selectedDreamId = ref<number | null>(null)
 const loading = ref(true)
 const imageFailed = ref(false)
 
+const CURRENT_DAILY_DREAM_DESIGNER = 'dream-cycle'
+const LEGACY_DAILY_DREAM_DESIGNER = 'Daily Dream Facet Engine'
+
+function isDailyDreamArchiveEntry(dream: DigestDream): boolean {
+  if (dream.dreamType !== 'PITCH') return false
+
+  if (dream.designer === CURRENT_DAILY_DREAM_DESIGNER) {
+    return Boolean(dream.PitchSheet)
+  }
+
+  return (
+    dream.designer === LEGACY_DAILY_DREAM_DESIGNER ||
+    String(dream.slug || '').startsWith('daily-dream-')
+  )
+}
+
 const digestDreams = computed<DigestDream[]>(() =>
   dreamStore.dreams
-    .filter(
-      (dream) =>
-        dream.designer === 'Daily Dream Facet Engine' ||
-        String(dream.slug || '').startsWith('daily-dream-'),
-    )
+    .filter(isDailyDreamArchiveEntry)
     .sort((left, right) => {
       const dateOrder = dateKey(right).localeCompare(dateKey(left))
       return dateOrder || right.id - left.id
@@ -293,11 +305,18 @@ function showNewer(): void {
 async function loadDigests(): Promise<void> {
   loading.value = true
   try {
-    await dreamStore.fetchDreams({
-      userOnly: true,
-      search: 'Daily Dream Facet Engine',
-      limit: 100,
-    })
+    await Promise.all([
+      dreamStore.fetchDreams({
+        search: CURRENT_DAILY_DREAM_DESIGNER,
+        dreamType: 'PITCH',
+        limit: 100,
+      }),
+      dreamStore.fetchDreams({
+        search: LEGACY_DAILY_DREAM_DESIGNER,
+        dreamType: 'PITCH',
+        limit: 100,
+      }),
+    ])
   } finally {
     loading.value = false
   }

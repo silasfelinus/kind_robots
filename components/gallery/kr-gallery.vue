@@ -56,7 +56,6 @@
         :key="item.id"
         type="button"
         class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
-        :class="itemClass"
         @click="emit('open', item)"
       >
         <div class="relative overflow-hidden" :class="imageWrapClass">
@@ -223,17 +222,12 @@ const emit = defineEmits<{
 }>()
 
 const gridClass = computed(() => MODE_GRID_CLASS[props.mode])
-const itemClass = computed(() =>
-  props.mode === 'list' ? 'grid md:grid-cols-[12rem_1fr]' : '',
-)
 const imageWrapClass = computed(() =>
   props.mode === 'heroes'
     ? 'min-h-64'
     : props.mode === 'icons'
       ? 'mx-auto mt-3 size-24 rounded-2xl'
-      : props.mode === 'list'
-        ? 'min-h-40'
-        : 'aspect-[4/3]',
+      : 'aspect-[4/3]',
 )
 const modeVariant = computed<ArtVariant>(() => MODE_VARIANT[props.mode])
 

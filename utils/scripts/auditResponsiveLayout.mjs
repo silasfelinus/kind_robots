@@ -83,6 +83,30 @@ function collect(minFlexWidth) {
     `"${(el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 34)}" ` +
     `${extra} .${(el.className || '').toString().replace(/\s+/g, ' ').slice(0, 70)}`
 
+  /**
+   * Content inside a horizontally scrollable container is SUPPOSED to extend
+   * past the viewport — that is what scrolling means. A tab strip or a card
+   * hand would otherwise report every off-screen item as a defect, which is
+   * how a checker earns the right to be ignored.
+   *
+   * The excuse is conditional: it only applies when the scroller ITSELF fits.
+   * A scroller that overflows is a genuine defect and is still reported, on
+   * the scroller, where the fix belongs.
+   */
+  const insideFittingScrollerX = (el) => {
+    for (
+      let p = el.parentElement;
+      p && p !== document.body;
+      p = p.parentElement
+    ) {
+      const cs = getComputedStyle(p)
+      if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') {
+        return p.getBoundingClientRect().right <= vw + 1
+      }
+    }
+    return false
+  }
+
   const spill = []
   const crushed = []
   for (const el of document.querySelectorAll('body *')) {
@@ -91,7 +115,11 @@ function collect(minFlexWidth) {
 
     // Outermost offender only: a wide child otherwise reports its whole
     // ancestor chain and buries the actual cause.
-    if (b.right > vw + 1 && !spill.some((s) => s.node.contains(el))) {
+    if (
+      b.right > vw + 1 &&
+      !insideFittingScrollerX(el) &&
+      !spill.some((s) => s.node.contains(el))
+    ) {
       spill.push({
         node: el,
         text: describe(el, `right=${Math.round(b.right)}`),

@@ -32,13 +32,26 @@ import type { ArtVariant } from './artImageSrc'
 export type { ArtVariant }
 
 /**
- * What a gallery is currently showing. The first three are the plural of
- * ArtVariant and MUST stay in lockstep with it; `list` is a layout.
+ * What a gallery is currently showing: exactly the plural of ArtVariant, one
+ * mode per stored image, and nothing else.
+ *
+ * There used to be a fourth, `list`. Silas killed it 2026-08-03 after seeing
+ * it live: "List is the odd duck out ... the current List page is a GIGANTIC
+ * display of individual images, with each dream taking up more than a page ...
+ * confirmed that on small, the line and hero displays look identical. kill
+ * line." Both observations follow from what it was — a layout wearing a mode's
+ * clothes. It loaded hero art (so it WAS heroes once a phone dropped its
+ * two-column grid) at a 12rem row that a full card overflowed. A mode that is
+ * a layout rather than an image cannot stay in lockstep with the schema, which
+ * is the whole point of this vocabulary.
+ *
+ * `list` is deliberately NOT re-added as an alias. IS_GALLERY_MODE rejects the
+ * stored string and callers fall back to `cards`, which is the migration.
  *
  * These strings are persisted to localStorage and to the gallery-preference
  * store, so renaming a value is a data migration, not a rename.
  */
-export type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
+export type GalleryMode = 'cards' | 'heroes' | 'icons'
 
 export interface GalleryModeOption {
   value: GalleryMode
@@ -51,7 +64,6 @@ export const GALLERY_MODES: readonly GalleryModeOption[] = [
   { value: 'cards', label: 'Cards', abbr: 'C' },
   { value: 'heroes', label: 'Heroes', abbr: 'H' },
   { value: 'icons', label: 'Icons', abbr: 'I' },
-  { value: 'list', label: 'List', abbr: 'L' },
 ]
 
 /**
@@ -62,29 +74,27 @@ export const GALLERY_MODES: readonly GalleryModeOption[] = [
 export const IS_GALLERY_MODE = (value: string): value is GalleryMode =>
   GALLERY_MODES.some((mode) => mode.value === value)
 
-/**
- * Which stored art a given mode should load. `list` takes hero art because its
- * row is a wide 12rem-art strip, not a portrait card — this mirrors kr-gallery,
- * which is the proven implementation and the authority here.
- */
+/** Which stored art a given mode loads. One mode, one column, no exceptions. */
 export const MODE_VARIANT: Record<GalleryMode, ArtVariant> = {
   cards: 'card',
   heroes: 'hero',
   icons: 'icon',
-  list: 'hero',
 }
 
 /**
- * The grid/stack each mode lays its items out in. Lifted verbatim from
- * kr-gallery so a gallery that cannot yet adopt the whole shell still lays out
- * identically to one that has. `list` is a VERTICAL stack — a horizontal
- * scrolling strip is a different thing entirely and is never a mode.
+ * The grid each mode lays its items out in. Lifted verbatim from kr-gallery so
+ * a gallery that cannot yet adopt the whole shell still lays out identically
+ * to one that has.
+ *
+ * Every entry is a GRID. That is not incidental: the one entry that was not
+ * (`list`, a flex column) is the one that had to be removed, because a mode
+ * whose identity is its layout rather than its image duplicates whichever grid
+ * happens to collapse to one column at that width.
  */
 export const MODE_GRID_CLASS: Record<GalleryMode, string> = {
   cards: 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   heroes: 'grid gap-4 lg:grid-cols-2',
   icons: 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5',
-  list: 'flex flex-col gap-2',
 }
 
 /**

@@ -96,7 +96,6 @@
             <NuxtPage />
           </div>
         </main>
-
       </section>
     </section>
 
@@ -119,10 +118,9 @@
       <div
         class="pointer-events-auto fixed bottom-3 right-3 z-40 flex items-end gap-2"
       >
-
         <button
           type="button"
-          class="kr-workspace-dock group relative shrink-0 overflow-hidden rounded-full border-2 border-primary/40 bg-base-300/95 shadow-2xl transition duration-200 hover:scale-105 hover:border-primary/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="kr-workspace-dock group relative shrink-0 overflow-hidden rounded-full border-2 border-primary/70 bg-base-100 shadow-2xl ring-2 ring-base-100/80 transition duration-200 hover:scale-105 hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :aria-label="bottomDockLabel"
           :title="bottomDockLabel"
           :aria-expanded="handOpen"
@@ -211,7 +209,6 @@ function syncBreakpoints(): void {
   if (xlMedia) isXl.value = xlMedia.matches
 }
 
-
 const SHEET_W_MD = '20rem'
 const SHEET_W_XL = '24rem'
 const DOCK_CIRCLE_MD = '4.5rem'
@@ -250,11 +247,23 @@ const shellVars = computed<CSSProperties>(() => {
 const footerVars = computed<CSSProperties>(() => {
   return {
     left: 'var(--sheet-w)',
-    right: '0px',
+    /*
+     * Stop the hand before the dock button instead of running underneath it.
+     * The dock is a sibling overlay pinned bottom-right, so a footer ending at
+     * right:0 necessarily passes behind it — measured at 390px, the hand's
+     * right edge was 382 while the dock started at 294, so 88px of cards sat
+     * under the button and the last card could not be reached. Silas: "the
+     * toggle is still over the hand display ... [it] should stop horizontally
+     * before it hits the toggle."
+     *
+     * --dock-circle is the button's own size and 0.75rem matches its `right-3`
+     * inset, so this tracks the dock at every breakpoint rather than hardcoding
+     * a width that would drift the moment the button is resized.
+     */
+    right: 'calc(var(--dock-circle) + 0.75rem + 0.5rem)',
     height: 'var(--footer-h)',
   } as CSSProperties
 })
-
 
 const bottomDockLabel = computed(() =>
   handOpen.value ? 'Hide cards' : 'Show cards',
@@ -263,7 +272,6 @@ const bottomDockLabel = computed(() =>
 const bottomDockActionIcon = computed(() =>
   handOpen.value ? 'kind-icon:close' : 'kind-icon:card',
 )
-
 
 function toggleCards(): void {
   handOpen.value = !handOpen.value
@@ -279,9 +287,8 @@ watch(
     navStore.recordVisit(path)
 
     if (previousPath !== undefined) {
-      void import('@/stores/achievementStore').then(
-        ({ useAchievementStore }) =>
-          useAchievementStore().rewardAchievementForPath(path),
+      void import('@/stores/achievementStore').then(({ useAchievementStore }) =>
+        useAchievementStore().rewardAchievementForPath(path),
       )
     }
   },
@@ -348,7 +355,6 @@ onBeforeUnmount(() => {
   width: var(--dock-circle);
 }
 
-
 @media (min-width: 768px) {
   .kr-main {
     padding-left: var(--sheet-w);
@@ -370,7 +376,6 @@ onBeforeUnmount(() => {
 
 .kr-hand-slide-enter-active,
 .kr-hand-slide-leave-active,
-
 @media (prefers-reduced-motion: reduce) {
   .kr-workspace-dock,
   .kr-hand-slide-enter-active,

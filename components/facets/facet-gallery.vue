@@ -11,7 +11,9 @@
       <Icon name="kind-icon:tag" class="size-5 text-secondary" />
       <div class="min-w-0 flex-1">
         <p class="font-black">{{ title }}</p>
-        <p v-if="subtitle" class="text-xs text-base-content/55">{{ subtitle }}</p>
+        <p v-if="subtitle" class="text-xs text-base-content/55">
+          {{ subtitle }}
+        </p>
       </div>
       <span
         v-if="catalog.loading"
@@ -62,7 +64,11 @@
         class="select select-bordered select-sm shrink-0 rounded-xl"
         aria-label="Facet gallery layout"
       >
-        <option v-for="entry in GALLERY_MODES" :key="entry.value" :value="entry.value">
+        <option
+          v-for="entry in GALLERY_MODES"
+          :key="entry.value"
+          :value="entry.value"
+        >
           {{ entry.label }}
         </option>
       </select>
@@ -74,9 +80,15 @@
 
     <!-- THE one scroll region. Everything above pins. -->
     <div class="kr-scroll space-y-6">
-      <div v-for="group in visibleGroups" :key="group.taxonomy" class="space-y-3">
+      <div
+        v-for="group in visibleGroups"
+        :key="group.taxonomy"
+        class="space-y-3"
+      >
         <div class="flex items-baseline gap-2">
-          <h2 class="text-lg font-black">{{ taxonomyLabel(group.taxonomy) }}</h2>
+          <h2 class="text-lg font-black">
+            {{ taxonomyLabel(group.taxonomy) }}
+          </h2>
           <span class="badge badge-secondary badge-sm">{{ group.total }}</span>
         </div>
 
@@ -98,8 +110,10 @@
           class="btn btn-ghost btn-sm w-full rounded-xl border border-base-300"
           @click="showMore(group.taxonomy)"
         >
-          Show more {{ taxonomyLabel(group.taxonomy) }}
-          ({{ group.entries.length }} of {{ group.total }})
+          Show more {{ taxonomyLabel(group.taxonomy) }} ({{
+            group.entries.length
+          }}
+          of {{ group.total }})
         </button>
       </div>
 
@@ -123,10 +137,8 @@ import {
 } from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
-import type {
-  GalleryItem,
-  GalleryMode,
-} from '@/components/gallery/kr-gallery.vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
 
 withDefaults(
   defineProps<{
@@ -153,12 +165,10 @@ const emit = defineEmits<{ select: [facet: FacetCatalogEntry] }>()
 
 const catalog = useFacetCatalogStore()
 
-const GALLERY_MODES = [
-  { value: 'cards' as const, label: 'Cards' },
-  { value: 'heroes' as const, label: 'Heroes' },
-  { value: 'icons' as const, label: 'Icons' },
-  { value: 'list' as const, label: 'List' },
-]
+// Was a private copy of the mode list — the ninth such duplicate, and the one
+// that survived the 2026-08-03 consolidation because it lived under a local
+// name rather than a shared type. Importing it is what keeps `list`'s removal
+// from having to be repeated per gallery.
 
 const search = ref('')
 const taxonomyFilter = ref<FacetTaxonomy | null>(null)
@@ -206,8 +216,11 @@ function iconName(facet: FacetCatalogEntry): string {
 }
 
 function toGalleryItem(facet: FacetCatalogEntry): GalleryItem {
-  const badges = [{ label: taxonomyLabel(facet.taxonomy), class: 'badge-outline' }]
-  if (facet.groupLabel) badges.push({ label: facet.groupLabel, class: 'badge-ghost' })
+  const badges = [
+    { label: taxonomyLabel(facet.taxonomy), class: 'badge-outline' },
+  ]
+  if (facet.groupLabel)
+    badges.push({ label: facet.groupLabel, class: 'badge-ghost' })
 
   return {
     id: facet.id,

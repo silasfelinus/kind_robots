@@ -23,7 +23,7 @@
  *   3. no-viewport   — no h-screen/100vh inside a shell that is already h-dvh
  *   4. one-mdc       — a content page mounts one component, not several
  *   5. ghost-prop    — don't pass :show-header to a component that never declared it
- *   6. root-surface  — page components start with a shared kr-surface/kr-stage root
+ *   6. root-surface  — page components start with a shared kr-surface/kr-stage/kr-unbound root
  */
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative, basename, extname } from 'node:path'
@@ -55,7 +55,7 @@ const RULE_TITLES: Record<RuleId, string> = {
   'zero-scroll':
     'standalone page components with no scroll region of their own (app.vue no longer scrolls for them)',
   'root-surface':
-    'page components whose root wrapper does not use kr-surface or kr-stage',
+    'page components whose root wrapper does not use kr-surface, kr-stage, or kr-unbound',
 }
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
@@ -198,7 +198,7 @@ function collect(): Record<RuleId, string[]> {
       const rootClasses = rootClassList(template)
       if (
         rootClasses === null ||
-        !/(?:^|\s)kr-(?:surface|stage)(?:\s|$)/.test(rootClasses)
+        !/(?:^|\s)kr-(?:surface|stage|unbound)(?:\s|$)/.test(rootClasses)
       ) {
         violations['root-surface'].push(r)
       }

@@ -1,6 +1,6 @@
 <!-- /components/content/pages/about-page.vue -->
 <template>
-  <div class="flex flex-col items-center gap-4 bg-base-200 py-6 px-4">
+  <div class="kr-unbound items-center gap-4 bg-base-200 py-6 px-4">
     <div class="w-full max-w-2xl">
       <!-- Section header -->
       <div class="mb-6 flex flex-col items-center gap-2 text-center">

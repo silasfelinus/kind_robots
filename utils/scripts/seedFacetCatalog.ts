@@ -1,10 +1,8 @@
 // /utils/scripts/seedFacetCatalog.ts
 import 'dotenv/config'
-import {
-  PrismaClient,
-  type FacetKind,
-} from './../../prisma/generated/prisma/client'
+import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { ADVENTURE_CARDS } from './../../stores/helpers/adventureCards'
 import { animalDataList } from './../../stores/utils/animalData'
 import { artListPresets } from './../../stores/seeds/artList'
@@ -87,22 +85,6 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 255)
-}
-
-function legacyKind(taxonomy: Taxonomy): FacetKind {
-  const direct: Partial<Record<Taxonomy, FacetKind>> = {
-    GENRE: 'GENRE',
-    ANIMAL: 'ANIMAL',
-    COLOR: 'COLOR',
-    THEME: 'THEME',
-    CORE: 'CORE',
-    MOOD: 'MOOD',
-    STYLE: 'STYLE',
-    SETTING: 'SETTING',
-    ART_DIRECTION: 'ART_DIRECTION',
-    PROMPT_ENHANCEMENT: 'ART_DIRECTION',
-  }
-  return direct[taxonomy] ?? 'OTHER'
 }
 
 function classTaxonomy(value: string): Taxonomy {
@@ -541,7 +523,7 @@ async function createOrRecoverFacet(
       data: {
         title: candidate.title,
         slug,
-        kind: legacyKind(candidate.taxonomy),
+        kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
         description: candidate.description,
         imagePath: candidate.imagePath,
         icon: candidate.icon,
@@ -569,7 +551,7 @@ async function createOrRecoverFacet(
       where: { id: winner.id },
       data: {
         title: candidate.title,
-        kind: legacyKind(candidate.taxonomy),
+        kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
         description: candidate.description || winner.description,
         imagePath: candidate.imagePath || winner.imagePath,
         icon: candidate.icon || winner.icon,
@@ -599,7 +581,7 @@ async function saveCandidate(
         data: {
           title: candidate.title,
           slug,
-          kind: legacyKind(candidate.taxonomy),
+          kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
           description: candidate.description || existingFacet.description,
           imagePath: candidate.imagePath || existingFacet.imagePath,
           icon: candidate.icon || existingFacet.icon,

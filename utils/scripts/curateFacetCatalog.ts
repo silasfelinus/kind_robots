@@ -6,6 +6,7 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import {
   FACET_CURATION_BATCHES,
   type CuratedFacetDefinition,
@@ -106,22 +107,6 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 255)
-}
-
-function legacyKind(taxonomy: FacetTaxonomy): FacetKind {
-  const direct: Partial<Record<FacetTaxonomy, FacetKind>> = {
-    GENRE: 'GENRE',
-    ANIMAL: 'ANIMAL',
-    COLOR: 'COLOR',
-    THEME: 'THEME',
-    CORE: 'CORE',
-    MOOD: 'MOOD',
-    STYLE: 'STYLE',
-    SETTING: 'SETTING',
-    ART_DIRECTION: 'ART_DIRECTION',
-    PROMPT_ENHANCEMENT: 'ART_DIRECTION',
-  }
-  return direct[taxonomy] ?? 'OTHER'
 }
 
 function parseMetadata(value: string | null | undefined): JsonObject {
@@ -299,7 +284,7 @@ async function ensureFacet(
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: legacyKind(definition.taxonomy),
+        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         description: definition.description,
         designer: 'facet-curation',
         creationSource: 'HUMAN',
@@ -320,7 +305,7 @@ async function ensureFacet(
     facet = await prisma.facet.update({
       where: { id: facet.id },
       data: {
-        kind: legacyKind(definition.taxonomy),
+        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         description: facet.description || definition.description,
         designer: facet.designer || 'facet-curation',
         isActive: true,
@@ -425,7 +410,7 @@ async function applyTransform(
     facet = await prisma.facet.update({
       where: { id: facet.id },
       data: {
-        kind: legacyKind(definition.taxonomy),
+        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         designer: facet.designer || 'facet-curation',
         isActive: true,
       },

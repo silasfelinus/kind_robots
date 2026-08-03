@@ -2,8 +2,9 @@
 import 'dotenv/config'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { PrismaClient, type FacetKind } from './../../prisma/generated/prisma/client'
+import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { ART_CARDS } from './../../stores/helpers/artCards'
 import type { BuilderChoice } from './../../stores/helpers/builderCards'
 import {
@@ -73,12 +74,6 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 180)
-}
-
-function legacyKind(taxonomy: Taxonomy): FacetKind {
-  if (taxonomy === 'ART_DIRECTION') return 'ART_DIRECTION'
-  if (taxonomy === 'STYLE') return 'STYLE'
-  return 'MOOD'
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {
@@ -302,7 +297,7 @@ async function saveCandidate(candidate: Candidate, state: CatalogState): Promise
         data: {
           title: candidate.title,
           slug,
-          kind: legacyKind(candidate.taxonomy),
+          kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',

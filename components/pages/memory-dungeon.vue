@@ -1,12 +1,7 @@
 <!-- /components/content/story/memory-dungeon.vue -->
+<!-- root div -->
 <template>
-  <!-- root div -->
-  <div
-    class="flex h-full min-h-[80vh] select-none flex-col bg-base-200"
-    :class="
-      gameStarted ? 'overflow-hidden' : 'overflow-y-auto overscroll-contain'
-    "
-  >
+  <div class="kr-surface min-h-[80vh] select-none gap-0 bg-base-200">
     <header
       v-if="gameStarted"
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
@@ -153,7 +148,7 @@
     <!-- ─── SPLASH SCREEN (pre-game takeover) ───────────────── -->
     <div
       v-if="!gameStarted"
-      class="splash-screen relative flex min-h-full flex-1 flex-col overflow-visible bg-black"
+      class="splash-screen kr-scroll relative flex min-h-full flex-col bg-black"
     >
       <div
         class="splash-hero relative flex min-h-[58svh] flex-col overflow-hidden sm:min-h-[64svh] lg:min-h-[70svh]"

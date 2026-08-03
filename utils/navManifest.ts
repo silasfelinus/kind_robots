@@ -62,7 +62,7 @@ export type NavManifestIssue = {
   channelKey: string
   tabKey: string
   message: string
-  severity: 'error'
+  severity: 'error' | 'warning'
 }
 
 /**

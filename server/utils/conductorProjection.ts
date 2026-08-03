@@ -253,10 +253,14 @@ export function buildConductorData(
     const parsed = parsedRoadmap(snapshot, override.slug)
     const display = displays.get(override.slug)
     const fallbackAssets = conductorProjectAssets(snapshot, override.slug)
+    const liveUrl = defined(display?.liveUrl) ?? defined(override.liveUrl)
+    const channelKey = defined(display?.channelKey) ?? defined(override.channelKey)
+    const tabKey = defined(display?.tabKey) ?? defined(override.tabKey)
+    const repoUrl = defined(display?.repoUrl) ?? defined(override.repoUrl)
 
     return {
       slug: override.slug,
-      name: defined(display?.title) ?? parsed.name || override.slug,
+      name: defined(display?.title) ?? defined(parsed.name) ?? override.slug,
       kind: override.kind || parsed.kind || 'software',
       status: conductorStatusToProjectStatus(override.status),
       priority: conductorPriorityToProjectPriority(override.priority),
@@ -272,18 +276,10 @@ export function buildConductorData(
         ? { notesFromSilas: parsed.notesFromSilas }
         : {}),
       ...(parsed.goal ? { goal: parsed.goal } : {}),
-      ...(defined(display?.liveUrl) ?? override.liveUrl
-        ? { liveUrl: defined(display?.liveUrl) ?? override.liveUrl }
-        : {}),
-      ...(defined(display?.channelKey) ?? override.channelKey
-        ? { channelKey: defined(display?.channelKey) ?? override.channelKey }
-        : {}),
-      ...(defined(display?.tabKey) ?? override.tabKey
-        ? { tabKey: defined(display?.tabKey) ?? override.tabKey }
-        : {}),
-      ...(defined(display?.repoUrl) ?? override.repoUrl
-        ? { repoUrl: defined(display?.repoUrl) ?? override.repoUrl }
-        : {}),
+      ...(liveUrl ? { liveUrl } : {}),
+      ...(channelKey ? { channelKey } : {}),
+      ...(tabKey ? { tabKey } : {}),
+      ...(repoUrl ? { repoUrl } : {}),
     } satisfies ConductorProject
   })
 
@@ -308,7 +304,9 @@ export function buildConductorData(
   }
 }
 
-export function missingConductorData(now = new Date().toISOString()): ConductorData {
+export function missingConductorData(
+  now = new Date().toISOString(),
+): ConductorData {
   return {
     projects: [],
     pitches: [],

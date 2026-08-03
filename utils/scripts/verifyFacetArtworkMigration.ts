@@ -40,7 +40,32 @@ function clean(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+/*
+ * public/images/** is gitignored (.gitignore:33) -- the curated artwork lives on
+ * the deployed host, not in the repo. So an existence check against
+ * public/images can never pass in CI or in a fresh clone, and this contract had
+ * ~280 "references missing artwork" failures on main for exactly that reason.
+ *
+ * Nobody saw them because the CI step pipes through `tee`, so the step's exit
+ * status is tee's and the check could never fail. Two bugs holding each other
+ * up: an unpassable assertion and a pipeline that could not report it.
+ *
+ * The check is still worth running where the assets ARE synced (a dev machine
+ * mid-curation, which is when a broken path is cheapest to fix), so it becomes
+ * conditional -- and says out loud when it skipped. A check that quietly does
+ * nothing is the thing this file exists to prevent.
+ */
+async function artworkAssetsPresent(): Promise<boolean> {
+  try {
+    await access(resolve(root, 'public/images/adventure'))
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function main(): Promise<void> {
+  const assetsPresent = await artworkAssetsPresent()
   const curated: CuratedArtwork[] = []
   const artworkByFacetKey = new Map<string, CuratedArtwork>()
   const failures: string[] = []
@@ -99,16 +124,20 @@ async function main(): Promise<void> {
         }
         curated.push(artwork)
 
-        try {
-          await access(resolve(root, 'public', imagePath.slice(1)))
-        } catch {
-          if (
-            fieldKey.toLowerCase() === 'gender' &&
-            GENDER_ARTWORK_PATHS.has(imagePath)
-          ) {
-            knownArtworkDebt.push(imagePath)
-          } else {
-            failures.push(`${title} references missing artwork: public${imagePath}`)
+        if (assetsPresent) {
+          try {
+            await access(resolve(root, 'public', imagePath.slice(1)))
+          } catch {
+            if (
+              fieldKey.toLowerCase() === 'gender' &&
+              GENDER_ARTWORK_PATHS.has(imagePath)
+            ) {
+              knownArtworkDebt.push(imagePath)
+            } else {
+              failures.push(
+                `${title} references missing artwork: public${imagePath}`,
+              )
+            }
           }
         }
 
@@ -148,6 +177,7 @@ async function main(): Promise<void> {
     facetSummaries,
     facetStore,
     facetManager,
+    facetProfileForm,
   ] = await Promise.all([
     readFile(resolve(root, 'utils/scripts/seedFacetCatalog.ts'), 'utf8'),
     readFile(resolve(root, 'server/utils/facetCatalog.ts'), 'utf8'),
@@ -155,6 +185,7 @@ async function main(): Promise<void> {
     readFile(resolve(root, 'server/utils/facetAssignments.ts'), 'utf8'),
     readFile(resolve(root, 'stores/facetStore.ts'), 'utf8'),
     readFile(resolve(root, 'components/facets/facet-manager.vue'), 'utf8'),
+    readFile(resolve(root, 'utils/facetProfileForm.ts'), 'utf8'),
   ])
 
   // Source -> candidate.
@@ -224,27 +255,59 @@ async function main(): Promise<void> {
     requireText('server/utils/facetAssignments.ts', facetSummaries, field)
   }
 
-  // Curators must be able to inspect and repair all three path roles. The manager
-  // uses the same precedence as Builder cards so its preview matches runtime use.
+  /*
+   * Curators must be able to inspect and repair every path role, and the manager
+   * must preview with the same precedence Builder cards use.
+   *
+   * REWRITTEN 2026-08-03. This block used to assert a dozen literal
+   * `v-model="newImagePath"` / `v-model="editForm.cardPath"` strings against
+   * facet-manager.vue. Those inputs are gone: the create and edit forms are now
+   * <FacetProfileEditor v-model="..."> and the art slots are an
+   * <EntityArtManager :slots="[...]"> that covers imagePath, iconPath, cardPath
+   * AND heroPath -- strictly more than the old form. The contract had been
+   * failing on main against a manager that was better, not worse.
+   *
+   * It went unnoticed because its CI step piped through `tee`, so the step's exit
+   * status was tee's and the check could never fail (see the same workflow file).
+   * Both halves are fixed together: a contract nobody can see fail is not a
+   * contract. Assert the STRUCTURE (which editor, which art roles) rather than
+   * one particular spelling of the inputs, so the next legitimate refactor of the
+   * form does not fail this again.
+   */
   for (const field of [
-    'v-model="newImagePath"',
-    'v-model="newCardPath"',
-    'v-model="newHeroPath"',
-    'v-model="newArtPrompt"',
-    'v-model="editForm.imagePath"',
-    'v-model="editForm.cardPath"',
-    'v-model="editForm.heroPath"',
-    'v-model="editForm.artPrompt"',
-    'imagePath: editForm.imagePath.trim() || null',
-    'cardPath: editForm.cardPath.trim() || null',
-    'heroPath: editForm.heroPath.trim() || null',
-    'artPrompt: editForm.artPrompt.trim() || null',
+    '<FacetProfileEditor v-model="createForm" />',
+    '<FacetProfileEditor v-model="editForm" />',
+    'entity-type="facet"',
+    "field: 'imagePath'",
+    "field: 'iconPath'",
+    "field: 'cardPath'",
+    "field: 'heroPath'",
     // Was the literal chain `facet.cardPath || facet.imagePath || facet.heroPath`.
     // That chain lived in six files and now lives in one (resolveEntityArtwork,
     // utils/artImageSrc.ts), so this asserts the call rather than the copy.
     'resolveEntityArtwork(facet)',
   ]) {
     requireText('components/facets/facet-manager.vue', facetManager, field)
+  }
+
+  /*
+   * The form <-> Facet mapping moved out of the manager and into
+   * utils/facetProfileForm.ts when FacetProfileEditor was extracted, so the
+   * "editing a Facet must not drop its artwork" half of this contract lives
+   * there now. Both directions matter: the form has to LOAD each path off the
+   * Facet, and the payload has to SEND each one back.
+   */
+  for (const field of [
+    'imagePath: facet.imagePath',
+    'cardPath: facet.cardPath',
+    'heroPath: facet.heroPath',
+    'artPrompt: facet.artPrompt',
+    'imagePath: optional(form.imagePath)',
+    'cardPath: optional(form.cardPath)',
+    'heroPath: optional(form.heroPath)',
+    'artPrompt: optional(form.artPrompt)',
+  ]) {
+    requireText('utils/facetProfileForm.ts', facetProfileForm, field)
   }
 
   if (failures.length) {
@@ -257,6 +320,13 @@ async function main(): Promise<void> {
       `Facet choices, ${artworkByFacetKey.size} canonical titles, ` +
       `${uniquePaths.size} declared image paths.\n`,
   )
+  if (!assetsPresent) {
+    process.stdout.write(
+      'NOTE: public/images/adventure is absent (it is gitignored), so the ' +
+        `on-disk existence of those ${uniquePaths.size} paths was NOT checked. ` +
+        'Declarations, precedence and title conflicts were.\n',
+    )
+  }
   const uniqueDebt = Array.from(new Set(knownArtworkDebt)).sort()
   if (uniqueDebt.length) {
     process.stdout.write(

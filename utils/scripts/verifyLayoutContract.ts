@@ -30,6 +30,10 @@ import { join, relative, basename, extname } from 'node:path'
 
 const ROOT = process.cwd()
 const BASELINE_PATH = join(ROOT, 'utils/scripts/layout-contract-baseline.json')
+const PASCAL_ROOT_FIXTURE_PATH = join(
+  ROOT,
+  'utils/scripts/fixtures/layout-contract/pascal-root-page.vue',
+)
 
 type RuleId =
   | 'one-header'
@@ -132,11 +136,20 @@ function countMatches(haystack: string, pattern: RegExp): number {
  */
 function rootClassList(template: string): string | null {
   const root = template.match(/<template\b[^>]*>([\s\S]*)<\/template>/)?.[1]?.trim()
-  const openingTag = root?.match(/^<([a-z][\w-]*)\b([^>]*)>/)
+  const openingTag = root?.match(/^<([A-Za-z][\w-]*)\b([^>]*)>/)
   if (!openingTag) return null
 
   const attributes = openingTag[2] ?? ''
   return attributes.match(/\bclass\s*=\s*["']([^"']*)["']/)?.[1] ?? ''
+}
+
+function verifyRootClassListFixture(): void {
+  const fixtureClasses = rootClassList(templateOf(read(PASCAL_ROOT_FIXTURE_PATH)))
+  if (fixtureClasses !== 'kr-surface') {
+    throw new Error(
+      `PascalCase root fixture was not parsed correctly: ${String(fixtureClasses)}`,
+    )
+  }
 }
 
 function collect(): Record<RuleId, string[]> {
@@ -289,6 +302,7 @@ function report(
 
 function main(): void {
   const args = process.argv.slice(2)
+  verifyRootClassListFixture()
   const current = collect()
   const baseline = loadBaseline()
 

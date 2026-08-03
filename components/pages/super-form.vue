@@ -1,7 +1,7 @@
 <!-- /components/pages/super-form.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 items-center justify-center overflow-y-auto overscroll-contain p-3 sm:p-6"
+    class="kr-unbound flex h-full min-h-0 items-center justify-center overflow-y-auto overscroll-contain p-3 sm:p-6"
   >
     <div
       class="w-full max-w-xl rounded-2xl border border-base-300 bg-base-100 p-4 shadow-xl sm:p-6"

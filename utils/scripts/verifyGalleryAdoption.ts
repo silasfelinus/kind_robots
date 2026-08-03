@@ -313,6 +313,57 @@ for (const path of CORE_OBJECT_GALLERIES) {
  * neither an interact nor a gallery and scored 3/10 on review while Dreams,
  * which has both, scored 7.5.
  */
+/*
+ * THE CARD BODY, counted for the same reason the gallery shell is.
+ *
+ * Silas named a single consistent card display as the destination for this
+ * refactor. The shell half is already there -- fourteen cards wrap
+ * wonderlab/reactable-card.vue -- but the BODY inside it was copy-pasted five
+ * times, which is why scenario-card's scrim was character-for-character
+ * identical to kr-art-plate's. components/gallery/kr-entity-card-body.vue is
+ * the shared body; this number is what stops it going the way of `global-ui`,
+ * whose design system sat at ~7% adoption with every task marked done.
+ */
+const CARD_BODY = 'components/gallery/kr-entity-card-body.vue'
+const OBJECT_CARDS = [
+  'components/bots/bot-card.vue',
+  'components/characters/character-card.vue',
+  'components/dreams/dream-card.vue',
+  'components/rewards/reward-card.vue',
+  'components/scenarios/scenario-card.vue',
+]
+const CARD_BODY_USE = /kr-entity-card-body|KrEntityCardBody/
+
+const cardBodyAdopters = OBJECT_CARDS.filter((path) => {
+  try {
+    return CARD_BODY_USE.test(templateOf(read(path)))
+  } catch {
+    return false
+  }
+})
+
+console.log(
+  `\ninfo - object cards on ${basename(CARD_BODY)}: ${cardBodyAdopters.length}/${OBJECT_CARDS.length}`,
+)
+for (const path of OBJECT_CARDS) {
+  const name = basename(path, '.vue')
+  console.log(
+    `       ${cardBodyAdopters.includes(path) ? '✓' : '·'} ${basename(path).padEnd(22)} ${
+      reachable.has(name)
+        ? `reached from ${reachable.get(name)}`
+        : 'UNREACHABLE — no content route renders it'
+    }`,
+  )
+}
+
+// The shared body is only droppable into five different object cards while it
+// stays presentational. A store import here is the same mistake kr-gallery is
+// guarded against above.
+check(
+  !/from '@\/stores\//.test(read(CARD_BODY)),
+  'kr-entity-card-body imports no store (the card owns its data)',
+)
+
 const MODELS = ['bot', 'character', 'dream', 'facet', 'reward', 'scenario']
 console.log('\ninfo - manager → interact → gallery, per model:')
 for (const model of MODELS) {

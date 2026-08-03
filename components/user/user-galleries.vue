@@ -41,10 +41,7 @@
               </div>
 
               <div class="min-w-0">
-                <h3 class="truncate font-black">
-                  {{ section.label }}
-                </h3>
-
+                <h3 class="truncate font-black">{{ section.label }}</h3>
                 <p class="text-xs text-base-content/60">
                   {{ section.items.length }}
                   {{
@@ -68,9 +65,7 @@
               <button
                 type="button"
                 class="btn btn-xs rounded-xl"
-                :class="
-                  expandedSections[section.key] ? 'btn-primary' : 'btn-ghost'
-                "
+                :class="expandedSections[section.key] ? 'btn-primary' : 'btn-ghost'"
                 :disabled="section.items.length === 0"
                 @click="toggleSection(section.key)"
               >
@@ -82,9 +77,7 @@
                   "
                   class="h-4 w-4"
                 />
-                {{
-                  expandedSections[section.key] ? 'Hide inline' : 'Show inline'
-                }}
+                {{ expandedSections[section.key] ? 'Hide inline' : 'Show inline' }}
               </button>
             </div>
           </div>
@@ -94,10 +87,7 @@
             class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
           >
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p class="text-sm font-bold">
-                Inline {{ section.label }} preview
-              </p>
-
+              <p class="text-sm font-bold">Inline {{ section.label }} preview</p>
               <div class="join">
                 <button
                   type="button"
@@ -111,7 +101,6 @@
                 >
                   List
                 </button>
-
                 <button
                   type="button"
                   class="btn join-item btn-xs"
@@ -144,13 +133,9 @@
               >
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <p class="truncate text-sm font-black">
-                      {{ getItemTitle(item) }}
-                    </p>
-
+                    <p class="truncate text-sm font-black">{{ getItemTitle(item) }}</p>
                     <p class="text-xs text-base-content/60">ID {{ item.id }}</p>
                   </div>
-
                   <span
                     v-if="getItemVisibility(item)"
                     class="badge badge-outline badge-xs"
@@ -158,7 +143,6 @@
                     {{ getItemVisibility(item) }}
                   </span>
                 </div>
-
                 <p
                   v-if="getItemSummary(item)"
                   class="mt-2 line-clamp-3 text-xs text-base-content/70"
@@ -185,15 +169,16 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/user/user-galleries.vue
 import { computed, onMounted, reactive, resolveComponent, watch } from 'vue'
-import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
-import { useScenarioStore } from '@/stores/scenarioStore'
+import { useFacetStore } from '@/stores/facetStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { useRewardStore } from '@/stores/rewardStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useUserStore } from '@/stores/userStore'
 
 type SectionKey =
   | 'dreams'
@@ -202,6 +187,8 @@ type SectionKey =
   | 'characters'
   | 'scenarios'
   | 'rewards'
+  | 'facets'
+  | 'projects'
 
 type SectionDisplayMode = 'list' | 'gallery'
 
@@ -233,8 +220,10 @@ const artStore = useArtStore()
 const botStore = useBotStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
-const scenarioStore = useScenarioStore()
+const facetStore = useFacetStore()
+const projectStore = useProjectStore()
 const rewardStore = useRewardStore()
+const scenarioStore = useScenarioStore()
 
 const galleryComponents = {
   dreams: resolveComponent('DreamGallery'),
@@ -243,111 +232,128 @@ const galleryComponents = {
   characters: resolveComponent('CharacterGallery'),
   scenarios: resolveComponent('ScenarioGallery'),
   rewards: resolveComponent('RewardGallery'),
+  facets: resolveComponent('FacetGallery'),
+  projects: resolveComponent('ConductorProjectGalleryPage'),
 }
 
-const expandedSections = reactive<Record<SectionKey, boolean>>({
-  dreams: false,
-  art: false,
-  bots: false,
-  characters: false,
-  scenarios: false,
-  rewards: false,
-})
+const sectionKeys: SectionKey[] = [
+  'dreams',
+  'art',
+  'bots',
+  'characters',
+  'scenarios',
+  'rewards',
+  'facets',
+  'projects',
+]
 
-const sectionDisplayModes = reactive<Record<SectionKey, SectionDisplayMode>>({
-  dreams: 'list',
-  art: 'list',
-  bots: 'list',
-  characters: 'list',
-  scenarios: 'list',
-  rewards: 'list',
-})
+const expandedSections = reactive(
+  Object.fromEntries(sectionKeys.map((key) => [key, false])) as Record<
+    SectionKey,
+    boolean
+  >,
+)
+
+const sectionDisplayModes = reactive(
+  Object.fromEntries(sectionKeys.map((key) => [key, 'list'])) as Record<
+    SectionKey,
+    SectionDisplayMode
+  >,
+)
 
 const activeUserId = computed(() => userStore.user?.id ?? null)
 
-const artItems = computed(() => {
-  return getUserOwnedItems(
-    getStoreArray(artStore, ['artImages', 'safeArtImages', 'images']),
-  )
-})
-const botItems = computed(() => {
-  return getUserOwnedItems(getStoreArray(botStore, ['bots', 'botList']))
-})
+const artItems = computed(() =>
+  getUserOwnedItems(getStoreArray(artStore, ['artImages', 'safeArtImages', 'images'])),
+)
+const botItems = computed(() =>
+  getUserOwnedItems(getStoreArray(botStore, ['bots', 'botList'])),
+)
+const characterItems = computed(() =>
+  getUserOwnedItems(getStoreArray(characterStore, ['characters', 'characterList'])),
+)
+const dreamItems = computed(() =>
+  getUserOwnedItems(getStoreArray(dreamStore, ['dreams', 'dreamList'])),
+)
+const scenarioItems = computed(() =>
+  getUserOwnedItems(getStoreArray(scenarioStore, ['scenarios', 'scenarioList'])),
+)
+const rewardItems = computed(() =>
+  getUserOwnedItems(getStoreArray(rewardStore, ['rewards', 'rewardList'])),
+)
+const facetItems = computed(() =>
+  getUserOwnedItems(getStoreArray(facetStore, ['facets', 'activeFacets'])),
+)
+const projectItems = computed(() =>
+  getUserOwnedItems(getStoreArray(projectStore, ['projects', 'activeProjects'])),
+)
 
-const characterItems = computed(() => {
-  return getUserOwnedItems(
-    getStoreArray(characterStore, ['characters', 'characterList']),
-  )
-})
-
-const dreamItems = computed(() => {
-  return getUserOwnedItems(getStoreArray(dreamStore, ['dreams', 'dreamList']))
-})
-
-const scenarioItems = computed(() => {
-  return getUserOwnedItems(
-    getStoreArray(scenarioStore, ['scenarios', 'scenarioList']),
-  )
-})
-
-const rewardItems = computed(() => {
-  return getUserOwnedItems(
-    getStoreArray(rewardStore, ['rewards', 'rewardList']),
-  )
-})
-
-const userOwnedSections = computed<UserOwnedSection[]>(() => {
-  return [
-    {
-      key: 'dreams',
-      label: 'Dreams',
-      icon: 'kind-icon:sparkles',
-      to: '/dreams',
-      galleryComponent: galleryComponents.dreams,
-      items: dreamItems.value,
-    },
-    {
-      key: 'art',
-      label: 'Art',
-      icon: 'kind-icon:palette',
-      to: '/art',
-      galleryComponent: galleryComponents.art,
-      items: artItems.value,
-    },
-    {
-      key: 'bots',
-      label: 'Bots',
-      icon: 'kind-icon:bot',
-      to: '/bots',
-      galleryComponent: galleryComponents.bots,
-      items: botItems.value,
-    },
-    {
-      key: 'characters',
-      label: 'Characters',
-      icon: 'kind-icon:users',
-      to: '/characters',
-      galleryComponent: galleryComponents.characters,
-      items: characterItems.value,
-    },
-    {
-      key: 'scenarios',
-      label: 'Scenarios',
-      icon: 'kind-icon:map',
-      to: '/stories',
-      galleryComponent: galleryComponents.scenarios,
-      items: scenarioItems.value,
-    },
-    {
-      key: 'rewards',
-      label: 'Rewards',
-      icon: 'kind-icon:gift',
-      to: '/rewards',
-      galleryComponent: galleryComponents.rewards,
-      items: rewardItems.value,
-    },
-  ]
-})
+const userOwnedSections = computed<UserOwnedSection[]>(() => [
+  {
+    key: 'dreams',
+    label: 'Dreams',
+    icon: 'kind-icon:sparkles',
+    to: '/dreams',
+    galleryComponent: galleryComponents.dreams,
+    items: dreamItems.value,
+  },
+  {
+    key: 'art',
+    label: 'Art',
+    icon: 'kind-icon:palette',
+    to: '/art',
+    galleryComponent: galleryComponents.art,
+    items: artItems.value,
+  },
+  {
+    key: 'bots',
+    label: 'Bots',
+    icon: 'kind-icon:bot',
+    to: '/bots',
+    galleryComponent: galleryComponents.bots,
+    items: botItems.value,
+  },
+  {
+    key: 'characters',
+    label: 'Characters',
+    icon: 'kind-icon:users',
+    to: '/characters',
+    galleryComponent: galleryComponents.characters,
+    items: characterItems.value,
+  },
+  {
+    key: 'scenarios',
+    label: 'Scenarios',
+    icon: 'kind-icon:map',
+    to: '/stories',
+    galleryComponent: galleryComponents.scenarios,
+    items: scenarioItems.value,
+  },
+  {
+    key: 'rewards',
+    label: 'Rewards',
+    icon: 'kind-icon:gift',
+    to: '/rewards',
+    galleryComponent: galleryComponents.rewards,
+    items: rewardItems.value,
+  },
+  {
+    key: 'facets',
+    label: 'Facets',
+    icon: 'kind-icon:shapes',
+    to: '/facets',
+    galleryComponent: galleryComponents.facets,
+    items: facetItems.value,
+  },
+  {
+    key: 'projects',
+    label: 'Projects',
+    icon: 'kind-icon:folder-kanban',
+    to: '/conductor',
+    galleryComponent: galleryComponents.projects,
+    items: projectItems.value,
+  },
+])
 
 function toggleSection(key: SectionKey) {
   expandedSections[key] = !expandedSections[key]
@@ -359,44 +365,30 @@ function setSectionDisplayMode(key: SectionKey, mode: SectionDisplayMode) {
 
 function getStoreArray(store: unknown, keys: string[]): unknown[] {
   const source = store as Record<string, unknown>
-
   for (const key of keys) {
     const value = source[key]
-
-    if (Array.isArray(value)) {
-      return value
-    }
+    if (Array.isArray(value)) return value
   }
-
   return []
 }
 
 function getUserOwnedItems(source: unknown[] | undefined): UserOwnedItem[] {
-  if (!source || !activeUserId.value) {
-    return []
-  }
-
+  if (!source || !activeUserId.value) return []
   return source
-    .filter((item): item is UserOwnedItem => {
-      return isUserOwnedItem(item) && item.userId === activeUserId.value
-    })
+    .filter(
+      (item): item is UserOwnedItem =>
+        isUserOwnedItem(item) && item.userId === activeUserId.value,
+    )
     .sort((a, b) => b.id - a.id)
 }
 
 function isUserOwnedItem(value: unknown): value is UserOwnedItem {
-  if (!value || typeof value !== 'object') {
-    return false
-  }
-
-  const item = value as Partial<UserOwnedItem>
-
-  return typeof item.id === 'number'
+  if (!value || typeof value !== 'object') return false
+  return typeof (value as Partial<UserOwnedItem>).id === 'number'
 }
 
 function getItemTitle(item: UserOwnedItem): string {
-  return (
-    item.title || item.name || item.label || item.username || `Item #${item.id}`
-  )
+  return item.title || item.name || item.label || item.username || `Item #${item.id}`
 }
 
 function getItemSummary(item: UserOwnedItem): string {
@@ -406,19 +398,13 @@ function getItemSummary(item: UserOwnedItem): string {
 function getItemVisibility(item: UserOwnedItem): string {
   if (item.isMature) return 'Mature'
   if (item.isPublic) return 'Public'
-
   return ''
 }
 
-async function callStoreMethod(
-  store: unknown,
-  methodNames: string[],
-): Promise<void> {
+async function callStoreMethod(store: unknown, methodNames: string[]): Promise<void> {
   const target = store as Record<string, unknown>
-
   for (const methodName of methodNames) {
     const method = target[methodName]
-
     if (typeof method === 'function') {
       await method.call(store)
       return
@@ -436,6 +422,11 @@ async function initializeUserOwnedGalleries(): Promise<void> {
     callStoreMethod(dreamStore, ['initialize', 'fetchDreams']),
     callStoreMethod(scenarioStore, ['initialize', 'fetchScenarios']),
     callStoreMethod(rewardStore, ['initialize', 'fetchRewards']),
+    facetStore.fetchFacets({ mine: true, includeMature: true }),
+    projectStore.fetchProjects(
+      { mine: true, includeInactive: true, includeMature: true },
+      true,
+    ),
   ])
 }
 

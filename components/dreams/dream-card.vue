@@ -16,6 +16,7 @@
     target-type="dream"
     reaction-category="DREAM"
     :target-title="dreamTitle"
+    :earned-karma="earnedKarma"
     :card-class="['h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl', cardClass]"
     @select="emit('choose', dream)"
   >
@@ -178,6 +179,10 @@ const props = withDefaults(
     allowEdit?: boolean
     allowDelete?: boolean
     imageFit?: 'cover' | 'contain'
+    /** Total karma this Dream has earned from reactions (see
+     *  server/api/economy/karma-earned.post.ts). Omit/undefined renders no
+     *  badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     selected: false,
@@ -192,6 +197,7 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: false,
     imageFit: 'cover',
+    earnedKarma: undefined,
   },
 )
 

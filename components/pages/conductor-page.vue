@@ -1,8 +1,6 @@
 <!-- /components/pages/conductor-page.vue -->
 <template>
-  <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden p-1.5 sm:p-2.5"
-  >
+  <section class="kr-surface p-1.5 sm:p-2.5">
     <SnapshotModeBanner />
 
     <!-- COCKPIT BAR: unified slim context strip -->

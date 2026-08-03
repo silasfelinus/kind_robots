@@ -110,7 +110,7 @@
             class="pointer-events-auto min-w-0 w-full flex-1"
             :style="{ height: 'var(--hand-panel-h)' }"
           >
-            <LazyWorkspaceHand />
+            <LazyWorkspaceHand @resting-height="handRestingHeight = $event" />
           </div>
         </Transition>
       </section>
@@ -227,11 +227,20 @@ const sheetWidth = computed(() => {
 
 const footerOpen = computed(() => handOpen.value)
 
+/**
+ * What the hand reports it actually needs. HAND_PANEL_H is only the fallback
+ * for the frame or two before the first measurement lands — reserving a
+ * constant outright left a 67px dead band between the page content and the
+ * cards (measured at 428px: 129px of cards inside a 184px reservation), which
+ * is the empty space Silas photographed.
+ */
+const handRestingHeight = ref<number | null>(null)
+
 const footerHeight = computed(() => {
   if (!footerOpen.value) return '0px'
-  if (handOpen.value) return HAND_PANEL_H
+  if (!handOpen.value) return '0px'
 
-  return '0px'
+  return handRestingHeight.value ? `${handRestingHeight.value}px` : HAND_PANEL_H
 })
 
 const shellVars = computed<CSSProperties>(() => {
@@ -239,7 +248,10 @@ const shellVars = computed<CSSProperties>(() => {
     '--sheet-w': sheetWidth.value,
     '--dock-circle': dockCircle.value,
     '--footer-h': footerHeight.value,
-    '--hand-panel-h': handOpen.value ? HAND_PANEL_H : '0px',
+    // Same measured height as --footer-h: the slot the hand sits in and the
+    // padding the page reserves for it must be the same number, or the
+    // difference shows up as dead space.
+    '--hand-panel-h': handOpen.value ? footerHeight.value : '0px',
     '--footer-gap': '0px',
   } as CSSProperties
 })

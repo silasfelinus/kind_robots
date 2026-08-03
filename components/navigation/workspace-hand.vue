@@ -176,6 +176,12 @@ function sparkleStyle(n: number): CSSProperties {
 
 let observer: ResizeObserver | null = null
 
+/**
+ * The hand's resting height, so app.vue can reserve exactly that much page
+ * padding instead of a constant that drifts from what actually renders.
+ */
+const emit = defineEmits<{ 'resting-height': [px: number] }>()
+
 const gapPx = 8
 const horizontalPaddingPx = 16
 const minRestingCardWidthPx = 72
@@ -250,6 +256,26 @@ const maxRestingCardWidthPx = computed(() => {
   return 112
 })
 
+/**
+ * Cards keep a legible width and the strip SCROLLS when they do not fit. This
+ * used to divide the available width by the card count, which guaranteed they
+ * always fit — and produced the worst of both outcomes on a phone.
+ *
+ * Measured at 428px with four cards, before this change: ideal width came out
+ * at 71px, clamped up to the 72px floor, so the cards were at their smallest
+ * AND the strip was exactly as wide as its scroller — scrollWidth 324,
+ * clientWidth 324, scrollRange ZERO. Silas: "horizontal scrolling is still
+ * non-responsive, I can only see those four cards." There was nothing to
+ * scroll, by construction, and the cards were tiny for the privilege.
+ *
+ * A fit-to-count rule cannot win here: making four cards scroll requires them
+ * to be wider than a quarter of the screen, which is the opposite of what
+ * dividing by the count does. So size cards for legibility and let the
+ * overflow scroll — which is what a hand of cards should do anyway.
+ *
+ * The only clamp left is a safety one: a single card must never be wider than
+ * the hand itself.
+ */
 const restingCardWidthPx = computed(() => {
   const count = handCards.value.length
 
@@ -257,19 +283,12 @@ const restingCardWidthPx = computed(() => {
     return fallbackRestingCardWidthPx
   }
 
-  const totalGap = gapPx * Math.max(0, count - 1)
-
-  const availableWidth = Math.max(
+  const widest = Math.max(
     minRestingCardWidthPx,
-    handWidth.value - horizontalPaddingPx - totalGap,
+    handWidth.value - horizontalPaddingPx,
   )
 
-  const idealWidth = Math.floor(availableWidth / count)
-
-  return Math.min(
-    maxRestingCardWidthPx.value,
-    Math.max(minRestingCardWidthPx, idealWidth),
-  )
+  return Math.min(maxRestingCardWidthPx.value, widest)
 })
 
 const restingHandHeightPx = computed(() => {
@@ -322,10 +341,30 @@ const scrollFrameStyle = computed<CSSProperties>(() => {
 function publishHeight(): void {
   if (!import.meta.client) return
 
-  // Width drives card sizing. Height (--hand-h) is owned by app.vue now —
-  // the hand fills its footer slot rather than dictating the global var.
+  // Width drives card sizing.
   handWidth.value =
     scrollEl.value?.clientWidth ?? handEl.value?.clientWidth ?? 0
+
+  /*
+   * Height flows back up. app.vue reserves --footer-h as padding under the
+   * page, and it used to be a fixed 11.5rem that had no relationship to what
+   * the hand actually renders: measured at 428px, the cards came to 129px tall
+   * inside a 184px reservation, leaving a 67px dead band between the page
+   * content and the cards. Silas photographed exactly that gap.
+   *
+   * Reporting the resting height cannot loop, because card width depends on
+   * the hand's WIDTH and the count, never on its height.
+   *
+   * MEASURED, not computed. restingHandHeightPx is a formula
+   * (cardWidth * 1.5 + label + padding) and it overshoots what the cards
+   * actually render by ~23px, which is dead band by another name. The strip's
+   * own offsetHeight is the truth; `transform: scale` on hover does not affect
+   * it, so this stays the resting height even mid-zoom.
+   */
+  emit(
+    'resting-height',
+    stripEl.value?.offsetHeight || restingHandHeightPx.value,
+  )
 }
 
 function getCardPath(card: BuilderCard): string {
@@ -458,6 +497,21 @@ onMounted(() => {
 
   if (handEl.value) {
     observer.observe(handEl.value)
+  }
+
+  /*
+   * The strip too, not just the frame. The frame's height comes from the
+   * expandedHandHeightPx formula, so it does not change when the CARDS do —
+   * and the cards are what the reported resting height measures. Without this,
+   * the first measurement (taken before the art has loaded and the cards have
+   * reached full height) is the only one that ever lands, and the page reserves
+   * too little space: measured -54px, i.e. content running under the hand.
+   *
+   * No feedback loop: the reported height drives page padding and the footer
+   * slot, while card size derives from the hand's WIDTH.
+   */
+  if (stripEl.value) {
+    observer.observe(stripEl.value)
   }
 
   if (scrollEl.value) {

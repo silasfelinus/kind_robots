@@ -105,6 +105,117 @@ check(
   'kr-gallery emits its view mode rather than persisting it itself',
 )
 
+// --- reachability ------------------------------------------------------------
+/*
+ * WHICH COMPONENTS A USER CAN ACTUALLY REACH.
+ *
+ * This exists because the first version of this file counted *-gallery.vue files
+ * that mention kr-gallery and nothing else. It reported 2/7 core-object
+ * galleries adopted -- and one of those two, facet-gallery.vue, is mounted
+ * NOWHERE. /facets mounts facet-manager.vue. So an entire adoption PR landed
+ * against dead code and the counter said it worked.
+ *
+ * That is precisely the failure this project exists to prevent, reproduced by
+ * the instrument meant to prevent it, so a filename is no longer good enough
+ * evidence: a gallery counts only if a content route actually renders it.
+ *
+ * The chain is real and worth stating, because it is the house pattern:
+ *   content/<model>.md  ->  :<model>-manager   (tab router, the primary mount)
+ *                       ->  <model>-interact   (the working surface)
+ *                       ->  <model>-gallery    (inset picker, variant=dashboard)
+ * A gallery is therefore typically THREE hops from its route, which is exactly
+ * why a filename-level check could not see it.
+ */
+const componentsByName = new Map<string, string>()
+for (const file of walk(resolve(root, 'components'))) {
+  const name = basename(file, '.vue')
+  if (!componentsByName.has(name)) componentsByName.set(name, file)
+}
+
+function kebab(tag: string): string {
+  const name = /^[a-z]/.test(tag)
+    ? tag
+    : tag.replace(/(?<!^)(?=[A-Z])/g, '-').toLowerCase()
+  // Nuxt's Lazy* prefix resolves to the same component.
+  return name.replace(/^lazy-/, '')
+}
+
+const childCache = new Map<string, string[]>()
+function childComponents(name: string): string[] {
+  const cached = childCache.get(name)
+  if (cached) return cached
+
+  const file = componentsByName.get(name)
+  if (!file) return []
+
+  const template = templateOf(readFileSync(file, 'utf8')).replace(
+    /<!--[\s\S]*?-->/g,
+    '',
+  )
+  const found = new Set<string>()
+  for (const [, tag] of template.matchAll(/<([A-Za-z][\w-]*)/g)) {
+    const key = kebab(tag ?? '')
+    if (key !== name && componentsByName.has(key)) found.add(key)
+  }
+
+  const result = [...found].sort()
+  childCache.set(name, result)
+  return result
+}
+
+/* Primary mounts, from the MDC body of every content page (not the channel
+   manifest rows, which carry no mounts). Same block shape verifyChannelContent
+   and verifyLayoutContract already parse. */
+function primaryMounts(): { route: string; mount: string }[] {
+  const out: { route: string; mount: string }[] = []
+  const contentRoot = resolve(root, 'content')
+  const walkMd = (dir: string): string[] => {
+    const found: string[] = []
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry)
+      if (statSync(full).isDirectory()) {
+        if (basename(full) !== 'channels') found.push(...walkMd(full))
+      } else if (entry.endsWith('.md')) found.push(full)
+    }
+    return found
+  }
+
+  for (const file of walkMd(contentRoot)) {
+    const body = readFileSync(file, 'utf8').replace(/^---[\s\S]*?\n---\n/, '')
+    const route =
+      '/' +
+      relative(contentRoot, file).replace(/\\/g, '/').replace(/\.md$/, '')
+    for (const line of body.split('\n')) {
+      const trimmed = line.trim()
+      if (/^:{1,2}[a-z][a-z0-9-]*$/.test(trimmed)) {
+        out.push({ route, mount: trimmed.replace(/^:{1,2}/, '') })
+      }
+    }
+  }
+  return out
+}
+
+/** Every component transitively rendered from a content route, name -> a route. */
+function reachableComponents(): Map<string, string> {
+  const reached = new Map<string, string>()
+  for (const { route, mount } of primaryMounts()) {
+    const stack = [mount]
+    const seen = new Set<string>()
+    while (stack.length) {
+      const current = stack.pop()
+      if (!current || seen.has(current)) continue
+      seen.add(current)
+      if (!reached.has(current)) reached.set(current, route)
+      for (const child of childComponents(current)) {
+        if (!seen.has(child)) stack.push(child)
+      }
+    }
+  }
+  return reached
+}
+
+const reachable = reachableComponents()
+
 // --- adoption ----------------------------------------------------------------
 const KR_GALLERY_USE = /kr-gallery|KrGallery/
 
@@ -115,11 +226,22 @@ const adopters = galleryFiles.filter((file) =>
   KR_GALLERY_USE.test(templateOf(readFileSync(file, 'utf8'))),
 )
 const holdouts = galleryFiles.filter((file) => !adopters.includes(file))
+const orphans = galleryFiles.filter(
+  (file) => !reachable.has(basename(file, '.vue')),
+)
 
 console.log(
   `\ninfo - kr-gallery adopted by ${adopters.length}/${galleryFiles.length} gallery component(s)`,
 )
 for (const file of holdouts) console.log(`       · ${basename(file)}`)
+
+if (orphans.length) {
+  console.log(
+    `\ninfo - ${orphans.length} gallery component(s) NO CONTENT ROUTE RENDERS.` +
+      ' Adopting kr-gallery in one of these changes nothing a user can see:',
+  )
+  for (const file of orphans) console.log(`       ✗ ${rel(file)}`)
+}
 
 /*
  * The seven core objects are counted separately because they are the actual
@@ -153,9 +275,17 @@ for (const path of CORE_OBJECT_GALLERIES) {
   )
 }
 
+/*
+ * LIVE means adopted AND reachable. Both halves are load-bearing: the first
+ * version of this counter checked only the first half and scored a PR against
+ * an orphan as progress.
+ */
 const coreAdopted = CORE_OBJECT_GALLERIES.filter((path) => {
   try {
-    return KR_GALLERY_USE.test(templateOf(read(path)))
+    return (
+      KR_GALLERY_USE.test(templateOf(read(path))) &&
+      reachable.has(basename(path, '.vue'))
+    )
   } catch {
     return false
   }
@@ -166,10 +296,35 @@ console.log(
     ' — DESIGN-BRIEF beta gate: "all seven core objects share one gallery"',
 )
 for (const path of CORE_OBJECT_GALLERIES) {
+  const name = basename(path, '.vue')
+  const route = reachable.get(name)
+  const mark = coreAdopted.includes(path) ? '✓' : '·'
   console.log(
-    `       ${coreAdopted.includes(path) ? '✓' : '·'} ${basename(path)}`,
+    `       ${mark} ${basename(path).padEnd(36)} ${
+      route ? `reached from ${route}` : 'UNREACHABLE — no content route renders it'
+    }`,
   )
 }
+
+/*
+ * The house pattern, counted. content/<model>.md mounts :<model>-manager, which
+ * routes to <model>-interact, which insets <model>-gallery as its picker. A
+ * model that skips a tier is the one that feels wrong to use -- Facets has
+ * neither an interact nor a gallery and scored 3/10 on review while Dreams,
+ * which has both, scored 7.5.
+ */
+const MODELS = ['bot', 'character', 'dream', 'facet', 'reward', 'scenario']
+console.log('\ninfo - manager → interact → gallery, per model:')
+for (const model of MODELS) {
+  const tiers = [`${model}-manager`, `${model}-interact`, `${model}-gallery`]
+  const present = tiers.map((tier) =>
+    componentsByName.has(tier) ? (reachable.has(tier) ? '✓' : '~') : '✗',
+  )
+  console.log(
+    `       ${model.padEnd(10)} manager ${present[0]}  interact ${present[1]}  gallery ${present[2]}`,
+  )
+}
+console.log('       ✓ = reachable · ~ = exists but unreachable · ✗ = does not exist')
 
 if (failures) {
   console.error(`\nGallery adoption contract failed with ${failures} error(s).`)

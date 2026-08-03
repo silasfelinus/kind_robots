@@ -160,12 +160,23 @@ const migration = readFileSync(
   resolve('prisma/migrations/20260803113000_add_conductor_projection/migration.sql'),
   'utf8',
 )
+const ignoredModel = readFileSync(resolve('prisma/conductorProjection.prisma'), 'utf8')
 const agents = readFileSync(resolve('AGENTS.md'), 'utf8')
+const updateStart = syncRoute.indexOf('await tx.project.update')
+const updateEnd = syncRoute.indexOf('updatedProjects += 1')
+const existingProjectUpdate = syncRoute.slice(updateStart, updateEnd)
 check('sync route requires an admin API user', syncRoute.includes('requireAdminApiUser(event)'))
-check('sync route preserves existing presentation fields', !/project\.update\([\s\S]*channelKey: project\.channelKey/.test(syncRoute))
+check('existing Project update block is found', updateStart >= 0 && updateEnd > updateStart)
+check(
+  'sync route preserves existing presentation fields',
+  !['title:', 'description:', 'liveUrl:', 'channelKey:', 'tabKey:', 'repoUrl:', 'imagePath:', 'cardPath:', 'heroPath:'].some(
+    (field) => existingProjectUpdate.includes(field),
+  ),
+)
 check('read route uses local projection storage', readRoute.includes('readConductorProjection()'))
 check('read route no longer fetches GitHub content', !readRoute.includes('api.github.com'))
 check('projection table migration is additive', migration.includes('CREATE TABLE `ConductorProjection`'))
+check('projection table is protected from future migration drift', ignoredModel.includes('model ConductorProjection') && ignoredModel.includes('@@ignore'))
 check('agent contract names one-way projection authority', agents.includes('commit-stamped materialized read projection'))
 
 console.log('')

@@ -23,16 +23,29 @@
       </button>
     </div>
 
-    <div v-if="loading && !items.length" class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <div v-for="n in skeletonCount" :key="n" class="h-56 animate-pulse rounded-2xl bg-base-200" />
+    <div
+      v-if="loading && !items.length"
+      class="grid grid-cols-2 gap-3 lg:grid-cols-4"
+    >
+      <div
+        v-for="n in skeletonCount"
+        :key="n"
+        class="h-56 animate-pulse rounded-2xl bg-base-200"
+      />
     </div>
 
-    <div v-else-if="error" class="flex min-h-64 flex-col items-center justify-center gap-2 text-error">
+    <div
+      v-else-if="error"
+      class="flex min-h-64 flex-col items-center justify-center gap-2 text-error"
+    >
       <Icon name="kind-icon:warning" class="size-10" />
       <b>{{ error }}</b>
     </div>
 
-    <div v-else-if="!items.length" class="flex min-h-64 flex-col items-center justify-center text-center">
+    <div
+      v-else-if="!items.length"
+      class="flex min-h-64 flex-col items-center justify-center text-center"
+    >
       <Icon name="kind-icon:cards" class="size-12 text-base-content/20" />
       <b>No {{ emptyLabel }}.</b>
     </div>
@@ -62,14 +75,30 @@
             v-else
             class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
           >
-            <Icon :name="item.placeholderIcon || 'kind-icon:image'" class="size-8" />
-            <span v-if="item.placeholderLabel" class="text-[10px] uppercase tracking-wide">
+            <Icon
+              :name="item.placeholderIcon || 'kind-icon:image'"
+              class="size-8"
+            />
+            <span
+              v-if="item.placeholderLabel"
+              class="text-[10px] uppercase tracking-wide"
+            >
               {{ item.placeholderLabel }}
             </span>
           </div>
-          <div class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent" />
-          <div v-if="item.badges?.length" class="absolute left-2 top-2 flex gap-1">
-            <span v-for="badge in item.badges" :key="badge.label" class="badge badge-xs" :class="badge.class">
+          <div
+            class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent"
+          />
+          <div
+            v-if="item.badges?.length"
+            class="absolute left-2 top-2 flex gap-1"
+          >
+            <span
+              v-for="badge in item.badges"
+              :key="badge.label"
+              class="badge badge-xs"
+              :class="badge.class"
+            >
               {{ badge.label }}
             </span>
           </div>
@@ -81,21 +110,35 @@
           />
         </div>
         <div class="p-3" :class="mode === 'icons' ? 'text-center' : ''">
-          <div class="flex items-start gap-2" :class="mode === 'icons' ? 'justify-center' : ''">
+          <div
+            class="flex items-start gap-2"
+            :class="mode === 'icons' ? 'justify-center' : ''"
+          >
             <div class="min-w-0 flex-1">
               <h2 class="truncate font-black">{{ item.title }}</h2>
-              <p v-if="mode !== 'icons' && item.description" class="line-clamp-2 text-xs text-base-content/55">
+              <p
+                v-if="mode !== 'icons' && item.description"
+                class="line-clamp-2 text-xs text-base-content/55"
+              >
                 {{ item.description }}
               </p>
             </div>
             <slot name="item-trailing" :item="item" />
           </div>
-          <p v-if="mode !== 'icons' && item.meta" class="mt-2 text-xs text-base-content/45">{{ item.meta }}</p>
+          <p
+            v-if="mode !== 'icons' && item.meta"
+            class="mt-2 text-xs text-base-content/45"
+          >
+            {{ item.meta }}
+          </p>
           <div
             v-if="mode !== 'icons' && item.progressPercent !== undefined"
             class="mt-1.5 h-1 overflow-hidden rounded-full bg-base-content/10"
           >
-            <div class="h-full bg-primary" :style="{ width: `${item.progressPercent}%` }" />
+            <div
+              class="h-full bg-primary"
+              :style="{ width: `${item.progressPercent}%` }"
+            />
           </div>
         </div>
       </button>
@@ -118,6 +161,8 @@ import {
 // working; new code should import from the util directly.
 import {
   GALLERY_MODES,
+  MODE_GRID_CLASS,
+  MODE_VARIANT,
   type GalleryMode,
   type GalleryModeOption,
 } from '@/utils/galleryVocabulary'
@@ -177,16 +222,10 @@ const emit = defineEmits<{
   'update:mode': [mode: GalleryMode]
 }>()
 
-const gridClass = computed(() =>
-  props.mode === 'list'
-    ? 'flex flex-col gap-2'
-    : props.mode === 'heroes'
-      ? 'grid gap-4 lg:grid-cols-2'
-      : props.mode === 'icons'
-        ? 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5'
-        : 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+const gridClass = computed(() => MODE_GRID_CLASS[props.mode])
+const itemClass = computed(() =>
+  props.mode === 'list' ? 'grid md:grid-cols-[12rem_1fr]' : '',
 )
-const itemClass = computed(() => (props.mode === 'list' ? 'grid md:grid-cols-[12rem_1fr]' : ''))
 const imageWrapClass = computed(() =>
   props.mode === 'heroes'
     ? 'min-h-64'
@@ -196,17 +235,7 @@ const imageWrapClass = computed(() =>
         ? 'min-h-40'
         : 'aspect-[4/3]',
 )
-/*
- * Which art variant this mode wants. Heroes and list are wide, icons is square,
- * cards is the 4:3 default.
- */
-const modeVariant = computed<ArtVariant>(() =>
-  props.mode === 'heroes' || props.mode === 'list'
-    ? 'hero'
-    : props.mode === 'icons'
-      ? 'icon'
-      : 'card',
-)
+const modeVariant = computed<ArtVariant>(() => MODE_VARIANT[props.mode])
 
 function displayImage(item: GalleryItem): string {
   const preResolved =

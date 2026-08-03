@@ -11,7 +11,7 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "claude/*": false,
+      "claude/*": true,
       "agent/*": false,
       "worker/*": false,
       "conductor/*": false

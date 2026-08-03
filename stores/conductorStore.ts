@@ -88,6 +88,17 @@ export function pitchBucket(status?: string | null): PitchBucket {
   return 'review'
 }
 
+function sortHumanGates(gates: ConductorHumanGate[]): ConductorHumanGate[] {
+  return gates.sort((left, right) => {
+    if (left.task.softGate !== right.task.softGate) {
+      return left.task.softGate ? 1 : -1
+    }
+    return String(right.task.updated ?? '').localeCompare(
+      String(left.task.updated ?? ''),
+    )
+  })
+}
+
 function clearLegacyVotes(): void {
   if (!import.meta.client) return
   try {
@@ -122,21 +133,24 @@ export const useConductorStore = defineStore('conductor', () => {
     () => data.value !== null || fallbackProjects.length > 0,
   )
 
-  const humanGates = computed<ConductorHumanGate[]>(() =>
-    liveProjects.value
-      .flatMap((project) =>
+  const allHumanGates = computed<ConductorHumanGate[]>(() =>
+    sortHumanGates(
+      liveProjects.value.flatMap((project) =>
         project.tasks
           .filter((task) => task.status === 'needs-human')
           .map((task) => ({ project, task })),
-      )
-      .sort((left, right) => {
-        if (left.task.softGate !== right.task.softGate) {
-          return left.task.softGate ? 1 : -1
-        }
-        return String(right.task.updated ?? '').localeCompare(
-          String(left.task.updated ?? ''),
-        )
-      }),
+      ),
+    ),
+  )
+  const humanGates = computed<ConductorHumanGate[]>(() =>
+    allHumanGates.value.filter(
+      ({ project }) => project.conductorStatus === 'active',
+    ),
+  )
+  const pausedHumanGates = computed<ConductorHumanGate[]>(() =>
+    allHumanGates.value.filter(
+      ({ project }) => project.conductorStatus === 'paused',
+    ),
   )
 
   function pitchStatus(slug: string): PitchStatus {
@@ -384,7 +398,9 @@ export const useConductorStore = defineStore('conductor', () => {
     registryCount,
     hasLiveData,
     hasLoaded,
+    allHumanGates,
     humanGates,
+    pausedHumanGates,
     pendingPitches,
     approvedPitches,
     rejectedPitches,

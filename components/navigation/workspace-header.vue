@@ -75,7 +75,7 @@
       >
         <button
           type="button"
-          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 bg-base-100"
+          class="btn btn-ghost btn-sm btn-square hidden shrink-0 rounded-xl border border-base-300 bg-base-100 sm:inline-flex"
           aria-label="Refresh with launch animation"
           title="Refresh with launch animation"
           @click="requestFullStartupReload"
@@ -83,14 +83,28 @@
           <Icon name="kind-icon:refresh" class="h-5 w-5" />
         </button>
 
+        <!-- Stays on phones: switching server is an action, not a readout, and
+             hiding the three below already buys the title enough room. Note it
+             could not be hidden with a `hidden sm:flex` class anyway -- its own
+             root carries the `inline-flex` UTILITY, which competes with
+             `hidden` on equal specificity and wins on stylesheet order. The
+             refresh button above hides correctly because daisyUI's `.btn` is a
+             component class, which utilities outrank. Wrap in a container if
+             this ever does need hiding. -->
         <server-selector class="header-control-item min-w-0" />
         <maturity-toggle
           v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
         />
         <notification-bell class="shrink-0" />
         <login-switcher class="header-control-item min-w-0" />
-        <karma-widget class="shrink-0" />
-        <mana-widget class="shrink-0" />
+        <!-- Readouts, not actions, so hiding them on a phone costs no
+             capability. Everything else in this row is shrink-0, which makes
+             the title section the only thing that can give -- and at 390px it
+             gave all the way down to 18px, rendering the page title as a
+             meaningless image sliver while these still overflowed the right
+             edge as a clipped "395...". Both values remain on the profile. -->
+        <karma-widget class="hidden shrink-0 sm:flex" />
+        <mana-widget class="hidden shrink-0 sm:flex" />
       </section>
     </div>
   </header>

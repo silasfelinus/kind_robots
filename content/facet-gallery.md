@@ -10,7 +10,7 @@ sort: gallery
 channelKey: play
 tabKey: facets
 dashboardKey: facets
-dashboardTab: facets
+dashboardTab: gallery
 loadingMessage: Loading Facets...
 refreshLabel: Refresh Facets
 redirect: /facets

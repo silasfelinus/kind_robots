@@ -1,7 +1,19 @@
 <!-- /components/navigation/swipe-deck.vue
      Tinder-style art-first swipe deck. Art fills the card in portrait orientation.
-     Drag/swipe right = select, left = skip. Touch and mouse pointer events both work.
-     Cards behind the active one are visible as a depth stack. -->
+     Drag/swipe right = open, left = skip. Touch and mouse pointer events both work.
+     Cards behind the active one are visible as a depth stack.
+
+     NOTHING HERE DELETES ANYTHING. It only changes which card you are looking at,
+     and the deck resets on reload. That was not legible: the controls used to be a
+     bare red ✕ beside a green ✓ with the drag captions "Nope" and "Like", which is
+     the vocabulary of accept/reject, so Silas reviewed /dreams and read it as
+     "makes me think I'm at risk of deleting something instead of navigating"
+     (2026-08-02). The gesture is fine; the affordance was lying about the stakes.
+
+     So: the actions are named Skip and Open, in words, in neutral and primary
+     rather than error and success -- and a skip can be taken back, which is the
+     part that actually settles the question. A control you can undo cannot be the
+     dangerous one. -->
 <template>
   <div class="flex h-full min-h-[32rem] flex-col items-center gap-4 overflow-hidden rounded-2xl bg-base-300/40 p-4 sm:p-6">
     <!-- ── Card stack ────────────────────────────────────────────────── -->
@@ -43,21 +55,21 @@
         @pointerup="onPointerUp"
         @pointercancel="onPointerUp"
       >
-        <!-- LIKE indicator (right swipe) -->
+        <!-- Drag captions. They say what the gesture DOES ("Open" / "Skip"),
+             not how the deck feels about the card ("Like" / "Nope"). -->
         <div
-          class="absolute left-4 top-4 z-10 rounded-xl border-2 border-success px-3 py-1 text-lg font-black uppercase text-success transition-opacity duration-75"
-          :style="{ opacity: likeOpacity }"
+          class="absolute left-4 top-4 z-10 rounded-xl border-2 border-primary px-3 py-1 text-lg font-black uppercase text-primary transition-opacity duration-75"
+          :style="{ opacity: openOpacity }"
           aria-hidden="true"
         >
-          Like
+          Open
         </div>
-        <!-- NOPE indicator (left swipe) -->
         <div
-          class="absolute right-4 top-4 z-10 rounded-xl border-2 border-error px-3 py-1 text-lg font-black uppercase text-error transition-opacity duration-75"
-          :style="{ opacity: nopeOpacity }"
+          class="absolute right-4 top-4 z-10 rounded-xl border-2 border-base-content/40 px-3 py-1 text-lg font-black uppercase text-base-content/60 transition-opacity duration-75"
+          :style="{ opacity: skipOpacity }"
           aria-hidden="true"
         >
-          Nope
+          Skip
         </div>
 
         <!-- Art (portrait orientation) -->
@@ -110,35 +122,38 @@
     </div>
 
     <!-- ── Action buttons ────────────────────────────────────────────── -->
-    <div v-if="currentItem" class="flex shrink-0 items-center gap-5">
-      <!-- Skip -->
+    <!-- Labelled in words. An unlabelled ✕/✓ pair is the accept/reject idiom,
+         and neither of these is that. -->
+    <div v-if="currentItem" class="flex shrink-0 flex-wrap items-center justify-center gap-3">
       <button
         type="button"
-        class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-error/40 bg-base-100 shadow transition hover:border-error hover:bg-error/10 hover:shadow-md"
-        aria-label="Skip"
+        class="btn btn-ghost btn-sm rounded-2xl border border-base-300"
+        :disabled="!canUndo"
+        :title="canUndo ? 'Bring back the card you just skipped' : 'Nothing skipped yet'"
+        @click="undoSkip"
+      >
+        <Icon name="kind-icon:refresh" class="h-4 w-4" />
+        Undo
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-outline btn-sm rounded-2xl"
+        aria-label="Skip this one and show the next card"
         @click="swipeLeft"
       >
-        <Icon name="kind-icon:x" class="h-6 w-6 text-error" />
+        <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+        Skip
       </button>
 
-      <!-- Info / open -->
       <button
         type="button"
-        class="flex h-10 w-10 items-center justify-center rounded-full border border-base-300 bg-base-100 shadow transition hover:border-primary/60 hover:bg-primary/10"
-        aria-label="Open"
-        @click="onInfoClick"
-      >
-        <Icon name="kind-icon:info" class="h-5 w-5 text-base-content/60" />
-      </button>
-
-      <!-- Select / like -->
-      <button
-        type="button"
-        class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-success/40 bg-base-100 shadow transition hover:border-success hover:bg-success/10 hover:shadow-md"
-        aria-label="Select"
+        class="btn btn-primary btn-sm rounded-2xl text-white"
+        aria-label="Open this one"
         @click="swipeRight"
       >
-        <Icon name="kind-icon:check" class="h-6 w-6 text-success" />
+        <Icon name="kind-icon:eye" class="h-4 w-4" />
+        Open
       </button>
     </div>
 
@@ -257,8 +272,8 @@ function depthCardStyle(depth: number): CSSProperties {
 }
 
 // ── Indicators ────────────────────────────────────────────────────────
-const likeOpacity = computed(() => Math.max(0, Math.min(1, dragX.value / SWIPE_THRESHOLD)))
-const nopeOpacity = computed(() => Math.max(0, Math.min(1, -dragX.value / SWIPE_THRESHOLD)))
+const openOpacity = computed(() => Math.max(0, Math.min(1, dragX.value / SWIPE_THRESHOLD)))
+const skipOpacity = computed(() => Math.max(0, Math.min(1, -dragX.value / SWIPE_THRESHOLD)))
 
 // ── Pointer handlers ──────────────────────────────────────────────────
 function onPointerDown(e: PointerEvent) {
@@ -313,9 +328,15 @@ function swipeRight() {
   flyOff('right', true)
 }
 
-function onInfoClick() {
-  if (currentItem.value) emit('select', { id: currentItem.value.id })
-  flyOff('right', false)
+/* The recovery half of the affordance. Skipping is the only action that moves
+   the deck without opening anything, so it is the only one worth taking back --
+   Open already hands the reader somewhere they can navigate away from. */
+const canUndo = computed(() => swipedCount.value > 0 && !isFlying.value)
+
+function undoSkip() {
+  if (!canUndo.value) return
+  swipedCount.value--
+  dragX.value = 0
 }
 
 function reset() {

@@ -31,8 +31,15 @@
               loading="lazy"
               class="h-full w-full object-cover"
             />
+            <!--
+              Fallback only. This used to render unconditionally as an
+              `absolute inset-0` overlay, so a project WITH artwork got its
+              image permanently covered by a bg-base-content/15 wash and an
+              icon — the art was loaded, paid for, and then hidden.
+            -->
             <span
-              class="absolute inset-0 flex items-center justify-center bg-base-content/15"
+              v-else
+              class="flex h-full w-full items-center justify-center bg-base-content/15"
             >
               <Icon
                 :name="project.icon || 'kind-icon:sparkles'"

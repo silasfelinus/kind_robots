@@ -3,6 +3,7 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { ADVENTURE_CARDS } from '@/stores/helpers/adventureCards'
 import { ART_CARDS } from '@/stores/helpers/artCards'
 import { BOT_CARDS } from '@/stores/helpers/botCards'
+import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { DREAM_CARDS } from '@/stores/helpers/dreamCards'
 import { LAB_CARDS } from '@/stores/helpers/labCards'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
@@ -13,6 +14,7 @@ export type BuilderCardsKey =
   | 'adventureCards'
   | 'artCards'
   | 'botCards'
+  | 'conductorCards'
   | 'dreamCards'
   | 'labCards'
   | 'navCards'
@@ -24,6 +26,7 @@ export const modelCards: Partial<Record<BuilderCardsKey, BuilderCard[]>> = {
   adventureCards: ADVENTURE_CARDS,
   artCards: ART_CARDS,
   botCards: BOT_CARDS,
+  conductorCards: CONDUCTOR_CARDS,
   dreamCards: DREAM_CARDS,
   labCards: LAB_CARDS,
   navCards: NAV_CARDS,

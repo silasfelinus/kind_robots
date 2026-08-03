@@ -43,104 +43,23 @@
       </button>
     </template>
 
-    <div class="flex w-full flex-col">
-      <figure
-        v-if="showImage"
-        :class="[
-          'relative w-full overflow-hidden rounded-xl bg-base-300',
-          compact ? 'aspect-video' : 'aspect-4/3',
-        ]"
-      >
-        <img
-          :src="computedScenarioImage"
-          :alt="scenarioTitle"
-          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
-
-        <div
-          class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-2"
-        >
-          <span
-            v-if="scenario.userId === userStore.userId"
-            class="badge badge-primary badge-sm shadow"
-          >
-            Yours
-          </span>
-          <span v-else />
-
-          <span
-            v-if="scenario.isMature"
-            class="badge badge-warning badge-sm shadow"
-          >
-            Mature
-          </span>
-        </div>
-
-        <figcaption
-          class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/45 to-transparent px-3 pb-3 pt-12"
-        >
-          <h2
-            :class="[
-              'font-black leading-tight text-white drop-shadow',
-              compact ? 'line-clamp-1 text-base' : 'line-clamp-2 text-lg',
-            ]"
-            :title="scenarioTitle"
-          >
-            {{ scenarioTitle }}
-          </h2>
-
-          <p
-            v-if="scenario.genres"
-            class="mt-0.5 line-clamp-1 text-xs font-medium text-white/75"
-          >
-            {{ scenario.genres }}
-          </p>
-        </figcaption>
-
-        <div
-          v-if="activeSelected"
-          class="absolute right-2 top-9 rounded-full bg-primary p-1.5 text-primary-content shadow-lg"
-        >
-          <Icon name="kind-icon:check" class="h-4 w-4" />
-        </div>
-      </figure>
-
-      <div v-else class="flex items-start justify-between gap-2">
-        <h2
-          class="line-clamp-2 text-base font-black leading-tight text-base-content"
-        >
-          {{ scenarioTitle }}
-        </h2>
-
-        <Icon
-          v-if="activeSelected"
-          name="kind-icon:check"
-          class="h-5 w-5 shrink-0 text-primary"
-        />
-      </div>
-
-      <div v-if="showDescription && !compact" class="px-0.5 pt-2.5">
-        <p class="line-clamp-3 text-sm leading-relaxed text-base-content/70">
-          {{ scenario.description || 'No description yet.' }}
-        </p>
-      </div>
-
-      <div v-if="showMeta" class="flex flex-wrap gap-1.5 px-0.5 pt-2">
-        <span
-          v-if="scenario.locations"
-          class="badge badge-ghost badge-sm max-w-full truncate"
-          :title="scenario.locations"
-        >
-          <Icon name="kind-icon:map" class="mr-1 h-3 w-3" />
-          {{ scenario.locations }}
-        </span>
-
-        <span v-if="introCount" class="badge badge-outline badge-sm">
-          {{ introCount }} {{ introCount === 1 ? 'opening' : 'openings' }}
-        </span>
-      </div>
-
+    <kr-entity-card-body
+      :title="scenarioTitle"
+      :subtitle="scenario.genres || ''"
+      :description="scenario.description"
+      description-fallback="No description yet."
+      :source="scenario"
+      variant="card"
+      :fallback="artFallbackSrc"
+      :show-image="showImage"
+      :show-description="showDescription"
+      :compact="compact"
+      :selected="activeSelected"
+      :badges="badges"
+      :meta="showMeta ? metaChips : []"
+      placeholder-icon="kind-icon:map"
+    >
+      <!-- The one genuinely Scenario-shaped thing on the card. -->
       <div
         v-if="showInspirations && scenario.inspirations && !compact"
         class="mx-0.5 mt-2.5 rounded-xl border border-base-300 bg-base-100 p-2.5"
@@ -157,7 +76,7 @@
           {{ scenario.inspirations }}
         </p>
       </div>
-    </div>
+    </kr-entity-card-body>
   </reactable-card>
 </template>
 
@@ -165,7 +84,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc, resolveArtVariantSrc } from '@/utils/artImageSrc'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 import { parseScenarioIntros } from '@/stores/helpers/scenarioHelper'
@@ -239,23 +159,51 @@ const canDelete = computed(() => {
   )
 })
 
-const computedScenarioImage = computed(() =>
-  // The scenario's own purpose-built card art wins: it is rendered at card
-  // aspect for exactly this slot, where imagePath is the wide primary image.
-  // Falls through to the old chain (art image path, its base64, imagePath,
-  // fallback) for scenarios whose cardPath has not rendered yet.
-  resolveArtVariantSrc(
-    props.scenario,
-    'card',
-    resolveArtImageSrc(
-      artImage.value,
-      props.scenario.imagePath || props.fallbackImage,
-    ),
+/*
+ * What the card body falls back to when the Scenario has no card variant yet:
+ * the linked ArtImage's path or base64, then the wide primary imagePath, then
+ * the shipped placeholder. kr-entity-card-body (via kr-art-plate) applies the
+ * cardPath/heroPath/iconPath half of the chain itself, so this file no longer
+ * carries its own copy of resolveArtVariantSrc's variant branch.
+ */
+const artFallbackSrc = computed(() =>
+  resolveArtImageSrc(
+    artImage.value,
+    props.scenario.imagePath || props.fallbackImage,
   ),
 )
 
 const introCount = computed(() => {
   return parseScenarioIntros(props.scenario.intros).length
+})
+
+const badges = computed<EntityCardChip[]>(() => {
+  const result: EntityCardChip[] = []
+  if (props.scenario.userId === userStore.userId) {
+    result.push({ label: 'Yours', class: 'badge-primary' })
+  }
+  if (props.scenario.isMature) {
+    result.push({ label: 'Mature', class: 'badge-warning' })
+  }
+  return result
+})
+
+const metaChips = computed<EntityCardChip[]>(() => {
+  const result: EntityCardChip[] = []
+  if (props.scenario.locations) {
+    result.push({
+      label: props.scenario.locations,
+      class: 'badge-ghost',
+      icon: 'kind-icon:map',
+    })
+  }
+  if (introCount.value) {
+    result.push({
+      label: `${introCount.value} ${introCount.value === 1 ? 'opening' : 'openings'}`,
+      class: 'badge-outline',
+    })
+  }
+  return result
 })
 
 async function selectScenario() {

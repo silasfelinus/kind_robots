@@ -22,7 +22,10 @@
       v-if="src"
       :src="src"
       :alt="alt"
-      class="h-full w-full object-cover"
+      :class="[
+        'h-full w-full object-cover',
+        hoverZoom ? 'transition-transform duration-300 group-hover:scale-105' : '',
+      ]"
       :loading="eager ? 'eager' : 'lazy'"
       @error="onError"
     />
@@ -65,8 +68,11 @@ const props = withDefaults(
     /** Used when the source resolves to nothing at all. */
     fallback?: string
     alt?: string
-    /** card is 2:3 portrait, hero 16:9, icon square, plate the 3:2 mockup shape. */
-    shape?: 'card' | 'hero' | 'icon' | 'plate' | 'fill'
+    /**
+     * card is 2:3 portrait, hero 16:9, wide 4:3, icon square, plate the 3:2
+     * mockup shape.
+     */
+    shape?: 'card' | 'hero' | 'wide' | 'icon' | 'plate' | 'fill'
     /**
      * 'plate' is the white tipped-photo border the aesthetic is named for.
      * 'thin' is a plain hairline for inline thumbnails.
@@ -75,6 +81,8 @@ const props = withDefaults(
      * so "unframed" has to mean genuinely unframed, not thinly framed.
      */
     frame?: 'plate' | 'thin' | 'none'
+    /** The gallery-card lift: art scales slightly on the ancestor's :hover. */
+    hoverZoom?: boolean
     eager?: boolean
     placeholderIcon?: string
   }>(),
@@ -85,6 +93,7 @@ const props = withDefaults(
     alt: '',
     shape: 'plate',
     frame: 'plate',
+    hoverZoom: false,
     eager: false,
     placeholderIcon: 'kind-icon:image',
   },
@@ -132,6 +141,8 @@ const aspectClass = computed(() => {
       return 'aspect-2/3 w-full'
     case 'hero':
       return 'aspect-video w-full'
+    case 'wide':
+      return 'aspect-4/3 w-full'
     case 'icon':
       return 'aspect-square'
     case 'fill':

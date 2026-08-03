@@ -84,7 +84,7 @@
     </Transition>
 
     <!-- ── Body ────────────────────────────────────────────────────────── -->
-    <div class="min-h-0 flex-1 overflow-hidden">
+    <div class="kr-scroll">
       <!-- GALLERY TAB -->
       <div
         v-show="activeTab === 'gallery'"
@@ -197,17 +197,14 @@
       </div>
 
       <!-- UPLOAD TAB -->
-      <div
-        v-show="activeTab === 'upload'"
-        class="h-full min-h-0 overflow-y-auto rounded-xl"
-      >
+      <div v-show="activeTab === 'upload'" class="h-full min-h-0 rounded-xl">
         <image-upload />
       </div>
 
       <!-- GENERATE TAB -->
       <div
         v-show="activeTab === 'generate'"
-        class="h-full min-h-0 overflow-y-auto rounded-xl bg-base-100 p-3"
+        class="h-full min-h-0 rounded-xl bg-base-100 p-3"
       >
         <generate-button
           :show-result="true"

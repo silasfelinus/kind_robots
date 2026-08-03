@@ -23,7 +23,6 @@
       "components/servers/server-manager.vue",
       "components/stages/stage-manager.vue",
       "components/themes/theme-gallery.vue",
-      "components/user/avatar-picker.vue",
       "components/user/chat-gallery.vue",
       "components/user/messenger.vue",
       "components/user/user-galleries.vue",

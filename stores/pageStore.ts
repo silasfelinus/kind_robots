@@ -8,6 +8,7 @@ import {
   channelTabsToCards,
   navigationCardsToBuilderCards,
 } from '@/stores/helpers/channelCards'
+import { getModelCards } from '@/stores/helpers/modelCards'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { useSheetStore } from '@/stores/sheetStore'
@@ -206,6 +207,11 @@ export const usePageStore = defineStore('pageStore', () => {
     if (isBuilderCardArray(value)) return value
     if (isNavigationCardArray(value)) {
       return navigationCardsToBuilderCards(value)
+    }
+
+    if (typeof value === 'string') {
+      const registryCards = getModelCards(value)
+      if (registryCards.length) return registryCards
     }
 
     return resolvedChannel.value

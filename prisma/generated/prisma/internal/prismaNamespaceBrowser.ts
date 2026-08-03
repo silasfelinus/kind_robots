@@ -75,6 +75,7 @@ export const ModelName = {
   ProjectFacet: 'ProjectFacet',
   ProjectArtImage: 'ProjectArtImage',
   ProjectArtCollection: 'ProjectArtCollection',
+  EntityArtImage: 'EntityArtImage',
   FacetArtImage: 'FacetArtImage',
   FacetArtCollection: 'FacetArtCollection',
   FacetRelation: 'FacetRelation',
@@ -689,6 +690,16 @@ export const ProjectArtCollectionScalarFieldEnum = {
 } as const
 
 export type ProjectArtCollectionScalarFieldEnum = (typeof ProjectArtCollectionScalarFieldEnum)[keyof typeof ProjectArtCollectionScalarFieldEnum]
+
+
+export const EntityArtImageScalarFieldEnum = {
+  entityType: 'entityType',
+  entityId: 'entityId',
+  artImageId: 'artImageId',
+  createdAt: 'createdAt'
+} as const
+
+export type EntityArtImageScalarFieldEnum = (typeof EntityArtImageScalarFieldEnum)[keyof typeof EntityArtImageScalarFieldEnum]
 
 
 export const FacetArtImageScalarFieldEnum = {
@@ -2139,6 +2150,13 @@ export const FacetOrderByRelevanceFieldEnum = {
 } as const
 
 export type FacetOrderByRelevanceFieldEnum = (typeof FacetOrderByRelevanceFieldEnum)[keyof typeof FacetOrderByRelevanceFieldEnum]
+
+
+export const EntityArtImageOrderByRelevanceFieldEnum = {
+  entityType: 'entityType'
+} as const
+
+export type EntityArtImageOrderByRelevanceFieldEnum = (typeof EntityArtImageOrderByRelevanceFieldEnum)[keyof typeof EntityArtImageOrderByRelevanceFieldEnum]
 
 
 export const FacetRelationOrderByRelevanceFieldEnum = {

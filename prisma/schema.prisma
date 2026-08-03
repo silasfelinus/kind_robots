@@ -56,6 +56,7 @@ model ArtImage {
   Components           Component[]
   Contenders           Contender[]
   DreamsPrimary        Dream[]               @relation("DreamPrimaryArtImage")
+  EntityArtLinks       EntityArtImage[]
   ExpressionMedia      ExpressionMedia?
   FacetsPrimary        Facet[]               @relation("FacetPrimaryArtImage")
   FacetLinks           FacetArtImage[]
@@ -574,6 +575,24 @@ model ProjectArtCollection {
 
   @@id([projectId, artCollectionId])
   @@index([artCollectionId])
+}
+
+// Generic ProjectArtImage-style history join for entity types that don't get
+// their own dedicated join table (bot/character/scenario/reward/facet/
+// achievement). entityId is polymorphic (no single-table FK is possible), so
+// only artImageId is enforced at the DB level; entityType+entityId is the
+// app-level half of the identity. See interface-vision/t-028 in conductor for
+// the path-prefix scheme (ArtImage.path startsWith `entity:<type>:<id>:history:`)
+// this is intended to eventually replace.
+model EntityArtImage {
+  entityType String   @db.VarChar(32)
+  entityId   Int
+  artImageId Int
+  createdAt  DateTime @default(now())
+  ArtImage   ArtImage @relation(fields: [artImageId], references: [id], onDelete: Cascade)
+
+  @@id([entityType, entityId, artImageId])
+  @@index([artImageId])
 }
 
 model FacetArtImage {

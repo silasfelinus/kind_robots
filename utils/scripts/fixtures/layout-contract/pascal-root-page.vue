@@ -1,3 +1,3 @@
 <template>
-  <ProjectFrontPage class="kr-surface" />
+  <NuxtPage class="kr-surface" />
 </template>

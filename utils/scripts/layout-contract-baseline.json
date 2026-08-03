@@ -15,7 +15,6 @@
       "components/characters/character-interact.vue",
       "components/dreams/dream-brainstorm.vue",
       "components/navigation/channel-select.vue",
-      "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
       "components/rewards/reward-interact.vue",
       "components/scenarios/scenario-gallery.vue",

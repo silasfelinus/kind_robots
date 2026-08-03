@@ -9,13 +9,15 @@ import {
   buildConductorData,
   missingConductorData,
   type ConductorData,
-  type ConductorMilestone,
   type ConductorPitch,
   type ConductorProject,
   type ConductorProjectDisplay,
-  type ConductorTask,
 } from '@/server/utils/conductorProjection'
 import { readConductorProjection } from '@/server/utils/conductorProjectionDb'
+import type {
+  ConductorMilestone,
+  ConductorTask,
+} from '@/server/utils/conductorRoadmap'
 
 export type {
   ConductorData,

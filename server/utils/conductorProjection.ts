@@ -15,8 +15,6 @@ import {
   type ParsedRoadmap,
 } from '@/server/utils/conductorRoadmap'
 
-export type { ConductorMilestone, ConductorTask }
-
 const DEFAULT_SOURCE_REPO = 'silasfelinus/conductor'
 const DEFAULT_SOURCE_REF = 'main'
 const PROJECT_IMAGE_DIRECTORY = 'projects/images'

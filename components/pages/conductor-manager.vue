@@ -1,8 +1,10 @@
 <template>
   <div class="kr-surface">
-    <WishmasterPage v-if="pageStore.workspaceCardKey === 'wishmaster'" />
+    <TabScrollRegion v-if="needsScrollWrap">
+      <WishmasterPage v-if="pageStore.workspaceCardKey === 'wishmaster'" />
+      <AppmakerPage v-else-if="pageStore.workspaceCardKey === 'appmaker'" />
+    </TabScrollRegion>
     <PortosPage v-else-if="pageStore.workspaceCardKey === 'portos'" />
-    <AppmakerPage v-else-if="pageStore.workspaceCardKey === 'appmaker'" />
     <ConductorPitchManager
       v-else-if="pageStore.workspaceCardKey === 'brainstorm'"
     />
@@ -20,10 +22,24 @@ import ConductorPage from '@/components/pages/conductor-page.vue'
 import ConductorPitchManager from '@/components/pages/conductor-pitch-manager.vue'
 import PlanProjectsGrid from '@/components/conductor/plan-projects-grid.vue'
 import PortosPage from '@/components/pages/portos-page.vue'
+import TabScrollRegion from '@/components/conductor/tab-scroll-region.vue'
 import WishmasterPage from '@/components/pages/wishmaster-page.vue'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
+
+/*
+ * WishmasterPage and AppmakerPage adopt kr-unbound (interface-vision t-057)
+ * so they can also mount scroll-free under pages/[...slug].vue's own
+ * content-host. This kr-surface tab shell has no content-host, so this is
+ * their only scroll owner in this context (t-070).
+ */
+const needsScrollWrap = computed(() => {
+  return (
+    pageStore.workspaceCardKey === 'wishmaster' ||
+    pageStore.workspaceCardKey === 'appmaker'
+  )
+})
 
 const showConductorGallery = computed(() => {
   return !pageStore.workspaceCardKey || pageStore.workspaceCardKey === 'overview'

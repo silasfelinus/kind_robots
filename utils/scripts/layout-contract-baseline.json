@@ -37,9 +37,7 @@
     "ghost-prop": [],
     "zero-scroll": [],
     "root-surface": [
-      "components/pages/appmaker-page.vue",
       "components/pages/memory-dungeon.vue",
-      "components/pages/wishmaster-page.vue",
       "pages/[...slug].vue"
     ]
   }

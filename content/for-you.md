@@ -1,11 +1,13 @@
 ---
 title: 'For You'
 room: 'For You'
-subtitle: 'Your action queue'
-description: Things your AI has flagged that need your attention, across every project.
+subtitle: 'Your attention desk'
+description: Human gates, pitch proposals, notifications, and personal follow-ups that need your attention.
 icon: kind-icon:checklist
-tooltip: Action items your AI assigned to you, in one place.
-loadingMessage: Loading your action queue...
+tooltip: Decisions and follow-ups gathered from Kind Robots and Conductor.
+channelKey: home
+tabKey: for-you
+loadingMessage: Loading your attention desk...
 refreshLabel: Refresh
 ---
 

@@ -7,7 +7,6 @@
       "components/animation/animation-manager.vue",
       "components/art/art-gallery.vue",
       "components/art/art-interact.vue",
-      "components/art/art-manager.vue",
       "components/art/art-styler.vue",
       "components/art/artjob-editor.vue",
       "components/butterfly/butterfly-flip.vue",

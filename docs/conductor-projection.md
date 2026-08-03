@@ -53,7 +53,7 @@ For a missing Project row, legacy presentation values from Conductor may seed th
 
 ## Storage
 
-`ConductorProjection` is an additive singleton table created by migration `20260803113000_add_conductor_projection`. It is intentionally accessed through parameterized raw Prisma queries rather than generated Prisma models. This keeps the projection isolated from the application's domain schema and makes its cache status explicit.
+`ConductorProjection` is an additive singleton table created by migration `20260803113000_add_conductor_projection`. Application code intentionally accesses it through parameterized raw Prisma queries rather than a generated delegate. The table is still represented by the ignored `prisma/conductorProjection.prisma` model so future migration diffs know it is intentional and do not propose dropping it as orphaned drift.
 
 The stored payload is versioned. A future payload change must increment the version and preserve a deliberate compatibility path.
 

@@ -1,7 +1,7 @@
 <!-- /components/pages/for-you-manager.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden p-1.5 sm:p-2.5"
+    class="kr-surface flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden p-1.5 sm:p-2.5"
   >
     <div class="rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3">
       <div class="flex flex-wrap items-start justify-between gap-2">

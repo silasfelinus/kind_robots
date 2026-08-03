@@ -39,7 +39,6 @@
     "root-surface": [
       "components/pages/appmaker-page.vue",
       "components/pages/conductor-page.vue",
-      "components/pages/for-you-manager.vue",
       "components/pages/memory-dungeon.vue",
       "components/pages/rebel-button.vue",
       "components/pages/storybook-library-page.vue",

@@ -111,13 +111,18 @@ import {
   type ArtVariant,
 } from '@/utils/artImageSrc'
 
-export type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
+// The vocabulary lives in utils/galleryVocabulary.ts — a plain module, because
+// <script setup> cannot carry value exports and because four other components
+// need these without importing a component. Re-exported here so existing
+// `import type { GalleryMode } from '.../kr-gallery.vue'` call sites keep
+// working; new code should import from the util directly.
+import {
+  GALLERY_MODES,
+  type GalleryMode,
+  type GalleryModeOption,
+} from '@/utils/galleryVocabulary'
 
-export interface GalleryModeOption {
-  value: GalleryMode
-  label: string
-  abbr: string
-}
+export type { GalleryMode, GalleryModeOption }
 
 export interface GalleryItem {
   id: string | number
@@ -159,12 +164,7 @@ const props = withDefaults(
   }>(),
   {
     mode: 'cards',
-    modes: () => [
-      { value: 'cards', label: 'Cards', abbr: 'C' },
-      { value: 'heroes', label: 'Heroes', abbr: 'H' },
-      { value: 'icons', label: 'Icons', abbr: 'I' },
-      { value: 'list', label: 'List', abbr: 'L' },
-    ],
+    modes: () => [...GALLERY_MODES],
     loading: false,
     error: '',
     emptyLabel: 'items',

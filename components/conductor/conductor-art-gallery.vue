@@ -408,9 +408,9 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
+import type { ArtVariant } from '@/utils/artImageSrc'
 
 type ProjectArtField = 'imagePath' | 'cardPath' | 'heroPath'
-type ProjectArtVariant = 'icon' | 'card' | 'hero'
 type GenerationEngine = 'krea2' | 'flux' | 'comfy'
 type Slide = { src: string; label: string; field?: ProjectArtField }
 type ProjectArtLink = {
@@ -431,7 +431,7 @@ const FIELD_META: Record<
   ProjectArtField,
   {
     label: string
-    variant: ProjectArtVariant
+    variant: ArtVariant
     size: string
     width: number
     height: number

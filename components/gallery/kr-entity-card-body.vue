@@ -163,6 +163,7 @@
 
 <script setup lang="ts">
 import type { ArtImageSrcLike, ArtVariant } from '@/utils/artImageSrc'
+import type { ArtPlateShape } from '@/utils/galleryVocabulary'
 
 export type EntityCardChip = {
   label: string
@@ -191,8 +192,8 @@ withDefaults(
     badges?: EntityCardChip[]
     /** Chips below the art, on the card surface. */
     meta?: EntityCardChip[]
-    shape?: 'card' | 'hero' | 'wide' | 'plate'
-    compactShape?: 'card' | 'hero' | 'wide' | 'plate'
+    shape?: ArtPlateShape
+    compactShape?: ArtPlateShape
     /** 'contain' for portrait art whose edges matter (Characters). */
     fit?: 'cover' | 'contain'
     placeholderIcon?: string

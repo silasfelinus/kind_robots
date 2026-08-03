@@ -60,6 +60,7 @@ import {
   type ArtVariant,
   type ArtImageSrcLike,
 } from '@/utils/artImageSrc'
+import type { ArtPlateShape } from '@/utils/galleryVocabulary'
 
 const props = withDefaults(
   defineProps<{
@@ -70,10 +71,13 @@ const props = withDefaults(
     fallback?: string
     alt?: string
     /**
-     * card is 2:3 portrait, hero 16:9, wide 4:3, icon square, plate the 3:2
-     * mockup shape.
+     * The aspect the frame is drawn at. Distinct from `variant`, which picks
+     * WHICH stored image to load (cardPath / heroPath / iconPath) — shape only
+     * decides the box it goes in, so a hero image can sit in a card-shaped
+     * plate. card is 2:3 portrait, hero 16:9, wide 4:3, plate the 3:2 mockup
+     * shape.
      */
-    shape?: 'card' | 'hero' | 'wide' | 'icon' | 'plate' | 'fill'
+    shape?: ArtPlateShape
     /**
      * 'plate' is the white tipped-photo border the aesthetic is named for.
      * 'thin' is a plain hairline for inline thumbnails.
@@ -152,10 +156,6 @@ const aspectClass = computed(() => {
       return 'aspect-video w-full'
     case 'wide':
       return 'aspect-4/3 w-full'
-    case 'icon':
-      return 'aspect-square'
-    case 'fill':
-      return 'h-full w-full'
     default:
       return 'aspect-3/2 w-full'
   }

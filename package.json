@@ -23,6 +23,7 @@
     "test:facet-closure": "tsx utils/scripts/verifyFacetClosure.ts",
     "test:facet-gallery": "tsx utils/scripts/verifyFacetGallery.ts",
     "test:layout-contract": "tsx utils/scripts/verifyLayoutContract.ts",
+    "audit:responsive": "node utils/scripts/auditResponsiveLayout.mjs",
     "test:daily-dream-facets": "prisma validate && tsx utils/scripts/verifyDailyDreamFacets.ts",
     "test:prompt-variants": "tsx utils/scripts/verifyPromptVariants.ts",
     "test:challenge-center": "tsx utils/scripts/verifyChallengeCenter.ts",
@@ -152,6 +153,7 @@
     "eslint-config-flat-gitignore": "^2.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.2.1",
+    "playwright": "^1.62.1",
     "postcss": "^8.5.10",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
@@ -164,7 +166,6 @@
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
-    "yaml": "^2.9.0",
     "@nuxt/content": "^3.3.0",
     "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.3",
@@ -178,7 +179,8 @@
     "mariadb": "^3.5.2",
     "nuxt": "4.4.8",
     "pinia": "^3.0.4",
-    "stripe": "^22.0.1"
+    "stripe": "^22.0.1",
+    "yaml": "^2.9.0"
   },
   "overrides": {
     "vue": "^3.5.13",

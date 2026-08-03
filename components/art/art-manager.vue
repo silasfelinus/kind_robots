@@ -31,15 +31,6 @@
     </div>
 
     <section
-      v-else-if="activeTab === 'generate'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <art-maker class="min-h-full w-full" />
-      </div>
-    </section>
-
-    <section
       v-else-if="activeTab === 'gallery'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
@@ -52,84 +43,72 @@
     </section>
 
     <section
-      v-else-if="activeTab === 'checkpoints'"
+      v-else
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+      @click.capture="activeTab === 'artjob' ? handleArtJobImageClick($event) : undefined"
     >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+      <div
+        class="kr-scroll p-3"
+        :class="
+          activeTab === 'artjob'
+            ? 'flex h-full flex-col gap-3 p-0 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:grid-rows-[auto_minmax(0,1fr)] 2xl:overflow-hidden'
+            : ''
+        "
+      >
+        <art-maker
+          v-if="activeTab === 'generate'"
+          class="min-h-full w-full"
+        />
+
         <checkpoint-gallery
+          v-else-if="activeTab === 'checkpoints'"
           class="min-h-full w-full"
           variant="dashboard"
           :show-header="false"
         />
-      </div>
-    </section>
 
-    <section
-      v-else-if="activeTab === 'styler'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
         <div
+          v-else-if="activeTab === 'styler'"
           class="grid min-h-full gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
         >
           <art-styler class="min-h-0" />
-
           <image-upload class="min-h-0" :show-model-connect="false" />
+        </div>
+
+        <stylist-manager
+          v-else-if="activeTab === 'stylist'"
+          class="min-h-full w-full"
+        />
+
+        <art-test
+          v-else-if="activeTab === 'art-test'"
+          class="min-h-full w-full"
+          :show-header="false"
+        />
+
+        <coloring-book-manager
+          v-else-if="activeTab === 'coloring'"
+          class="min-h-full w-full"
+        />
+
+        <template v-else-if="activeTab === 'artjob'">
+          <artjob-failed-page-requeue class="2xl:col-span-2" />
+          <artjob-queue-browser
+            class="min-h-[720px] overflow-hidden 2xl:min-h-0"
+          />
+          <artjob-feedback-manager
+            class="min-h-[560px] overflow-hidden 2xl:min-h-0"
+          />
+        </template>
+
+        <div
+          v-else
+          class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+        >
+          Unknown image tab: {{ activeTab }}
         </div>
       </div>
     </section>
-
-    <section
-      v-else-if="activeTab === 'stylist'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <stylist-manager class="min-h-full w-full" />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'art-test'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <art-test class="min-h-full w-full" :show-header="false" />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'coloring'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
-        <coloring-book-manager class="min-h-full w-full" />
-      </div>
-    </section>
-
-    <section
-      v-else-if="activeTab === 'artjob'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-      @click.capture="handleArtJobImageClick"
-    >
-      <div
-        class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:grid-rows-[auto_minmax(0,1fr)] 2xl:overflow-hidden"
-      >
-        <artjob-failed-page-requeue class="2xl:col-span-2" />
-        <artjob-queue-browser
-          class="min-h-[720px] overflow-hidden 2xl:min-h-0"
-        />
-        <artjob-feedback-manager
-          class="min-h-[560px] overflow-hidden 2xl:min-h-0"
-        />
-      </div>
-    </section>
-
-    <div
-      v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-    >
-      Unknown image tab: {{ activeTab }}
-    </div>
 
     <dialog
       ref="artPreviewDialog"

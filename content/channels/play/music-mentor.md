@@ -2,8 +2,6 @@
 contentType: tab
 channelKey: play
 tabKey: music-mentor
-dashboardKey: scenario
-dashboardTab: music-mentor
 label: Music Mentor
 title: Music Mentor
 subtitle: Feedback on your singing and arrangement

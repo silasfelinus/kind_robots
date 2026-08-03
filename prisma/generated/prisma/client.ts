@@ -185,6 +185,11 @@ export type ProjectArtImage = Prisma.ProjectArtImageModel
  */
 export type ProjectArtCollection = Prisma.ProjectArtCollectionModel
 /**
+ * Model EntityArtImage
+ * 
+ */
+export type EntityArtImage = Prisma.EntityArtImageModel
+/**
  * Model FacetArtImage
  * 
  */

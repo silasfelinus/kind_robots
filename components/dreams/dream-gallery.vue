@@ -66,15 +66,13 @@
 
         <select
           v-if="showControls"
-          v-model="layoutMode"
+          v-model="galleryMode"
           class="select select-bordered select-sm h-9 w-28 shrink-0 rounded-2xl bg-base-200"
           aria-label="Dream gallery layout"
         >
-          <option value="grid">Grid</option>
-          <option value="row">Row</option>
-          <option value="reel">Reel</option>
-          <option value="hero">Hero</option>
-          <option value="swipe">Swipe</option>
+          <option v-for="mode in modeOptions" :key="mode.value" :value="mode.value">
+            {{ mode.label }}
+          </option>
         </select>
 
         <button
@@ -327,13 +325,12 @@
 
       <div v-else class="flex flex-col gap-3">
         <dream-sheet-toolbar
-          v-if="showSheetToolbar && isClassicLayout"
+          v-if="showSheetToolbar"
           :dreams="filteredDreams"
           :auto-refresh="autoLoadSheets"
         />
 
-        <!-- Classic grid / row views -->
-        <div v-if="isClassicLayout" :class="layoutClass">
+        <div :class="layoutClass">
           <dream-card
             v-for="dream in filteredDreams"
             :key="dream.id"
@@ -359,21 +356,6 @@
           />
         </div>
 
-        <slot-reel-gallery
-          v-if="layoutMode === 'reel'"
-          :items="showcaseItems"
-          @select="({ id }) => selectDreamAndOpen(Number(id))"
-        />
-        <hero-showcase
-          v-if="layoutMode === 'hero'"
-          :items="showcaseItems"
-          @select="({ id }) => selectDreamAndOpen(Number(id))"
-        />
-        <swipe-deck
-          v-if="layoutMode === 'swipe'"
-          :items="showcaseItems"
-          @select="({ id }) => selectDreamAndOpen(Number(id))"
-        />
       </div>
     </section>
   </section>
@@ -387,6 +369,7 @@ import type {
   Reward,
   Scenario,
 } from '~/prisma/generated/prisma/client'
+import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
@@ -479,8 +462,20 @@ const searchQuery = ref('')
 const showMineOnly = ref(false)
 const showArchived = ref(false)
 const isLoading = ref(false)
-const layoutMode = ref<'grid' | 'row' | 'reel' | 'hero' | 'swipe'>(
-  props.variant === 'row' ? 'row' : 'grid',
+const galleryMode = ref<GalleryMode>(props.variant === 'row' ? 'list' : 'cards')
+
+/**
+ * Dreams offers only the two modes it can currently honour. `heroes` and
+ * `icons` are held back because dream-card takes no variant/shape prop yet and
+ * would render them identically to `cards` — a label that lies about what it
+ * does, which is the whole reason this vocabulary was consolidated. When
+ * dream-card moves onto kr-entity-card-body it inherits variant support, and
+ * this filter is what gets deleted to expand the control to all four.
+ */
+const modeOptions = computed(() =>
+  GALLERY_MODES.filter(
+    (mode) => mode.value === 'cards' || mode.value === 'list',
+  ),
 )
 const earnedKarmaByDreamId = ref<Record<number, number>>({})
 
@@ -499,24 +494,11 @@ const isCompact = computed(() => {
   return props.compact || props.variant === 'row' || isDropdownMode.value
 })
 
-const isClassicLayout = computed(
-  () => layoutMode.value === 'grid' || layoutMode.value === 'row',
-)
-
 const layoutClass = computed(() => {
-  return layoutMode.value === 'row' || props.variant === 'row'
+  return galleryMode.value === 'list' || props.variant === 'row'
     ? 'dream-row'
     : 'dream-grid'
 })
-
-const showcaseItems = computed(() =>
-  filteredDreams.value.map((dream) => ({
-    id: dream.id,
-    title: getDreamTitle(dream),
-    imagePath: previewImage(dream),
-    description: getDreamDescription(dream),
-  })),
-)
 
 const currentUserId = computed(() => {
   return userStore.userId ?? userStore.user?.id ?? null

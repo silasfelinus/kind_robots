@@ -44,116 +44,25 @@
       </button>
     </template>
 
-    <div
-      v-if="showImage"
-      :class="[
-        'relative flex items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-        compact ? 'h-32 w-full' : 'h-44 w-full',
-      ]"
+    <kr-entity-card-body
+      :title="rewardTitle"
+      :subtitle="reward.rewardType || ''"
+      :description="reward.effect || reward.description || ''"
+      description-fallback="No effect described yet."
+      :source="reward"
+      variant="card"
+      :fallback="artFallbackSrc"
+      :show-image="showImage"
+      :show-description="showDescription"
+      :compact="compact"
+      :selected="activeSelected"
+      :badges="badges"
+      :meta="showMeta ? metaChips : []"
+      :placeholder-icon="reward.icon || fallbackIcon"
     >
-      <img
-        v-if="visibleRewardImageSrc"
-        :src="visibleRewardImageSrc"
-        :alt="rewardTitle"
-        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        loading="lazy"
-        @error="handleImageError"
-      />
-
-      <div
-        v-else
-        class="flex h-full w-full items-center justify-center bg-linear-to-br from-base-200 to-base-300"
-      >
-        <span
-          v-if="isLoadingImage"
-          class="loading loading-spinner loading-md text-primary"
-        />
-
-        <Icon
-          v-else
-          :name="reward.icon || fallbackIcon"
-          :class="compact ? 'h-14 w-14' : 'h-20 w-20'"
-          class="text-primary/70"
-        />
-      </div>
-
-      <div
-        v-if="visibleRewardImageSrc"
-        class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-base-300/80 to-transparent"
-      />
-
-      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span v-if="activeSelected" class="badge badge-primary badge-sm shadow">
-          Selected
-        </span>
-
-        <span
-          v-if="reward.collection"
-          class="badge badge-secondary badge-sm shadow"
-        >
-          {{ reward.collection }}
-        </span>
-
-        <span class="badge badge-sm shadow" :class="rarityBadgeClass">
-          {{ reward.rarity || 'COMMON' }}
-        </span>
-      </div>
-
-      <div
-        class="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full border border-base-300 bg-base-100/90 shadow"
-      >
-        <Icon
-          :name="reward.icon || fallbackIcon"
-          class="h-5 w-5 text-primary"
-        />
-      </div>
-
-      <div
-        v-if="activeSelected"
-        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
-      >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
-      </div>
-    </div>
-
-    <div class="flex min-w-0 flex-1 flex-col gap-2">
-      <h2
-        :class="[
-          'font-black leading-tight text-base-content',
-          compact ? 'line-clamp-1 text-base' : 'text-lg',
-        ]"
-        :title="rewardTitle"
-      >
-        {{ rewardTitle }}
-      </h2>
-
-      <p
-        v-if="showDescription"
-        :class="[
-          'text-base-content/70',
-          compact ? 'line-clamp-2 text-sm' : 'text-sm',
-        ]"
-      >
-        {{ reward.effect || reward.description || 'No effect described yet.' }}
-      </p>
-
-      <div v-if="showMeta" class="flex flex-wrap gap-2">
-        <span v-if="reward.rewardType" class="badge badge-primary badge-sm">
-          {{ reward.rewardType }}
-        </span>
-
-        <span class="badge badge-outline badge-sm">
-          {{ reward.collection || 'general' }}
-        </span>
-
-        <span class="badge badge-sm" :class="rarityBadgeClass">
-          {{ reward.rarity || 'COMMON' }}
-        </span>
-      </div>
-
       <div
         v-if="showStats"
-        class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+        class="mx-0.5 mt-2.5 grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
       >
         <div>
           <p class="font-bold uppercase text-base-content/45">ID</p>
@@ -184,7 +93,7 @@
 
       <button
         v-if="showSelectButton"
-        class="btn btn-sm mt-auto rounded-xl"
+        class="btn btn-sm mx-0.5 mt-2.5 rounded-xl"
         :class="activeSelected ? 'btn-primary text-white' : 'btn-outline'"
         type="button"
         @click.stop="selectReward"
@@ -195,7 +104,7 @@
 
       <details
         v-if="showDebug"
-        class="rounded-2xl border border-base-300 bg-base-100 p-2"
+        class="mx-0.5 mt-2.5 rounded-2xl border border-base-300 bg-base-100 p-2"
         @click.stop
       >
         <summary class="cursor-pointer text-xs font-bold text-base-content/70">
@@ -206,7 +115,7 @@
           JSON.stringify(reward, null, 2)
         }}</pre>
       </details>
-    </div>
+    </kr-entity-card-body>
   </reactable-card>
 </template>
 
@@ -214,6 +123,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useRewardStore } from '@/stores/rewardStore'
 
 type RewardWithArt = Reward & {
@@ -276,83 +186,58 @@ const rewardStore = useRewardStore()
 
 const artImage = ref<RewardCardImage | null>(null)
 const isLoadingImage = ref(false)
-const imageCandidateIndex = ref(0)
 
 const embeddedArtImage = computed<RewardCardImage | null>(() => {
   return props.reward.ArtImage ?? null
 })
 
-// Ordered fallback chain: ArtImage base64 -> thumbnail -> imagePath ->
-// slug-derived /images/rewards/{type}/{slug}.webp. A failed <img> load
-// advances to the next candidate instead of giving up entirely.
-const imageCandidates = computed<string[]>(() => {
-  const candidates: string[] = []
+const rarityBadgeClass = computed(() => {
+  return getRarityBadgeClass(props.reward.rarity)
+})
+
+/*
+ * kr-art-plate resolves cardPath -> cardData -> imagePath -> imageData itself,
+ * which covers most of what this card used to chain by hand. What it cannot
+ * know about is the separately-fetched ArtImage row and the slug-derived
+ * guess, so those become its single `fallback` step.
+ *
+ * This IS a reduction: the old <img> @error handler walked the whole candidate
+ * list one entry at a time, whereas kr-art-plate falls back exactly once. The
+ * ordering that mattered -- purpose-built card art first, slug guess last --
+ * survives; what goes is retrying every intermediate URL after a 404.
+ */
+const artFallbackSrc = computed(() => {
   const image = embeddedArtImage.value || artImage.value
-
-  // The reward's own purpose-built card art leads the chain. It is rendered at
-  // card aspect for exactly this slot, so it should beat the generic ArtImage
-  // and the slug-derived guess. Rewards whose cardPath has not rendered yet
-  // simply start at the next candidate, and the onerror handler still advances
-  // through the rest if this one fails to load.
-  const cardPath = props.reward.cardPath?.trim()
-
-  if (cardPath) candidates.push(cardPath)
-
-  // Path-first: try the art image's own path, the reward's imagePath, and the
-  // slug-derived path before any inline base64. The <img> onerror handler
-  // advances through this list, so base64 stays a graceful fallback.
   const artPath =
     image?.imagePath?.trim() ||
     (image as { path?: string | null } | null | undefined)?.path?.trim() ||
     ''
 
-  if (artPath) candidates.push(artPath)
-
-  const path = props.reward.imagePath?.trim()
-
-  if (path) {
-    candidates.push(path)
-
-    if (
-      !path.startsWith('/') &&
-      !path.startsWith('http') &&
-      !path.startsWith('data:')
-    ) {
-      candidates.push(`/${path}`)
-    }
-  }
+  if (artPath) return artPath
 
   const slug = props.reward.slug?.trim()
   const rewardType = props.reward.rewardType?.toLowerCase()
 
-  if (slug && rewardType) {
-    candidates.push(`/images/rewards/${rewardType}/${slug}.webp`)
-  }
-
-  if (image?.imageData) {
-    candidates.push(
-      `data:${normalizeImageMime(image.fileType)};base64,${image.imageData}`,
-    )
-  }
-
-  if (image?.thumbnailData) {
-    candidates.push(
-      `data:${normalizeImageMime(image.fileType)};base64,${image.thumbnailData}`,
-    )
-  }
-
-  return Array.from(new Set(candidates))
+  return slug && rewardType ? `/images/rewards/${rewardType}/${slug}.webp` : ''
 })
 
-const visibleRewardImageSrc = computed(() => {
-  if (!props.showImage) return ''
+/*
+ * Badges sit top-LEFT over the art (kr-entity-card-body owns that corner;
+ * top-right belongs to reactable-card's actions row). Rarity is the one
+ * attribute worth reading at a glance, so it takes the corner and collection
+ * drops to the meta row -- previously both appeared in BOTH places.
+ *
+ * The old "Selected" badge and the bottom-right check are both gone: the
+ * shared body renders one check from `selected`, so the card no longer says
+ * the same thing three times.
+ */
+const badges = computed<EntityCardChip[]>(() => [
+  { label: props.reward.rarity || 'COMMON', class: rarityBadgeClass.value },
+])
 
-  return imageCandidates.value[imageCandidateIndex.value] ?? ''
-})
-
-const rarityBadgeClass = computed(() => {
-  return getRarityBadgeClass(props.reward.rarity)
-})
+const metaChips = computed<EntityCardChip[]>(() => [
+  { label: props.reward.collection || 'general', class: 'badge-outline' },
+])
 
 function getRarityBadgeClass(rarity?: string | null) {
   switch (rarity) {
@@ -412,19 +297,8 @@ async function deleteReward() {
   }
 }
 
-function normalizeImageMime(fileType?: string | null) {
-  const fallback = 'image/webp'
-  const cleaned = fileType?.trim().replace(/^\./, '')
-
-  if (!cleaned) return fallback
-  if (cleaned.startsWith('image/')) return cleaned
-
-  return `image/${cleaned}`
-}
-
 async function loadRewardImage() {
   artImage.value = null
-  imageCandidateIndex.value = 0
 
   if (!props.reward.artImageId || !props.showImage || embeddedArtImage.value) {
     return
@@ -439,10 +313,6 @@ async function loadRewardImage() {
   } finally {
     isLoadingImage.value = false
   }
-}
-
-function handleImageError() {
-  imageCandidateIndex.value += 1
 }
 
 onMounted(async () => {

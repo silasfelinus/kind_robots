@@ -82,7 +82,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
 import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import type { GalleryMode } from '@/components/gallery/kr-gallery.vue'
+import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 
 const IMG_BASE = 'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 type Status = 'ACTIVE' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
@@ -92,7 +92,6 @@ type BlockedTask = ConductorTask & { projectSlug: string; projectTitle: string }
 
 const GALLERY_KEY = 'conductor-project-gallery'
 const filters = [{ value: 'ACTIVE' as const, label: 'Active', icon: 'kind-icon:sparkles' }, { value: 'PAUSED' as const, label: 'Paused', icon: 'kind-icon:pause' }, { value: 'DONE' as const, label: 'Completed', icon: 'kind-icon:check-circle' }, { value: 'BRAINSTORM' as const, label: 'Ideas', icon: 'kind-icon:lightbulb' }, { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' }, { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' }]
-const IS_MODE = (value: string): value is GalleryMode => value === 'cards' || value === 'heroes' || value === 'icons' || value === 'list'
 const IS_FILTER = (value: string): value is Filter => filters.some((entry) => entry.value === value) || value === 'ALL'
 
 const projects = useProjectStore()
@@ -101,7 +100,7 @@ const page = usePageStore()
 const todos = useTodoStore()
 const galleryPrefs = useGalleryPreferenceStore()
 const galleryMode = computed({
-  get: () => galleryPrefs.get<GalleryMode>(GALLERY_KEY, 'mode', 'cards', IS_MODE),
+  get: () => galleryPrefs.get<GalleryMode>(GALLERY_KEY, 'mode', 'cards', IS_GALLERY_MODE),
   set: (value: GalleryMode) => galleryPrefs.set(GALLERY_KEY, 'mode', value),
 })
 const filter = computed({

@@ -1391,6 +1391,11 @@ import {
   placementLiveUrl,
 } from '~/utils/projectPlacements'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
+import {
+  GALLERY_MODES,
+  IS_GALLERY_MODE,
+  type GalleryMode,
+} from '@/utils/galleryVocabulary'
 import ConductorArtGallery from '@/components/conductor/conductor-art-gallery.vue'
 import ConductorProjectChat from '@/components/conductor/conductor-project-chat.vue'
 import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
@@ -1421,17 +1426,7 @@ const conductorStore = useConductorStore()
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 
-type GalleryMode = 'cards' | 'heroes' | 'icons' | 'list'
-const galleryModeOptions: {
-  value: GalleryMode
-  label: string
-  abbr: string
-}[] = [
-  { value: 'cards', label: 'Cards', abbr: 'C' },
-  { value: 'heroes', label: 'Heroes', abbr: 'H' },
-  { value: 'icons', label: 'Icons', abbr: 'I' },
-  { value: 'list', label: 'List', abbr: 'L' },
-]
+const galleryModeOptions = GALLERY_MODES
 const projectGalleryMode = ref<GalleryMode>('cards')
 
 const syncingMissing = ref(false)
@@ -1832,11 +1827,8 @@ async function syncMissingProjects() {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem(
-    'conductor-gallery-mode',
-  ) as GalleryMode | null
-  if (saved && ['cards', 'heroes', 'icons', 'list'].includes(saved))
-    projectGalleryMode.value = saved
+  const saved = localStorage.getItem('conductor-gallery-mode')
+  if (saved && IS_GALLERY_MODE(saved)) projectGalleryMode.value = saved
   if (!projectStore.loaded) projectStore.fetchProjects()
 })
 

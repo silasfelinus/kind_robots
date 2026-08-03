@@ -29,6 +29,7 @@ export interface ConductorTask {
   passes: number
   stakes?: string
   gateHuman: boolean
+  softGate: boolean
   note?: string
   dependsOn?: string | string[] | null
   approvedByHuman?: boolean
@@ -141,6 +142,7 @@ function toTask(raw: unknown): ConductorTask | null {
     passes: Number(source.passes) || 0,
     stakes: str(source.stakes),
     gateHuman: bool(pick(source, 'gateHuman', 'gate_human')),
+    softGate: bool(pick(source, 'softGate', 'soft_gate')),
     note: str(source.note),
     dependsOn: Array.isArray(rawDependsOn)
       ? rawDependsOn.map((entry) => String(entry).trim())

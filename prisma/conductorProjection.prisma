@@ -1,0 +1,18 @@
+/// Commit-stamped materialized read model for Conductor coordination state.
+///
+/// Application code intentionally uses parameterized raw queries rather than a
+/// generated delegate. Keeping the ignored model in the schema prevents future
+/// migrations from interpreting the projection table as orphaned database drift.
+model ConductorProjection {
+  id              Int      @id
+  sourceRepo      String   @db.VarChar(255)
+  sourceRef       String   @db.VarChar(255)
+  sourceCommitSha String   @db.VarChar(64)
+  payload         String   @db.LongText
+  generatedAt     DateTime @db.DateTime(3)
+  syncedAt        DateTime @default(now()) @db.DateTime(3)
+  updatedAt       DateTime @default(now()) @updatedAt @db.DateTime(3)
+
+  @@index([sourceCommitSha])
+  @@ignore
+}

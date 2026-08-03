@@ -1,0 +1,180 @@
+name: Responsive Layout Audit
+
+# Measures REAL rendered geometry at phone/tablet/desktop widths and fails on
+# elements that spill past the viewport or get crushed to a sliver. See
+# docs/contracts/responsive-layout-audit.md and
+# utils/scripts/auditResponsiveLayout.mjs.
+#
+# WHY IT RUNS ON A DEPLOYMENT rather than `pull_request`. The audit drives a
+# browser against a running app, and it is only worth anything against real
+# data: a gallery with no rows renders an empty state whose geometry says
+# nothing about the gallery. Standing up a server plus a seeded database inside
+# the job would be slow and would still measure fixture data, whereas Vercel has
+# already built a preview for the PR (enabled for claude/* branches in #1363)
+# that is backed by the real database. So this waits for that deployment and
+# audits it.
+#
+# The trade-off, stated plainly: this is a POST-DEPLOY gate, not a pre-merge
+# one. It reports against the commit, so a regression is caught within a
+# deploy's turnaround rather than blocked at push time. That is the same
+# trade-off cypress.yml already accepted for the same reason.
+
+# TWO TRIGGERS ON PURPOSE.
+#
+#   schedule          the guaranteed signal. cypress.yml already proves this
+#                     shape works on this repo: wait for production, then drive
+#                     it. If the deployment_status half below turns out never to
+#                     fire, this still catches every regression within the hour.
+#
+#   deployment_status  the better signal IF Vercel's GitHub integration emits
+#                     it here — it would audit each PR's own preview, against
+#                     the real database, before the change reaches main. No
+#                     other workflow in this repo uses this event, so it is
+#                     UNVERIFIED. It is additive: if it never fires, nothing is
+#                     lost that the schedule does not already cover. Check the
+#                     Actions tab for runs triggered by `deployment_status`; if
+#                     there are none after a few PRs, delete that trigger rather
+#                     than leaving a line that looks like a gate and is not.
+on:
+  schedule:
+    - cron: '41 * * * *'
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to audit (defaults to production)'
+        required: false
+        default: 'https://kind-robots.vercel.app'
+      routes:
+        description: 'Comma-separated routes to audit'
+        required: false
+        default: ''
+
+concurrency:
+  group: responsive-layout-audit-${{ github.event.deployment_status.target_url || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    # deployment_status fires for every state (pending, error, success); only a
+    # live deployment can be measured.
+    if: >-
+      github.event_name != 'deployment_status' ||
+      github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Install Chromium
+        # Only Chromium — the audit measures layout, not cross-browser
+        # behaviour, and pulling three engines would triple the install for no
+        # extra signal.
+        run: npx playwright install --with-deps chromium
+
+      - name: Resolve target URL
+        id: target
+        env:
+          DEPLOY_URL: ${{ github.event.deployment_status.target_url }}
+          INPUT_URL: ${{ github.event.inputs.base_url }}
+        run: |
+          set -euo pipefail
+          # A scheduled run has neither, and falls through to production —
+          # which is the point of the schedule trigger.
+          url="${INPUT_URL:-}"
+          if [ -z "$url" ]; then url="${DEPLOY_URL:-}"; fi
+          if [ -z "$url" ]; then url="https://kind-robots.vercel.app"; fi
+          url="${url%/}"
+          echo "url=$url" >>"$GITHUB_OUTPUT"
+          echo "Auditing $url"
+
+      - name: Wait for the deployment to answer
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -euo pipefail
+          echo "Waiting up to 300s for ${BASE_URL} to return 200..."
+          deadline=$(( $(date +%s) + 300 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${BASE_URL}/" || echo 000)"
+            case "$code" in
+              200)
+                echo "Deployment is answering."
+                exit 0
+                ;;
+              401|403)
+                # A protected preview would otherwise be "audited" as a login
+                # wall, which passes trivially and means nothing. Say so instead.
+                echo "::error::${BASE_URL} returned ${code} — the deployment is protected, so its pages cannot be measured. Disable Vercel deployment protection for previews, or run this workflow against production via workflow_dispatch."
+                exit 1
+                ;;
+            esac
+            echo "  got ${code}; retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::${BASE_URL} never returned 200 within 300s."
+          exit 1
+
+      - name: Wait for the database
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -euo pipefail
+          # An audit against an unreachable database measures empty and error
+          # states. Those still have to survive 390px, but they are NOT the
+          # galleries this is meant to check, and a pass against them would be
+          # a false all-clear. Three consecutive healthy checks, matching the
+          # pattern cypress.yml settled on.
+          echo "Waiting for three consecutive healthy database checks..."
+          deadline=$(( $(date +%s) + 180 ))
+          consecutive=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            if curl -sf --max-time 15 "${BASE_URL}/api/health/database" \
+                 | jq -e '.success == true and .statusCode == 200' >/dev/null 2>&1; then
+              consecutive=$(( consecutive + 1 ))
+              echo "  database healthy (${consecutive}/3)"
+              [ "$consecutive" -ge 3 ] && exit 0
+            else
+              consecutive=0
+              echo "  database unavailable; retrying in 5s..."
+            fi
+            sleep 5
+          done
+          echo "::error::Database was not healthy for three consecutive checks; an audit now would measure empty states rather than real galleries."
+          exit 1
+
+      - name: Audit responsive layout
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+          ROUTES: ${{ github.event.inputs.routes }}
+        run: |
+          set -euo pipefail
+          if [ -n "${ROUTES:-}" ]; then
+            npm run audit:responsive -- --base "$BASE_URL" --routes "$ROUTES" --shots audit-shots
+          else
+            npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots
+          fi
+
+      - name: Upload screenshots
+        # Always: a failure is exactly when the pictures are worth having, and
+        # a pass is worth spot-checking against.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-audit-${{ github.run_id }}
+          path: audit-shots/
+          retention-days: 7
+          if-no-files-found: ignore

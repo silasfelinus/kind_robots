@@ -59,19 +59,45 @@ npm run audit:responsive -- --min-flex 40
 skipped (as in the agent sandbox, where browsers live under
 `PLAYWRIGHT_BROWSERS_PATH`).
 
-Exit code is `1` when any route/viewport has a defect, so it can gate a PR once
-there is a CI job able to stand up a server. **That exit code is the point** —
-verify it end to end if you change the script, and beware of piping the command
-anywhere, which replaces the script's status with the last pipeline stage's.
-See interface-vision `t-063`: a CI step piped through `tee` could never fail,
-and the verifier behind it was dead for weeks without anyone noticing.
+Exit code is `1` when any route/viewport has a defect. **That exit code is the
+point** — verify it end to end if you change the script, and beware of piping
+the command anywhere, which replaces the script's status with the last pipeline
+stage's. See interface-vision `t-063`: a CI step piped through `tee` could never
+fail, and the verifier behind it was dead for weeks without anyone noticing.
 
-## Data is not required
+## In CI
 
-The audit measures geometry, not content. It runs fine with the database
-unreachable — pages render their chrome, their error state, and their empty
-state, all of which have to survive a 390px viewport too. Do not skip the audit
-because there is no seeded data.
+`.github/workflows/responsive-layout-audit.yml` audits a **deployed** app rather
+than standing up a server in the job. Two reasons:
+
+1. A gallery with no rows renders an empty state whose geometry says nothing
+   about the gallery. Vercel has already built a deployment backed by the real
+   database, so auditing it measures real content.
+2. cypress.yml already proves the wait-for-deploy shape works here.
+
+It runs hourly against production, and — if Vercel's GitHub integration emits
+the event on this repo — on each successful `deployment_status`, which would
+audit a PR's own preview before the change reaches `main`. **No other workflow
+here uses `deployment_status`, so that half is unverified.** It is additive: the
+schedule covers everything regardless. If the Actions tab shows no
+`deployment_status`-triggered runs after a few PRs, delete that trigger rather
+than leave a line that reads like a gate and isn't.
+
+The job refuses to measure a deployment whose database is unhealthy, and fails
+loudly on a `401`/`403` protected preview — both would otherwise "pass"
+trivially against an error page or a login wall, which is worse than not running.
+
+## Running it against something other than a dev server
+
+`--base` takes any URL, so the same command audits production or a preview:
+
+```bash
+npm run audit:responsive -- --base https://kind-robots.vercel.app
+```
+
+That is exactly what CI does. Locally, an unseeded database means you are
+measuring empty and error states — those still have to survive 390px, but they
+are not the galleries this is for, so do not read a local pass as an all-clear.
 
 ## Adding a route
 

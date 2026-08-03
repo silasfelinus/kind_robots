@@ -26,8 +26,17 @@
  *
  *     npm run audit:responsive -- --routes /dreams,/bots --shots ./out
  *
- * Exits non-zero when any route/viewport has a defect, so it can gate a PR
- * once there is a CI job that can stand up a server.
+ * Or against any deployment, which is what CI does — see
+ * .github/workflows/responsive-layout-audit.yml. Auditing a deployment rather
+ * than a local server is deliberate: it has the real database behind it, and a
+ * gallery with no rows renders an empty state whose geometry says nothing about
+ * the gallery.
+ *
+ *     npm run audit:responsive -- --base https://kind-robots.vercel.app
+ *
+ * Exits non-zero when any route/viewport has a defect. Do not pipe the command
+ * in CI — that replaces this exit status with the last pipeline stage's, which
+ * is how interface-vision t-063's verifier stayed dead for weeks.
  */
 
 const args = process.argv.slice(2)

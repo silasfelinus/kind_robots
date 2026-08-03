@@ -140,6 +140,12 @@
                 >
               </li>
               <li>
+                <code>.kr-unbound</code>
+                <span class="font-sans opacity-70"
+                  >— root-surface marker, no scroll/height of its own (MDC-mounted pages)</span
+                >
+              </li>
+              <li>
                 <code>.kr-container</code>
                 <span class="font-sans opacity-70"
                   >— centered max-w-6xl column</span

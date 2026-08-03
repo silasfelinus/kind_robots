@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-08-02",
+  "recorded": "2026-08-03",
   "violations": {
     "one-header": [],
     "one-scroll": [
@@ -37,7 +37,6 @@
     "ghost-prop": [],
     "zero-scroll": [],
     "root-surface": [
-      "components/pages/about-page.vue",
       "components/pages/appmaker-page.vue",
       "components/pages/conductor-page.vue",
       "components/pages/for-you-manager.vue",

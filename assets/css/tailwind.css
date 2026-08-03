@@ -267,7 +267,7 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   /*
    * ── Scroll-ownership primitives (interface-vision t-004) ─────────────
    * .kr-page has no height and no scroll ownership by design — it's a
-   * flow shell, not a scroll container. These four give a page an actual
+   * flow shell, not a scroll container. These five give a page an actual
    * bounded region with exactly one scroll owner, modeled on the proven
    * shape of components/pages/conductor-project-gallery-page.vue.
    */
@@ -300,6 +300,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
      grow past it. Most pages want .kr-scroll, not this. */
   .kr-stage {
     @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+  }
+
+  /* Root-satisfying marker with NO overflow/height behavior of its own
+     (interface-vision t-057/t-059). For MDC-mounted -page.vue components
+     rendered inside pages/[...slug].vue's own scrolling content-host: that
+     host is the page's real scroll owner, and kr-surface/kr-stage's
+     overflow-hidden would clip long-form content the host relies on
+     growing past the viewport to show. Use this ONLY when a parent already
+     owns scroll for you — a standalone routed page still wants kr-surface
+     wrapping kr-scroll, never this. */
+  .kr-unbound {
+    @apply flex w-full flex-col;
   }
 
   /* Centered max-width column. Default reading/app width. */

@@ -10,7 +10,7 @@ sort: utility
 channelKey: play
 tabKey: facets
 dashboardKey: facets
-dashboardTab: library
+dashboardTab: gallery
 loadingMessage: Loading facets...
 refreshLabel: Refresh Facets
 ---

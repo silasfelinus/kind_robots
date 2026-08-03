@@ -7,9 +7,13 @@
       v-if="showToolbar && !isDropdownMode"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur"
     >
-      <div
-        class="flex min-w-0 items-center gap-2 overflow-x-auto whitespace-nowrap dream-toolbar-scroll"
-      >
+      <!-- Wraps, rather than scrolling sideways. This row used to be
+           `overflow-x-auto whitespace-nowrap` with shrink-0 controls, so on a
+           tablet the layout picker (Grid/Row/Reel/Hero/Swipe) sat off the right
+           edge behind a scrollbar nobody found -- Silas reviewed /dreams and
+           reported the view control as "cut off on the right side" without
+           knowing the modes existed. A hidden control is a missing control. -->
+      <div class="kr-toolbar min-w-0">
         <div
           v-if="showHeader"
           class="flex min-w-0 shrink-0 items-center gap-1.5 pr-1"
@@ -1067,10 +1071,6 @@ function uniqueById<T extends { id?: number | null }>(items: T[]) {
 </script>
 
 <style scoped>
-.dream-toolbar-scroll {
-  scrollbar-width: thin;
-}
-
 .dream-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));

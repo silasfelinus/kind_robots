@@ -602,7 +602,11 @@ export const dashboardConfigs = {
   facets: {
     key: 'facets',
     label: 'Facets',
-    defaultTab: 'library',
+    // Browse first, edit second -- the same default every other model dashboard
+    // uses (bots, characters, dreams, rewards, scenarios all land on their
+    // browse tab). Facets defaulted to the admin Library, so arriving at /facets
+    // meant landing on 1611 editable rows rather than on the catalog.
+    defaultTab: 'gallery',
     tabs: [
       {
         key: 'library',
@@ -626,7 +630,12 @@ export const dashboardConfigs = {
         image: tabImage('facets', 'gallery'),
         narrative:
           'A read-only showcase of the shared creative building blocks — genres, species, archetypes, moods, styles, and settings — grouped by taxonomy and shown with their artwork, descriptions, and aliases. The browse-and-admire companion to the editable Library.',
-        route: '/facet-gallery',
+        // Both Facet tabs live on /facets and switch through navStore, the same
+        // way /bots switches between its tabs. This pointed at /facet-gallery,
+        // which is a legacy stub that redirects straight back here -- so the
+        // Gallery tab was unreachable, and facet-gallery.vue was mounted by
+        // nothing at all.
+        route: '/facets',
       },
     ],
   },

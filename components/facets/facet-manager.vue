@@ -1,6 +1,18 @@
 <!-- /components/facets/facet-manager.vue -->
+<!--
+  Tab router for the Facets dashboard, matching every other model manager
+  (bot-manager, dream-manager, reward-manager...). It was the odd one out: it
+  rendered all ~1611 catalog rows itself with an editor that expanded INSIDE the
+  grid cell, and never used the two tabs stores/helpers/dashboardHelper.ts has
+  defined for it all along.
+
+  gallery -> facet-interact  browse, then open one (the house pattern)
+  library -> the admin list below, unchanged: create, edit, archive, art
+-->
 <template>
-  <section class="mx-auto w-full max-w-7xl space-y-4 p-4">
+  <facet-interact v-if="activeTab === 'gallery'" class="h-full min-h-0" />
+
+  <section v-else class="mx-auto w-full max-w-7xl space-y-4 p-4">
     <header
       class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
     >
@@ -243,6 +255,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useNavStore } from '@/stores/navStore'
+import {
+  getDashboardDefaultTab,
+  isDashboardTabKey,
+} from '@/stores/helpers/dashboardHelper'
 import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
 import {
   FACET_TAXONOMIES,
@@ -256,6 +273,19 @@ import {
   type FacetProfileForm,
 } from '@/utils/facetProfileForm'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
+
+const dashboardKey = 'facets'
+const navStore = useNavStore()
+
+/* Same derivation every other manager uses: the nav store owns the selected tab
+   and the dashboard definition owns the default, so a bad or absent value falls
+   back rather than rendering nothing. */
+const activeTab = computed(() => {
+  const selected = navStore.getDashboardTab(dashboardKey)
+  return isDashboardTabKey(dashboardKey, selected)
+    ? selected
+    : getDashboardDefaultTab(dashboardKey)
+})
 
 const facetStore = useFacetStore()
 const search = ref('')

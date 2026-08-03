@@ -1,27 +1,30 @@
 <!-- /components/facets/facet-gallery.vue -->
 <template>
-  <section class="mx-auto w-full max-w-7xl space-y-6 p-4">
+  <section class="kr-surface">
+    <!-- The shell renders the page title from content frontmatter (the brief's
+         one-header rule), so this only carries the count and the loading state.
+         showHeader lets a host that wants nothing at all drop even that. -->
     <header
-      class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+      v-if="showHeader"
+      class="kr-toolbar shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
     >
-      <Icon name="kind-icon:tag" class="size-6 text-secondary" />
+      <Icon name="kind-icon:tag" class="size-5 text-secondary" />
       <div class="min-w-0 flex-1">
-        <h1 class="text-xl font-black">Facets</h1>
-        <p class="text-sm text-base-content/60">
-          Browse the canonical creative building blocks — genres, species,
-          archetypes, moods, styles and more — shared across Characters, Bots,
-          Dreams, Scenarios, and Art.
-        </p>
+        <p class="font-black">{{ title }}</p>
+        <p v-if="subtitle" class="text-xs text-base-content/55">{{ subtitle }}</p>
       </div>
       <span
         v-if="catalog.loading"
         class="loading loading-spinner loading-sm"
         aria-label="Loading facets"
       />
-      <span class="badge badge-ghost">{{ visibleCount }} shown</span>
+      <span class="badge badge-ghost shrink-0">{{ visibleCount }} shown</span>
     </header>
 
-    <div class="flex flex-wrap items-center gap-2">
+    <!-- Controls WRAP. dream-gallery's toolbar is `overflow-x-auto` with
+         shrink-0 children, which is why its layout picker scrolls off the right
+         edge on an iPad and Silas could not find it (2026-08-02 review). -->
+    <div v-if="showControls" class="kr-toolbar shrink-0">
       <input
         v-model="search"
         type="search"
@@ -53,43 +56,65 @@
         />
         Illustrated only
       </label>
+
+      <select
+        v-model="mode"
+        class="select select-bordered select-sm shrink-0 rounded-xl"
+        aria-label="Facet gallery layout"
+      >
+        <option v-for="entry in GALLERY_MODES" :key="entry.value" :value="entry.value">
+          {{ entry.label }}
+        </option>
+      </select>
     </div>
 
-    <p v-if="errorMessage" class="text-sm text-error">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="shrink-0 text-sm text-error">
+      {{ errorMessage }}
+    </p>
 
-    <div
-      v-for="group in groups"
-      :key="group.taxonomy"
-      class="space-y-3"
-    >
-      <div class="flex items-baseline gap-2">
-        <h2 class="text-lg font-black">{{ taxonomyLabel(group.taxonomy) }}</h2>
-        <span class="badge badge-secondary badge-sm">{{ group.entries.length }}</span>
+    <!-- THE one scroll region. Everything above pins. -->
+    <div class="kr-scroll space-y-6">
+      <div v-for="group in visibleGroups" :key="group.taxonomy" class="space-y-3">
+        <div class="flex items-baseline gap-2">
+          <h2 class="text-lg font-black">{{ taxonomyLabel(group.taxonomy) }}</h2>
+          <span class="badge badge-secondary badge-sm">{{ group.total }}</span>
+        </div>
+
+        <!-- One kr-gallery per taxonomy group. The shell owns no scroll region,
+             so mounting it N times is structurally fine, and `:modes="[]"` drops
+             its own mode bar -- the picker above drives every group at once, so
+             the groups stay visually consistent instead of drifting apart. -->
+        <kr-gallery
+          :items="group.entries.map(toGalleryItem)"
+          :mode="mode"
+          :modes="[]"
+          empty-label="facets"
+          @open="selectFacet"
+        />
+
+        <button
+          v-if="group.entries.length < group.total"
+          type="button"
+          class="btn btn-ghost btn-sm w-full rounded-xl border border-base-300"
+          @click="showMore(group.taxonomy)"
+        >
+          Show more {{ taxonomyLabel(group.taxonomy) }}
+          ({{ group.entries.length }} of {{ group.total }})
+        </button>
       </div>
 
-      <!-- One kr-gallery per taxonomy group. The shell owns no scroll region,
-           so mounting it N times is structurally fine, and `:modes="[]"` drops
-           the view-mode bar -- this gallery is a fixed-shape taxonomy showcase,
-           not a mode-switching browser. -->
-      <kr-gallery
-        :items="group.entries.map(toGalleryItem)"
-        mode="cards"
-        :modes="[]"
-        empty-label="facets"
-      />
+      <p
+        v-if="!catalog.loading && !visibleGroups.length"
+        class="rounded-2xl border border-dashed border-base-300 p-8 text-center text-sm text-base-content/50"
+      >
+        No facets match these filters.
+      </p>
     </div>
-
-    <p
-      v-if="!catalog.loading && !groups.length"
-      class="rounded-2xl border border-dashed border-base-300 p-8 text-center text-sm text-base-content/50"
-    >
-      No facets match these filters.
-    </p>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import {
   FACET_TAXONOMIES,
   useFacetCatalogStore,
@@ -98,14 +123,69 @@ import {
 } from '@/stores/facetCatalogStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
-import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import type {
+  GalleryItem,
+  GalleryMode,
+} from '@/components/gallery/kr-gallery.vue'
+
+withDefaults(
+  defineProps<{
+    title?: string
+    subtitle?: string
+    showHeader?: boolean
+    showControls?: boolean
+  }>(),
+  {
+    title: 'Facets',
+    subtitle: 'The reusable building blocks every other object draws from.',
+    showHeader: true,
+    showControls: true,
+  },
+)
+
+/*
+ * Read-only by contract. utils/scripts/verifyFacetGallery.ts forbids
+ * createFacet / updateFacet / archiveFacet / FacetProfileEditor in this file --
+ * this is the picker, and editing belongs to the detail view it opens. Emitting
+ * a selection rather than mutating anything is what keeps that true.
+ */
+const emit = defineEmits<{ select: [facet: FacetCatalogEntry] }>()
 
 const catalog = useFacetCatalogStore()
+
+const GALLERY_MODES = [
+  { value: 'cards' as const, label: 'Cards' },
+  { value: 'heroes' as const, label: 'Heroes' },
+  { value: 'icons' as const, label: 'Icons' },
+  { value: 'list' as const, label: 'List' },
+]
 
 const search = ref('')
 const taxonomyFilter = ref<FacetTaxonomy | null>(null)
 const artOnly = ref(false)
 const errorMessage = ref('')
+const mode = ref<GalleryMode>('cards')
+
+/*
+ * WINDOWING. The Facet catalog is ~1611 rows and the old /facets surface
+ * rendered every one of them in a single pass, which is the first thing Silas
+ * flagged on review (2026-08-02). Cap each taxonomy group and let the reader ask
+ * for more, so the initial paint is bounded no matter how far the catalog grows.
+ */
+const PAGE = 24
+const shown = ref<Partial<Record<FacetTaxonomy, number>>>({})
+
+function showMore(taxonomy: FacetTaxonomy): void {
+  shown.value = {
+    ...shown.value,
+    [taxonomy]: (shown.value[taxonomy] ?? PAGE) + PAGE,
+  }
+}
+
+function selectFacet(item: { id: string | number }): void {
+  const facet = catalog.entries.find((entry) => entry.id === Number(item.id))
+  if (facet) emit('select', facet)
+}
 
 /*
  * Kept for the `artOnly` filter below, which needs to know whether a facet has
@@ -194,9 +274,24 @@ const groups = computed(() => {
   return result
 })
 
+/* Each group capped to what has been asked for. `total` is the full match count,
+   so the button can say "24 of 310" and the badge stays honest. */
+const visibleGroups = computed(() =>
+  groups.value.map((group) => ({
+    taxonomy: group.taxonomy,
+    total: group.entries.length,
+    entries: group.entries.slice(0, shown.value[group.taxonomy] ?? PAGE),
+  })),
+)
+
 const visibleCount = computed(() =>
   groups.value.reduce((sum, group) => sum + group.entries.length, 0),
 )
+
+// A new search or filter should start from the top of every group again.
+watch([search, taxonomyFilter, artOnly], () => {
+  shown.value = {}
+})
 
 onMounted(async () => {
   try {

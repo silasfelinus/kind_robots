@@ -19,8 +19,28 @@ function requireText(path: string, text: string, fragment: string): void {
   }
 }
 
+/*
+ * Comments are stripped before every forbid- scan.
+ *
+ * A contract that a doc comment can fail is a contract that punishes explaining
+ * it. This file already did that once: a comment in facet-gallery.vue naming the
+ * very helpers this contract forbids -- so a reader would know why the picker
+ * emits a selection instead of mutating anything -- failed the build, while the
+ * forbidden call itself was nowhere in the file. Same class of bug as the
+ * `role="log"` comment that tripped verifyNarrativeAccessibility.mjs.
+ *
+ * Only forbid- scans strip. requireText keeps reading the raw source, so a
+ * required token cannot be satisfied by a comment claiming it is there.
+ */
+function stripComments(text: string): string {
+  return text
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:'"`\\])\/\/[^\n]*/g, '$1')
+}
+
 function forbidText(path: string, text: string, fragment: string): void {
-  if (text.includes(fragment)) {
+  if (stripComments(text).includes(fragment)) {
     throw new Error(`${path} contains forbidden Facet gallery text: ${fragment}`)
   }
 }

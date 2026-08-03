@@ -130,6 +130,34 @@ function countMatches(haystack: string, pattern: RegExp): number {
   return (haystack.match(pattern) ?? []).length
 }
 
+function staticClassLists(template: string): string[] {
+  const classLists: string[] = []
+  for (const tag of template.matchAll(/<[A-Za-z][\w-]*\b[^>]*>/g)) {
+    const openingTag = tag[0]
+    for (const attribute of openingTag.matchAll(/\sclass\s*=\s*(["'])([\s\S]*?)\1/g)) {
+      classLists.push(attribute[2] ?? '')
+    }
+  }
+  return classLists
+}
+
+/*
+ * Count actual scroll-owner elements, not raw utility-string occurrences.
+ * A static max-h-* region is deliberately bounded inside its parent (log tail,
+ * JSON preview, swatch grid), so it is not a competing page-level scroll owner.
+ * kr-scroll always counts because it is the explicit full-region primitive.
+ */
+function scrollRegionCount(template: string): number {
+  return staticClassLists(template).filter((classList) => {
+    const tokens = classList.split(/\s+/).filter(Boolean)
+    const hasKrScroll = tokens.includes('kr-scroll')
+    const hasRawScroll =
+      tokens.includes('overflow-y-auto') || tokens.includes('overflow-auto')
+    const isBounded = tokens.some((token) => token.startsWith('max-h-'))
+    return hasKrScroll || (hasRawScroll && !isBounded)
+  }).length
+}
+
 /*
  * This checks the literal first element inside <template>, not whichever nested
  * wrapper looks visually dominant. Put the kr-* marker on that opening tag.
@@ -149,6 +177,20 @@ function verifyRootClassListFixture(): void {
     throw new Error(
       `PascalCase root fixture was not parsed correctly: ${String(fixtureClasses)}`,
     )
+  }
+}
+
+function verifyScrollRegionCountFixture(): void {
+  const fixture = `
+    <template>
+      <main class="min-h-0 flex-1 overflow-y-auto"></main>
+      <pre class="max-h-48 overflow-auto"></pre>
+      <section class="kr-scroll"></section>
+    </template>
+  `
+  const count = scrollRegionCount(templateOf(fixture))
+  if (count !== 2) {
+    throw new Error(`Scroll-region fixture was not classified correctly: ${count}`)
   }
 }
 
@@ -225,16 +267,10 @@ function collect(): Record<RuleId, string[]> {
      * .kr-scroll (interface-vision t-004) is the primitive's own scroll-owner
      * class (`min-h-0 flex-1 overflow-y-auto overscroll-contain`) — a page
      * that adopts it declares its scroll region through the class, not a raw
-     * overflow-y-auto utility string. Count both so pages can actually adopt
-     * the primitive without reading as zero-scroll (t-004 shipped the class
-     * before this file was updated to recognize it). Only match `kr-scroll`
-     * inside an actual class attribute, not a `.kr-scroll` mention in style-
-     * guide documentation prose (e.g. components/ui/ui-gallery.vue's <code>
-     * reference to the class name).
+     * overflow-y-auto utility string. Bounded max-h-* regions are intentionally
+     * nested previews, not page-level owners, and do not count toward one-scroll.
      */
-    const scrollers =
-      countMatches(template, /overflow-y-auto|overflow-auto/g) +
-      countMatches(template, /class="[^"]*\bkr-scroll\b[^"]*"/g)
+    const scrollers = scrollRegionCount(template)
     if (scrollers > 1) violations['one-scroll'].push(r)
     if (
       scrollers === 0 &&
@@ -303,6 +339,7 @@ function report(
 function main(): void {
   const args = process.argv.slice(2)
   verifyRootClassListFixture()
+  verifyScrollRegionCountFixture()
   const current = collect()
   const baseline = loadBaseline()
 
@@ -384,6 +421,15 @@ function main(): void {
     console.log(
       `Contract improved (${shrunk.join(', ')}). Run with --update to ratchet the baseline down.\n`,
     )
+    for (const key of shrunk) {
+      const currentEntries = new Set(current[key])
+      const removed = (baseline.violations[key] ?? []).filter(
+        (entry) => !currentEntries.has(entry),
+      )
+      console.log(`${key} baseline can remove ${removed.length} entr${removed.length === 1 ? 'y' : 'ies'}:`)
+      for (const entry of removed) console.log(`  - ${entry}`)
+      console.log('')
+    }
   }
 
   console.log('Layout contract holds — no new violations.\n')

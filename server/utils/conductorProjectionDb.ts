@@ -16,9 +16,9 @@ type ProjectionRow = {
 
 export async function readConductorProjection(): Promise<StoredConductorProjection | null> {
   const rows = await prisma.$queryRaw<ProjectionRow[]>`
-    SELECT `payload`, `syncedAt`
-    FROM `ConductorProjection`
-    WHERE `id` = 1
+    SELECT payload, syncedAt
+    FROM ConductorProjection
+    WHERE id = 1
     LIMIT 1
   `
   const row = rows[0]

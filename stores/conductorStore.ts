@@ -5,6 +5,7 @@ import type {
   ConductorData,
   ConductorPitch,
   ConductorProject,
+  ConductorTask,
 } from '@/server/api/conductor/projects.get'
 import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
 import { performFetch } from '@/stores/utils'
@@ -18,6 +19,12 @@ export type PitchStatus =
   | 'superseded'
   | 'archived'
 export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
+export type ConductorTaskAction = 'approve' | 'reject' | 'comment'
+
+export interface ConductorHumanGate {
+  project: ConductorProject
+  task: ConductorTask
+}
 
 const LEGACY_VOTE_KEY = 'kr.workspacePitchVotes'
 const CONDUCTOR_IMG_BASE =
@@ -43,6 +50,7 @@ const fallbackProjects: ConductorProject[] = CONDUCTOR_CARDS.map((card) => ({
       passes: 0,
       stakes: card.tagline,
       gateHuman: card.taskStatus === 'needs-human',
+      softGate: false,
       note: card.description,
       dependsOn: null,
       approvedByHuman: false,
@@ -93,7 +101,9 @@ export const useConductorStore = defineStore('conductor', () => {
   let inFlightFetch: Promise<void> | null = null
   const error = ref<string | null>(null)
   const pitchUpdateError = ref<string | null>(null)
+  const taskUpdateError = ref<string | null>(null)
   const updatingPitchSlugs = ref<string[]>([])
+  const updatingTaskKeys = ref<string[]>([])
   const optimisticPitchStatuses = ref<Record<string, PitchStatus>>({})
 
   const liveProjects = computed<ConductorProject[]>(
@@ -110,6 +120,23 @@ export const useConductorStore = defineStore('conductor', () => {
   const hasLiveData = computed(() => data.value !== null)
   const hasLoaded = computed(
     () => data.value !== null || fallbackProjects.length > 0,
+  )
+
+  const humanGates = computed<ConductorHumanGate[]>(() =>
+    liveProjects.value
+      .flatMap((project) =>
+        project.tasks
+          .filter((task) => task.status === 'needs-human')
+          .map((task) => ({ project, task })),
+      )
+      .sort((left, right) => {
+        if (left.task.softGate !== right.task.softGate) {
+          return left.task.softGate ? 1 : -1
+        }
+        return String(right.task.updated ?? '').localeCompare(
+          String(left.task.updated ?? ''),
+        )
+      }),
   )
 
   function pitchStatus(slug: string): PitchStatus {
@@ -190,6 +217,27 @@ export const useConductorStore = defineStore('conductor', () => {
     }
   }
 
+  function replaceTask(
+    projectSlug: string,
+    taskId: string,
+    replace: (task: ConductorTask) => ConductorTask,
+  ): void {
+    if (!data.value) return
+    data.value = {
+      ...data.value,
+      projects: data.value.projects.map((project) =>
+        project.slug === projectSlug
+          ? {
+              ...project,
+              tasks: project.tasks.map((task) =>
+                task.id === taskId ? replace(task) : task,
+              ),
+            }
+          : project,
+      ),
+    }
+  }
+
   async function updatePitchStatus(
     slug: string,
     status: PitchStatus,
@@ -230,6 +278,80 @@ export const useConductorStore = defineStore('conductor', () => {
     }
   }
 
+  async function submitTaskAction(
+    projectSlug: string,
+    taskId: string,
+    action: ConductorTaskAction,
+    message = '',
+  ): Promise<boolean> {
+    const key = `${projectSlug}/${taskId}`
+    if (updatingTaskKeys.value.includes(key)) return false
+
+    const trimmedMessage = message.trim()
+    if ((action === 'reject' || action === 'comment') && !trimmedMessage) {
+      taskUpdateError.value = 'Add a message before sending this action.'
+      return false
+    }
+
+    updatingTaskKeys.value = [...updatingTaskKeys.value, key]
+    taskUpdateError.value = null
+
+    try {
+      const response = await performFetch<{ eventPath: string }>(
+        '/api/conductor/task-action',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            projectSlug,
+            taskId,
+            action,
+            message: trimmedMessage,
+          }),
+        },
+      )
+      if (!response.success) {
+        throw new Error(response.message || 'Conductor task update failed')
+      }
+
+      const now = new Date().toISOString()
+      replaceTask(projectSlug, taskId, (task) => {
+        const note = trimmedMessage
+          ? `${task.note ? `${task.note}\n\n` : ''}${trimmedMessage}`
+          : task.note
+        if (action === 'approve') {
+          return {
+            ...task,
+            status: 'done',
+            approvedByHuman: true,
+            softGate: false,
+            note,
+            updated: now,
+          }
+        }
+        if (action === 'reject') {
+          return {
+            ...task,
+            status: 'ready',
+            approvedByHuman: false,
+            softGate: false,
+            note,
+            updated: now,
+          }
+        }
+        return { ...task, note, updated: now }
+      })
+      return true
+    } catch (cause) {
+      taskUpdateError.value =
+        cause instanceof Error ? cause.message : 'Conductor task update failed'
+      return false
+    } finally {
+      updatingTaskKeys.value = updatingTaskKeys.value.filter(
+        (entry) => entry !== key,
+      )
+    }
+  }
+
   function pitchVote(slug: string): PitchVote | null {
     const status = pitchStatus(slug)
     if (status === 'approved') return 'approved'
@@ -253,13 +375,16 @@ export const useConductorStore = defineStore('conductor', () => {
     pending,
     error,
     pitchUpdateError,
+    taskUpdateError,
     updatingPitchSlugs,
+    updatingTaskKeys,
     projects,
     pitches,
     fetchedAt,
     registryCount,
     hasLiveData,
     hasLoaded,
+    humanGates,
     pendingPitches,
     approvedPitches,
     rejectedPitches,
@@ -267,6 +392,7 @@ export const useConductorStore = defineStore('conductor', () => {
     fetchProjects,
     pitchStatus,
     updatePitchStatus,
+    submitTaskAction,
     pitchVote,
     voteOnPitch,
     clearVote,

@@ -1,7 +1,7 @@
 <!-- /components/content/user/registration-page.vue -->
 <template>
   <div
-    class="bg-base-300 flex flex-col items-center rounded-2xl h-full p-4 sm:p-8"
+    class="kr-unbound bg-base-300 items-center rounded-2xl h-full p-4 sm:p-8"
   >
     <p class="text-6xl font-bold mb-6 text-center">Kind Robots</p>
     <div v-if="isLoggedIn" class="text-lg mb-6 text-center">

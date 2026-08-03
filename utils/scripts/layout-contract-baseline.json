@@ -38,10 +38,8 @@
     "zero-scroll": [],
     "root-surface": [
       "components/pages/appmaker-page.vue",
-      "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
       "components/pages/wishmaster-page.vue",
-      "components/user/registration-page.vue",
       "pages/[...slug].vue",
       "pages/admin/wonderlab-review-generator.vue",
       "pages/admin/wonderlab-review-plan.vue",

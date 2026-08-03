@@ -666,7 +666,7 @@ const locationOptions = computed<NarrativeIngredientOption[]>(() =>
     })),
 )
 
-const creativeFacetKinds = new Set([
+const creativeFacetTaxonomies = new Set([
   'GENRE',
   'CORE',
   'THEME',
@@ -676,7 +676,7 @@ const creativeFacetKinds = new Set([
 ])
 const facetOptions = computed<NarrativeIngredientOption[]>(() =>
   facetStore.activeFacets
-    .filter((facet) => creativeFacetKinds.has(facet.kind) && facet.slug)
+    .filter((facet) => creativeFacetTaxonomies.has(facet.taxonomy) && facet.slug)
     .map((facet) => ({
       id: facet.id,
       slug: facet.slug || String(facet.id),

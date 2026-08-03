@@ -5,6 +5,7 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -702,7 +703,7 @@ async function reclassifyArtAtmospheres(): Promise<object[]> {
         where: { id: facet.id },
         data: {
           title: definition.title,
-          kind: 'ART_DIRECTION',
+          kind: legacyFacetKindForTaxonomy('ART_DIRECTION'),
           isActive: true,
         },
       })
@@ -770,7 +771,7 @@ async function reclassifyNarrativeTones(): Promise<object[]> {
     if (apply) {
       await prisma.facet.update({
         where: { id: facet.id },
-        data: { kind: 'THEME', isActive: true },
+        data: { kind: legacyFacetKindForTaxonomy('THEME'), isActive: true },
       })
       await prisma.facetProfile.upsert({
         where: { facetId: facet.id },

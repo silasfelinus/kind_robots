@@ -122,15 +122,8 @@ async function main(): Promise<void> {
   requireText(files.manager, text.manager, 'taxonomyLabel(facet.taxonomy)')
   forbidText(files.manager, text.manager, 'facet.kind')
 
-  // One bounded compatibility consumer remains until the physical Facet.kind
-  // column is dropped: Taskmaster uses only five broad values for which the
-  // server-derived compatibility kind is exactly equal to taxonomy.
-  requireText(
-    files.taskmaster,
-    text.taskmaster,
-    "const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])",
-  )
-  requireText(files.taskmaster, text.taskmaster, 'storyGrammarKinds.has(facet.kind)')
+  requireText(files.taskmaster, text.taskmaster, 'storyGrammarTaxonomies.has(facet.taxonomy)')
+  forbidText(files.taskmaster, text.taskmaster, 'facet.kind')
   forbidText(files.taskmaster, text.taskmaster, 'serendipity')
 
   process.stdout.write(

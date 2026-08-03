@@ -659,10 +659,10 @@ const locationOptions = computed<NarrativeIngredientOption[]>(() =>
   })),
 )
 
-const storyGrammarKinds = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])
+const storyGrammarTaxonomies = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])
 const grammarFacets = computed(() =>
   facetStore.activeFacets.filter(
-    (facet) => storyGrammarKinds.has(facet.kind) && facet.slug,
+    (facet) => storyGrammarTaxonomies.has(facet.taxonomy) && facet.slug,
   ),
 )
 

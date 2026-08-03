@@ -6,6 +6,7 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
+import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -148,22 +149,6 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 255)
-}
-
-function legacyKind(taxonomy: FacetTaxonomy): FacetKind {
-  const direct: Partial<Record<FacetTaxonomy, FacetKind>> = {
-    GENRE: 'GENRE',
-    ANIMAL: 'ANIMAL',
-    COLOR: 'COLOR',
-    THEME: 'THEME',
-    CORE: 'CORE',
-    MOOD: 'MOOD',
-    STYLE: 'STYLE',
-    SETTING: 'SETTING',
-    ART_DIRECTION: 'ART_DIRECTION',
-    PROMPT_ENHANCEMENT: 'ART_DIRECTION',
-  }
-  return direct[taxonomy] ?? 'OTHER'
 }
 
 function parseMetadata(value: string | null | undefined): JsonObject {
@@ -328,7 +313,7 @@ async function transformFacet(definition: TransformDefinition): Promise<object> 
   if (apply) {
     await prisma.facet.update({
       where: { id: facet.id },
-      data: { kind: legacyKind(definition.taxonomy), isActive: true },
+      data: { kind: legacyFacetKindForTaxonomy(definition.taxonomy), isActive: true },
     })
     await writeProfile({
       facet,
@@ -398,7 +383,7 @@ async function ensureExactFacet(definition: EnsureDefinition): Promise<FacetRow 
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: legacyKind(definition.taxonomy),
+        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         designer: 'facet-curation',
         creationSource: 'HUMAN',
         userId: 1,
@@ -418,7 +403,7 @@ async function ensureExactFacet(definition: EnsureDefinition): Promise<FacetRow 
       where: { id: facet.id },
       data: {
         title: definition.title,
-        kind: legacyKind(definition.taxonomy),
+        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         isActive: true,
       },
     })

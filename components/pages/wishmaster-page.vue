@@ -1,5 +1,5 @@
 <template>
-  <section class="kr-unbound gap-4 rounded-2xl border border-base-300 bg-base-100 p-4">
+  <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4">
     <header class="flex items-start gap-3">
       <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
         <Icon name="kind-icon:wand" class="size-6" />

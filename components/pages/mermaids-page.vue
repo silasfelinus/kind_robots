@@ -1,6 +1,6 @@
 <!-- /components/content/pages/mermaids-page.vue -->
 <template>
-  <div class="flex flex-col items-center gap-4 bg-base-200 px-4 py-6">
+  <div class="kr-unbound flex flex-col items-center gap-4 bg-base-200 px-4 py-6">
     <div class="w-full max-w-3xl">
       <!-- Hero -->
       <div

@@ -37,8 +37,7 @@
     "ghost-prop": [],
     "zero-scroll": [],
     "root-surface": [
-      "components/pages/memory-dungeon.vue",
-      "pages/[...slug].vue"
+      "components/pages/memory-dungeon.vue"
     ]
   }
 }

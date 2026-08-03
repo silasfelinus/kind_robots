@@ -36,8 +36,6 @@
     "one-mdc": [],
     "ghost-prop": [],
     "zero-scroll": [],
-    "root-surface": [
-      "components/pages/memory-dungeon.vue"
-    ]
+    "root-surface": []
   }
 }

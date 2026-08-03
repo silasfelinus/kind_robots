@@ -348,6 +348,7 @@
             :show-pitch-sheet-preview="showPitchSheetPreview"
             :load-pitch-sheet-preview="autoLoadSheets"
             image-fit="cover"
+            :earned-karma="earnedKarmaByDreamId[dream.id]"
             @choose="selectDreamAndOpen"
             @edit="startEditingDreamById"
             @delete="handleDreamDeleted"
@@ -375,7 +376,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type {
   ArtImage,
   Character,
@@ -385,6 +386,23 @@ import type {
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
+import { performFetch } from '@/stores/utils'
+
+// interface-vision/t-048: batch-fetch earned karma for the broader visible
+// set (pre type/search refinement, same "don't re-fetch on every keystroke"
+// scoping as reward-gallery's reference wiring — see
+// components/rewards/reward-gallery.vue and
+// server/api/economy/karma-earned.post.ts for the endpoint). dream-gallery
+// has no paging concept (unlike art-gallery's pagedActiveImages), so the
+// broader galleryDreams set (filtered by ownership/mature/archived, not yet
+// by type/search) is the closest equivalent to a "rendered page".
+const KARMA_EARNED_BATCH_LIMIT = 200
+
+type KarmaEarnedRow = {
+  refType: string
+  refId: string
+  earnedKarma: number
+}
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
@@ -460,6 +478,7 @@ const isLoading = ref(false)
 const layoutMode = ref<'grid' | 'row' | 'reel' | 'hero' | 'swipe'>(
   props.variant === 'row' ? 'row' : 'grid',
 )
+const earnedKarmaByDreamId = ref<Record<number, number>>({})
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 
@@ -569,6 +588,52 @@ const galleryDreams = computed<DreamWithRelations[]>(() => {
 
   return dreams
 })
+
+// Pre search/type refinement — those filters only narrow an already-fetched
+// set, so re-fetching on every keystroke would be wasted work.
+const visibleDreamIdsKey = computed(() =>
+  galleryDreams.value
+    .slice(0, KARMA_EARNED_BATCH_LIMIT)
+    .map((dream) => dream.id)
+    .join(','),
+)
+
+async function refreshEarnedKarma() {
+  const ids = galleryDreams.value
+    .slice(0, KARMA_EARNED_BATCH_LIMIT)
+    .map((dream) => dream.id)
+
+  if (!ids.length) {
+    earnedKarmaByDreamId.value = {}
+    return
+  }
+
+  const res = await performFetch<KarmaEarnedRow[]>('/api/economy/karma-earned', {
+    method: 'POST',
+    body: JSON.stringify({
+      items: ids.map((id) => ({ refType: 'dream', refId: id })),
+    }),
+  })
+
+  if (!res.success || !Array.isArray(res.data)) return
+
+  const next: Record<number, number> = {}
+
+  for (const row of res.data) {
+    const id = Number(row.refId)
+    if (Number.isFinite(id)) next[id] = row.earnedKarma
+  }
+
+  earnedKarmaByDreamId.value = next
+}
+
+watch(
+  visibleDreamIdsKey,
+  () => {
+    void refreshEarnedKarma()
+  },
+  { immediate: true },
+)
 
 const dreamTypes = computed(() => {
   const set = new Set<string>()

@@ -12,6 +12,7 @@ import {
 } from '@/server/utils/conductorProjection'
 
 const MAX_PROJECTION_BYTES = 4_000_000
+const SYNC_TRANSACTION_TIMEOUT_MS = 60_000
 
 export default defineEventHandler(async (event) => {
   await requireAdminApiUser(event)
@@ -47,81 +48,109 @@ export default defineEventHandler(async (event) => {
   let createdProjects = 0
   let updatedProjects = 0
 
-  await prisma.$transaction(async (tx) => {
-    for (const project of normalized.projects) {
-      const existing = await tx.project.findFirst({
-        where: {
-          OR: [{ conductorSlug: project.slug }, { slug: project.slug }],
-        },
-        select: { id: true, conductorSlug: true },
-      })
+  await prisma.$transaction(
+    async (tx) => {
+      const slugs = normalized.projects.map((project) => project.slug)
+      const existingProjects = slugs.length
+        ? await tx.project.findMany({
+            where: {
+              OR: [
+                { conductorSlug: { in: slugs } },
+                { slug: { in: slugs } },
+              ],
+            },
+            select: { id: true, slug: true, conductorSlug: true },
+          })
+        : []
 
-      if (existing) {
-        await tx.project.update({
-          where: { id: existing.id },
+      for (const project of normalized.projects) {
+        const matches = existingProjects.filter(
+          (entry) =>
+            entry.conductorSlug === project.slug || entry.slug === project.slug,
+        )
+        if (matches.length > 1) {
+          throw createError({
+            statusCode: 409,
+            statusMessage: `Multiple Project rows match Conductor slug: ${project.slug}`,
+          })
+        }
+
+        const existing = matches[0]
+        if (existing?.conductorSlug && existing.conductorSlug !== project.slug) {
+          throw createError({
+            statusCode: 409,
+            statusMessage: `Project slug ${project.slug} is already linked to ${existing.conductorSlug}`,
+          })
+        }
+
+        if (existing) {
+          await tx.project.update({
+            where: { id: existing.id },
+            data: {
+              conductorSlug: existing.conductorSlug ?? project.slug,
+              status: project.status as ProjectStatus,
+              priority: project.priority as ProjectPriority,
+              lastSyncedAt: syncedAt,
+            },
+          })
+          updatedProjects += 1
+          continue
+        }
+
+        await tx.project.create({
           data: {
-            conductorSlug: existing.conductorSlug ?? project.slug,
+            title: project.name,
+            slug: project.slug,
+            conductorSlug: project.slug,
+            description: project.notesFromSilas ?? project.goal,
+            goal: project.goal,
             status: project.status as ProjectStatus,
             priority: project.priority as ProjectPriority,
+            repoUrl: project.repoUrl,
+            liveUrl: project.liveUrl,
+            channelKey: project.channelKey,
+            tabKey: project.tabKey,
+            imagePath: project.imagePath,
+            cardPath: project.cardPath,
+            heroPath: project.heroPath,
             lastSyncedAt: syncedAt,
+            designer: 'conductor-projection',
+            isPublic: true,
+            isActive: true,
           },
         })
-        updatedProjects += 1
-        continue
+        createdProjects += 1
       }
 
-      await tx.project.create({
-        data: {
-          title: project.name,
-          slug: project.slug,
-          conductorSlug: project.slug,
-          description: project.notesFromSilas ?? project.goal,
-          goal: project.goal,
-          status: project.status as ProjectStatus,
-          priority: project.priority as ProjectPriority,
-          repoUrl: project.repoUrl,
-          liveUrl: project.liveUrl,
-          channelKey: project.channelKey,
-          tabKey: project.tabKey,
-          imagePath: project.imagePath,
-          cardPath: project.cardPath,
-          heroPath: project.heroPath,
-          lastSyncedAt: syncedAt,
-          designer: 'conductor-projection',
-          isPublic: true,
-          isActive: true,
-        },
-      })
-      createdProjects += 1
-    }
-
-    await tx.$executeRaw`
-      INSERT INTO ConductorProjection (
-        id,
-        sourceRepo,
-        sourceRef,
-        sourceCommitSha,
-        payload,
-        generatedAt,
-        syncedAt
-      ) VALUES (
-        1,
-        ${snapshot.sourceRepo},
-        ${snapshot.sourceRef},
-        ${snapshot.sourceCommitSha},
-        ${payload},
-        ${generatedAt},
-        ${syncedAt}
-      )
-      ON DUPLICATE KEY UPDATE
-        sourceRepo = VALUES(sourceRepo),
-        sourceRef = VALUES(sourceRef),
-        sourceCommitSha = VALUES(sourceCommitSha),
-        payload = VALUES(payload),
-        generatedAt = VALUES(generatedAt),
-        syncedAt = VALUES(syncedAt)
-    `
-  })
+      await tx.$executeRaw`
+        INSERT INTO ConductorProjection (
+          id,
+          sourceRepo,
+          sourceRef,
+          sourceCommitSha,
+          payload,
+          generatedAt,
+          syncedAt
+        ) VALUES (
+          1,
+          ${snapshot.sourceRepo},
+          ${snapshot.sourceRef},
+          ${snapshot.sourceCommitSha},
+          ${payload},
+          ${generatedAt},
+          ${syncedAt}
+        )
+        ON DUPLICATE KEY UPDATE
+          sourceRepo = VALUES(sourceRepo),
+          sourceRef = VALUES(sourceRef),
+          sourceCommitSha = VALUES(sourceCommitSha),
+          payload = VALUES(payload),
+          generatedAt = VALUES(generatedAt),
+          syncedAt = VALUES(syncedAt)
+      `
+    },
+    { maxWait: 10_000, timeout: SYNC_TRANSACTION_TIMEOUT_MS },
+  )
 
   return {
     success: true,

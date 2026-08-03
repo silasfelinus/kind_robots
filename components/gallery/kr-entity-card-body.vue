@@ -49,6 +49,7 @@
       :alt="title"
       :shape="compact ? compactShape : shape"
       frame="none"
+      :fit="fit"
       hover-zoom
       :placeholder-icon="placeholderIcon"
       class="rounded-xl"
@@ -192,6 +193,8 @@ withDefaults(
     meta?: EntityCardChip[]
     shape?: 'card' | 'hero' | 'wide' | 'plate'
     compactShape?: 'card' | 'hero' | 'wide' | 'plate'
+    /** 'contain' for portrait art whose edges matter (Characters). */
+    fit?: 'cover' | 'contain'
     placeholderIcon?: string
   }>(),
   {
@@ -209,6 +212,7 @@ withDefaults(
     meta: () => [],
     shape: 'wide',
     compactShape: 'hero',
+    fit: 'cover',
     placeholderIcon: 'kind-icon:image',
   },
 )

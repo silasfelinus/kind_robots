@@ -46,136 +46,22 @@
         </button>
       </template>
 
-      <div
-        v-if="showImage"
-        :class="[
-          'relative w-full overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-          compact ? 'h-44 sm:h-48' : 'aspect-[2/3]',
-        ]"
-      >
-        <img
-          :src="resolvedBotImage"
-          :alt="botTitle"
-          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-          loading="lazy"
-        />
-
-        <div
-          class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-300/95 via-base-300/25 to-base-300/5"
-        />
-
-        <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-          <span
-            class="badge badge-sm rounded-xl shadow"
-            :class="bot.isPublic ? 'badge-success' : 'badge-warning'"
-          >
-            {{ bot.isPublic ? 'Public' : 'Private' }}
-          </span>
-
-          <span
-            v-if="bot.underConstruction"
-            class="badge badge-error badge-sm rounded-xl shadow"
-          >
-            Building
-          </span>
-
-          <span
-            v-if="bot.BotType"
-            class="badge badge-primary badge-sm rounded-xl bg-primary/90 shadow"
-          >
-            {{ bot.BotType }}
-          </span>
-
-          <span
-            v-if="activeSelected"
-            class="badge badge-accent badge-sm rounded-xl shadow"
-          >
-            Selected
-          </span>
-        </div>
-
-        <div
-          v-if="activeSelected"
-          class="absolute right-2 top-2 rounded-full bg-primary p-2 text-primary-content shadow"
-        >
-          <Icon name="kind-icon:check" class="h-4 w-4" />
-        </div>
-
-        <footer class="absolute inset-x-0 bottom-0 p-3">
-          <h2
-            class="line-clamp-2 text-xl font-black leading-tight text-base-content drop-shadow"
-            :title="botTitle"
-          >
-            {{ botTitle }}
-          </h2>
-
-          <p
-            v-if="bot.subtitle"
-            class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/70"
-          >
-            {{ bot.subtitle }}
-          </p>
-
-          <div v-if="showMeta" class="mt-2 flex flex-wrap gap-1">
-            <span
-              v-if="bot.theme"
-              class="badge badge-ghost badge-sm rounded-xl bg-base-100/85 shadow backdrop-blur"
-            >
-              {{ bot.theme }}
-            </span>
-
-            <span
-              v-if="bot.designer"
-              class="badge badge-outline badge-sm rounded-xl border-base-content/30 bg-base-100/85 shadow backdrop-blur"
-            >
-              {{ bot.designer }}
-            </span>
-
-            <span
-              v-if="bot.serverName"
-              class="badge badge-info badge-sm rounded-xl bg-info/90 shadow"
-            >
-              {{ bot.serverName }}
-            </span>
-          </div>
-        </footer>
-      </div>
-
-      <div
-        v-else
-        :class="[
-          'flex flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3',
-          compact ? 'h-44 sm:h-48' : 'aspect-[2/3]',
-        ]"
-      >
-        <h2
-          class="line-clamp-2 text-xl font-black leading-tight text-base-content"
-          :title="botTitle"
-        >
-          {{ botTitle }}
-        </h2>
-
-        <p
-          v-if="bot.subtitle"
-          class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/55"
-        >
-          {{ bot.subtitle }}
-        </p>
-
-        <div v-if="showMeta" class="mt-2 flex flex-wrap gap-1">
-          <span v-if="bot.BotType" class="badge badge-primary badge-sm">
-            {{ bot.BotType }}
-          </span>
-
-          <span v-if="bot.theme" class="badge badge-ghost badge-sm">
-            {{ bot.theme }}
-          </span>
-
-          <span v-if="bot.designer" class="badge badge-outline badge-sm">
-            {{ bot.designer }}
-          </span>
-        </div>
-      </div>
+      <kr-entity-card-body
+        :title="botTitle"
+        :subtitle="bot.subtitle || ''"
+        :source="bot"
+        variant="card"
+        :fallback="artFallbackSrc"
+        :show-image="showImage"
+        :show-description="false"
+        :compact="compact"
+        :selected="activeSelected"
+        :badges="badges"
+        :meta="showMeta ? metaChips : []"
+        shape="card"
+        compact-shape="hero"
+        placeholder-icon="kind-icon:robot"
+      />
 
       <section
         v-if="
@@ -281,6 +167,7 @@ import type { Bot } from '~/prisma/generated/prisma/client'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -353,14 +240,47 @@ const avatarFallback = computed(() => {
   return props.bot.avatarImage?.trim() || props.fallbackImage
 })
 
-const resolvedBotImage = computed(() => {
-  // The bot's own purpose-built card art wins over both the async-fetched
-  // ArtImage and the avatar. avatarImage is a portrait crop; cardPath is
-  // rendered at card aspect for exactly this slot. Bots whose cardPath has not
-  // rendered yet fall through to the previous behaviour unchanged.
-  return (
-    props.bot.cardPath?.trim() || loadedBotImage.value || avatarFallback.value
-  )
+/*
+ * What the shared card body falls back to once the Bot's own cardPath is out of
+ * the picture: the async-fetched ArtImage, then the avatar crop. kr-art-plate
+ * applies the cardPath/heroPath/iconPath half itself, so the explicit
+ * `bot.cardPath?.trim() ||` that used to lead this chain is now redundant --
+ * same order, one owner.
+ */
+const artFallbackSrc = computed(
+  () => loadedBotImage.value || avatarFallback.value,
+)
+
+const badges = computed<EntityCardChip[]>(() => {
+  const result: EntityCardChip[] = [
+    props.bot.isPublic
+      ? { label: 'Public', class: 'badge-success' }
+      : { label: 'Private', class: 'badge-warning' },
+  ]
+  if (props.bot.underConstruction) {
+    result.push({ label: 'Building', class: 'badge-error' })
+  }
+  if (props.bot.BotType) {
+    result.push({ label: props.bot.BotType, class: 'badge-primary' })
+  }
+  if (activeSelected.value) {
+    result.push({ label: 'Selected', class: 'badge-accent' })
+  }
+  return result
+})
+
+const metaChips = computed<EntityCardChip[]>(() => {
+  const result: EntityCardChip[] = []
+  if (props.bot.theme) {
+    result.push({ label: props.bot.theme, class: 'badge-ghost' })
+  }
+  if (props.bot.designer) {
+    result.push({ label: props.bot.designer, class: 'badge-outline' })
+  }
+  if (props.bot.serverName) {
+    result.push({ label: props.bot.serverName, class: 'badge-info' })
+  }
+  return result
 })
 
 const canEdit = computed(() => {

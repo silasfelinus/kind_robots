@@ -43,110 +43,22 @@
       </button>
     </template>
 
-    <div
-      v-if="showImage"
-      :class="[
-        'relative w-full overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-        compact ? 'h-44 sm:h-48' : 'aspect-[2/3]',
-      ]"
-    >
-      <img
-        :src="computedCharacterImage"
-        :alt="displayName"
-        class="h-full w-full transition-transform duration-300 group-hover:scale-[1.03]"
-        :class="imageFitClass"
-        loading="lazy"
-        @error="handleImageError"
-      />
-
-      <div
-        class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-300/95 via-base-300/25 to-base-300/5"
-      />
-
-      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span
-          class="badge badge-sm rounded-xl shadow"
-          :class="character.isPublic ? 'badge-success' : 'badge-warning'"
-        >
-          {{ character.isPublic ? 'Public' : 'Private' }}
-        </span>
-
-        <span
-          v-if="activeSelected"
-          class="badge badge-primary badge-sm rounded-xl shadow"
-        >
-          Selected
-        </span>
-      </div>
-
-      <div
-        v-if="activeSelected"
-        class="absolute right-2 top-2 rounded-full bg-primary p-2 text-primary-content shadow"
-      >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
-      </div>
-
-      <footer class="absolute inset-x-0 bottom-0 p-3">
-        <h2
-          class="line-clamp-2 text-xl font-black leading-tight text-base-content drop-shadow"
-          :title="displayName"
-        >
-          {{ displayName }}
-        </h2>
-
-        <div v-if="showMeta" class="mt-2 flex flex-wrap gap-1">
-          <span
-            v-if="character.class"
-            class="badge badge-outline badge-sm rounded-xl border-base-content/30 bg-base-100/85 shadow backdrop-blur"
-          >
-            {{ character.class }}
-          </span>
-
-          <span
-            v-if="character.species"
-            class="badge badge-ghost badge-sm rounded-xl bg-base-100/85 shadow backdrop-blur"
-          >
-            {{ character.species }}
-          </span>
-
-          <span
-            v-if="character.genre"
-            class="badge badge-primary badge-sm rounded-xl bg-primary/90 shadow"
-          >
-            {{ character.genre }}
-          </span>
-        </div>
-      </footer>
-    </div>
-
-    <div
-      v-else
-      :class="[
-        'flex flex-col justify-end rounded-2xl border border-base-300 bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3',
-        compact ? 'h-44 sm:h-48' : 'aspect-[2/3]',
-      ]"
-    >
-      <h2
-        class="line-clamp-2 text-xl font-black leading-tight text-base-content"
-        :title="displayName"
-      >
-        {{ displayName }}
-      </h2>
-
-      <div v-if="showMeta" class="mt-2 flex flex-wrap gap-1">
-        <span v-if="character.class" class="badge badge-outline badge-sm">
-          {{ character.class }}
-        </span>
-
-        <span v-if="character.species" class="badge badge-ghost badge-sm">
-          {{ character.species }}
-        </span>
-
-        <span v-if="character.genre" class="badge badge-primary badge-sm">
-          {{ character.genre }}
-        </span>
-      </div>
-    </div>
+    <kr-entity-card-body
+      :title="displayName"
+      :source="character"
+      variant="card"
+      :fallback="artFallbackSrc"
+      :show-image="showImage"
+      :show-description="false"
+      :compact="compact"
+      :selected="activeSelected"
+      :badges="badges"
+      :meta="showMeta ? metaChips : []"
+      shape="card"
+      compact-shape="hero"
+      :fit="imageFit"
+      placeholder-icon="kind-icon:user"
+    />
 
     <section
       v-if="
@@ -248,7 +160,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc, resolveArtVariantSrc } from '@/utils/artImageSrc'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -319,7 +232,6 @@ const artStore = useArtStore()
 
 const artImage = ref<ArtImage | null>(null)
 const activeMode = ref<CharacterMode | null>(null)
-const hasImageError = ref(false)
 
 const activeSelected = computed(() => {
   return (
@@ -358,27 +270,46 @@ const rotatingFallbackImage = computed(() => {
   return CHARACTER_FALLBACK_IMAGES[stableIndex]
 })
 
-const imageFitClass = computed(() => {
-  return props.imageFit === 'cover' ? 'object-cover' : 'object-contain'
+/*
+ * What the shared card body falls back to when the Character has no card
+ * variant rendered yet: the linked ArtImage's path or base64, then imagePath,
+ * then this character's stable rotating alien. kr-art-plate applies the
+ * cardPath/heroPath/iconPath half itself and handles the broken-URL retreat,
+ * so this file no longer needs its own hasImageError flag -- a card whose art
+ * 404s now lands on this chain, and only shows the placeholder icon if the
+ * chain's own last entry fails too.
+ */
+const artFallbackSrc = computed(() =>
+  resolveArtImageSrc(
+    artImage.value,
+    props.character.imagePath || rotatingFallbackImage.value,
+  ),
+)
+
+const badges = computed<EntityCardChip[]>(() => {
+  const result: EntityCardChip[] = [
+    props.character.isPublic
+      ? { label: 'Public', class: 'badge-success' }
+      : { label: 'Private', class: 'badge-warning' },
+  ]
+  if (activeSelected.value) {
+    result.push({ label: 'Selected', class: 'badge-primary' })
+  }
+  return result
 })
 
-const computedCharacterImage = computed(() => {
-  if (hasImageError.value) {
-    return rotatingFallbackImage.value
+const metaChips = computed<EntityCardChip[]>(() => {
+  const result: EntityCardChip[] = []
+  if (props.character.class) {
+    result.push({ label: props.character.class, class: 'badge-outline' })
   }
-
-  // The character's own purpose-built card art wins: it is rendered at card
-  // aspect for exactly this slot. Falls through to the old chain (art image
-  // path, its base64, imagePath, rotating fallback) for characters whose
-  // cardPath has not rendered yet.
-  return resolveArtVariantSrc(
-    props.character,
-    'card',
-    resolveArtImageSrc(
-      artImage.value,
-      props.character.imagePath || rotatingFallbackImage.value,
-    ),
-  )
+  if (props.character.species) {
+    result.push({ label: props.character.species, class: 'badge-ghost' })
+  }
+  if (props.character.genre) {
+    result.push({ label: props.character.genre, class: 'badge-primary' })
+  }
+  return result
 })
 
 const statRows = computed(() => [
@@ -393,10 +324,6 @@ const statRows = computed(() => [
   { key: 'might', label: 'Might', value: props.character.might || 'COMMON' },
   { key: 'wits', label: 'Wits', value: props.character.wits || 'COMMON' },
 ])
-
-function handleImageError() {
-  hasImageError.value = true
-}
 
 async function selectCharacter() {
   await characterStore.selectCharacter(props.character.id)
@@ -424,7 +351,6 @@ function toggleMode(mode: CharacterMode) {
 
 async function loadCharacterImage() {
   artImage.value = null
-  hasImageError.value = false
 
   if (!props.character.artImageId || !props.showImage) return
 

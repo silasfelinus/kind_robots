@@ -649,6 +649,31 @@ export const useBotStore = defineStore('botStore', () => {
     await updateCurrentBot()
   }
 
+  async function patchBotField(
+    id: number,
+    patch: Partial<Bot>,
+  ): Promise<Bot | null> {
+    try {
+      clearError()
+
+      const updated = await updateBot(id, patch)
+
+      if (updated) {
+        const merged = upsertBot(updated)
+        if (currentBot.value?.id === merged.id) {
+          botForm.value = toBotForm(merged)
+        }
+        return merged
+      }
+
+      return null
+    } catch (error: unknown) {
+      handleError(error, 'patchBotField')
+      setLastError(error, 'Failed to update bot')
+      return null
+    }
+  }
+
   async function saveBot(): Promise<BotSaveResult> {
     isSaving.value = true
 
@@ -983,6 +1008,7 @@ export const useBotStore = defineStore('botStore', () => {
 
     updateCurrentBot,
     saveUserIntro,
+    patchBotField,
     saveBot,
     deleteBotById,
     addBotsToStore,

@@ -21,6 +21,14 @@
     </div>
 
     <template v-else>
+      <div v-if="mode === 'edit'" class="flex justify-end">
+        <allow-reviews-toggle
+          :allow-reviews="Boolean(rewardStore.selectedReward?.allowReviews)"
+          :saving="reviewsSaving"
+          @toggle="toggleAllowReviews"
+        />
+      </div>
+
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label class="form-control">
           <span class="label">
@@ -320,6 +328,7 @@ const uploadStore = useUploadStore()
 const isGeneratingArt = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
+const reviewsSaving = ref(false)
 
 const defaultPlaceholder = '/images/chest1.webp'
 
@@ -494,6 +503,34 @@ async function generateArtImage() {
       error instanceof Error ? error.message : 'Error generating reward art.'
   } finally {
     isGeneratingArt.value = false
+  }
+}
+
+async function toggleAllowReviews() {
+  const reward = rewardStore.selectedReward
+  if (!reward) return
+
+  reviewsSaving.value = true
+  statusMessage.value = ''
+
+  try {
+    const result = await rewardStore.updateReward(reward.id, {
+      ...reward,
+      allowReviews: !reward.allowReviews,
+    })
+
+    if (!result.success) {
+      statusTone.value = 'error'
+      statusMessage.value = result.message || 'Failed to update reviews.'
+      return
+    }
+
+    statusTone.value = 'success'
+    statusMessage.value = result.data?.allowReviews
+      ? 'Reviews enabled.'
+      : 'Reviews disabled.'
+  } finally {
+    reviewsSaving.value = false
   }
 }
 

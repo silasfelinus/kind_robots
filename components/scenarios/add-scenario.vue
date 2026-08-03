@@ -21,6 +21,14 @@
     </div>
 
     <template v-else>
+      <div v-if="mode === 'edit'" class="flex justify-end">
+        <allow-reviews-toggle
+          :allow-reviews="Boolean(scenarioStore.selectedScenario?.allowReviews)"
+          :saving="reviewsSaving"
+          @toggle="toggleAllowReviews"
+        />
+      </div>
+
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label class="form-control">
           <span class="label">
@@ -330,6 +338,7 @@ const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const uploadedPreviewImage = ref<string | null>(null)
 const facetIds = ref<number[]>([])
+const reviewsSaving = ref(false)
 
 const defaultPlaceholder = '/images/scenarios/space.webp'
 
@@ -609,6 +618,35 @@ async function generateArtImage() {
       error instanceof Error ? error.message : 'Error generating scenario art.'
   } finally {
     isGeneratingArt.value = false
+  }
+}
+
+async function toggleAllowReviews() {
+  const scenario = scenarioStore.selectedScenario
+  if (!scenario) return
+
+  reviewsSaving.value = true
+  statusMessage.value = ''
+
+  try {
+    const updated = await scenarioStore.updateScenario(scenario.id, {
+      ...scenario,
+      allowReviews: !scenario.allowReviews,
+    })
+
+    if (!updated) {
+      statusTone.value = 'error'
+      statusMessage.value =
+        scenarioStore.lastError || 'Failed to update reviews.'
+      return
+    }
+
+    statusTone.value = 'success'
+    statusMessage.value = updated.allowReviews
+      ? 'Reviews enabled.'
+      : 'Reviews disabled.'
+  } finally {
+    reviewsSaving.value = false
   }
 }
 

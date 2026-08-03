@@ -126,6 +126,10 @@ function countMatches(haystack: string, pattern: RegExp): number {
   return (haystack.match(pattern) ?? []).length
 }
 
+/*
+ * This checks the literal first element inside <template>, not whichever nested
+ * wrapper looks visually dominant. Put the kr-* marker on that opening tag.
+ */
 function rootClassList(template: string): string | null {
   const root = template.match(/<template\b[^>]*>([\s\S]*)<\/template>/)?.[1]?.trim()
   const openingTag = root?.match(/^<([a-z][\w-]*)\b([^>]*)>/)

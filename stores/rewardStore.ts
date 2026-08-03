@@ -232,6 +232,7 @@ function toRewardPayload(form: RewardForm): Partial<Reward> {
     isMature: Boolean(normalized.isMature),
     isPublic: normalized.isPublic ?? true,
     isActive: normalized.isActive ?? true,
+    allowReviews: Boolean(normalized.allowReviews),
   }
 }
 

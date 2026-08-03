@@ -735,23 +735,13 @@
                   linkedProject.isMature ? 'Mature' : 'Safe'
                 }}
               </button>
-              <button
-                type="button"
-                class="btn btn-sm gap-1.5 rounded-xl"
-                :class="
-                  linkedProject.allowReviews
-                    ? 'btn-accent'
-                    : 'btn-ghost border border-base-300'
-                "
-                :disabled="projectSaving"
-                @click="
+              <allow-reviews-toggle
+                :allow-reviews="Boolean(linkedProject.allowReviews)"
+                :saving="projectSaving"
+                @toggle="
                   patchProject({ allowReviews: !linkedProject.allowReviews })
                 "
-              >
-                <Icon name="kind-icon:chat" class="size-3.5" />{{
-                  linkedProject.allowReviews ? 'Reviews On' : 'Reviews Off'
-                }}
-              </button>
+              />
               <span
                 v-if="projectSaving"
                 class="loading loading-spinner loading-xs self-center text-primary"

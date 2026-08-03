@@ -385,13 +385,24 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-        <div class="mb-4">
-          <h2 class="text-xl font-bold text-base-content">Publishing</h2>
+        <div
+          class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h2 class="text-xl font-bold text-base-content">Publishing</h2>
 
-          <p class="text-sm text-base-content/70">
-            Control visibility and construction status. The text engine is
-            chosen at chat time.
-          </p>
+            <p class="text-sm text-base-content/70">
+              Control visibility and construction status. The text engine is
+              chosen at chat time.
+            </p>
+          </div>
+
+          <allow-reviews-toggle
+            v-if="mode === 'edit' && botStore.currentBot"
+            :allow-reviews="botStore.currentBot.allowReviews"
+            :saving="reviewsSaving"
+            @toggle="toggleAllowReviews"
+          />
         </div>
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -526,6 +537,7 @@ const useGenerated = reactive<Record<string, boolean>>({})
 const isGeneratingFields = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
+const reviewsSaving = ref(false)
 
 const mode = computed(() => props.mode)
 
@@ -823,6 +835,32 @@ async function generateSelectedFields() {
       error instanceof Error ? error.message : 'Failed to generate bot fields.'
   } finally {
     isGeneratingFields.value = false
+  }
+}
+
+async function toggleAllowReviews() {
+  if (!botStore.currentBot) return
+
+  reviewsSaving.value = true
+  statusMessage.value = ''
+
+  try {
+    const updated = await botStore.patchBotField(botStore.currentBot.id, {
+      allowReviews: !botStore.currentBot.allowReviews,
+    })
+
+    if (!updated) {
+      statusTone.value = 'error'
+      statusMessage.value = botStore.lastError || 'Failed to update reviews.'
+      return
+    }
+
+    statusTone.value = 'success'
+    statusMessage.value = updated.allowReviews
+      ? 'Reviews enabled.'
+      : 'Reviews disabled.'
+  } finally {
+    reviewsSaving.value = false
   }
 }
 

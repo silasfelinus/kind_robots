@@ -398,7 +398,20 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-        <h2 class="mb-3 text-xl font-bold text-base-content">Record Settings</h2>
+        <div
+          class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <h2 class="text-xl font-bold text-base-content">Record Settings</h2>
+
+          <allow-reviews-toggle
+            v-if="mode === 'edit' && characterStore.selectedCharacter"
+            :allow-reviews="
+              Boolean(characterStore.selectedCharacter.allowReviews)
+            "
+            :saving="reviewsSaving"
+            @toggle="toggleAllowReviews"
+          />
+        </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <label class="form-control">
@@ -539,6 +552,7 @@ const isGeneratingFields = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const characterFacetIds = ref<number[]>([])
+const reviewsSaving = ref(false)
 
 const mode = computed(() => props.mode)
 const title = computed(() =>
@@ -862,6 +876,34 @@ async function generateSelectedFields(): Promise<void> {
         : 'Failed to generate character fields.'
   } finally {
     isGeneratingFields.value = false
+  }
+}
+
+async function toggleAllowReviews() {
+  const character = characterStore.selectedCharacter
+  if (!character) return
+
+  reviewsSaving.value = true
+  statusMessage.value = ''
+
+  try {
+    const updated = await characterStore.updateCharacter(character.id, {
+      allowReviews: !character.allowReviews,
+    })
+
+    if (!updated) {
+      statusTone.value = 'error'
+      statusMessage.value =
+        characterStore.lastError || 'Failed to update reviews.'
+      return
+    }
+
+    statusTone.value = 'success'
+    statusMessage.value = updated.allowReviews
+      ? 'Reviews enabled.'
+      : 'Reviews disabled.'
+  } finally {
+    reviewsSaving.value = false
   }
 }
 

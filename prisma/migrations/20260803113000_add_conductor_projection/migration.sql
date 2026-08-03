@@ -1,10 +1,10 @@
 -- Materialized read model for Conductor coordination state.
 --
--- This table is intentionally unmanaged by Prisma's generated model layer. The
--- application accesses it through parameterized raw queries in
--- server/utils/conductorProjectionDb.ts so the projection can land without a
--- broad schema rewrite. Conductor remains authoritative; this row is replaced
--- only by authenticated one-way syncs from the Conductor repository.
+-- Application code accesses this table through parameterized raw queries in
+-- server/utils/conductorProjectionDb.ts. The matching ignored model in
+-- prisma/conductorProjection.prisma keeps migration history aware of the table
+-- without exposing a normal generated application delegate. Conductor remains
+-- authoritative; this row is replaced only by authenticated one-way syncs.
 CREATE TABLE `ConductorProjection` (
   `id` INTEGER NOT NULL,
   `sourceRepo` VARCHAR(255) NOT NULL,

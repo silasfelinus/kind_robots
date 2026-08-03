@@ -1,6 +1,6 @@
 {
   "note": "MDC-mounted components that already declare a scroll owner. RATCHET: this allow-list may only shrink.",
-  "recorded": "2026-08-02",
+  "recorded": "2026-08-03",
   "violations": [
     "components/academy/academy-manager.vue",
     "components/art/art-manager.vue",
@@ -11,12 +11,10 @@
     "components/giftshop/giftshop-manager.vue",
     "components/home/home-feed-placeholder.vue",
     "components/model-builder/model-builder-manager.vue",
-    "components/pages/appmaker-page.vue",
     "components/pages/for-you-manager.vue",
     "components/pages/serendipity-page.vue",
     "components/pages/storybook-library-page.vue",
     "components/pages/taskmaster-page.vue",
-    "components/pages/wishmaster-page.vue",
     "components/rewards/reward-manager.vue",
     "components/scenarios/scenario-manager.vue",
     "components/servers/server-manager.vue",

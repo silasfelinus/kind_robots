@@ -40,7 +40,6 @@
       "components/pages/appmaker-page.vue",
       "components/pages/conductor-page.vue",
       "components/pages/memory-dungeon.vue",
-      "components/pages/rebel-button.vue",
       "components/pages/super-form.vue",
       "components/pages/wishmaster-page.vue",
       "components/user/registration-page.vue",

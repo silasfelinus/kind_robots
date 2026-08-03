@@ -27,7 +27,7 @@
               class="badge badge-warning h-auto gap-1 rounded-xl px-3 py-2"
             >
               <Icon name="kind-icon:lock" class="size-3.5" />
-              {{ conductorStore.humanGates.length }} gate{{
+              {{ conductorStore.humanGates.length }} active gate{{
                 conductorStore.humanGates.length === 1 ? '' : 's'
               }}
             </span>
@@ -79,12 +79,28 @@
                 </p>
                 <h2 class="text-xl font-black">Human gates</h2>
                 <p class="text-sm text-base-content/55">
-                  Approvals and questions currently waiting on your judgment.
+                  Active approvals and questions waiting on your judgment.
                 </p>
               </div>
-              <span class="badge badge-warning rounded-xl">
-                {{ conductorStore.humanGates.length }} waiting
-              </span>
+              <div class="flex flex-wrap items-center gap-2">
+                <label
+                  v-if="conductorStore.pausedHumanGates.length"
+                  class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold shadow-sm"
+                >
+                  <input
+                    v-model="showPausedProjects"
+                    type="checkbox"
+                    class="toggle toggle-warning toggle-sm"
+                  />
+                  <span>Show paused projects</span>
+                  <span class="badge badge-ghost badge-sm rounded-lg">
+                    {{ conductorStore.pausedHumanGates.length }}
+                  </span>
+                </label>
+                <span class="badge badge-warning rounded-xl">
+                  {{ conductorStore.humanGates.length }} active
+                </span>
+              </div>
             </div>
 
             <div
@@ -99,13 +115,18 @@
             </div>
 
             <div
-              v-else-if="conductorStore.humanGates.length"
+              v-else-if="visibleHumanGates.length"
               class="grid items-start gap-4 lg:grid-cols-2 2xl:grid-cols-3"
             >
               <article
-                v-for="gate in conductorStore.humanGates"
+                v-for="gate in visibleHumanGates"
                 :key="`${gate.project.slug}/${gate.task.id}`"
-                class="flex h-full min-w-0 flex-col rounded-2xl border border-warning/30 bg-base-100 p-4 shadow-sm transition-shadow hover:shadow-md"
+                class="flex h-full min-w-0 flex-col rounded-2xl border bg-base-100 p-4 shadow-sm transition-shadow hover:shadow-md"
+                :class="
+                  isPausedGate(gate)
+                    ? 'border-base-300 opacity-80'
+                    : 'border-warning/30'
+                "
               >
                 <div class="flex flex-wrap items-start justify-between gap-2">
                   <div class="min-w-0 flex-1">
@@ -120,19 +141,30 @@
                       {{ gate.task.title }}
                     </h3>
                   </div>
-                  <span
-                    class="badge badge-sm shrink-0 rounded-xl"
-                    :class="gate.task.softGate ? 'badge-info' : 'badge-error'"
-                  >
-                    {{ gate.task.softGate ? 'question' : 'approval' }}
-                  </span>
+                  <div class="flex shrink-0 flex-wrap gap-1">
+                    <span
+                      v-if="isPausedGate(gate)"
+                      class="badge badge-neutral badge-sm rounded-xl"
+                    >
+                      paused
+                    </span>
+                    <span
+                      class="badge badge-sm rounded-xl"
+                      :class="gate.task.softGate ? 'badge-info' : 'badge-error'"
+                    >
+                      {{ gate.task.softGate ? 'question' : 'approval' }}
+                    </span>
+                  </div>
                 </div>
 
                 <div class="mt-3 flex flex-wrap gap-1.5">
                   <span v-if="gate.task.stakes" class="badge badge-ghost badge-sm rounded-xl">
                     {{ gate.task.stakes }}
                   </span>
-                  <span v-if="!gate.task.softGate" class="badge badge-outline badge-sm rounded-xl">
+                  <span
+                    v-if="!gate.task.softGate && !isPausedGate(gate)"
+                    class="badge badge-outline badge-sm rounded-xl"
+                  >
                     blocking work
                   </span>
                 </div>
@@ -230,8 +262,15 @@
                 name="kind-icon:check-circle"
                 class="mx-auto mb-2 size-9 text-success/55"
               />
-              <p class="font-black">No Conductor gates are waiting on you.</p>
-              <p class="mt-1 text-sm text-base-content/50">The robots may proceed.</p>
+              <p class="font-black">No active Conductor gates are waiting on you.</p>
+              <p class="mt-1 text-sm text-base-content/50">
+                <template v-if="conductorStore.pausedHumanGates.length">
+                  {{ conductorStore.pausedHumanGates.length }} paused-project gate{{
+                    conductorStore.pausedHumanGates.length === 1 ? ' is' : 's are'
+                  }} hidden above.
+                </template>
+                <template v-else>The robots may proceed.</template>
+              </p>
             </div>
           </section>
 
@@ -390,6 +429,7 @@ import {
 import { usePageStore } from '@/stores/pageStore'
 import {
   useConductorStore,
+  type ConductorHumanGate,
   type ConductorTaskAction,
 } from '@/stores/conductorStore'
 import { useUserStore } from '@/stores/userStore'
@@ -400,6 +440,13 @@ const pageStore = usePageStore()
 const conductorStore = useConductorStore()
 const userStore = useUserStore()
 const gateMessages = ref<Record<string, string>>({})
+const showPausedProjects = ref(false)
+
+const visibleHumanGates = computed<ConductorHumanGate[]>(() =>
+  showPausedProjects.value
+    ? [...conductorStore.humanGates, ...conductorStore.pausedHumanGates]
+    : conductorStore.humanGates,
+)
 
 const urgentCount = computed(() => {
   const hardGates = userStore.isAdmin
@@ -418,6 +465,10 @@ function gateKey(projectSlug: string, taskId: string): string {
 
 function gateMessage(projectSlug: string, taskId: string): string {
   return gateMessages.value[gateKey(projectSlug, taskId)] ?? ''
+}
+
+function isPausedGate(gate: ConductorHumanGate): boolean {
+  return gate.project.conductorStatus === 'paused'
 }
 
 function taskIsUpdating(projectSlug: string, taskId: string): boolean {

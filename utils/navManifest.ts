@@ -18,20 +18,21 @@
 // against #2 and #3's real vocabularies -- the fail-fast checks the task
 // note asked for. It intentionally does NOT read content/channels itself
 // (that requires node:fs, which is not client-safe); callers supply the
-// entries, either from utils/scripts/verifyNavManifest.ts (CI, via fs) or
+// entries, either from utils/scripts/verifyChannelContent.ts (CI, via fs) or
 // from useChannelContentStore() (client, via Nuxt Content).
 //
 // Mirrors the intent of PortOS's server/lib/navManifest.js, and follows the
 // same "manifest can only ever record a gap, never hide one" contract as
 // utils/dataSurfaceManifest.ts.
 //
-// This is manifest v1: the shared validation vocabulary. content/channels
-// remains the authored source for channel/tab data -- inverting systems 2-4
-// so they are *generated from* this manifest, rather than merely validated
-// against it, is the larger remaining work (interface-vision/t-034, t-035).
+// dashboardHelper.ts remains the runtime source for dashboard definitions.
+// navStore.ts and this validator now share dashboardHelper's exported tab
+// predicate, so runtime fallback and CI validation cannot drift into separate
+// interpretations of what a real dashboard tab is.
 
 import {
   dashboardConfigs,
+  isDashboardTabKey,
   type DashboardKey,
 } from '@/stores/helpers/dashboardHelper'
 import { isBuilderCardsKey } from '@/stores/helpers/modelCards'
@@ -56,28 +57,12 @@ function isKnownDashboardKey(value: string): value is DashboardKey {
   return value in dashboardConfigs
 }
 
-function isKnownDashboardTab(dashboardKey: string, tabKey: string): boolean {
-  if (!isKnownDashboardKey(dashboardKey)) return false
-  return dashboardConfigs[dashboardKey].tabs.some((tab) => tab.key === tabKey)
-}
-
 export type NavManifestIssue = {
   file: string
   channelKey: string
   tabKey: string
   message: string
-  /**
-   * 'error' -- always wrong, fails CI: the value cannot possibly resolve
-   * (e.g. dashboardKey: 'admin', which is a channelKey, not a
-   * dashboardConfigs key -- there is no dashboard it could mean).
-   * 'warning' -- reported but does not fail CI: navStore.ts's own
-   * setDashboardShellFromContent() intentionally treats an unmatched
-   * dashboardTab as "no tab hint" and falls back to the dashboard's
-   * remembered/default tab for channel-landing-page tabs, so this is a
-   * real but lower-stakes drift -- worth reconciling deliberately
-   * (interface-vision/t-034) rather than failing every PR until then.
-   */
-  severity: 'error' | 'warning'
+  severity: 'error'
 }
 
 /**
@@ -105,12 +90,12 @@ export function validateNavManifestEntry(
   } else if (
     entry.dashboardKey &&
     entry.dashboardTab &&
-    !isKnownDashboardTab(entry.dashboardKey, entry.dashboardTab)
+    !isDashboardTabKey(entry.dashboardKey as DashboardKey, entry.dashboardTab)
   ) {
     issues.push({
       ...context,
-      severity: 'warning',
-      message: `dashboardTab '${entry.dashboardTab}' is not a real tab of dashboard '${entry.dashboardKey}' (silently falls back to that dashboard's defaultTab today)`,
+      severity: 'error',
+      message: `dashboardTab '${entry.dashboardTab}' is not a real tab of dashboard '${entry.dashboardKey}'`,
     })
   }
 

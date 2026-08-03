@@ -1,7 +1,7 @@
 <!-- /components/pages/for-you-manager.vue -->
 <template>
   <section class="kr-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
-    <div class="kr-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain">
+    <div class="kr-scroll min-h-0 flex-1 overscroll-contain">
       <div
         class="mx-auto w-full max-w-[1800px] space-y-6 p-2 pb-8 sm:p-4 sm:pb-10 xl:p-6"
       >

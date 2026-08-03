@@ -75,9 +75,10 @@ section docs. Prefer, in order:
 4. A new top-level channel — **only with Silas's approval.**
 
 Avoid duplicate or decorative routes, tabs, pages, and managers. A surface isn't finished
-when it renders: it may also need dashboard/tutorial registration, artwork,
-`liveUrl`/`channelKey`/`tabKey` set, Conductor sync, and direct-load, refresh, mobile,
-typecheck, and preview checks.
+when it renders: it may also need dashboard/tutorial registration, artwork, and the matching
+Kind Robots `Project.liveUrl` / `channelKey` / `tabKey` presentation fields, plus direct-load,
+refresh, mobile, typecheck, and preview checks. These presentation fields belong here, not in
+Conductor's lifecycle registry.
 
 ## Art generation
 
@@ -110,12 +111,44 @@ near-copy. Highest-risk areas:
 - stores
 - API contracts
 
-## Project identity
+## Project identity and source of truth
 
-Every Conductor project has a matching Kind Robots `Project` record, joined by
-`Project.conductorSlug`. The Conductor `roadmap.yaml` is the authoritative task record; the
-Kind Robots `Project` is the authoritative display/identity record. Don't add redundant FK
-fields and don't create a second source of project truth.
+Read `docs/conductor-projection.md` before changing cross-repository project data.
+
+Every Conductor project has a matching Kind Robots `Project` record, joined only by
+`Project.conductorSlug`. Do not add a redundant cross-repository foreign key.
+
+**Conductor owns coordination:**
+
+- lifecycle and coordination priority;
+- roadmap tasks and milestones;
+- dependencies, claims, owners, notes, and passes;
+- human gates and approvals;
+- pitches and coordination provenance.
+
+**Kind Robots owns presentation and application state:**
+
+- Project title and user-facing description;
+- route, channel, tab, live URL, and displayed repository URL;
+- project artwork;
+- user state, conversations, runtime queues, ArtJobs, payments, grants, and all other
+  application data.
+
+Kind Robots stores Conductor coordination as a commit-stamped materialized read projection.
+The projection is a cache, not a second authority. Never write projected task or milestone
+state directly in this database. Human actions from the Kind Robots UI must emit a Conductor
+task event or pitch update; canonical completion occurs only after Conductor commits the
+change and the next projection sync returns that exact commit.
+
+The projection sync may update only coordination fields on an existing `Project`: status,
+priority, `conductorSlug` when missing, and `lastSyncedAt`. It must not overwrite title,
+description, routes, placement, URLs, or artwork. Legacy presentation values in Conductor
+`project-overrides.yaml` are bootstrap fallbacks for missing Project rows only. Do not add new
+`liveUrl`, `channelKey`, `tabKey`, or `repoUrl` values there.
+
+When the repositories disagree, Conductor wins for coordination fields and Kind Robots wins
+for presentation/application fields. Repair the event or projection path instead of editing
+both sides until they happen to match.
 
 ## Verifying your work
 

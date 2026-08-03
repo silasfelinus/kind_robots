@@ -15,7 +15,7 @@
               <Icon name="kind-icon:sparkles" class="size-5" />
               <p class="text-xs font-black uppercase tracking-[0.18em]">For You</p>
             </div>
-            <h1 class="mt-1 text-xl font-black sm:text-2xl">Your attention desk</h1>
+            <h2 class="mt-1 text-xl font-black sm:text-2xl">Your attention desk</h2>
             <p class="mt-1 max-w-3xl text-sm text-base-content/60">
               Decisions, proposals, and follow-ups gathered into one human-sized place.
             </p>
@@ -151,7 +151,7 @@
                     />
                   </summary>
                   <p
-                    class="max-h-48 overflow-y-auto whitespace-pre-wrap border-t border-base-300 px-3 py-3 text-xs leading-relaxed text-base-content/70"
+                    class="whitespace-pre-wrap border-t border-base-300 px-3 py-3 text-xs leading-relaxed text-base-content/70"
                   >
                     {{ gate.task.note }}
                   </p>

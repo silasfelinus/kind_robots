@@ -1,9 +1,23 @@
 <!-- /components/dreams/dream-card.vue -->
 <template>
-  <article
-    class="group relative flex h-full min-h-0 cursor-pointer overflow-hidden rounded-2xl border bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl"
-    :class="cardClass"
-    @click="$emit('choose', dream)"
+  <!-- The shared card shell (interface-vision t-031). Dreams were the only one
+       of the five object cards still rolling their own <article>, which is why
+       they had no reaction or review affordance at all while Bot, Character,
+       Reward and Scenario did -- `dream` has been a valid ReactionTargetType and
+       `DREAM` a valid category the whole time; nothing ever wired it up.
+       :padded="false" keeps the full-bleed poster look this card is built
+       around; the other four inset their art and take the default padding. -->
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :padded="false"
+    :allow-reviews="dream.allowReviews"
+    :target-id="dream.id"
+    target-type="dream"
+    reaction-category="DREAM"
+    :target-title="dreamTitle"
+    :card-class="['h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl', cardClass]"
+    @select="emit('choose', dream)"
   >
     <figure
       v-if="showImage"
@@ -44,7 +58,7 @@
       </div>
 
       <div
-        v-if="selected || isSelected"
+        v-if="activeSelected"
         class="absolute right-2 top-2 rounded-full border border-primary/40 bg-base-100/90 p-2 text-primary shadow backdrop-blur"
       >
         <Icon name="kind-icon:check" class="h-4 w-4" />
@@ -105,31 +119,27 @@
       </p>
     </section>
 
-    <div
-      v-if="showActions && (allowEdit || allowDelete)"
-      class="pointer-events-none absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:pointer-events-auto group-hover:opacity-100"
-      @click.stop
-    >
+    <template #actions>
       <button
-        v-if="allowEdit"
+        v-if="showActions && allowEdit"
         type="button"
         class="btn btn-circle btn-sm border-base-300 bg-base-100/90 shadow backdrop-blur"
         title="Edit Dream"
-        @click="$emit('edit', dream.id)"
+        @click="emit('edit', dream.id)"
       >
         <Icon name="kind-icon:edit" class="h-4 w-4" />
       </button>
 
       <button
-        v-if="allowDelete"
+        v-if="showActions && allowDelete"
         type="button"
         class="btn btn-circle btn-sm border-base-300 bg-base-100/90 text-error shadow backdrop-blur"
         title="Archive Dream"
-        @click="$emit('delete', dream.id)"
+        @click="emit('delete', dream.id)"
       >
         <Icon name="kind-icon:archive" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <details
       v-if="showDebug"
@@ -143,7 +153,7 @@
         debugInfo
       }}</pre>
     </details>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
@@ -185,10 +195,10 @@ const props = withDefaults(
   },
 )
 
-defineEmits<{
-  (event: 'choose', dream: DreamWithRelations): void
-  (event: 'edit', id: number): void
-  (event: 'delete', id: number): void
+const emit = defineEmits<{
+  choose: [dream: DreamWithRelations]
+  edit: [id: number]
+  delete: [id: number]
 }>()
 
 const dreamTitle = computed(() => {
@@ -550,16 +560,25 @@ const artCount = computed(() => {
   return props.dream._count?.ArtImages ?? collectionArt.value.length
 })
 
+/*
+ * `selected` and `isSelected` are two props for one state -- they were declared
+ * separately and then always read together (`selected || isSelected`) in both
+ * the template and cardClass. Collapsed to one computed rather than removing a
+ * prop, because callers pass both spellings and dropping either would silently
+ * stop working at a call site vue-tsc cannot see through a template.
+ */
+const activeSelected = computed(() => props.selected || props.isSelected)
+
 const cardClass = computed(() => {
-  if (props.selected || props.isSelected) {
-    return 'border-primary ring-2 ring-primary/30'
-  }
+  // reactable-card draws the selected border and tint itself; this only adds
+  // the ring on top, and the inactive-dream treatment.
+  if (activeSelected.value) return 'ring-2 ring-primary/30'
 
   if (props.dream.isActive === false) {
-    return 'border-base-300 opacity-70 grayscale-[35%]'
+    return 'opacity-70 grayscale-[35%]'
   }
 
-  return 'border-base-300'
+  return ''
 })
 
 function dreamTypeLabel(type?: string | null) {

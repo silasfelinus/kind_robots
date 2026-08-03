@@ -23,7 +23,8 @@
       :src="src"
       :alt="alt"
       :class="[
-        'h-full w-full object-cover',
+        'h-full w-full',
+        fit === 'contain' ? 'object-contain' : 'object-cover',
         hoverZoom ? 'transition-transform duration-300 group-hover:scale-105' : '',
       ]"
       :loading="eager ? 'eager' : 'lazy'"
@@ -81,6 +82,13 @@ const props = withDefaults(
      * so "unframed" has to mean genuinely unframed, not thinly framed.
      */
     frame?: 'plate' | 'thin' | 'none'
+    /**
+     * Portrait art with meaningful edges (a Character's full figure) wants
+     * 'contain' so nothing is cropped away; scene art wants 'cover' so it
+     * fills the frame. character-gallery and character-interact both ask for
+     * contain, which is why this is a prop and not a constant.
+     */
+    fit?: 'cover' | 'contain'
     /** The gallery-card lift: art scales slightly on the ancestor's :hover. */
     hoverZoom?: boolean
     eager?: boolean
@@ -93,6 +101,7 @@ const props = withDefaults(
     alt: '',
     shape: 'plate',
     frame: 'plate',
+    fit: 'cover',
     hoverZoom: false,
     eager: false,
     placeholderIcon: 'kind-icon:image',

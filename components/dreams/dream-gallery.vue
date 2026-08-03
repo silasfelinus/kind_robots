@@ -563,12 +563,12 @@ const isCompact = computed(() => {
 /**
  * `dream-row` is a horizontal scroll-snap FILMSTRIP, and it exists only for the
  * embedded `variant="row"` prop — a Dream strip sitting inside another page.
- * It is not a view mode and must never be reachable from the mode toggle: an
- * earlier pass wired `list` to it on the assumption that "row" and "list" were
- * the same idea, which put a horizontal carousel behind a button labelled List
- * and left the rest of an xl viewport empty.
+ * It is not a view mode and must never be reachable from the mode toggle. A
+ * previous pass wired the old `list` mode to it, which put a horizontal
+ * carousel behind a button labelled List; `list` has since been removed
+ * entirely, but the rule outlives it — a layout is not a mode.
  *
- * The four real modes lay out through the shared MODE_GRID_CLASS, so Dreams
+ * The three real modes lay out through the shared MODE_GRID_CLASS, so Dreams
  * matches the Project gallery exactly.
  */
 const layoutClass = computed(() =>

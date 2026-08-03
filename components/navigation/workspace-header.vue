@@ -19,56 +19,60 @@
         <Icon name="kind-icon:arrow-left" class="h-5 w-5" />
       </button>
 
-      <channel-select class="shrink-0" />
-
-      <section
-        class="relative flex h-10 min-h-10 min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      <!-- Channel picker and tab strip share one bordered shell so they read as
+           a single control. Silas: "We are using the title section as a title
+           section, when it really should be a tab selector for the current
+           channel ... integrating together so it looks more seamless and the
+           channel selector doesn't drop awkwardly below the current tab
+           title." Nothing is lost by dropping the old title: the active tab's
+           own label WAS the title, and it is now something you can act on. -->
+      <div
+        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
-        <img
-          v-if="activeTabConfig.image"
-          :src="activeTabConfig.image"
-          :alt="activeTabConfig.title || activeTabConfig.label"
-          class="absolute inset-0 -z-10 h-full w-full object-cover opacity-15 xl:opacity-20"
-        />
+        <channel-select seamless class="shrink-0" />
 
-        <span
-          class="absolute inset-0 -z-10 bg-linear-to-r from-base-100/95 via-base-100/80 to-base-100/40"
-        />
-
-        <span
-          class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
+        <nav
+          v-if="resolvedTabs.length"
+          class="tab-strip flex min-w-0 flex-1 items-stretch gap-0.5 overflow-x-auto border-l border-base-300 px-1"
+          aria-label="Channel tabs"
         >
-          <img
-            v-if="activeTabConfig.image"
-            :src="activeTabConfig.image"
-            :alt="activeTabConfig.title || activeTabConfig.label"
-            class="h-full w-full object-cover"
-          />
-          <span
-            class="absolute inset-0 flex items-center justify-center bg-base-content/20"
+          <button
+            v-for="tab in resolvedTabs"
+            :key="tab.tabKey"
+            type="button"
+            class="relative my-1 flex shrink-0 items-center gap-1.5 rounded-lg px-2 text-xs font-black transition xl:text-sm"
+            :class="
+              tab.tabKey === activeTabKey
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/60 hover:bg-base-200 hover:text-base-content'
+            "
+            :aria-current="tab.tabKey === activeTabKey ? 'page' : undefined"
+            :title="tab.tooltip || tab.title || tab.label"
+            @click="goToTab(tab)"
           >
             <Icon
-              :name="activeTabConfig.icon || fallbackIcon"
-              class="h-4 w-4 text-base-100 drop-shadow xl:h-5 xl:w-5"
+              :name="tab.icon || fallbackIcon"
+              class="h-3.5 w-3.5 shrink-0 xl:h-4 xl:w-4"
             />
-          </span>
-        </span>
+            <span class="max-w-28 truncate xl:max-w-40">{{ tab.label }}</span>
+          </button>
+        </nav>
 
-        <span class="flex min-w-0 flex-1 flex-col items-start leading-tight">
-          <span
-            v-if="shellTitle"
-            class="max-w-full truncate text-[0.58rem] font-black uppercase tracking-wide text-primary/70"
-          >
-            {{ shellTitle }}
-          </span>
-
-          <span
-            class="max-w-full truncate text-sm font-black sm:text-base xl:text-lg"
-          >
+        <!-- No tabs resolved (a bare route, or content still loading): fall
+             back to naming the page rather than rendering an empty bar. -->
+        <div
+          v-else
+          class="flex min-w-0 flex-1 items-center gap-2 border-l border-base-300 px-2"
+        >
+          <Icon
+            :name="activeTabConfig.icon || fallbackIcon"
+            class="h-4 w-4 shrink-0 text-primary/70"
+          />
+          <span class="min-w-0 truncate text-sm font-black xl:text-base">
             {{ activeTitle }}
           </span>
-        </span>
-      </section>
+        </div>
+      </div>
 
       <section
         class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5"
@@ -120,6 +124,7 @@ import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { requestFullStartupReload } from '@/utils/startupLaunch'
+import { tabRouteTarget } from '@/utils/tabNavigation'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
@@ -144,13 +149,9 @@ const requestedTabKey = computed(() => {
 const resolvedChannel = computed(() => pageStore.resolvedChannel)
 const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
 
-const shellTitle = computed(
-  () =>
-    resolvedChannel.value?.room ||
-    pageStore.room ||
-    pageStore.title ||
-    'Kind Robots',
-)
+// The room label this fed ("CREATIVE WORLDS") sat above the page title in the
+// old title section. The channel name in channel-select says the same thing one
+// control to the left, so the tab strip that replaced it does not repeat it.
 
 const shellSummary = computed(
   () => pageStore.subtitle || pageStore.description || '',
@@ -227,6 +228,27 @@ const activeTitle = computed(
     activeTabConfig.value.label ||
     pageStore.title,
 )
+
+/**
+ * Navigates the tab strip. Routes through the shared tabRouteTarget so this
+ * agrees with channel-select's dropdown, which reaches the same tabs — several
+ * tabs in a channel can share one route and are disambiguated by `?tab=`, and
+ * a second hand-rolled copy of that rule would drift.
+ */
+function goToTab(tab: ResolvedTab): void {
+  const channel = resolvedChannel.value
+  if (!channel) return
+
+  const target = tabRouteTarget(channel, tab)
+  if (!target) return
+
+  // Already here — pushing again would add a redundant history entry the back
+  // button then has to be pressed twice to escape.
+  const sameQuery = (target.query?.tab ?? '') === requestedTabKey.value
+  if (route.path === target.path && sameQuery) return
+
+  void router.push(target)
+}
 
 watch(
   () => ({

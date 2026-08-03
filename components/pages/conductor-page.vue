@@ -196,33 +196,6 @@
             </div>
           </div>
           <div
-            v-else-if="projectGalleryMode === 'list'"
-            class="flex flex-col gap-2"
-          >
-            <div
-              v-for="project in projectStore.publicProjects"
-              :key="project.id"
-              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-            >
-              <img
-                :src="projectIconPath(project.slug)"
-                :alt="project.title"
-                class="size-9 shrink-0 rounded-xl border border-base-300 object-cover"
-              />
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold">{{ project.title }}</p>
-                <p class="truncate text-xs text-base-content/50">
-                  {{ project.flavorText }}
-                </p>
-              </div>
-              <span
-                v-if="project.status"
-                class="badge badge-xs shrink-0 opacity-60"
-                >{{ project.status }}</span
-              >
-            </div>
-          </div>
-          <div
             v-else-if="projectGalleryMode === 'heroes'"
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4"
           >
@@ -1526,12 +1499,10 @@ const sortedActiveProjects = computed(() =>
     }
     const pa =
       (projectRecordForSlug(a.slug)?.priority as
-        | ProjectPriorityLevel
-        | undefined) ?? 'NORMAL'
+        ProjectPriorityLevel | undefined) ?? 'NORMAL'
     const pb =
       (projectRecordForSlug(b.slug)?.priority as
-        | ProjectPriorityLevel
-        | undefined) ?? 'NORMAL'
+        ProjectPriorityLevel | undefined) ?? 'NORMAL'
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
 )

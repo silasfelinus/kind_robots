@@ -10,7 +10,13 @@
     />
     <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
     <ConductorPage v-else />
-    <PlanProjectsGrid />
+    <!-- PlanProjectsGrid ("Projects in progress") was mounted here
+         unconditionally, so it appended a second project list below EVERY
+         Conductor view including the project gallery itself. Silas: "unneeded
+         and distracting, and I don't want you to get the impression that we
+         want something equivalent on other pages." A page shows its own
+         content; it does not also get a digest of the same records stapled
+         underneath. -->
   </div>
 </template>
 
@@ -20,7 +26,6 @@ import AppmakerPage from '@/components/pages/appmaker-page.vue'
 import ConductorProjectGalleryPage from '@/components/pages/conductor-project-gallery-page.vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import ConductorPitchManager from '@/components/pages/conductor-pitch-manager.vue'
-import PlanProjectsGrid from '@/components/conductor/plan-projects-grid.vue'
 import PortosPage from '@/components/pages/portos-page.vue'
 import TabScrollRegion from '@/components/conductor/tab-scroll-region.vue'
 import WishmasterPage from '@/components/pages/wishmaster-page.vue'
@@ -42,6 +47,8 @@ const needsScrollWrap = computed(() => {
 })
 
 const showConductorGallery = computed(() => {
-  return !pageStore.workspaceCardKey || pageStore.workspaceCardKey === 'overview'
+  return (
+    !pageStore.workspaceCardKey || pageStore.workspaceCardKey === 'overview'
+  )
 })
 </script>

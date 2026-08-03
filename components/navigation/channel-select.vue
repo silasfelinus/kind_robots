@@ -4,7 +4,12 @@
     <button
       tabindex="0"
       type="button"
-      class="flex h-10 min-h-10 shrink-0 items-center gap-2 overflow-hidden rounded-xl border border-base-300 bg-base-100 px-2 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:gap-2.5 xl:px-3"
+      class="flex h-full min-h-10 shrink-0 items-center gap-2 overflow-hidden px-2 transition-all xl:gap-2.5 xl:px-3"
+      :class="
+        seamless
+          ? 'hover:bg-base-200'
+          : 'h-10 rounded-xl border border-base-300 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14'
+      "
       :title="`Navigate ${activeChannel.label}`"
       aria-haspopup="menu"
       @click="scheduleChannelMenuViewportUpdate"
@@ -19,16 +24,13 @@
         />
       </span>
 
-      <span class="flex min-w-0 flex-col items-start leading-tight">
-        <span class="truncate text-sm font-black sm:text-base xl:text-lg">
-          {{ activeChannel.label }}
-        </span>
-        <span
-          v-if="activeTab"
-          class="hidden max-w-32 truncate text-[0.62rem] font-bold text-base-content/55 sm:block xl:max-w-40 xl:text-xs"
-        >
-          {{ activeTab.label }}
-        </span>
+      <!-- Channel only. The active tab used to be stacked underneath here,
+           which both duplicated the title section beside it and gave the
+           control the two-line drop Silas called awkward. The tab strip in
+           workspace-header now names the tab, and is selectable rather than
+           merely descriptive. -->
+      <span class="min-w-0 truncate text-sm font-black sm:text-base xl:text-lg">
+        {{ activeChannel.label }}
       </span>
 
       <Icon
@@ -255,6 +257,19 @@ import type {
 } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { usePageStore } from '@/stores/pageStore'
+import { tabSharesRoute } from '@/utils/tabNavigation'
+
+withDefaults(
+  defineProps<{
+    /**
+     * Drop this control's own border, rounding and shadow so it can sit inside
+     * a shared shell with the tab strip and read as one bar. The standalone
+     * (framed) form is still the default for any other mount.
+     */
+    seamless?: boolean
+  }>(),
+  { seamless: false },
+)
 
 type SubmenuMode = 'flyout' | 'inline'
 
@@ -503,10 +518,6 @@ function handleChannelMenuScroll(): void {
   if (submenuMode.value === 'flyout') {
     closeChannelTabs()
   }
-}
-
-function tabSharesRoute(channel: ResolvedChannel, tab: ResolvedTab): boolean {
-  return channel.tabs.filter((item) => item.route === tab.route).length > 1
 }
 
 function navigateToTab(channel: ResolvedChannel, tab: ResolvedTab): void {

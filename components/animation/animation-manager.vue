@@ -94,9 +94,17 @@
       </button>
     </div>
 
-    <div class="flex min-h-0 flex-1 overflow-hidden">
+    <div
+      class="kr-panes gap-0"
+      :class="[
+        'grid-cols-1',
+        store.selectedItem || store.compareAttempts.length > 0
+          ? 'xl:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]'
+          : '',
+      ]"
+    >
       <div
-        class="grid min-h-0 flex-1 auto-rows-min grid-cols-1 gap-3 overflow-y-auto p-4 sm:grid-cols-2 xl:grid-cols-3"
+        class="kr-pane-scroll grid auto-rows-min grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3"
       >
         <div
           v-for="item in store.filteredGalleryItems"
@@ -196,7 +204,7 @@
 
       <aside
         v-if="store.selectedItem || store.compareAttempts.length > 0"
-        class="flex w-full max-w-sm shrink-0 flex-col gap-3 overflow-y-auto border-l border-base-300 bg-base-100 p-4"
+        class="kr-pane-scroll flex flex-col gap-3 border-l border-base-300 bg-base-100 p-4"
       >
         <div v-if="store.compareAttempts.length > 0" class="flex flex-col gap-2">
           <div class="flex items-center justify-between">

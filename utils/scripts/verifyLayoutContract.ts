@@ -250,7 +250,26 @@ function ownScrollCount(node: TemplateNode): number {
   return hasKrScroll || (hasRawScroll && !isBounded) ? 1 : 0
 }
 
+/*
+ * `fixed inset-0` takes an element out of normal document flow and layers it
+ * over the entire viewport (interface-vision t-058's Shape B follow-on: a
+ * modal/lightbox, not a co-resident grid pane). Its content is never visible
+ * or interactive alongside the page's base scroll region the way a real
+ * Shape B aside+main pair is -- the two can't compete for the user's scroll
+ * gesture at the same time -- so a scroll region inside one doesn't compete
+ * with the page's own owner. Unlike swapping h-screen for h-dvh (t-017's
+ * documented gaming risk), `fixed inset-0` isn't a quiet drop-in substitute
+ * for anything else: it fundamentally changes how the element renders, so
+ * it isn't a plausible way to dodge this rule while keeping the same shape.
+ */
+function isFixedOverlay(node: TemplateNode): boolean {
+  return (
+    node.classTokens.includes('fixed') && node.classTokens.includes('inset-0')
+  )
+}
+
 function subtreeScrollCount(node: TemplateNode): number {
+  if (isFixedOverlay(node)) return 0
   return ownScrollCount(node) + combineScrollCounts(node.children)
 }
 
@@ -404,6 +423,50 @@ function verifyScrollExclusivityFixture(): void {
   if (scrollRegionCount(literalGtInExpression) !== 1) {
     throw new Error(
       "Scroll-exclusivity fixture (literal '>' inside a v-if expression) was not classified correctly.",
+    )
+  }
+}
+
+function verifyFixedOverlayFixture(): void {
+  const overlayOverBaseScroll = templateOf(`
+    <template>
+      <section class="overflow-y-auto"></section>
+      <div v-if="open" class="fixed inset-0">
+        <div class="overflow-y-auto"></div>
+      </div>
+    </template>
+  `)
+  if (scrollRegionCount(overlayOverBaseScroll) !== 1) {
+    throw new Error(
+      'Fixed-overlay fixture (modal over base scroll) was not classified correctly.',
+    )
+  }
+
+  const twoScrollsInsideOverlay = templateOf(`
+    <template>
+      <div class="fixed inset-0">
+        <div class="overflow-y-auto"></div>
+        <div class="overflow-y-auto"></div>
+      </div>
+    </template>
+  `)
+  if (scrollRegionCount(twoScrollsInsideOverlay) !== 0) {
+    throw new Error(
+      'Fixed-overlay fixture (nested scrolls all exempt) was not classified correctly.',
+    )
+  }
+
+  const fixedWithoutInset0 = templateOf(`
+    <template>
+      <section class="overflow-y-auto"></section>
+      <div class="fixed bottom-4 right-4">
+        <div class="overflow-y-auto"></div>
+      </div>
+    </template>
+  `)
+  if (scrollRegionCount(fixedWithoutInset0) !== 2) {
+    throw new Error(
+      'Fixed-overlay fixture (fixed without inset-0 still counts) was not classified correctly.',
     )
   }
 }
@@ -601,6 +664,7 @@ function main(): void {
   verifyRootClassListFixture()
   verifyScrollRegionCountFixture()
   verifyScrollExclusivityFixture()
+  verifyFixedOverlayFixture()
   verifyPaneScrollFixture()
   const current = collect()
   const baseline = loadBaseline()

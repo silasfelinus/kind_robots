@@ -11,7 +11,6 @@ export type FacetSummary = Pick<
   | 'id'
   | 'title'
   | 'slug'
-  | 'kind'
   | 'description'
   | 'flavorText'
   | 'examples'
@@ -46,7 +45,6 @@ export const facetSummarySelect = {
   title: true,
   slug: true,
   // Deprecated compatibility data. Consumers classify with taxonomy.
-  kind: true,
   description: true,
   flavorText: true,
   examples: true,
@@ -151,8 +149,13 @@ export async function hydrateFacetSummaries(
   return sortFacetSummaries(
     facets.map((facet) => {
       const profile = profilesByFacet.get(facet.id)
-      const taxonomy = (profile?.taxonomy ??
-        legacyFacetTaxonomyFromKind(facet.kind)) as FacetTaxonomy
+      /*
+       * No legacy-kind fallback: t-072's migration backfills a FacetProfile for
+       * every Facet before dropping the column, so a missing profile is now a
+       * genuine anomaly rather than an expected legacy shape. OTHER is what the
+       * old fallback produced for an unmapped kind anyway.
+       */
+      const taxonomy = (profile?.taxonomy ?? 'OTHER') as FacetTaxonomy
 
       return {
         ...facet,

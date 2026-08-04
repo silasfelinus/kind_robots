@@ -6,7 +6,6 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -25,7 +24,6 @@ type FacetRow = {
   id: number
   title: string
   slug: string | null
-  kind: FacetKind
   description: string | null
   imagePath: string | null
   cardPath: string | null
@@ -301,7 +299,9 @@ async function writeProfile(options: {
   })
 }
 
-async function transformFacet(definition: TransformDefinition): Promise<object> {
+async function transformFacet(
+  definition: TransformDefinition,
+): Promise<object> {
   const facet = await findFacet(definition.lookup)
   if (!facet) return { lookup: definition.lookup, action: 'missing' }
 
@@ -313,7 +313,7 @@ async function transformFacet(definition: TransformDefinition): Promise<object> 
   if (apply) {
     await prisma.facet.update({
       where: { id: facet.id },
-      data: { kind: legacyFacetKindForTaxonomy(definition.taxonomy), isActive: true },
+      data: { isActive: true },
     })
     await writeProfile({
       facet,
@@ -374,8 +374,12 @@ async function suppressFacet(definition: SuppressDefinition): Promise<object> {
   }
 }
 
-async function ensureExactFacet(definition: EnsureDefinition): Promise<FacetRow | null> {
-  let facet = await prisma.facet.findUnique({ where: { slug: definition.slug } })
+async function ensureExactFacet(
+  definition: EnsureDefinition,
+): Promise<FacetRow | null> {
+  let facet = await prisma.facet.findUnique({
+    where: { slug: definition.slug },
+  })
   if (!facet && !apply) return null
 
   if (!facet) {
@@ -383,7 +387,6 @@ async function ensureExactFacet(definition: EnsureDefinition): Promise<FacetRow 
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         designer: 'facet-curation',
         creationSource: 'HUMAN',
         userId: 1,
@@ -403,7 +406,6 @@ async function ensureExactFacet(definition: EnsureDefinition): Promise<FacetRow 
       where: { id: facet.id },
       data: {
         title: definition.title,
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         isActive: true,
       },
     })
@@ -452,7 +454,7 @@ async function decomposeWhimsicalStew(): Promise<object> {
   if (apply) {
     await prisma.facet.update({
       where: { id: recipe.id },
-      data: { kind: 'THEME', isActive: true },
+      data: { isActive: true },
     })
     await writeProfile({
       facet: recipe,
@@ -464,8 +466,7 @@ async function decomposeWhimsicalStew(): Promise<object> {
       randomWeight: 0,
       artBacked,
       action: 'decompose-recipe',
-      note:
-        'Decomposed into reusable Whimsical Tone mood and Culinary Fantasy genre.',
+      note: 'Decomposed into reusable Whimsical Tone mood and Culinary Fantasy genre.',
     })
 
     for (const target of [whimsicalTone, culinaryFantasy]) {

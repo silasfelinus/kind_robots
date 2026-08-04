@@ -26,7 +26,10 @@ const prisma = new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 const args = new Set(process.argv.slice(2))
 const jsonOnly = args.has('--json')
 const samplesArg = process.argv.find((entry) => entry.startsWith('--samples='))
-const SAMPLES = Math.max(1, Number(samplesArg?.slice('--samples='.length)) || 12)
+const SAMPLES = Math.max(
+  1,
+  Number(samplesArg?.slice('--samples='.length)) || 12,
+)
 
 const CHARACTER_FIELD_TAXONOMIES: Record<string, readonly string[]> = {
   genre: ['GENRE'],
@@ -46,7 +49,11 @@ const BOT_FIELD_TAXONOMIES: Record<string, readonly string[]> = {
 
 function splitScalar(fieldKey: string, value: unknown): string[] {
   if (typeof value !== 'string' || !value.trim()) return []
-  if (fieldKey === 'personality' || fieldKey === 'quirks' || fieldKey === 'genres') {
+  if (
+    fieldKey === 'personality' ||
+    fieldKey === 'quirks' ||
+    fieldKey === 'genres'
+  ) {
     return value
       .split(/\n---\n|\||\n|;|,/)
       .map((entry) => entry.trim())
@@ -86,7 +93,7 @@ async function main(): Promise<void> {
     scenarios,
   ] = await Promise.all([
     prisma.facet.findMany({
-      select: { id: true, title: true, slug: true, kind: true, isActive: true },
+      select: { id: true, title: true, slug: true, isActive: true },
     }),
     prisma.facetProfile.findMany({
       select: { facetId: true, taxonomy: true, canonicalValue: true },
@@ -168,10 +175,12 @@ async function main(): Promise<void> {
     const label = `${fieldKey}: ${values.slice(0, 3).join(' | ')}`
     if (fixable) {
       bucket.fixableFields++
-      if (bucket.fixableSamples.length < SAMPLES) bucket.fixableSamples.push(label)
+      if (bucket.fixableSamples.length < SAMPLES)
+        bucket.fixableSamples.push(label)
     } else {
       bucket.expectedFields++
-      if (bucket.expectedSamples.length < SAMPLES) bucket.expectedSamples.push(label)
+      if (bucket.expectedSamples.length < SAMPLES)
+        bucket.expectedSamples.push(label)
     }
   }
 
@@ -187,7 +196,8 @@ async function main(): Promise<void> {
         fieldKey,
         (character as Record<string, unknown>)[fieldKey],
       )
-      if (!values.length || charLinked.has(`${character.id}:${fieldKey}`)) continue
+      if (!values.length || charLinked.has(`${character.id}:${fieldKey}`))
+        continue
       const fixable = classifyField(
         fieldKey,
         values,
@@ -244,7 +254,6 @@ async function main(): Promise<void> {
       id: facet.id,
       title: facet.title,
       slug: facet.slug,
-      kind: facet.kind,
       isActive: facet.isActive,
     }))
 
@@ -277,7 +286,11 @@ async function main(): Promise<void> {
       byField: Object.fromEntries(
         Object.entries(charByField).map(([field, bucket]) => [
           field,
-          { total: bucket.flaggedFields, fixable: bucket.fixableFields, expected: bucket.expectedFields },
+          {
+            total: bucket.flaggedFields,
+            fixable: bucket.fixableFields,
+            expected: bucket.expectedFields,
+          },
         ]),
       ),
       fixableSamples: charBucket.fixableSamples,
@@ -313,8 +326,10 @@ async function main(): Promise<void> {
     `FACET_WITHOUT_PROFILE: ${report.facetWithoutProfile.count} legacy facets (cascade into ASSIGNMENT_WITHOUT_PROFILE + part of the mismatch count)`,
     ...profileless
       .slice(0, SAMPLES)
-      .map((f) => `   #${f.id} "${f.title}" [kind=${f.kind}, active=${f.isActive}]`),
-    profileless.length > SAMPLES ? `   … +${profileless.length - SAMPLES} more` : '',
+      .map((f) => `   #${f.id} "${f.title}" [active=${f.isActive}]`),
+    profileless.length > SAMPLES
+      ? `   … +${profileless.length - SAMPLES} more`
+      : '',
     '',
     `CHARACTER_SCALAR: ${charBucket.flaggedFields} flagged  ->  FIXABLE ${charBucket.fixableFields} | EXPECTED ${charBucket.expectedFields}`,
     ...Object.entries(charByField).map(

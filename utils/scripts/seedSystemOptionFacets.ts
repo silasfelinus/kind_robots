@@ -54,7 +54,9 @@ async function imageState(path: string): Promise<{
   }
 }
 
-async function saveTarget(target: SystemOptionFacetTarget): Promise<'created' | 'updated'> {
+async function saveTarget(
+  target: SystemOptionFacetTarget,
+): Promise<'created' | 'updated'> {
   const prefix = taxonomyPrefix(target)
   const slug = `${prefix}-${slugify(target.enumValue)}`
   const art = await imageState(target.path)
@@ -86,7 +88,6 @@ async function saveTarget(target: SystemOptionFacetTarget): Promise<'created' | 
         data: {
           title: target.label,
           slug,
-          kind: 'OTHER',
           description: target.description,
           imagePath: art.imagePath,
           designer: 'facet-catalog',
@@ -179,7 +180,9 @@ async function main(): Promise<void> {
   )
 
   if (!apply) {
-    process.stdout.write('Dry run only. Pass --apply to write system option Facets.\n')
+    process.stdout.write(
+      'Dry run only. Pass --apply to write system option Facets.\n',
+    )
     return
   }
 

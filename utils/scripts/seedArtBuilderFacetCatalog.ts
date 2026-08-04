@@ -4,7 +4,6 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { ART_CARDS } from './../../stores/helpers/artCards'
 import type { BuilderChoice } from './../../stores/helpers/builderCards'
 import {
@@ -252,7 +251,9 @@ async function loadCatalogState(): Promise<CatalogState> {
   ])
 
   return {
-    aliasOwner: new Map(aliases.map((alias) => [alias.lookupKey, alias.facetId])),
+    aliasOwner: new Map(
+      aliases.map((alias) => [alias.lookupKey, alias.facetId]),
+    ),
     facets: new Map(facets.map((facet) => [facet.id, facet])),
     profiles: new Map(profiles.map((profile) => [profile.facetId, profile])),
   }
@@ -267,10 +268,15 @@ function parseMetadata(value: string | null): Record<string, unknown> {
   }
 }
 
-async function saveCandidate(candidate: Candidate, state: CatalogState): Promise<void> {
+async function saveCandidate(
+  candidate: Candidate,
+  state: CatalogState,
+): Promise<void> {
   const lookupKey = normalizeFacetLookupKey(candidate.builderValue)
   const aliasFacetId = state.aliasOwner.get(lookupKey)
-  const aliasProfile = aliasFacetId ? state.profiles.get(aliasFacetId) : undefined
+  const aliasProfile = aliasFacetId
+    ? state.profiles.get(aliasFacetId)
+    : undefined
   const reusableFacetId =
     aliasFacetId && aliasProfile?.taxonomy === candidate.taxonomy
       ? aliasFacetId
@@ -297,7 +303,6 @@ async function saveCandidate(candidate: Candidate, state: CatalogState): Promise
         data: {
           title: candidate.title,
           slug,
-          kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',
@@ -351,8 +356,7 @@ async function saveCandidate(candidate: Candidate, state: CatalogState): Promise
     },
     update: {
       taxonomy: candidate.taxonomy,
-      canonicalValue:
-        previousProfile?.canonicalValue || candidate.builderValue,
+      canonicalValue: previousProfile?.canonicalValue || candidate.builderValue,
       groupKey: preserveExistingGroup
         ? previousProfile.groupKey
         : candidate.groupKey,
@@ -419,10 +423,13 @@ async function saveCandidate(candidate: Candidate, state: CatalogState): Promise
 
 async function main(): Promise<void> {
   const candidates = await collectCandidates()
-  const byField = candidates.reduce<Record<string, number>>((counts, candidate) => {
-    counts[candidate.fieldKey] = (counts[candidate.fieldKey] ?? 0) + 1
-    return counts
-  }, {})
+  const byField = candidates.reduce<Record<string, number>>(
+    (counts, candidate) => {
+      counts[candidate.fieldKey] = (counts[candidate.fieldKey] ?? 0) + 1
+      return counts
+    },
+    {},
+  )
 
   if (!apply) {
     process.stdout.write(
@@ -445,7 +452,12 @@ async function main(): Promise<void> {
 
   process.stdout.write(
     `${JSON.stringify(
-      { mode: 'apply', candidates: candidates.length, saved: candidates.length, byField },
+      {
+        mode: 'apply',
+        candidates: candidates.length,
+        saved: candidates.length,
+        byField,
+      },
       null,
       2,
     )}\n`,

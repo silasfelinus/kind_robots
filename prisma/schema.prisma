@@ -478,7 +478,6 @@ model Facet {
   updatedAt          DateTime?            @default(now()) @updatedAt
   title              String               @db.VarChar(255)
   slug               String?              @unique @db.VarChar(255)
-  kind               FacetKind            @default(OTHER)
   description        String?              @db.Text
   flavorText         String?              @db.VarChar(512)
   examples           String?              @db.LongText
@@ -516,7 +515,6 @@ model Facet {
   RewardLinks        RewardFacet[]
 
   @@index([userId])
-  @@index([kind])
   @@index([artImageId])
   @@index([artCollectionId])
   @@index([isPublic])

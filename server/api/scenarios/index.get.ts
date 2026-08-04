@@ -65,11 +65,16 @@ function facetVisibilityWhere(options: {
   return where
 }
 
+/*
+ * Sorted by taxonomy, not the dropped legacy `kind` column (t-072). taxonomy is
+ * the authoritative grouping and FacetSummary already carries it, so this is
+ * the same ordering by a name that still exists.
+ */
 function sortFacets(facets: FacetSummary[]): FacetSummary[] {
   return [...facets].sort((a, b) =>
-    a.kind === b.kind
+    a.taxonomy === b.taxonomy
       ? a.title.localeCompare(b.title)
-      : a.kind.localeCompare(b.kind),
+      : a.taxonomy.localeCompare(b.taxonomy),
   )
 }
 

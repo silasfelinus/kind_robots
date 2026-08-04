@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
     const [existing, existingProfile] = await Promise.all([
       prisma.facet.findUnique({
         where: { id },
-        select: { id: true, userId: true, slug: true, title: true, kind: true },
+        select: { id: true, userId: true, slug: true, title: true },
       }),
       prisma.facetProfile.findUnique({
         where: { facetId: id },
@@ -94,9 +94,11 @@ export default defineEventHandler(async (event) => {
 
     const data: Prisma.FacetUncheckedUpdateInput = {}
     let nextTitle = existing.title
+    // t-072 backfilled a FacetProfile for every Facet, so there is no legacy
+    // kind left to fall back to; OTHER is what that fallback yielded anyway.
     const existingTaxonomy = existingProfile?.taxonomy
       ? normalizeFacetTaxonomy(existingProfile.taxonomy)
-      : legacyFacetTaxonomyFromKind(existing.kind)
+      : 'OTHER'
     const nextTaxonomy =
       body.taxonomy !== undefined
         ? normalizeFacetTaxonomy(body.taxonomy, existingTaxonomy)
@@ -112,10 +114,6 @@ export default defineEventHandler(async (event) => {
       }
       data.title = title
       nextTitle = title
-    }
-    if (body.taxonomy !== undefined) {
-      // Deprecated compatibility column; taxonomy is authoritative.
-      data.kind = legacyFacetKindForTaxonomy(nextTaxonomy)
     }
     if (body.description !== undefined)
       data.description = optionalText(body.description)

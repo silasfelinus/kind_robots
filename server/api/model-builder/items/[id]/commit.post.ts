@@ -1,7 +1,11 @@
 // /server/api/model-builder/items/[id]/commit.post.ts
 // Execute the approved COMMIT for a build item as an idempotent durable write.
 import { createError, defineEventHandler, readBody } from 'h3'
-import type { DreamType, Rarity, RewardType } from '~/prisma/generated/prisma/client'
+import type {
+  DreamType,
+  Rarity,
+  RewardType,
+} from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
@@ -11,7 +15,10 @@ import {
   getItemId,
   parseStoredJson,
 } from '../../runs/index'
-import { CREATE_TARGETS, fieldSpecFor } from '~/stores/helpers/modelBuilderFields'
+import {
+  CREATE_TARGETS,
+  fieldSpecFor,
+} from '~/stores/helpers/modelBuilderFields'
 import { BUILD_STAGES } from '~/stores/helpers/modelBuilderRecipes'
 import { syncCharacterFacetsInTransaction } from '~/server/utils/characterFacetSync'
 import { syncBotFacetsInTransaction } from '~/server/utils/botFacetSync'
@@ -29,13 +36,7 @@ type TransactionClient = Parameters<
 >[0]
 
 type SourceType =
-  | 'Project'
-  | 'Character'
-  | 'Bot'
-  | 'Facet'
-  | 'Dream'
-  | 'Reward'
-  | 'Scenario'
+  'Project' | 'Character' | 'Bot' | 'Facet' | 'Dream' | 'Reward' | 'Scenario'
 
 type SyncOptions = { userId: number; isAdmin: boolean }
 
@@ -68,7 +69,9 @@ const NUMERIC_FIELDS: Partial<Record<SourceType, Set<string>>> = {
   Scenario: new Set(['difficulty']),
 }
 
-function parseFieldLines(raw: string | null | undefined): Record<string, string> {
+function parseFieldLines(
+  raw: string | null | undefined,
+): Record<string, string> {
   const map: Record<string, string> = {}
   if (!raw) return map
   for (const line of raw.split('\n')) {
@@ -115,7 +118,10 @@ function pickText(
   return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed
 }
 
-function pickInt(fields: Record<string, string>, key: string): number | undefined {
+function pickInt(
+  fields: Record<string, string>,
+  key: string,
+): number | undefined {
   const raw = fields[key.toLowerCase()]
   if (!raw) return undefined
   const parsed = Number.parseInt(raw, 10)
@@ -139,18 +145,30 @@ interface CharacterExtra {
 
 function characterFields(fields: Record<string, string>): CharacterExtra {
   const data: CharacterExtra = {}
-  const cls = pickText(fields, 'Character', 'class'); if (cls) data.class = cls
-  const species = pickText(fields, 'Character', 'species'); if (species) data.species = species
-  const honorific = pickText(fields, 'Character', 'honorific'); if (honorific) data.honorific = honorific
-  const personality = pickText(fields, 'Character', 'personality'); if (personality) data.personality = personality
-  const quirks = pickText(fields, 'Character', 'quirks'); if (quirks) data.quirks = quirks
-  const backstory = pickText(fields, 'Character', 'backstory'); if (backstory) data.backstory = backstory
-  const charm = pickChoice<Rarity>(fields, 'Character', 'charm'); if (charm) data.charm = charm
-  const empathy = pickChoice<Rarity>(fields, 'Character', 'empathy'); if (empathy) data.empathy = empathy
-  const grace = pickChoice<Rarity>(fields, 'Character', 'grace'); if (grace) data.grace = grace
-  const luck = pickChoice<Rarity>(fields, 'Character', 'luck'); if (luck) data.luck = luck
-  const might = pickChoice<Rarity>(fields, 'Character', 'might'); if (might) data.might = might
-  const wits = pickChoice<Rarity>(fields, 'Character', 'wits'); if (wits) data.wits = wits
+  const cls = pickText(fields, 'Character', 'class')
+  if (cls) data.class = cls
+  const species = pickText(fields, 'Character', 'species')
+  if (species) data.species = species
+  const honorific = pickText(fields, 'Character', 'honorific')
+  if (honorific) data.honorific = honorific
+  const personality = pickText(fields, 'Character', 'personality')
+  if (personality) data.personality = personality
+  const quirks = pickText(fields, 'Character', 'quirks')
+  if (quirks) data.quirks = quirks
+  const backstory = pickText(fields, 'Character', 'backstory')
+  if (backstory) data.backstory = backstory
+  const charm = pickChoice<Rarity>(fields, 'Character', 'charm')
+  if (charm) data.charm = charm
+  const empathy = pickChoice<Rarity>(fields, 'Character', 'empathy')
+  if (empathy) data.empathy = empathy
+  const grace = pickChoice<Rarity>(fields, 'Character', 'grace')
+  if (grace) data.grace = grace
+  const luck = pickChoice<Rarity>(fields, 'Character', 'luck')
+  if (luck) data.luck = luck
+  const might = pickChoice<Rarity>(fields, 'Character', 'might')
+  if (might) data.might = might
+  const wits = pickChoice<Rarity>(fields, 'Character', 'wits')
+  if (wits) data.wits = wits
   return data
 }
 
@@ -166,13 +184,20 @@ interface BotExtra {
 
 function botFields(fields: Record<string, string>): BotExtra {
   const data: BotExtra = {}
-  const botType = pickChoice<string>(fields, 'Bot', 'botType'); if (botType) data.BotType = botType
-  const subtitle = pickText(fields, 'Bot', 'subtitle'); if (subtitle) data.subtitle = subtitle
-  const description = pickText(fields, 'Bot', 'description'); if (description) data.description = description
-  const personality = pickText(fields, 'Bot', 'personality'); if (personality) data.personality = personality
-  const botIntro = pickText(fields, 'Bot', 'botIntro'); if (botIntro) data.botIntro = botIntro
-  const userIntro = pickText(fields, 'Bot', 'userIntro'); if (userIntro) data.userIntro = userIntro
-  const prompt = pickText(fields, 'Bot', 'prompt'); if (prompt) data.prompt = prompt
+  const botType = pickChoice<string>(fields, 'Bot', 'botType')
+  if (botType) data.BotType = botType
+  const subtitle = pickText(fields, 'Bot', 'subtitle')
+  if (subtitle) data.subtitle = subtitle
+  const description = pickText(fields, 'Bot', 'description')
+  if (description) data.description = description
+  const personality = pickText(fields, 'Bot', 'personality')
+  if (personality) data.personality = personality
+  const botIntro = pickText(fields, 'Bot', 'botIntro')
+  if (botIntro) data.botIntro = botIntro
+  const userIntro = pickText(fields, 'Bot', 'userIntro')
+  if (userIntro) data.userIntro = userIntro
+  const prompt = pickText(fields, 'Bot', 'prompt')
+  if (prompt) data.prompt = prompt
   return data
 }
 
@@ -187,12 +212,18 @@ interface RewardExtra {
 
 function rewardFields(fields: Record<string, string>): RewardExtra {
   const data: RewardExtra = {}
-  const rewardType = pickChoice<RewardType>(fields, 'Reward', 'rewardType'); if (rewardType) data.rewardType = rewardType
-  const rarity = pickChoice<Rarity>(fields, 'Reward', 'rarity'); if (rarity) data.rarity = rarity
-  const effect = pickText(fields, 'Reward', 'effect'); if (effect) data.effect = effect
-  const description = pickText(fields, 'Reward', 'description'); if (description) data.description = description
-  const flavorText = pickText(fields, 'Reward', 'flavorText'); if (flavorText) data.flavorText = flavorText
-  const collection = pickText(fields, 'Reward', 'collection'); if (collection) data.collection = collection
+  const rewardType = pickChoice<RewardType>(fields, 'Reward', 'rewardType')
+  if (rewardType) data.rewardType = rewardType
+  const rarity = pickChoice<Rarity>(fields, 'Reward', 'rarity')
+  if (rarity) data.rarity = rarity
+  const effect = pickText(fields, 'Reward', 'effect')
+  if (effect) data.effect = effect
+  const description = pickText(fields, 'Reward', 'description')
+  if (description) data.description = description
+  const flavorText = pickText(fields, 'Reward', 'flavorText')
+  if (flavorText) data.flavorText = flavorText
+  const collection = pickText(fields, 'Reward', 'collection')
+  if (collection) data.collection = collection
   return data
 }
 
@@ -206,11 +237,16 @@ interface DreamExtra {
 
 function dreamFields(fields: Record<string, string>): DreamExtra {
   const data: DreamExtra = {}
-  const dreamType = pickChoice<DreamType>(fields, 'Dream', 'dreamType'); if (dreamType) data.dreamType = dreamType
-  const pitch = pickText(fields, 'Dream', 'pitch'); if (pitch) data.pitch = pitch
-  const description = pickText(fields, 'Dream', 'description'); if (description) data.description = description
-  const flavorText = pickText(fields, 'Dream', 'flavorText'); if (flavorText) data.flavorText = flavorText
-  const examples = pickText(fields, 'Dream', 'examples'); if (examples) data.examples = examples
+  const dreamType = pickChoice<DreamType>(fields, 'Dream', 'dreamType')
+  if (dreamType) data.dreamType = dreamType
+  const pitch = pickText(fields, 'Dream', 'pitch')
+  if (pitch) data.pitch = pitch
+  const description = pickText(fields, 'Dream', 'description')
+  if (description) data.description = description
+  const flavorText = pickText(fields, 'Dream', 'flavorText')
+  if (flavorText) data.flavorText = flavorText
+  const examples = pickText(fields, 'Dream', 'examples')
+  if (examples) data.examples = examples
   return data
 }
 
@@ -224,12 +260,18 @@ interface ScenarioExtra {
 
 function scenarioFields(fields: Record<string, string>): ScenarioExtra {
   const data: ScenarioExtra = {}
-  const description = pickText(fields, 'Scenario', 'description'); if (description) data.description = description
-  const intros = pickText(fields, 'Scenario', 'intros'); if (intros) data.intros = intros
-  const difficulty = NUMERIC_FIELDS.Scenario?.has('difficulty') ? pickInt(fields, 'difficulty') : undefined
+  const description = pickText(fields, 'Scenario', 'description')
+  if (description) data.description = description
+  const intros = pickText(fields, 'Scenario', 'intros')
+  if (intros) data.intros = intros
+  const difficulty = NUMERIC_FIELDS.Scenario?.has('difficulty')
+    ? pickInt(fields, 'difficulty')
+    : undefined
   if (difficulty !== undefined) data.difficulty = difficulty
-  const locations = pickText(fields, 'Scenario', 'locations'); if (locations) data.locations = locations
-  const inspirations = pickText(fields, 'Scenario', 'inspirations'); if (inspirations) data.inspirations = inspirations
+  const locations = pickText(fields, 'Scenario', 'locations')
+  if (locations) data.locations = locations
+  const inspirations = pickText(fields, 'Scenario', 'inspirations')
+  if (inspirations) data.inspirations = inspirations
   return data
 }
 
@@ -241,9 +283,12 @@ interface ProjectExtra {
 
 function projectFields(fields: Record<string, string>): ProjectExtra {
   const data: ProjectExtra = {}
-  const description = pickText(fields, 'Project', 'description'); if (description) data.description = description
-  const pitch = pickText(fields, 'Project', 'pitch'); if (pitch) data.pitch = pitch
-  const goal = pickText(fields, 'Project', 'goal'); if (goal) data.goal = goal
+  const description = pickText(fields, 'Project', 'description')
+  if (description) data.description = description
+  const pitch = pickText(fields, 'Project', 'pitch')
+  if (pitch) data.pitch = pitch
+  const goal = pickText(fields, 'Project', 'goal')
+  if (goal) data.goal = goal
   return data
 }
 
@@ -257,25 +302,39 @@ function facetFields(fields: Record<string, string>): FacetExtra {
   const data: FacetExtra = {}
   const taxonomy = pickChoice<FacetTaxonomy>(fields, 'Facet', 'taxonomy')
   if (taxonomy) data.taxonomy = normalizeFacetTaxonomy(taxonomy)
-  const description = pickText(fields, 'Facet', 'description'); if (description) data.description = description
-  const examples = pickText(fields, 'Facet', 'examples'); if (examples) data.examples = examples
+  const description = pickText(fields, 'Facet', 'description')
+  if (description) data.description = description
+  const examples = pickText(fields, 'Facet', 'examples')
+  if (examples) data.examples = examples
   return data
 }
 
-function facetTextFields(fields: Record<string, string>): Omit<FacetExtra, 'taxonomy'> {
+function facetTextFields(
+  fields: Record<string, string>,
+): Omit<FacetExtra, 'taxonomy'> {
   const { taxonomy: _taxonomy, ...textFields } = facetFields(fields)
   return textFields
 }
 
-function extraFieldKeys(type: SourceType, fields: Record<string, string>): string[] {
+function extraFieldKeys(
+  type: SourceType,
+  fields: Record<string, string>,
+): string[] {
   switch (type) {
-    case 'Character': return Object.keys(characterFields(fields))
-    case 'Bot': return Object.keys(botFields(fields))
-    case 'Reward': return Object.keys(rewardFields(fields))
-    case 'Dream': return Object.keys(dreamFields(fields))
-    case 'Scenario': return Object.keys(scenarioFields(fields))
-    case 'Project': return Object.keys(projectFields(fields))
-    case 'Facet': return Object.keys(facetFields(fields))
+    case 'Character':
+      return Object.keys(characterFields(fields))
+    case 'Bot':
+      return Object.keys(botFields(fields))
+    case 'Reward':
+      return Object.keys(rewardFields(fields))
+    case 'Dream':
+      return Object.keys(dreamFields(fields))
+    case 'Scenario':
+      return Object.keys(scenarioFields(fields))
+    case 'Project':
+      return Object.keys(projectFields(fields))
+    case 'Facet':
+      return Object.keys(facetFields(fields))
   }
 }
 
@@ -285,13 +344,27 @@ async function promoteAsset(
   artImageId: number,
 ): Promise<void> {
   switch (type) {
-    case 'Project': await prisma.project.update({ where: { id }, data: { artImageId } }); return
-    case 'Character': await prisma.character.update({ where: { id }, data: { artImageId } }); return
-    case 'Bot': await prisma.bot.update({ where: { id }, data: { artImageId } }); return
-    case 'Facet': await prisma.facet.update({ where: { id }, data: { artImageId } }); return
-    case 'Dream': await prisma.dream.update({ where: { id }, data: { artImageId } }); return
-    case 'Reward': await prisma.reward.update({ where: { id }, data: { artImageId } }); return
-    case 'Scenario': await prisma.scenario.update({ where: { id }, data: { artImageId } }); return
+    case 'Project':
+      await prisma.project.update({ where: { id }, data: { artImageId } })
+      return
+    case 'Character':
+      await prisma.character.update({ where: { id }, data: { artImageId } })
+      return
+    case 'Bot':
+      await prisma.bot.update({ where: { id }, data: { artImageId } })
+      return
+    case 'Facet':
+      await prisma.facet.update({ where: { id }, data: { artImageId } })
+      return
+    case 'Dream':
+      await prisma.dream.update({ where: { id }, data: { artImageId } })
+      return
+    case 'Reward':
+      await prisma.reward.update({ where: { id }, data: { artImageId } })
+      return
+    case 'Scenario':
+      await prisma.scenario.update({ where: { id }, data: { artImageId } })
+      return
   }
 }
 
@@ -307,10 +380,14 @@ async function syncFacetProfileUpdate(
       select: { taxonomy: true },
     }),
   ])
-  if (!facet) throw createError({ statusCode: 404, message: `Facet #${id} not found.` })
+  if (!facet)
+    throw createError({ statusCode: 404, message: `Facet #${id} not found.` })
 
   const requestedTaxonomy = facetFields(fields).taxonomy
-  const fallbackTaxonomy = normalizeFacetTaxonomy(existingProfile?.taxonomy, 'OTHER')
+  const fallbackTaxonomy = normalizeFacetTaxonomy(
+    existingProfile?.taxonomy,
+    'OTHER',
+  )
   const taxonomy = requestedTaxonomy ?? fallbackTaxonomy
 
   if (!existingProfile) {
@@ -338,7 +415,10 @@ async function updateText(
 ): Promise<void> {
   switch (type) {
     case 'Project':
-      await tx.project.update({ where: { id }, data: { pitch: text, ...projectFields(fields) } })
+      await tx.project.update({
+        where: { id },
+        data: { pitch: text, ...projectFields(fields) },
+      })
       return
     case 'Character': {
       const character = await tx.character.update({
@@ -363,22 +443,28 @@ async function updateText(
         data: {
           description: text,
           ...facetTextFields(fields),
-          ...(extra.taxonomy
-            ? { kind: legacyFacetKindForTaxonomy(extra.taxonomy) }
-            : {}),
         },
       })
       await syncFacetProfileUpdate(tx, id, fields)
       return
     }
     case 'Dream':
-      await tx.dream.update({ where: { id }, data: { pitch: text, ...dreamFields(fields) } })
+      await tx.dream.update({
+        where: { id },
+        data: { pitch: text, ...dreamFields(fields) },
+      })
       return
     case 'Reward':
-      await tx.reward.update({ where: { id }, data: { description: text, ...rewardFields(fields) } })
+      await tx.reward.update({
+        where: { id },
+        data: { description: text, ...rewardFields(fields) },
+      })
       return
     case 'Scenario':
-      await tx.scenario.update({ where: { id }, data: { description: text, ...scenarioFields(fields) } })
+      await tx.scenario.update({
+        where: { id },
+        data: { description: text, ...scenarioFields(fields) },
+      })
       return
   }
 }
@@ -402,13 +488,35 @@ async function createRecord(
       return character.id
     }
     case 'Reward':
-      return (await tx.reward.create({ data: { name, description: text, ...priv, ...rewardFields(fields) } })).id
+      return (
+        await tx.reward.create({
+          data: { name, description: text, ...priv, ...rewardFields(fields) },
+        })
+      ).id
     case 'Scenario':
-      return (await tx.scenario.create({ data: { title: name, description: text || name, intros: '', ...priv, ...scenarioFields(fields) } })).id
+      return (
+        await tx.scenario.create({
+          data: {
+            title: name,
+            description: text || name,
+            intros: '',
+            ...priv,
+            ...scenarioFields(fields),
+          },
+        })
+      ).id
     case 'Dream':
-      return (await tx.dream.create({ data: { title: name, pitch: text, ...priv, ...dreamFields(fields) } })).id
+      return (
+        await tx.dream.create({
+          data: { title: name, pitch: text, ...priv, ...dreamFields(fields) },
+        })
+      ).id
     case 'Project':
-      return (await tx.project.create({ data: { title: name, pitch: text, ...priv, ...projectFields(fields) } })).id
+      return (
+        await tx.project.create({
+          data: { title: name, pitch: text, ...priv, ...projectFields(fields) },
+        })
+      ).id
     case 'Facet': {
       const extra = facetFields(fields)
       const taxonomy = extra.taxonomy ?? 'OTHER'
@@ -418,7 +526,6 @@ async function createRecord(
           description: text,
           ...priv,
           ...facetTextFields(fields),
-          kind: legacyFacetKindForTaxonomy(taxonomy),
         },
       })
       const profile = buildFacetProfileCreateData(
@@ -461,39 +568,66 @@ async function linkSourceToTarget(
   targetId: number,
 ): Promise<boolean> {
   if (sourceType === 'Dream' && targetType === 'Character') {
-    await tx.dream.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
+    await tx.dream.update({
+      where: { id: sourceId },
+      data: { Characters: { connect: { id: targetId } } },
+    })
     return true
   }
   if (sourceType === 'Dream' && targetType === 'Reward') {
-    await tx.dream.update({ where: { id: sourceId }, data: { Rewards: { connect: { id: targetId } } } })
+    await tx.dream.update({
+      where: { id: sourceId },
+      data: { Rewards: { connect: { id: targetId } } },
+    })
     return true
   }
   if (sourceType === 'Dream' && targetType === 'Scenario') {
-    await tx.dream.update({ where: { id: sourceId }, data: { Scenarios: { connect: { id: targetId } } } })
+    await tx.dream.update({
+      where: { id: sourceId },
+      data: { Scenarios: { connect: { id: targetId } } },
+    })
     return true
   }
   if (sourceType === 'Project' && targetType === 'Bot') {
-    await tx.project.update({ where: { id: sourceId }, data: { managerBotId: targetId } })
+    await tx.project.update({
+      where: { id: sourceId },
+      data: { managerBotId: targetId },
+    })
     return true
   }
   if (sourceType === 'Dream' && targetType === 'Bot') {
-    await tx.dream.update({ where: { id: sourceId }, data: { narratorId: targetId } })
+    await tx.dream.update({
+      where: { id: sourceId },
+      data: { narratorId: targetId },
+    })
     return true
   }
   if (sourceType === 'Character' && targetType === 'Reward') {
-    await tx.character.update({ where: { id: sourceId }, data: { Rewards: { connect: { id: targetId } } } })
+    await tx.character.update({
+      where: { id: sourceId },
+      data: { Rewards: { connect: { id: targetId } } },
+    })
     return true
   }
   if (sourceType === 'Reward' && targetType === 'Character') {
-    await tx.reward.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
+    await tx.reward.update({
+      where: { id: sourceId },
+      data: { Characters: { connect: { id: targetId } } },
+    })
     return true
   }
   if (sourceType === 'Scenario' && targetType === 'Character') {
-    await tx.scenario.update({ where: { id: sourceId }, data: { Characters: { connect: { id: targetId } } } })
+    await tx.scenario.update({
+      where: { id: sourceId },
+      data: { Characters: { connect: { id: targetId } } },
+    })
     return true
   }
   if (sourceType === 'Character' && targetType === 'Scenario') {
-    await tx.character.update({ where: { id: sourceId }, data: { Scenarios: { connect: { id: targetId } } } })
+    await tx.character.update({
+      where: { id: sourceId },
+      data: { Scenarios: { connect: { id: targetId } } },
+    })
     return true
   }
   return false
@@ -520,12 +654,23 @@ export default defineEventHandler(async (event) => {
     const item = await prisma.modelBuildItem.findUnique({
       where: { id },
       include: {
-        Run: { select: { userId: true, sourceType: true, sourceId: true, status: true } },
+        Run: {
+          select: {
+            userId: true,
+            sourceType: true,
+            sourceId: true,
+            status: true,
+          },
+        },
       },
     })
     if (!item) {
       event.node.res.statusCode = 404
-      return { success: false, message: 'Build item not found.', statusCode: 404 }
+      return {
+        success: false,
+        message: 'Build item not found.',
+        statusCode: 404,
+      }
     }
     assertRunAccess(item.Run, auth.user)
     assertRunWritable(item.Run)
@@ -541,10 +686,9 @@ export default defineEventHandler(async (event) => {
     // outcome this module's own header comment says COMMIT must never cause.
     // dryRun previews the plan without writing, so it's exempt.
     if (!dryRun) {
-      const currentStages = parseStoredJson<Record<string, { status?: string }>>(
-        item.stageStatuses,
-        {},
-      )
+      const currentStages = parseStoredJson<
+        Record<string, { status?: string }>
+      >(item.stageStatuses, {})
       const unapprovedStage = BUILD_STAGES.find(
         (stage) =>
           stage.key !== 'COMMIT' &&
@@ -560,12 +704,18 @@ export default defineEventHandler(async (event) => {
 
     const sourceType = item.Run.sourceType
     if (!isSourceType(sourceType)) {
-      throw createError({ statusCode: 400, message: `Unsupported source type "${sourceType}".` })
+      throw createError({
+        statusCode: 400,
+        message: `Unsupported source type "${sourceType}".`,
+      })
     }
     const sourceId = item.Run.sourceId
     const text = (item.pitch || item.fieldsDraft || '').trim()
-    const name =
-      (item.pitch?.split('\n')[0]?.trim() || item.label || 'Untitled').slice(0, 255)
+    const name = (
+      item.pitch?.split('\n')[0]?.trim() ||
+      item.label ||
+      'Untitled'
+    ).slice(0, 255)
     const fieldMap = parseFieldLines(item.fieldsDraft)
 
     if (item.idempotencyKey) {
@@ -584,13 +734,35 @@ export default defineEventHandler(async (event) => {
     }
 
     let plan:
-      | { action: 'ASSET_ONLY'; targetType: SourceType; targetId: number; field: string; value: number }
-      | { action: 'UPDATE'; targetType: SourceType; targetId: number; field: string; value: string; fields: string[] }
-      | { action: 'CREATE'; targetType: SourceType; name: string; text: string; fields: string[] }
+      | {
+          action: 'ASSET_ONLY'
+          targetType: SourceType
+          targetId: number
+          field: string
+          value: number
+        }
+      | {
+          action: 'UPDATE'
+          targetType: SourceType
+          targetId: number
+          field: string
+          value: string
+          fields: string[]
+        }
+      | {
+          action: 'CREATE'
+          targetType: SourceType
+          name: string
+          text: string
+          fields: string[]
+        }
 
     if (item.action === 'ASSET_ONLY') {
       if (!item.artImageId) {
-        throw createError({ statusCode: 400, message: 'Generate and keep an asset before committing.' })
+        throw createError({
+          statusCode: 400,
+          message: 'Generate and keep an asset before committing.',
+        })
       }
       plan = {
         action: 'ASSET_ONLY',
@@ -601,7 +773,10 @@ export default defineEventHandler(async (event) => {
       }
     } else if (item.action === 'UPDATE') {
       if (!text) {
-        throw createError({ statusCode: 400, message: 'Add pitch/field text before committing an update.' })
+        throw createError({
+          statusCode: 400,
+          message: 'Add pitch/field text before committing an update.',
+        })
       }
       plan = {
         action: 'UPDATE',
@@ -614,7 +789,10 @@ export default defineEventHandler(async (event) => {
     } else {
       const targetType = CREATE_TARGETS[item.outputKey]
       if (!targetType) {
-        throw createError({ statusCode: 400, message: `Commit for "${item.outputKey}" is not supported yet.` })
+        throw createError({
+          statusCode: 400,
+          message: `Commit for "${item.outputKey}" is not supported yet.`,
+        })
       }
       plan = {
         action: 'CREATE',
@@ -664,7 +842,14 @@ export default defineEventHandler(async (event) => {
         target = { type: sourceType, id: sourceId, created: false }
       } else if (plan.action === 'UPDATE') {
         await prisma.$transaction((tx) =>
-          updateText(tx, sourceType, sourceId, plan.value, fieldMap, syncOptions),
+          updateText(
+            tx,
+            sourceType,
+            sourceId,
+            plan.value,
+            fieldMap,
+            syncOptions,
+          ),
         )
         target = { type: sourceType, id: sourceId, created: false }
       } else {
@@ -703,7 +888,10 @@ export default defineEventHandler(async (event) => {
       throw writeError
     }
 
-    const stages = parseStoredJson<Record<string, unknown>>(item.stageStatuses, {})
+    const stages = parseStoredJson<Record<string, unknown>>(
+      item.stageStatuses,
+      {},
+    )
     stages.COMMIT = {
       status: 'approved',
       note: `Committed → ${target.type} #${target.id}${target.created ? (target.linked ? ' (created + linked)' : ' (created)') : ''}`,

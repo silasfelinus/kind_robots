@@ -9,7 +9,6 @@
     "repair:checkpoints": "prisma generate && tsx utils/scripts/repairCheckpointResources.ts",
     "audit:facet-data": "prisma generate && tsx utils/scripts/auditFacetCatalogData.ts",
     "triage:facet-audit": "prisma generate && tsx utils/scripts/triageFacetAudit.ts",
-    "repair:facet-profiles": "prisma generate && tsx utils/scripts/repairFacetProfiles.ts",
     "backfill:facet-assignments": "prisma generate && tsx utils/scripts/backfillFacetAssignments.ts",
     "facet:alias": "prisma generate && tsx utils/scripts/setFacetAliases.ts",
     "facet:catalog:dry": "prisma generate && tsx utils/scripts/runFacetCatalogSeed.ts && tsx utils/scripts/mergeRewardFacetDuplicateLinks.ts && tsx utils/scripts/mergeCanonicalFacetDuplicates.ts",

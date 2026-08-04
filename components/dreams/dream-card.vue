@@ -1,16 +1,14 @@
 <!-- /components/dreams/dream-card.vue -->
 <template>
-  <!-- The shared card shell (interface-vision t-031). Dreams were the only one
-       of the five object cards still rolling their own <article>, which is why
-       they had no reaction or review affordance at all while Bot, Character,
-       Reward and Scenario did -- `dream` has been a valid ReactionTargetType and
-       `DREAM` a valid category the whole time; nothing ever wired it up.
-       :padded="false" keeps the full-bleed poster look this card is built
-       around; the other four inset their art and take the default padding. -->
+  <!-- The shared card shell (interface-vision t-031) plus the shared card BODY
+       (t-064). Dream was the last of the five object cards still rolling its
+       own markup below the shell: 5/5 now share kr-entity-card-body.
+       :padded="false" is GONE with the bespoke poster -- the body insets its
+       own art and owns its padding, exactly as the other four do, which is
+       what "a single display that is consistent across galleries" means. -->
   <reactable-card
     :selected="activeSelected"
     :compact="compact"
-    :padded="false"
     :allow-reviews="dream.allowReviews"
     :target-id="dream.id"
     target-type="dream"
@@ -23,105 +21,23 @@
     ]"
     @select="emit('choose', dream)"
   >
-    <figure
-      v-if="showImage"
-      class="relative w-full overflow-hidden bg-base-300"
-      :class="figureClass"
-    >
-      <img
-        v-if="previewImage"
-        :src="previewImage"
-        :alt="`${dreamTitle} preview`"
-        class="h-full w-full transition duration-300 group-hover:scale-[1.03]"
-        :class="imageFit === 'contain' ? 'object-contain' : 'object-cover'"
-        loading="lazy"
-      />
-
-      <div
-        v-else
-        class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/20 via-secondary/10 to-accent/20 text-primary"
-      >
-        <Icon name="kind-icon:dream" class="h-16 w-16 opacity-70" />
-      </div>
-
-      <div
-        class="pointer-events-none absolute inset-0 bg-linear-to-t from-base-300/95 via-base-300/20 to-base-300/5"
-      />
-
-      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span class="badge badge-primary badge-sm rounded-xl shadow">
-          {{ dreamTypeLabel(dream.dreamType) }}
-        </span>
-
-        <span
-          v-if="dream.isMature"
-          class="badge badge-warning badge-sm rounded-xl shadow"
-        >
-          Mature
-        </span>
-      </div>
-
-      <div
-        v-if="activeSelected"
-        class="absolute right-2 top-2 rounded-full border border-primary/40 bg-base-100/90 p-2 text-primary shadow backdrop-blur"
-      >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
-      </div>
-
-      <footer class="absolute inset-x-0 bottom-0 p-3">
-        <h3
-          class="line-clamp-2 text-lg font-black leading-tight text-base-content drop-shadow"
-        >
-          {{ dreamTitle }}
-        </h3>
-
-        <div class="mt-2 flex flex-wrap gap-1">
-          <span
-            v-if="scenarioCount"
-            class="badge badge-secondary badge-sm rounded-xl bg-secondary/90 shadow"
-          >
-            {{ scenarioCount }} Scenario{{ scenarioCount === 1 ? '' : 's' }}
-          </span>
-
-          <span
-            v-if="characterCount"
-            class="badge badge-accent badge-sm rounded-xl bg-accent/90 shadow"
-          >
-            {{ characterCount }} Cast
-          </span>
-
-          <span
-            v-if="artCount"
-            class="badge badge-info badge-sm rounded-xl bg-info/90 shadow"
-          >
-            {{ artCount }} Art
-          </span>
-
-          <span
-            v-if="rewardCount"
-            class="badge badge-outline badge-sm rounded-xl border-base-content/30 bg-base-100/85 shadow backdrop-blur"
-          >
-            {{ rewardCount }} Item{{ rewardCount === 1 ? '' : 's' }}
-          </span>
-        </div>
-      </footer>
-    </figure>
-
-    <section
-      v-else
-      class="flex min-h-56 flex-1 flex-col justify-end bg-linear-to-br from-primary/15 via-secondary/10 to-accent/15 p-3"
-    >
-      <h3
-        class="line-clamp-2 text-lg font-black leading-tight text-base-content"
-      >
-        {{ dreamTitle }}
-      </h3>
-
-      <p v-if="showMeta" class="mt-1 text-xs text-base-content/50">
-        #{{ dream.id }} · {{ dream.isPublic ? 'Public' : 'Private' }} ·
-        {{ dream.isActive ? 'Active' : 'Archived' }}
-      </p>
-    </section>
+    <kr-entity-card-body
+      :title="dreamTitle"
+      :subtitle="dreamTypeLabel(dream.dreamType)"
+      :description="dreamDescription"
+      description-fallback="No description yet."
+      :source="dream"
+      :variant="variant"
+      :fallback="previewImage"
+      :show-image="showImage"
+      :show-description="showDescription"
+      :compact="compact"
+      :selected="activeSelected"
+      :badges="badges"
+      :meta="showMeta ? metaChips : []"
+      :fit="imageFit"
+      placeholder-icon="kind-icon:dream"
+    />
 
     <template #actions>
       <button
@@ -165,6 +81,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { DreamWithRelations } from '@/stores/dreamStore'
 import type { ArtVariant } from '@/utils/galleryVocabulary'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
@@ -347,17 +264,9 @@ const explicitDreamImagePath = computed(() => {
   )
 })
 
-/**
- * Aspect per variant, matching kr-gallery's imageWrapClass so a Dream in
- * Heroes mode is the same shape as a Project in Heroes mode. `compact` is the
- * embedded-strip case and keeps its own 16:9 regardless.
- */
-const figureClass = computed(() => {
-  if (props.compact) return 'aspect-video h-full min-h-64'
-  if (props.variant === 'hero') return 'aspect-video h-full min-h-64'
-  if (props.variant === 'icon') return 'aspect-square h-full'
-  return 'aspect-4/5 h-full min-h-64'
-})
+// The per-variant aspect that used to live here is gone: kr-entity-card-body
+// owns shape now, via its own shape/compactShape props. Keeping a second copy
+// would be the exact duplication t-064 exists to remove.
 
 const fallbackCollectionArt = computed<Partial<ArtImage> | null>(() => {
   if (randomCollectionImage.value) return randomCollectionImage.value
@@ -613,6 +522,58 @@ const artCount = computed(() => {
  * stop working at a call site vue-tsc cannot see through a template.
  */
 const activeSelected = computed(() => props.selected || props.isSelected)
+
+/**
+ * Same precedence dream-gallery's own helper uses, so the card and the list it
+ * came from describe a Dream identically rather than picking different fields.
+ */
+const dreamDescription = computed(
+  () =>
+    props.dream.pitch ||
+    props.dream.description ||
+    props.dream.flavorText ||
+    '',
+)
+
+/**
+ * Corner badges over the art. Deliberately NOT the dream type — that is the
+ * subtitle now, the slot reward-card put rewardType in. It used to appear as a
+ * badge AND nowhere else; duplicating it here would repeat the subtitle two
+ * centimetres above itself, which is the kind of drift converging these cards
+ * is meant to end.
+ */
+const badges = computed<EntityCardChip[]>(() => {
+  const list: EntityCardChip[] = []
+  if (props.dream.isMature)
+    list.push({ label: 'Mature', class: 'badge-warning' })
+  if (props.dream.isPublic === false)
+    list.push({ label: 'Private', class: 'badge-ghost' })
+  return list
+})
+
+/**
+ * The counts that were overlaid on the poster. They move to the meta row on the
+ * card surface, where every other object card puts them — legible against a
+ * solid background instead of against whatever the art happens to be.
+ */
+const metaChips = computed<EntityCardChip[]>(() => {
+  const list: EntityCardChip[] = []
+  if (scenarioCount.value)
+    list.push({
+      label: `${scenarioCount.value} Scenario${scenarioCount.value === 1 ? '' : 's'}`,
+      class: 'badge-secondary',
+    })
+  if (characterCount.value)
+    list.push({ label: `${characterCount.value} Cast`, class: 'badge-accent' })
+  if (artCount.value)
+    list.push({ label: `${artCount.value} Art`, class: 'badge-info' })
+  if (rewardCount.value)
+    list.push({
+      label: `${rewardCount.value} Item${rewardCount.value === 1 ? '' : 's'}`,
+      class: 'badge-outline',
+    })
+  return list
+})
 
 const cardClass = computed(() => {
   // reactable-card draws the selected border and tint itself; this only adds

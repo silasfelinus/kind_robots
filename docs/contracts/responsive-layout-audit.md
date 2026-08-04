@@ -99,6 +99,23 @@ That is exactly what CI does. Locally, an unseeded database means you are
 measuring empty and error states — those still have to survive 390px, but they
 are not the galleries this is for, so do not read a local pass as an all-clear.
 
+## What BROKEN-ART is actually for
+
+Not "find missing art". Missing art is **expected and self-healing** here: there
+is a large generation backlog and an auto-generator that fills gaps (Silas,
+2026-08-04: _"we have a massive backlog of images generating, and an auto image
+generator if the image is missing, don't worry about it"_).
+
+So a component that degrades properly renders a placeholder when its art is
+absent, and trips nothing. **A `BROKEN-ART` hit therefore means "this component
+does not handle missing art"** — a code defect, not a content one. That is why
+it is worth failing a build over even while thousands of images are still being
+generated, and it is why the fix for `t-069` was a placeholder rather than a
+scramble to find the missing files.
+
+Do not "fix" a `BROKEN-ART` hit by generating the image. Fix the component, then
+let the generator do its job.
+
 ## Adding a route
 
 Pass `--routes`. The default list covers the object galleries and the

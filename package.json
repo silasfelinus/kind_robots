@@ -93,6 +93,8 @@
     "test:existing-owner-id-nullability": "tsx utils/scripts/verifyExistingOwnerIdNullability.ts",
     "test:ownership-nullability": "tsx utils/scripts/verifyOwnershipNullability.test.ts",
     "test:ratchet-baseline-selftest": "tsx utils/scripts/ratchetBaseline.test.ts",
+    "test:reward-image-paths-selftest": "tsx utils/scripts/repairRewardImagePaths.test.ts",
+    "repair:reward-image-paths": "tsx utils/scripts/repairRewardImagePaths.ts",
     "test:capture-group-guards": "tsx utils/scripts/verifyCaptureGroupGuards.ts",
     "test:capture-group-guards-selftest": "tsx utils/scripts/verifyCaptureGroupGuards.test.ts",
     "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts && tsx utils/scripts/verifyConductorProjectRegistry.ts",

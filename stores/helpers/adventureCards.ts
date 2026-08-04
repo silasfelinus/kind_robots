@@ -1039,8 +1039,8 @@ export const ADVENTURE_CARDS: BuilderCard[] = [
             image: '/images/adventure/alignment/safety.webp',
           },
           {
-            value: 'Curious',
-            label: 'Curious',
+            value: 'Insatiable',
+            label: 'Insatiable',
             subtext: `Knowledge as the terminal value. Ethics is an obstacle to data, not a framework for using it. The warning label was read. It was found insufficient.`,
             image: '/images/adventure/alignment/curious.webp',
           },

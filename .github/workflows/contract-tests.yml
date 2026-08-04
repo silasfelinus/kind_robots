@@ -79,7 +79,6 @@ jobs:
       - name: Achievement catalog, trigger, popup, and artwork contract
         run: npm run test:achievement-catalog
 
-
       - name: Known failed Prisma migration repair contract
         run: node utils/scripts/verify-known-migration-repair.mjs
 
@@ -90,6 +89,7 @@ jobs:
         run: npm run test:academy-starter-manifest
 
       - name: Academy examples manifest provenance contract
+        shell: bash # pipefail: `| tee` otherwise swallows the exit status
         run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
 
       - name: Navigation route access contract
@@ -97,6 +97,9 @@ jobs:
 
       - name: Workflow path references contract
         run: npm run test:workflow-paths
+
+      - name: Workflow pipefail contract
+        run: npm run test:workflow-pipefail
 
       - name: Deploy-wait ancestry check contract
         run: npm run test:deploy-wait-ancestry
@@ -318,6 +321,7 @@ jobs:
         run: npx tsx utils/scripts/verifyWonderLabReviewRolloutAudit.ts
 
       - name: WonderLab preview coverage no-regression gate
+        shell: bash # pipefail: `| tee` otherwise swallows the exit status
         run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
 
       - name: Fetch main for capture-group guard diff
@@ -337,6 +341,7 @@ jobs:
           npm run test:seed-contenders
 
       - name: Channel artwork audit
+        shell: bash # pipefail: `| tee` otherwise swallows the exit status
         run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
 
       - name: Upload contract diagnostics

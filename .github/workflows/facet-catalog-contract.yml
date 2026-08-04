@@ -106,6 +106,7 @@ jobs:
       - name: Verify illustrated Builder Facet coverage
         id: builder-coverage
         continue-on-error: true
+        shell: bash # pipefail: `| tee` otherwise swallows the exit status
         run: npx tsx utils/scripts/verifyFacetBuilderCoverage.ts 2>&1 | tee facet-builder-coverage-report.txt
 
       - name: Upload Builder Facet coverage diagnostics
@@ -122,6 +123,7 @@ jobs:
 
       - name: Verify curated Facet artwork
         id: artwork
+        shell: bash # pipefail: `| tee` otherwise swallows the exit status
         run: npx tsx utils/scripts/verifyFacetArtworkMigration.ts 2>&1 | tee facet-artwork-report.txt
 
       - name: Upload Facet artwork diagnostics

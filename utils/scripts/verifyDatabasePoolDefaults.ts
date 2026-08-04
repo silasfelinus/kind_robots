@@ -1,52 +1,103 @@
 // /utils/scripts/verifyDatabasePoolDefaults.ts
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
-  DEFAULT_ACQUIRE_TIMEOUT_MS,
-  DEFAULT_CONNECTION_LIMIT,
-  DEFAULT_CONNECT_TIMEOUT_MS,
-  DEFAULT_IDLE_TIMEOUT_SECONDS,
-  DEFAULT_MINIMUM_IDLE,
-  DEFAULT_PING_TIMEOUT_MS,
-  SAFE_MINIMUM_CONNECTION_LIMIT,
+  LONG_LIVED_ACQUIRE_TIMEOUT_MS,
+  LONG_LIVED_CONNECTION_LIMIT,
+  LONG_LIVED_CONNECT_TIMEOUT_MS,
+  LONG_LIVED_IDLE_TIMEOUT_SECONDS,
+  LONG_LIVED_MINIMUM_IDLE,
+  LONG_LIVED_PING_TIMEOUT_MS,
+  SAFE_MINIMUM_LONG_LIVED_CONNECTION_LIMIT,
+  VERCEL_ACQUIRE_TIMEOUT_MS,
+  VERCEL_CONNECTION_LIMIT,
+  VERCEL_CONNECT_TIMEOUT_MS,
+  VERCEL_IDLE_TIMEOUT_SECONDS,
+  VERCEL_MINIMUM_IDLE,
+  VERCEL_PING_TIMEOUT_MS,
+  resolveDatabasePoolDefaults,
 } from './../../server/utils/databasePoolDefaults'
 
-// Regression guards for the production pool failure modes:
-// - too few connections starve every DB-backed route
-// - retiring every idle connection after 15 seconds leaves warm Vercel instances
-//   reusing or recreating unhealthy ProxySQL sockets during sustained API tests
-// - the adapter's binary execute() path can retain a closed command channel
-// - retrying through the same poisoned client repeats the same stale-socket error
+const longLivedDefaults = resolveDatabasePoolDefaults({})
+const vercelDefaults = resolveDatabasePoolDefaults({ VERCEL: '1' })
+
+// A controlled long-lived local process needs enough capacity for the app's
+// parallel route work and may retain one validated socket.
+assert.equal(longLivedDefaults.profile, 'long-lived')
+assert.equal(longLivedDefaults.connectionLimit, LONG_LIVED_CONNECTION_LIMIT)
+assert.equal(longLivedDefaults.connectTimeoutMs, LONG_LIVED_CONNECT_TIMEOUT_MS)
+assert.equal(longLivedDefaults.acquireTimeoutMs, LONG_LIVED_ACQUIRE_TIMEOUT_MS)
+assert.equal(
+  longLivedDefaults.idleTimeoutSeconds,
+  LONG_LIVED_IDLE_TIMEOUT_SECONDS,
+)
+assert.equal(longLivedDefaults.minimumIdle, LONG_LIVED_MINIMUM_IDLE)
+assert.equal(longLivedDefaults.pingTimeoutMs, LONG_LIVED_PING_TIMEOUT_MS)
 assert.ok(
-  DEFAULT_CONNECTION_LIMIT >= SAFE_MINIMUM_CONNECTION_LIMIT,
-  `DEFAULT_CONNECTION_LIMIT (${DEFAULT_CONNECTION_LIMIT}) must be >= ` +
-    `SAFE_MINIMUM_CONNECTION_LIMIT (${SAFE_MINIMUM_CONNECTION_LIMIT}) — ` +
-    'see server/utils/databasePoolDefaults.ts',
+  longLivedDefaults.connectionLimit >=
+    SAFE_MINIMUM_LONG_LIVED_CONNECTION_LIMIT,
+  'The controlled long-lived runtime must retain its established pool capacity.',
 )
 assert.ok(
-  DEFAULT_ACQUIRE_TIMEOUT_MS > DEFAULT_CONNECT_TIMEOUT_MS,
-  'DEFAULT_ACQUIRE_TIMEOUT_MS must exceed DEFAULT_CONNECT_TIMEOUT_MS',
+  longLivedDefaults.idleTimeoutSeconds >= 300,
+  'The long-lived runtime must retain validated sockets for at least 5 minutes.',
 )
 assert.ok(
-  DEFAULT_IDLE_TIMEOUT_SECONDS >= 300,
-  'DEFAULT_IDLE_TIMEOUT_SECONDS must retain pooled sockets for at least 5 minutes',
+  longLivedDefaults.minimumIdle >= 1 &&
+    longLivedDefaults.minimumIdle <= longLivedDefaults.connectionLimit,
+  'The long-lived runtime must keep at least one warm connection.',
+)
+
+// Vercel scales by function-process count. A warm connection per lambda caused
+// 200 ProxySQL frontend sessions while MariaDB remained bounded near 40.
+assert.equal(vercelDefaults.profile, 'vercel-function')
+assert.equal(vercelDefaults.connectionLimit, VERCEL_CONNECTION_LIMIT)
+assert.equal(vercelDefaults.connectTimeoutMs, VERCEL_CONNECT_TIMEOUT_MS)
+assert.equal(vercelDefaults.acquireTimeoutMs, VERCEL_ACQUIRE_TIMEOUT_MS)
+assert.equal(vercelDefaults.idleTimeoutSeconds, VERCEL_IDLE_TIMEOUT_SECONDS)
+assert.equal(vercelDefaults.minimumIdle, VERCEL_MINIMUM_IDLE)
+assert.equal(vercelDefaults.pingTimeoutMs, VERCEL_PING_TIMEOUT_MS)
+assert.ok(
+  vercelDefaults.connectionLimit <= 2,
+  'A Vercel function must not carry a server-sized connector pool.',
+)
+assert.equal(
+  vercelDefaults.minimumIdle,
+  0,
+  'A Vercel function must not retain a ProxySQL frontend merely to stay warm.',
 )
 assert.ok(
-  DEFAULT_MINIMUM_IDLE >= 1 &&
-    DEFAULT_MINIMUM_IDLE <= DEFAULT_CONNECTION_LIMIT,
-  'DEFAULT_MINIMUM_IDLE must keep at least one connection warm without exceeding the pool limit',
+  vercelDefaults.idleTimeoutSeconds <= 30,
+  'Idle Vercel frontend sessions must retire promptly.',
 )
-assert.ok(
-  DEFAULT_PING_TIMEOUT_MS >= 500 && DEFAULT_PING_TIMEOUT_MS <= 5_000,
-  'DEFAULT_PING_TIMEOUT_MS must bound validation without making every borrow slow',
-)
+
+for (const defaults of [longLivedDefaults, vercelDefaults]) {
+  assert.ok(
+    defaults.acquireTimeoutMs > defaults.connectTimeoutMs,
+    `${defaults.profile} acquire timeout must exceed its connect timeout.`,
+  )
+  assert.ok(
+    defaults.pingTimeoutMs >= 500 && defaults.pingTimeoutMs <= 5_000,
+    `${defaults.profile} ping timeout must stay bounded.`,
+  )
+}
 
 const prismaSource = readFileSync(
   new URL('../../server/utils/prisma.ts', import.meta.url),
   'utf8',
 )
+const poolDefaultsSource = readFileSync(
+  new URL('../../server/utils/databasePoolDefaults.ts', import.meta.url),
+  'utf8',
+)
 const adapterSource = readFileSync(
   new URL('../../server/utils/databaseAdapterConfig.ts', import.meta.url),
+  'utf8',
+)
+const vercelBuildSource = readFileSync(
+  new URL('../../scripts/vercel-build.mjs', import.meta.url),
   'utf8',
 )
 const directProbeSource = readFileSync(
@@ -61,57 +112,100 @@ const projectCreateSource = readFileSync(
   new URL('../../server/api/projects/index.post.ts', import.meta.url),
   'utf8',
 )
+const capacityDiagnosticUrl = new URL(
+  '../../scripts/proxysql-capacity-diagnostics.sh',
+  import.meta.url,
+)
+const capacityDiagnosticSource = readFileSync(capacityDiagnosticUrl, 'utf8')
+const clientDiagnosticSource = readFileSync(
+  new URL('../../scripts/database-client-connections.ps1', import.meta.url),
+  'utf8',
+)
 
-// Pool configuration lives in the shared, side-effect-free adapter module so
-// request-time Prisma and standalone maintenance scripts use identical defaults.
+assert.match(poolDefaultsSource, /env\.VERCEL === '1'/)
+assert.match(poolDefaultsSource, /profile:\s*'vercel-function'/)
+assert.match(poolDefaultsSource, /VERCEL_CONNECTION_LIMIT = 2/)
+assert.match(poolDefaultsSource, /VERCEL_IDLE_TIMEOUT_SECONDS = 15/)
+assert.match(poolDefaultsSource, /VERCEL_MINIMUM_IDLE = 0/)
+assert.match(poolDefaultsSource, /LONG_LIVED_CONNECTION_LIMIT = 10/)
+assert.match(poolDefaultsSource, /LONG_LIVED_MINIMUM_IDLE = 1/)
+
+// Request-time Prisma and standalone scripts consume the same active runtime
+// defaults through the adapter. Explicit DATABASE_* overrides remain supported.
+assert.match(adapterSource, /process\.env\.DATABASE_CONNECTION_LIMIT/)
+assert.match(adapterSource, /process\.env\.DATABASE_IDLE_TIMEOUT_SECONDS/)
+assert.match(adapterSource, /process\.env\.DATABASE_MINIMUM_IDLE/)
 assert.match(adapterSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
-assert.match(adapterSource, /pingTimeout:\s*readPositiveInteger/)
-assert.match(adapterSource, /DEFAULT_IDLE_TIMEOUT_SECONDS/)
-assert.match(adapterSource, /DEFAULT_MINIMUM_IDLE/)
-assert.doesNotMatch(adapterSource, /DATABASE_IDLE_TIMEOUT_SECONDS,\s*15/)
-assert.doesNotMatch(adapterSource, /DATABASE_MINIMUM_IDLE,\s*0/)
+assert.match(adapterSource, /pipelining:\s*readDatabasePipelining\(\)/)
 assert.match(adapterSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
 assert.match(
   adapterSource,
   /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
 )
 
-// The request-time singleton must consume the shared pool builder and protocol
-// reader rather than growing an independent adapter configuration again.
+// Preview builds must not mutate the production database. Their deployed API
+// runtime may read it, but it receives the Vercel pool profile above.
+assert.match(vercelBuildSource, /process\.env\.VERCEL_ENV === 'production'/)
+assert.match(vercelBuildSource, /Skipping migrations and database seeds/)
+assert.match(vercelBuildSource, /if \(!isVercelBuild \|\| isProductionDeployment\)/)
+
+// The request-time singleton creates exactly one base Prisma client per process.
 assert.match(
   prismaSource,
   /new PrismaMariaDb\(buildDatabaseConfig\(databaseUrl\),\s*\{\s*useTextProtocol/,
 )
-
-// A stale socket poisons the adapter client that owns its pool. Recovery must
-// connect a replacement client, atomically redirect future calls, and replay the
-// failed model operation through that replacement instead of calling the stale
-// query closure again. Concurrent failures share one recovery promise.
-assert.match(prismaSource, /globalForPrisma\.prismaRecovery/)
-assert.match(prismaSource, /await replacement\.\$connect\(\)/)
-assert.match(
-  prismaSource,
-  /activePrisma = extendPrismaClient\(replacement\)/,
+assert.equal(
+  prismaSource.match(/new PrismaClient\(/g)?.length ?? 0,
+  1,
+  'server/utils/prisma.ts must create one Prisma client, not replacement pools',
 )
-assert.match(prismaSource, /replayPrismaOperation/)
-assert.match(prismaSource, /new Proxy\(\{\} as RetryingPrismaClient/)
+assert.match(prismaSource, /poolLifecycle:\s*'singleton-per-runtime'/)
+assert.match(prismaSource, /const basePrisma = globalForPrisma\.prisma/)
+assert.match(prismaSource, /const retryingPrisma = extendPrismaClient\(basePrisma\)/)
+assert.doesNotMatch(prismaSource, /prismaRecovery/)
+assert.doesNotMatch(prismaSource, /prismaGeneration/)
+assert.doesNotMatch(prismaSource, /recyclePrismaClient/)
+assert.doesNotMatch(prismaSource, /replayPrismaOperation/)
+assert.doesNotMatch(prismaSource, /replacement\.\$connect/)
+assert.doesNotMatch(prismaSource, /createIsolatedPrismaClient/)
 
-// Recovery may replace the client during an active transaction, but the failed
-// statement must not be replayed outside that transaction. Transaction callers
-// are tracked through the stable proxy and receive the original error so Prisma
-// can roll back the transaction normally.
+// A failed statement inside a transaction must not be replayed.
 assert.match(prismaSource, /new AsyncLocalStorage<boolean>\(\)/)
 assert.match(prismaSource, /property === '\$transaction'/)
 assert.match(prismaSource, /transactionContext\.run\(true/)
-assert.match(prismaSource, /transactionContext\.getStore\(\)/)
+assert.match(prismaSource, /transactionContext\.getStore\(\) \? 0/)
 
-// Never disconnect the shared or retired client during request recovery. Other
-// requests may still be completing transactions against it.
-assert.doesNotMatch(prismaSource, /\.\$disconnect\(\)/)
-assert.doesNotMatch(prismaSource, /createIsolatedPrismaClient/)
+// The Alexandria diagnostic remains read-only and source-compatible.
+execFileSync('bash', ['-n', fileURLToPath(capacityDiagnosticUrl)], {
+  stdio: 'pipe',
+})
+assert.match(capacityDiagnosticSource, /stats_mysql_connection_pool/)
+assert.match(capacityDiagnosticSource, /stats_mysql_users/)
+assert.match(capacityDiagnosticSource, /stats_mysql_processlist/)
+assert.match(capacityDiagnosticSource, /cli_host/)
+assert.match(capacityDiagnosticSource, /frontend source totals/)
+assert.match(capacityDiagnosticSource, /proxysql_sql_optional/)
+assert.match(capacityDiagnosticSource, /Access_Denied_Max_User_Connections/)
+assert.doesNotMatch(
+  capacityDiagnosticSource,
+  /SELECT[^;]*(transaction_found|multiplex_disabled)/s,
+)
+assert.match(capacityDiagnosticSource, /information_schema\.PROCESSLIST/)
+assert.match(capacityDiagnosticSource, /information_schema\.INNODB_TRX/)
+assert.doesNotMatch(capacityDiagnosticSource, /docker\s+(restart|stop|kill)/)
 
-// Project Sync keeps its direct MariaDB fallback as a route-specific final
-// safety net when adapter recovery cannot complete.
+// The local Windows diagnostic identifies owning PIDs without mutation.
+assert.match(clientDiagnosticSource, /Get-NetTCPConnection/)
+assert.match(clientDiagnosticSource, /OwningProcess/)
+assert.match(clientDiagnosticSource, /Get-CimInstance Win32_Process/)
+assert.match(clientDiagnosticSource, /Node-family processes/)
+assert.match(clientDiagnosticSource, /Hide-Secrets/)
+assert.doesNotMatch(
+  clientDiagnosticSource,
+  /(Stop-Process|Remove-Item|Disable-NetAdapter|CloseMainWindow|taskkill)/,
+)
+
+// Project Sync keeps its route-specific direct fallback.
 assert.match(
   directProbeSource,
   /export async function createDatabaseDirectConnection\(\)/,
@@ -128,9 +222,8 @@ assert.match(
 )
 
 console.log(
-  `Database pool safeguards verified: limit=${DEFAULT_CONNECTION_LIMIT}, ` +
-    `connect=${DEFAULT_CONNECT_TIMEOUT_MS}ms, acquire=${DEFAULT_ACQUIRE_TIMEOUT_MS}ms, ` +
-    `idle=${DEFAULT_IDLE_TIMEOUT_SECONDS}s, minimumIdle=${DEFAULT_MINIMUM_IDLE}, ` +
-    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma uses MariaDB text protocol and ` +
-    'recycles poisoned clients without replaying outside active transactions.',
+  `Database pool profiles verified: local=${longLivedDefaults.connectionLimit}/` +
+    `${longLivedDefaults.minimumIdle}/${longLivedDefaults.idleTimeoutSeconds}s, ` +
+    `vercel=${vercelDefaults.connectionLimit}/${vercelDefaults.minimumIdle}/` +
+    `${vercelDefaults.idleTimeoutSeconds}s; one Prisma client per process.`,
 )

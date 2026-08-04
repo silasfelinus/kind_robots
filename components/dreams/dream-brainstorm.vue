@@ -69,10 +69,10 @@
     </header>
 
     <div
-      class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[22rem_minmax(0,1fr)_22rem]"
+      class="kr-panes grid-cols-1 xl:grid-cols-[22rem_minmax(0,1fr)_22rem]"
     >
       <aside
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="kr-pane rounded-2xl border border-base-300 bg-base-100"
       >
         <div class="shrink-0 border-b border-base-300 bg-base-200 p-3">
           <div class="flex items-center justify-between gap-2">
@@ -105,7 +105,7 @@
           </label>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto p-2">
+        <div class="kr-pane-scroll p-2">
           <div v-if="filteredDreams.length" class="grid gap-2">
             <button
               v-for="dream in filteredDreams"
@@ -142,9 +142,7 @@
         </div>
       </aside>
 
-      <main
-        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
+      <main class="kr-pane rounded-2xl border border-base-300 bg-base-100">
         <section class="shrink-0 border-b border-base-300 bg-base-200 p-3">
           <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
             <label class="form-control">
@@ -216,7 +214,7 @@
           </label>
         </section>
 
-        <section class="min-h-0 overflow-y-auto p-3">
+        <section class="kr-pane-scroll p-3">
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -400,7 +398,7 @@
       </main>
 
       <aside
-        class="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-pane gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
       >
         <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
           <h2 class="mb-3 text-lg font-black">Text Server</h2>

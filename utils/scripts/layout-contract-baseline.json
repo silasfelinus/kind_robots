@@ -5,7 +5,6 @@
     "one-header": [],
     "one-scroll": [
       "components/butterfly/butterfly-sanctuary.vue",
-      "components/dreams/dream-brainstorm.vue",
       "components/navigation/channel-select.vue",
       "components/stages/stage-manager.vue",
       "components/wonderlab/mural-manager.vue"

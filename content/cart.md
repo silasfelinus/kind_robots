@@ -7,7 +7,7 @@ image: splash/sanctuary.png
 channelKey: sanctuary
 tabKey: cart
 dashboardKey: giftshop
-dashboardTab: cart
+dashboardTab: giftshop
 loadingMessage: Gathering the cart butterflies...
 refreshLabel: Refresh cart
 ---

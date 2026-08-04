@@ -112,11 +112,19 @@
               {{ badge.label }}
             </span>
           </div>
+          <!-- The corner icon puck. Same failed-source guard as the art above:
+               alt="" means a missing file paints no TEXT, but it still paints a
+               broken-image box, which is the small broken glyph left on
+               /conductor after the main-art fix landed (the CI audit found
+               exactly one, interface-vision-icon.webp, missing from the
+               conductor repo). A decorative icon that will not load should
+               simply not render. -->
           <img
-            v-if="mode !== 'icons' && item.icon"
+            v-if="mode !== 'icons' && item.icon && !failedArt.has(item.icon)"
             :src="item.icon"
             alt=""
             class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
+            @error="onArtError(item.icon)"
           />
         </div>
         <div class="p-3" :class="mode === 'icons' ? 'text-center' : ''">

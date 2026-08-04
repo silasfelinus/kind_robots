@@ -1,0 +1,8 @@
+This placeholder intentionally contains no production values.
+
+Run on Alexandria:
+
+  bash scripts/proxysql-capacity-diagnostics.sh | tee /tmp/kindrobots-db-capacity.txt
+
+Attach or paste the resulting aggregate output to the connection-capacity
+investigation. The diagnostic does not print passwords or SQL statement text.

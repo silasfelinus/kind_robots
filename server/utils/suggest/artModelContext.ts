@@ -43,7 +43,9 @@ function compactText(value: string, maxLength = 1400): string {
   return `${clean.slice(0, maxLength - 1).trim()}…`
 }
 
-function cleanFields(record: ScalarRecord): Record<string, string | number | boolean> {
+function cleanFields(
+  record: ScalarRecord,
+): Record<string, string | number | boolean> {
   const fields: Record<string, string | number | boolean> = {}
 
   for (const [key, value] of Object.entries(record)) {
@@ -69,7 +71,9 @@ function resolvedContext(
   record: ScalarRecord | null,
 ): ResolvedArtModelContext | null {
   if (!record) return null
-  const title = compactText(record.title || record.name || record.slug || `${modelType} ${record.id}`)
+  const title = compactText(
+    record.title || record.name || record.slug || `${modelType} ${record.id}`,
+  )
 
   return {
     modelType,
@@ -249,7 +253,6 @@ export async function resolveArtModelContext(
             id: true,
             slug: true,
             title: true,
-            kind: true,
             description: true,
             flavorText: true,
             examples: true,

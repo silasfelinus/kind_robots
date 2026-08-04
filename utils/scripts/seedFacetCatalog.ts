@@ -2,7 +2,6 @@
 import 'dotenv/config'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { ADVENTURE_CARDS } from './../../stores/helpers/adventureCards'
 import { animalDataList } from './../../stores/utils/animalData'
 import { artListPresets } from './../../stores/seeds/artList'
@@ -523,7 +522,6 @@ async function createOrRecoverFacet(
       data: {
         title: candidate.title,
         slug,
-        kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
         description: candidate.description,
         imagePath: candidate.imagePath,
         icon: candidate.icon,
@@ -551,7 +549,6 @@ async function createOrRecoverFacet(
       where: { id: winner.id },
       data: {
         title: candidate.title,
-        kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
         description: candidate.description || winner.description,
         imagePath: candidate.imagePath || winner.imagePath,
         icon: candidate.icon || winner.icon,
@@ -581,7 +578,6 @@ async function saveCandidate(
         data: {
           title: candidate.title,
           slug,
-          kind: legacyFacetKindForTaxonomy(candidate.taxonomy),
           description: candidate.description || existingFacet.description,
           imagePath: candidate.imagePath || existingFacet.imagePath,
           icon: candidate.icon || existingFacet.icon,

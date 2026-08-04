@@ -365,9 +365,7 @@ async function ensureAliases(
   return conflicts
 }
 
-async function ensureTarget(
-  definition: TargetDefinition,
-): Promise<{
+async function ensureTarget(definition: TargetDefinition): Promise<{
   facet: FacetRow | null
   created: boolean
   artBacked: boolean
@@ -394,7 +392,6 @@ async function ensureTarget(
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: definition.taxonomy === 'GENRE' ? 'GENRE' : 'OTHER',
         description: definition.description,
         designer: 'facet-curation',
         creationSource: 'HUMAN',

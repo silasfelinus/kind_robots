@@ -6,7 +6,6 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -25,7 +24,6 @@ type FacetRow = {
   id: number
   title: string
   slug: string | null
-  kind: FacetKind
   description: string | null
   imagePath: string | null
   cardPath: string | null
@@ -115,10 +113,7 @@ const RECIPES: readonly RecipeDefinition[] = [
     note: 'Decomposed into a reusable setting and cultural theme.',
   },
   {
-    lookup: [
-      'Political Candlelight Drama',
-      'political-candlelight-drama',
-    ],
+    lookup: ['Political Candlelight Drama', 'political-candlelight-drama'],
     components: ['political-drama', 'candlelit-intimacy'],
     note: 'Decomposed into a reusable political genre and intimate mood.',
   },
@@ -305,7 +300,7 @@ async function moveSubjectTheme(options: {
   if (apply) {
     await prisma.facet.update({
       where: { id: facet.id },
-      data: { kind: 'THEME', isActive: true },
+      data: { isActive: true },
     })
     await writeProfile({
       facet,
@@ -330,8 +325,12 @@ async function moveSubjectTheme(options: {
   }
 }
 
-async function ensureComponent(definition: EnsureDefinition): Promise<FacetRow | null> {
-  let facet = await prisma.facet.findUnique({ where: { slug: definition.slug } })
+async function ensureComponent(
+  definition: EnsureDefinition,
+): Promise<FacetRow | null> {
+  let facet = await prisma.facet.findUnique({
+    where: { slug: definition.slug },
+  })
   if (!facet && !apply) return null
 
   if (!facet) {
@@ -339,7 +338,6 @@ async function ensureComponent(definition: EnsureDefinition): Promise<FacetRow |
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         description: definition.description,
         designer: 'facet-curation',
         creationSource: 'HUMAN',
@@ -360,7 +358,6 @@ async function ensureComponent(definition: EnsureDefinition): Promise<FacetRow |
       where: { id: facet.id },
       data: {
         title: definition.title,
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         description: facet.description || definition.description,
         isActive: true,
       },
@@ -398,7 +395,7 @@ async function decomposeRecipe(
   if (apply) {
     await prisma.facet.update({
       where: { id: recipe.id },
-      data: { kind: 'THEME', isActive: true },
+      data: { isActive: true },
     })
     await writeProfile({
       facet: recipe,

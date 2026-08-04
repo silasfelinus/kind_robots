@@ -135,7 +135,10 @@ async function collectCandidates(): Promise<BotFacetCandidate[]> {
 
 type CatalogState = {
   aliasOwner: Map<string, number>
-  profiles: Map<number, { taxonomy: string; sourceRank: number; metadata: string | null }>
+  profiles: Map<
+    number,
+    { taxonomy: string; sourceRank: number; metadata: string | null }
+  >
   facets: Map<
     number,
     {
@@ -153,7 +156,12 @@ async function loadCatalogState(): Promise<CatalogState> {
   const [aliases, profiles, facets] = await Promise.all([
     prisma.facetAlias.findMany({ select: { lookupKey: true, facetId: true } }),
     prisma.facetProfile.findMany({
-      select: { facetId: true, taxonomy: true, sourceRank: true, metadata: true },
+      select: {
+        facetId: true,
+        taxonomy: true,
+        sourceRank: true,
+        metadata: true,
+      },
     }),
     prisma.facet.findMany({
       select: {
@@ -167,7 +175,9 @@ async function loadCatalogState(): Promise<CatalogState> {
     }),
   ])
   return {
-    aliasOwner: new Map(aliases.map((alias) => [alias.lookupKey, alias.facetId])),
+    aliasOwner: new Map(
+      aliases.map((alias) => [alias.lookupKey, alias.facetId]),
+    ),
     profiles: new Map(profiles.map((profile) => [profile.facetId, profile])),
     facets: new Map(facets.map((facet) => [facet.id, facet])),
   }
@@ -217,7 +227,6 @@ async function saveCandidate(
         data: {
           title: candidate.title,
           slug,
-          kind: candidate.taxonomy === 'PERSONALITY' ? 'OTHER' : 'OTHER',
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',
@@ -231,7 +240,8 @@ async function saveCandidate(
 
   const previousProfile = state.profiles.get(facet.id)
   const previousMetadata = metadataObject(previousProfile?.metadata ?? null)
-  const incomingWins = candidate.sourceRank <= (previousProfile?.sourceRank ?? 100)
+  const incomingWins =
+    candidate.sourceRank <= (previousProfile?.sourceRank ?? 100)
   const metadata = {
     ...previousMetadata,
     ...(incomingWins ? candidate.metadata : {}),
@@ -298,7 +308,7 @@ async function saveCandidate(
     taxonomy: candidate.taxonomy,
     sourceRank: incomingWins
       ? candidate.sourceRank
-      : previousProfile?.sourceRank ?? candidate.sourceRank,
+      : (previousProfile?.sourceRank ?? candidate.sourceRank),
     metadata: JSON.stringify(metadata),
   })
   return facet.id
@@ -334,7 +344,12 @@ async function backfillBots(): Promise<number> {
     }),
     prisma.facetProfile.findMany({
       where: { taxonomy: { in: ['BOT_TYPE', 'PERSONALITY'] } },
-      select: { facetId: true, taxonomy: true, canonicalValue: true, metadata: true },
+      select: {
+        facetId: true,
+        taxonomy: true,
+        canonicalValue: true,
+        metadata: true,
+      },
     }),
     prisma.facet.findMany({
       select: { id: true, title: true, isActive: true },
@@ -369,12 +384,31 @@ async function backfillBots(): Promise<number> {
 
   let linked = 0
   for (const bot of bots) {
-    const rows: Array<{ botId: number; facetId: number; fieldKey: string; sortOrder: number }> = []
+    const rows: Array<{
+      botId: number
+      facetId: number
+      fieldKey: string
+      sortOrder: number
+    }> = []
     const typeId = maps.BOT_TYPE.get(normalizeFacetLookupKey(bot.BotType))
-    if (typeId) rows.push({ botId: bot.id, facetId: typeId, fieldKey: 'BotType', sortOrder: 0 })
-    for (const [sortOrder, value] of splitPersonality(bot.personality).entries()) {
+    if (typeId)
+      rows.push({
+        botId: bot.id,
+        facetId: typeId,
+        fieldKey: 'BotType',
+        sortOrder: 0,
+      })
+    for (const [sortOrder, value] of splitPersonality(
+      bot.personality,
+    ).entries()) {
       const facetId = maps.PERSONALITY.get(normalizeFacetLookupKey(value))
-      if (facetId) rows.push({ botId: bot.id, facetId, fieldKey: 'personality', sortOrder })
+      if (facetId)
+        rows.push({
+          botId: bot.id,
+          facetId,
+          fieldKey: 'personality',
+          sortOrder,
+        })
     }
     await prisma.botFacet.deleteMany({ where: { botId: bot.id } })
     if (rows.length) {
@@ -390,10 +424,13 @@ async function backfillBots(): Promise<number> {
 
 async function main(): Promise<void> {
   const candidates = await collectCandidates()
-  const byTaxonomy = candidates.reduce<Record<string, number>>((counts, candidate) => {
-    counts[candidate.taxonomy] = (counts[candidate.taxonomy] ?? 0) + 1
-    return counts
-  }, {})
+  const byTaxonomy = candidates.reduce<Record<string, number>>(
+    (counts, candidate) => {
+      counts[candidate.taxonomy] = (counts[candidate.taxonomy] ?? 0) + 1
+      return counts
+    },
+    {},
+  )
   const missingSourceArtwork = candidates
     .filter((candidate) => candidate.requestedImagePath && !candidate.imagePath)
     .map((candidate) => candidate.requestedImagePath)
@@ -405,7 +442,9 @@ async function main(): Promise<void> {
           mode: 'dry-run',
           candidates: candidates.length,
           byTaxonomy,
-          missingRequiredArt: candidates.filter((candidate) => !candidate.imagePath).length,
+          missingRequiredArt: candidates.filter(
+            (candidate) => !candidate.imagePath,
+          ).length,
           missingSourceArtwork,
           note: 'Run with --apply after prisma migrate deploy.',
         },

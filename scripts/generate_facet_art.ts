@@ -367,61 +367,66 @@ async function main(): Promise<void> {
   await withDatabaseRetry('Facet artwork queue', async () => {
     const prisma = createScriptPrismaClient()
     try {
-      const [facets, profiles, aliases, artImageLinks, artCollectionLinks, jobs] =
-        await Promise.all([
-          prisma.facet.findMany({
-            where: { isActive: true },
-            orderBy: { id: 'asc' },
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-              kind: true,
-              description: true,
-              flavorText: true,
-              examples: true,
-              artPrompt: true,
-              imagePath: true,
-              cardPath: true,
-              heroPath: true,
-              iconPath: true,
-              icon: true,
-              artImageId: true,
-              artCollectionId: true,
-              userId: true,
-              isPublic: true,
-              isMature: true,
-            },
-          }),
-          prisma.facetProfile.findMany({
-            select: {
-              facetId: true,
-              taxonomy: true,
-              canonicalValue: true,
-              groupKey: true,
-              groupLabel: true,
-              isRandomizable: true,
-              randomWeight: true,
-              artRequired: true,
-              sourceRank: true,
-              metadata: true,
-            },
-          }),
-          prisma.facetAlias.findMany({
-            where: { isActive: true },
-            select: { facetId: true, alias: true },
-          }),
-          prisma.facetArtImage.findMany({ select: { facetId: true } }),
-          prisma.facetArtCollection.findMany({ select: { facetId: true } }),
-          prisma.artJob.findMany({
-            where: {
-              projectSlug: PROJECT_SLUG,
-              status: { in: ['PENDING', 'RUNNING'] },
-              payload: { contains: facetArtVersionMarker() },
-            },
-            select: { id: true, status: true, payload: true },
-          }),
-        ])
+      const [
+        facets,
+        profiles,
+        aliases,
+        artImageLinks,
+        artCollectionLinks,
+        jobs,
+      ] = await Promise.all([
+        prisma.facet.findMany({
+          where: { isActive: true },
+          orderBy: { id: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            flavorText: true,
+            examples: true,
+            artPrompt: true,
+            imagePath: true,
+            cardPath: true,
+            heroPath: true,
+            iconPath: true,
+            icon: true,
+            artImageId: true,
+            artCollectionId: true,
+            userId: true,
+            isPublic: true,
+            isMature: true,
+          },
+        }),
+        prisma.facetProfile.findMany({
+          select: {
+            facetId: true,
+            taxonomy: true,
+            canonicalValue: true,
+            groupKey: true,
+            groupLabel: true,
+            isRandomizable: true,
+            randomWeight: true,
+            artRequired: true,
+            sourceRank: true,
+            metadata: true,
+          },
+        }),
+        prisma.facetAlias.findMany({
+          where: { isActive: true },
+          select: { facetId: true, alias: true },
+        }),
+        prisma.facetArtImage.findMany({ select: { facetId: true } }),
+        prisma.facetArtCollection.findMany({ select: { facetId: true } }),
+        prisma.artJob.findMany({
+          where: {
+            projectSlug: PROJECT_SLUG,
+            status: { in: ['PENDING', 'RUNNING'] },
+            payload: { contains: facetArtVersionMarker() },
+          },
+          select: { id: true, status: true, payload: true },
+        }),
+      ])
 
       const profileByFacet = new Map(
         profiles.map((profile) => [profile.facetId, profile as ProfileRow]),
@@ -432,7 +437,9 @@ async function main(): Promise<void> {
         entries.push(alias.alias)
         aliasesByFacet.set(alias.facetId, entries)
       }
-      const linkedPrimaryArt = new Set(artImageLinks.map((link) => link.facetId))
+      const linkedPrimaryArt = new Set(
+        artImageLinks.map((link) => link.facetId),
+      )
       const linkedCollections = new Set(
         artCollectionLinks.map((link) => link.facetId),
       )
@@ -455,7 +462,8 @@ async function main(): Promise<void> {
             id: facet.id,
             title: facet.title,
             slug: facet.slug,
-            taxonomy: (profile?.taxonomy as FacetAuditInput['taxonomy']) ?? null,
+            taxonomy:
+              (profile?.taxonomy as FacetAuditInput['taxonomy']) ?? null,
             groupKey: profile?.groupKey ?? null,
             groupLabel: profile?.groupLabel ?? null,
             isRandomizable: profile?.isRandomizable ?? false,
@@ -468,14 +476,14 @@ async function main(): Promise<void> {
             aliases: aliasesByFacet.get(facet.id) ?? [],
             artBacked: Boolean(
               facet.imagePath ||
-                facet.cardPath ||
-                facet.heroPath ||
-                facet.iconPath ||
-                facet.icon ||
-                facet.artImageId !== null ||
-                facet.artCollectionId !== null ||
-                linkedPrimaryArt.has(facet.id) ||
-                linkedCollections.has(facet.id),
+              facet.cardPath ||
+              facet.heroPath ||
+              facet.iconPath ||
+              facet.icon ||
+              facet.artImageId !== null ||
+              facet.artCollectionId !== null ||
+              linkedPrimaryArt.has(facet.id) ||
+              linkedCollections.has(facet.id),
             ),
           }
         },
@@ -494,7 +502,8 @@ async function main(): Promise<void> {
       )
       const notRequired: number[] = []
       const reused: Array<{ id: number; field: FacetArtField }> = []
-      const blocked: Array<{ id: number; title: string; reasons: string[] }> = []
+      const blocked: Array<{ id: number; title: string; reasons: string[] }> =
+        []
       const queue: Array<{
         facet: FacetRow
         profile: ProfileRow
@@ -527,7 +536,7 @@ async function main(): Promise<void> {
         for (const variant of ART_VARIANTS) {
           const primaryLinked = Boolean(
             variant.field === 'imagePath' &&
-              (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
+            (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
           )
           if (clean(facet[variant.field]) || primaryLinked) {
             available.set(

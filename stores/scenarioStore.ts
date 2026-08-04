@@ -39,7 +39,6 @@ type ScenarioFacet = Pick<
   | 'id'
   | 'title'
   | 'slug'
-  | 'kind'
   | 'description'
   | 'flavorText'
   | 'imagePath'
@@ -50,6 +49,13 @@ type ScenarioFacet = Pick<
   | 'isActive'
 > & {
   aliases: string[]
+  /*
+   * The API has always returned this (hydrateFacetSummaries adds it); the type
+   * just never claimed it, because the sort below used the legacy `kind` column
+   * instead. t-072 dropped that column, so taxonomy is now both the sort key
+   * and the only grouping there is.
+   */
+  taxonomy: FacetTaxonomy
 }
 
 type ScenarioCharacter = Pick<
@@ -304,9 +310,10 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     }
 
     return Array.from(map.values()).sort((a, b) =>
-      a.kind === b.kind
+      // taxonomy, not the dropped legacy `kind` column (t-072).
+      a.taxonomy === b.taxonomy
         ? a.title.localeCompare(b.title)
-        : a.kind.localeCompare(b.kind),
+        : a.taxonomy.localeCompare(b.taxonomy),
     )
   })
 

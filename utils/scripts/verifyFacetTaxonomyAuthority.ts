@@ -1,5 +1,5 @@
 // Verify that FacetProfile.taxonomy is the typed, user-facing classifier and
-// Facet.kind survives only as a server-derived compatibility column.
+// Facet.kind is gone (t-072); FacetProfile.taxonomy is the sole authority.
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
@@ -90,12 +90,16 @@ async function main(): Promise<void> {
   }
 
   requireText(files.profileInput, text.profileInput, 'assertLegacyFacetKindAbsent')
-  requireText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
+  /* t-072 dropped the physical Facet.kind column, which made the
+     legacyFacetKindForTaxonomy() derivation dead code -- so these flipped from
+     "must derive it" to "must not resurrect it". FacetProfile.taxonomy is the
+     only classification left. */
+  forbidText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
   requireText(files.profileInput, text.profileInput, 'Facet kind is deprecated. Use taxonomy instead.')
   requireText(files.createApi, text.createApi, 'assertLegacyFacetKindAbsent(body)')
-  requireText(files.createApi, text.createApi, 'legacyFacetKindForTaxonomy(profileData.taxonomy)')
+  forbidText(files.createApi, text.createApi, 'legacyFacetKindForTaxonomy')
   requireText(files.patchApi, text.patchApi, 'assertLegacyFacetKindAbsent(body)')
-  requireText(files.patchApi, text.patchApi, 'legacyFacetKindForTaxonomy(nextTaxonomy)')
+  forbidText(files.patchApi, text.patchApi, 'legacyFacetKindForTaxonomy')
   requireText(files.listApi, text.listApi, 'query.taxonomy')
   requireText(files.listApi, text.listApi, 'prisma.facetProfile.findMany')
   requireText(files.listApi, text.listApi, 'Facet kind filtering is deprecated. Use taxonomy instead.')

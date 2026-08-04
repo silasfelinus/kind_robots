@@ -5,7 +5,6 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import { normalizeFacetLookupKey } from './../facetAliases'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -226,7 +225,10 @@ async function hasArtwork(facet: {
   return imageLinks > 0 || collectionLinks > 0
 }
 
-async function installAliases(facetId: number, aliases: readonly string[]): Promise<void> {
+async function installAliases(
+  facetId: number,
+  aliases: readonly string[],
+): Promise<void> {
   if (!apply) return
 
   for (const alias of uniqueStrings([...aliases])) {
@@ -494,11 +496,10 @@ async function migrateDuplicate(
       imagePath: canonical.imagePath || duplicate.imagePath,
       cardPath: canonical.cardPath || circusCardPath || duplicate.cardPath,
       heroPath: canonical.heroPath || duplicate.heroPath,
-        iconPath: canonical.iconPath || duplicate.iconPath,
+      iconPath: canonical.iconPath || duplicate.iconPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
-      artCollectionId:
-        canonical.artCollectionId ?? duplicate.artCollectionId,
+      artCollectionId: canonical.artCollectionId ?? duplicate.artCollectionId,
       isActive: true,
     },
   })
@@ -524,16 +525,20 @@ async function migrateDuplicate(
     where: { facetId: canonical.id },
     create: {
       facetId: canonical.id,
-      taxonomy: canonicalProfile?.taxonomy ?? duplicateProfile?.taxonomy ?? 'GENRE',
+      taxonomy:
+        canonicalProfile?.taxonomy ?? duplicateProfile?.taxonomy ?? 'GENRE',
       canonicalValue:
         canonicalProfile?.canonicalValue ??
         duplicateProfile?.canonicalValue ??
         canonical.title,
       groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey,
       groupLabel: canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel,
-      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+      sortOrder:
+        canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
       isRandomizable:
-        canonicalProfile?.isRandomizable ?? duplicateProfile?.isRandomizable ?? true,
+        canonicalProfile?.isRandomizable ??
+        duplicateProfile?.isRandomizable ??
+        true,
       randomWeight: Math.max(
         canonicalProfile?.randomWeight ?? 0,
         duplicateProfile?.randomWeight ?? 0,
@@ -596,9 +601,13 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
   const finalTitle = definition.title ?? facet.title
 
   if (apply) {
-    const conflict = await prisma.facet.findUnique({ where: { slug: finalSlug } })
+    const conflict = await prisma.facet.findUnique({
+      where: { slug: finalSlug },
+    })
     if (conflict && conflict.id !== facet.id) {
-      throw new Error(`Final slug ${finalSlug} is still owned by Facet ${conflict.id}.`)
+      throw new Error(
+        `Final slug ${finalSlug} is still owned by Facet ${conflict.id}.`,
+      )
     }
 
     await prisma.facet.update({
@@ -606,7 +615,6 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
       data: {
         title: finalTitle,
         slug: finalSlug,
-        kind: legacyKindForTaxonomy(definition.taxonomy),
         description: definition.description ?? facet.description,
         isActive: true,
       },
@@ -672,7 +680,9 @@ async function finalizeCanonical(definition: MergeDefinition): Promise<object> {
   }
 }
 
-async function applyMergeDefinition(definition: MergeDefinition): Promise<object> {
+async function applyMergeDefinition(
+  definition: MergeDefinition,
+): Promise<object> {
   const duplicateResults = []
   for (const duplicateSlug of definition.duplicateSlugs) {
     duplicateResults.push(await migrateDuplicate(definition, duplicateSlug))
@@ -703,7 +713,6 @@ async function reclassifyArtAtmospheres(): Promise<object[]> {
         where: { id: facet.id },
         data: {
           title: definition.title,
-          kind: legacyFacetKindForTaxonomy('ART_DIRECTION'),
           isActive: true,
         },
       })
@@ -771,7 +780,7 @@ async function reclassifyNarrativeTones(): Promise<object[]> {
     if (apply) {
       await prisma.facet.update({
         where: { id: facet.id },
-        data: { kind: legacyFacetKindForTaxonomy('THEME'), isActive: true },
+        data: { isActive: true },
       })
       await prisma.facetProfile.upsert({
         where: { facetId: facet.id },
@@ -950,7 +959,9 @@ async function reserveEpicForRarity(): Promise<object> {
 
   return {
     facetId: rarity.id,
-    action: apply ? 'epic-reserved-for-rarity' : 'would-reserve-epic-for-rarity',
+    action: apply
+      ? 'epic-reserved-for-rarity'
+      : 'would-reserve-epic-for-rarity',
   }
 }
 

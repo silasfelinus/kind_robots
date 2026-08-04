@@ -146,7 +146,11 @@ const RENAMES: readonly RenameDefinition[] = [
     title: 'One Thousand and One Nights Fantasy',
     slug: 'one-thousand-and-one-nights-fantasy',
     randomWeight: 0.75,
-    aliases: ['Arabian Nights Redux', 'Arabian Nights Fantasy', '1001 Nights Fantasy'],
+    aliases: [
+      'Arabian Nights Redux',
+      'Arabian Nights Fantasy',
+      '1001 Nights Fantasy',
+    ],
     description:
       'Fantasy inspired by the diverse tale collection One Thousand and One Nights: nested storytelling, clever narrators, merchants and courts, wondrous travel, transformations, djinn, dangerous bargains, and stories used as instruments of survival.',
   },
@@ -161,10 +165,7 @@ const RENAMES: readonly RenameDefinition[] = [
     broadUmbrella: true,
   },
   {
-    lookup: [
-      'Eastern European Folklore',
-      'eastern-european-folklore',
-    ],
+    lookup: ['Eastern European Folklore', 'eastern-european-folklore'],
     title: 'Eastern European Folkloric Fantasy',
     slug: 'eastern-european-folkloric-fantasy',
     randomWeight: 0.75,
@@ -227,8 +228,9 @@ function curatedMetadata(options: {
   return JSON.stringify({
     ...metadata,
     culturalUmbrella: options.broadUmbrella || undefined,
-    curationReferences:
-      options.references?.length ? options.references : metadata.curationReferences,
+    curationReferences: options.references?.length
+      ? options.references
+      : metadata.curationReferences,
     catalogCurationHistory: [
       ...history,
       {
@@ -335,9 +337,7 @@ async function installAliases(
   return conflicts
 }
 
-async function ensureDefinition(
-  definition: EnsureDefinition,
-): Promise<{
+async function ensureDefinition(definition: EnsureDefinition): Promise<{
   facet: FacetRow | null
   action: string
   artBacked: boolean
@@ -364,7 +364,6 @@ async function ensureDefinition(
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: definition.taxonomy === 'GENRE' ? 'GENRE' : 'OTHER',
         description: definition.description,
         designer: 'facet-curation',
         creationSource: 'HUMAN',
@@ -484,7 +483,6 @@ async function refineDefinition(
       data: {
         title: canRename ? definition.title : facet.title,
         slug: canRename ? definition.slug : facet.slug,
-        kind: 'GENRE',
         description: facet.description || definition.description,
         isActive: true,
       },
@@ -588,7 +586,9 @@ async function refineDefinition(
   }
 }
 
-async function relateDistinctFutures(targets: Map<string, FacetRow>): Promise<number> {
+async function relateDistinctFutures(
+  targets: Map<string, FacetRow>,
+): Promise<number> {
   const african = targets.get('africanfuturism')
   const afro = targets.get('afrofuturism')
   if (!african || !afro || african.id === afro.id) return 0

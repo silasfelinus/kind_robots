@@ -33,7 +33,6 @@ async function saveLegacyType(
     create: {
       title: entry.label,
       slug,
-      kind: 'OTHER',
       description: entry.description,
       designer: 'facet-catalog',
       creationSource: 'HUMAN',

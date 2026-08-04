@@ -283,7 +283,6 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     data: {
       title: 'Tardigrade',
       slug: 'tardigrade',
-      kind: 'ANIMAL',
       description: canonical.description || duplicate.description,
       flavorText: canonical.flavorText || duplicate.flavorText,
       examples: canonical.examples || duplicate.examples,
@@ -293,8 +292,7 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       heroPath: canonical.heroPath || duplicate.heroPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
-      artCollectionId:
-        canonical.artCollectionId ?? duplicate.artCollectionId,
+      artCollectionId: canonical.artCollectionId ?? duplicate.artCollectionId,
       isActive: true,
     },
   })
@@ -305,10 +303,12 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       facetId: canonical.id,
       taxonomy: 'ANIMAL',
       canonicalValue: 'Tardigrade',
-      groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null,
+      groupKey:
+        canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null,
       groupLabel:
         canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? null,
-      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+      sortOrder:
+        canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
       isRandomizable: true,
       randomWeight: 1,
       artRequired: true,
@@ -327,10 +327,12 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     update: {
       taxonomy: 'ANIMAL',
       canonicalValue: 'Tardigrade',
-      groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null,
+      groupKey:
+        canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? null,
       groupLabel:
         canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? null,
-      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+      sortOrder:
+        canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
       isRandomizable: true,
       randomWeight: 1,
       artRequired: true,

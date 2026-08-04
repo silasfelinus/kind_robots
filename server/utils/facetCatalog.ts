@@ -37,7 +37,6 @@ export type FacetCatalogEntry = {
   id: number
   title: string
   slug: string | null
-  kind: FacetKind
   taxonomy: FacetTaxonomy
   canonicalValue: string
   description: string | null
@@ -67,7 +66,6 @@ const facetCatalogSelect = {
   id: true,
   title: true,
   slug: true,
-  kind: true,
   description: true,
   flavorText: true,
   examples: true,
@@ -85,7 +83,9 @@ const facetCatalogSelect = {
 type RawFacet = Prisma.FacetGetPayload<{ select: typeof facetCatalogSelect }>
 
 function normalizeTaxonomy(value: string | null | undefined): FacetTaxonomy {
-  const normalized = String(value ?? 'OTHER').trim().toUpperCase()
+  const normalized = String(value ?? 'OTHER')
+    .trim()
+    .toUpperCase()
   return FACET_TAXONOMIES.includes(normalized as FacetTaxonomy)
     ? (normalized as FacetTaxonomy)
     : 'OTHER'
@@ -104,18 +104,20 @@ function parseMetadata(value: string | null): Record<string, unknown> | null {
   }
 }
 
-export async function loadFacetCatalogEntries(options: {
-  facetIds?: number[]
-  taxonomies?: FacetTaxonomy[]
-  includeInactive?: boolean
-  includeMature?: boolean
-  randomizableOnly?: boolean
-  userId?: number
-  isAdmin?: boolean
-  search?: string
-  take?: number
-  skip?: number
-} = {}): Promise<FacetCatalogEntry[]> {
+export async function loadFacetCatalogEntries(
+  options: {
+    facetIds?: number[]
+    taxonomies?: FacetTaxonomy[]
+    includeInactive?: boolean
+    includeMature?: boolean
+    randomizableOnly?: boolean
+    userId?: number
+    isAdmin?: boolean
+    search?: string
+    take?: number
+    skip?: number
+  } = {},
+): Promise<FacetCatalogEntry[]> {
   const profileWhere = {
     ...(options.facetIds?.length ? { facetId: { in: options.facetIds } } : {}),
     ...(options.taxonomies?.length

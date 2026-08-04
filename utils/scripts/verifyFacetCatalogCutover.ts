@@ -119,7 +119,11 @@ async function main(): Promise<void> {
   requireText(files.profileInput, text.profileInput, 'buildFacetProfileCreateData')
   requireText(files.profileInput, text.profileInput, 'buildFacetProfileUpdateData')
   requireText(files.profileInput, text.profileInput, 'assertLegacyFacetKindAbsent')
-  requireText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
+  /* t-072 dropped the physical Facet.kind column, which made the
+     legacyFacetKindForTaxonomy() derivation dead code -- so these flipped from
+     "must derive it" to "must not resurrect it". FacetProfile.taxonomy is the
+     only classification left. */
+  forbidText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
   requireText(files.profileInput, text.profileInput, "taxonomy !== 'COLOR'")
   requireText(
     files.profileInput,
@@ -127,10 +131,10 @@ async function main(): Promise<void> {
     'Facet metadata must be a valid JSON object.',
   )
   requireText(files.facetCreate, text.facetCreate, 'buildFacetProfileCreateData')
-  requireText(files.facetCreate, text.facetCreate, 'legacyFacetKindForTaxonomy')
+  forbidText(files.facetCreate, text.facetCreate, 'legacyFacetKindForTaxonomy')
   requireText(files.facetCreate, text.facetCreate, 'tx.facetProfile.create')
   requireText(files.facetPatch, text.facetPatch, 'buildFacetProfileUpdateData')
-  requireText(files.facetPatch, text.facetPatch, 'legacyFacetKindForTaxonomy')
+  forbidText(files.facetPatch, text.facetPatch, 'legacyFacetKindForTaxonomy')
   requireText(files.facetPatch, text.facetPatch, 'tx.facetProfile.upsert')
   requireText(files.facetList, text.facetList, 'query.taxonomy')
   requireText(files.facetList, text.facetList, 'prisma.facetProfile.findMany')

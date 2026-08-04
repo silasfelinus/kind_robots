@@ -122,12 +122,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const { FacetLinks, _count, ...scenario } = row
-    const Facets = (await hydrateFacetSummaries(
-      FacetLinks.map((link) => link.Facet),
-    )).sort((a, b) =>
-      a.kind === b.kind
+    const Facets = (
+      await hydrateFacetSummaries(FacetLinks.map((link) => link.Facet))
+    ).sort((a, b) =>
+      // taxonomy, not the dropped legacy `kind` column (t-072).
+      a.taxonomy === b.taxonomy
         ? a.title.localeCompare(b.title)
-        : a.kind.localeCompare(b.kind),
+        : a.taxonomy.localeCompare(b.taxonomy),
     )
 
     const data = {

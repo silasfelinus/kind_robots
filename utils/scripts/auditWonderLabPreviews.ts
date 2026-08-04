@@ -14,6 +14,13 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { getWonderLabPreviewFixture } from '../wonderlab/previewFixtureCatalog'
+import {
+  grownRatchetBuckets,
+  loadRatchetBaseline,
+  ratchetNote,
+  ratchetRecordedAt,
+  writeRatchetBaseline,
+} from './ratchetBaseline'
 
 const componentRoot = path.resolve(process.cwd(), 'components')
 const ignoredSegments = new Set(['abandonware', '__tests__', '__fixtures__'])
@@ -28,15 +35,6 @@ type Baseline = {
   note: string
   recorded: string
   uncovered: string[]
-}
-
-async function loadBaseline(): Promise<Baseline | null> {
-  try {
-    const raw = await fs.readFile(BASELINE_PATH, 'utf8')
-    return JSON.parse(raw) as Baseline
-  } catch {
-    return null
-  }
 }
 
 function toPosix(value: string): string {
@@ -160,10 +158,18 @@ async function main() {
   }
 
   const currentPaths = uncovered.map((item) => item.sourcePath).sort()
-  const baseline = await loadBaseline()
+  const baseline = loadRatchetBaseline<Baseline>(BASELINE_PATH)
 
   if (update) {
-    if (baseline && currentPaths.length > baseline.uncovered.length) {
+    /* One bucket — this checker groups nothing, so the shared ratchet's
+       Record<string, string[]> collapses to a single named list. */
+    if (
+      baseline &&
+      grownRatchetBuckets(
+        { uncovered: currentPaths },
+        { uncovered: baseline.uncovered },
+      ).length
+    ) {
       console.error(
         `\nRefusing to update the baseline — uncovered count grew from ` +
           `${baseline.uncovered.length} to ${currentPaths.length}.\n` +
@@ -174,14 +180,14 @@ async function main() {
     }
 
     const next: Baseline = {
-      note:
-        'WonderLab preview-fixture coverage allow-list. RATCHET: this file may only ever ' +
-        'shrink. --update refuses to record a larger count. See ' +
-        'utils/scripts/auditWonderLabPreviews.ts.',
-      recorded: new Date().toISOString().slice(0, 10),
+      note: ratchetNote(
+        'WonderLab preview-fixture coverage allow-list.',
+        'utils/scripts/auditWonderLabPreviews.ts',
+      ),
+      recorded: ratchetRecordedAt(),
       uncovered: currentPaths,
     }
-    await fs.writeFile(BASELINE_PATH, `${JSON.stringify(next, null, 2)}\n`)
+    writeRatchetBaseline(BASELINE_PATH, next)
     console.log(`\nBaseline written to ${path.relative(process.cwd(), BASELINE_PATH)}`)
     return
   }

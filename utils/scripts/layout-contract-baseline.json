@@ -3,14 +3,12 @@
   "recorded": "2026-08-04",
   "violations": {
     "one-header": [],
-    "one-scroll": [
-      "components/stages/stage-manager.vue",
-      "components/wonderlab/mural-manager.vue"
-    ],
+    "one-scroll": [],
     "no-viewport": [],
     "one-mdc": [],
     "ghost-prop": [],
     "zero-scroll": [],
-    "root-surface": []
+    "root-surface": [],
+    "pane-display": []
   }
 }

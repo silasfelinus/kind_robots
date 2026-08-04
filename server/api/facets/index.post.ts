@@ -12,7 +12,6 @@ import { normalizeFacetLookupKey } from '~/utils/facetAliases'
 import {
   assertLegacyFacetKindAbsent,
   buildFacetProfileCreateData,
-  legacyFacetKindForTaxonomy,
 } from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'
 
@@ -88,7 +87,8 @@ function normalizeAliases(value: unknown): string[] {
   const byLookupKey = new Map<string, string>()
   for (const alias of aliases) {
     const lookupKey = normalizeFacetLookupKey(alias)
-    if (lookupKey && !byLookupKey.has(lookupKey)) byLookupKey.set(lookupKey, alias)
+    if (lookupKey && !byLookupKey.has(lookupKey))
+      byLookupKey.set(lookupKey, alias)
   }
 
   return Array.from(byLookupKey.values())
@@ -102,7 +102,10 @@ export default defineEventHandler(async (event) => {
 
     const title = optionalText(body.title)
     if (!title) {
-      throw createError({ statusCode: 400, message: 'Facet title is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Facet title is required.',
+      })
     }
 
     const slug = facetSlug(body.slug || title)
@@ -111,7 +114,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const profileData = buildFacetProfileCreateData(body, { title })
-    const legacyKind = legacyFacetKindForTaxonomy(profileData.taxonomy)
     const creationSource = creationSources.includes(
       body.creationSource as CreationSource,
     )
@@ -127,7 +129,10 @@ export default defineEventHandler(async (event) => {
     )
 
     const explicitAliases = normalizeAliases(body.aliases)
-    const aliasesByKey = new Map<string, { alias: string; isCanonical: boolean }>()
+    const aliasesByKey = new Map<
+      string,
+      { alias: string; isCanonical: boolean }
+    >()
     const canonicalKey = normalizeFacetLookupKey(slug)
     aliasesByKey.set(canonicalKey, { alias: slug, isCanonical: true })
 
@@ -141,8 +146,6 @@ export default defineEventHandler(async (event) => {
       const data: Prisma.FacetUncheckedCreateInput = {
         title,
         slug,
-        // Deprecated compatibility column; taxonomy is authoritative.
-        kind: legacyKind,
         description: optionalText(body.description),
         flavorText: optionalText(body.flavorText),
         examples: optionalText(body.examples),
@@ -175,15 +178,13 @@ export default defineEventHandler(async (event) => {
       })
 
       await tx.facetAlias.createMany({
-        data: Array.from(aliasesByKey.entries()).map(
-          ([lookupKey, alias]) => ({
-            facetId: facet.id,
-            alias: alias.alias,
-            lookupKey,
-            isCanonical: alias.isCanonical,
-            isActive: true,
-          }),
-        ),
+        data: Array.from(aliasesByKey.entries()).map(([lookupKey, alias]) => ({
+          facetId: facet.id,
+          alias: alias.alias,
+          lookupKey,
+          isCanonical: alias.isCanonical,
+          isActive: true,
+        })),
       })
 
       return facet

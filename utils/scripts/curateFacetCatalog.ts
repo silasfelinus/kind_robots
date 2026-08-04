@@ -6,7 +6,6 @@ import {
   type FacetTaxonomy,
 } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import { legacyFacetKindForTaxonomy } from './../../server/utils/facetProfileInput'
 import {
   FACET_CURATION_BATCHES,
   type CuratedFacetDefinition,
@@ -33,7 +32,6 @@ type FacetRow = {
   id: number
   title: string
   slug: string | null
-  kind: FacetKind
   description: string | null
   flavorText: string | null
   examples: string | null
@@ -265,7 +263,11 @@ async function ensureFacet(
   definition: CuratedFacetDefinition,
   batchId: string,
 ): Promise<EnsureResult> {
-  const lookups = [definition.slug, definition.title, ...(definition.aliases ?? [])]
+  const lookups = [
+    definition.slug,
+    definition.title,
+    ...(definition.aliases ?? []),
+  ]
   let facet = await findFacet(lookups)
   const existed = Boolean(facet)
 
@@ -284,7 +286,6 @@ async function ensureFacet(
       data: {
         title: definition.title,
         slug: definition.slug,
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         description: definition.description,
         designer: 'facet-curation',
         creationSource: 'HUMAN',
@@ -305,7 +306,6 @@ async function ensureFacet(
     facet = await prisma.facet.update({
       where: { id: facet.id },
       data: {
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         description: facet.description || definition.description,
         designer: facet.designer || 'facet-curation',
         isActive: true,
@@ -410,7 +410,6 @@ async function applyTransform(
     facet = await prisma.facet.update({
       where: { id: facet.id },
       data: {
-        kind: legacyFacetKindForTaxonomy(definition.taxonomy),
         designer: facet.designer || 'facet-curation',
         isActive: true,
       },

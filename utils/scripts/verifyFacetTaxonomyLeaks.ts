@@ -14,6 +14,30 @@ function requireText(path: string, text: string, value: string): void {
   }
 }
 
+/*
+ * Same as requireText, but for a multi-token CODE expression rather than a
+ * string literal or identifier.
+ *
+ * Prettier is free to break `findUnique({ where: { slug: definition.slug } })`
+ * across lines the moment anything around it changes width -- which is exactly
+ * what happened when t-072 dropped the `kind` argument from the enclosing
+ * function. The reflow also ADDS a trailing comma, so this needs both
+ * normalisations, not just whitespace:
+ *
+ *   findUnique({\n  where: { slug: definition.slug },\n})
+ *
+ * A contract about which column the lookup keys on should not go red because
+ * the formatter picked a different line width. Layout belongs to Prettier;
+ * this assertion keeps only the tokens.
+ */
+function requireCode(path: string, text: string, value: string): void {
+  const flatten = (source: string): string =>
+    source.replace(/\s+/g, '').replace(/,(?=[}\])])/g, '')
+  if (!flatten(text).includes(flatten(value))) {
+    throw new Error(`${path} is missing required contract code: ${value}`)
+  }
+}
+
 function requireOrder(
   path: string,
   text: string,
@@ -64,7 +88,11 @@ async function main(): Promise<void> {
   requireText(curatorPath, curator, "slug: 'whimsical-tone'")
   requireText(curatorPath, curator, "title: 'Whimsical Tone'")
   requireText(curatorPath, curator, "title: 'Culinary Fantasy'")
-  requireText(curatorPath, curator, 'findUnique({ where: { slug: definition.slug } })')
+  requireCode(
+    curatorPath,
+    curator,
+    'findUnique({ where: { slug: definition.slug } })',
+  )
   requireText(curatorPath, curator, "relationType: 'CONTAINS'")
   requireText(curatorPath, curator, "groupKey: 'genre-recipe'")
 

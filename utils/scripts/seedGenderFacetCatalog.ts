@@ -167,7 +167,6 @@ async function saveCandidate(candidate: GenderCandidate): Promise<number> {
         create: {
           title: candidate.title,
           slug,
-          kind: 'OTHER',
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',
@@ -179,7 +178,6 @@ async function saveCandidate(candidate: GenderCandidate): Promise<number> {
         },
         update: {
           title: candidate.title,
-          kind: 'OTHER',
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',
@@ -306,7 +304,9 @@ async function backfillCharacterGender(
 
 async function main(): Promise<void> {
   const candidates = await collectGenderCandidates()
-  const directArtwork = candidates.filter((candidate) => candidate.imagePath).length
+  const directArtwork = candidates.filter(
+    (candidate) => candidate.imagePath,
+  ).length
   const missingRequiredArt = candidates.length - directArtwork
   const missingSourceArtwork = candidates
     .filter((candidate) => candidate.requestedImagePath && !candidate.imagePath)

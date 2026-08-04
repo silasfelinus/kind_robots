@@ -67,7 +67,9 @@ async function existingPublicImagePath(value: unknown): Promise<{
     : { requestedImagePath }
 }
 
-async function collectScenarioGenreCandidates(): Promise<ScenarioGenreCandidate[]> {
+async function collectScenarioGenreCandidates(): Promise<
+  ScenarioGenreCandidate[]
+> {
   const candidates = new Map<string, ScenarioGenreCandidate>()
   const genreCard = SCENARIO_CARDS.find((card) => card.key === 'genre')
   let order = 0
@@ -165,10 +167,14 @@ async function loadCatalogState(): Promise<CatalogState> {
         designer: true,
       },
     }),
-    prisma.facetProfile.findMany({ select: { facetId: true, sourceRank: true } }),
+    prisma.facetProfile.findMany({
+      select: { facetId: true, sourceRank: true },
+    }),
   ])
   return {
-    aliasOwner: new Map(aliases.map((alias) => [alias.lookupKey, alias.facetId])),
+    aliasOwner: new Map(
+      aliases.map((alias) => [alias.lookupKey, alias.facetId]),
+    ),
     facetById: new Map(facets.map((facet) => [facet.id, facet])),
     profileByFacetId: new Map(
       profiles.map((profile) => [profile.facetId, profile]),
@@ -186,7 +192,9 @@ async function saveCandidate(
   const slug = existing?.slug || slugify(candidate.canonicalValue)
   const incomingWins =
     candidate.sourceRank <=
-    (existingId ? state.profileByFacetId.get(existingId)?.sourceRank ?? 100 : 100)
+    (existingId
+      ? (state.profileByFacetId.get(existingId)?.sourceRank ?? 100)
+      : 100)
 
   const facet = existing
     ? await prisma.facet.update({
@@ -213,7 +221,6 @@ async function saveCandidate(
         create: {
           title: candidate.title,
           slug,
-          kind: 'GENRE',
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',
@@ -225,7 +232,6 @@ async function saveCandidate(
         },
         update: {
           title: candidate.title,
-          kind: 'GENRE',
           description: candidate.description,
           imagePath: candidate.imagePath,
           designer: 'facet-catalog',
@@ -266,7 +272,8 @@ async function saveCandidate(
   state.profileByFacetId.set(facet.id, {
     sourceRank: incomingWins
       ? candidate.sourceRank
-      : state.profileByFacetId.get(facet.id)?.sourceRank ?? candidate.sourceRank,
+      : (state.profileByFacetId.get(facet.id)?.sourceRank ??
+        candidate.sourceRank),
   })
 
   for (const alias of prepareUniqueFacetAliases([
@@ -346,8 +353,9 @@ async function main(): Promise<void> {
           taxonomy: 'GENRE',
           source: 'scenario-builder',
           candidates: candidates.length,
-          illustrated: candidates.filter((candidate) => candidate.requestedImagePath)
-            .length,
+          illustrated: candidates.filter(
+            (candidate) => candidate.requestedImagePath,
+          ).length,
           missingSourceArtwork,
           note: 'Run with --apply after the canonical Facet seed.',
         },

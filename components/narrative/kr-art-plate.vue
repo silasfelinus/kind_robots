@@ -125,18 +125,20 @@ const frameClass = computed(() => {
   }
 })
 
-// A broken URL should fall back rather than leave a dead frame. Reset whenever
-// the source changes, or one bad image would poison every later one.
-const failed = ref(false)
+const failedSources = ref<string[]>([])
 watch(
   () => [props.source, props.variant, props.fallback],
   () => {
-    failed.value = false
+    failedSources.value = []
   },
 )
 
-function onError(): void {
-  failed.value = true
+function onError(event: Event): void {
+  const failedSrc =
+    (event.currentTarget as HTMLImageElement | null)?.getAttribute('src') || ''
+  if (failedSrc && !failedSources.value.includes(failedSrc)) {
+    failedSources.value = [...failedSources.value, failedSrc]
+  }
 }
 
 const src = computed(() => {
@@ -145,9 +147,15 @@ const src = computed(() => {
     props.variant,
     props.fallback,
   )
-  if (!failed.value) return resolved
-  // Only fall back if the fallback is not itself the thing that just failed.
-  return resolved === props.fallback ? '' : props.fallback
+  if (resolved && !failedSources.value.includes(resolved)) return resolved
+  if (
+    props.fallback &&
+    props.fallback !== resolved &&
+    !failedSources.value.includes(props.fallback)
+  ) {
+    return props.fallback
+  }
+  return ''
 })
 
 /*

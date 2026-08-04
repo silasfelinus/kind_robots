@@ -7,9 +7,36 @@
   >
     <fx-region region="hand" />
 
+    <!--
+      Two things are deliberately ABSENT here, both of which broke touch
+      scrolling on iOS while measuring perfectly fine in Chromium:
+
+      1. `touch-pan-x`. touch-action: pan-x is a strict directional gate — a
+         gesture whose opening vector falls outside the horizontal cone is
+         dropped outright rather than interpreted. This hand sits on the bottom
+         edge, so it is driven by a thumb, and a thumb arcs. The default
+         (`auto`) lets the browser route the horizontal component to this
+         scroller and the vertical component to the page, with the tolerance it
+         already ships. `overscroll-x-contain` stays: it stops a swipe from
+         chaining into browser back-navigation.
+
+      2. `active:` variants on the cards (see the button below). Tailwind v4
+         gates `hover:` behind @media (hover: hover), so on a touch device only
+         `:active` ever matched — and :active fires on finger-DOWN. Measured
+         with CSS.forcePseudoState on an emulated touch device, the card went
+         112px -> 235px and z-10 -> z-40 the instant it was pressed, mid-gesture
+         and mid-200ms-transition. Desktop loses nothing by dropping it: `hover:`
+         already applies the identical values with a real pointer.
+
+      overflow-y is `hidden`, not `visible`: both engines were already coercing
+      it to `auto` (per spec, once one axis is non-visible the other computes to
+      auto), so `visible` described something the browser never did — and the
+      `auto` it silently became gave the strip a second scroll axis to compete
+      for the same gesture.
+    -->
     <div
       ref="scrollEl"
-      class="workspace-hand-scroll pointer-events-auto absolute inset-x-0 bottom-0 flex touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="workspace-hand-scroll pointer-events-auto absolute inset-x-0 bottom-0 flex items-end overflow-x-auto overscroll-x-contain overflow-y-hidden"
       :style="scrollFrameStyle"
     >
       <div
@@ -22,7 +49,7 @@
           v-for="(card, index) in handCards"
           :key="card.key"
           type="button"
-          class="group pointer-events-auto relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.1] active:z-40 active:-translate-y-2 active:scale-[2.1]"
+          class="group pointer-events-auto relative flex shrink-0 flex-col overflow-visible rounded-2xl border transition-all duration-200 hover:z-40 hover:-translate-y-2 hover:scale-[2.1]"
           :class="[
             thumbClass(card.key),
             originClass(index),
@@ -519,7 +546,11 @@ onMounted(() => {
     if (CARD_BACKS.includes(parsed as CardBack)) {
       cardBack.value = parsed as CardBack
     }
-  } catch {}
+  } catch {
+    // localStorage can throw in private mode / blocked-cookie contexts. The
+    // card back is cosmetic, so falling back to the default is the whole
+    // recovery.
+  }
 
   publishHeight()
 
@@ -568,7 +599,9 @@ onBeforeUnmount(() => {
 .workspace-hand-scroll {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  /* No touch-action here — see the note in the template. It was set in BOTH
+     this block and a `touch-pan-x` utility on the element, so removing only the
+     utility changed nothing and measured as still `pan-x`. */
   cursor: grab;
 }
 

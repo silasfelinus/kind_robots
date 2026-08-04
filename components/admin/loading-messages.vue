@@ -21,11 +21,7 @@
         </span>
 
         <transition name="loader-message" mode="out-in">
-          <div
-            :key="messageKey"
-            class="loading-message"
-            aria-live="polite"
-          >
+          <div :key="messageKey" class="loading-message" aria-live="polite">
             {{ currentMessage }}
           </div>
         </transition>
@@ -287,7 +283,16 @@ onBeforeUnmount(() => {
   display: grid;
   width: min(98vw, 64rem);
   height: min(92vh, 52rem);
-  grid-template-rows: minmax(3.75rem, auto) minmax(0, 1fr) 8rem;
+  /*
+   * The heading row is deeper than the heading so the heading can sit at its
+   * BOTTOM (see .loading-heading align-self) rather than at the top of the
+   * screen. startup-animation's controls are `position: fixed; top: 1rem`
+   * with z-index 60, and on a phone the "Love Bomb / Pause & explore" pill is
+   * nearly the full width -- so a top-anchored heading rendered underneath it
+   * and both became unreadable. Silas: "it should be an easy fix to lower the
+   * message nearer the logo."
+   */
+  grid-template-rows: minmax(7rem, auto) minmax(0, 1fr) 8rem;
   place-items: center;
   opacity: 1;
   transform: scale(1);
@@ -329,6 +334,9 @@ onBeforeUnmount(() => {
   font-size: clamp(1.2rem, 2.25vw, 2rem);
   font-weight: 800;
   letter-spacing: 0.02em;
+  /* Bottom of its row, so it sits just above the logo instead of up in the
+     band the fixed animation controls occupy. */
+  align-self: end;
 }
 
 .loading-logo-frame {
@@ -355,8 +363,16 @@ onBeforeUnmount(() => {
 .loading-logo-frame::before {
   border-radius: 46% 54% 61% 39% / 57% 41% 59% 43%;
   background:
-    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.2), transparent 42%),
-    radial-gradient(circle at 64% 68%, rgba(129, 230, 217, 0.16), transparent 46%),
+    radial-gradient(
+      circle at 35% 30%,
+      rgba(255, 255, 255, 0.2),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 64% 68%,
+      rgba(129, 230, 217, 0.16),
+      transparent 46%
+    ),
     radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 68%);
   filter: blur(1.8rem);
   opacity: 0.88;

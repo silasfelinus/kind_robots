@@ -9,7 +9,7 @@
 
     <div
       ref="scrollEl"
-      class="workspace-hand-scroll pointer-events-none absolute inset-x-0 bottom-0 flex touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
+      class="workspace-hand-scroll pointer-events-auto absolute inset-x-0 bottom-0 flex touch-pan-x items-end overflow-x-auto overscroll-x-contain overflow-y-visible"
       :style="scrollFrameStyle"
     >
       <div
@@ -134,6 +134,8 @@ const handEl = ref<HTMLElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
 const stripEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
+/** The strip's real rendered height, used to size the scroll box. */
+const measuredStripHeightPx = ref(0)
 const selectedCardKey = ref('')
 
 const CARD_BACKS = [1, 2, 3, 4, 5] as const
@@ -331,10 +333,36 @@ const handFrameStyle = computed<CSSProperties>(() => {
   }
 })
 
+/**
+ * The scroller is exactly as tall as the cards at rest — NOT the expanded
+ * hover-zoom height.
+ *
+ * It used to be the expanded height (447px at four cards) with the difference
+ * as paddingTop (295px), so the cards sat at the bottom of a mostly-empty box.
+ * That oversized box then had to be `pointer-events-none` or it would have
+ * swallowed clicks on the page behind it — and THAT is what stopped iOS Safari
+ * scrolling the hand by touch. Safari will not touch-scroll an
+ * `overflow-x: auto` element with `pointer-events: none`, even when its
+ * children are `pointer-events: auto`; Chromium will, which is why every
+ * headless test passed while Silas's iPhone could not drag the cards
+ * (2026-08-04, three cards visible with the third clipped mid-card).
+ *
+ * `overflow-y: visible` is what makes this safe: the 2.1x zoom still paints
+ * outside the box, so the headroom was never needed for painting — only the
+ * height was, and only because the box was the wrong size. Sizing it to the
+ * cards lets it be pointer-events-auto without covering anything.
+ */
 const scrollFrameStyle = computed<CSSProperties>(() => {
+  /*
+   * MEASURED height, with the formula only as the first-paint fallback.
+   * restingHandHeightPx overshoots what the cards actually render by ~23px
+   * (measured 212 vs 189 at four cards) — harmless when this box was
+   * pointer-events-none, but now that it is interactive that overhang would
+   * sit over page content and swallow clicks meant for it. Same lesson as the
+   * page-padding reservation: read offsetHeight, do not compute it.
+   */
   return {
-    height: `${expandedHandHeightPx.value}px`,
-    paddingTop: `${expandedHandHeightPx.value - restingHandHeightPx.value}px`,
+    height: `${measuredStripHeightPx.value || restingHandHeightPx.value}px`,
   }
 })
 
@@ -361,9 +389,11 @@ function publishHeight(): void {
    * own offsetHeight is the truth; `transform: scale` on hover does not affect
    * it, so this stays the resting height even mid-zoom.
    */
+  measuredStripHeightPx.value = stripEl.value?.offsetHeight ?? 0
+
   emit(
     'resting-height',
-    stripEl.value?.offsetHeight || restingHandHeightPx.value,
+    measuredStripHeightPx.value || restingHandHeightPx.value,
   )
 }
 

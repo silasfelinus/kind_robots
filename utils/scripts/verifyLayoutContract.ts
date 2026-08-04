@@ -19,7 +19,8 @@
  *
  * THE RULES (see conductor projects/interface-vision/DESIGN-BRIEF.md)
  *   1. one-header    — the shell renders the page title; a page component never does
- *   2. one-scroll    — a component owns at most one scrolling region
+ *   2. one-scroll    — a component owns at most one scrolling region, unless it
+ *                       declares the .kr-panes multi-owner primitive (t-058)
  *   3. no-viewport   — no h-screen/100vh inside a shell that is already h-dvh
  *   4. one-mdc       — a content page mounts one component, not several
  *   5. ghost-prop    — don't pass :show-header to a component that never declared it
@@ -146,6 +147,8 @@ function staticClassLists(template: string): string[] {
  * A static max-h-* region is deliberately bounded inside its parent (log tail,
  * JSON preview, swatch grid), so it is not a competing page-level scroll owner.
  * kr-scroll always counts because it is the explicit full-region primitive.
+ * kr-pane-scroll is deliberately excluded here -- it is the multi-owner
+ * primitive's scroll marker and is counted separately, below.
  */
 function scrollRegionCount(template: string): number {
   return staticClassLists(template).filter((classList) => {
@@ -156,6 +159,25 @@ function scrollRegionCount(template: string): number {
     const isBounded = tokens.some((token) => token.startsWith('max-h-'))
     return hasKrScroll || (hasRawScroll && !isBounded)
   }).length
+}
+
+/*
+ * .kr-pane-scroll (interface-vision t-058) is the multi-owner primitive's
+ * scroll marker -- a component may declare more than one, but only once it
+ * has also declared the .kr-panes grid container that makes multiple owners
+ * legitimate. Mixing it with the single-owner primitive (kr-scroll / raw
+ * overflow-y-auto) in the same component is not allowed -- pick one pattern.
+ */
+function paneScrollRegionCount(template: string): number {
+  return staticClassLists(template).filter((classList) =>
+    classList.split(/\s+/).filter(Boolean).includes('kr-pane-scroll'),
+  ).length
+}
+
+function hasKrPanes(template: string): boolean {
+  return staticClassLists(template).some((classList) =>
+    classList.split(/\s+/).filter(Boolean).includes('kr-panes'),
+  )
 }
 
 /*
@@ -191,6 +213,35 @@ function verifyScrollRegionCountFixture(): void {
   const count = scrollRegionCount(templateOf(fixture))
   if (count !== 2) {
     throw new Error(`Scroll-region fixture was not classified correctly: ${count}`)
+  }
+}
+
+function verifyPaneScrollFixture(): void {
+  const withPanes = templateOf(`
+    <template>
+      <section class="kr-panes grid-cols-2">
+        <aside class="kr-pane-scroll"></aside>
+        <main class="kr-pane-scroll"></main>
+      </section>
+    </template>
+  `)
+  const withoutPanes = templateOf(`
+    <template>
+      <section>
+        <aside class="kr-pane-scroll"></aside>
+        <main class="kr-pane-scroll"></main>
+      </section>
+    </template>
+  `)
+
+  if (paneScrollRegionCount(withPanes) !== 2) {
+    throw new Error('Pane-scroll fixture was not classified correctly (count).')
+  }
+  if (!hasKrPanes(withPanes)) {
+    throw new Error('Pane-scroll fixture was not classified correctly (kr-panes present).')
+  }
+  if (hasKrPanes(withoutPanes)) {
+    throw new Error('Pane-scroll fixture was not classified correctly (kr-panes absent).')
   }
 }
 
@@ -269,11 +320,24 @@ function collect(): Record<RuleId, string[]> {
      * that adopts it declares its scroll region through the class, not a raw
      * overflow-y-auto utility string. Bounded max-h-* regions are intentionally
      * nested previews, not page-level owners, and do not count toward one-scroll.
+     *
+     * .kr-pane-scroll (interface-vision t-058) is the multi-owner escape
+     * hatch: any number of them is fine once .kr-panes is also declared, but
+     * mixing them with the single-owner primitive in the same component, or
+     * using .kr-pane-scroll without .kr-panes, is still a violation.
      */
     const scrollers = scrollRegionCount(template)
+    const paneScrollers = paneScrollRegionCount(template)
+    const declaresPanes = hasKrPanes(template)
+
     if (scrollers > 1) violations['one-scroll'].push(r)
+    else if (paneScrollers > 0 && (!declaresPanes || scrollers > 0)) {
+      violations['one-scroll'].push(r)
+    }
+
     if (
       scrollers === 0 &&
+      paneScrollers === 0 &&
       pageComponent &&
       !mdcMountedComponents.has(basename(file, '.vue'))
     ) {
@@ -340,6 +404,7 @@ function main(): void {
   const args = process.argv.slice(2)
   verifyRootClassListFixture()
   verifyScrollRegionCountFixture()
+  verifyPaneScrollFixture()
   const current = collect()
   const baseline = loadBaseline()
 

@@ -28,9 +28,9 @@
 
     <section
       v-else
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(320px,440px)_minmax(0,1fr)]"
+      class="kr-panes grid-cols-1 xl:grid-cols-[minmax(320px,440px)_minmax(0,1fr)]"
     >
-      <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto">
+      <aside class="kr-pane-scroll flex flex-col gap-4">
         <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
@@ -178,7 +178,7 @@
         </section>
       </aside>
 
-      <main class="flex min-h-0 min-w-0 flex-col gap-4 overflow-hidden">
+      <main class="kr-pane gap-4">
         <div
           class="flex shrink-0 flex-wrap gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
         >
@@ -197,7 +197,7 @@
           </button>
         </div>
 
-        <section class="min-h-0 flex-1 overflow-y-auto">
+        <section class="kr-pane-scroll">
           <article
             v-if="activeMode === 'chat'"
             class="rounded-2xl border border-base-300 bg-base-100 p-4"

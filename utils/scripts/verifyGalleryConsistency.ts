@@ -132,7 +132,7 @@ for (const file of CARD_FILES) {
   const hardcoded = code.match(/\bvariant="(card|hero|icon)"/)
   if (hardcoded) {
     fail(
-      `${file}: hardcodes ${hardcoded[0]} on kr-entity-card-body, so a gallery ` +
+      `${file}: hardcodes ${hardcoded?.[0] ?? 'a literal variant'} on kr-entity-card-body, so a gallery ` +
         'mode switch cannot reach the art. Take a `variant?: ArtVariant` prop ' +
         "(default 'card') and bind it, as dream-card and scenario-card do.",
     )

@@ -135,6 +135,93 @@
       </aside>
     </div>
 
+    <div
+      v-if="hasCarousel"
+      class="group relative mt-3 min-h-40 overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5"
+      @mouseenter="carouselPaused = true"
+      @mouseleave="carouselPaused = false"
+    >
+      <Transition name="entity-carousel-fade">
+        <img
+          :key="activeCarouselSlide.src"
+          :src="activeCarouselSlide.src"
+          :alt="activeCarouselSlide.label"
+          class="absolute inset-0 size-full object-cover"
+        />
+      </Transition>
+      <div
+        class="absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 bg-linear-to-b from-base-300/90 to-transparent p-2"
+      >
+        <Icon name="kind-icon:image" class="size-3.5 text-secondary" />
+        <span
+          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+        >
+          Artwork &amp; collection
+        </span>
+        <span
+          v-if="collectionSlides.length"
+          class="badge badge-secondary badge-xs"
+        >
+          {{ collectionSlides.length }} collection
+        </span>
+        <span class="ml-auto text-xs text-base-content/50">
+          {{ carouselIndex + 1 }} / {{ carouselSlides.length }}
+        </span>
+      </div>
+      <div
+        class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/90 to-transparent p-2 pt-8"
+      >
+        <span
+          class="badge badge-sm border-0 bg-base-100/85 font-semibold backdrop-blur"
+        >
+          {{ activeCarouselSlide.label }}
+        </span>
+      </div>
+      <template v-if="carouselSlides.length > 1">
+        <button
+          type="button"
+          class="btn btn-circle btn-sm absolute left-2 top-1/2 -translate-y-1/2 border-0 bg-base-100/70 opacity-0 shadow group-hover:opacity-100"
+          aria-label="Previous image"
+          @click="stepCarousel(-1)"
+        >
+          <Icon name="kind-icon:chevron-left" class="size-4" />
+        </button>
+        <button
+          type="button"
+          class="btn btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 border-0 bg-base-100/70 opacity-0 shadow group-hover:opacity-100"
+          aria-label="Next image"
+          @click="stepCarousel(1)"
+        >
+          <Icon name="kind-icon:chevron-right" class="size-4" />
+        </button>
+      </template>
+    </div>
+    <div
+      v-if="hasCarousel && carouselSlides.length > 1"
+      class="mt-2 flex flex-wrap justify-center gap-1.5"
+    >
+      <button
+        v-for="(slide, index) in carouselSlides"
+        :key="slide.src"
+        type="button"
+        class="relative size-10 overflow-hidden rounded-lg border transition-all"
+        :class="
+          index === carouselIndex
+            ? 'border-primary ring-2 ring-primary/40'
+            : 'border-base-300 opacity-60 hover:opacity-100'
+        "
+        :aria-label="`Show ${slide.label}`"
+        :title="slide.label"
+        @click="selectCarouselSlide(index)"
+      >
+        <img
+          :src="slide.src"
+          :alt="slide.label"
+          class="size-full object-cover"
+        />
+      </button>
+    </div>
+
     <form
       v-if="showGenerate"
       class="mt-3 space-y-3 rounded-xl border border-secondary/30 bg-secondary/5 p-3"
@@ -444,6 +531,8 @@ type GenerationPreset = {
   originalWeight?: number
   steps?: number
 }
+type CollectionSlide = { src: string; label: string }
+type CarouselSlide = { src: string; label: string; field?: string }
 
 const props = withDefaults(
   defineProps<{
@@ -451,9 +540,16 @@ const props = withDefaults(
     entity: EntityRecord
     slots: EntityArtSlot[]
     canEdit?: boolean
+    /**
+     * Extra read-only slides (e.g. a linked ArtCollection) to autoplay
+     * alongside this entity's own Hero/Card/Icon art. Omit to keep the
+     * plain single-image + history layout every other entity type uses.
+     */
+    collectionSlides?: CollectionSlide[]
   }>(),
   {
     canEdit: false,
+    collectionSlides: () => [],
   },
 )
 
@@ -485,6 +581,11 @@ let pollTimer: ReturnType<typeof setTimeout> | null = null
 let activeJobId: number | null = null
 let stopped = false
 
+const hasCarousel = computed(() => props.collectionSlides.length > 0)
+const carouselIndex = ref(0)
+const carouselPaused = ref(false)
+let carouselTimer: ReturnType<typeof setInterval> | null = null
+
 const entityLabel = computed(() =>
   props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1),
 )
@@ -507,17 +608,15 @@ const selectedSlot = computed(() => {
     height: configured?.height || 1024,
   }
 })
-const currentSrc = computed(() => {
-  const direct = normalizeSrc(props.entity[selectedSlot.value.field])
+function slotSrc(field: string): string {
+  const direct = normalizeSrc(props.entity[field])
   if (direct) return direct
-  if (
-    props.entity.artImageId &&
-    ['imagePath', 'avatarImage'].includes(selectedSlot.value.field)
-  ) {
+  if (props.entity.artImageId && ['imagePath', 'avatarImage'].includes(field)) {
     return `/api/art/images/${props.entity.artImageId}/file`
   }
   return ''
-})
+}
+const currentSrc = computed(() => slotSrc(selectedSlot.value.field))
 const filteredHistory = computed(() =>
   history.value.filter(
     (item) => !item.field || item.field === selectedField.value,
@@ -616,6 +715,39 @@ function normalizeSrc(value: unknown): string {
 
 function historySrc(item: HistoryItem): string {
   return normalizeSrc(item.imagePath || item.path) || `/api/art/images/${item.id}/file`
+}
+
+const carouselSlides = computed<CarouselSlide[]>(() => {
+  const out: CarouselSlide[] = []
+  const seen = new Set<string>()
+  const push = (src: string, label: string, field?: string) => {
+    if (!src || seen.has(src)) return
+    seen.add(src)
+    out.push({ src, label, field })
+  }
+  for (const slot of props.slots) push(slotSrc(slot.field), slot.label, slot.field)
+  for (const slide of props.collectionSlides) {
+    push(normalizeSrc(slide.src), slide.label)
+  }
+  return out
+})
+const activeCarouselSlide = computed<CarouselSlide>(
+  () =>
+    carouselSlides.value[carouselIndex.value] ??
+    carouselSlides.value[0] ?? { src: '', label: '' },
+)
+
+function stepCarousel(direction: number) {
+  const count = carouselSlides.value.length
+  if (count) {
+    carouselIndex.value = (carouselIndex.value + direction + count) % count
+  }
+}
+
+function selectCarouselSlide(index: number) {
+  carouselIndex.value = index
+  const field = carouselSlides.value[index]?.field
+  if (field) selectSlot(field)
 }
 
 function selectSlot(field: string) {
@@ -861,6 +993,7 @@ watch(
     selectedField.value = props.slots[0]?.field || 'imagePath'
     currentFailed.value = false
     history.value = []
+    carouselIndex.value = 0
     closeForms()
     try {
       await fetchEntityArt(true)
@@ -870,7 +1003,20 @@ watch(
 watch(selectedField, () => {
   currentFailed.value = false
 })
+watch(carouselSlides, (next) => {
+  if (carouselIndex.value >= next.length) carouselIndex.value = 0
+})
 onMounted(async () => {
+  carouselTimer = setInterval(() => {
+    if (
+      !carouselPaused.value &&
+      !showGenerate.value &&
+      !showUpload.value &&
+      carouselSlides.value.length > 1
+    ) {
+      stepCarousel(1)
+    }
+  }, 6000)
   try {
     await fetchEntityArt()
   } catch {}
@@ -878,5 +1024,17 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   stopped = true
   if (pollTimer) clearTimeout(pollTimer)
+  if (carouselTimer) clearInterval(carouselTimer)
 })
 </script>
+
+<style scoped>
+.entity-carousel-fade-enter-active,
+.entity-carousel-fade-leave-active {
+  transition: opacity 400ms ease;
+}
+.entity-carousel-fade-enter-from,
+.entity-carousel-fade-leave-to {
+  opacity: 0;
+}
+</style>

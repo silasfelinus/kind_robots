@@ -41,23 +41,40 @@ function positiveInteger(value: unknown): number | undefined {
   return Number.isInteger(number) && number > 0 ? number : undefined
 }
 
+// entity-art-manager.vue is the one canonical artwork component for every
+// entity type (interface-vision/t-026 deleted the bespoke Project-only
+// conductor-art-gallery.vue). Its `entityType` prop is the reliable signal
+// that a given generation form belongs to a Project -- the shared textarea
+// itself carries no Project-specific markup to key off anymore.
+function projectEntityTypeMatches(element: HTMLElement): boolean {
+  let instance: VueInstanceLike | null | undefined =
+    (element as VueElement).__vueParentComponent
+
+  while (instance) {
+    if (instance.props?.entityType === 'project') return true
+    instance = instance.parent
+  }
+
+  return false
+}
+
 function projectContextFromVue(element: HTMLElement): ProjectContext | null {
   let instance: VueInstanceLike | null | undefined =
     (element as VueElement).__vueParentComponent
 
   while (instance) {
     const props = instance.props ?? {}
-    const slug = cleanString(props.slug)
-    const id = positiveInteger(props.projectId)
-    const isProjectGallery =
-      slug &&
-      ('heroPath' in props || 'cardPath' in props || 'iconPath' in props)
+    if (props.entityType === 'project') {
+      const entity = (props.entity ?? {}) as Record<string, unknown>
+      const id = positiveInteger(entity.id)
+      const slug = cleanString(entity.slug ?? entity.conductorSlug)
+      if (!slug) return null
 
-    if (isProjectGallery) {
       return {
         ...(id ? { id } : {}),
         slug,
         title:
+          cleanString(entity.title) ||
           cleanString(document.querySelector('h1')?.textContent) ||
           cleanString(document.title) ||
           slug,
@@ -115,15 +132,6 @@ function selectedField(form: HTMLFormElement): ProjectArtField {
   return value === 'imagePath' || value === 'heroPath' ? value : 'cardPath'
 }
 
-function hasProjectTarget(form: HTMLFormElement): boolean {
-  return Array.from(form.querySelectorAll<HTMLSelectElement>('select')).some(
-    (select) =>
-      ['imagePath', 'cardPath', 'heroPath'].every((field) =>
-        Array.from(select.options).some((option) => option.value === field),
-      ),
-  )
-}
-
 function currentImageSource(form: HTMLFormElement): string | undefined {
   const image = form.closest('section')?.querySelector<HTMLImageElement>('img')
   return cleanString(image?.currentSrc || image?.src) || undefined
@@ -143,7 +151,7 @@ function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
 function addSuggestButton(textarea: HTMLTextAreaElement): void {
   if (attached.has(textarea)) return
   const form = textarea.closest<HTMLFormElement>('form')
-  if (!form || !hasProjectTarget(form)) return
+  if (!form || !projectEntityTypeMatches(textarea)) return
 
   attached.add(textarea)
   const button = document.createElement('button')
@@ -225,7 +233,7 @@ function addSuggestButton(textarea: HTMLTextAreaElement): void {
 
 function scan(root: ParentNode = document): void {
   for (const textarea of root.querySelectorAll<HTMLTextAreaElement>(
-    'textarea[maxlength="4000"]',
+    'textarea[maxlength="5000"]',
   )) {
     addSuggestButton(textarea)
   }
@@ -238,7 +246,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       for (const record of records) {
         for (const node of record.addedNodes) {
           if (!(node instanceof Element)) continue
-          if (node.matches('textarea[maxlength="4000"]')) {
+          if (node.matches('textarea[maxlength="5000"]')) {
             addSuggestButton(node as HTMLTextAreaElement)
           }
           scan(node)

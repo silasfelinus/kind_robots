@@ -10,6 +10,11 @@ on:
       - 'components/scenarios/scenario-interact.vue'
       - 'components/rewards/reward-interact.vue'
       - 'components/facets/facet-manager.vue'
+      - 'components/dreams/daily-digest-object-gallery.vue'
+      - 'components/dreams/daily-digest-object-dialog.vue'
+      - 'components/dreams/daily-dream-object-art-workbench.vue'
+      - 'stores/dailyDreamArchiveStore.ts'
+      - 'server/api/dreams/daily-archive.get.ts'
       - 'plugins/entity-art-prompt-suggest.client.ts'
       - 'plugins/project-art-prompt-suggest.client.ts'
       - 'stores/helpers/artAssetSuggest.ts'
@@ -22,6 +27,7 @@ on:
       - 'server/utils/entityArt.ts'
       - 'utils/scripts/verifyArtQueueClaimFastPath.ts'
       - 'utils/scripts/verifyEntityArtManager.ts'
+      - 'utils/scripts/verifyDailyDreamArchiveWorkbench.ts'
       - 'utils/scripts/verifyEntityArtPromptSuggest.ts'
       - 'utils/scripts/verifyProjectArtPromptSuggest.ts'
       - '.github/workflows/entity-art-manager-contract.yml'
@@ -42,5 +48,6 @@ jobs:
       - run: npx prisma generate
       - run: npx tsx utils/scripts/verifyArtQueueClaimFastPath.ts
       - run: npx tsx utils/scripts/verifyEntityArtManager.ts
+      - run: npx tsx utils/scripts/verifyDailyDreamArchiveWorkbench.ts
       - run: npx tsx utils/scripts/verifyEntityArtPromptSuggest.ts
       - run: npx tsx utils/scripts/verifyProjectArtPromptSuggest.ts

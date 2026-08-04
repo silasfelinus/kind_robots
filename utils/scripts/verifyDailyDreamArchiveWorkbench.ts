@@ -13,6 +13,7 @@ function expectContains(path: string, needles: string[]): void {
   }
 }
 
+// Keep the bundle in one responsive row: scroll below lg, six columns from lg onward.
 expectContains('components/dreams/daily-digest-object-gallery.vue', [
   '<daily-digest-object-dialog',
   'Open details',

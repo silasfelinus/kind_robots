@@ -43,14 +43,19 @@
              must remain overflow-visible so the channel dropdown can escape. -->
         <div
           v-if="resolvedTabs.length"
+          ref="tabViewport"
           class="flex min-w-0 flex-1 items-stretch overflow-hidden rounded-r-xl border-l border-base-300"
         >
           <button
-            v-show="canScrollTabsLeft"
+            v-if="hasTabOverflow"
             type="button"
             class="tab-scroll-button flex w-8 shrink-0 items-center justify-center border-r border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
-            aria-label="Scroll channel tabs left"
-            title="Scroll channel tabs left"
+            :class="canScrollTabsLeft ? '' : 'invisible pointer-events-none'"
+            :disabled="!canScrollTabsLeft"
+            :aria-hidden="!canScrollTabsLeft"
+            :tabindex="canScrollTabsLeft ? 0 : -1"
+            aria-label="Show previous channel tabs"
+            title="Show previous channel tabs"
             aria-controls="channel-tab-strip"
             @click="scrollTabs(-1)"
           >
@@ -60,20 +65,22 @@
           <nav
             id="channel-tab-strip"
             ref="tabStrip"
-            class="tab-strip flex min-w-0 flex-1 items-stretch gap-1 overflow-x-auto px-1.5 sm:gap-1.5"
+            class="tab-strip flex min-w-0 flex-1 snap-x snap-mandatory items-stretch gap-1 overflow-x-auto px-1.5 sm:gap-1.5"
             aria-label="Channel tabs"
             @scroll.passive="updateTabScrollState"
           >
             <button
-              v-for="tab in resolvedTabs"
+              v-for="(tab, index) in resolvedTabs"
               :key="tab.tabKey"
               type="button"
-              class="relative my-1 flex shrink-0 items-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
+              class="tab-button relative my-1 flex min-w-0 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
               :class="
                 tab.tabKey === activeTabKey
                   ? 'border-primary bg-primary text-primary-content shadow-sm'
                   : 'border-base-300 bg-base-100 text-base-content/70 hover:border-base-content/30 hover:bg-base-200 hover:text-base-content'
               "
+              :data-tab-index="index"
+              :style="{ flexBasis: tabButtonBasis }"
               :aria-current="tab.tabKey === activeTabKey ? 'page' : undefined"
               :title="tab.tooltip || tab.title || tab.label"
               @click="goToTab(tab)"
@@ -82,16 +89,20 @@
                 :name="tab.icon || fallbackIcon"
                 class="h-3.5 w-3.5 shrink-0 xl:h-4 xl:w-4"
               />
-              <span class="max-w-28 truncate xl:max-w-40">{{ tab.label }}</span>
+              <span class="min-w-0 truncate text-center">{{ tab.label }}</span>
             </button>
           </nav>
 
           <button
-            v-show="canScrollTabsRight"
+            v-if="hasTabOverflow"
             type="button"
             class="tab-scroll-button flex w-8 shrink-0 items-center justify-center border-l border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
-            aria-label="Scroll channel tabs right"
-            title="Scroll channel tabs right"
+            :class="canScrollTabsRight ? '' : 'invisible pointer-events-none'"
+            :disabled="!canScrollTabsRight"
+            :aria-hidden="!canScrollTabsRight"
+            :tabindex="canScrollTabsRight ? 0 : -1"
+            aria-label="Show next channel tabs"
+            title="Show next channel tabs"
             aria-controls="channel-tab-strip"
             @click="scrollTabs(1)"
           >
@@ -184,11 +195,14 @@ const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
+const tabViewport = ref<HTMLElement | null>(null)
 const tabStrip = ref<HTMLElement | null>(null)
+const visibleTabCount = ref(1)
+const tabGapPx = ref(4)
 const canScrollTabsLeft = ref(false)
 const canScrollTabsRight = ref(false)
-let tabStripResizeObserver: ResizeObserver | null = null
-let observedTabStrip: HTMLElement | null = null
+let tabViewportResizeObserver: ResizeObserver | null = null
+let observedTabViewport: HTMLElement | null = null
 
 await channelContentStore.initialize()
 
@@ -202,6 +216,15 @@ const requestedTabKey = computed(() => {
 
 const resolvedChannel = computed(() => pageStore.resolvedChannel)
 const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
+const hasTabOverflow = computed(
+  () => resolvedTabs.value.length > visibleTabCount.value,
+)
+const tabButtonBasis = computed(() => {
+  const count = Math.max(1, visibleTabCount.value)
+  const gapShare = (tabGapPx.value * (count - 1)) / count
+
+  return `calc(${100 / count}% - ${gapShare}px)`
+})
 
 // The room label this fed ("CREATIVE WORLDS") sat above the page title in the
 // old title section. The channel name in channel-select says the same thing one
@@ -283,9 +306,148 @@ const activeTitle = computed(
     pageStore.title,
 )
 
+function tabLayoutMetrics(): {
+  minimumTabWidth: number
+  gap: number
+  arrowWidth: number
+} {
+  const viewportWidth = window.innerWidth
+
+  if (viewportWidth >= 1280) {
+    return { minimumTabWidth: 128, gap: 6, arrowWidth: 40 }
+  }
+
+  if (viewportWidth >= 640) {
+    return { minimumTabWidth: 112, gap: 6, arrowWidth: 36 }
+  }
+
+  return { minimumTabWidth: 96, gap: 4, arrowWidth: 32 }
+}
+
+function tabCapacity(
+  viewportWidth: number,
+  reserveArrows: boolean,
+  metrics: ReturnType<typeof tabLayoutMetrics>,
+): number {
+  const { minimumTabWidth, gap, arrowWidth } = metrics
+  const stripPadding = 12
+  const arrowSpace = reserveArrows ? arrowWidth * 2 : 0
+  const availableWidth = Math.max(0, viewportWidth - stripPadding - arrowSpace)
+
+  return Math.max(
+    1,
+    Math.floor((availableWidth + gap) / (minimumTabWidth + gap)),
+  )
+}
+
+function updateVisibleTabCount(): boolean {
+  const viewport = tabViewport.value
+  const tabCount = resolvedTabs.value.length
+
+  if (!viewport || tabCount === 0) {
+    const changed = visibleTabCount.value !== 1
+    visibleTabCount.value = 1
+    return changed
+  }
+
+  const metrics = tabLayoutMetrics()
+  const allTabsFit =
+    tabCapacity(viewport.clientWidth, false, metrics) >= tabCount
+  const nextCount = allTabsFit
+    ? tabCount
+    : Math.min(tabCount, tabCapacity(viewport.clientWidth, true, metrics))
+  const changed = visibleTabCount.value !== nextCount
+
+  tabGapPx.value = metrics.gap
+  visibleTabCount.value = nextCount
+  return changed
+}
+
+function tabButtons(): HTMLElement[] {
+  return Array.from(
+    tabStrip.value?.querySelectorAll<HTMLElement>('[data-tab-index]') ?? [],
+  )
+}
+
+function tabOffset(button: HTMLElement, firstButton: HTMLElement): number {
+  return button.offsetLeft - firstButton.offsetLeft
+}
+
+function currentTabStartIndex(): number {
+  const strip = tabStrip.value
+  const buttons = tabButtons()
+  const firstButton = buttons[0]
+
+  if (!strip || !firstButton) return 0
+
+  let closestIndex = 0
+  let closestDistance = Number.POSITIVE_INFINITY
+
+  buttons.forEach((button, index) => {
+    const distance = Math.abs(
+      tabOffset(button, firstButton) - strip.scrollLeft,
+    )
+
+    if (distance < closestDistance) {
+      closestIndex = index
+      closestDistance = distance
+    }
+  })
+
+  return closestIndex
+}
+
+function scrollToTabIndex(
+  requestedIndex: number,
+  behavior: ScrollBehavior,
+): void {
+  const strip = tabStrip.value
+  const buttons = tabButtons()
+  const firstButton = buttons[0]
+
+  if (!strip || !firstButton) return
+
+  const maxStart = Math.max(0, buttons.length - visibleTabCount.value)
+  const index = Math.min(Math.max(requestedIndex, 0), maxStart)
+  const button = buttons[index]
+
+  if (!button) return
+
+  strip.scrollTo({
+    left: tabOffset(button, firstButton),
+    behavior,
+  })
+}
+
+function ensureActiveTabVisible(behavior: ScrollBehavior): void {
+  const activeIndex = resolvedTabs.value.findIndex(
+    (tab) => tab.tabKey === activeTabKey.value,
+  )
+
+  if (activeIndex < 0) {
+    scrollToTabIndex(0, behavior)
+    return
+  }
+
+  const currentStart = currentTabStartIndex()
+  const currentEnd = currentStart + visibleTabCount.value - 1
+
+  if (activeIndex < currentStart) {
+    scrollToTabIndex(activeIndex, behavior)
+    return
+  }
+
+  if (activeIndex > currentEnd) {
+    scrollToTabIndex(activeIndex - visibleTabCount.value + 1, behavior)
+    return
+  }
+
+  scrollToTabIndex(currentStart, behavior)
+}
+
 function updateTabScrollState(): void {
   const strip = tabStrip.value
-  if (!strip) {
+  if (!strip || !hasTabOverflow.value) {
     canScrollTabsLeft.value = false
     canScrollTabsRight.value = false
     return
@@ -297,33 +459,33 @@ function updateTabScrollState(): void {
   canScrollTabsRight.value = strip.scrollLeft < maxScrollLeft - tolerance
 }
 
-function observeTabStrip(): void {
-  const strip = tabStrip.value
-  if (strip === observedTabStrip) return
+function observeTabViewport(): void {
+  const viewport = tabViewport.value
+  if (viewport === observedTabViewport) return
 
-  tabStripResizeObserver?.disconnect()
-  tabStripResizeObserver = null
-  observedTabStrip = strip
+  tabViewportResizeObserver?.disconnect()
+  tabViewportResizeObserver = null
+  observedTabViewport = viewport
 
-  if (!strip || typeof ResizeObserver === 'undefined') return
+  if (!viewport || typeof ResizeObserver === 'undefined') return
 
-  tabStripResizeObserver = new ResizeObserver(updateTabScrollState)
-  tabStripResizeObserver.observe(strip)
+  tabViewportResizeObserver = new ResizeObserver(() => {
+    void syncTabStrip('auto')
+  })
+  tabViewportResizeObserver.observe(viewport)
 }
 
-async function syncTabStrip(): Promise<void> {
+async function syncTabStrip(
+  behavior: ScrollBehavior = 'smooth',
+): Promise<void> {
   await nextTick()
-  observeTabStrip()
+  observeTabViewport()
 
-  const strip = tabStrip.value
-  if (!strip) {
-    updateTabScrollState()
-    return
+  if (updateVisibleTabCount()) {
+    await nextTick()
   }
 
-  strip
-    .querySelector<HTMLElement>('[aria-current="page"]')
-    ?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+  ensureActiveTabVisible(behavior)
 
   if (typeof requestAnimationFrame === 'function') {
     requestAnimationFrame(updateTabScrollState)
@@ -333,13 +495,11 @@ async function syncTabStrip(): Promise<void> {
 }
 
 function scrollTabs(direction: -1 | 1): void {
-  const strip = tabStrip.value
-  if (!strip) return
-
-  strip.scrollBy({
-    left: direction * Math.max(strip.clientWidth * 0.75, 160),
-    behavior: 'smooth',
-  })
+  const currentStart = currentTabStartIndex()
+  scrollToTabIndex(
+    currentStart + direction * visibleTabCount.value,
+    'smooth',
+  )
 }
 
 /**
@@ -382,19 +542,19 @@ watch(
     `${resolvedTabs.value.map((tab) => tab.tabKey).join('|')}::${activeTabKey.value}`,
   () => {
     if (!import.meta.client) return
-    void syncTabStrip()
+    void syncTabStrip('smooth')
   },
 )
 
 onMounted(() => {
   maturityPreferenceStore.initialize()
-  void syncTabStrip()
+  void syncTabStrip('auto')
 })
 
 onBeforeUnmount(() => {
-  tabStripResizeObserver?.disconnect()
-  tabStripResizeObserver = null
-  observedTabStrip = null
+  tabViewportResizeObserver?.disconnect()
+  tabViewportResizeObserver = null
+  observedTabViewport = null
 })
 
 function goBack(): void {
@@ -468,6 +628,15 @@ function goBack(): void {
 .tab-strip {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  scroll-padding-inline: 0.375rem;
+  overscroll-behavior-inline: contain;
+}
+
+.tab-button {
+  flex-grow: 0;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .tab-strip::-webkit-scrollbar {

@@ -178,6 +178,8 @@
             />
           </label>
 
+          <dashboard-maturity-preference />
+
           <label class="flex items-center justify-between gap-4 py-3">
             <span>
               <span class="block font-semibold"

@@ -4,7 +4,6 @@
   "violations": {
     "one-header": [],
     "one-scroll": [
-      "components/butterfly/butterfly-sanctuary.vue",
       "components/stages/stage-manager.vue",
       "components/wonderlab/mural-manager.vue"
     ],

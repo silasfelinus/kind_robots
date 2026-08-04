@@ -71,7 +71,7 @@
     >
       <aside
         v-show="mobilePanel === 'roster'"
-        class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-base-100 p-3"
+        class="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden bg-base-100 p-3"
       >
         <div class="shrink-0 rounded-xl border border-base-300 bg-base-200 p-3">
           <div
@@ -279,7 +279,7 @@
       class="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[17rem_1fr] xl:grid-cols-[18rem_1fr]"
     >
       <aside
-        class="flex min-h-0 flex-col gap-2 overflow-y-auto border-r border-base-300 bg-base-100 p-3"
+        class="flex min-h-0 flex-col gap-2 overflow-hidden border-r border-base-300 bg-base-100 p-3"
       >
         <div class="shrink-0 rounded-xl border border-base-300 bg-base-200 p-3">
           <div

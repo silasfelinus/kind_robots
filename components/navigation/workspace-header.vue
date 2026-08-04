@@ -26,25 +26,33 @@
            channel selector doesn't drop awkwardly below the current tab
            title." Nothing is lost by dropping the old title: the active tab's
            own label WAS the title, and it is now something you can act on. -->
+      <!-- NO `overflow-hidden` on this shell, however much it wants it for the
+           seamless rounded join. channel-select's daisyUI dropdown menu is
+           absolutely positioned INSIDE here and is ~318px tall; this shell is
+           40px. Clipping it removed the channel list entirely — painted away
+           and un-hittable, so elementFromPoint at a menu row returned the page
+           <h1> behind it. Silas, 2026-08-04: "I can't actually select the
+           channel option anymore." The children round their own outer corners
+           instead. -->
       <div
-        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
+        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
         <channel-select seamless class="shrink-0" />
 
         <nav
           v-if="resolvedTabs.length"
-          class="tab-strip flex min-w-0 flex-1 items-stretch gap-0.5 overflow-x-auto border-l border-base-300 px-1"
+          class="tab-strip flex min-w-0 flex-1 items-stretch gap-1 overflow-x-auto rounded-r-xl border-l border-base-300 px-1.5 sm:gap-1.5"
           aria-label="Channel tabs"
         >
           <button
             v-for="tab in resolvedTabs"
             :key="tab.tabKey"
             type="button"
-            class="relative my-1 flex shrink-0 items-center gap-1.5 rounded-lg px-2 text-xs font-black transition xl:text-sm"
+            class="relative my-1 flex shrink-0 items-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
             :class="
               tab.tabKey === activeTabKey
-                ? 'bg-primary text-primary-content shadow-sm'
-                : 'text-base-content/60 hover:bg-base-200 hover:text-base-content'
+                ? 'border-primary bg-primary text-primary-content shadow-sm'
+                : 'border-base-300 bg-base-100 text-base-content/70 hover:border-base-content/30 hover:bg-base-200 hover:text-base-content'
             "
             :aria-current="tab.tabKey === activeTabKey ? 'page' : undefined"
             :title="tab.tooltip || tab.title || tab.label"

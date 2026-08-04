@@ -3,7 +3,7 @@ contentType: tab
 channelKey: sanctuary
 tabKey: cart
 dashboardKey: giftshop
-dashboardTab: cart
+dashboardTab: giftshop
 label: Cart
 title: Your Cart
 subtitle: Review items and continue to Stripe

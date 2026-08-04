@@ -272,11 +272,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     skipReason:
       'This item editor resolves a live model-builder record by item ID and coordinates editing, validation, and persistence. It should be tested inside the Model Builder workspace with disposable records.',
   },
-  'conductor-art-gallery': {
-    title: 'Conductor Art Gallery Page',
-    skipReason:
-      'This page-level gallery resolves project art and collections by Conductor slug. It should be verified through a project route with real project context rather than mounted recursively as a component exhibit.',
-  },
   'conductor-project-chat': {
     title: 'Conductor Project Chat Page',
     skipReason:

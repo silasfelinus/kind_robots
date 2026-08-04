@@ -13,23 +13,24 @@ function expectContains(path: string, needles: string[]): void {
   }
 }
 
-expectContains('components/conductor/conductor-art-gallery.vue', [
-  'maxlength="4000"',
-  'generationPrompt',
-  'imagePath',
-  'cardPath',
-  'heroPath',
-  'generationTargetUrl',
+// interface-vision/t-026 deleted conductor-art-gallery.vue: Project's
+// generation form is now entity-art-manager.vue's shared form (maxlength
+// 5000, no bespoke DOM markup), so the plugin below keys off the component's
+// `entityType` prop instead of Project-specific DOM shape.
+expectContains('components/art/entity-art-manager.vue', [
+  'maxlength="5000"',
+  'entityType: props.entityType',
 ])
 
 expectContains('plugins/project-art-prompt-suggest.client.ts', [
   'suggestArtAssetPrompt',
   "modelType: 'project'",
   'projectContextFromVue',
+  "instance.props?.entityType === 'project'",
   'projectSlugFromTarget',
   "value.includes('/projects/images/')",
-  'hasProjectTarget(form)',
-  'textarea[maxlength="4000"]',
+  'projectEntityTypeMatches(textarea)',
+  'textarea[maxlength="5000"]',
   "imagePath: { label: 'Icon', variant: 'icon', width: 256, height: 256 }",
   "cardPath: { label: 'Card', variant: 'card', width: 512, height: 768 }",
   "heroPath: { label: 'Hero', variant: 'hero', width: 1280, height: 720 }",

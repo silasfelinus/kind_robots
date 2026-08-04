@@ -41,7 +41,6 @@ for (const key of [
   'dream-sheet-toolbar',
   'model-builder-batch-editor',
   'model-builder-item-panel',
-  'conductor-art-gallery',
   'conductor-project-chat',
   'chat-card',
 ] as const) {

@@ -41,24 +41,32 @@ expectContains('server/utils/entityArt.ts', [
   'entityArtHistoryPrefix',
 ])
 
-expectContains('components/conductor/conductor-art-gallery.vue', [
-  "'/api/art/enqueue'",
-  "entityType: 'project'",
-  'queued as ArtJob',
-  'startPolling(jobId)',
-  'const PROJECT_ART_STATUS_POLL_MS = 2_000',
-  'setTimeout(poll, PROJECT_ART_STATUS_POLL_MS)',
-  '/api/art/entities/project/${projectId}/replace',
+// interface-vision/t-026: conductor-art-gallery.vue's bespoke Project carousel
+// was deleted in favor of this one canonical component. Project now adopts it
+// directly (entity-type="project") with an extra collection-carousel panel
+// that only mounts when a caller passes collectionSlides.
+expectContains('components/art/entity-art-manager.vue', [
+  'Queued as ArtJob',
+  'startPolling(activeJobId)',
+  '`/api/art/entities/${props.entityType}/${props.entity.id}/replace`',
+  'collectionSlides',
+  'hasCarousel',
+  'carouselSlides',
 ])
 
-const projectGallerySource = read('components/conductor/conductor-art-gallery.vue')
+expectContains('components/pages/conductor-page.vue', [
+  'entity-type="project"',
+  ':collection-slides="projectCollectionSlides"',
+])
+
+const entityArtManagerSource = read('components/art/entity-art-manager.vue')
 for (const obsolete of [
   "'/api/conductor/art-request'",
   '/art/prepare-generation',
   '/api/projects/${projectId}/art/replace',
 ]) {
-  if (projectGallerySource.includes(obsolete)) {
-    throw new Error(`Project gallery still uses obsolete queue path: ${obsolete}`)
+  if (entityArtManagerSource.includes(obsolete)) {
+    throw new Error(`Entity art manager still uses obsolete queue path: ${obsolete}`)
   }
 }
 

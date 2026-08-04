@@ -871,11 +871,34 @@
                 <strong>{{ selectedProject.slug }}</strong>
               </div>
 
-              <ConductorArtGallery
-                :slug="selectedProject.slug"
-                :hero-path="projectHeroPath(selectedProject.slug)"
-                :card-path="projectCardPath(selectedProject.slug)"
-                :icon-path="projectIconPath(selectedProject.slug)"
+              <EntityArtManager
+                v-if="linkedProject"
+                entity-type="project"
+                :entity="linkedProject"
+                :collection-slides="projectCollectionSlides"
+                :slots="[
+                  {
+                    field: 'heroPath',
+                    label: 'Hero',
+                    aspect: '16 / 9',
+                    width: 1280,
+                    height: 720,
+                  },
+                  {
+                    field: 'cardPath',
+                    label: 'Card',
+                    aspect: '2 / 3',
+                    width: 512,
+                    height: 768,
+                  },
+                  {
+                    field: 'imagePath',
+                    label: 'Icon',
+                    aspect: '1 / 1',
+                    width: 256,
+                    height: 256,
+                  },
+                ]"
               />
             </div>
 
@@ -1358,6 +1381,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useTodoStore } from '@/stores/todoStore'
 import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 import {
   getProjectPlacement,
   placementLiveUrl,
@@ -1368,7 +1392,7 @@ import {
   IS_GALLERY_MODE,
   type GalleryMode,
 } from '@/utils/galleryVocabulary'
-import ConductorArtGallery from '@/components/conductor/conductor-art-gallery.vue'
+import EntityArtManager from '@/components/art/entity-art-manager.vue'
 import ConductorProjectChat from '@/components/conductor/conductor-project-chat.vue'
 import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
@@ -1394,6 +1418,7 @@ const projectStore = useProjectStore()
 const pageStore = usePageStore()
 const todoStore = useTodoStore()
 const conductorStore = useConductorStore()
+const collectionStore = useCollectionStore()
 
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
@@ -1565,6 +1590,29 @@ const linkedProject = computed(() =>
     ? projectRecordForSlug(selectedProject.value.slug)
     : null,
 )
+
+const matchedProjectCollection = computed(() => {
+  if (!selectedProject.value) return null
+  void collectionStore.collections
+  return collectionStore.findCollectionBySlug?.(selectedProject.value.slug) ?? null
+})
+
+const projectCollectionSlides = computed(() => {
+  if (!matchedProjectCollection.value) return []
+  const images =
+    collectionStore.getCollectionImages?.(matchedProjectCollection.value.id) ??
+    []
+  return images
+    .map((image, index) => ({
+      src:
+        image.imagePath ||
+        (image as { path?: string | null }).path ||
+        image.fileName ||
+        '',
+      label: `Collection ${index + 1}`,
+    }))
+    .filter((slide) => Boolean(slide.src))
+})
 
 // Compact project state handed to the Project Assistant as system context.
 const projectContextText = computed(() => {
@@ -1802,6 +1850,7 @@ onMounted(() => {
   const saved = localStorage.getItem('conductor-gallery-mode')
   if (saved && IS_GALLERY_MODE(saved)) projectGalleryMode.value = saved
   if (!projectStore.loaded) projectStore.fetchProjects()
+  void collectionStore.fetchCollections()
 })
 
 watch(projectGalleryMode, (mode) => {

@@ -15,9 +15,9 @@
 
       <p class="mx-auto mt-3 max-w-2xl text-base-content/75">
         Kind Robots supports the
-        <strong>Against Malaria Foundation</strong> — every dollar buys
-        insecticide-treated bed nets that prevent malaria. Donations go straight
-        to AMF; we are not a middleman and never see a cent of it.
+        <strong>Against Malaria Foundation</strong>. The direct fundraiser link
+        sends your donation straight to AMF, with Kind Robots never receiving or
+        processing the money.
       </p>
 
       <a
@@ -55,23 +55,39 @@
         </h2>
 
         <p class="mt-1 text-sm leading-relaxed text-base-content/70">
-          As a convenience, you can add a $1 net donation to your Kind Robots
-          cart alongside anything else you're picking up — it still routes 100%
-          to AMF. The direct link above is the fastest way to give.
+          You can add a $1 AMF-designated donation to a Kind Robots purchase.
+          Stripe collects it with the rest of the cart, and Kind Robots records
+          it separately for AMF remittance. Use the direct link above when you
+          prefer no middleman at all.
         </p>
 
-        <button
-          type="button"
-          class="btn btn-outline btn-sm mt-4 rounded-2xl"
-          :disabled="!donationItem"
-          @click="addDonationToCart"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add $1 net donation to cart
-        </button>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-outline btn-sm rounded-2xl"
+            :disabled="!donationItem"
+            @click="addDonationToCart"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            Add $1 donation to cart
+          </button>
+
+          <button
+            v-if="added || cartStore.hasItems"
+            type="button"
+            class="btn btn-primary btn-sm rounded-2xl"
+            @click="openCart"
+          >
+            <Icon name="kind-icon:cart" class="h-4 w-4" />
+            View cart
+            <span class="badge badge-secondary">
+              {{ cartStore.totalItems }}
+            </span>
+          </button>
+        </div>
 
         <p v-if="added" class="mt-2 text-xs font-semibold text-success">
-          Added — thank you! Check the cart to review.
+          Added. The cart is now available here and in the dashboard header.
         </p>
       </div>
     </div>
@@ -85,13 +101,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cartStore'
 import { cartItems } from '@/stores/seeds/cartItems'
 import { malariaTrivia } from '@/utils/messages/MalariaTrivia'
 import { sponsorPlea } from '@/utils/messages/sponsorPlea'
 
 const cartStore = useCartStore()
+const router = useRouter()
 const added = ref(false)
 
 const donationItem = computed(() =>
@@ -108,6 +126,10 @@ const plea = computed(() => {
   return pool[Math.floor(Math.random() * pool.length)]
 })
 
+onMounted(() => {
+  void cartStore.initialize()
+})
+
 function addDonationToCart() {
   const item = donationItem.value
   if (!item) return
@@ -122,5 +144,9 @@ function addDonationToCart() {
   })
 
   added.value = true
+}
+
+function openCart(): void {
+  void router.push('/cart')
 }
 </script>

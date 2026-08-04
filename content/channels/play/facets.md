@@ -6,11 +6,11 @@ dashboardKey: facets
 dashboardTab: library
 label: Facets
 title: Facets
-subtitle: Browse the reusable flavor of the ecosystem
-description: Explore genres, animals, colors, themes, moods, styles, and settings shared across creative systems.
+subtitle: Browse, create, and refine the ecosystem's vocabulary
+description: Explore or edit genres, animals, colors, themes, moods, styles, settings, and other reusable creative building blocks.
 icon: kind-icon:tag
 route: /facets
 sort: 70
 ---
 
-Browse the reusable creative building blocks shared by dreams, scenarios, art, and characters in one canonical gallery.
+Browse and make the canonical building blocks shared by dreams, scenarios, art, and characters.

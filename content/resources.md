@@ -9,7 +9,7 @@ tooltip: Browse checkpoints, LoRAs, embeddings, and other generation resources.
 dottiTip: Some models arrive with gorgeous previews. Some arrive as a mysterious eight-gigabyte brick.
 amiTip: 'A good catalog helps every image remember where it came from.'
 sort: highlight
-channelKey: build
+channelKey: play
 tabKey: resources
 loadingMessage: Loading resource gallery...
 refreshLabel: Refresh Resources

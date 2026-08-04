@@ -4,16 +4,16 @@ channelKey: play
 label: Play
 title: Play
 room: Creative Worlds
-subtitle: Explore what we have made
-description: Browse and interact with galleries, bots, dreams, facets, characters, rewards, and scenarios.
+subtitle: Make, explore, and play
+description: Create, browse, remix, and interact with art, bots, dreams, facets, characters, rewards, scenarios, and creative tools.
 icon: kind-icon:dice
 route: /dreams
 defaultTab: dreams
-sort: 40
+sort: 30
 loadingMessage: Loading creative worlds...
 refreshLabel: Refresh Play
-dottiTip: Play is for using creations instead of configuring them.
-amiTip: Finally, a channel with fewer forms.
+dottiTip: Play is where creations are made, explored, remixed, and used.
+amiTip: One creative room. Fewer doors. More useful chaos.
 ---
 
-Browse, remix, chat, perform, and play with the creative worlds of Kind Robots.
+Make something new, browse what already exists, remix it, chat with it, and put it into play.

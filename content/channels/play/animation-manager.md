@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: build
+channelKey: play
 tabKey: animation-manager
 dashboardKey: wonder
 dashboardTab: animation-manager
@@ -10,7 +10,7 @@ subtitle: The museum of passive chaos
 description: Browse every Screen FX catalog effect, its build history, and Reaction ratings, then preview, compare, promote, polish, or retire a build.
 icon: kind-icon:trophy
 route: /build/animation-manager
-sort: 120
+sort: 200
 requiredRole: GUEST
 ---
 

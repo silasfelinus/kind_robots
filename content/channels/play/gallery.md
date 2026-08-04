@@ -5,12 +5,12 @@ tabKey: dreams
 dashboardKey: dream
 dashboardTab: dreams
 label: Dreams
-title: Dream Gallery
-subtitle: Browse collaborative worlds
-description: Explore dreams, choose a world, and branch into characters, art, chat, and stories.
+title: Dreams
+subtitle: Browse, create, and expand collaborative worlds
+description: Explore dreams, create or edit a world, and branch into characters, art, chat, and stories.
 icon: kind-icon:moon
 route: /dreams
 sort: 10
 ---
 
-Browse collaborative worlds and choose one to explore, remix, or expand.
+Browse, make, remix, and expand collaborative worlds from one Dream manager.

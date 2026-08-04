@@ -38,26 +38,26 @@ const items: ChannelContentItem[] = [
   },
   {
     contentType: 'channel',
-    channelKey: 'build',
-    label: 'Build',
-    route: '/builder',
-    defaultTab: 'character',
+    channelKey: 'play',
+    label: 'Play',
+    route: '/art',
+    defaultTab: 'gallery',
     sort: 20,
   },
   {
     contentType: 'tab',
-    channelKey: 'build',
-    tabKey: 'character',
-    label: 'Character',
-    route: '/builder',
+    channelKey: 'play',
+    tabKey: 'gallery',
+    label: 'Gallery',
+    route: '/art',
     sort: 10,
   },
   {
     contentType: 'tab',
-    channelKey: 'build',
-    tabKey: 'advanced',
-    label: 'Advanced',
-    route: '/builder',
+    channelKey: 'play',
+    tabKey: 'generate',
+    label: 'Generate',
+    route: '/art',
     sort: 20,
     requiredPermission: 'member',
   },
@@ -166,25 +166,25 @@ const userAchievements = evaluateNavigationRouteAccess(
 )
 assert.equal(userAchievements.allowed, true)
 
-const guestAdvanced = evaluateNavigationRouteAccess(channels, guestChannels, {
-  path: '/builder',
-  tabKey: 'advanced',
+const guestGenerate = evaluateNavigationRouteAccess(channels, guestChannels, {
+  path: '/art',
+  tabKey: 'generate',
 })
-assert.equal(guestAdvanced.allowed, false)
-assert.equal(guestAdvanced.requiredPermission, 'member')
+assert.equal(guestGenerate.allowed, false)
+assert.equal(guestGenerate.requiredPermission, 'member')
 
-const userAdvanced = evaluateNavigationRouteAccess(channels, userChannels, {
-  path: '/builder',
-  tabKey: 'advanced',
+const userGenerate = evaluateNavigationRouteAccess(channels, userChannels, {
+  path: '/art',
+  tabKey: 'generate',
 })
-assert.equal(userAdvanced.allowed, false)
+assert.equal(userGenerate.allowed, false)
 
-const memberAdvanced = evaluateNavigationRouteAccess(
+const memberGenerate = evaluateNavigationRouteAccess(
   channels,
   memberChannels,
-  { path: '/builder', tabKey: 'advanced' },
+  { path: '/art', tabKey: 'generate' },
 )
-assert.equal(memberAdvanced.allowed, true)
+assert.equal(memberGenerate.allowed, true)
 
 const userAdmin = evaluateNavigationRouteAccess(channels, userChannels, {
   path: '/navigation-health',

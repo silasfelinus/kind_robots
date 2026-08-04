@@ -1,0 +1,63 @@
+# Retire WonderLab components — step (b) of the retirement policy.
+#
+# docs/wonderlab-component-retirement-policy.md describes setting a deleted
+# component's row to RETIRED as an admin-UI action, which left the last piece of
+# interface-vision t-074 unfinishable from an agent session: the files were
+# deleted and merged, but the rows still read as "missing" rather than
+# deliberately retired. The database is not reachable from the agent sandbox
+# (TCP to the ProxySQL port is blocked), and it IS reachable from here.
+#
+# workflow_dispatch only. This is a manual maintenance action, never a hook on
+# push or a schedule — nothing should retire a component as a side effect.
+name: Retire WonderLab Components
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report the plan without writing (recommended first)'
+        type: boolean
+        default: true
+
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # ProxySQL enforces TLS; the script's adapter is the same SSL-aware one
+      # server/utils/prisma.ts uses, and reads either form of the CA.
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+    steps:
+      - name: Require the database secret
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "::error::DATABASE_URL secret is not set; nothing to do."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Retire components
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx utils/scripts/retireWonderLabComponents.ts --dry-run
+          else
+            npx tsx utils/scripts/retireWonderLabComponents.ts
+          fi

@@ -55,7 +55,7 @@
             View wallet
           </NuxtLink>
           <NuxtLink
-            to="/subscriptions"
+            to="/giving#monthly-support"
             class="btn btn-sm btn-primary rounded-xl"
             @click="open = false"
           >

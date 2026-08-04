@@ -105,6 +105,7 @@
           :choices="turn.choices"
           :disabled="isStreaming"
           :show-index="false"
+          :selected-key="selectedKey"
           @select="emit('choose', $event, turn)"
         />
 
@@ -117,7 +118,9 @@
       class="whitespace-pre-wrap rounded-2xl rounded-bl-sm border border-dashed border-secondary/40 bg-base-200/40 px-4 py-3 text-sm leading-relaxed"
       aria-hidden="true"
     >
-      <template v-if="visibleStreamingText">{{ visibleStreamingText }}</template>
+      <template v-if="visibleStreamingText">{{
+        visibleStreamingText
+      }}</template>
       <span v-else class="flex items-center gap-2 text-base-content/60">
         <span
           class="loading loading-dots loading-sm motion-reduce:hidden"
@@ -161,6 +164,17 @@ const props = withDefaults(
     /** Apply the 65ch reading measure. On for narration, off for chat chatter. */
     prose?: boolean
     autoScroll?: boolean
+    /**
+     * The choice already picked, forwarded to every turn's embedded
+     * kr-choice-list so it can ring the selection.
+     *
+     * kr-choice-list has always supported this; kr-chat-window just had no way
+     * to say it, so reward-interact (t-087) and scenario-interact (t-088) both
+     * LOST their "highlight the current pick" styling when they migrated onto
+     * the shared kit, and each accepted the regression as a kaizen note. Two
+     * surfaces is enough (t-090). Callers that omit it see no change.
+     */
+    selectedKey?: string | null
   }>(),
   {
     isStreaming: false,
@@ -170,6 +184,7 @@ const props = withDefaults(
     label: 'Conversation',
     prose: true,
     autoScroll: true,
+    selectedKey: null,
   },
 )
 

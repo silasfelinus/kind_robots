@@ -280,6 +280,7 @@
         :streaming-text="streamingStoryText"
         streaming-label="Story goblin thinking..."
         empty-label="The story will appear here once it begins."
+        :selected-key="lastReplyKey"
         @choose="handleReplyChosen"
       />
 
@@ -457,7 +458,17 @@ const streamingStoryText = computed(() => {
   return last?.isStreaming ? last.displayResponse : ''
 })
 
+/*
+ * The choice most recently picked, so kr-chat-window can ring it (t-090).
+ * This surface had that highlight before its migration onto the shared kit and
+ * lost it, because kr-chat-window had no way to forward a selectedKey to the
+ * choice lists it embeds. The key is the display key kr-choice-list emits, not
+ * the recovered path text, since that is what it compares against.
+ */
+const lastReplyKey = ref<string | null>(null)
+
 function handleReplyChosen(choice: NarrativeChoice) {
+  lastReplyKey.value = choice.key
   storyStore.selectReplyOption(choice.hint ?? choice.label)
 }
 

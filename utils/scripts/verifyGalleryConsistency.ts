@@ -24,7 +24,7 @@
 // Every check below is a defect that actually shipped, not a hypothetical.
 
 import { readFile, readdir } from 'node:fs/promises'
-import { join, sep } from 'node:path'
+import { join } from 'node:path'
 
 const failures: string[] = []
 const notes: string[] = []
@@ -263,20 +263,8 @@ if (/shape:\s*'(card|hero|square|wide|plate)'/.test(cardBody)) {
 // dream-gallery hand-rolled its own Cards/Heroes/Icons bar in its toolbar while
 // the other six used kr-gallery's, so the same control lived in two places. A
 // shared shell whose control the caller re-implements is not shared.
-/*
- * KNOWN OFFENDER, listed rather than excluded so it stays visible.
- *
- * conductor-page.vue does not mount kr-gallery at all -- it hand-renders its own
- * per-mode layouts around its own bar, so it is the same disease on a bigger
- * surface than a gallery swap. Fixing it is a real migration, not a line change,
- * and it is not what Silas reported (dreams vs stories). Filed as follow-up;
- * this list must not grow.
- */
-const MODE_BAR_ALLOWED = new Set(['components/pages/conductor-page.vue'])
-
 for await (const file of walk('components')) {
   if (file.includes('kr-gallery.vue')) continue
-  if (MODE_BAR_ALLOWED.has(file.split(sep).join('/'))) continue
   const src = stripComments(await readFile(file, 'utf8'))
   if (!/v-for="mode in/.test(src)) continue
   if (!/GALLERY_MODES|modeOptions/.test(src)) continue

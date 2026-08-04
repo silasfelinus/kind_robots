@@ -71,6 +71,7 @@ export type DreamMinAggregateOutputType = {
   highlightImage: string | null
   icon: string | null
   imagePath: string | null
+  iconPath: string | null
   pitch: string | null
   allowReviews: boolean | null
   cardPath: string | null
@@ -101,6 +102,7 @@ export type DreamMaxAggregateOutputType = {
   highlightImage: string | null
   icon: string | null
   imagePath: string | null
+  iconPath: string | null
   pitch: string | null
   allowReviews: boolean | null
   cardPath: string | null
@@ -131,6 +133,7 @@ export type DreamCountAggregateOutputType = {
   highlightImage: number
   icon: number
   imagePath: number
+  iconPath: number
   pitch: number
   allowReviews: number
   cardPath: number
@@ -181,6 +184,7 @@ export type DreamMinAggregateInputType = {
   highlightImage?: true
   icon?: true
   imagePath?: true
+  iconPath?: true
   pitch?: true
   allowReviews?: true
   cardPath?: true
@@ -211,6 +215,7 @@ export type DreamMaxAggregateInputType = {
   highlightImage?: true
   icon?: true
   imagePath?: true
+  iconPath?: true
   pitch?: true
   allowReviews?: true
   cardPath?: true
@@ -241,6 +246,7 @@ export type DreamCountAggregateInputType = {
   highlightImage?: true
   icon?: true
   imagePath?: true
+  iconPath?: true
   pitch?: true
   allowReviews?: true
   cardPath?: true
@@ -358,6 +364,7 @@ export type DreamGroupByOutputType = {
   highlightImage: string | null
   icon: string | null
   imagePath: string | null
+  iconPath: string | null
   pitch: string | null
   allowReviews: boolean
   cardPath: string | null
@@ -411,6 +418,7 @@ export type DreamWhereInput = {
   highlightImage?: Prisma.StringNullableFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableFilter<"Dream"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Dream"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Dream"> | string | null
   pitch?: Prisma.StringNullableFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolFilter<"Dream"> | boolean
   cardPath?: Prisma.StringNullableFilter<"Dream"> | string | null
@@ -460,6 +468,7 @@ export type DreamOrderByWithRelationInput = {
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -513,6 +522,7 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   highlightImage?: Prisma.StringNullableFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableFilter<"Dream"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Dream"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Dream"> | string | null
   pitch?: Prisma.StringNullableFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolFilter<"Dream"> | boolean
   cardPath?: Prisma.StringNullableFilter<"Dream"> | string | null
@@ -562,6 +572,7 @@ export type DreamOrderByWithAggregationInput = {
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -600,6 +611,7 @@ export type DreamScalarWhereWithAggregatesInput = {
   highlightImage?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
+  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   pitch?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolWithAggregatesFilter<"Dream"> | boolean
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
@@ -625,6 +637,7 @@ export type DreamCreateInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -673,6 +686,7 @@ export type DreamUncheckedCreateInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -712,6 +726,7 @@ export type DreamUpdateInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -760,6 +775,7 @@ export type DreamUncheckedUpdateInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -804,6 +820,7 @@ export type DreamCreateManyInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -829,6 +846,7 @@ export type DreamUpdateManyMutationInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -858,6 +876,7 @@ export type DreamUncheckedUpdateManyInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -909,6 +928,7 @@ export type DreamCountOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   pitch?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
@@ -948,6 +968,7 @@ export type DreamMaxOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   pitch?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
@@ -978,6 +999,7 @@ export type DreamMinOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   pitch?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
@@ -1585,6 +1607,7 @@ export type DreamCreateWithoutArtImageInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1631,6 +1654,7 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1680,6 +1704,7 @@ export type DreamCreateWithoutArtImagesInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1727,6 +1752,7 @@ export type DreamUncheckedCreateWithoutArtImagesInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1794,6 +1820,7 @@ export type DreamScalarWhereInput = {
   highlightImage?: Prisma.StringNullableFilter<"Dream"> | string | null
   icon?: Prisma.StringNullableFilter<"Dream"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Dream"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Dream"> | string | null
   pitch?: Prisma.StringNullableFilter<"Dream"> | string | null
   allowReviews?: Prisma.BoolFilter<"Dream"> | boolean
   cardPath?: Prisma.StringNullableFilter<"Dream"> | string | null
@@ -1835,6 +1862,7 @@ export type DreamCreateWithoutArtCollectionInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1881,6 +1909,7 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1930,6 +1959,7 @@ export type DreamCreateWithoutArtCollectionsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -1977,6 +2007,7 @@ export type DreamUncheckedCreateWithoutArtCollectionsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2052,6 +2083,7 @@ export type DreamCreateWithoutNarratorInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2099,6 +2131,7 @@ export type DreamUncheckedCreateWithoutNarratorInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2147,6 +2180,7 @@ export type DreamCreateWithoutBotsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2194,6 +2228,7 @@ export type DreamUncheckedCreateWithoutBotsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2269,6 +2304,7 @@ export type DreamCreateWithoutCharactersInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2316,6 +2352,7 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2375,6 +2412,7 @@ export type DreamCreateWithoutChatsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2422,6 +2460,7 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2476,6 +2515,7 @@ export type DreamUpdateWithoutChatsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2523,6 +2563,7 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2561,6 +2602,7 @@ export type DreamCreateWithoutRelationsFromInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2608,6 +2650,7 @@ export type DreamUncheckedCreateWithoutRelationsFromInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2651,6 +2694,7 @@ export type DreamCreateWithoutRelationsToInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2698,6 +2742,7 @@ export type DreamUncheckedCreateWithoutRelationsToInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2752,6 +2797,7 @@ export type DreamUpdateWithoutRelationsFromInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2799,6 +2845,7 @@ export type DreamUncheckedUpdateWithoutRelationsFromInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2848,6 +2895,7 @@ export type DreamUpdateWithoutRelationsToInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2895,6 +2943,7 @@ export type DreamUncheckedUpdateWithoutRelationsToInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2933,6 +2982,7 @@ export type DreamCreateWithoutFacetLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -2980,6 +3030,7 @@ export type DreamUncheckedCreateWithoutFacetLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3034,6 +3085,7 @@ export type DreamUpdateWithoutFacetLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3081,6 +3133,7 @@ export type DreamUncheckedUpdateWithoutFacetLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3119,6 +3172,7 @@ export type DreamCreateWithoutPackInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3165,6 +3219,7 @@ export type DreamUncheckedCreateWithoutPackInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3230,6 +3285,7 @@ export type DreamCreateWithoutPitchSheetInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3277,6 +3333,7 @@ export type DreamUncheckedCreateWithoutPitchSheetInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3331,6 +3388,7 @@ export type DreamUpdateWithoutPitchSheetInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3378,6 +3436,7 @@ export type DreamUncheckedUpdateWithoutPitchSheetInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3416,6 +3475,7 @@ export type DreamCreateWithoutReactionsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3463,6 +3523,7 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3517,6 +3578,7 @@ export type DreamUpdateWithoutReactionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3564,6 +3626,7 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3602,6 +3665,7 @@ export type DreamCreateWithoutRewardsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3649,6 +3713,7 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3708,6 +3773,7 @@ export type DreamCreateWithoutScenariosInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3755,6 +3821,7 @@ export type DreamUncheckedCreateWithoutScenariosInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3814,6 +3881,7 @@ export type DreamCreateWithoutUserInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3860,6 +3928,7 @@ export type DreamUncheckedCreateWithoutUserInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3925,6 +3994,7 @@ export type DreamCreateWithoutTodosInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -3972,6 +4042,7 @@ export type DreamUncheckedCreateWithoutTodosInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -4026,6 +4097,7 @@ export type DreamUpdateWithoutTodosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4073,6 +4145,7 @@ export type DreamUncheckedUpdateWithoutTodosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4111,6 +4184,7 @@ export type DreamCreateWithoutLifeRunsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -4158,6 +4232,7 @@ export type DreamUncheckedCreateWithoutLifeRunsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -4212,6 +4287,7 @@ export type DreamUpdateWithoutLifeRunsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4259,6 +4335,7 @@ export type DreamUncheckedUpdateWithoutLifeRunsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4301,6 +4378,7 @@ export type DreamCreateManyArtImageInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -4326,6 +4404,7 @@ export type DreamUpdateWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4372,6 +4451,7 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4415,6 +4495,7 @@ export type DreamUncheckedUpdateManyWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4440,6 +4521,7 @@ export type DreamUpdateWithoutArtImagesInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4487,6 +4569,7 @@ export type DreamUncheckedUpdateWithoutArtImagesInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4530,6 +4613,7 @@ export type DreamUncheckedUpdateManyWithoutArtImagesInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4559,6 +4643,7 @@ export type DreamCreateManyArtCollectionInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -4584,6 +4669,7 @@ export type DreamUpdateWithoutArtCollectionInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4630,6 +4716,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4673,6 +4760,7 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4698,6 +4786,7 @@ export type DreamUpdateWithoutArtCollectionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4745,6 +4834,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4788,6 +4878,7 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4818,6 +4909,7 @@ export type DreamCreateManyNarratorInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -4842,6 +4934,7 @@ export type DreamUpdateWithoutNarratorInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4889,6 +4982,7 @@ export type DreamUncheckedUpdateWithoutNarratorInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4932,6 +5026,7 @@ export type DreamUncheckedUpdateManyWithoutNarratorInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4956,6 +5051,7 @@ export type DreamUpdateWithoutBotsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5003,6 +5099,7 @@ export type DreamUncheckedUpdateWithoutBotsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5046,6 +5143,7 @@ export type DreamUncheckedUpdateManyWithoutBotsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5071,6 +5169,7 @@ export type DreamUpdateWithoutCharactersInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5118,6 +5217,7 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5161,6 +5261,7 @@ export type DreamUncheckedUpdateManyWithoutCharactersInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5190,6 +5291,7 @@ export type DreamCreateManyPackInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -5215,6 +5317,7 @@ export type DreamUpdateWithoutPackInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5261,6 +5364,7 @@ export type DreamUncheckedUpdateWithoutPackInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5304,6 +5408,7 @@ export type DreamUncheckedUpdateManyWithoutPackInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5329,6 +5434,7 @@ export type DreamUpdateWithoutRewardsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5376,6 +5482,7 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5419,6 +5526,7 @@ export type DreamUncheckedUpdateManyWithoutRewardsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5444,6 +5552,7 @@ export type DreamUpdateWithoutScenariosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5491,6 +5600,7 @@ export type DreamUncheckedUpdateWithoutScenariosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5534,6 +5644,7 @@ export type DreamUncheckedUpdateManyWithoutScenariosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5563,6 +5674,7 @@ export type DreamCreateManyUserInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   pitch?: string | null
   allowReviews?: boolean
   cardPath?: string | null
@@ -5588,6 +5700,7 @@ export type DreamUpdateWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5634,6 +5747,7 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5677,6 +5791,7 @@ export type DreamUncheckedUpdateManyWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5846,6 +5961,7 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   highlightImage?: boolean
   icon?: boolean
   imagePath?: boolean
+  iconPath?: boolean
   pitch?: boolean
   allowReviews?: boolean
   cardPath?: boolean
@@ -5898,6 +6014,7 @@ export type DreamSelectScalar = {
   highlightImage?: boolean
   icon?: boolean
   imagePath?: boolean
+  iconPath?: boolean
   pitch?: boolean
   allowReviews?: boolean
   cardPath?: boolean
@@ -5905,7 +6022,7 @@ export type DreamSelectScalar = {
   narratorId?: boolean
 }
 
-export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "userId" | "artImageId" | "artCollectionId" | "packId" | "isPublic" | "isMature" | "isActive" | "artPrompt" | "creationSource" | "designer" | "dreamType" | "examples" | "flavorText" | "highlightImage" | "icon" | "imagePath" | "pitch" | "allowReviews" | "cardPath" | "heroPath" | "narratorId", ExtArgs["result"]["dream"]>
+export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "userId" | "artImageId" | "artCollectionId" | "packId" | "isPublic" | "isMature" | "isActive" | "artPrompt" | "creationSource" | "designer" | "dreamType" | "examples" | "flavorText" | "highlightImage" | "icon" | "imagePath" | "iconPath" | "pitch" | "allowReviews" | "cardPath" | "heroPath" | "narratorId", ExtArgs["result"]["dream"]>
 export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Chats?: boolean | Prisma.Dream$ChatsArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Dream$ArtCollectionArgs<ExtArgs>
@@ -5975,6 +6092,7 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     highlightImage: string | null
     icon: string | null
     imagePath: string | null
+    iconPath: string | null
     pitch: string | null
     allowReviews: boolean
     cardPath: string | null
@@ -6390,6 +6508,7 @@ export interface DreamFieldRefs {
   readonly highlightImage: Prisma.FieldRef<"Dream", 'String'>
   readonly icon: Prisma.FieldRef<"Dream", 'String'>
   readonly imagePath: Prisma.FieldRef<"Dream", 'String'>
+  readonly iconPath: Prisma.FieldRef<"Dream", 'String'>
   readonly pitch: Prisma.FieldRef<"Dream", 'String'>
   readonly allowReviews: Prisma.FieldRef<"Dream", 'Boolean'>
   readonly cardPath: Prisma.FieldRef<"Dream", 'String'>

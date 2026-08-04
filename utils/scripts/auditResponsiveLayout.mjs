@@ -48,7 +48,7 @@ const flag = (name, fallback) => {
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag(
   'routes',
-  '/,/dreams,/art,/bots,/characters,/rewards,/scenarios',
+  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/scenarios',
 )
   .split(',')
   .map((r) => r.trim())
@@ -56,6 +56,8 @@ const ROUTES = flag(
 const SHOTS = flag('shots', '')
 /** Below this a flexible element is a sliver, not a control or a label. */
 const MIN_FLEX_WIDTH = Number(flag('min-flex', '32'))
+/** How long to let in-flight images finish before judging them broken. */
+const IMAGE_SETTLE_MS = Number(flag('image-settle', '20000'))
 
 const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844, mobile: true },
@@ -149,12 +151,55 @@ function collect(minFlexWidth) {
     }
   }
 
+  /**
+   * An <img> that resolved to nothing. The browser then paints its ALT TEXT
+   * inside the layout box where the art should be — which is what
+   * interface-vision t-069 reported as "description text renders over the card
+   * art". No overlap check could ever find it: alt text is not an element, so
+   * there is nothing whose box intersects anything. The broken image IS the
+   * signal.
+   *
+   * ONLY `complete && naturalWidth === 0` — a load that finished and produced
+   * no pixels. An image that is merely still in flight is NOT a defect, and
+   * counting it was this check's first calibration error: the first CI run
+   * flagged 142 images on /characters and 142 on /rewards, every one of them
+   * `!complete` rather than failed. They were real art from
+   * /api/art/images/<id>/file, still arriving, on pages that mount well over a
+   * hundred of them. They would all have loaded. The caller now waits for
+   * images to settle before measuring, so anything still incomplete after that
+   * is a stall we cannot distinguish from slowness — and crying wolf over 142
+   * healthy images is how a checker gets switched off.
+   *
+   * DO NOT TRUST THIS CHECK AGAINST A LOCAL DEV SERVER. `public/images` is not
+   * in the repo (self-hosted media, see docs/self-hosted-media.md), so every
+   * `/images/...` path 404s locally while returning a 307 to real bytes in
+   * production. A local run reports a screenful of broken art that does not
+   * exist for users. Run it against a deployment — which is what CI does.
+   */
+  const brokenArt = []
+  for (const img of document.querySelectorAll('img')) {
+    const b = img.getBoundingClientRect()
+    // Skip decorative slivers and anything not actually laid out.
+    if (b.width < 8 || b.height < 8) continue
+    if (!visible(img, b)) continue
+    if (!img.complete || img.naturalWidth > 0) continue
+
+    const src = (img.getAttribute('src') || '').split('?')[0]
+    brokenArt.push(
+      `<img> ${Math.round(b.width)}x${Math.round(b.height)} ` +
+        `alt="${(img.getAttribute('alt') || '').slice(0, 40)}" ` +
+        `src=…${src.slice(-58)}`,
+    )
+  }
+
   return {
     vw,
     scrollWidth: de.scrollWidth,
     horizontalScroll: de.scrollWidth > vw + 1,
     spill: spill.slice(0, 6).map((s) => s.text),
     crushed: crushed.slice(0, 6).map((c) => c.text),
+    brokenArt: brokenArt.slice(0, 8),
+    brokenArtTotal: brokenArt.length,
   }
 }
 
@@ -182,6 +227,34 @@ for (const vp of VIEWPORTS) {
     // a phone; measuring before it clears reports the splash, not the page.
     await page.waitForTimeout(7000)
 
+    /*
+     * Then let the art settle. `networkidle` does not cover it: these pages
+     * mount 140+ images from /api/art/images/<id>/file, and a gallery that is
+     * still streaming them is slow, not broken. Bounded, because the point is
+     * to stop measuring mid-flight, not to wait for a stalled request forever
+     * — anything still incomplete when this returns is reported as such.
+     */
+    await page
+      .evaluate(
+        (budget) =>
+          Promise.race([
+            Promise.all(
+              [...document.images]
+                .filter((img) => !img.complete)
+                .map(
+                  (img) =>
+                    new Promise((done) => {
+                      img.addEventListener('load', done, { once: true })
+                      img.addEventListener('error', done, { once: true })
+                    }),
+                ),
+            ),
+            new Promise((done) => setTimeout(done, budget)),
+          ]),
+        IMAGE_SETTLE_MS,
+      )
+      .catch(() => {})
+
     const m = await page.evaluate(collect, MIN_FLEX_WIDTH).catch(() => null)
     const label = `${vp.name.padEnd(7)} ${route.padEnd(14)}`
 
@@ -189,7 +262,12 @@ for (const vp of VIEWPORTS) {
       console.log(
         `${label} ⚠️  could not measure${loaded ? '' : ' (navigation failed)'}`,
       )
-    } else if (m.horizontalScroll || m.spill.length || m.crushed.length) {
+    } else if (
+      m.horizontalScroll ||
+      m.spill.length ||
+      m.crushed.length ||
+      m.brokenArtTotal
+    ) {
       failures += 1
       console.log(`${label} ❌`)
       if (m.horizontalScroll) {
@@ -199,6 +277,10 @@ for (const vp of VIEWPORTS) {
       }
       for (const s of m.spill) console.log(`         SPILL   ${s}`)
       for (const c of m.crushed) console.log(`         CRUSHED ${c}`)
+      if (m.brokenArtTotal) {
+        console.log(`         BROKEN-ART ${m.brokenArtTotal} image(s):`)
+        for (const a of m.brokenArt) console.log(`           ${a}`)
+      }
     } else {
       console.log(`${label} ✅`)
     }

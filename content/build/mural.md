@@ -9,7 +9,7 @@ icon: kind-icon:paintbrush
 sort: wonder
 dottiTip: Can a coloring page become project management?
 amiTip: Yes, but only if the paint swatches stop wandering off like tiny chromatic ferrets.
-channelKey: build
+channelKey: play
 tabKey: mural
 dashboardKey: wonder
 dashboardTab: mural

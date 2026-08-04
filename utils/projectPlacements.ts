@@ -48,7 +48,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'build',
+    channelKey: 'play',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
@@ -63,7 +63,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/sketchy',
   },
   packmaker: {
-    channelKey: 'build',
+    channelKey: 'play',
     tabKey: 'packs',
     route: '/packs',
   },
@@ -118,7 +118,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/stylist',
   },
   'superkate-hairstyle-ai': {
-    channelKey: 'build',
+    channelKey: 'play',
     tabKey: 'hair-studio',
     route: '/build/hair-studio',
   },
@@ -133,12 +133,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/academy',
   },
   brainstorm: {
-    channelKey: 'build',
+    channelKey: 'play',
     tabKey: 'brainstorm',
     route: '/brainstorm',
   },
   'mural-design': {
-    channelKey: 'build',
+    channelKey: 'play',
     tabKey: 'mural',
     route: '/build/mural',
   },

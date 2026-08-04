@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: build
+channelKey: play
 tabKey: hair-studio
 dashboardKey: art
 dashboardTab: stylist
@@ -10,7 +10,7 @@ subtitle: Experiment with private hairstyle previews
 description: Restyle a private client photo with a new color or cut in a dedicated AI studio.
 icon: kind-icon:magic
 route: /build/hair-studio
-sort: 130
+sort: 210
 requiredRole: GUEST
 ---
 

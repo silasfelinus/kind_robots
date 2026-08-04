@@ -5,12 +5,12 @@ tabKey: scenarios
 dashboardKey: scenario
 dashboardTab: scenarios
 label: Scenarios
-title: Scenario Gallery
-subtitle: Choose a story and make a mess
-description: Browse branching experiences, choose responses, invent solutions, and let the narrator handle the consequences.
+title: Scenarios & Stories
+subtitle: Browse, create, and play choices with consequences
+description: Explore branching experiences, create new scenarios, invent solutions, and let narrators handle the consequences.
 icon: kind-icon:story
 route: /stories
 sort: 60
 ---
 
-Play through scenarios without dragging the authoring controls onto the stage.
+The Stories manager keeps scenario creation and play on the same stage.

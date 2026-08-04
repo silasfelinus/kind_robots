@@ -13,36 +13,36 @@ import {
 const items: ChannelContentItem[] = [
   {
     contentType: 'channel',
-    channelKey: 'build',
-    dashboardKey: 'builder',
-    label: 'Build',
-    title: 'Build Workshop',
-    description: 'Create reusable things.',
-    icon: 'kind-icon:blueprint',
-    route: '/builder',
-    defaultTab: 'character',
+    channelKey: 'play',
+    dashboardKey: 'art',
+    label: 'Play',
+    title: 'Creative Worlds',
+    description: 'Create, browse, remix, and interact.',
+    icon: 'kind-icon:dice',
+    route: '/art',
+    defaultTab: 'gallery',
     sort: 20,
     dottitip: 'Legacy Dotti line.',
     amiTip: 'Parent Ami line.',
   },
   {
     contentType: 'tab',
-    channelKey: 'build',
-    tabKey: 'character',
-    dashboardKey: 'builder',
-    dashboardTab: 'character',
-    label: 'Characters',
-    route: '/builder',
+    channelKey: 'play',
+    tabKey: 'gallery',
+    dashboardKey: 'art',
+    dashboardTab: 'gallery',
+    label: 'Gallery',
+    route: '/art',
     sort: 10,
   },
   {
     contentType: 'tab',
-    channelKey: 'build',
-    tabKey: 'art',
-    dashboardKey: 'builder',
-    dashboardTab: 'art',
-    label: 'Art',
-    route: '/builder',
+    channelKey: 'play',
+    tabKey: 'generate',
+    dashboardKey: 'art',
+    dashboardTab: 'generate',
+    label: 'Generate',
+    route: '/art',
     sort: 20,
     amiTip: 'Tab Ami line.',
     requiredPermission: 'member',
@@ -87,73 +87,73 @@ const channels = resolveChannels(items)
 
 assert.deepEqual(
   channels.map((channel) => channel.channelKey),
-  ['home', 'build', 'admin'],
+  ['home', 'play', 'admin'],
   'channels should sort by numeric sort order',
 )
 
-const build = channels.find((channel) => channel.channelKey === 'build')
-assert.ok(build, 'build channel should resolve')
-assert.equal(build.defaultTab, 'character')
-assert.equal(build.tabs.length, 2)
+const play = channels.find((channel) => channel.channelKey === 'play')
+assert.ok(play, 'play channel should resolve')
+assert.equal(play.defaultTab, 'gallery')
+assert.equal(play.tabs.length, 2)
 
-const character = build.tabs.find((tab) => tab.tabKey === 'character')
-const art = build.tabs.find((tab) => tab.tabKey === 'art')
-assert.ok(character, 'character tab should resolve')
-assert.ok(art, 'art tab should resolve')
+const gallery = play.tabs.find((tab) => tab.tabKey === 'gallery')
+const generate = play.tabs.find((tab) => tab.tabKey === 'generate')
+assert.ok(gallery, 'gallery tab should resolve')
+assert.ok(generate, 'generate tab should resolve')
 
 assert.equal(
-  character.description,
-  build.description,
+  gallery.description,
+  play.description,
   'tab should inherit channel description',
 )
-assert.equal(character.icon, build.icon, 'tab should inherit channel icon')
+assert.equal(gallery.icon, play.icon, 'tab should inherit channel icon')
 assert.equal(
-  character.dottiTip,
+  gallery.dottiTip,
   'Legacy Dotti line.',
   'legacy lowercase dottitip should remain supported',
 )
 assert.equal(
-  character.amiTip,
+  gallery.amiTip,
   'Parent Ami line.',
   'tab should inherit parent Ami dialogue',
 )
-assert.equal(art.amiTip, 'Tab Ami line.', 'tab Ami dialogue should override parent')
+assert.equal(generate.amiTip, 'Tab Ami line.', 'tab Ami dialogue should override parent')
 assert.equal(
-  character.image,
-  '/images/dashboard-tabs/builder/character.webp',
+  gallery.image,
+  '/images/dashboard-tabs/art/gallery.webp',
   'legacy dashboard metadata should provide the transitional image fallback',
 )
 
-const explicitArt = resolveChannelLocation(channels, {
-  channelKey: 'build',
-  tabKey: 'art',
-  path: '/builder',
+const explicitGenerate = resolveChannelLocation(channels, {
+  channelKey: 'play',
+  tabKey: 'generate',
+  path: '/art',
 })
-assert.equal(explicitArt?.channel.channelKey, 'build')
-assert.equal(explicitArt?.tab?.tabKey, 'art')
+assert.equal(explicitGenerate?.channel.channelKey, 'play')
+assert.equal(explicitGenerate?.tab?.tabKey, 'generate')
 
-const legacyCharacter = resolveChannelLocation(channels, {
-  dashboardKey: 'builder',
-  dashboardTab: 'character',
-  path: '/builder',
+const legacyGallery = resolveChannelLocation(channels, {
+  dashboardKey: 'art',
+  dashboardTab: 'gallery',
+  path: '/art',
 })
-assert.equal(legacyCharacter?.channel.channelKey, 'build')
-assert.equal(legacyCharacter?.tab?.tabKey, 'character')
+assert.equal(legacyGallery?.channel.channelKey, 'play')
+assert.equal(legacyGallery?.tab?.tabKey, 'gallery')
 
 const sharedRouteDefault = resolveChannelLocation(channels, {
-  channelKey: 'build',
-  path: '/builder',
+  channelKey: 'play',
+  path: '/art',
 })
 assert.equal(
   sharedRouteDefault?.tab?.tabKey,
-  'character',
+  'gallery',
   'shared route without an explicit tab should use the channel default',
 )
 
 const userChannels = filterChannelsByRole(channels, 'USER')
 assert.deepEqual(
   userChannels.map((channel) => channel.channelKey),
-  ['home', 'build'],
+  ['home', 'play'],
   'non-admin users should not receive the Admin channel',
 )
 
@@ -171,9 +171,9 @@ const guestAccess = {
 const guestChannels = filterChannelsByPermission(userChannels, guestAccess)
 assert.deepEqual(
   guestChannels
-    .find((channel) => channel.channelKey === 'build')
+    .find((channel) => channel.channelKey === 'play')
     ?.tabs.map((tab) => tab.tabKey),
-  ['character'],
+  ['gallery'],
   'guests should not receive member-gated tabs',
 )
 
@@ -191,16 +191,16 @@ const memberAccess = {
 const memberChannels = filterChannelsByPermission(userChannels, memberAccess)
 assert.deepEqual(
   memberChannels
-    .find((channel) => channel.channelKey === 'build')
+    .find((channel) => channel.channelKey === 'play')
     ?.tabs.map((tab) => tab.tabKey),
-  ['character', 'art'],
+  ['gallery', 'generate'],
   'members should receive member-gated tabs',
 )
 
 const adminChannels = filterChannelsByRole(channels, 'ADMIN')
 assert.deepEqual(
   adminChannels.map((channel) => channel.channelKey),
-  ['home', 'build', 'admin'],
+  ['home', 'play', 'admin'],
   'administrators should receive all role-gated channels',
 )
 const adminAccess = {
@@ -216,12 +216,12 @@ const adminAccess = {
 }
 assert.deepEqual(
   filterChannelsByPermission(adminChannels, adminAccess)
-    .find((channel) => channel.channelKey === 'build')
+    .find((channel) => channel.channelKey === 'play')
     ?.tabs.map((tab) => tab.tabKey),
-  ['character', 'art'],
+  ['gallery', 'generate'],
   'administrators should bypass capability gates',
 )
 
 console.log(
-  `Channel resolver contract passed: ${channels.length} channels, ${build.tabs.length} shared-route Build tabs, dialogue inheritance, role filtering, and capability gates verified.`,
+  `Channel resolver contract passed: ${channels.length} channels, ${play.tabs.length} shared-route Play tabs, dialogue inheritance, role filtering, and capability gates verified.`,
 )

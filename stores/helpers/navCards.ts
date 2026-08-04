@@ -12,7 +12,10 @@ import {
 } from '@/stores/helpers/dashboardHelper'
 import { deriveNavCard } from '@/stores/helpers/tabsToCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import { CONDUCTOR_DASHBOARD_KEY, CONDUCTOR_DEFAULT_TAB } from '@/stores/helpers/conductorTabs'
+import {
+  CONDUCTOR_DASHBOARD_KEY,
+  CONDUCTOR_DEFAULT_TAB,
+} from '@/stores/helpers/conductorTabs'
 
 export type NavCard = BuilderCard
 
@@ -58,8 +61,12 @@ export const CONDUCTOR_NAV_CARD: NavCard = {
   ],
 }
 
+const visibleFooterTabs = dashboardConfigs.footer.tabs.filter(
+  (tab) => tab.key !== 'builder',
+)
+
 export const NAV_CARDS: NavCard[] = [
-  ...dashboardConfigs.footer.tabs.map((tab) => {
+  ...visibleFooterTabs.map((tab) => {
     const key = tab.key as FooterKey
 
     return {

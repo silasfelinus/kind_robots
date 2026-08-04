@@ -2,6 +2,7 @@
 import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { DEFAULT_DATABASE_POOL_PROFILE } from './databasePoolDefaults'
 // SSL-aware adapter config (buildDatabaseConfig + the env readers) lives in a
 // dedicated, side-effect-free module so standalone maintenance scripts can
 // reuse the exact same ProxySQL TLS handshake this singleton uses.
@@ -195,12 +196,11 @@ function extendPrismaClient(client: PrismaClient) {
   })
 }
 
-// One base client means one MariaDB connector pool per Node runtime. Kind Robots
-// currently runs on a separate local machine while ProxySQL and MariaDB live on
-// Alexandria. That local runtime may remain alive for days, so replacing clients
-// during requests can strand connectionLimit-sized pools indefinitely. ProxySQL
-// command pipelining is already disabled in databaseAdapterConfig.ts, which
-// addresses the historical socket poison at its source.
+// One base client means one MariaDB connector pool per Node process. Both the
+// local long-lived runtime and each Vercel function process need that singleton,
+// but databasePoolDefaults.ts intentionally gives those environments different
+// pool sizes and idle-retention behavior. Never replace the client during a
+// request: retired clients retain their connector pools until the process exits.
 const basePrisma = globalForPrisma.prisma ?? createBasePrismaClient()
 globalForPrisma.prisma = basePrisma
 
@@ -210,6 +210,7 @@ type RetryingPrismaClient = typeof retryingPrisma
 console.info('[prisma] MariaDB adapter ready', {
   mode: useTextProtocol ? 'text-query' : 'binary-execute',
   poolLifecycle: 'singleton-per-runtime',
+  poolProfile: DEFAULT_DATABASE_POOL_PROFILE,
 })
 
 export const prisma = new Proxy({} as RetryingPrismaClient, {

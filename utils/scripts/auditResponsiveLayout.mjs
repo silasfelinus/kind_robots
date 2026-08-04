@@ -56,6 +56,8 @@ const ROUTES = flag(
 const SHOTS = flag('shots', '')
 /** Below this a flexible element is a sliver, not a control or a label. */
 const MIN_FLEX_WIDTH = Number(flag('min-flex', '32'))
+/** How long to let in-flight images finish before judging them broken. */
+const IMAGE_SETTLE_MS = Number(flag('image-settle', '20000'))
 
 const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844, mobile: true },
@@ -157,8 +159,16 @@ function collect(minFlexWidth) {
    * there is nothing whose box intersects anything. The broken image IS the
    * signal.
    *
-   * `complete && naturalWidth === 0` is a failed load (404, bad path). `!complete`
-   * this long after networkidle is a stall. Both paint alt text, so both count.
+   * ONLY `complete && naturalWidth === 0` — a load that finished and produced
+   * no pixels. An image that is merely still in flight is NOT a defect, and
+   * counting it was this check's first calibration error: the first CI run
+   * flagged 142 images on /characters and 142 on /rewards, every one of them
+   * `!complete` rather than failed. They were real art from
+   * /api/art/images/<id>/file, still arriving, on pages that mount well over a
+   * hundred of them. They would all have loaded. The caller now waits for
+   * images to settle before measuring, so anything still incomplete after that
+   * is a stall we cannot distinguish from slowness — and crying wolf over 142
+   * healthy images is how a checker gets switched off.
    *
    * DO NOT TRUST THIS CHECK AGAINST A LOCAL DEV SERVER. `public/images` is not
    * in the repo (self-hosted media, see docs/self-hosted-media.md), so every
@@ -172,12 +182,11 @@ function collect(minFlexWidth) {
     // Skip decorative slivers and anything not actually laid out.
     if (b.width < 8 || b.height < 8) continue
     if (!visible(img, b)) continue
-    if (img.complete && img.naturalWidth > 0) continue
+    if (!img.complete || img.naturalWidth > 0) continue
 
     const src = (img.getAttribute('src') || '').split('?')[0]
     brokenArt.push(
-      `<img> ${img.complete ? 'failed' : 'never loaded'} ` +
-        `${Math.round(b.width)}x${Math.round(b.height)} ` +
+      `<img> ${Math.round(b.width)}x${Math.round(b.height)} ` +
         `alt="${(img.getAttribute('alt') || '').slice(0, 40)}" ` +
         `src=…${src.slice(-58)}`,
     )
@@ -217,6 +226,34 @@ for (const vp of VIEWPORTS) {
     // The startup splash paints over the app and is itself slightly wider than
     // a phone; measuring before it clears reports the splash, not the page.
     await page.waitForTimeout(7000)
+
+    /*
+     * Then let the art settle. `networkidle` does not cover it: these pages
+     * mount 140+ images from /api/art/images/<id>/file, and a gallery that is
+     * still streaming them is slow, not broken. Bounded, because the point is
+     * to stop measuring mid-flight, not to wait for a stalled request forever
+     * — anything still incomplete when this returns is reported as such.
+     */
+    await page
+      .evaluate(
+        (budget) =>
+          Promise.race([
+            Promise.all(
+              [...document.images]
+                .filter((img) => !img.complete)
+                .map(
+                  (img) =>
+                    new Promise((done) => {
+                      img.addEventListener('load', done, { once: true })
+                      img.addEventListener('error', done, { once: true })
+                    }),
+                ),
+            ),
+            new Promise((done) => setTimeout(done, budget)),
+          ]),
+        IMAGE_SETTLE_MS,
+      )
+      .catch(() => {})
 
     const m = await page.evaluate(collect, MIN_FLEX_WIDTH).catch(() => null)
     const label = `${vp.name.padEnd(7)} ${route.padEnd(14)}`

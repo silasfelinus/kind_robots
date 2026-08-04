@@ -12,7 +12,6 @@
       "components/servers/server-manager.vue",
       "components/stages/stage-manager.vue",
       "components/user/chat-gallery.vue",
-      "components/user/messenger.vue",
       "components/wonderlab/lab-interact.vue",
       "components/wonderlab/mural-manager.vue"
     ],

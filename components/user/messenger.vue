@@ -5,10 +5,12 @@
   conversationStore (lastReadAt-driven). Bot/forum chat stays on chatStore.
 -->
 <template>
-  <section class="mx-auto flex h-[70vh] w-full max-w-5xl gap-3 p-3">
+  <section
+    class="kr-panes mx-auto h-[70vh] w-full max-w-5xl grid-cols-[auto_minmax(0,1fr)] p-3"
+  >
     <!-- Conversation list -->
     <aside
-      class="flex w-full max-w-xs flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 sm:w-72"
+      class="kr-pane w-full max-w-xs rounded-2xl border border-base-300 bg-base-100 sm:w-72"
     >
       <header
         class="flex items-center justify-between border-b border-base-300 p-3"
@@ -22,7 +24,7 @@
           <Icon name="kind-icon:refresh" class="h-4 w-4" />
         </button>
       </header>
-      <div class="flex-1 overflow-y-auto">
+      <div class="kr-pane-scroll">
         <p
           v-if="!convo.conversations.length && !convo.isLoadingList"
           class="p-4 text-sm text-base-content/50"
@@ -64,9 +66,7 @@
     </aside>
 
     <!-- Active thread -->
-    <div
-      class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-    >
+    <div class="kr-pane min-w-0 rounded-2xl border border-base-300 bg-base-100">
       <template v-if="convo.activeId">
         <header class="flex items-center gap-2 border-b border-base-300 p-3">
           <div class="avatar">
@@ -83,7 +83,7 @@
           }}</span>
         </header>
 
-        <div ref="scrollBox" class="flex-1 space-y-2 overflow-y-auto p-3">
+        <div ref="scrollBox" class="kr-pane-scroll space-y-2 p-3">
           <p
             v-if="convo.isLoadingThread"
             class="text-center text-sm text-base-content/50"

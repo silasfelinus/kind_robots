@@ -331,6 +331,27 @@ function hasKrPanes(template: string): boolean {
 }
 
 /*
+ * .kr-anchor-scroll (interface-vision t-058 follow-on, conductor issue
+ * #1690) is the overlay-safe sibling of .kr-pane-scroll: legitimate for an
+ * anchored control (e.g. a dropdown menu) whose absolutely-positioned
+ * flyout child is simultaneously interactive and independently scrollable.
+ * Gated behind .kr-anchor-panes exactly like .kr-pane-scroll is gated
+ * behind .kr-panes, so an arbitrary absolutely-positioned element can't
+ * opt itself out of the one-scroll rule without also declaring the marker.
+ */
+function anchorScrollRegionCount(template: string): number {
+  return staticClassLists(template).filter((classList) =>
+    classList.split(/\s+/).filter(Boolean).includes('kr-anchor-scroll'),
+  ).length
+}
+
+function hasKrAnchorPanes(template: string): boolean {
+  return staticClassLists(template).some((classList) =>
+    classList.split(/\s+/).filter(Boolean).includes('kr-anchor-panes'),
+  )
+}
+
+/*
  * This checks the literal first element inside <template>, not whichever nested
  * wrapper looks visually dominant. Put the kr-* marker on that opening tag.
  */
@@ -504,6 +525,49 @@ function verifyPaneScrollFixture(): void {
   }
 }
 
+function verifyAnchorScrollFixture(): void {
+  const withAnchorPanes = templateOf(`
+    <template>
+      <div class="dropdown-content kr-anchor-panes">
+        <ul class="kr-anchor-scroll"></ul>
+        <ul class="absolute left-full kr-anchor-scroll"></ul>
+      </div>
+    </template>
+  `)
+  const withoutAnchorPanes = templateOf(`
+    <template>
+      <div class="dropdown-content">
+        <ul class="kr-anchor-scroll"></ul>
+        <ul class="absolute left-full kr-anchor-scroll"></ul>
+      </div>
+    </template>
+  `)
+
+  if (anchorScrollRegionCount(withAnchorPanes) !== 2) {
+    throw new Error(
+      'Anchor-scroll fixture was not classified correctly (count).',
+    )
+  }
+  if (!hasKrAnchorPanes(withAnchorPanes)) {
+    throw new Error(
+      'Anchor-scroll fixture was not classified correctly (kr-anchor-panes present).',
+    )
+  }
+  if (hasKrAnchorPanes(withoutAnchorPanes)) {
+    throw new Error(
+      'Anchor-scroll fixture was not classified correctly (kr-anchor-panes absent).',
+    )
+  }
+
+  /* An arbitrary absolutely-positioned element cannot bypass the
+     one-scroll rule just by borrowing the .kr-anchor-scroll class name
+     without its component ever declaring .kr-anchor-panes (conductor
+     issue #1690's item 4) -- this is asserted end-to-end via `collect()`
+     in the one-scroll rule itself, not just these two helpers, since a
+     lone .kr-anchor-scroll with no .kr-anchor-panes anywhere in the file
+     must still surface as a violation. */
+}
+
 function collect(): Record<RuleId, string[]> {
   const vueFiles = [
     ...walk(join(ROOT, 'components'), '.vue'),
@@ -584,19 +648,32 @@ function collect(): Record<RuleId, string[]> {
      * hatch: any number of them is fine once .kr-panes is also declared, but
      * mixing them with the single-owner primitive in the same component, or
      * using .kr-pane-scroll without .kr-panes, is still a violation.
+     *
+     * .kr-anchor-scroll (t-058 follow-on, conductor issue #1690) is the
+     * overlay-safe sibling escape hatch for an anchor + absolutely-positioned
+     * flyout shape (.kr-panes' overflow-hidden would clip the flyout). Same
+     * gating rule, scoped to .kr-anchor-panes instead of .kr-panes.
      */
     const scrollers = scrollRegionCount(template)
     const paneScrollers = paneScrollRegionCount(template)
     const declaresPanes = hasKrPanes(template)
+    const anchorScrollers = anchorScrollRegionCount(template)
+    const declaresAnchorPanes = hasKrAnchorPanes(template)
 
     if (scrollers > 1) violations['one-scroll'].push(r)
     else if (paneScrollers > 0 && (!declaresPanes || scrollers > 0)) {
+      violations['one-scroll'].push(r)
+    } else if (
+      anchorScrollers > 0 &&
+      (!declaresAnchorPanes || scrollers > 0 || paneScrollers > 0)
+    ) {
       violations['one-scroll'].push(r)
     }
 
     if (
       scrollers === 0 &&
       paneScrollers === 0 &&
+      anchorScrollers === 0 &&
       pageComponent &&
       !mdcMountedComponents.has(basename(file, '.vue'))
     ) {
@@ -666,6 +743,7 @@ function main(): void {
   verifyScrollExclusivityFixture()
   verifyFixedOverlayFixture()
   verifyPaneScrollFixture()
+  verifyAnchorScrollFixture()
   const current = collect()
   const baseline = loadBaseline()
 

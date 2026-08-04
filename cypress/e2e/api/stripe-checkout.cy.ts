@@ -15,6 +15,7 @@ type ApiResponse<T = unknown> = {
 
 describe('Stripe Checkout Identity API Tests', () => {
   let checkoutUrl = ''
+  let checkoutStatusUrl = ''
   let userToken = ''
   let userId: number | undefined
 
@@ -22,6 +23,7 @@ describe('Stripe Checkout Identity API Tests', () => {
     return getApiEnv()
       .then((env) => {
         checkoutUrl = `${env.apiBase}/stripe/checkout`
+        checkoutStatusUrl = `${env.apiBase}/stripe/checkout-status`
         return createLoggedInTestUser()
       })
       .then((user) => {
@@ -155,6 +157,43 @@ describe('Stripe Checkout Identity API Tests', () => {
       expect(response.status).to.eq(400)
       expect(response.body.success).to.eq(false)
       expect(response.body.message).to.include('Combined quantity')
+    })
+  })
+
+  it('rejects checkout-status verification without authentication', () => {
+    cy.request<ApiResponse>({
+      method: 'GET',
+      url: `${checkoutStatusUrl}?session_id=cs_test_not_real`,
+      headers: jsonHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects checkout-status verification with an invalid token', () => {
+    cy.request<ApiResponse>({
+      method: 'GET',
+      url: `${checkoutStatusUrl}?session_id=cs_test_not_real`,
+      headers: invalidBearerHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects malformed checkout session IDs before contacting Stripe', () => {
+    cy.request<ApiResponse>({
+      method: 'GET',
+      url: `${checkoutStatusUrl}?session_id=not-a-stripe-session`,
+      headers: bearerHeaders(userToken),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('valid Stripe checkout session ID')
     })
   })
 })

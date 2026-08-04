@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - worker/workflow-audit-20260804
+  pull_request:
+    branches:
+      - main
 
 permissions:
   actions: read

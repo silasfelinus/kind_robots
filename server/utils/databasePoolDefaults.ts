@@ -43,17 +43,6 @@ export const VERCEL_IDLE_TIMEOUT_SECONDS = 15
 export const VERCEL_MINIMUM_IDLE = 0
 export const VERCEL_PING_TIMEOUT_MS = 2_000
 
-// Compatibility exports for maintenance scripts and existing callers. These
-// continue to describe the intended long-lived local runtime.
-export const SAFE_MINIMUM_CONNECTION_LIMIT =
-  SAFE_MINIMUM_LONG_LIVED_CONNECTION_LIMIT
-export const DEFAULT_CONNECTION_LIMIT = LONG_LIVED_CONNECTION_LIMIT
-export const DEFAULT_CONNECT_TIMEOUT_MS = LONG_LIVED_CONNECT_TIMEOUT_MS
-export const DEFAULT_ACQUIRE_TIMEOUT_MS = LONG_LIVED_ACQUIRE_TIMEOUT_MS
-export const DEFAULT_IDLE_TIMEOUT_SECONDS = LONG_LIVED_IDLE_TIMEOUT_SECONDS
-export const DEFAULT_MINIMUM_IDLE = LONG_LIVED_MINIMUM_IDLE
-export const DEFAULT_PING_TIMEOUT_MS = LONG_LIVED_PING_TIMEOUT_MS
-
 export function isVercelFunctionRuntime(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
@@ -85,6 +74,22 @@ export function resolveDatabasePoolDefaults(
     pingTimeoutMs: LONG_LIVED_PING_TIMEOUT_MS,
   }
 }
+
+// Compatibility exports used by the adapter and maintenance scripts. Their
+// values now follow the active runtime instead of forcing a server-process pool
+// shape into every Vercel lambda.
+const ACTIVE_POOL_DEFAULTS = resolveDatabasePoolDefaults()
+
+export const SAFE_MINIMUM_CONNECTION_LIMIT =
+  SAFE_MINIMUM_LONG_LIVED_CONNECTION_LIMIT
+export const DEFAULT_CONNECTION_LIMIT = ACTIVE_POOL_DEFAULTS.connectionLimit
+export const DEFAULT_CONNECT_TIMEOUT_MS = ACTIVE_POOL_DEFAULTS.connectTimeoutMs
+export const DEFAULT_ACQUIRE_TIMEOUT_MS = ACTIVE_POOL_DEFAULTS.acquireTimeoutMs
+export const DEFAULT_IDLE_TIMEOUT_SECONDS =
+  ACTIVE_POOL_DEFAULTS.idleTimeoutSeconds
+export const DEFAULT_MINIMUM_IDLE = ACTIVE_POOL_DEFAULTS.minimumIdle
+export const DEFAULT_PING_TIMEOUT_MS = ACTIVE_POOL_DEFAULTS.pingTimeoutMs
+export const DEFAULT_DATABASE_POOL_PROFILE = ACTIVE_POOL_DEFAULTS.profile
 
 if (
   LONG_LIVED_CONNECTION_LIMIT < SAFE_MINIMUM_LONG_LIVED_CONNECTION_LIMIT

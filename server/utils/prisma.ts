@@ -3,7 +3,7 @@ import { PrismaClient } from '~/prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { AsyncLocalStorage } from 'node:async_hooks'
 // SSL-aware adapter config (buildDatabaseConfig + the env readers) lives in a
-// dedicated, side-effect-free module so the standalone maintenance scripts can
+// dedicated, side-effect-free module so standalone maintenance scripts can
 // reuse the exact same ProxySQL TLS handshake this singleton uses.
 import {
   buildDatabaseConfig,
@@ -20,8 +20,6 @@ type CircuitBreakerState = {
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
   prismaBreaker?: CircuitBreakerState
-  prismaRecovery?: Promise<PrismaClient>
-  prismaGeneration?: number
 }
 
 const configuredDatabaseUrl = process.env.DATABASE_URL
@@ -123,7 +121,9 @@ function isAvailabilityError(error: unknown): boolean {
 
 function retryLimitFor(error: unknown): number {
   if (isStaleDatabaseConnectionError(error)) {
-    return staleConnectionRetryAttempts
+    // Never replay a statement within an active transaction. The caller must
+    // receive the original error so Prisma can roll the transaction back.
+    return transactionContext.getStore() ? 0 : staleConnectionRetryAttempts
   }
 
   if (isAvailabilityError(error)) return unavailableRetryAttempts
@@ -143,70 +143,6 @@ function createBasePrismaClient(): PrismaClient {
   })
 }
 
-async function replayPrismaOperation(
-  client: PrismaClient,
-  model: string,
-  operation: string,
-  args: unknown,
-): Promise<unknown> {
-  const delegateName = `${model.charAt(0).toLowerCase()}${model.slice(1)}`
-  const delegate = (client as unknown as Record<string, unknown>)[delegateName]
-
-  if (!delegate || (typeof delegate !== 'object' && typeof delegate !== 'function')) {
-    throw new Error(`Unable to replay Prisma operation for model ${model}.`)
-  }
-
-  const method = (delegate as Record<string, unknown>)[operation]
-
-  if (typeof method !== 'function') {
-    throw new Error(`Unable to replay Prisma operation ${model}.${operation}.`)
-  }
-
-  return await (
-    method as (this: unknown, input: unknown) => Promise<unknown>
-  ).call(delegate, args)
-}
-
-let activeBasePrisma = globalForPrisma.prisma ?? createBasePrismaClient()
-globalForPrisma.prisma = activeBasePrisma
-
-type RetryingPrismaClient = ReturnType<typeof extendPrismaClient>
-let activePrisma: RetryingPrismaClient
-
-async function recyclePrismaClient(reason: string): Promise<PrismaClient> {
-  const existingRecovery = globalForPrisma.prismaRecovery
-  if (existingRecovery) return await existingRecovery
-
-  const recovery = (async () => {
-    const replacement = createBasePrismaClient()
-    await replacement.$connect()
-
-    activeBasePrisma = replacement
-    globalForPrisma.prisma = replacement
-    activePrisma = extendPrismaClient(replacement)
-    globalForPrisma.prismaGeneration =
-      (globalForPrisma.prismaGeneration ?? 0) + 1
-
-    console.warn('[prisma:client-recycled]', {
-      generation: globalForPrisma.prismaGeneration,
-      reason,
-      mode: useTextProtocol ? 'text-query' : 'binary-execute',
-    })
-
-    return replacement
-  })()
-
-  globalForPrisma.prismaRecovery = recovery
-
-  try {
-    return await recovery
-  } finally {
-    if (globalForPrisma.prismaRecovery === recovery) {
-      globalForPrisma.prismaRecovery = undefined
-    }
-  }
-}
-
 function extendPrismaClient(client: PrismaClient) {
   return client.$extends({
     name: 'transient-database-retry',
@@ -216,11 +152,9 @@ function extendPrismaClient(client: PrismaClient) {
           throw new Error(CIRCUIT_OPEN_MESSAGE)
         }
 
-        let execute = () => query(args)
-
         for (let attempt = 0; ; attempt += 1) {
           try {
-            const result = await execute()
+            const result = await query(args)
             recordConnectionSuccess()
             return result
           } catch (error: unknown) {
@@ -254,24 +188,6 @@ function extendPrismaClient(client: PrismaClient) {
             })
 
             await delay(waitMs)
-
-            if (staleConnectionError && model) {
-              const replacement = await recyclePrismaClient(
-                `${model}.${operation}: ${errorMessage(error)}`,
-              )
-
-              if (transactionContext.getStore()) {
-                throw error
-              }
-
-              execute = (() =>
-                replayPrismaOperation(
-                  replacement,
-                  model,
-                  operation,
-                  args,
-                ) as ReturnType<typeof query>) as typeof execute
-            }
           }
         }
       },
@@ -279,25 +195,35 @@ function extendPrismaClient(client: PrismaClient) {
   })
 }
 
-activePrisma = extendPrismaClient(activeBasePrisma)
+// One base client means one MariaDB connector pool per warm Vercel runtime.
+// Do not replace it during requests: retired Prisma clients retain their pools,
+// and a replacement loop can strand another connectionLimit-sized pool each
+// time a frontend socket fails. ProxySQL command pipelining is already disabled
+// in databaseAdapterConfig.ts, which addresses the historical socket poison at
+// its source.
+const basePrisma = globalForPrisma.prisma ?? createBasePrismaClient()
+globalForPrisma.prisma = basePrisma
 
-console.info('[prisma] MariaDB protocol mode', {
+const retryingPrisma = extendPrismaClient(basePrisma)
+type RetryingPrismaClient = typeof retryingPrisma
+
+console.info('[prisma] MariaDB adapter ready', {
   mode: useTextProtocol ? 'text-query' : 'binary-execute',
-  generation: globalForPrisma.prismaGeneration ?? 0,
+  poolLifecycle: 'singleton-per-runtime',
 })
 
 export const prisma = new Proxy({} as RetryingPrismaClient, {
   get(_target, property) {
-    const value = Reflect.get(activePrisma, property, activePrisma)
+    const value = Reflect.get(retryingPrisma, property, retryingPrisma)
 
     if (property === '$transaction' && typeof value === 'function') {
       return (...args: unknown[]) =>
         transactionContext.run(true, () =>
-          Reflect.apply(value, activePrisma, args),
+          Reflect.apply(value, retryingPrisma, args),
         )
     }
 
-    return typeof value === 'function' ? value.bind(activePrisma) : value
+    return typeof value === 'function' ? value.bind(retryingPrisma) : value
   },
 })
 

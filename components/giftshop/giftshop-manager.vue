@@ -40,7 +40,6 @@
         <div class="kr-scroll overscroll-contain p-4">
           <template v-if="activeTab === 'community'">
             <about-page />
-            <sponsor-page />
           </template>
 
           <div v-else-if="activeTab === 'mana'" class="flex flex-col gap-6">

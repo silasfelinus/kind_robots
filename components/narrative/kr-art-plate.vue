@@ -25,7 +25,9 @@
       :class="[
         'h-full w-full',
         fit === 'contain' ? 'object-contain' : 'object-cover',
-        hoverZoom ? 'transition-transform duration-300 group-hover:scale-105' : '',
+        hoverZoom
+          ? 'transition-transform duration-300 group-hover:scale-105'
+          : '',
       ]"
       :loading="eager ? 'eager' : 'lazy'"
       @error="onError"
@@ -148,16 +150,34 @@ const src = computed(() => {
   return resolved === props.fallback ? '' : props.fallback
 })
 
+/*
+ * Silas's four shapes, 2026-08-04 — the spec that had never been written down,
+ * which is why card and icon kept coming out wrong:
+ *
+ *   imagePath  SQUARE      the plain stored image, and the honest default
+ *   hero       HORIZONTAL  16:9
+ *   card       VERTICAL    2:3
+ *   icon       SQUARE      small, as the intro piece to a text-forward row
+ *
+ * `icon` previously had no case here at all and fell through to 3:2, so an icon
+ * rendered in a horizontal box. `wide` and `plate` are kept for the two
+ * non-gallery surfaces that ask for them by name.
+ */
 const aspectClass = computed(() => {
   switch (props.shape) {
     case 'card':
       return 'aspect-2/3 w-full'
     case 'hero':
       return 'aspect-video w-full'
+    case 'square':
+      return 'aspect-square w-full'
     case 'wide':
       return 'aspect-4/3 w-full'
-    default:
+    case 'plate':
       return 'aspect-3/2 w-full'
+    default:
+      // imagePath's shape. Square is the default because the stored image is.
+      return 'aspect-square w-full'
   }
 })
 </script>

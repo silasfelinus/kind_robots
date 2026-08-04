@@ -17,9 +17,17 @@
         class="btn btn-xs px-2"
         :class="mode === entry.value ? 'btn-primary' : 'btn-ghost'"
         :title="entry.label"
+        :aria-pressed="mode === entry.value"
         @click="emit('update:mode', entry.value)"
       >
-        {{ entry.abbr }}
+        <!-- Abbreviation on a phone, full word once there is room. Three
+             labelled buttons are ~200px of a 390px screen; three letters are
+             ~90px. dream-gallery's hand-rolled bar already did this, and the
+             shell rendering `abbr` unconditionally is why Scenarios showed
+             "C H I" while Dreams showed "Cards Heroes Icons" -- the same
+             control looking like two different controls. -->
+        <span class="sm:hidden">{{ entry.abbr }}</span>
+        <span class="hidden sm:inline">{{ entry.label }}</span>
       </button>
     </div>
 

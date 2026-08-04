@@ -40,14 +40,63 @@
      same reason.
 -->
 <template>
-  <div class="flex w-full flex-col">
+  <!--
+    ICON is a text-forward ROW, not a small card.
+
+    Silas, 2026-08-04: "Icons should be simple text focused displays with an
+    icon as the visual layer." Rendering icon through the column layout below
+    gave a cramped little art box with a caption over it — the "cramped
+    displays" complaint. Here the square art is a fixed-size intro piece on the
+    left and the text is the content, so the row stays readable at any width
+    and the icons grid can pack tightly without squeezing anything.
+  -->
+  <div
+    v-if="variant === 'icon'"
+    class="flex w-full items-center gap-3 px-1 py-1.5"
+  >
     <kr-art-plate
       v-if="showImage"
       :source="source"
       :variant="variant"
       :fallback="fallback"
       :alt="title"
-      :shape="compact ? compactShape : shape"
+      shape="square"
+      frame="none"
+      :fit="fit"
+      :placeholder-icon="placeholderIcon"
+      class="size-12 shrink-0 overflow-hidden rounded-xl"
+    />
+
+    <div class="min-w-0 flex-1">
+      <h2 class="truncate text-sm font-black leading-tight" :title="title">
+        {{ title }}
+      </h2>
+
+      <p v-if="subtitle" class="truncate text-xs text-base-content/60">
+        {{ subtitle }}
+      </p>
+
+      <div v-if="badges.length" class="mt-1 flex flex-wrap gap-1">
+        <span
+          v-for="badge in badges"
+          :key="badge.label"
+          class="badge badge-xs"
+          :class="badge.class || 'badge-primary'"
+        >
+          {{ badge.label }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div v-else class="flex w-full flex-col">
+    <kr-art-plate
+      v-if="showImage"
+      :source="source"
+      :variant="variant"
+      :fallback="fallback"
+      :alt="title"
+      :shape="resolvedShape"
       frame="none"
       :fit="fit"
       hover-zoom
@@ -163,7 +212,7 @@
 
 <script setup lang="ts">
 import type { ArtImageSrcLike, ArtVariant } from '@/utils/artImageSrc'
-import type { ArtPlateShape } from '@/utils/galleryVocabulary'
+import { VARIANT_SHAPE, type ArtPlateShape } from '@/utils/galleryVocabulary'
 
 export type EntityCardChip = {
   label: string
@@ -173,7 +222,7 @@ export type EntityCardChip = {
   title?: string
 }
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string
     subtitle?: string
@@ -211,10 +260,31 @@ withDefaults(
     selected: false,
     badges: () => [],
     meta: () => [],
-    shape: 'wide',
-    compactShape: 'hero',
+    shape: undefined,
+    compactShape: undefined,
     fit: 'cover',
     placeholderIcon: 'kind-icon:image',
   },
 )
+
+/**
+ * The box the art is drawn in, DERIVED from the variant unless a caller
+ * overrides it.
+ *
+ * This used to default to `wide` (4:3 horizontal) for every variant, so
+ * choosing Cards loaded the vertical card art and then letterboxed it in a
+ * horizontal frame -- Silas, 2026-08-04: "Card and icon are wack, yo. Small
+ * images, terrible layout, cramped displays." Hero looked fine only because
+ * 4:3 is near enough to 16:9 to hide the mistake.
+ *
+ * Deriving is the point. `variant` and `shape` were two hand-passed props with
+ * nothing tying them together, which is two chances to disagree on every call
+ * site. VARIANT_SHAPE is the single answer; `shape` remains available for the
+ * surfaces that genuinely want a hero image in a card-shaped plate.
+ */
+const resolvedShape = computed<ArtPlateShape>(() => {
+  if (props.compact && props.compactShape) return props.compactShape
+  if (props.shape) return props.shape
+  return VARIANT_SHAPE[props.variant] ?? 'square'
+})
 </script>

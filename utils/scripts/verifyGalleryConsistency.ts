@@ -24,7 +24,7 @@
 // Every check below is a defect that actually shipped, not a hypothetical.
 
 import { readFile, readdir } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
 
 const failures: string[] = []
 const notes: string[] = []
@@ -189,6 +189,157 @@ for (const root of COMPONENT_ROOTS) {
   }
 }
 ok(`${mountCount} kr-gallery mount(s) either bind :mode or opt out of the bar`)
+
+/* ------------------------------------------------------------------ *
+ * 4. The four shapes must stay mapped, and derived rather than hand-passed.
+ * ------------------------------------------------------------------ */
+//
+// Silas, 2026-08-04, spelling out a spec that had never been written down --
+// which is exactly why card and icon kept coming out wrong:
+//
+//   "we have four images: image path (square), image hero: horizontal, card:
+//    vertical, icon: simple text based layout with square image as intro piece"
+//   "Why do we keep getting confused about this?"
+//
+// Because `variant` (which image) and `shape` (which box) were independent
+// props with nothing tying them together, and kr-entity-card-body defaulted
+// shape to `wide` -- 4:3 HORIZONTAL -- for every variant. Cards loaded the
+// vertical art and letterboxed it; icon had no case in the aspect map at all.
+const EXPECTED_VARIANT_SHAPE: Record<string, string> = {
+  card: 'card',
+  hero: 'hero',
+  icon: 'square',
+}
+
+const variantShapeBlock = vocabSrc.match(
+  /export const VARIANT_SHAPE[\s\S]*?\n\}/,
+)?.[0]
+
+if (!variantShapeBlock) {
+  fail(
+    'utils/galleryVocabulary.ts: VARIANT_SHAPE not found. It is the single ' +
+      'answer to "which box does this variant draw in" -- without it, callers ' +
+      'hand-pass `shape` beside `variant` and the two drift.',
+  )
+} else {
+  for (const [variant, shape] of Object.entries(EXPECTED_VARIANT_SHAPE)) {
+    if (!new RegExp(`${variant}:\\s*'${shape}'`).test(variantShapeBlock)) {
+      fail(
+        `VARIANT_SHAPE must map ${variant} -> '${shape}'. The four shapes are ` +
+          'fixed: imagePath square, hero horizontal, card vertical, icon square.',
+      )
+    }
+  }
+  if (!failures.length)
+    ok('VARIANT_SHAPE maps all three variants to their shape')
+}
+
+const cardBody = stripComments(
+  await readFile('components/gallery/kr-entity-card-body.vue', 'utf8'),
+)
+if (/shape:\s*'(card|hero|square|wide|plate)'/.test(cardBody)) {
+  fail(
+    'kr-entity-card-body defaults `shape` to a literal. That is the original ' +
+      'bug: a fixed default (it was `wide`, 4:3 horizontal) overrides every ' +
+      "variant's real shape. Derive it from VARIANT_SHAPE instead.",
+  )
+} else if (!cardBody.includes('VARIANT_SHAPE')) {
+  fail(
+    'kr-entity-card-body no longer derives its shape from VARIANT_SHAPE, so ' +
+      'variant and shape can disagree again.',
+  )
+} else {
+  ok('kr-entity-card-body derives its shape from the variant')
+}
+
+/* ------------------------------------------------------------------ *
+ * 5. One mode bar, in one place.
+ * ------------------------------------------------------------------ */
+//
+// Silas, 2026-08-04: "stories and dreams have different layouts, why? ... I
+// wouldn't be clicking the layout options on one side of the screen for one and
+// the other for, well, you know you can extrapolate."
+//
+// dream-gallery hand-rolled its own Cards/Heroes/Icons bar in its toolbar while
+// the other six used kr-gallery's, so the same control lived in two places. A
+// shared shell whose control the caller re-implements is not shared.
+/*
+ * KNOWN OFFENDER, listed rather than excluded so it stays visible.
+ *
+ * conductor-page.vue does not mount kr-gallery at all -- it hand-renders its own
+ * per-mode layouts around its own bar, so it is the same disease on a bigger
+ * surface than a gallery swap. Fixing it is a real migration, not a line change,
+ * and it is not what Silas reported (dreams vs stories). Filed as follow-up;
+ * this list must not grow.
+ */
+const MODE_BAR_ALLOWED = new Set(['components/pages/conductor-page.vue'])
+
+for await (const file of walk('components')) {
+  if (file.includes('kr-gallery.vue')) continue
+  if (MODE_BAR_ALLOWED.has(file.split(sep).join('/'))) continue
+  const src = stripComments(await readFile(file, 'utf8'))
+  if (!/v-for="mode in/.test(src)) continue
+  if (!/GALLERY_MODES|modeOptions/.test(src)) continue
+
+  fail(
+    `${file}: hand-rolls a gallery mode bar (v-for over GALLERY_MODES). The ` +
+      'shell renders one already -- two bars for the same state is how the ' +
+      'control ended up on a different side of the screen per gallery.',
+  )
+}
+ok('no gallery hand-rolls its own mode bar')
+
+/* ------------------------------------------------------------------ *
+ * 6. Every core object carries all four art variants.
+ * ------------------------------------------------------------------ */
+//
+// Silas, 2026-08-04: "please make sure that all our major objects have the
+// needs image variables: card icon hero and path."
+//
+// The gallery vocabulary is only as real as the schema behind it: a mode whose
+// column does not exist silently falls back through resolveArtVariantSrc and
+// renders the same art as another mode, which is indistinguishable from the
+// bug where the shape was wrong. Dream was missing iconPath (t-077) and Project
+// was missing it too and had never been filed -- found by auditing all four
+// fields across every core model instead of acting on the one known report.
+const SCHEMA = await readFile('prisma/schema.prisma', 'utf8')
+const ART_FIELDS = ['imagePath', 'cardPath', 'heroPath', 'iconPath']
+const CORE_MODELS = [
+  'Bot',
+  'Character',
+  'Dream',
+  'Reward',
+  'Scenario',
+  'Facet',
+  'Project',
+]
+
+for (const model of CORE_MODELS) {
+  const body = SCHEMA.match(
+    new RegExp(`^model ${model} \\{([\\s\\S]*?)^\\}`, 'm'),
+  )?.[1]
+
+  if (!body) {
+    fail(
+      `prisma/schema.prisma: model ${model} not found. If it was renamed, update this contract.`,
+    )
+    continue
+  }
+
+  const missing = ART_FIELDS.filter(
+    (field) => !new RegExp(`^\\s*${field}\\s+`, 'm').test(body),
+  )
+
+  if (missing.length) {
+    fail(
+      `${model} is missing ${missing.join(', ')}. All four art variants are ` +
+        'required on a core object: imagePath (square), cardPath (vertical), ' +
+        'heroPath (horizontal), iconPath (square). A gallery mode whose column ' +
+        "does not exist renders another mode's art and looks like a layout bug.",
+    )
+  }
+}
+ok(`${CORE_MODELS.length} core objects carry all four art variants`)
 
 /* ------------------------------------------------------------------ */
 

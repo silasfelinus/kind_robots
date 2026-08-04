@@ -441,10 +441,16 @@ const scenarioById = computed(
  * kr-gallery slot render the same ScenarioCard, and a nine-prop list copied
  * twice would drift the moment one of them gained a tenth.
  */
+/*
+ * Icons is a browse view: a text-forward row whose art is a 3rem square.
+ * Three floating action circles over that is the "cramped displays" Silas
+ * photographed -- the buttons were larger than the artwork. Actions stay on
+ * Cards and Heroes, where there is room for them.
+ */
 const scenarioCardProps = computed(() => ({
   showImage: props.showImages,
   compact: isCompact.value,
-  showActions: props.showCardActions,
+  showActions: props.showCardActions && galleryMode.value !== 'icons',
   showDescription: props.showDescriptions,
   showMeta: props.showMeta,
   showInspirations: props.showInspirations,

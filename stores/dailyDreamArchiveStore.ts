@@ -90,6 +90,18 @@ export type DailyDreamArchiveObject = Record<string, unknown> & {
   id: number
   userId?: number | null
   artImageId?: number | null
+  title?: string | null
+  name?: string | null
+  slug?: string | null
+  artPrompt?: string | null
+  designer?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  imagePath?: string | null
+  avatarImage?: string | null
+  iconPath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
   ArtImage?: DailyDreamArchiveArt | null
   ArtImages?: DailyDreamArchiveArt[]
 }
@@ -251,6 +263,36 @@ export const useDailyDreamArchiveStore = defineStore(
         const found = collections[objectType]?.find((item) => item.id === objectId)
         if (found) Object.assign(found, update)
       }
+    }
+
+    function findObject(
+      objectType: DailyDreamArchiveObjectType,
+      objectId: number,
+    ): DailyDreamArchiveObject | null {
+      for (const dream of dreams.value) {
+        if (objectType === 'dream' && dream.id === objectId) {
+          return dream as unknown as DailyDreamArchiveObject
+        }
+        if (objectType === 'dream') {
+          const related = [
+            ...dream.RelationsFrom.map((relation) => relation.ToDream),
+            ...dream.RelationsTo.map((relation) => relation.FromDream),
+          ].find((item) => item.id === objectId)
+          if (related) return related as unknown as DailyDreamArchiveObject
+        }
+
+        const collections: Partial<
+          Record<DailyDreamArchiveObjectType, DailyDreamArchiveObject[]>
+        > = {
+          character: dream.Characters as unknown as DailyDreamArchiveObject[],
+          reward: dream.Rewards as unknown as DailyDreamArchiveObject[],
+          scenario: dream.Scenarios as unknown as DailyDreamArchiveObject[],
+          bot: dream.Bots as unknown as DailyDreamArchiveObject[],
+        }
+        const found = collections[objectType]?.find((item) => item.id === objectId)
+        if (found) return found
+      }
+      return null
     }
 
     async function fetchArchive(force = false): Promise<boolean> {
@@ -469,7 +511,11 @@ export const useDailyDreamArchiveStore = defineStore(
       }
 
       const result = await updateObject('dream', input.entity.id, patch)
-      if (result.success) await fetchArchive(true)
+      if (result.success) {
+        await fetchArchive(true)
+        const refreshed = findObject('dream', input.entity.id)
+        if (refreshed) Object.assign(input.entity, refreshed)
+      }
       return result
     }
 
@@ -479,6 +525,7 @@ export const useDailyDreamArchiveStore = defineStore(
       loaded,
       lastError,
       fetchArchive,
+      findObject,
       updateObject,
       queueObjectArt,
       fetchArtJob,

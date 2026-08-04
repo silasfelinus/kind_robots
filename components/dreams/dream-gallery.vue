@@ -734,10 +734,16 @@ const dreamById = computed(
 )
 
 /** The card's shared props in one place so row and grid cannot drift. */
+/*
+ * Icons is a browse view: a text-forward row whose art is a 3rem square.
+ * Three floating action circles over that is the "cramped displays" Silas
+ * photographed -- the buttons were larger than the artwork. Actions stay on
+ * Cards and Heroes, where there is room for them.
+ */
 const dreamCardProps = computed(() => ({
   compact: isCompact.value,
   showImage: props.showImages,
-  showActions: props.showCardActions,
+  showActions: props.showCardActions && galleryMode.value !== 'icons',
   showDescription: props.showDescriptions,
   showMeta: props.showMeta,
   showStats: props.showStats,

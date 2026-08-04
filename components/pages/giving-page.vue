@@ -1,6 +1,6 @@
 <!-- /components/content/pages/giving-page.vue -->
 <template>
-  <div class="kr-unbound mx-auto max-w-4xl space-y-6 px-4 py-2 sm:px-6 lg:px-8">
+  <div class="kr-unbound mx-auto max-w-5xl space-y-6 px-4 py-2 sm:px-6 lg:px-8">
     <div
       class="rounded-2xl border border-primary/30 bg-primary/10 p-6 text-center shadow-sm sm:p-10"
     >
@@ -91,6 +91,24 @@
         </p>
       </div>
     </div>
+
+    <section
+      id="monthly-support"
+      class="scroll-mt-24 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-7"
+    >
+      <div class="mb-6 text-center">
+        <Icon name="kind-icon:rocket" class="mx-auto h-8 w-8 text-primary" />
+        <h2 class="mt-2 text-2xl font-black text-base-content">
+          Support Kind Robots Monthly
+        </h2>
+        <p class="mx-auto mt-2 max-w-2xl text-sm text-base-content/70">
+          Monthly plans support Kind Robots itself: servers, art, stories, and
+          continued development. This is separate from donations to AMF.
+        </p>
+      </div>
+
+      <subscription-manager />
+    </section>
 
     <div
       class="rounded-2xl border border-info/30 bg-info/10 p-4 text-center text-sm text-info-content"

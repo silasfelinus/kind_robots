@@ -5,12 +5,12 @@ tabKey: giving
 dashboardKey: giftshop
 dashboardTab: community
 label: Giving
-title: Give Directly to Against Malaria
-subtitle: We never touch the money
-description: A dedicated page whose primary call to action sends you straight to AMF's fundraiser — no middleman.
+title: Giving & Support
+subtitle: Give directly or keep Kind Robots running
+description: Donate straight to Against Malaria or support Kind Robots monthly from one page.
 icon: kind-icon:hand-heart
 route: /giving
-sort: 45
+sort: 40
 ---
 
-Donate directly at the Against Malaria Foundation's fundraiser page. 100% goes to AMF.
+Donate directly to the Against Malaria Foundation or choose a monthly Kind Robots support plan.

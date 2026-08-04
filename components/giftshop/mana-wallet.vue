@@ -62,7 +62,7 @@
 
         <div class="flex flex-col sm:flex-row gap-3 pt-2">
           <NuxtLink
-            to="/subscriptions"
+            to="/giving#monthly-support"
             class="btn btn-primary rounded-xl flex-1"
           >
             Get more mana 🚀

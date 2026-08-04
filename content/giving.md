@@ -1,17 +1,17 @@
 ---
-title: 'Giving'
+title: 'Giving & Support'
 room: 'Giving Room'
-subtitle: 'Direct to the Against Malaria Foundation'
-description: Donate straight to AMF — nets that save lives, no middleman.
+subtitle: 'Direct aid and monthly support'
+description: Donate straight to AMF or support Kind Robots monthly from one place.
 icon: kind-icon:hand-heart
 image: splash/about.png
-tooltip: We keep this simple on purpose. Every dollar you send goes to AMF, not through us.
+tooltip: Give directly to Against Malaria or help keep Kind Robots running. The two kinds of support stay clearly separated.
 dottiTip: I checked the math three times. $2 really does buy a bed net.
-amiTip: The swarm does not touch the money. We just point the way. 🦋💙
+amiTip: Direct donations go to AMF. Monthly support keeps the servers fluttering. 🦋💙
 channelKey: sanctuary
 tabKey: giving
 dashboardKey: giftshop
-dashboardTab: giving
+dashboardTab: community
 loadingMessage: Loading giving page...
 refreshLabel: Refresh giving page
 ---

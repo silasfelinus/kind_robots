@@ -28,11 +28,6 @@ export const loadUserStore = async () => {
   return useUserStore()
 }
 
-export const loadDisplayStore = async () => {
-  const { useDisplayStore } = await import('@/stores/displayStore')
-  return useDisplayStore()
-}
-
 export const loadContentStore = async () => {
   const { useContentStore } = await import('@/stores/contentStore')
   return useContentStore()

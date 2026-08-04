@@ -15,7 +15,7 @@
 import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
-import { useDisplayStore } from '@/stores/displayStore'
+import { useViewportStore } from '@/stores/viewportStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useStartupAnimationStore } from '@/stores/startupAnimationStore'
 import {
@@ -25,7 +25,7 @@ import {
 } from '@/utils/startupLaunch'
 
 const errorStore = useErrorStore()
-const displayStore = useDisplayStore()
+const viewportStore = useViewportStore()
 const butterflyStore = useButterflyStore()
 const startupStore = useStartupAnimationStore()
 const route = useRoute()
@@ -144,11 +144,11 @@ async function runWave(
  */
 async function initializeStores() {
   try {
-    if (!displayStore.isInitialized) {
+    if (!viewportStore.isInitialized) {
       await errorStore.handleError(
-        async () => displayStore.initialize(),
+        async () => viewportStore.initialize(),
         ErrorType.STORE_ERROR,
-        'Error initializing display store',
+        'Error initializing viewport store',
       )
     }
 

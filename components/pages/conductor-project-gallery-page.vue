@@ -26,6 +26,63 @@
       </button>
     </nav>
 
+    <details class="shrink-0 rounded-xl border border-base-300 bg-base-100" :open="createOpen">
+      <summary
+        class="cursor-pointer px-3 py-2 text-sm font-bold text-base-content/70"
+        @click.prevent="createOpen = !createOpen"
+      >
+        + Create a Project
+      </summary>
+      <div class="space-y-3 border-t border-base-300 p-3">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="form-control sm:col-span-2">
+            <span class="label-text text-xs">Title</span>
+            <input
+              v-model="createForm.title"
+              type="text"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="Project title"
+            />
+          </label>
+          <label class="form-control sm:col-span-2">
+            <span class="label-text text-xs">Description</span>
+            <textarea
+              v-model="createForm.description"
+              class="textarea textarea-bordered min-h-20 rounded-xl"
+              placeholder="What is this project?"
+            />
+          </label>
+          <label class="form-control">
+            <span class="label-text text-xs">Status</span>
+            <select v-model="createForm.status" class="select select-bordered select-sm rounded-xl">
+              <option v-for="option in PROJECT_STATUSES" :key="option" :value="option">
+                {{ statusLabel(option) }}
+              </option>
+            </select>
+          </label>
+          <label class="form-control">
+            <span class="label-text text-xs">Priority</span>
+            <select v-model="createForm.priority" class="select select-bordered select-sm rounded-xl">
+              <option v-for="option in PROJECT_PRIORITIES" :key="option" :value="option">
+                {{ option }}
+              </option>
+            </select>
+          </label>
+        </div>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm w-full rounded-xl"
+          :disabled="!createForm.title.trim() || projects.saving"
+          @click="createProject"
+        >
+          <span v-if="projects.saving" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:plus" class="size-3.5" />
+          Create Project
+        </button>
+        <p v-if="createError" class="text-xs text-error">{{ createError }}</p>
+      </div>
+    </details>
+
     <section v-if="showSync && syncIssueCount" class="shrink-0 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs">
       <strong>Lifecycle reconciliation</strong>
       <div class="mt-2 grid gap-2 md:grid-cols-3">
@@ -109,6 +166,16 @@ const filter = computed({
 })
 const showSync = ref(false)
 const showBlocked = ref(false)
+const PROJECT_STATUSES = filters.map((entry) => entry.value).filter((value): value is Status => value !== 'ALL')
+const PROJECT_PRIORITIES: ProjectPriorityLevel[] = ['LOW', 'NORMAL', 'HIGH']
+const createOpen = ref(false)
+const createError = ref('')
+const createForm = ref<{ title: string; description: string; status: Status; priority: ProjectPriorityLevel }>({
+  title: '',
+  description: '',
+  status: 'BRAINSTORM',
+  priority: 'NORMAL',
+})
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
 
@@ -166,4 +233,23 @@ const load = (force: boolean) => Promise.all([projects.fetchProjects({ includeIn
 const refresh = () => load(true)
 async function open(item: Item) { await projects.fetchProject(item.id); page.setWorkspaceCardKey(item.slug) }
 async function openSlug(slug: string) { const item = allItems.value.find((entry) => entry.slug === slug); if (item) await open(item) }
+
+async function createProject(): Promise<void> {
+  createError.value = ''
+  const title = createForm.value.title.trim()
+  if (!title) return
+  try {
+    const created = await projects.createProject({
+      title,
+      description: createForm.value.description.trim() || null,
+      status: createForm.value.status,
+      priority: createForm.value.priority,
+    })
+    createForm.value = { title: '', description: '', status: 'BRAINSTORM', priority: 'NORMAL' }
+    createOpen.value = false
+    page.setWorkspaceCardKey(slugFor(created))
+  } catch (error) {
+    createError.value = error instanceof Error ? error.message : 'Project could not be created.'
+  }
+}
 </script>

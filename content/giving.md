@@ -11,7 +11,7 @@ amiTip: Direct donations go to AMF. Monthly support keeps the servers fluttering
 channelKey: sanctuary
 tabKey: giving
 dashboardKey: giftshop
-dashboardTab: giving
+dashboardTab: community
 loadingMessage: Loading giving page...
 refreshLabel: Refresh giving page
 ---

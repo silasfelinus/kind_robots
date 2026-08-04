@@ -117,23 +117,6 @@
       <!-- Kaizen philosophy popup -->
       <KaizenPopup />
 
-      <!-- Gallery mode toggle -->
-      <div class="flex items-center gap-0.5">
-        <button
-          v-for="mode in galleryModeOptions"
-          :key="mode.value"
-          type="button"
-          class="btn btn-xs rounded-md px-1.5"
-          :class="
-            projectGalleryMode === mode.value ? 'btn-primary' : 'btn-ghost'
-          "
-          :title="mode.label"
-          @click="projectGalleryMode = mode.value"
-        >
-          {{ mode.abbr }}
-        </button>
-      </div>
-
       <!-- Refresh + timestamp (admin) -->
       <template v-if="userStore.isAdmin">
         <span
@@ -170,90 +153,21 @@
           />
         </div>
         <template v-else>
-          <div
-            v-if="projectGalleryMode === 'icons'"
-            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-3"
-          >
-            <div
-              v-for="project in projectStore.publicProjects"
-              :key="project.id"
-              class="group flex flex-col items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-3 text-center transition-all hover:border-primary/40 hover:shadow-md"
-            >
-              <img
-                :src="projectIconPath(project.slug)"
-                :alt="project.title"
-                class="size-12 rounded-xl border border-base-300 object-cover"
-              />
-              <p class="w-full truncate text-xs font-semibold">
-                {{ project.title }}
-              </p>
-              <p
-                v-if="project.flavorText"
-                class="line-clamp-2 w-full text-xs text-base-content/50"
-              >
-                {{ project.flavorText }}
-              </p>
-            </div>
-          </div>
-          <div
-            v-else-if="projectGalleryMode === 'heroes'"
-            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4"
-          >
-            <div
-              v-for="project in projectStore.publicProjects"
-              :key="project.id"
-              class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
-              style="aspect-ratio: 16/9"
-            >
-              <img
-                :src="projectHeroPath(project.slug)"
-                :alt="project.title"
-                class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div
-                class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-12"
-              >
-                <p class="truncate text-sm font-bold">{{ project.title }}</p>
-                <p class="text-xs text-base-content/60">
-                  {{ project.flavorText }}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div
-            v-else
-            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4"
-          >
-            <div
-              v-for="project in projectStore.publicProjects"
-              :key="project.id"
-              class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 transition-all hover:border-primary/40 hover:shadow-lg"
-              style="aspect-ratio: 2/3"
-            >
-              <img
-                :src="projectCardPath(project.slug)"
-                :alt="project.title"
-                class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div
-                class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/95 via-base-300/60 to-transparent p-3 pt-8"
-              >
-                <div class="flex items-center gap-2">
-                  <img
-                    :src="projectIconPath(project.slug)"
-                    alt=""
-                    class="size-7 shrink-0 rounded-lg border border-white/20 object-cover"
-                  />
-                  <p class="min-w-0 truncate text-sm font-bold leading-tight">
-                    {{ project.title }}
-                  </p>
-                </div>
-                <p class="mt-1 text-xs text-base-content/60">
-                  {{ project.flavorText }}
-                </p>
-              </div>
-            </div>
-          </div>
+          <!-- t-060 / gallery-consistency check 5: the shared shell owns the
+               grid AND the Cards/Heroes/Icons bar. This page hand-rolled its
+               own bar plus three per-mode layouts, which is how the same
+               control ended up in three different places across the app --
+               Silas: "I wouldn't be clicking the layout options on one side of
+               the screen for one and the other for". The layouts it rolled had
+               the shapes RIGHT (square icons, 16:9 heroes, 2:3 cards), which is
+               the spec now living in VARIANT_SHAPE; the shell draws them. -->
+          <kr-gallery
+            :items="projectGalleryItems"
+            :mode="projectGalleryMode"
+            empty-label="public projects"
+            @update:mode="projectGalleryMode = $event"
+          />
+
           <p
             v-if="!projectStore.publicProjects.length"
             class="py-8 text-center text-sm text-base-content/50"
@@ -1387,11 +1301,8 @@ import {
   placementLiveUrl,
 } from '~/utils/projectPlacements'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import {
-  GALLERY_MODES,
-  IS_GALLERY_MODE,
-  type GalleryMode,
-} from '@/utils/galleryVocabulary'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 import EntityArtManager from '@/components/art/entity-art-manager.vue'
 import ConductorProjectChat from '@/components/conductor/conductor-project-chat.vue'
 import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
@@ -1423,8 +1334,25 @@ const collectionStore = useCollectionStore()
 const CONDUCTOR_IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 
-const galleryModeOptions = GALLERY_MODES
 const projectGalleryMode = ref<GalleryMode>('cards')
+
+/*
+ * Pre-resolved variant URLs rather than a raw `source`. These projects come
+ * from the conductor record and their art lives at slug-derived paths with a
+ * DB column taking precedence, which resolveArtVariantSrc cannot know about --
+ * exactly the case GalleryItem's icon/card/hero fields exist for.
+ */
+const projectGalleryItems = computed<GalleryItem[]>(() =>
+  projectStore.publicProjects.map((project) => ({
+    id: project.id,
+    title: project.title,
+    description: project.flavorText || '',
+    icon: projectIconPath(project.slug),
+    card: projectCardPath(project.slug),
+    hero: projectHeroPath(project.slug),
+    placeholderIcon: 'kind-icon:folder',
+  })),
+)
 
 const syncingMissing = ref(false)
 const syncMessage = ref('')
@@ -1502,8 +1430,17 @@ function projectHeroPath(slug: string | null): string {
 }
 function projectIconPath(slug: string | null): string {
   slug = slug || 'project'
+  const record = projectRecordForSlug(slug)
+  /*
+   * iconPath first, THEN imagePath. This read imagePath directly because until
+   * 2026-08-04 Project had no iconPath column at all, so the square default was
+   * the closest thing available. Both are square, so the substitution was
+   * invisible -- which is exactly why it needed the schema audit rather than a
+   * bug report to find.
+   */
   return (
-    projectRecordForSlug(slug)?.imagePath ??
+    record?.iconPath ??
+    record?.imagePath ??
     `${CONDUCTOR_IMG_BASE}/${slug}-icon.webp`
   )
 }
@@ -1594,7 +1531,9 @@ const linkedProject = computed(() =>
 const matchedProjectCollection = computed(() => {
   if (!selectedProject.value) return null
   void collectionStore.collections
-  return collectionStore.findCollectionBySlug?.(selectedProject.value.slug) ?? null
+  return (
+    collectionStore.findCollectionBySlug?.(selectedProject.value.slug) ?? null
+  )
 })
 
 const projectCollectionSlides = computed(() => {

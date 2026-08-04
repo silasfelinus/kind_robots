@@ -65,6 +65,7 @@ export type ProjectMinAggregateOutputType = {
   highlightImage: string | null
   icon: string | null
   imagePath: string | null
+  iconPath: string | null
   cardPath: string | null
   heroPath: string | null
   artPrompt: string | null
@@ -101,6 +102,7 @@ export type ProjectMaxAggregateOutputType = {
   highlightImage: string | null
   icon: string | null
   imagePath: string | null
+  iconPath: string | null
   cardPath: string | null
   heroPath: string | null
   artPrompt: string | null
@@ -137,6 +139,7 @@ export type ProjectCountAggregateOutputType = {
   highlightImage: number
   icon: number
   imagePath: number
+  iconPath: number
   cardPath: number
   heroPath: number
   artPrompt: number
@@ -191,6 +194,7 @@ export type ProjectMinAggregateInputType = {
   highlightImage?: true
   icon?: true
   imagePath?: true
+  iconPath?: true
   cardPath?: true
   heroPath?: true
   artPrompt?: true
@@ -227,6 +231,7 @@ export type ProjectMaxAggregateInputType = {
   highlightImage?: true
   icon?: true
   imagePath?: true
+  iconPath?: true
   cardPath?: true
   heroPath?: true
   artPrompt?: true
@@ -263,6 +268,7 @@ export type ProjectCountAggregateInputType = {
   highlightImage?: true
   icon?: true
   imagePath?: true
+  iconPath?: true
   cardPath?: true
   heroPath?: true
   artPrompt?: true
@@ -386,6 +392,7 @@ export type ProjectGroupByOutputType = {
   highlightImage: string | null
   icon: string | null
   imagePath: string | null
+  iconPath: string | null
   cardPath: string | null
   heroPath: string | null
   artPrompt: string | null
@@ -445,6 +452,7 @@ export type ProjectWhereInput = {
   highlightImage?: Prisma.StringNullableFilter<"Project"> | string | null
   icon?: Prisma.StringNullableFilter<"Project"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Project"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Project"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -493,6 +501,7 @@ export type ProjectOrderByWithRelationInput = {
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -545,6 +554,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   highlightImage?: Prisma.StringNullableFilter<"Project"> | string | null
   icon?: Prisma.StringNullableFilter<"Project"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Project"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Project"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -593,6 +603,7 @@ export type ProjectOrderByWithAggregationInput = {
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
   heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -637,6 +648,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   highlightImage?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -672,6 +684,7 @@ export type ProjectCreateInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -716,6 +729,7 @@ export type ProjectUncheckedCreateInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -759,6 +773,7 @@ export type ProjectUpdateInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -803,6 +818,7 @@ export type ProjectUncheckedUpdateInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -847,6 +863,7 @@ export type ProjectCreateManyInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -882,6 +899,7 @@ export type ProjectUpdateManyMutationInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -914,6 +932,7 @@ export type ProjectUncheckedUpdateManyInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -971,6 +990,7 @@ export type ProjectCountOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1015,6 +1035,7 @@ export type ProjectMaxOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1051,6 +1072,7 @@ export type ProjectMinOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
   heroPath?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1397,6 +1419,7 @@ export type ProjectCreateWithoutArtImageInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1440,6 +1463,7 @@ export type ProjectUncheckedCreateWithoutArtImageInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1512,6 +1536,7 @@ export type ProjectScalarWhereInput = {
   highlightImage?: Prisma.StringNullableFilter<"Project"> | string | null
   icon?: Prisma.StringNullableFilter<"Project"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Project"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Project"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Project"> | string | null
   heroPath?: Prisma.StringNullableFilter<"Project"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -1547,6 +1572,7 @@ export type ProjectCreateWithoutArtCollectionInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1590,6 +1616,7 @@ export type ProjectUncheckedCreateWithoutArtCollectionInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1658,6 +1685,7 @@ export type ProjectCreateWithoutManagerInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1701,6 +1729,7 @@ export type ProjectUncheckedCreateWithoutManagerInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1769,6 +1798,7 @@ export type ProjectCreateWithoutChatsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1812,6 +1842,7 @@ export type ProjectUncheckedCreateWithoutChatsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1870,6 +1901,7 @@ export type ProjectUpdateWithoutChatsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1913,6 +1945,7 @@ export type ProjectUncheckedUpdateWithoutChatsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1955,6 +1988,7 @@ export type ProjectCreateWithoutFacetLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -1998,6 +2032,7 @@ export type ProjectUncheckedCreateWithoutFacetLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2056,6 +2091,7 @@ export type ProjectUpdateWithoutFacetLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2099,6 +2135,7 @@ export type ProjectUncheckedUpdateWithoutFacetLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2141,6 +2178,7 @@ export type ProjectCreateWithoutArtImageLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2184,6 +2222,7 @@ export type ProjectUncheckedCreateWithoutArtImageLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2242,6 +2281,7 @@ export type ProjectUpdateWithoutArtImageLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2285,6 +2325,7 @@ export type ProjectUncheckedUpdateWithoutArtImageLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2327,6 +2368,7 @@ export type ProjectCreateWithoutArtCollectionLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2370,6 +2412,7 @@ export type ProjectUncheckedCreateWithoutArtCollectionLinksInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2428,6 +2471,7 @@ export type ProjectUpdateWithoutArtCollectionLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2471,6 +2515,7 @@ export type ProjectUncheckedUpdateWithoutArtCollectionLinksInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2513,6 +2558,7 @@ export type ProjectCreateWithoutPitchSheetInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2556,6 +2602,7 @@ export type ProjectUncheckedCreateWithoutPitchSheetInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2614,6 +2661,7 @@ export type ProjectUpdateWithoutPitchSheetInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2657,6 +2705,7 @@ export type ProjectUncheckedUpdateWithoutPitchSheetInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2699,6 +2748,7 @@ export type ProjectCreateWithoutReactionsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2742,6 +2792,7 @@ export type ProjectUncheckedCreateWithoutReactionsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2800,6 +2851,7 @@ export type ProjectUpdateWithoutReactionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2843,6 +2895,7 @@ export type ProjectUncheckedUpdateWithoutReactionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2885,6 +2938,7 @@ export type ProjectCreateWithoutUserInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2928,6 +2982,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -2996,6 +3051,7 @@ export type ProjectCreateWithoutArtJobsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3039,6 +3095,7 @@ export type ProjectUncheckedCreateWithoutArtJobsInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3097,6 +3154,7 @@ export type ProjectUpdateWithoutArtJobsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3140,6 +3198,7 @@ export type ProjectUncheckedUpdateWithoutArtJobsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3182,6 +3241,7 @@ export type ProjectCreateWithoutTodosInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3225,6 +3285,7 @@ export type ProjectUncheckedCreateWithoutTodosInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3283,6 +3344,7 @@ export type ProjectUpdateWithoutTodosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3326,6 +3388,7 @@ export type ProjectUncheckedUpdateWithoutTodosInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3369,6 +3432,7 @@ export type ProjectCreateManyArtImageInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3403,6 +3467,7 @@ export type ProjectUpdateWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3446,6 +3511,7 @@ export type ProjectUncheckedUpdateWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3489,6 +3555,7 @@ export type ProjectUncheckedUpdateManyWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3524,6 +3591,7 @@ export type ProjectCreateManyArtCollectionInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3558,6 +3626,7 @@ export type ProjectUpdateWithoutArtCollectionInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3601,6 +3670,7 @@ export type ProjectUncheckedUpdateWithoutArtCollectionInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3644,6 +3714,7 @@ export type ProjectUncheckedUpdateManyWithoutArtCollectionInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3679,6 +3750,7 @@ export type ProjectCreateManyManagerInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3713,6 +3785,7 @@ export type ProjectUpdateWithoutManagerInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3756,6 +3829,7 @@ export type ProjectUncheckedUpdateWithoutManagerInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3799,6 +3873,7 @@ export type ProjectUncheckedUpdateManyWithoutManagerInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3834,6 +3909,7 @@ export type ProjectCreateManyUserInput = {
   highlightImage?: string | null
   icon?: string | null
   imagePath?: string | null
+  iconPath?: string | null
   cardPath?: string | null
   heroPath?: string | null
   artPrompt?: string | null
@@ -3868,6 +3944,7 @@ export type ProjectUpdateWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3911,6 +3988,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3954,6 +4032,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4074,6 +4153,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   highlightImage?: boolean
   icon?: boolean
   imagePath?: boolean
+  iconPath?: boolean
   cardPath?: boolean
   heroPath?: boolean
   artPrompt?: boolean
@@ -4125,6 +4205,7 @@ export type ProjectSelectScalar = {
   highlightImage?: boolean
   icon?: boolean
   imagePath?: boolean
+  iconPath?: boolean
   cardPath?: boolean
   heroPath?: boolean
   artPrompt?: boolean
@@ -4139,7 +4220,7 @@ export type ProjectSelectScalar = {
   isActive?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "cardPath" | "heroPath" | "artPrompt" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "pitch" | "flavorText" | "goal" | "status" | "priority" | "conductorSlug" | "repoUrl" | "liveUrl" | "channelKey" | "tabKey" | "lastSyncedAt" | "allowReviews" | "highlightImage" | "icon" | "imagePath" | "iconPath" | "cardPath" | "heroPath" | "artPrompt" | "designer" | "creationSource" | "userId" | "managerBotId" | "artImageId" | "artCollectionId" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtJobs?: boolean | Prisma.Project$ArtJobsArgs<ExtArgs>
   Chats?: boolean | Prisma.Project$ChatsArgs<ExtArgs>
@@ -4194,6 +4275,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     highlightImage: string | null
     icon: string | null
     imagePath: string | null
+    iconPath: string | null
     cardPath: string | null
     heroPath: string | null
     artPrompt: string | null
@@ -4608,6 +4690,7 @@ export interface ProjectFieldRefs {
   readonly highlightImage: Prisma.FieldRef<"Project", 'String'>
   readonly icon: Prisma.FieldRef<"Project", 'String'>
   readonly imagePath: Prisma.FieldRef<"Project", 'String'>
+  readonly iconPath: Prisma.FieldRef<"Project", 'String'>
   readonly cardPath: Prisma.FieldRef<"Project", 'String'>
   readonly heroPath: Prisma.FieldRef<"Project", 'String'>
   readonly artPrompt: Prisma.FieldRef<"Project", 'String'>

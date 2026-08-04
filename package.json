@@ -80,6 +80,7 @@
     "test:academy-starter-manifest": "tsx utils/scripts/verifyAcademyStarterManifest.ts",
     "test:academy-examples-manifest": "tsx utils/scripts/verifyAcademyExamplesManifest.ts",
     "test:workflow-paths": "tsx utils/scripts/verifyWorkflowPaths.ts",
+    "test:workflow-pipefail": "tsx utils/scripts/verifyWorkflowPipefail.ts",
     "test:deploy-wait-ancestry": "tsx utils/scripts/verifyDeployWaitAncestry.ts",
     "test:deploy-wait-noop": "tsx utils/scripts/verifyDeployWaitNoOp.ts",
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",

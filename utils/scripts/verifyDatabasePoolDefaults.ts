@@ -1,6 +1,8 @@
 // /utils/scripts/verifyDatabasePoolDefaults.ts
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_ACQUIRE_TIMEOUT_MS,
   DEFAULT_CONNECTION_LIMIT,
@@ -62,10 +64,11 @@ const projectCreateSource = readFileSync(
   new URL('../../server/api/projects/index.post.ts', import.meta.url),
   'utf8',
 )
-const capacityDiagnosticSource = readFileSync(
-  new URL('../../scripts/proxysql-capacity-diagnostics.sh', import.meta.url),
-  'utf8',
+const capacityDiagnosticUrl = new URL(
+  '../../scripts/proxysql-capacity-diagnostics.sh',
+  import.meta.url,
 )
+const capacityDiagnosticSource = readFileSync(capacityDiagnosticUrl, 'utf8')
 
 // Pool configuration lives in the shared, side-effect-free adapter module so
 // request-time Prisma and standalone maintenance scripts use identical defaults.
@@ -117,6 +120,9 @@ assert.match(prismaSource, /transactionContext\.getStore\(\) \? 0/)
 // future incident can distinguish direct bypass clients, backend retention, and
 // sessions pinned out of multiplexing. It remains an explicitly manual,
 // read-only host tool.
+execFileSync('bash', ['-n', fileURLToPath(capacityDiagnosticUrl)], {
+  stdio: 'pipe',
+})
 assert.match(capacityDiagnosticSource, /stats_mysql_connection_pool/)
 assert.match(capacityDiagnosticSource, /stats_mysql_users/)
 assert.match(capacityDiagnosticSource, /stats_mysql_processlist/)

@@ -73,7 +73,8 @@
         </span>
         <span
           v-if="choice.hint"
-          class="mt-0.5 block text-sm italic text-base-content/55"
+          class="mt-0.5 block text-sm text-base-content/55"
+          :class="hintProse ? 'kr-prose not-italic' : 'italic'"
         >
           {{ choice.hint }}
         </span>
@@ -101,6 +102,14 @@ withDefaults(
     disabled?: boolean
     showIndex?: boolean
     label?: string
+    /**
+     * A hint is italic by default -- right for a short aside, wrong for a
+     * long opening paragraph (scenario-interact.vue's intro picker, which
+     * used to render its own non-italic body text). Opt in per list rather
+     * than changing the default, since every existing caller relies on the
+     * italic look for short hints.
+     */
+    hintProse?: boolean
   }>(),
   {
     layout: 'stack',
@@ -109,6 +118,7 @@ withDefaults(
     disabled: false,
     showIndex: true,
     label: 'Choices',
+    hintProse: false,
   },
 )
 

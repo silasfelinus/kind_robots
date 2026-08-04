@@ -48,7 +48,7 @@ assert.match(notificationBell, /<cart-button\s*\/>/, 'dashboard header must moun
 
 assert.match(givingPage, /Add \$1 donation to cart/, 'giving page must offer the $1 add-on')
 assert.match(givingPage, /View cart/, 'giving page must reveal a cart action after adding')
-assert.match(givingPage, /recorded[\s\S]*AMF remittance/, 'giving copy must describe separate remittance honestly')
+assert.match(givingPage, /records[\s\S]*AMF remittance/, 'giving copy must describe separate remittance honestly')
 assert.doesNotMatch(givingPage, /routes 100% to AMF/, 'giving page must not claim an automatic transfer')
 
 assert.match(giftshop, /router\.push\('\/cart'\)/, 'giftshop cart actions must use /cart')

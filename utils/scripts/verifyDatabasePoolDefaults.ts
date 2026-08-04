@@ -15,11 +15,11 @@ import {
 
 // Regression guards for the production pool failure modes:
 // - too few connections starve every DB-backed route
-// - retiring every idle connection after 15 seconds leaves warm Vercel instances
-//   recreating unhealthy ProxySQL sockets during sustained API tests
+// - retiring every idle connection after 15 seconds recreates unhealthy
+//   ProxySQL sockets during sustained API tests
 // - ProxySQL rejects MariaDB command pipelining
 // - replacing a shared Prisma client without closing its predecessor strands an
-//   additional connector pool inside the same warm serverless runtime
+//   additional connector pool inside the same long-lived Node runtime
 assert.ok(
   DEFAULT_CONNECTION_LIMIT >= SAFE_MINIMUM_CONNECTION_LIMIT,
   `DEFAULT_CONNECTION_LIMIT (${DEFAULT_CONNECTION_LIMIT}) must be >= ` +
@@ -69,6 +69,10 @@ const capacityDiagnosticUrl = new URL(
   import.meta.url,
 )
 const capacityDiagnosticSource = readFileSync(capacityDiagnosticUrl, 'utf8')
+const clientDiagnosticSource = readFileSync(
+  new URL('../../scripts/database-client-connections.ps1', import.meta.url),
+  'utf8',
+)
 
 // Pool configuration lives in the shared, side-effect-free adapter module so
 // request-time Prisma and standalone maintenance scripts use identical defaults.
@@ -86,7 +90,7 @@ assert.match(
 assert.match(adapterSource, /pipelining:\s*readDatabasePipelining\(\)/)
 
 // The request-time singleton must consume the shared pool builder and create
-// exactly one base Prisma client per warm runtime. Never resurrect the client
+// exactly one base Prisma client per Node process. Never resurrect the client
 // replacement/replay mechanism: retired clients retain their connector pools,
 // so each recovery generation can add connectionLimit more frontend sockets.
 assert.match(
@@ -101,6 +105,7 @@ assert.equal(
 assert.match(prismaSource, /poolLifecycle:\s*'singleton-per-runtime'/)
 assert.match(prismaSource, /const basePrisma = globalForPrisma\.prisma/)
 assert.match(prismaSource, /const retryingPrisma = extendPrismaClient\(basePrisma\)/)
+assert.match(prismaSource, /separate local machine/)
 assert.doesNotMatch(prismaSource, /prismaRecovery/)
 assert.doesNotMatch(prismaSource, /prismaGeneration/)
 assert.doesNotMatch(prismaSource, /recyclePrismaClient/)
@@ -116,10 +121,8 @@ assert.match(prismaSource, /property === '\$transaction'/)
 assert.match(prismaSource, /transactionContext\.run\(true/)
 assert.match(prismaSource, /transactionContext\.getStore\(\) \? 0/)
 
-// The Alexandria diagnostic must inspect both sides of the proxy boundary so a
-// future incident can distinguish direct bypass clients, backend retention, and
-// sessions pinned out of multiplexing. It remains an explicitly manual,
-// read-only host tool.
+// The Alexandria diagnostic inspects the ProxySQL/MariaDB side of the boundary.
+// It remains an explicitly manual, read-only host tool.
 execFileSync('bash', ['-n', fileURLToPath(capacityDiagnosticUrl)], {
   stdio: 'pipe',
 })
@@ -133,6 +136,20 @@ assert.match(capacityDiagnosticSource, /max_user_connections/)
 assert.match(capacityDiagnosticSource, /PROXYSQL_CONTAINER/)
 assert.match(capacityDiagnosticSource, /MARIADB_CONTAINER/)
 assert.doesNotMatch(capacityDiagnosticSource, /docker\s+(restart|stop|kill)/)
+
+// The local Windows diagnostic inspects the actual Kind Robots application host.
+// It must identify owning PIDs and sanitize credentials without mutating sockets
+// or processes.
+assert.match(clientDiagnosticSource, /Get-NetTCPConnection/)
+assert.match(clientDiagnosticSource, /OwningProcess/)
+assert.match(clientDiagnosticSource, /Get-CimInstance Win32_Process/)
+assert.match(clientDiagnosticSource, /Node-family processes/)
+assert.match(clientDiagnosticSource, /Hide-Secrets/)
+assert.match(clientDiagnosticSource, /Credentials: hidden/)
+assert.doesNotMatch(
+  clientDiagnosticSource,
+  /(Stop-Process|Remove-Item|Disable-NetAdapter|CloseMainWindow|taskkill)/,
+)
 
 // Project Sync keeps its direct MariaDB fallback as a route-specific final
 // safety net when a stale adapter connection cannot recover.
@@ -155,6 +172,6 @@ console.log(
   `Database pool safeguards verified: limit=${DEFAULT_CONNECTION_LIMIT}, ` +
     `connect=${DEFAULT_CONNECT_TIMEOUT_MS}ms, acquire=${DEFAULT_ACQUIRE_TIMEOUT_MS}ms, ` +
     `idle=${DEFAULT_IDLE_TIMEOUT_SECONDS}s, minimumIdle=${DEFAULT_MINIMUM_IDLE}, ` +
-    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma keeps one pool per runtime, ` +
-    'ProxySQL pipelining stays disabled, and the host census covers both sides.',
+    `ping=${DEFAULT_PING_TIMEOUT_MS}ms; Prisma keeps one pool per process, ` +
+    'ProxySQL pipelining stays disabled, and both hosts have read-only censuses.',
 )

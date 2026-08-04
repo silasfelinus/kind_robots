@@ -27,9 +27,10 @@
 // New presentation ideas belong on one of these axes. Inventing a fourth
 // vocabulary is how five values became eight.
 
+// Imported for use in the maps below, but deliberately NOT re-exported:
+// artImageSrc.ts is the canonical home, and a second auto-importable
+// declaration makes Nuxt pick a winner and warn about the one it dropped.
 import type { ArtVariant } from './artImageSrc'
-
-export type { ArtVariant }
 
 /**
  * What a gallery is currently showing: exactly the plural of ArtVariant, one

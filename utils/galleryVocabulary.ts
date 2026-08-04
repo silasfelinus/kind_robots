@@ -92,10 +92,31 @@ export const MODE_VARIANT: Record<GalleryMode, ArtVariant> = {
  * whose identity is its layout rather than its image duplicates whichever grid
  * happens to collapse to one column at that width.
  */
+/*
+ * CONTAINER-responsive, deliberately — no sm:/lg:/xl: breakpoints.
+ *
+ * These grids were `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+ * and similar, which key off the VIEWPORT. Galleries here are mounted inside
+ * manager panels, not at full page width, so on a wide screen `xl:grid-cols-4`
+ * fired while the actual container was narrow — four columns crammed into a
+ * panel. Silas, 2026-08-04, on scenario-gallery: "the individual scenarios are
+ * appearing but with formatting that is awkward (small card, excessive
+ * padding, no different layouts)."
+ *
+ * scenario-gallery's own pre-adoption CSS had this right:
+ * `repeat(auto-fill, minmax(min(180px, 100%), 1fr))`. auto-fill + minmax needs
+ * no breakpoints at all — it fills whatever width it is actually given and
+ * degrades to a single column when that width is below the minimum, which is
+ * what `min(..., 100%)` guarantees. Adopting the shared shell must not cost a
+ * gallery the sizing it already had.
+ */
 export const MODE_GRID_CLASS: Record<GalleryMode, string> = {
-  cards: 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-  heroes: 'grid gap-4 lg:grid-cols-2',
-  icons: 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5',
+  cards:
+    'grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(11rem,100%),1fr))]',
+  heroes:
+    'grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(20rem,100%),1fr))]',
+  icons:
+    'grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(7rem,100%),1fr))]',
 }
 
 /**

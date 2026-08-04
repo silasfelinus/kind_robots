@@ -50,7 +50,7 @@
       :description="reward.effect || reward.description || ''"
       description-fallback="No effect described yet."
       :source="reward"
-      variant="card"
+      :variant="variant"
       :fallback="artFallbackSrc"
       :show-image="showImage"
       :show-description="showDescription"
@@ -123,6 +123,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
+import type { ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useRewardStore } from '@/stores/rewardStore'
 
@@ -156,8 +157,16 @@ const props = withDefaults(
     /** Total karma this reward has earned from reactions to it. Omit/undefined
      *  renders no badge — see components/wonderlab/reactable-card.vue. */
     earnedKarma?: number | null
+    /**
+     * Which stored art to show, and at what aspect — the shared card/hero/icon
+     * vocabulary. Hardcoding this made the gallery's mode bar decorative:
+     * every mode rendered the identical portrait card. See
+     * utils/scripts/verifyGalleryConsistency.ts.
+     */
+    variant?: ArtVariant
   }>(),
   {
+    variant: 'card',
     selected: false,
     showImage: true,
     compact: false,

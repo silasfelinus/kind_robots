@@ -306,23 +306,15 @@
         </button>
       </div>
 
-      <div v-else :class="layoutClass">
+      <!-- Row stays bespoke: a horizontal filmstrip is not one of kr-gallery's
+           cards/heroes/icons grids. -->
+      <div v-else-if="isRowMode" :class="layoutClass">
         <bot-card
           v-for="bot in filteredBots"
           :key="bot.id"
           :bot="bot"
           :selected="botStore.currentBot?.id === bot.id"
-          :compact="isCompact"
-          :show-image="showImages"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-personality="showPersonality"
-          :show-launch-button="showLaunchButton"
-          :show-debug="showDebug"
-          :allow-edit="allowEdit"
-          :allow-clone="allowClone"
-          :allow-delete="allowDelete"
+          v-bind="botCardProps"
           @select="selectBot"
           @edit="startEditingBotById"
           @clone="cloneBotById"
@@ -330,6 +322,33 @@
           @launch="launchBotById"
         />
       </div>
+
+      <!-- t-060: the shared shell owns the grid and the Cards/Heroes/Icons bar;
+           bot-card stays the card. The mode is bound both ways and fed through
+           MODE_VARIANT into the card's `variant`, which is the pairing
+           verifyGalleryConsistency.ts exists to enforce. -->
+      <kr-gallery
+        v-else
+        :items="galleryItems"
+        :mode="galleryMode"
+        empty-label="bots"
+        @update:mode="galleryMode = $event"
+      >
+        <template #item="{ item }">
+          <bot-card
+            v-if="botById.get(Number(item.id))"
+            :bot="botById.get(Number(item.id))!"
+            :selected="botStore.currentBot?.id === item.id"
+            :variant="MODE_VARIANT[galleryMode]"
+            v-bind="botCardProps"
+            @select="selectBot"
+            @edit="startEditingBotById"
+            @clone="cloneBotById"
+            @delete="handleBotDeleted"
+            @launch="launchBotById"
+          />
+        </template>
+      </kr-gallery>
     </section>
   </section>
 </template>
@@ -337,6 +356,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
@@ -400,6 +421,10 @@ const showBotForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
+const isRowMode = computed(() => props.variant === 'row')
+
+/** Which of Cards/Heroes/Icons the shared grid is showing. */
+const galleryMode = ref<GalleryMode>('cards')
 
 const isCompact = computed(() => {
   return props.compact || props.variant === 'row' || isDropdownMode.value
@@ -495,6 +520,43 @@ const galleryBots = computed<Bot[]>(() => {
 
   return bots
 })
+
+/*
+ * interface-vision t-060 — the grid variant renders through the shared
+ * kr-gallery shell while bot-card stays the card, via kr-gallery's `item` slot.
+ * Adopting the shell must not cost the reactions, karma and edit/clone/launch
+ * actions that t-064 put on kr-entity-card-body.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredBots.value.map((bot) => ({
+    id: bot.id,
+    title: bot.name || `Bot ${bot.id}`,
+    source: bot,
+  })),
+)
+
+/** Slot props give back a GalleryItem, so map the id to the real record. */
+const botById = computed(
+  () => new Map(filteredBots.value.map((b) => [b.id, b])),
+)
+
+/**
+ * The card's shared props in one place, so the bespoke row layout and the
+ * kr-gallery slot cannot drift when one of them gains a tenth prop.
+ */
+const botCardProps = computed(() => ({
+  compact: isCompact.value,
+  showImage: props.showImages,
+  showActions: props.showCardActions,
+  showDescription: props.showDescriptions,
+  showMeta: props.showMeta,
+  showPersonality: props.showPersonality,
+  showLaunchButton: props.showLaunchButton,
+  showDebug: props.showDebug,
+  allowEdit: props.allowEdit,
+  allowClone: props.allowClone,
+  allowDelete: props.allowDelete,
+}))
 
 const filteredBots = computed<Bot[]>(() => {
   let bots = galleryBots.value

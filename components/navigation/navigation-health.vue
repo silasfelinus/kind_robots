@@ -62,8 +62,19 @@
 
       <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
         <div class="stat-title">Legacy adapters</div>
-        <div class="stat-value text-warning">{{ legacyAdapterCount }}</div>
-        <div class="stat-desc">Tabs bridging old dashboards</div>
+        <div
+          class="stat-value"
+          :class="legacyAdapterFailureCount ? 'text-error' : 'text-warning'"
+        >
+          {{ legacyAdapterCount - legacyAdapterFailureCount }}/{{ legacyAdapterCount }}
+        </div>
+        <div class="stat-desc">
+          {{
+            legacyAdapterFailureCount
+              ? `${legacyAdapterFailureCount} failing navManifest validation`
+              : 'Tabs bridging old dashboards, all resolving'
+          }}
+        </div>
       </article>
 
       <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
@@ -94,6 +105,26 @@
           <span>({{ group.tabs.join(', ') }})</span>
         </span>
       </div>
+    </section>
+
+    <section
+      v-if="manifestIssues.length"
+      class="rounded-2xl border border-error/30 bg-error/5 p-4 shadow-sm"
+    >
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:error" class="h-5 w-5 text-error" />
+        <h2 class="font-black">Nav manifest issues</h2>
+      </div>
+      <ul class="mt-3 flex flex-col gap-1.5">
+        <li
+          v-for="issue in manifestIssues"
+          :key="`${issue.channelKey}:${issue.tabKey}:${issue.message}`"
+          class="text-sm"
+          :class="issue.severity === 'error' ? 'text-error' : 'text-warning'"
+        >
+          <strong>{{ issue.channelKey }}/{{ issue.tabKey }}</strong>: {{ issue.message }}
+        </li>
+      </ul>
     </section>
 
     <section class="grid gap-4 xl:grid-cols-2">
@@ -206,6 +237,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useChannelContentStore } from '@/stores/channelContentStore'
+import { validateNavManifest, type NavManifestEntry } from '@/utils/navManifest'
 
 const channelContentStore = useChannelContentStore()
 const brokenImages = ref(new Set<string>())
@@ -216,12 +248,38 @@ const channels = computed(() => channelContentStore.channels)
 const totalTabs = computed(() =>
   channels.value.reduce((total, channel) => total + channel.tabs.length, 0),
 )
-const legacyAdapterCount = computed(() =>
-  channels.value.reduce(
-    (total, channel) =>
-      total + channel.tabs.filter((tab) => Boolean(tab.dashboardKey)).length,
-    0,
+
+const manifestEntries = computed<NavManifestEntry[]>(() =>
+  channels.value.flatMap((channel) =>
+    channel.tabs.map((tab) => ({
+      file: `${tab.channelKey}/${tab.tabKey}`,
+      channelKey: tab.channelKey,
+      tabKey: tab.tabKey,
+      dashboardKey: tab.dashboardKey,
+      dashboardTab: tab.dashboardTab,
+      cardsKey: typeof tab.cards === 'string' ? tab.cards : '',
+      route: tab.route,
+    })),
   ),
+)
+const manifestIssues = computed(() => validateNavManifest(manifestEntries.value))
+const manifestErrors = computed(() =>
+  manifestIssues.value.filter((issue) => issue.severity === 'error'),
+)
+
+const legacyAdapterTabs = computed(() =>
+  channels.value.flatMap((channel) =>
+    channel.tabs.filter((tab) => Boolean(tab.dashboardKey)),
+  ),
+)
+const legacyAdapterCount = computed(() => legacyAdapterTabs.value.length)
+const legacyAdapterFailureCount = computed(
+  () =>
+    legacyAdapterTabs.value.filter((tab) =>
+      manifestErrors.value.some(
+        (issue) => issue.channelKey === tab.channelKey && issue.tabKey === tab.tabKey,
+      ),
+    ).length,
 )
 const sharedRouteGroups = computed(() => {
   return channels.value.flatMap((channel) => {

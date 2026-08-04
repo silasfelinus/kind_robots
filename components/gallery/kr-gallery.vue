@@ -60,16 +60,27 @@
       >
         <div class="relative overflow-hidden" :class="imageWrapClass">
           <img
-            v-if="displayImage(item)"
-            :src="displayImage(item)"
+            v-if="artSrc(item)"
+            :src="artSrc(item)"
             :alt="item.title"
             class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            @error="onArtError(artSrc(item))"
           />
           <!-- Art-absent placeholder. Without this an unillustrated row renders
                <img src="">, which browsers treat as "reload the current page"
                and paint as a broken image. Galleries whose rows are routinely
                unillustrated (facets, where art is queued rather than required)
-               could not adopt this shell at all until it degraded properly. -->
+               could not adopt this shell at all until it degraded properly.
+
+               It now also covers art that is PRESENT but fails to load, which
+               is a different failure with the same remedy: a broken <img>
+               paints its alt text inside the layout box where the art should
+               be, so a card whose art 404s renders its title sprawling across
+               the artwork area. That is interface-vision t-069 -- reported as
+               "description text renders over the card art", reproduced against
+               production 2026-08-03, and invisible to source review because
+               nothing in the markup is wrong. It only exists while art is
+               missing, which right now is common: art is still generating. -->
           <div
             v-else
             class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
@@ -146,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   resolveArtVariantSrc,
   type ArtImageSrcLike,
@@ -230,6 +241,26 @@ const imageWrapClass = computed(() =>
       : 'aspect-[4/3]',
 )
 const modeVariant = computed<ArtVariant>(() => MODE_VARIANT[props.mode])
+
+/**
+ * Sources that 404'd or otherwise failed. Keyed by URL rather than item id, so
+ * one missing file is remembered across a mode switch that re-resolves the same
+ * path, and two items sharing a placeholder path fail once between them.
+ */
+const failedArt = ref(new Set<string>())
+
+/** The art to show, or '' when there is none — including "there was, and it broke". */
+function artSrc(item: GalleryItem): string {
+  const src = displayImage(item)
+  return src && !failedArt.value.has(src) ? src : ''
+}
+
+function onArtError(src: string): void {
+  if (!src || failedArt.value.has(src)) return
+  // A fresh Set: mutating in place would not trip reactivity, and the card
+  // would keep rendering its broken <img> with the alt text showing.
+  failedArt.value = new Set(failedArt.value).add(src)
+}
 
 function displayImage(item: GalleryItem): string {
   const preResolved =

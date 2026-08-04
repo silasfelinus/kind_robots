@@ -48,7 +48,7 @@ const flag = (name, fallback) => {
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag(
   'routes',
-  '/,/dreams,/art,/bots,/characters,/rewards,/scenarios',
+  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/scenarios',
 )
   .split(',')
   .map((r) => r.trim())
@@ -149,12 +149,48 @@ function collect(minFlexWidth) {
     }
   }
 
+  /**
+   * An <img> that resolved to nothing. The browser then paints its ALT TEXT
+   * inside the layout box where the art should be — which is what
+   * interface-vision t-069 reported as "description text renders over the card
+   * art". No overlap check could ever find it: alt text is not an element, so
+   * there is nothing whose box intersects anything. The broken image IS the
+   * signal.
+   *
+   * `complete && naturalWidth === 0` is a failed load (404, bad path). `!complete`
+   * this long after networkidle is a stall. Both paint alt text, so both count.
+   *
+   * DO NOT TRUST THIS CHECK AGAINST A LOCAL DEV SERVER. `public/images` is not
+   * in the repo (self-hosted media, see docs/self-hosted-media.md), so every
+   * `/images/...` path 404s locally while returning a 307 to real bytes in
+   * production. A local run reports a screenful of broken art that does not
+   * exist for users. Run it against a deployment — which is what CI does.
+   */
+  const brokenArt = []
+  for (const img of document.querySelectorAll('img')) {
+    const b = img.getBoundingClientRect()
+    // Skip decorative slivers and anything not actually laid out.
+    if (b.width < 8 || b.height < 8) continue
+    if (!visible(img, b)) continue
+    if (img.complete && img.naturalWidth > 0) continue
+
+    const src = (img.getAttribute('src') || '').split('?')[0]
+    brokenArt.push(
+      `<img> ${img.complete ? 'failed' : 'never loaded'} ` +
+        `${Math.round(b.width)}x${Math.round(b.height)} ` +
+        `alt="${(img.getAttribute('alt') || '').slice(0, 40)}" ` +
+        `src=…${src.slice(-58)}`,
+    )
+  }
+
   return {
     vw,
     scrollWidth: de.scrollWidth,
     horizontalScroll: de.scrollWidth > vw + 1,
     spill: spill.slice(0, 6).map((s) => s.text),
     crushed: crushed.slice(0, 6).map((c) => c.text),
+    brokenArt: brokenArt.slice(0, 8),
+    brokenArtTotal: brokenArt.length,
   }
 }
 
@@ -189,7 +225,12 @@ for (const vp of VIEWPORTS) {
       console.log(
         `${label} ⚠️  could not measure${loaded ? '' : ' (navigation failed)'}`,
       )
-    } else if (m.horizontalScroll || m.spill.length || m.crushed.length) {
+    } else if (
+      m.horizontalScroll ||
+      m.spill.length ||
+      m.crushed.length ||
+      m.brokenArtTotal
+    ) {
       failures += 1
       console.log(`${label} ❌`)
       if (m.horizontalScroll) {
@@ -199,6 +240,10 @@ for (const vp of VIEWPORTS) {
       }
       for (const s of m.spill) console.log(`         SPILL   ${s}`)
       for (const c of m.crushed) console.log(`         CRUSHED ${c}`)
+      if (m.brokenArtTotal) {
+        console.log(`         BROKEN-ART ${m.brokenArtTotal} image(s):`)
+        for (const a of m.brokenArt) console.log(`           ${a}`)
+      }
     } else {
       console.log(`${label} ✅`)
     }

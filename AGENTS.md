@@ -111,6 +111,26 @@ near-copy. Highest-risk areas:
 - stores
 - API contracts
 
+## Deleting a superseded component
+
+A plain "who imports this `.vue` file" grep misses real dependents. When t-026 deleted
+`conductor-art-gallery.vue` in favor of `entity-art-manager.vue` (kind_robots PR #1405), an
+import-site search missed two live dependents: a plugin that DOM-scraped the deleted
+component's specific rendered markup, and a CI workflow that named the file directly in its
+trigger path list. Neither shows up in a normal import/component-usage search. Before
+deleting a superseded component:
+
+1. Grep the deleted filename (not just import statements) across the whole repo — `.yml`
+   workflow files and DOM-scraping plugins are real dependents too, and they only show up
+   on a plain filename search.
+2. Check `.github/workflows/*.yml` `paths:` trigger blocks specifically for the filename.
+3. Check `plugins/*.client.ts` for selector strings that could key off the deleted
+   component's specific rendered markup (an attribute, class, or DOM structure), not just
+   its component name.
+4. If the component has published WonderLab museum reviews, read
+   `docs/wonderlab-component-retirement-policy.md` first — reviews survive retirement by
+   design and are never a reason to keep the file.
+
 ## Project identity and source of truth
 
 Read `docs/conductor-projection.md` before changing cross-repository project data.

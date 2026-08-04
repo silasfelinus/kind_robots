@@ -98,31 +98,12 @@
           </option>
         </select>
 
-        <!-- Named toggles at sm+ (Silas: "they would be perfect on larger
-             displays"), single-letter below it. Four labelled buttons are
-             ~260px of a 390px phone; four abbreviations are ~130px and keep
-             every view one tap away, which a <select> would not. -->
-        <div
-          v-if="showControls"
-          class="flex shrink-0 gap-0.5"
-          role="group"
-          aria-label="Dream gallery view"
-        >
-          <button
-            v-for="mode in modeOptions"
-            :key="mode.value"
-            type="button"
-            class="btn btn-sm h-9 rounded-2xl px-2 sm:px-3"
-            :class="galleryMode === mode.value ? 'btn-primary' : 'btn-ghost'"
-            :title="mode.label"
-            :aria-label="mode.label"
-            :aria-pressed="galleryMode === mode.value"
-            @click="galleryMode = mode.value"
-          >
-            <span class="sm:hidden">{{ mode.abbr }}</span>
-            <span class="hidden sm:inline">{{ mode.label }}</span>
-          </button>
-        </div>
+        <!-- The Cards/Heroes/Icons bar used to live HERE, hand-rolled, while
+             the other six galleries used kr-gallery's. Silas, 2026-08-04: "I
+             wouldn't be clicking the layout options on one side of the screen
+             for one and the other for, well, you know you can extrapolate."
+             One control, one place, all seven — so it now comes from the
+             shared shell below like everywhere else. -->
 
         <button
           v-if="showControls"
@@ -406,8 +387,8 @@
           v-else
           :items="galleryItems"
           :mode="galleryMode"
-          :modes="[]"
           empty-label="dreams"
+          @update:mode="galleryMode = $event"
         >
           <template #item="{ item }">
             <dream-card
@@ -439,7 +420,6 @@ import type {
 } from '~/prisma/generated/prisma/client'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import {
-  GALLERY_MODES,
   MODE_GRID_CLASS,
   MODE_VARIANT,
   type GalleryMode,
@@ -559,7 +539,6 @@ function closeSearchIfEmpty(): void {
 }
 
 /** All four. dream-card honours each via its `variant` prop. */
-const modeOptions = GALLERY_MODES
 
 /** Which stored art the current mode asks dream-card for. */
 const modeVariant = computed(() => MODE_VARIANT[galleryMode.value])

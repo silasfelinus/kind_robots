@@ -83,6 +83,36 @@ export const MODE_VARIANT: Record<GalleryMode, ArtVariant> = {
 }
 
 /**
+ * THE SHAPE EACH VARIANT IS DRAWN AT. This is the missing link that made
+ * "consistent look" keep slipping.
+ *
+ * `variant` picks WHICH image loads; `shape` picks the BOX it goes in. They were
+ * independent props with nothing tying them together, and kr-entity-card-body
+ * defaulted shape to `wide` (4:3 horizontal) no matter the variant. So choosing
+ * Cards loaded the VERTICAL card art and then drew it in a HORIZONTAL box —
+ * letterboxed and small — while `icon` had no case in the aspect map at all and
+ * fell through to 3:2. Silas, 2026-08-04: "Hero view is good both times. Card
+ * and icon are wack, yo. Small images, terrible layout, cramped displays."
+ *
+ * His spec, which had never been written down anywhere and is why this kept
+ * being rediscovered:
+ *
+ *   imagePath  SQUARE      — the default, the plain stored image
+ *   hero       HORIZONTAL  — 16:9
+ *   card       VERTICAL    — 2:3
+ *   icon       SQUARE      — but as a small intro piece to a TEXT-FORWARD
+ *                            layout, not a big art box (see kr-entity-card-body)
+ *
+ * Derive from this map rather than passing `shape` alongside `variant` by hand:
+ * two hand-passed props are two chances to disagree, which is the whole bug.
+ */
+export const VARIANT_SHAPE: Record<ArtVariant, ArtPlateShape> = {
+  card: 'card',
+  hero: 'hero',
+  icon: 'square',
+}
+
+/**
  * The grid each mode lays its items out in. Lifted verbatim from kr-gallery so
  * a gallery that cannot yet adopt the whole shell still lays out identically
  * to one that has.
@@ -124,4 +154,4 @@ export const MODE_GRID_CLASS: Record<GalleryMode, string> = {
  * ArtVariant). `plate` is the 3:2 mockup shape the aesthetic is named for and
  * is kr-art-plate's default; `wide` is 4:3 and is kr-entity-card-body's.
  */
-export type ArtPlateShape = 'card' | 'hero' | 'wide' | 'plate'
+export type ArtPlateShape = 'card' | 'hero' | 'square' | 'wide' | 'plate'

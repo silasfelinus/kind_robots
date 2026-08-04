@@ -16,6 +16,9 @@ function expectContains(path: string, needles: string[]): void {
 expectContains('components/dreams/daily-digest-object-gallery.vue', [
   '<daily-digest-object-dialog',
   'Open details',
+  'xl:grid-cols-6',
+  'xl:min-h-32',
+  'item.meta.slice(0, 1)',
   "makeItem('dream', 'World'",
   "makeItem('character', 'Cast'",
   "makeItem('reward', 'Discovery'",

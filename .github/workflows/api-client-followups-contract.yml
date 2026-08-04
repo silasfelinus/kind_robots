@@ -10,15 +10,18 @@ on:
       - "utils/scripts/verifyApiClientFollowups.ts"
       - ".github/workflows/api-client-followups-contract.yml"
       - "package.json"
+  # NO paths filter, deliberately. This job is named `verify`, and `verify` is a
+  # REQUIRED status check on main -- so a PR that touches none of the paths below
+  # never produces it and can never merge, no matter how green everything else
+  # is. A workflows-only PR hit exactly that and was stuck until this was fixed
+  # (dispatching the workflow by hand does not satisfy the rule either; the rule
+  # wants the check from the PR's own event).
+  #
+  # A required check must be unconditional. The push trigger keeps its filter --
+  # nothing requires it there -- and this contract is a ~40s text scan, so
+  # running it on every PR costs nothing worth saving.
   pull_request:
     branches: [main]
-    paths:
-      - "server/api/art/**"
-      - "stores/**"
-      - "components/**"
-      - "utils/scripts/verifyApiClientFollowups.ts"
-      - ".github/workflows/api-client-followups-contract.yml"
-      - "package.json"
   workflow_dispatch:
 
 permissions:

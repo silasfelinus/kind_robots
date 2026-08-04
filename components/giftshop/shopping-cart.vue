@@ -136,7 +136,7 @@
             @click="checkout"
           >
             <Icon
-              :name="cartStore.loading ? 'kind-icon:spinner' : 'kind-icon:credit-card'"
+              :name="cartStore.loading ? 'kind-icon:spinner' : 'kind-icon:card'"
               class="h-5 w-5"
               :class="{ 'animate-spin': cartStore.loading }"
             />
@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cartStore'
 import { useUserStore } from '@/stores/userStore'
@@ -202,7 +202,8 @@ async function checkout(): Promise<void> {
   checkoutMessage.value = ''
 
   if (!userStore.userId) {
-    checkoutMessage.value = 'Sign in before opening Stripe checkout. Your cart will stay here.'
+    checkoutMessage.value =
+      'Sign in before opening Stripe checkout. Your cart will stay here.'
     await router.push({ path: '/login', query: { redirect: '/cart' } })
     return
   }
@@ -210,7 +211,8 @@ async function checkout(): Promise<void> {
   const result = await cartStore.checkout()
 
   if (!result.success) {
-    checkoutMessage.value = result.message || 'Stripe checkout could not be opened.'
+    checkoutMessage.value =
+      result.message || 'Stripe checkout could not be opened.'
   }
 }
 </script>

@@ -3,12 +3,12 @@ contentType: channel
 channelKey: sanctuary
 label: Sanctuary
 title: Sanctuary
-room: Butterfly Sanctuary
+room: Kind Robots Sanctuary
 subtitle: The heart of Kind Robots
-description: Our story, values, anti-malaria mission, community, butterflies, and gift shop.
+description: Our story, values, anti-malaria mission, community, giving, and gift shop.
 icon: kind-icon:butterfly
 route: /sanctuary
-defaultTab: sanctuary
+defaultTab: about
 sort: 60
 loadingMessage: Loading Sanctuary...
 refreshLabel: Refresh Sanctuary

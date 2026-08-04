@@ -127,38 +127,169 @@ function isPageComponent(path: string): boolean {
   )
 }
 
-function countMatches(haystack: string, pattern: RegExp): number {
-  return (haystack.match(pattern) ?? []).length
-}
-
 function staticClassLists(template: string): string[] {
   const classLists: string[] = []
   for (const tag of template.matchAll(/<[A-Za-z][\w-]*\b[^>]*>/g)) {
     const openingTag = tag[0]
-    for (const attribute of openingTag.matchAll(/\sclass\s*=\s*(["'])([\s\S]*?)\1/g)) {
+    for (const attribute of openingTag.matchAll(
+      /\sclass\s*=\s*(["'])([\s\S]*?)\1/g,
+    )) {
       classLists.push(attribute[2] ?? '')
     }
   }
   return classLists
 }
 
+type TemplateNode = {
+  tag: string
+  classTokens: string[]
+  vif: 'if' | 'elseif' | 'else' | null
+  children: TemplateNode[]
+}
+
+const VOID_ELEMENTS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+])
+
 /*
- * Count actual scroll-owner elements, not raw utility-string occurrences.
- * A static max-h-* region is deliberately bounded inside its parent (log tail,
- * JSON preview, swatch grid), so it is not a competing page-level scroll owner.
- * kr-scroll always counts because it is the explicit full-region primitive.
- * kr-pane-scroll is deliberately excluded here -- it is the multi-owner
- * primitive's scroll marker and is counted separately, below.
+ * Matches a comment, a closing tag (group 1 = name), or an opening tag
+ * (group 2 = name, group 3 = raw attributes, group 4 = trailing "/" if
+ * self-closing). The attribute alternation treats a whole quoted string as
+ * one unit so a "v-if" expression containing a literal ">" (e.g.
+ * `v-if="count > 0"`) doesn't get mistaken for the tag's own close.
  */
+const TAG_RE =
+  /<!--[\s\S]*?-->|<\/([A-Za-z][\w-]*)\s*>|<([A-Za-z][\w-]*)((?:"[^"]*"|'[^']*'|[^"'/>])*)(\/)?>/g
+
+function classTokensOf(attrs: string): string[] {
+  const match = attrs.match(/\sclass\s*=\s*(["'])([\s\S]*?)\1/)
+  return (match?.[2] ?? '').split(/\s+/).filter(Boolean)
+}
+
+function vifOf(attrs: string): TemplateNode['vif'] {
+  if (/\bv-else-if\s*=/.test(attrs)) return 'elseif'
+  if (/\bv-if\s*=/.test(attrs)) return 'if'
+  if (/\bv-else\b(?!-if)/.test(attrs)) return 'else'
+  return null
+}
+
+/*
+ * Parses <template> markup into a tree so scroll-region counting can tell a
+ * mutually-exclusive v-if/v-else-if/v-else branch apart from a sibling that
+ * really does render concurrently (interface-vision t-058). Best-effort, not
+ * a full HTML parser: assumes well-formed nesting (true across this
+ * codebase's SFCs) and only reads static class attributes, matching the rest
+ * of this file's scope.
+ */
+function parseTemplate(template: string): TemplateNode[] {
+  const root: TemplateNode = {
+    tag: '',
+    classTokens: [],
+    vif: null,
+    children: [],
+  }
+  let current = root
+  const ancestors: TemplateNode[] = []
+
+  for (const match of template.matchAll(TAG_RE)) {
+    const [full, closeTag, openTag, rawAttrs, selfClose] = match
+    if ((full ?? '').startsWith('<!--')) continue
+    if (closeTag) {
+      const parent = ancestors.pop()
+      if (parent) current = parent
+      continue
+    }
+    if (!openTag) continue
+
+    const attrs = rawAttrs ?? ''
+    const node: TemplateNode = {
+      tag: openTag,
+      classTokens: classTokensOf(attrs),
+      vif: vifOf(attrs),
+      children: [],
+    }
+    current.children.push(node)
+
+    const isVoid = VOID_ELEMENTS.has(openTag.toLowerCase())
+    if (!selfClose && !isVoid) {
+      ancestors.push(current)
+      current = node
+    }
+  }
+
+  return root.children
+}
+
+/*
+ * A static max-h-* region is deliberately bounded inside its parent (log
+ * tail, JSON preview, swatch grid), so it is not a competing page-level
+ * scroll owner. kr-scroll always counts because it is the explicit
+ * full-region primitive. kr-pane-scroll is deliberately excluded here -- it
+ * is the multi-owner primitive's scroll marker and is counted separately,
+ * below.
+ */
+function ownScrollCount(node: TemplateNode): number {
+  const hasKrScroll = node.classTokens.includes('kr-scroll')
+  const hasRawScroll =
+    node.classTokens.includes('overflow-y-auto') ||
+    node.classTokens.includes('overflow-auto')
+  const isBounded = node.classTokens.some((token) => token.startsWith('max-h-'))
+  return hasKrScroll || (hasRawScroll && !isBounded) ? 1 : 0
+}
+
+function subtreeScrollCount(node: TemplateNode): number {
+  return ownScrollCount(node) + combineScrollCounts(node.children)
+}
+
+/*
+ * Siblings forming a v-if/v-else-if/v-else chain render at most one branch
+ * at a time, so the chain contributes the MAX across its members, not the
+ * sum -- that's the whole fix. Anything else (a lone v-if with no following
+ * v-else-if/v-else, or a plain sibling) is counted on its own, so two
+ * independent v-if blocks that can both be true simultaneously still add.
+ */
+function combineScrollCounts(siblings: TemplateNode[]): number {
+  let total = 0
+  let i = 0
+  while (i < siblings.length) {
+    const node = siblings[i]
+    if (!node) break
+
+    if (node.vif === 'if') {
+      let groupMax = subtreeScrollCount(node)
+      let j = i + 1
+      let next = siblings[j]
+      while (next && (next.vif === 'elseif' || next.vif === 'else')) {
+        groupMax = Math.max(groupMax, subtreeScrollCount(next))
+        j++
+        next = siblings[j]
+      }
+      total += groupMax
+      i = j
+    } else {
+      total += subtreeScrollCount(node)
+      i++
+    }
+  }
+  return total
+}
+
+/* Count actual scroll-owner elements, not raw utility-string occurrences. */
 function scrollRegionCount(template: string): number {
-  return staticClassLists(template).filter((classList) => {
-    const tokens = classList.split(/\s+/).filter(Boolean)
-    const hasKrScroll = tokens.includes('kr-scroll')
-    const hasRawScroll =
-      tokens.includes('overflow-y-auto') || tokens.includes('overflow-auto')
-    const isBounded = tokens.some((token) => token.startsWith('max-h-'))
-    return hasKrScroll || (hasRawScroll && !isBounded)
-  }).length
+  return combineScrollCounts(parseTemplate(template))
 }
 
 /*
@@ -185,7 +316,9 @@ function hasKrPanes(template: string): boolean {
  * wrapper looks visually dominant. Put the kr-* marker on that opening tag.
  */
 function rootClassList(template: string): string | null {
-  const root = template.match(/<template\b[^>]*>([\s\S]*)<\/template>/)?.[1]?.trim()
+  const root = template
+    .match(/<template\b[^>]*>([\s\S]*)<\/template>/)?.[1]
+    ?.trim()
   const openingTag = root?.match(/^<([A-Za-z][\w-]*)\b([^>]*)>/)
   if (!openingTag) return null
 
@@ -194,7 +327,9 @@ function rootClassList(template: string): string | null {
 }
 
 function verifyRootClassListFixture(): void {
-  const fixtureClasses = rootClassList(templateOf(read(PASCAL_ROOT_FIXTURE_PATH)))
+  const fixtureClasses = rootClassList(
+    templateOf(read(PASCAL_ROOT_FIXTURE_PATH)),
+  )
   if (fixtureClasses !== 'kr-surface') {
     throw new Error(
       `PascalCase root fixture was not parsed correctly: ${String(fixtureClasses)}`,
@@ -212,7 +347,64 @@ function verifyScrollRegionCountFixture(): void {
   `
   const count = scrollRegionCount(templateOf(fixture))
   if (count !== 2) {
-    throw new Error(`Scroll-region fixture was not classified correctly: ${count}`)
+    throw new Error(
+      `Scroll-region fixture was not classified correctly: ${count}`,
+    )
+  }
+}
+
+function verifyScrollExclusivityFixture(): void {
+  const chained = templateOf(`
+    <template>
+      <section v-if="tab === 'a'" class="overflow-y-auto"></section>
+      <section v-else-if="tab === 'b'" class="overflow-y-auto"></section>
+      <section v-else class="overflow-y-auto"></section>
+    </template>
+  `)
+  if (scrollRegionCount(chained) !== 1) {
+    throw new Error(
+      'Scroll-exclusivity fixture (chained branches) was not classified correctly.',
+    )
+  }
+
+  const twoOwnerBranch = templateOf(`
+    <template>
+      <section v-if="tab === 'overview'">
+        <div class="overflow-y-auto"></div>
+        <div class="overflow-y-auto"></div>
+      </section>
+      <section v-else-if="tab === 'art'" class="overflow-y-auto"></section>
+    </template>
+  `)
+  if (scrollRegionCount(twoOwnerBranch) !== 2) {
+    throw new Error(
+      'Scroll-exclusivity fixture (two-owner branch) was not classified correctly.',
+    )
+  }
+
+  const independentIfs = templateOf(`
+    <template>
+      <div v-if="showBanner" class="overflow-y-auto"></div>
+      <section v-if="tab === 'a'" class="overflow-y-auto"></section>
+      <section v-else class="overflow-y-auto"></section>
+    </template>
+  `)
+  if (scrollRegionCount(independentIfs) !== 2) {
+    throw new Error(
+      'Scroll-exclusivity fixture (independent v-if siblings) was not classified correctly.',
+    )
+  }
+
+  const literalGtInExpression = templateOf(`
+    <template>
+      <section v-if="count > 0" class="overflow-y-auto"></section>
+      <section v-else class="overflow-y-auto"></section>
+    </template>
+  `)
+  if (scrollRegionCount(literalGtInExpression) !== 1) {
+    throw new Error(
+      "Scroll-exclusivity fixture (literal '>' inside a v-if expression) was not classified correctly.",
+    )
   }
 }
 
@@ -238,10 +430,14 @@ function verifyPaneScrollFixture(): void {
     throw new Error('Pane-scroll fixture was not classified correctly (count).')
   }
   if (!hasKrPanes(withPanes)) {
-    throw new Error('Pane-scroll fixture was not classified correctly (kr-panes present).')
+    throw new Error(
+      'Pane-scroll fixture was not classified correctly (kr-panes present).',
+    )
   }
   if (hasKrPanes(withoutPanes)) {
-    throw new Error('Pane-scroll fixture was not classified correctly (kr-panes absent).')
+    throw new Error(
+      'Pane-scroll fixture was not classified correctly (kr-panes absent).',
+    )
   }
 }
 
@@ -404,6 +600,7 @@ function main(): void {
   const args = process.argv.slice(2)
   verifyRootClassListFixture()
   verifyScrollRegionCountFixture()
+  verifyScrollExclusivityFixture()
   verifyPaneScrollFixture()
   const current = collect()
   const baseline = loadBaseline()
@@ -491,7 +688,9 @@ function main(): void {
       const removed = (baseline.violations[key] ?? []).filter(
         (entry) => !currentEntries.has(entry),
       )
-      console.log(`${key} baseline can remove ${removed.length} entr${removed.length === 1 ? 'y' : 'ies'}:`)
+      console.log(
+        `${key} baseline can remove ${removed.length} entr${removed.length === 1 ? 'y' : 'ies'}:`,
+      )
       for (const entry of removed) console.log(`  - ${entry}`)
       console.log('')
     }

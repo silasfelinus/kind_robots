@@ -379,32 +379,51 @@
           :auto-refresh="autoLoadSheets"
         />
 
-        <div :class="layoutClass">
+        <!-- Row stays bespoke: `dream-row` is a horizontal scroll-snap
+             filmstrip, not one of kr-gallery's cards/heroes/icons grids. -->
+        <div v-if="isRowMode" :class="layoutClass">
           <dream-card
             v-for="dream in filteredDreams"
             :key="dream.id"
             :dream="dream"
             :selected="dreamStore.selectedDream?.id === dream.id"
             :is-selected="dreamStore.selectedDream?.id === dream.id"
-            :compact="isCompact"
             :variant="modeVariant"
-            :show-image="showImages"
-            :show-actions="showCardActions"
-            :show-description="showDescriptions"
-            :show-meta="showMeta"
-            :show-stats="showStats"
-            :show-debug="showDebug"
-            :allow-edit="allowEdit"
-            :allow-delete="allowDelete"
-            :show-pitch-sheet-preview="showPitchSheetPreview"
-            :load-pitch-sheet-preview="autoLoadSheets"
-            image-fit="cover"
             :earned-karma="earnedKarmaByDreamId[dream.id]"
+            v-bind="dreamCardProps"
             @choose="selectDreamAndOpen"
             @edit="startEditingDreamById"
             @delete="handleDreamDeleted"
           />
         </div>
+
+        <!-- t-060: the shared shell owns the grid; dream-card stays the card.
+             :mode is bound so the shell picks the right MODE_GRID_CLASS, and
+             :modes="[]" hides ITS bar because this gallery already renders one
+             in its toolbar above -- two bars driving one mode would be worse
+             than none. -->
+        <kr-gallery
+          v-else
+          :items="galleryItems"
+          :mode="galleryMode"
+          :modes="[]"
+          empty-label="dreams"
+        >
+          <template #item="{ item }">
+            <dream-card
+              v-if="dreamById.get(Number(item.id))"
+              :dream="dreamById.get(Number(item.id))!"
+              :selected="dreamStore.selectedDream?.id === item.id"
+              :is-selected="dreamStore.selectedDream?.id === item.id"
+              :variant="modeVariant"
+              :earned-karma="earnedKarmaByDreamId[Number(item.id)]"
+              v-bind="dreamCardProps"
+              @choose="selectDreamAndOpen"
+              @edit="startEditingDreamById"
+              @delete="handleDreamDeleted"
+            />
+          </template>
+        </kr-gallery>
       </div>
     </section>
   </section>
@@ -418,6 +437,7 @@ import type {
   Reward,
   Scenario,
 } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import {
   GALLERY_MODES,
   MODE_GRID_CLASS,
@@ -546,6 +566,7 @@ const modeVariant = computed(() => MODE_VARIANT[galleryMode.value])
 const earnedKarmaByDreamId = ref<Record<number, number>>({})
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
+const isRowMode = computed(() => props.variant === 'row')
 
 const showToolbar = computed(() => {
   return (
@@ -712,6 +733,42 @@ const dreamTypes = computed(() => {
 
   return Array.from(set).sort()
 })
+
+/*
+ * interface-vision t-060 — the last of the seven. The grid renders through the
+ * shared kr-gallery shell while dream-card stays the card, so t-064's
+ * reactions, earned karma and edit/archive actions survive. This gallery
+ * already drove MODE_GRID_CLASS and dream-card's `variant` itself, so adopting
+ * the shell is mostly handing over markup it was duplicating.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredDreams.value.map((dream) => ({
+    id: dream.id,
+    title: dream.title || `Dream ${dream.id}`,
+    source: dream,
+  })),
+)
+
+/** Slot props give back a GalleryItem, so map the id to the real record. */
+const dreamById = computed(
+  () => new Map(filteredDreams.value.map((d) => [d.id, d])),
+)
+
+/** The card's shared props in one place so row and grid cannot drift. */
+const dreamCardProps = computed(() => ({
+  compact: isCompact.value,
+  showImage: props.showImages,
+  showActions: props.showCardActions,
+  showDescription: props.showDescriptions,
+  showMeta: props.showMeta,
+  showStats: props.showStats,
+  showDebug: props.showDebug,
+  allowEdit: props.allowEdit,
+  allowDelete: props.allowDelete,
+  showPitchSheetPreview: props.showPitchSheetPreview,
+  loadPitchSheetPreview: props.autoLoadSheets,
+  imageFit: 'cover' as const,
+}))
 
 const filteredDreams = computed<DreamWithRelations[]>(() => {
   let dreams = galleryDreams.value

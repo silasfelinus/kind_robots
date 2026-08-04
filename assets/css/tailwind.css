@@ -302,6 +302,37 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply flex min-h-0 flex-1 flex-col overflow-hidden;
   }
 
+  /*
+   * ── Multi-owner scroll primitives (interface-vision t-058) ───────────
+   * .kr-scroll above is capped at exactly one per .kr-surface by design --
+   * some layouts (a two-pane inspector, a three-pane editor) legitimately
+   * need more than one region scrolling independently at once. These three
+   * are that documented exception: adopting .kr-panes is what legitimizes
+   * multiple scroll owners in one component (see the `one-scroll` rule in
+   * utils/scripts/verifyLayoutContract.ts) -- undeclared/ad-hoc multi-scroll
+   * still violates the contract.
+   */
+
+  /* Grid container for N independent panes. Caller supplies grid-cols
+     (responsive column templates are layout-specific, not primitive-owned). */
+  .kr-panes {
+    @apply grid min-h-0 flex-1 gap-4 overflow-hidden;
+  }
+
+  /* One pane's non-scrolling shell -- same role .kr-surface plays for a
+     whole page, scoped to a single grid cell. Give it its own .kr-toolbar
+     row above a .kr-pane-scroll child when the pane needs one. */
+  .kr-pane {
+    @apply flex min-h-0 min-w-0 flex-col overflow-hidden;
+  }
+
+  /* One pane's scroll owner -- the .kr-scroll idiom, scoped to a pane. A
+     pane with nothing else in it may carry this directly instead of an
+     empty wrapping .kr-pane. */
+  .kr-pane-scroll {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+  }
+
   /* Root-satisfying marker with NO overflow/height behavior of its own
      (interface-vision t-057/t-059). For MDC-mounted -page.vue components
      rendered inside pages/[...slug].vue's own scrolling content-host: that

@@ -130,10 +130,10 @@
 
     <div
       v-else
-      class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(280px,420px)_minmax(0,1fr)]"
+      class="kr-panes gap-3 grid-cols-1 xl:grid-cols-[minmax(280px,420px)_minmax(0,1fr)]"
     >
       <!-- Aside: image preview -->
-      <aside class="flex min-h-0 flex-col gap-3 overflow-auto">
+      <aside class="kr-pane-scroll flex flex-col gap-3">
         <image-card
           :art-image="currentArtImage"
           :selected="true"
@@ -198,7 +198,7 @@
 
       <!-- Main: editing panel -->
       <main
-        class="min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100"
+        class="kr-pane-scroll rounded-2xl border border-base-300 bg-base-100"
       >
         <div class="grid gap-3 p-3">
           <!-- Quick Edit -->

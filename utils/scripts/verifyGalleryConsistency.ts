@@ -289,6 +289,58 @@ for await (const file of walk('components')) {
 }
 ok('no gallery hand-rolls its own mode bar')
 
+/* ------------------------------------------------------------------ *
+ * 6. Every core object carries all four art variants.
+ * ------------------------------------------------------------------ */
+//
+// Silas, 2026-08-04: "please make sure that all our major objects have the
+// needs image variables: card icon hero and path."
+//
+// The gallery vocabulary is only as real as the schema behind it: a mode whose
+// column does not exist silently falls back through resolveArtVariantSrc and
+// renders the same art as another mode, which is indistinguishable from the
+// bug where the shape was wrong. Dream was missing iconPath (t-077) and Project
+// was missing it too and had never been filed -- found by auditing all four
+// fields across every core model instead of acting on the one known report.
+const SCHEMA = await readFile('prisma/schema.prisma', 'utf8')
+const ART_FIELDS = ['imagePath', 'cardPath', 'heroPath', 'iconPath']
+const CORE_MODELS = [
+  'Bot',
+  'Character',
+  'Dream',
+  'Reward',
+  'Scenario',
+  'Facet',
+  'Project',
+]
+
+for (const model of CORE_MODELS) {
+  const body = SCHEMA.match(
+    new RegExp(`^model ${model} \\{([\\s\\S]*?)^\\}`, 'm'),
+  )?.[1]
+
+  if (!body) {
+    fail(
+      `prisma/schema.prisma: model ${model} not found. If it was renamed, update this contract.`,
+    )
+    continue
+  }
+
+  const missing = ART_FIELDS.filter(
+    (field) => !new RegExp(`^\\s*${field}\\s+`, 'm').test(body),
+  )
+
+  if (missing.length) {
+    fail(
+      `${model} is missing ${missing.join(', ')}. All four art variants are ` +
+        'required on a core object: imagePath (square), cardPath (vertical), ' +
+        'heroPath (horizontal), iconPath (square). A gallery mode whose column ' +
+        "does not exist renders another mode's art and looks like a layout bug.",
+    )
+  }
+}
+ok(`${CORE_MODELS.length} core objects carry all four art variants`)
+
 /* ------------------------------------------------------------------ */
 
 for (const note of notes) console.log(note)

@@ -47,7 +47,7 @@
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
           >
-            <Icon name="kind-icon:community" class="h-5 w-5" />
+            <Icon name="kind-icon:heart" class="h-5 w-5" />
           </span>
           <h2 class="text-base font-black uppercase tracking-wider text-base-content">
             Community & Sponsors

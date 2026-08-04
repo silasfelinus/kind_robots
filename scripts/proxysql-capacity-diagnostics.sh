@@ -12,7 +12,7 @@
 #   MARIADB_ROOT_PASSWORD=...
 #
 # The script prints aggregate connection state only. It never prints passwords,
-# runs KILL, changes runtime configuration, or restarts a container.
+# query text, runs KILL, changes runtime configuration, or restarts a container.
 
 set -Eeuo pipefail
 
@@ -92,6 +92,14 @@ proxysql_sql() {
     '
 }
 
+proxysql_sql_optional() {
+  local title="$1"
+  local sql="$2"
+  if ! proxysql_sql "$title" "$sql"; then
+    printf 'WARNING: optional ProxySQL section failed; continuing the census.\n' >&2
+  fi
+}
+
 mariadb_sql() {
   local title="$1"
   local sql="$2"
@@ -141,13 +149,16 @@ WHERE variable_name IN (
   'mysql-connection_warming',
   'mysql-connection_delay_multiplex_ms',
   'mysql-auto_increment_delay_multiplex',
+  'mysql-max-connections',
   'mysql-max_connections',
   'mysql-threads',
   'mysql-wait_timeout',
   'mysql-max_transaction_time',
+  'mysql-max_transaction_idle_time',
   'mysql-threshold_resultset_size',
   'mysql-connect_timeout_server',
-  'mysql-connect_retries_on_failure'
+  'mysql-connect_retries_on_failure',
+  'mysql-show_processlist_extended'
 )
 ORDER BY variable_name;
 "
@@ -165,13 +176,56 @@ FROM stats_mysql_users
 WHERE username = '${APP_DB_USER}';
 "
 
-proxysql_sql 'frontend sessions by pinning state' "
-SELECT user, hostgroup, command, transaction_found, multiplex_disabled,
-       COUNT(*) AS sessions, MAX(time_ms) AS oldest_ms
+proxysql_sql_optional 'connection and denial counters' "
+SELECT Variable_Name, Variable_Value
+FROM stats_mysql_global
+WHERE Variable_Name IN (
+  'Client_Connections_connected',
+  'Client_Connections_created',
+  'Client_Connections_aborted',
+  'Server_Connections_connected',
+  'Server_Connections_created',
+  'Server_Connections_aborted',
+  'Access_Denied_Max_Connections',
+  'Access_Denied_Max_User_Connections',
+  'Active_Transactions'
+)
+ORDER BY Variable_Name;
+"
+
+# These are the stable documented columns across the current ProxySQL schema.
+# Older diagnostics incorrectly queried transaction_found and multiplex_disabled,
+# which are not columns in stats_mysql_processlist on this installation.
+proxysql_sql 'frontend sessions by client source' "
+SELECT cli_host,
+       COALESCE(db, '') AS db,
+       COALESCE(command, '') AS command,
+       COALESCE(hostgroup, '') AS hostgroup,
+       COALESCE(srv_host, '') AS srv_host,
+       COALESCE(srv_port, '') AS srv_port,
+       COUNT(*) AS sessions,
+       MAX(time_ms) AS oldest_state_ms
 FROM stats_mysql_processlist
 WHERE user = '${APP_DB_USER}'
-GROUP BY user, hostgroup, command, transaction_found, multiplex_disabled
-ORDER BY sessions DESC, oldest_ms DESC;
+GROUP BY cli_host, COALESCE(db, ''), COALESCE(command, ''),
+         COALESCE(hostgroup, ''), COALESCE(srv_host, ''), COALESCE(srv_port, '')
+ORDER BY sessions DESC, oldest_state_ms DESC;
+"
+
+proxysql_sql_optional 'frontend source totals' "
+SELECT cli_host,
+       COUNT(*) AS sessions,
+       SUM(CASE WHEN srv_host IS NULL OR srv_host = '' THEN 1 ELSE 0 END) AS no_backend,
+       SUM(CASE WHEN srv_host IS NOT NULL AND srv_host <> '' THEN 1 ELSE 0 END) AS backend_attached,
+       MAX(time_ms) AS oldest_state_ms
+FROM stats_mysql_processlist
+WHERE user = '${APP_DB_USER}'
+GROUP BY cli_host
+ORDER BY sessions DESC, oldest_state_ms DESC;
+"
+
+proxysql_sql_optional 'processlist schema for version reference' "
+SHOW COLUMNS FROM stats_mysql_processlist;
 "
 
 mariadb_sql 'global and account ceilings' "
@@ -223,13 +277,16 @@ ORDER BY t.trx_started;
 cat <<'EOF'
 
 ===== Reading the result =====
+- stats_mysql_users reports live frontend sessions against the ProxySQL user's
+  own max_connections limit. A matching current/max value means ProxySQL itself
+  is denying additional clients, regardless of spare MariaDB capacity.
+- frontend source totals identify the client IPs holding those live sessions.
+  A source with many no_backend sessions is keeping frontend sockets open while
+  not currently consuming an attached MariaDB backend.
 - MariaDB source_host matching the ProxySQL container/network means ProxySQL owns
   those backend sessions. Other source hosts are direct bypass clients.
-- High ConnFree with low ConnUsed means ProxySQL is retaining idle backend
-  sessions. Capture the output before changing free_connections_pct or limits.
-- High transaction_found or multiplex_disabled counts explain why frontend
-  sessions cannot share backend connections.
-- runtime_mysql_servers.max_connections should remain below the MariaDB
-  kindrobot max_user_connections limit, leaving separate headroom for migrations
-  and emergency direct access.
+- ConnUsed + ConnFree should not exceed runtime_mysql_servers.max_connections
+  for that backend row. This is separate from the ProxySQL frontend user limit.
+- Capture the output before restarting clients or ProxySQL; restarts erase the
+  source and age evidence.
 EOF

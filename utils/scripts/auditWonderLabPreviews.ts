@@ -1,4 +1,16 @@
 // /utils/scripts/auditWonderLabPreviews.ts
+/*
+ * The --strict gate is a RATCHET, same shape as verifyLayoutContract.ts's
+ * layout-contract-baseline.json (interface-vision/t-058). wonderlab-preview-
+ * baseline.json records today's known-uncovered components; --strict only
+ * fails on a component that is uncovered and NOT already in that allow-list.
+ * The 29-component backlog that existed when this ratchet was introduced can
+ * be worked down opportunistically without blocking unrelated PRs.
+ *
+ *   npm run audit:wonderlab-previews             # report, no gate
+ *   npm run audit:wonderlab-previews -- --strict  # fail on NEW uncovered components
+ *   npm run audit:wonderlab-previews -- --update  # ratchet the baseline down (or seed it)
+ */
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { getWonderLabPreviewFixture } from '../wonderlab/previewFixtureCatalog'
@@ -6,6 +18,26 @@ import { getWonderLabPreviewFixture } from '../wonderlab/previewFixtureCatalog'
 const componentRoot = path.resolve(process.cwd(), 'components')
 const ignoredSegments = new Set(['abandonware', '__tests__', '__fixtures__'])
 const strict = process.argv.includes('--strict')
+const update = process.argv.includes('--update')
+const BASELINE_PATH = path.resolve(
+  process.cwd(),
+  'utils/scripts/wonderlab-preview-baseline.json',
+)
+
+type Baseline = {
+  note: string
+  recorded: string
+  uncovered: string[]
+}
+
+async function loadBaseline(): Promise<Baseline | null> {
+  try {
+    const raw = await fs.readFile(BASELINE_PATH, 'utf8')
+    return JSON.parse(raw) as Baseline
+  } catch {
+    return null
+  }
+}
 
 function toPosix(value: string): string {
   return value.split(path.sep).join('/')
@@ -127,8 +159,64 @@ async function main() {
     )
   }
 
-  if (strict && uncovered.length) {
+  const currentPaths = uncovered.map((item) => item.sourcePath).sort()
+  const baseline = await loadBaseline()
+
+  if (update) {
+    if (baseline && currentPaths.length > baseline.uncovered.length) {
+      console.error(
+        `\nRefusing to update the baseline — uncovered count grew from ` +
+          `${baseline.uncovered.length} to ${currentPaths.length}.\n` +
+          'The allow-list is a ratchet. Fix the new gap, or re-run without --update to see it.',
+      )
+      process.exitCode = 1
+      return
+    }
+
+    const next: Baseline = {
+      note:
+        'WonderLab preview-fixture coverage allow-list. RATCHET: this file may only ever ' +
+        'shrink. --update refuses to record a larger count. See ' +
+        'utils/scripts/auditWonderLabPreviews.ts.',
+      recorded: new Date().toISOString().slice(0, 10),
+      uncovered: currentPaths,
+    }
+    await fs.writeFile(BASELINE_PATH, `${JSON.stringify(next, null, 2)}\n`)
+    console.log(`\nBaseline written to ${path.relative(process.cwd(), BASELINE_PATH)}`)
+    return
+  }
+
+  if (!strict) return
+
+  if (!baseline) {
+    console.error(
+      `\nNo baseline at ${path.relative(process.cwd(), BASELINE_PATH)}. ` +
+        'Run: npm run audit:wonderlab-previews -- --update',
+    )
     process.exitCode = 1
+    return
+  }
+
+  const allowed = new Set(baseline.uncovered)
+  const added = currentPaths.filter((entry) => !allowed.has(entry))
+
+  if (added.length) {
+    console.error(
+      `\n${added.length} component(s) newly missing preview-fixture coverage since the baseline:\n` +
+        added.map((entry) => `  + ${entry}`).join('\n') +
+        '\n\nThese are new since the baseline. Fix them, or add a fixture/skip reason — ' +
+        'the allow-list only shrinks.',
+    )
+    process.exitCode = 1
+    return
+  }
+
+  const removed = baseline.uncovered.filter((entry) => !currentPaths.includes(entry))
+  if (removed.length) {
+    console.log(
+      `\nCoverage improved — baseline can shrink by ${removed.length} entr${removed.length === 1 ? 'y' : 'ies'}. ` +
+        'Run with --update to ratchet the baseline down.',
+    )
   }
 }
 

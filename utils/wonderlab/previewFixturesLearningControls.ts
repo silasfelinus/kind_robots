@@ -79,11 +79,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
       sliderId: 'wonderlab-butterfly-count',
     },
   },
-  'butterfly-toggle': {
-    title: 'Butterfly Layout Toggle',
-    skipReason:
-      'This fixed full-viewport animation measures a real DOM target, runs an animation frame loop, and mutates global display layout state when clicked. It should be exercised from the application shell rather than nested inside a component preview.',
-  },
   'choice-manager': {
     title: 'Choice Manager',
     skipReason:

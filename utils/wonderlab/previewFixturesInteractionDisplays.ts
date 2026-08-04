@@ -27,22 +27,6 @@ const fixtureButterfly = {
 }
 
 const fixtures: Record<string, WonderLabPreviewFixture> = {
-  'smart-nav': {
-    title: 'Smart Navigation specimen',
-    description:
-      'Renders a static navigation choice set with global display-store selection disabled.',
-    viewport: 'tablet',
-    minHeight: '10rem',
-    props: {
-      componentList: [
-        'component-gallery',
-        'preview-fixtures',
-        'review-feed',
-        'reconciliation',
-      ],
-      allowSelect: false,
-    },
-  },
   'stage-slot': {
     title: 'Filled Stage Slot specimen',
     description:

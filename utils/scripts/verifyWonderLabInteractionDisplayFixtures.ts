@@ -1,11 +1,6 @@
 // /utils/scripts/verifyWonderLabInteractionDisplayFixtures.ts
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
 import { getWonderLabPreviewFixture } from '@/utils/wonderlab/previewFixtureCatalog'
-
-const smartNav = getWonderLabPreviewFixture('smart-nav')
-assert.ok(Array.isArray(smartNav?.props?.componentList))
-assert.equal(smartNav?.props?.allowSelect, false)
 
 const stageSlot = getWonderLabPreviewFixture('stage-slot')
 assert.ok(stageSlot?.props?.slot)
@@ -40,11 +35,6 @@ for (const key of ['facet-picker', 'reaction-card', 'butterfly-modal'] as const)
   const fixture = getWonderLabPreviewFixture(key)
   assert.ok(fixture?.skipReason, `${key} must explain its write/global context.`)
 }
-
-const smartNavSource = await readFile('components/icons/smart-nav.vue', 'utf8')
-assert.match(smartNavSource, /allowSelect\?: boolean/)
-assert.match(smartNavSource, /allowSelect: true/)
-assert.match(smartNavSource, /if \(props\.allowSelect\)/)
 
 // Confirm previous fixture modules remain visible through the combined catalog.
 assert.ok(getWonderLabPreviewFixture('builder-card')?.props?.card)

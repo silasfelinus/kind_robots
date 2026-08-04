@@ -25,6 +25,8 @@
  *   4. one-mdc       — a content page mounts one component, not several
  *   5. ghost-prop    — don't pass :show-header to a component that never declared it
  *   6. root-surface  — page components start with a shared kr-surface/kr-stage/kr-unbound root
+ *   7. pane-display  — kr-panes/kr-pane never carry a display utility that fights
+ *                       the one the primitive bakes in (t-097)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, basename, extname } from 'node:path'
@@ -52,6 +54,7 @@ type RuleId =
   | 'ghost-prop'
   | 'zero-scroll'
   | 'root-surface'
+  | 'pane-display'
 
 type Baseline = {
   note: string
@@ -69,6 +72,8 @@ const RULE_TITLES: Record<RuleId, string> = {
     'standalone page components with no scroll region of their own (app.vue no longer scrolls for them)',
   'root-surface':
     'page components whose root wrapper does not use kr-surface, kr-stage, or kr-unbound',
+  'pane-display':
+    'kr-panes/kr-pane elements carrying a display utility that contradicts the one the primitive bakes in',
 }
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
@@ -353,6 +358,65 @@ function anchorScrollRegionCount(template: string): number {
   ).length
 }
 
+/*
+ * .kr-panes bakes in `grid`; .kr-pane bakes in `flex flex-col`. Tailwind's
+ * utilities layer outranks the components layer, so a leftover `grid` sitting
+ * next to .kr-pane doesn't lose the cascade -- it WINS, and the element quietly
+ * stops being the flex column the primitive promised. That is exactly what
+ * dream-brainstorm.vue's `grid grid-rows-[auto_minmax(0,1fr)_auto]` main hit
+ * during t-058: it had to be converted to a flex header/scroll/footer shape
+ * rather than just gaining a .kr-pane alongside the grid classes.
+ *
+ * Nothing else in CI can see this. TypeScript and ESLint don't read class
+ * strings, and every other rule in this file counts class names without
+ * asking whether two of them contradict. It took reading the primitive's CSS
+ * by hand to catch (interface-vision t-097).
+ *
+ * Deliberately narrow -- only the display axis, and only the direction that
+ * actually breaks:
+ *   - grid-family utilities on .kr-pane (its `flex` makes them inert or
+ *     hijacks its display outright)
+ *   - flex-family utilities on .kr-panes (same, mirrored)
+ * Supplying grid-cols-* to .kr-panes is the primitive's DOCUMENTED contract
+ * ("caller supplies grid-cols"), never a violation. Overriding a baked
+ * non-display utility on purpose -- `kr-panes gap-0` in
+ * animation-manager.vue -- is legitimate too, and stays unflagged. Merely
+ * redundant repeats (`kr-panes grid min-h-0 flex-1`) are noise, not breakage,
+ * and are also left alone: this rule fails builds, so it only fires on a mix
+ * that changes what the element does.
+ */
+const GRID_DISPLAY_TOKEN = /^(?:[a-z0-9-]+:)*(?:inline-)?grid$/
+const GRID_TEMPLATE_TOKEN =
+  /^(?:[a-z0-9-]+:)*(?:grid-cols|grid-rows|auto-cols|auto-rows|grid-flow)-/
+const FLEX_DISPLAY_TOKEN = /^(?:[a-z0-9-]+:)*(?:inline-)?flex$/
+const FLEX_DIRECTION_TOKEN = /^(?:[a-z0-9-]+:)*flex-(?:col|row)(?:-reverse)?$/
+
+function paneDisplayConflicts(template: string): string[] {
+  const conflicts: string[] = []
+
+  for (const classList of staticClassLists(template)) {
+    const tokens = classList.split(/\s+/).filter(Boolean)
+    // .kr-pane-scroll declares no display of its own, so it is not in scope.
+    const isPanes = tokens.includes('kr-panes')
+    const isPane = tokens.includes('kr-pane')
+    if (!isPanes && !isPane) continue
+
+    const offenders = tokens.filter((token) =>
+      isPane
+        ? GRID_DISPLAY_TOKEN.test(token) || GRID_TEMPLATE_TOKEN.test(token)
+        : FLEX_DISPLAY_TOKEN.test(token) || FLEX_DIRECTION_TOKEN.test(token),
+    )
+
+    if (offenders.length) {
+      conflicts.push(
+        `${isPane ? 'kr-pane' : 'kr-panes'} + ${offenders.join(' ')}`,
+      )
+    }
+  }
+
+  return conflicts
+}
+
 function hasKrAnchorPanes(template: string): boolean {
   return staticClassLists(template).some((classList) =>
     classList.split(/\s+/).filter(Boolean).includes('kr-anchor-panes'),
@@ -500,6 +564,50 @@ function verifyFixedOverlayFixture(): void {
   }
 }
 
+function verifyPaneDisplayFixture(): void {
+  /* The mix that broke dream-brainstorm.vue, plus its mirror on .kr-panes. */
+  const conflicting = templateOf(`
+    <template>
+      <main class="kr-pane grid grid-rows-[auto_minmax(0,1fr)_auto]"></main>
+      <section class="kr-panes flex flex-col"></section>
+    </template>
+  `)
+  const found = paneDisplayConflicts(conflicting)
+  if (found.length !== 2) {
+    throw new Error(
+      `Pane-display fixture (conflicting) was not classified correctly: ${found.join(' | ')}`,
+    )
+  }
+  if (!found[0]?.includes('grid-rows-') || !found[1]?.includes('flex-col')) {
+    throw new Error(
+      `Pane-display fixture did not name the offending tokens: ${found.join(' | ')}`,
+    )
+  }
+
+  /*
+   * Everything here is legitimate and must stay silent: .kr-panes with the
+   * caller-supplied grid template it documents (including a responsive
+   * variant), a deliberate `gap-0` override, .kr-pane-scroll with its own
+   * display (it declares none), and `flex-1`, which is sizing rather than a
+   * flex-direction token and must not be caught by the `flex-` prefix.
+   */
+  const legitimate = templateOf(`
+    <template>
+      <section class="kr-panes gap-0 grid-cols-1 xl:grid-cols-[22rem_minmax(0,1fr)]">
+        <aside class="kr-pane-scroll flex flex-col gap-4"></aside>
+        <div class="kr-pane-scroll grid auto-rows-min grid-cols-2"></div>
+        <main class="kr-pane min-w-0 flex-1"></main>
+      </section>
+    </template>
+  `)
+  const quiet = paneDisplayConflicts(legitimate)
+  if (quiet.length) {
+    throw new Error(
+      `Pane-display fixture (legitimate) produced false positives: ${quiet.join(' | ')}`,
+    )
+  }
+}
+
 function verifyPaneScrollFixture(): void {
   const withPanes = templateOf(`
     <template>
@@ -591,6 +699,7 @@ function collect(): Record<RuleId, string[]> {
     'ghost-prop': [],
     'zero-scroll': [],
     'root-surface': [],
+    'pane-display': [],
   }
 
   /*
@@ -688,6 +797,10 @@ function collect(): Record<RuleId, string[]> {
       violations['zero-scroll'].push(r)
     }
 
+    for (const conflict of paneDisplayConflicts(template)) {
+      violations['pane-display'].push(`${r} → ${conflict}`)
+    }
+
     const exempt = VIEWPORT_EXEMPT.some((prefix) => r.startsWith(prefix))
     if (!exempt && /\b(h-screen|min-h-screen)\b|100vh|100dvh/.test(source)) {
       violations['no-viewport'].push(r)
@@ -736,6 +849,7 @@ function main(): void {
   verifyScrollExclusivityFixture()
   verifyFixedOverlayFixture()
   verifyPaneScrollFixture()
+  verifyPaneDisplayFixture()
   verifyAnchorScrollFixture()
   const current = collect()
   const baseline = loadRatchetBaseline<Baseline>(BASELINE_PATH)

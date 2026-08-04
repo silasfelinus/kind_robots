@@ -311,6 +311,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * multiple scroll owners in one component (see the `one-scroll` rule in
    * utils/scripts/verifyLayoutContract.ts) -- undeclared/ad-hoc multi-scroll
    * still violates the contract.
+   *
+   * EACH OF THESE BAKES IN A `display`, so do not leave a contradicting one
+   * on the same element. .kr-panes is `grid`; .kr-pane is `flex flex-col`.
+   * Utilities outrank the components layer, so a leftover `grid` next to
+   * .kr-pane does not lose -- it WINS, and the pane silently stops being a
+   * flex column (this is what dream-brainstorm.vue's
+   * `grid grid-rows-[auto_minmax(0,1fr)_auto]` main had to be converted away
+   * from during t-058, rather than just gaining a .kr-pane alongside).
+   * grid-cols-* and grid-rows-* next to .kr-pane are inert for the same
+   * reason.
+   * The `pane-display` rule in verifyLayoutContract.ts fails CI on both
+   * mixes. Supplying grid-cols-* to .kr-panes is the intended case and is
+   * never flagged; so is overriding a baked utility on purpose (`gap-0`).
    */
 
   /* Grid container for N independent panes. Caller supplies grid-cols

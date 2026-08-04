@@ -177,6 +177,7 @@
           streaming-label="The narrative gremlin is writing..."
           empty-label="Start the encounter, then unleash the narrative gremlin."
           :prose="false"
+          :selected-key="lastChoiceKey"
           @choose="handleChoiceSelected"
         >
           <template v-if="canShowCustomFollowup" #footer>
@@ -866,7 +867,17 @@ const canShowCustomFollowup = computed(() =>
   Boolean(latestSessionChat.value?.botResponse),
 )
 
+/*
+ * The choice most recently picked, so kr-chat-window can ring it (t-090).
+ * This surface had that highlight before its migration onto the shared kit and
+ * lost it, because kr-chat-window had no way to forward a selectedKey to the
+ * choice lists it embeds. The key is the display key kr-choice-list emits, not
+ * the recovered path text, since that is what it compares against.
+ */
+const lastChoiceKey = ref<string | null>(null)
+
 function handleChoiceSelected(choice: NarrativeChoice) {
+  lastChoiceKey.value = choice.key
   // getStoryChoices keys are `${1|2|3}-${text}`; recover the raw path text
   // rather than repurposing the display label/hint, which are free to change.
   continueWithPath(choice.key.replace(/^[1-3]-/, ''))

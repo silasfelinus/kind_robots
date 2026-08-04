@@ -42,17 +42,56 @@
       <b>{{ error }}</b>
     </div>
 
+    <!--
+      The empty state is slotted for the same reason `item` is: a generic
+      "No scenarios." is a downgrade for a gallery that had search-aware copy
+      and an Add call-to-action, and losing that to adopt the shell would make
+      adoption cost the user something. Callers with nothing special to say
+      omit the slot and get the default below.
+    -->
     <div
       v-else-if="!items.length"
       class="flex min-h-64 flex-col items-center justify-center text-center"
     >
-      <Icon name="kind-icon:cards" class="size-12 text-base-content/20" />
-      <b>No {{ emptyLabel }}.</b>
+      <slot name="empty">
+        <Icon name="kind-icon:cards" class="size-12 text-base-content/20" />
+        <b>No {{ emptyLabel }}.</b>
+      </slot>
     </div>
 
     <section v-else :class="gridClass">
+      <!--
+        An `item` slot, so a gallery can keep its own object card inside this
+        shell instead of trading it away to adopt the shell.
+
+        Without it the two halves of the design brief fight each other: t-064
+        put all five object cards on kr-entity-card-body (reactions, earned
+        karma, edit/archive actions), and t-060 wants all seven core objects on
+        one gallery. Adopting this shell with only the built-in rendering below
+        would have meant Dreams, Bots, Characters, Rewards and Scenarios losing
+        their reviews and actions -- a regression wearing an adoption's clothes.
+
+        So the split is: this component owns the SHELL (mode bar, grid, one
+        scroll owner, skeleton/error/empty, art fallback), and the caller owns
+        the CARD. Galleries whose rows have no reactable card -- facets,
+        projects -- pass no slot and keep the built-in rendering below
+        unchanged, which is why this is additive rather than a breaking change.
+      -->
+      <template v-if="$slots.item">
+        <slot
+          v-for="item in items"
+          :key="`slot-${item.id}`"
+          name="item"
+          :item="item"
+          :mode="mode"
+          :art-src="artSrc(item)"
+          :open="() => emit('open', item)"
+        />
+      </template>
+
       <button
         v-for="item in items"
+        v-else
         :key="item.id"
         type="button"
         class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"

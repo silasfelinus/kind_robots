@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { containsCode } from './lib/sourceText'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -15,7 +16,7 @@ function requireText(source: string, text: string, label: string): void {
 }
 
 function forbidText(source: string, text: string, label: string): void {
-  if (source.includes(text)) {
+  if (containsCode(source, text)) {
     throw new Error(`${label}: forbidden text found ${JSON.stringify(text)}`)
   }
 }

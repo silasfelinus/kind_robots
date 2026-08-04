@@ -333,6 +333,29 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
   }
 
+  /*
+   * Anchor + overlay multi-owner scroll marker (interface-vision t-058
+   * follow-on, conductor issue #1690): an anchored control (e.g. a dropdown
+   * menu) with an absolutely-positioned flyout sibling, where both are
+   * genuinely interactive and independently scrollable at the same time.
+   * Unlike .kr-panes this applies NO grid/overflow-hidden -- clipping the
+   * anchor would clip the overlay child that is positioned outside its
+   * bounds by design. .kr-anchor-panes only legitimizes .kr-anchor-scroll
+   * children for the one-scroll rule; it carries no layout behavior of its
+   * own beyond guaranteeing it never clips.
+   */
+  .kr-anchor-panes {
+    @apply overflow-visible;
+  }
+
+  /* One anchor-group scroll owner -- the .kr-scroll idiom, without the
+     flex-1/min-h-0 sizing .kr-pane-scroll assumes, since anchor/overlay
+     menus size themselves via an explicit max-height style rather than
+     flex growth. */
+  .kr-anchor-scroll {
+    @apply overflow-y-auto overscroll-contain;
+  }
+
   /* Root-satisfying marker with NO overflow/height behavior of its own
      (interface-vision t-057/t-059). For MDC-mounted -page.vue components
      rendered inside pages/[...slug].vue's own scrolling content-host: that

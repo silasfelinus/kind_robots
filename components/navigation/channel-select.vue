@@ -41,12 +41,12 @@
 
     <div
       tabindex="0"
-      class="dropdown-content z-110 mt-2"
+      class="dropdown-content z-110 mt-2 kr-anchor-panes"
       @focusin="scheduleChannelMenuViewportUpdate"
     >
       <ul
         ref="channelMenu"
-        class="menu w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="menu w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         :style="{
           maxHeight: `${channelMenuMaxHeight}px`,
           scrollbarGutter: 'stable',
@@ -181,7 +181,7 @@
       <ul
         v-if="expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
-        class="channel-submenu menu absolute left-full z-120 ml-2 w-80 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="channel-submenu menu absolute left-full z-120 ml-2 w-80 overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         :style="{
           top: `${channelFlyoutTop}px`,
           maxHeight: `${channelFlyoutMaxHeight}px`,

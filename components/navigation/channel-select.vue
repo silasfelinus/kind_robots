@@ -7,7 +7,7 @@
       class="flex h-full min-h-10 shrink-0 items-center gap-2 overflow-hidden px-2 transition-all xl:gap-2.5 xl:px-3"
       :class="
         seamless
-          ? 'hover:bg-base-200'
+          ? 'rounded-l-xl hover:bg-base-200'
           : 'h-10 rounded-xl border border-base-300 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14'
       "
       :title="`Navigate ${activeChannel.label}`"

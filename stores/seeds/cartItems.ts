@@ -49,11 +49,12 @@ export const cartItems: CartItem[] = [
   },
   {
     id: 'donation',
-    label: '$1 Donation to Against Malaria',
+    label: '$1 AMF-Designated Donation',
     type: 'donation',
     price: 1.0,
     image: '/img/products/donation.png',
-    description: 'Buy a treated net and save lives. 100% goes to AMF.',
+    description:
+      'Collected by Kind Robots through Stripe and recorded separately for Against Malaria Foundation remittance.',
     needsArt: false,
   },
   {

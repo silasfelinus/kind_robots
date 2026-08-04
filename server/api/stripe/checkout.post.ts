@@ -265,7 +265,7 @@ export default defineEventHandler(async (event) => {
         kind: 'giftshop_checkout',
         userId: String(user.id),
       },
-      success_url: `${process.env.BASE_URL}/shop/success`,
+      success_url: `${process.env.BASE_URL}/shop/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.BASE_URL}/shop/cancel`,
     })
 

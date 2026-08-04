@@ -1,0 +1,50 @@
+name: Giftshop Checkout Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/giftshop/**'
+      - 'components/navigation/cart-button.vue'
+      - 'components/navigation/notification-bell.vue'
+      - 'components/pages/giving-page.vue'
+      - 'content/cart.md'
+      - 'content/channels/sanctuary/cart.md'
+      - 'content/shop/**'
+      - 'server/api/stripe/checkout.post.ts'
+      - 'server/api/stripe/checkout-status.get.ts'
+      - 'stores/seeds/cartItems.ts'
+      - 'utils/scripts/verify-giftshop-checkout.mjs'
+      - '.github/workflows/giftshop-checkout-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'components/giftshop/**'
+      - 'components/navigation/cart-button.vue'
+      - 'components/navigation/notification-bell.vue'
+      - 'components/pages/giving-page.vue'
+      - 'content/cart.md'
+      - 'content/channels/sanctuary/cart.md'
+      - 'content/shop/**'
+      - 'server/api/stripe/checkout.post.ts'
+      - 'server/api/stripe/checkout-status.get.ts'
+      - 'stores/seeds/cartItems.ts'
+      - 'utils/scripts/verify-giftshop-checkout.mjs'
+      - '.github/workflows/giftshop-checkout-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: giftshop-checkout-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify cart and Stripe stitching
+        run: node utils/scripts/verify-giftshop-checkout.mjs

@@ -231,8 +231,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore, type CartItem } from '@/stores/cartStore'
-import { useNavStore } from '@/stores/navStore'
 import { performFetch } from '@/stores/utils'
 import {
   resolveArtImageSrc,
@@ -266,7 +266,7 @@ type ShowcaseItem = {
 }
 
 const cartStore = useCartStore()
-const navStore = useNavStore()
+const router = useRouter()
 const featuredArt = ref<FeaturedArtImage[]>([])
 
 const giftshopFeatures: GiftshopFeature[] = [
@@ -349,7 +349,7 @@ function addDemoItem(item: ShowcaseItem) {
   goToCart()
 }
 
-function goToCart() {
-  navStore.setDashboardTab?.('giftshop', 'cart')
+function goToCart(): void {
+  void router.push('/cart')
 }
 </script>

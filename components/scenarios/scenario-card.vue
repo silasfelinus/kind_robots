@@ -49,7 +49,7 @@
       :description="scenario.description"
       description-fallback="No description yet."
       :source="scenario"
-      variant="card"
+      :variant="variant"
       :fallback="artFallbackSrc"
       :show-image="showImage"
       :show-description="showDescription"
@@ -84,7 +84,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import { resolveArtImageSrc, type ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
@@ -105,6 +105,13 @@ const props = withDefaults(
     allowDelete?: boolean
     allowClone?: boolean
     fallbackImage?: string
+    /**
+     * Which stored art to show, and at what aspect — the shared card/hero/icon
+     * vocabulary. This was hardcoded `variant="card"` on the body below, which
+     * is why a gallery mode switch changed nothing visible: every mode rendered
+     * the identical portrait card. Same prop, same default, as dream-card.
+     */
+    variant?: ArtVariant
   }>(),
   {
     selected: false,
@@ -118,6 +125,7 @@ const props = withDefaults(
     allowEdit: true,
     allowDelete: true,
     allowClone: true,
+    variant: 'card',
     fallbackImage: '/images/scenarios/space.webp',
   },
 )

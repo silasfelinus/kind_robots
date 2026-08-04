@@ -241,20 +241,24 @@
           />
         </div>
 
-        <!-- t-060: the shared shell owns the grid; ScenarioCard stays the card.
-             :modes="[]" drops kr-gallery's own mode bar, because this gallery
-             already has its own controls in the header above. -->
+        <!-- t-060: the shared shell owns the grid AND the Cards/Heroes/Icons
+             bar; ScenarioCard stays the card. The mode is bound both ways and
+             fed through MODE_VARIANT into the card's `variant`, because a mode
+             bar that does not reach the card is the defect Silas found on the
+             first pass: "no different layouts". -->
         <kr-gallery
           v-else
           :items="galleryItems"
-          :modes="[]"
+          :mode="galleryMode"
           empty-label="scenarios"
+          @update:mode="galleryMode = $event"
         >
           <template #item="{ item }">
             <ScenarioCard
               v-if="scenarioById.get(Number(item.id))"
               :scenario="scenarioById.get(Number(item.id))!"
               :selected="scenarioStore.selectedScenario?.id === item.id"
+              :variant="MODE_VARIANT[galleryMode]"
               v-bind="scenarioCardProps"
               @edit="startEditingScenarioById"
               @clone="cloneScenarioById"
@@ -305,6 +309,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
 import type { ScenarioWithRelations } from '@/stores/scenarioStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
@@ -415,6 +420,9 @@ const galleryScenarios = computed<ScenarioWithRelations[]>(() => {
  * <select> are not grids, and forcing them through a grid shell would be
  * adoption for the counter's sake rather than for the user's.
  */
+/** Which of Cards/Heroes/Icons the grid is showing. */
+const galleryMode = ref<GalleryMode>('cards')
+
 const galleryItems = computed<GalleryItem[]>(() =>
   filteredScenarios.value.map((scenario) => ({
     id: scenario.id,

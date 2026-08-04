@@ -4,7 +4,6 @@
   "violations": {
     "one-header": [],
     "one-scroll": [
-      "components/art/art-gallery.vue",
       "components/butterfly/butterfly-sanctuary.vue",
       "components/dreams/dream-brainstorm.vue",
       "components/navigation/channel-select.vue",

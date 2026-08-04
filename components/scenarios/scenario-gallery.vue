@@ -176,10 +176,15 @@
           </div>
 
           <div class="character-card-grid">
-            <CharacterFlipCard
-              v-for="character in selectedScenarioCharacters"
+            <character-card
+              v-for="character in castCharacters"
               :key="character.id"
               :character="character"
+              :compact="true"
+              :show-image="showImages"
+              :show-actions="false"
+              :show-reaction="false"
+              :show-meta="showMeta"
             />
           </div>
         </section>
@@ -253,7 +258,7 @@
               </h3>
 
               <p class="truncate text-sm text-base-content/60">
-                Tap a card to flip between portrait and character data.
+                Character cards connected to this scenario.
               </p>
             </div>
 
@@ -263,10 +268,15 @@
           </div>
 
           <div class="character-card-grid">
-            <CharacterFlipCard
-              v-for="character in selectedScenarioCharacters"
+            <character-card
+              v-for="character in castCharacters"
               :key="character.id"
               :character="character"
+              :compact="true"
+              :show-image="showImages"
+              :show-actions="false"
+              :show-reaction="false"
+              :show-meta="showMeta"
             />
           </div>
         </section>
@@ -277,6 +287,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { Character } from '~/prisma/generated/prisma/client'
 import type { ScenarioWithRelations } from '@/stores/scenarioStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
@@ -416,6 +427,18 @@ const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
 const selectedScenarioCharacters = computed(() => {
   return scenarioStore.selectedScenario?.Characters ?? []
 })
+
+/*
+ * scenarioStore's Characters relation is a curated Pick<Character, ...> of safe
+ * display fields (see ScenarioCharacter in stores/scenarioStore.ts) -- it omits
+ * userId and allowReviews, which character-card.vue's full Character prop type
+ * technically requires. Both cast-grid renders below pass show-actions="false"
+ * and show-reaction="false", so neither omitted field is ever read; the cast is
+ * safe under that configuration.
+ */
+const castCharacters = computed(
+  () => selectedScenarioCharacters.value as unknown as Character[],
+)
 
 const selectedScenarioTitle = computed(() => {
   return scenarioStore.selectedScenario?.title || 'Selected Scenario'

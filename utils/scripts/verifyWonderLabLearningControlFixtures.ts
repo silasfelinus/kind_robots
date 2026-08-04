@@ -28,7 +28,10 @@ assert.equal(single?.props?.max, 20)
 
 for (const key of ['choice-manager', 'fx-region'] as const) {
   const fixture = getWonderLabPreviewFixture(key)
-  assert.ok(fixture?.skipReason, `${key} must explain its required app context.`)
+  assert.ok(
+    fixture?.skipReason,
+    `${key} must explain its required app context.`,
+  )
 }
 
 const academySource = await readFile(
@@ -41,7 +44,10 @@ assert.match(academySource, /if \(props\.allowMarkViewed\)/)
 
 // Confirm every earlier fixture layer still resolves through the shared catalog.
 assert.ok(getWonderLabPreviewFixture('feed-card')?.props?.item)
-assert.ok(getWonderLabPreviewFixture('hero-showcase')?.props?.items)
+// Was 'hero-showcase' until t-074 retired it. This assertion is a canary that
+// the achievement-navigation fixture layer still resolves, so any surviving key
+// from that same module serves the purpose.
+assert.ok(getWonderLabPreviewFixture('leaderboard-table')?.props?.rows)
 assert.ok(getWonderLabPreviewFixture('component-card')?.props?.component)
 
 console.log('WonderLab learning and control fixture verification passed.')

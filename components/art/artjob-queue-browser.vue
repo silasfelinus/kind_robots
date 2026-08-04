@@ -339,233 +339,12 @@
         </div>
 
         <div class="mt-3 grid gap-3 xl:grid-cols-2">
-          <article
+          <artjob-queue-card
             v-for="job in artJobStore.jobs"
             :key="job.id"
-            class="flex min-w-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200/30 p-3"
-          >
-            <div class="flex min-w-0 gap-3">
-              <a
-                v-if="jobImageSrc(job) && canShowJobContent(job)"
-                :href="jobImageSrc(job)"
-                target="_blank"
-                rel="noopener"
-                class="shrink-0"
-                :title="`Open ArtImage ${job.artImageId}`"
-              >
-                <img
-                  :src="jobImageSrc(job)"
-                  alt="Generated ArtJob output"
-                  class="h-28 w-24 rounded-2xl border border-base-300 object-cover"
-                  data-missing-image-report="false"
-                />
-              </a>
-              <div
-                v-else
-                class="flex h-28 w-24 shrink-0 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 px-2 text-center text-[10px] font-semibold uppercase text-base-content/40"
-              >
-                {{ canShowJobContent(job) ? job.status : 'Mature hidden' }}
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-1">
-                  <span class="font-mono text-xs font-semibold"
-                    >#{{ job.id }}</span
-                  >
-                  <span
-                    class="badge badge-xs rounded-2xl"
-                    :class="jobStatusClass(job.status)"
-                  >
-                    {{ job.status }}
-                  </span>
-                  <span class="badge badge-outline badge-xs rounded-2xl">{{
-                    job.engine
-                  }}</span>
-                  <span
-                    class="badge badge-xs rounded-2xl"
-                    :class="
-                      jobVisibility(job).isMature
-                        ? 'badge-warning'
-                        : 'badge-outline'
-                    "
-                  >
-                    {{ jobVisibility(job).isMature ? 'Mature' : 'General' }}
-                  </span>
-                  <span
-                    class="badge badge-xs rounded-2xl"
-                    :class="
-                      jobVisibility(job).isPublic
-                        ? 'badge-success badge-outline'
-                        : 'badge-neutral'
-                    "
-                  >
-                    {{ jobVisibility(job).isPublic ? 'Public' : 'Private' }}
-                  </span>
-                  <span
-                    v-if="job.projectSlug"
-                    class="badge badge-secondary badge-xs rounded-2xl"
-                  >
-                    {{ job.projectSlug }}
-                  </span>
-                </div>
-                <p
-                  v-if="canShowJobContent(job)"
-                  class="mt-2 line-clamp-5 whitespace-pre-wrap text-sm font-medium leading-relaxed"
-                >
-                  {{ jobPrompt(job) || 'Prompt unavailable.' }}
-                </p>
-                <p
-                  v-else
-                  class="mt-2 rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs text-warning-content"
-                >
-                  Mature prompt and preview are hidden by your account setting.
-                </p>
-                <div class="mt-2 flex flex-wrap gap-1">
-                  <span
-                    v-for="setting in jobSettings(job).slice(0, 6)"
-                    :key="setting"
-                    class="badge badge-ghost badge-sm h-auto rounded-2xl py-1 text-[10px]"
-                  >
-                    {{ setting }}
-                  </span>
-                </div>
-                <p class="mt-2 text-[11px] text-base-content/50">
-                  {{ formatDateTime(job.createdAt) }} · attempt
-                  {{ job.attempts }} · priority {{ job.priority }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              v-if="job.error"
-              class="rounded-2xl border border-error/30 bg-error/10 p-2 text-xs text-error"
-            >
-              {{ job.error }}
-            </div>
-
-            <details class="rounded-2xl border border-base-300 bg-base-100">
-              <summary class="cursor-pointer px-3 py-2 text-xs font-semibold">
-                Full prompt and generation fields
-              </summary>
-              <div
-                class="flex flex-col gap-3 border-t border-base-300 p-3 text-xs"
-              >
-                <div
-                  v-if="!canShowJobContent(job)"
-                  class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-warning-content"
-                >
-                  Enable mature content in your account settings to view or edit
-                  this job's prompt and preview.
-                </div>
-                <template v-else>
-                  <div>
-                    <div
-                      class="font-semibold uppercase tracking-wide text-base-content/50"
-                    >
-                      Prompt
-                    </div>
-                    <p class="mt-1 whitespace-pre-wrap leading-relaxed">
-                      {{ jobPrompt(job) }}
-                    </p>
-                  </div>
-                  <div>
-                    <div
-                      class="font-semibold uppercase tracking-wide text-base-content/50"
-                    >
-                      Negative prompt
-                    </div>
-                    <p class="mt-1 whitespace-pre-wrap text-base-content/70">
-                      {{ jobNegativePrompt(job) || 'None' }}
-                    </p>
-                  </div>
-                  <div class="flex flex-wrap gap-1">
-                    <span
-                      v-for="setting in jobSettings(job)"
-                      :key="setting"
-                      class="badge badge-outline badge-sm h-auto rounded-2xl py-1 text-[10px]"
-                    >
-                      {{ setting }}
-                    </span>
-                  </div>
-                </template>
-              </div>
-            </details>
-
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs rounded-2xl"
-                :disabled="!jobPrompt(job) || !canShowJobContent(job)"
-                :title="
-                  canShowJobContent(job)
-                    ? 'Copy prompt'
-                    : 'Enable mature content to reveal this prompt'
-                "
-                @click="copyPrompt(job)"
-              >
-                {{ copiedJobId === job.id ? 'Copied' : 'Copy prompt' }}
-              </button>
-
-              <div class="flex flex-wrap items-center gap-1">
-                <button
-                  v-if="isEditableInPlace(job)"
-                  type="button"
-                  class="btn btn-primary btn-xs rounded-2xl"
-                  :disabled="!canShowJobContent(job)"
-                  @click="openEditor(job, 'EDIT')"
-                >
-                  Edit & queue
-                </button>
-                <button
-                  v-else-if="job.status === 'RUNNING'"
-                  type="button"
-                  class="btn btn-primary btn-xs rounded-2xl"
-                  :disabled="!canShowJobContent(job)"
-                  @click="openEditor(job, 'NEW_OUTPUT')"
-                >
-                  Edit as new job
-                </button>
-                <button
-                  v-if="job.status === 'DONE'"
-                  type="button"
-                  class="btn btn-primary btn-xs rounded-2xl"
-                  :disabled="!canShowJobContent(job)"
-                  @click="openEditor(job, 'NEW_OUTPUT')"
-                >
-                  Edited output
-                </button>
-                <button
-                  v-if="job.status === 'DONE' && job.artImageId"
-                  type="button"
-                  class="btn btn-warning btn-xs rounded-2xl"
-                  :disabled="!canShowJobContent(job)"
-                  @click="openEditor(job, 'OVERWRITE')"
-                >
-                  Edit & replace
-                </button>
-                <button
-                  v-if="job.status === 'FAILED'"
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-2xl"
-                  @click="artJobStore.requeueJob(job.id)"
-                >
-                  Resume unchanged
-                </button>
-                <button
-                  v-if="
-                    job.status === 'PENDING' ||
-                    job.status === 'RUNNING' ||
-                    job.status === 'FAILED'
-                  "
-                  type="button"
-                  class="btn btn-ghost btn-xs rounded-2xl text-error"
-                  @click="artJobStore.cancelJob(job.id)"
-                >
-                  {{ job.status === 'FAILED' ? 'Clear failure' : 'Cancel' }}
-                </button>
-              </div>
-            </div>
-          </article>
+            :job="job"
+            @edit="openEditor"
+          />
 
           <div
             v-if="!artJobStore.jobs.length && !artJobStore.loadingJobs"
@@ -628,24 +407,19 @@ import {
   type UptimeSample,
   type WeakPromptRepairResult,
 } from '@/stores/artJobStore'
-import { useArtStore } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
-import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
 import type { Server } from '@/stores/serverStore'
 
-type JsonRecord = Record<string, unknown>
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 
 const artJobStore = useArtJobStore()
-const artStore = useArtStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
 
 const selectedWindow = ref(24)
 const pageSizeInput = ref('20')
 const pageInput = ref('1')
-const copiedJobId = ref<number | null>(null)
 const editorJob = ref<ArtJobRecord | null>(null)
 const editorAction = ref<EditorAction>('EDIT')
 const repairPreview = ref<WeakPromptRepairResult | null>(null)
@@ -704,147 +478,12 @@ watch(
   },
 )
 
-function asRecord(value: unknown): JsonRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return value as JsonRecord
-}
-
-function scalar(value: unknown): string {
-  if (typeof value === 'string') return value.trim()
-  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
-  return ''
-}
-
-function nestedScalar(value: unknown, keys: string[], depth = 0): string {
-  if (depth > 6 || value === null || value === undefined) return ''
-  if (Array.isArray(value)) {
-    for (const child of value) {
-      const result = nestedScalar(child, keys, depth + 1)
-      if (result) return result
-    }
-    return ''
-  }
-
-  const record = asRecord(value)
-  for (const key of keys) {
-    const direct = scalar(record[key])
-    if (direct) return direct
-  }
-  for (const child of Object.values(record)) {
-    const result = nestedScalar(child, keys, depth + 1)
-    if (result) return result
-  }
-  return ''
-}
-
-function payloadScalar(job: ArtJobRecord, keys: string[]): string {
-  const payload = asRecord(job.payload)
-  for (const key of keys) {
-    const direct = scalar(payload[key])
-    if (direct) return direct
-  }
-  return nestedScalar(payload.workflow, keys)
-}
-
-function workflowPrompt(
-  job: ArtJobRecord,
-  kind: 'positive' | 'negative',
-): string {
-  const workflow = asRecord(asRecord(job.payload).workflow)
-  for (const value of Object.values(workflow)) {
-    const node = asRecord(value)
-    const classType = scalar(node.class_type).toLowerCase()
-    const inputs = asRecord(node.inputs)
-    const title = scalar(asRecord(node._meta).title).toLowerCase()
-    const isNegative = title.includes('negative')
-    if (kind === 'negative' && !isNegative) continue
-    if (kind === 'positive' && isNegative) continue
-    if (!classType.includes('clip') && !classType.includes('wildcard')) continue
-    const text =
-      scalar(inputs.text) ||
-      scalar(inputs.wildcard_text) ||
-      scalar(inputs.populated_text) ||
-      scalar(inputs.t5xxl) ||
-      scalar(inputs.clip_l)
-    if (text) return text
-  }
-  return ''
-}
-
-function jobPrompt(job: ArtJobRecord): string {
-  return (
-    payloadScalar(job, [
-      'promptString',
-      'artPrompt',
-      'positivePrompt',
-      'prompt',
-    ]) || workflowPrompt(job, 'positive')
-  )
-}
-
-function jobNegativePrompt(job: ArtJobRecord): string {
-  return (
-    payloadScalar(job, ['negativePrompt', 'negative_prompt', 'negative']) ||
-    workflowPrompt(job, 'negative')
-  )
-}
-
-function jobVisibility(job: ArtJobRecord) {
-  return resolveMaturityPrivacy(asRecord(asRecord(job.payload).save))
-}
-
-function canShowJobContent(job: ArtJobRecord): boolean {
-  return !jobVisibility(job).isMature || artStore.showMature
-}
-
-function jobSettings(job: ArtJobRecord): string[] {
-  const values = [
-    [
-      'size',
-      `${payloadScalar(job, ['width'])}×${payloadScalar(job, ['height'])}`,
-    ],
-    [
-      'model',
-      payloadScalar(job, [
-        'checkpoint',
-        'ckpt_name',
-        'unet_name',
-        'model_name',
-      ]),
-    ],
-    ['sampler', payloadScalar(job, ['sampler', 'sampler_name'])],
-    ['scheduler', payloadScalar(job, ['scheduler'])],
-    ['steps', payloadScalar(job, ['steps'])],
-    ['cfg', payloadScalar(job, ['cfg', 'cfg_scale'])],
-    ['guidance', payloadScalar(job, ['guidance'])],
-    ['denoise', payloadScalar(job, ['denoise'])],
-    ['seed', payloadScalar(job, ['seed', 'noise_seed'])],
-  ]
-
-  return values
-    .filter(([, value]) => value && value !== '×')
-    .map(([label, value]) => `${label}: ${value}`)
-}
-
-function jobImageSrc(job: ArtJobRecord): string {
-  if (typeof job.artImageId !== 'number') return ''
-  return artJobStore.imageSrcById[job.artImageId] || ''
-}
-
 function statusCount(status: ArtJobStatus | 'ALL'): number {
   const depth = stats.value?.queueDepth ?? {}
   if (status === 'ALL') {
     return Object.values(depth).reduce((total, count) => total + count, 0)
   }
   return depth[status] ?? 0
-}
-
-function jobStatusClass(status: string): string {
-  if (status === 'DONE') return 'badge-success'
-  if (status === 'FAILED') return 'badge-error'
-  if (status === 'RUNNING') return 'badge-info'
-  if (status === 'CANCELLED') return 'badge-ghost'
-  return 'badge-warning'
 }
 
 function uptimeClass(value: number | null): string {
@@ -923,12 +562,7 @@ function formatDateTime(value: string | Date | null): string {
   })
 }
 
-function isEditableInPlace(job: ArtJobRecord): boolean {
-  return ['PENDING', 'FAILED', 'CANCELLED'].includes(job.status)
-}
-
 function openEditor(job: ArtJobRecord, action: EditorAction): void {
-  if (!canShowJobContent(job)) return
   editorJob.value = job
   editorAction.value = action
 }
@@ -967,17 +601,6 @@ async function runWeakPromptRepair(): Promise<void> {
   repairPreview.value = result
   if (!result) return
   repairMessage.value = `Repaired ${result.repairedCount} jobs. ${result.unresolvedCount} remain unresolved and were not guessed.`
-}
-
-async function copyPrompt(job: ArtJobRecord): Promise<void> {
-  if (!canShowJobContent(job)) return
-  const prompt = jobPrompt(job)
-  if (!prompt || !navigator.clipboard) return
-  await navigator.clipboard.writeText(prompt)
-  copiedJobId.value = job.id
-  window.setTimeout(() => {
-    if (copiedJobId.value === job.id) copiedJobId.value = null
-  }, 1500)
 }
 
 function onWindowChange(): void {

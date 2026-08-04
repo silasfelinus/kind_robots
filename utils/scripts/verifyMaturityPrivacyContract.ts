@@ -108,14 +108,11 @@ assert.ok(queueEditor.includes('v-model:is-mature="form.isMature"'))
 assert.ok(queueEditor.includes('isMature: form.isMature'))
 assert.ok(queueEditor.includes('isPublic: form.isPublic'))
 
-const queueBrowser = readFileSync(
-  'components/art/artjob-queue-browser.vue',
-  'utf8',
-)
-assert.ok(queueBrowser.includes('jobVisibility(job).isMature'))
-assert.ok(queueBrowser.includes('jobVisibility(job).isPublic'))
-assert.ok(queueBrowser.includes('canShowJobContent(job)'))
-assert.ok(queueBrowser.includes('Mature prompt and preview are hidden'))
+const queueCard = readFileSync('components/art/artjob-queue-card.vue', 'utf8')
+assert.ok(queueCard.includes('jobVisibility.isMature'))
+assert.ok(queueCard.includes('jobVisibility.isPublic'))
+assert.ok(queueCard.includes('canShowJobContent'))
+assert.ok(queueCard.includes('Mature prompt and preview are hidden'))
 
 const enqueueResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
 assert.ok(enqueueResolver.includes('resolveMaturityPrivacy(input.body)'))

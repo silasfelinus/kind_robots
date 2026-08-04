@@ -26,8 +26,16 @@
  *   5. ghost-prop    — don't pass :show-header to a component that never declared it
  *   6. root-surface  — page components start with a shared kr-surface/kr-stage/kr-unbound root
  */
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, basename, extname } from 'node:path'
+import {
+  grownRatchetBuckets,
+  loadRatchetBaseline,
+  ratchetDelta,
+  ratchetNote,
+  ratchetRecordedAt,
+  writeRatchetBaseline,
+} from './ratchetBaseline'
 
 const ROOT = process.cwd()
 const BASELINE_PATH = join(ROOT, 'utils/scripts/layout-contract-baseline.json')
@@ -707,14 +715,6 @@ function collect(): Record<RuleId, string[]> {
   return violations
 }
 
-function loadBaseline(): Baseline | null {
-  try {
-    return JSON.parse(read(BASELINE_PATH)) as Baseline
-  } catch {
-    return null
-  }
-}
-
 function report(
   current: Record<RuleId, string[]>,
   baseline: Baseline | null,
@@ -723,14 +723,7 @@ function report(
   for (const key of Object.keys(RULE_TITLES) as RuleId[]) {
     const now = current[key].length
     const was = baseline?.violations?.[key]?.length
-    const delta =
-      was === undefined
-        ? ''
-        : now === was
-          ? '  (unchanged)'
-          : now < was
-            ? `  (-${was - now}) ✅`
-            : `  (+${now - was}) ❌`
+    const delta = ratchetDelta(now, was)
     console.log(`  ${String(now).padStart(4)}  ${RULE_TITLES[key]}${delta}`)
   }
   console.log('')
@@ -745,7 +738,7 @@ function main(): void {
   verifyPaneScrollFixture()
   verifyAnchorScrollFixture()
   const current = collect()
-  const baseline = loadBaseline()
+  const baseline = loadRatchetBaseline<Baseline>(BASELINE_PATH)
 
   if (args.includes('--report')) {
     report(current, baseline)
@@ -760,28 +753,25 @@ function main(): void {
 
   if (args.includes('--update')) {
     const next: Baseline = {
-      note:
-        'Layout-contract allow-list. RATCHET: this file may only ever shrink. ' +
-        '--update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.',
-      recorded: new Date().toISOString().slice(0, 10),
+      note: ratchetNote(
+        'Layout-contract allow-list.',
+        'utils/scripts/verifyLayoutContract.ts',
+      ),
+      recorded: ratchetRecordedAt(),
       violations: current,
     }
 
-    if (baseline) {
-      const grew = (Object.keys(RULE_TITLES) as RuleId[]).filter(
-        (key) => current[key].length > (baseline.violations[key]?.length ?? 0),
-      )
+    const grew = grownRatchetBuckets(current, baseline?.violations ?? null)
 
-      if (grew.length) {
-        report(current, baseline)
-        throw new Error(
-          `Refusing to update the baseline — these rules got WORSE: ${grew.join(', ')}.\n` +
-            'The allow-list is a ratchet. Fix the new violations, or change the rule deliberately.',
-        )
-      }
+    if (grew.length) {
+      report(current, baseline)
+      throw new Error(
+        `Refusing to update the baseline — these rules got WORSE: ${grew.join(', ')}.\n` +
+          'The allow-list is a ratchet. Fix the new violations, or change the rule deliberately.',
+      )
     }
 
-    writeFileSync(BASELINE_PATH, `${JSON.stringify(next, null, 2)}\n`)
+    writeRatchetBaseline(BASELINE_PATH, next)
     report(current, baseline)
     console.log(`Baseline written to ${rel(BASELINE_PATH)}`)
     return

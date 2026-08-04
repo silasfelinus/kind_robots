@@ -137,6 +137,9 @@ jobs:
       - name: Ownership nullability regression contract
         run: npm run test:ownership-nullability
 
+      - name: Ratchet-baseline helper self-test
+        run: npm run test:ratchet-baseline-selftest
+
       - name: Capture-group guard checker self-test
         run: npm run test:capture-group-guards-selftest
 

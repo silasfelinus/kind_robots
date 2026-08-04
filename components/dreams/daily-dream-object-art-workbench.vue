@@ -412,6 +412,11 @@ function startPolling(jobId: number): void {
         }
       } else {
         await archiveStore.fetchArchive(true)
+        const refreshed = archiveStore.findObject(
+          props.objectType,
+          props.entity.id,
+        )
+        if (refreshed) Object.assign(props.entity, refreshed)
       }
 
       imageFailed.value = false

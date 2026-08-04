@@ -39,6 +39,75 @@
           </p>
         </div>
       </div>
+
+      <section
+        class="mt-6 rounded-2xl border border-primary/25 bg-base-100 p-5 shadow-sm"
+      >
+        <div class="mb-3 flex items-center gap-3">
+          <span
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
+          >
+            <Icon name="kind-icon:community" class="h-5 w-5" />
+          </span>
+          <h2 class="text-base font-black uppercase tracking-wider text-base-content">
+            Community & Sponsors
+          </h2>
+        </div>
+
+        <p class="text-sm leading-relaxed text-base-content/70">
+          Kind Robots grew alongside creative people and projects that share its
+          optimistic, community-minded spirit. Our anti-malaria work points
+          donations directly to the Against Malaria Foundation, while our
+          friends help keep the wider creative ecosystem lively.
+        </p>
+
+        <div class="mt-4 grid gap-2 sm:grid-cols-2">
+          <a
+            href="https://www.againstmalaria.com/amibot"
+            target="_blank"
+            rel="noopener"
+            class="btn btn-outline justify-start rounded-xl"
+          >
+            <Icon name="kind-icon:hand-heart" class="h-4 w-4" />
+            AMIbot fundraiser
+          </a>
+          <a
+            href="https://www.redbubble.com/people/CafePurr/shop"
+            target="_blank"
+            rel="noopener"
+            class="btn btn-outline justify-start rounded-xl"
+          >
+            <Icon name="kind-icon:image" class="h-4 w-4" />
+            Cafe Purr
+          </a>
+          <NuxtLink
+            to="/mermaids"
+            class="btn btn-outline justify-start rounded-xl"
+          >
+            <Icon name="kind-icon:mermaid" class="h-4 w-4" />
+            Mermaids of Venice
+          </NuxtLink>
+          <a
+            href="https://hairbysuperkate.com"
+            target="_blank"
+            rel="noopener"
+            class="btn btn-outline justify-start rounded-xl"
+          >
+            <Icon name="kind-icon:magic" class="h-4 w-4" />
+            Hair by Superkate
+          </a>
+        </div>
+
+        <p class="mt-4 text-sm text-base-content/60">
+          Interested in supporting the project?
+          <a
+            href="mailto:kindsponsors@kindrobots.org"
+            class="font-semibold text-primary underline underline-offset-2"
+          >
+            kindsponsors@kindrobots.org
+          </a>
+        </p>
+      </section>
     </div>
   </div>
 </template>

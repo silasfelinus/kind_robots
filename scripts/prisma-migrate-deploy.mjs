@@ -124,9 +124,10 @@ async function main() {
 
     // The repair runs a short sequence of idempotent, existence-guarded
     // statements against ProxySQL, which can drop the connection mid-sequence
-    // (SQLState 08S01, "socket has unexpectedly been closed"). Reconnect and
-    // re-run the repair on connection-level failures — safe because every step
-    // is idempotent — instead of failing the whole production deploy.
+    // (SQLState 08S01, "socket has unexpectedly been closed") or briefly refuse
+    // a new session while the shared user is at max_user_connections. Reconnect
+    // and re-run the repair on connection-level failures — safe because every
+    // step is idempotent — instead of failing the whole production deploy.
     await withConnectionRetry(
       async () => {
         let connection
@@ -142,6 +143,8 @@ async function main() {
         }
       },
       {
+        attempts: 6,
+        baseDelayMs: 3_000,
         onRetry: ({ attempt, attempts, error, backoff }) => {
           console.warn(
             `[database repair] Attempt ${attempt}/${attempts} hit a transient connection error (${

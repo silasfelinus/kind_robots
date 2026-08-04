@@ -100,18 +100,17 @@
     </header>
 
     <section
+      class="kr-panes gap-3"
       :class="[
-        'grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden',
+        'grid-cols-1',
         selectedComponent
           ? 'xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)]'
           : '',
       ]"
     >
       <aside
-        :class="[
-          'min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100',
-          selectedComponent ? 'hidden xl:flex' : 'flex',
-        ]"
+        class="kr-pane rounded-2xl border border-base-300 bg-base-100"
+        :class="[selectedComponent ? 'hidden xl:flex' : 'flex']"
       >
         <div class="shrink-0 border-b border-base-300 p-3">
           <div class="grid gap-2">
@@ -232,7 +231,7 @@
           </div>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto p-2">
+        <div class="kr-pane-scroll p-2">
           <div
             v-if="isLoading"
             class="flex h-full items-center justify-center py-12"
@@ -272,7 +271,7 @@
 
       <main
         v-if="selectedComponent"
-        class="min-h-0 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-pane-scroll rounded-2xl border border-base-300 bg-base-100 p-3"
       >
         <article class="flex flex-col gap-4">
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">

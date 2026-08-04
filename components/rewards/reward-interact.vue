@@ -163,143 +163,58 @@
           </div>
         </div>
 
-        <div ref="storyLogRef" class="min-h-0 overflow-y-auto bg-base-200 p-4">
-          <div
-            v-if="sessionChats.length === 0"
-            class="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-center text-base-content/45"
-          >
-            <Icon name="kind-icon:magic" class="h-16 w-16 text-primary/60" />
-
-            <div>
-              <p class="text-lg font-bold">Start the encounter</p>
-              <p class="mt-1 text-sm">
-                Tune the premise on the right, then unleash the narrative
-                gremlin.
-              </p>
-            </div>
-          </div>
-
-          <div v-else class="flex flex-col gap-4">
-            <article
-              v-for="(chat, index) in sessionChats"
-              :key="chat.id"
-              class="flex flex-col gap-3"
-            >
-              <div class="flex flex-row-reverse gap-3">
-                <div
-                  class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
-                >
-                  <p class="whitespace-pre-wrap">
-                    {{ getPlayerDisplayText(chat, index) }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex flex-row gap-3">
-                <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-full border border-base-300 bg-base-100"
-                >
-                  <Icon
-                    name="kind-icon:reward"
-                    class="h-5 w-5 text-secondary"
-                  />
-                </div>
-
-                <div
-                  class="flex max-w-[90%] flex-col gap-3 rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
-                >
+        <!-- The reward story log is kr-chat-window (interface-vision Phase 5,
+             the second of the two remaining surfaces from t-051 --
+             character-interact.vue's PR #1400 is the reference shape). This
+             also removes the bespoke .story-dot keyframes below in favor of
+             kr-chat-window's own built-in streaming placeholder. -->
+        <kr-chat-window
+          class="bg-base-200 p-4"
+          :turns="chatTurns"
+          :label="`${selectedRewardName} story`"
+          :is-streaming="isStarting"
+          :streaming-text="streamingBotText"
+          streaming-label="The narrative gremlin is writing..."
+          empty-label="Start the encounter, then unleash the narrative gremlin."
+          :prose="false"
+          @choose="handleChoiceSelected"
+        >
+          <template v-if="canShowCustomFollowup" #footer>
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+              <label class="form-control">
+                <span class="label py-1">
                   <span
-                    v-if="!chat.botResponse"
-                    class="flex items-center gap-1 py-1 text-base-content/60"
+                    class="label-text text-xs font-bold uppercase tracking-wide text-base-content/50"
                   >
-                    <span class="story-dot" />
-                    <span class="story-dot delay-150" />
-                    <span class="story-dot delay-300" />
+                    Customize the next move
                   </span>
+                </span>
 
-                  <template v-else>
-                    <p class="whitespace-pre-wrap text-base-content/80">
-                      {{ getStoryScene(chat.botResponse) }}
-                    </p>
+                <textarea
+                  v-model="customFollowup"
+                  class="textarea textarea-bordered min-h-20 rounded-2xl bg-base-200"
+                  placeholder="Take one of the paths, remix it, or do something wildly inadvisable..."
+                  :disabled="isStarting"
+                  @keydown.enter.exact.prevent="continueWithCustomPath"
+                />
+              </label>
 
-                    <div
-                      v-if="getStoryChoices(chat.botResponse).length"
-                      class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
-                    >
-                      <p
-                        class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-                      >
-                        Select a path
-                      </p>
-
-                      <button
-                        v-for="choice in getStoryChoices(chat.botResponse)"
-                        :key="choice.key"
-                        class="btn btn-sm h-auto min-h-10 justify-start rounded-2xl py-2 text-left normal-case"
-                        :class="
-                          selectedPath === choice.text
-                            ? 'btn-secondary'
-                            : 'btn-outline'
-                        "
-                        type="button"
-                        :disabled="
-                          isStarting || !isLatestRespondedChat(chat.id)
-                        "
-                        @click="continueWithPath(choice.text)"
-                      >
-                        <span class="badge badge-ghost badge-sm">
-                          {{ choice.label }}
-                        </span>
-                        <span
-                          class="min-w-0 flex-1 whitespace-normal text-left"
-                        >
-                          {{ choice.text }}
-                        </span>
-                      </button>
-                    </div>
-
-                    <div
-                      v-if="isLatestRespondedChat(chat.id)"
-                      class="rounded-2xl border border-base-300 bg-base-200 p-3"
-                    >
-                      <label class="form-control">
-                        <span class="label py-1">
-                          <span
-                            class="label-text text-xs font-bold uppercase tracking-wide text-base-content/50"
-                          >
-                            Customize the next move
-                          </span>
-                        </span>
-
-                        <textarea
-                          v-model="customFollowup"
-                          class="textarea textarea-bordered min-h-20 rounded-2xl bg-base-100"
-                          placeholder="Take one of the paths, remix it, or do something wildly inadvisable..."
-                          :disabled="isStarting"
-                          @keydown.enter.exact.prevent="continueWithCustomPath"
-                        />
-                      </label>
-
-                      <button
-                        class="btn btn-accent mt-3 w-full rounded-2xl"
-                        type="button"
-                        :disabled="!canContinueCustom"
-                        @click="continueWithCustomPath"
-                      >
-                        <span
-                          v-if="isStarting"
-                          class="loading loading-spinner loading-sm"
-                        />
-                        <Icon v-else name="kind-icon:wand" class="h-5 w-5" />
-                        Continue Custom Path
-                      </button>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
+              <button
+                class="btn btn-accent mt-3 w-full rounded-2xl"
+                type="button"
+                :disabled="!canContinueCustom"
+                @click="continueWithCustomPath"
+              >
+                <span
+                  v-if="isStarting"
+                  class="loading loading-spinner loading-sm"
+                />
+                <Icon v-else name="kind-icon:wand" class="h-5 w-5" />
+                Continue Custom Path
+              </button>
+            </div>
+          </template>
+        </kr-chat-window>
 
         <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
           <div
@@ -581,7 +496,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useRewardStore } from '@/stores/rewardStore'
@@ -589,6 +504,8 @@ import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 import type { ArtImage } from '@/stores/artStore'
 import type { Chat, Reward } from '~/prisma/generated/prisma/client'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
+import type { NarrativeChoice } from '@/components/narrative/kr-choice-list.vue'
 
 type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
@@ -628,14 +545,12 @@ const selectedCharacterSummary = computed(() => {
   return `${selectedCharacterTitle.value} · ${species} / ${characterClass}`
 })
 
-const storyLogRef = ref<HTMLElement | null>(null)
 const encounterMode = ref<
   'discover' | 'use' | 'temptation' | 'consequence' | 'custom'
 >('discover')
 const tone = ref('whimsical')
 const customDirection = ref('')
 const customFollowup = ref('')
-const selectedPath = ref('')
 const userBackground = ref(userStore.user?.bio ?? '')
 const showCharacterPanel = ref(false)
 const showPromptPreview = ref(false)
@@ -832,14 +747,6 @@ function setStatus(messageText: string, tone: 'success' | 'error' = 'success') {
   statusTone.value = tone
 }
 
-function scrollToBottom() {
-  const el = storyLogRef.value
-
-  if (!el) return
-
-  el.scrollTop = el.scrollHeight
-}
-
 function isLatestRespondedChat(chatId: number) {
   return Boolean(
     latestSessionChat.value?.id === chatId &&
@@ -905,6 +812,64 @@ function getPlayerDisplayText(chat: Chat, index: number) {
   }
 
   return chat.content
+}
+
+/* Each session Chat becomes a user turn plus (once it has a response) a
+   narrator turn. The in-flight chat is deliberately withheld from `turns`
+   while it is still streaming -- its growing text surfaces through
+   kr-chat-window's own `streamingText` placeholder instead, matching the
+   built-in streaming contract rather than mutating a turn's text in place. */
+const chatTurns = computed<NarrativeTurn[]>(() => {
+  const chats = sessionChats.value
+  const turns: NarrativeTurn[] = []
+
+  chats.forEach((chat, index) => {
+    turns.push({
+      id: `user-${chat.id}`,
+      text: getPlayerDisplayText(chat, index),
+      from: 'user',
+    })
+
+    const inFlight = isStarting.value && latestSessionChat.value?.id === chat.id
+    if (!chat.botResponse || inFlight) return
+
+    const choices: NarrativeChoice[] = getStoryChoices(chat.botResponse).map(
+      (choice) => ({
+        key: choice.key,
+        label: choice.label,
+        hint: choice.text,
+        disabled: !isLatestRespondedChat(chat.id),
+      }),
+    )
+
+    turns.push({
+      id: `narrator-${chat.id}`,
+      text: getStoryScene(chat.botResponse),
+      from: 'narrator',
+      speaker: selectedRewardName.value,
+      choices: choices.length ? choices : undefined,
+    })
+  })
+
+  return turns
+})
+
+const streamingBotText = computed(() => {
+  if (!isStarting.value) return ''
+  const chat = latestSessionChat.value
+  return chat?.botResponse ? getStoryScene(chat.botResponse) : ''
+})
+
+// Same visibility rule the old inline textarea used: once the latest chat has
+// any response text, whether or not it has finished streaming.
+const canShowCustomFollowup = computed(() =>
+  Boolean(latestSessionChat.value?.botResponse),
+)
+
+function handleChoiceSelected(choice: NarrativeChoice) {
+  // getStoryChoices keys are `${1|2|3}-${text}`; recover the raw path text
+  // rather than repurposing the display label/hint, which are free to change.
+  continueWithPath(choice.key.replace(/^[1-3]-/, ''))
 }
 
 function buildMessagesForRewardResponse(): RewardStoryMessage[] {
@@ -1011,9 +976,6 @@ async function createRewardChat(content: string) {
   sessionChatIds.value.push(newChat.id)
   chatStore.selectedChat = newChat
 
-  await nextTick()
-  scrollToBottom()
-
   return newChat
 }
 
@@ -1030,9 +992,6 @@ async function streamRewardChat(chatId: number) {
     stream: true,
     messages: buildMessagesForRewardResponse(),
   })
-
-  await nextTick()
-  scrollToBottom()
 }
 
 async function startRewardStory() {
@@ -1045,7 +1004,6 @@ async function startRewardStory() {
 
   isStarting.value = true
   statusMessage.value = ''
-  selectedPath.value = ''
   customFollowup.value = ''
 
   try {
@@ -1066,7 +1024,6 @@ async function startRewardStory() {
 async function continueWithPath(path: string) {
   if (!path.trim() || isStarting.value) return
 
-  selectedPath.value = path
   customFollowup.value = path
 
   await continueRewardStory(path)
@@ -1076,8 +1033,6 @@ async function continueWithCustomPath() {
   const path = customFollowup.value.trim()
 
   if (!path || isStarting.value) return
-
-  selectedPath.value = path
 
   await continueRewardStory(path)
 }
@@ -1104,7 +1059,6 @@ async function continueRewardStory(path: string) {
 
 function newStory() {
   sessionChatIds.value = []
-  selectedPath.value = ''
   customFollowup.value = ''
   statusMessage.value = ''
 }
@@ -1119,7 +1073,6 @@ function clearPromptOptions() {
   tone.value = 'whimsical'
   customDirection.value = ''
   customFollowup.value = ''
-  selectedPath.value = ''
   userBackground.value = userStore.user?.bio ?? ''
   statusMessage.value = ''
 }
@@ -1139,45 +1092,4 @@ watch(
     heroImageIndex.value = 0
   },
 )
-
-watch(
-  () => sessionChats.value.map((chat) => chat.botResponse).join(''),
-  async () => {
-    await nextTick()
-    scrollToBottom()
-  },
-)
 </script>
-
-<style scoped>
-.story-dot {
-  display: inline-block;
-  height: 0.375rem;
-  width: 0.375rem;
-  border-radius: 9999px;
-  background: currentColor;
-  animation: story-bounce 1s ease-in-out infinite;
-}
-
-.delay-150 {
-  animation-delay: 150ms;
-}
-
-.delay-300 {
-  animation-delay: 300ms;
-}
-
-@keyframes story-bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.65);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>

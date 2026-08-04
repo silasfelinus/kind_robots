@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-08-03",
+  "recorded": "2026-08-04",
   "violations": {
     "one-header": [],
     "one-scroll": [
@@ -11,7 +11,6 @@
       "components/dreams/dream-brainstorm.vue",
       "components/navigation/channel-select.vue",
       "components/pages/memory-dungeon.vue",
-      "components/rewards/reward-interact.vue",
       "components/scenarios/scenario-interact.vue",
       "components/servers/server-manager.vue",
       "components/stages/stage-manager.vue",

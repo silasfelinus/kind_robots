@@ -18,7 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Report workflow definitions and recent runs
+      - name: Install parser
+        run: python -m pip install --disable-pip-version-check pyyaml
+
+      - name: Report compact workflow inventory
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
@@ -28,19 +31,35 @@ jobs:
           import os
           import pathlib
           import urllib.request
+          import yaml
 
           root = pathlib.Path('.github/workflows')
           paths = sorted([*root.glob('*.yml'), *root.glob('*.yaml')])
           print(f'WORKFLOW_FILE_COUNT={len(paths)}')
-          print('WORKFLOW_FILES_BEGIN')
+          print('SOURCE_WORKFLOWS_BEGIN')
           for path in paths:
-              print(path.as_posix())
-          print('WORKFLOW_FILES_END')
-
-          for path in paths:
-              print(f'WORKFLOW_DEFINITION_BEGIN {path.as_posix()}')
-              print(path.read_text(encoding='utf-8'))
-              print(f'WORKFLOW_DEFINITION_END {path.as_posix()}')
+              data = yaml.load(path.read_text(encoding='utf-8'), Loader=yaml.BaseLoader) or {}
+              triggers = data.get('on', {})
+              if isinstance(triggers, str):
+                  events = [triggers]
+              elif isinstance(triggers, list):
+                  events = triggers
+              elif isinstance(triggers, dict):
+                  events = list(triggers.keys())
+              else:
+                  events = []
+              schedules = []
+              if isinstance(triggers, dict):
+                  schedule = triggers.get('schedule', []) or []
+                  if isinstance(schedule, list):
+                      schedules = [entry.get('cron') for entry in schedule if isinstance(entry, dict)]
+              print(json.dumps({
+                  'path': path.as_posix(),
+                  'name': data.get('name'),
+                  'events': events,
+                  'cron': schedules,
+              }, sort_keys=True))
+          print('SOURCE_WORKFLOWS_END')
 
           repo = os.environ['GH_REPOSITORY']
           token = os.environ['GH_TOKEN']
@@ -58,16 +77,12 @@ jobs:
                   return json.load(response)
 
           workflows = api('/actions/workflows?per_page=100').get('workflows', [])
-          print('WORKFLOW_API_BEGIN')
-          print(json.dumps(workflows, sort_keys=True))
-          print('WORKFLOW_API_END')
-
-          summaries = []
+          print(f'API_WORKFLOW_COUNT={len(workflows)}')
+          print('API_WORKFLOWS_BEGIN')
           for workflow in workflows:
-              workflow_id = workflow['id']
-              runs = api(f'/actions/workflows/{workflow_id}/runs?per_page=5').get('workflow_runs', [])
-              summaries.append({
-                  'id': workflow_id,
+              runs = api(f"/actions/workflows/{workflow['id']}/runs?per_page=2").get('workflow_runs', [])
+              print(json.dumps({
+                  'id': workflow['id'],
                   'name': workflow.get('name'),
                   'path': workflow.get('path'),
                   'state': workflow.get('state'),
@@ -75,17 +90,12 @@ jobs:
                       {
                           'id': run.get('id'),
                           'event': run.get('event'),
-                          'status': run.get('status'),
                           'conclusion': run.get('conclusion'),
                           'created_at': run.get('created_at'),
-                          'updated_at': run.get('updated_at'),
                           'head_branch': run.get('head_branch'),
-                          'head_sha': run.get('head_sha'),
                       }
                       for run in runs
                   ],
-              })
-          print('WORKFLOW_RUN_SUMMARIES_BEGIN')
-          print(json.dumps(summaries, sort_keys=True))
-          print('WORKFLOW_RUN_SUMMARIES_END')
+              }, sort_keys=True))
+          print('API_WORKFLOWS_END')
           PY

@@ -96,6 +96,44 @@ assert.ok(maturityToggle.includes("variant === 'resource'"))
 assert.ok(maturityToggle.includes('accountStore.updateConsent'))
 assert.ok(maturityToggle.includes('showMature: value'))
 
+const accountPage = readFileSync('content/account.md', 'utf8')
+assert.ok(
+  accountPage.includes(':account-settings'),
+  'The canonical /account route must mount account-settings',
+)
+
+const accountSettings = readFileSync(
+  'components/user/account-settings.vue',
+  'utf8',
+)
+assert.ok(
+  accountSettings.includes('<dashboard-maturity-preference'),
+  'Account & Privacy must expose the opt-in header maturity preference',
+)
+
+const dashboardMaturityPreference = readFileSync(
+  'components/user/dashboard-maturity-preference.vue',
+  'utf8',
+)
+assert.ok(
+  dashboardMaturityPreference.includes('useMaturityPreferenceStore'),
+)
+assert.ok(
+  dashboardMaturityPreference.includes('setShowDashboardMaturityToggle'),
+)
+assert.ok(dashboardMaturityPreference.includes('initialize()'))
+
+const workspaceHeader = readFileSync(
+  'components/navigation/workspace-header.vue',
+  'utf8',
+)
+assert.ok(
+  workspaceHeader.includes(
+    'showDashboardMaturityToggle && userStore.isLoggedIn',
+  ),
+  'The workspace header must keep the maturity toggle opt-in and authenticated',
+)
+
 const accountStore = readFileSync('stores/accountStore.ts', 'utf8')
 assert.ok(accountStore.includes('refreshMaturityResources'))
 assert.ok(accountStore.includes('resourceStore.getResources(true)'))

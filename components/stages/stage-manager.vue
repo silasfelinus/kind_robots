@@ -79,11 +79,14 @@
     </header>
 
     <!-- ── Body ────────────────────────────────────────────────────────── -->
-    <div class="flex flex-1 overflow-hidden">
+    <div
+      class="kr-panes gap-0"
+      :class="isMobile ? 'grid-cols-1' : 'grid-cols-[16rem_minmax(0,1fr)]'"
+    >
       <!-- Sidebar: cast status + progress -->
       <aside
         v-if="!isMobile"
-        class="flex w-64 shrink-0 flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm overflow-y-auto p-4 gap-3"
+        class="kr-pane-scroll flex flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm p-4 gap-3"
       >
         <p
           class="text-xs font-bold uppercase tracking-widest text-base-content/40"
@@ -213,11 +216,11 @@
       </aside>
 
       <!-- ── Stage area ──────────────────────────────────────────────── -->
-      <main class="flex flex-1 flex-col overflow-hidden">
+      <main class="kr-pane">
         <!-- Stage → Select a preset -->
         <section
           v-if="activeCard === 'stage'"
-          class="flex flex-1 flex-col overflow-y-auto p-5 gap-4"
+          class="kr-pane-scroll flex flex-col p-5 gap-4"
         >
           <div class="flex flex-col gap-1">
             <h2 class="text-2xl font-black text-base-content">Pick a Stage</h2>
@@ -249,7 +252,7 @@
         <!-- Cast → Assign performers to roles -->
         <section
           v-else-if="activeCard === 'cast'"
-          class="flex flex-1 flex-col overflow-y-auto p-5 gap-4"
+          class="kr-pane-scroll flex flex-col p-5 gap-4"
         >
           <div
             v-if="!store.selectedStage"
@@ -495,7 +498,7 @@
         <!-- Settings → Topic, turns, server -->
         <section
           v-else-if="activeCard === 'settings'"
-          class="flex flex-1 flex-col overflow-y-auto p-5 gap-4"
+          class="kr-pane-scroll flex flex-col p-5 gap-4"
         >
           <div class="flex flex-col gap-1">
             <h2 class="text-2xl font-black text-base-content">
@@ -659,7 +662,7 @@
         >
           <!-- Transcript -->
           <div
-            class="flex flex-1 flex-col gap-2 overflow-y-auto p-4"
+            class="kr-pane-scroll flex flex-col gap-2 p-4"
             :style="transcriptStyle"
           >
             <StageMessageCard

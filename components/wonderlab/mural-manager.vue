@@ -76,11 +76,9 @@
 
     <section
       v-else
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)_minmax(280px,360px)]"
+      class="kr-panes grid-cols-1 xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)_minmax(280px,360px)]"
     >
-      <aside
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
+      <aside class="kr-pane rounded-2xl border border-base-300 bg-base-100">
         <div class="shrink-0 border-b border-base-300 p-4">
           <h2 class="text-lg font-black">Saved Colors</h2>
           <p class="mt-1 text-sm text-base-content/60">
@@ -88,7 +86,7 @@
           </p>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto p-3">
+        <div class="kr-pane-scroll p-3">
           <div class="grid gap-2">
             <div
               v-for="color in coloringStore.currentPalette"
@@ -176,7 +174,7 @@
       </aside>
 
       <main
-        class="min-h-0 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
+        class="kr-pane-scroll rounded-2xl border border-base-300 bg-base-100 p-4"
       >
         <div
           class="rounded-2xl border border-base-300 bg-base-200 p-3 shadow-inner"
@@ -230,9 +228,7 @@
         </div>
       </main>
 
-      <aside
-        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
+      <aside class="kr-pane rounded-2xl border border-base-300 bg-base-100">
         <div class="shrink-0 border-b border-base-300 p-4">
           <h2 class="text-lg font-black">Sections & Groups</h2>
           <p class="mt-1 text-sm text-base-content/60">
@@ -241,7 +237,7 @@
           </p>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto p-3">
+        <div class="kr-pane-scroll p-3">
           <section
             v-if="selectedSection"
             class="mb-3 rounded-2xl border border-primary/30 bg-primary/10 p-3"

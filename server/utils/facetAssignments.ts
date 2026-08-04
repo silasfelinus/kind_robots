@@ -4,7 +4,6 @@ import type { Facet, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
 import type { FacetTaxonomy } from '~/server/utils/facetCatalog'
-import { legacyFacetTaxonomyFromKind } from '~/server/utils/facetProfileInput'
 
 export type FacetSummary = Pick<
   Facet,

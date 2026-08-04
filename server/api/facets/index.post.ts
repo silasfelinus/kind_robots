@@ -12,7 +12,6 @@ import { normalizeFacetLookupKey } from '~/utils/facetAliases'
 import {
   assertLegacyFacetKindAbsent,
   buildFacetProfileCreateData,
-  legacyFacetKindForTaxonomy,
 } from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'
 
@@ -115,7 +114,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const profileData = buildFacetProfileCreateData(body, { title })
-    const legacyKind = legacyFacetKindForTaxonomy(profileData.taxonomy)
     const creationSource = creationSources.includes(
       body.creationSource as CreationSource,
     )

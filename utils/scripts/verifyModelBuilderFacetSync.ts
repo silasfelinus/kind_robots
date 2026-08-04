@@ -44,7 +44,11 @@ async function main(): Promise<void> {
 
   requireText(files.commit, text.commit, 'syncCharacterFacetsInTransaction')
   requireText(files.commit, text.commit, 'syncBotFacetsInTransaction')
-  requireText(files.commit, text.commit, 'legacyFacetKindForTaxonomy')
+  /* t-072 dropped the physical Facet.kind column, which made the
+     legacyFacetKindForTaxonomy() derivation dead code -- so these flipped from
+     "must derive it" to "must not resurrect it". FacetProfile.taxonomy is the
+     only classification left. */
+  forbidText(files.commit, text.commit, 'legacyFacetKindForTaxonomy')
   requireText(files.commit, text.commit, 'buildFacetProfileCreateData')
   requireText(files.commit, text.commit, 'buildFacetProfileUpdateData')
   requireText(files.commit, text.commit, "pickChoice<FacetTaxonomy>(fields, 'Facet', 'taxonomy')")

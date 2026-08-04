@@ -13,8 +13,6 @@ import {
   assertLegacyFacetKindAbsent,
   buildFacetProfileCreateData,
   buildFacetProfileUpdateData,
-  legacyFacetKindForTaxonomy,
-  legacyFacetTaxonomyFromKind,
   normalizeFacetTaxonomy,
 } from '~/server/utils/facetProfileInput'
 import { assertFacetRelationsAttachable } from './relations'

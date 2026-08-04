@@ -1,6 +1,5 @@
 // /server/utils/facetProfileInput.ts
 import { createError } from 'h3'
-import type { FacetKind } from '~/prisma/generated/prisma/client'
 import {
   FACET_TAXONOMIES,
   type FacetTaxonomy,
@@ -21,19 +20,6 @@ export type FacetProfileData = {
   metadata: string | null
 }
 
-const LEGACY_BROAD_KINDS = new Set<FacetTaxonomy>([
-  'GENRE',
-  'ANIMAL',
-  'COLOR',
-  'THEME',
-  'CORE',
-  'MOOD',
-  'STYLE',
-  'SETTING',
-  'ART_DIRECTION',
-  'OTHER',
-])
-
 function optionalText(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
@@ -49,23 +35,6 @@ function finiteNumber(
   return options.min != null && normalized < options.min
     ? options.min
     : normalized
-}
-
-export function legacyFacetTaxonomyFromKind(kind: FacetKind): FacetTaxonomy {
-  return FACET_TAXONOMIES.includes(kind as FacetTaxonomy)
-    ? (kind as FacetTaxonomy)
-    : 'OTHER'
-}
-
-/**
- * Facet.kind is a deprecated compatibility column. New writes derive it from
- * the authoritative FacetProfile.taxonomy; clients never choose it directly.
- */
-export function legacyFacetKindForTaxonomy(
-  taxonomy: FacetTaxonomy,
-): FacetKind {
-  if (taxonomy === 'PROMPT_ENHANCEMENT') return 'ART_DIRECTION'
-  return LEGACY_BROAD_KINDS.has(taxonomy) ? (taxonomy as FacetKind) : 'OTHER'
 }
 
 export function assertLegacyFacetKindAbsent(body: FacetProfileInput): void {

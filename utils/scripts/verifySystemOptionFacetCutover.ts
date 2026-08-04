@@ -128,7 +128,12 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'randomWeight: 0')
   requireText(files.seed, text.seed, 'structuralEnum: true')
   requireText(files.seed, text.seed, 'enumValue: target.enumValue')
-  requireText(files.seed, text.seed, 'kind: \'OTHER\'')
+  /* Was `kind: 'OTHER'` -- the seeder's classification of a system-option
+     Facet. t-072 dropped the physical Facet.kind column, so the surviving
+     statement of the same intent is the FacetProfile taxonomy the seeder
+     writes. Asserting the removed column would only re-assert that it is
+     gone, which verifyFacetTaxonomyAuthority.ts already covers. */
+  requireText(files.seed, text.seed, 'taxonomy: target.taxonomy')
   requireText(files.wrapper, text.wrapper, "import('./seedSystemOptionFacets')")
   requireText(files.policy, text.policy, 'stores/helpers/dreamCards.ts')
   requireText(files.policy, text.policy, 'stores/helpers/rewardCards.ts')

@@ -26,7 +26,6 @@ import type { FacetTaxonomy } from '~/server/utils/facetCatalog'
 import {
   buildFacetProfileCreateData,
   buildFacetProfileUpdateData,
-  legacyFacetKindForTaxonomy,
   normalizeFacetTaxonomy,
 } from '~/server/utils/facetProfileInput'
 import { userIsAdmin } from '../../../../utils/authUser'
@@ -437,7 +436,6 @@ async function updateText(
       return
     }
     case 'Facet': {
-      const extra = facetFields(fields)
       await tx.facet.update({
         where: { id },
         data: {

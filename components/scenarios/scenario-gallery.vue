@@ -226,26 +226,42 @@
       </div>
 
       <div v-else class="flex min-h-0 flex-col gap-4">
-        <div :class="layoutClass">
+        <!-- Row stays bespoke: a horizontal filmstrip is not one of
+             kr-gallery's cards/heroes/icons grids. -->
+        <div v-if="isRowMode" :class="layoutClass">
           <ScenarioCard
             v-for="scenario in filteredScenarios"
             :key="scenario.id"
             :scenario="scenario"
             :selected="scenarioStore.selectedScenario?.id === scenario.id"
-            :show-image="showImages"
-            :compact="isCompact"
-            :show-actions="showCardActions"
-            :show-description="showDescriptions"
-            :show-meta="showMeta"
-            :show-inspirations="showInspirations"
-            :allow-edit="allowEdit"
-            :allow-delete="allowDelete"
-            :allow-clone="allowClone"
+            v-bind="scenarioCardProps"
             @edit="startEditingScenarioById"
             @clone="cloneScenarioById"
             @delete="handleScenarioDeleted"
           />
         </div>
+
+        <!-- t-060: the shared shell owns the grid; ScenarioCard stays the card.
+             :modes="[]" drops kr-gallery's own mode bar, because this gallery
+             already has its own controls in the header above. -->
+        <kr-gallery
+          v-else
+          :items="galleryItems"
+          :modes="[]"
+          empty-label="scenarios"
+        >
+          <template #item="{ item }">
+            <ScenarioCard
+              v-if="scenarioById.get(Number(item.id))"
+              :scenario="scenarioById.get(Number(item.id))!"
+              :selected="scenarioStore.selectedScenario?.id === item.id"
+              v-bind="scenarioCardProps"
+              @edit="startEditingScenarioById"
+              @clone="cloneScenarioById"
+              @delete="handleScenarioDeleted"
+            />
+          </template>
+        </kr-gallery>
 
         <section
           v-if="showSelectedCharacterCards"
@@ -288,6 +304,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import type { ScenarioWithRelations } from '@/stores/scenarioStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
@@ -385,6 +402,48 @@ const galleryScenarios = computed<ScenarioWithRelations[]>(() => {
 
   return scenarios
 })
+
+/*
+ * interface-vision t-060 — the grid variant renders through the shared
+ * kr-gallery shell (mode/skeleton/error/empty/grid) while keeping ScenarioCard
+ * as the card, via kr-gallery's `item` slot. Adopting the shell must not cost
+ * the reactions, earned karma and edit/clone/archive actions that t-064 put on
+ * kr-entity-card-body, which is exactly what the built-in item rendering would
+ * have traded away.
+ *
+ * `row` and `dropdown` stay bespoke on purpose: a horizontal filmstrip and a
+ * <select> are not grids, and forcing them through a grid shell would be
+ * adoption for the counter's sake rather than for the user's.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredScenarios.value.map((scenario) => ({
+    id: scenario.id,
+    title: scenario.title || `Scenario ${scenario.id}`,
+    source: scenario,
+  })),
+)
+
+/** Slot props give back a GalleryItem, so map the id to the real record. */
+const scenarioById = computed(
+  () => new Map(filteredScenarios.value.map((s) => [s.id, s])),
+)
+
+/**
+ * The card's props in one place. Both the bespoke row layout and the
+ * kr-gallery slot render the same ScenarioCard, and a nine-prop list copied
+ * twice would drift the moment one of them gained a tenth.
+ */
+const scenarioCardProps = computed(() => ({
+  showImage: props.showImages,
+  compact: isCompact.value,
+  showActions: props.showCardActions,
+  showDescription: props.showDescriptions,
+  showMeta: props.showMeta,
+  showInspirations: props.showInspirations,
+  allowEdit: props.allowEdit,
+  allowDelete: props.allowDelete,
+  allowClone: props.allowClone,
+}))
 
 const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()

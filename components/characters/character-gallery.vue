@@ -236,29 +236,45 @@
         </button>
       </div>
 
-      <div v-else :class="layoutClass">
+      <!-- Row stays bespoke: a horizontal filmstrip is not one of kr-gallery's
+           cards/heroes/icons grids. -->
+      <div v-else-if="isRowMode" :class="layoutClass">
         <character-card
           v-for="character in filteredCharacters"
           :key="character.id"
           :character="character"
           :selected="characterStore.selectedCharacter?.id === character.id"
           :is-selected="characterStore.selectedCharacter?.id === character.id"
-          :compact="isCompact"
-          :show-image="showImages"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-stats="showStats"
-          :show-debug="showDebug"
-          :allow-edit="allowEdit"
-          :allow-clone="allowClone"
-          :allow-delete="allowDelete"
-          image-fit="contain"
+          v-bind="characterCardProps"
           @edit="startEditingCharacterById"
           @clone="cloneCharacterById"
           @delete="handleCharacterDeleted"
         />
       </div>
+
+      <!-- t-060: the shared shell owns the grid and the Cards/Heroes/Icons bar;
+           character-card stays the card. -->
+      <kr-gallery
+        v-else
+        :items="galleryItems"
+        :mode="galleryMode"
+        empty-label="characters"
+        @update:mode="galleryMode = $event"
+      >
+        <template #item="{ item }">
+          <character-card
+            v-if="characterById.get(Number(item.id))"
+            :character="characterById.get(Number(item.id))!"
+            :selected="characterStore.selectedCharacter?.id === item.id"
+            :is-selected="characterStore.selectedCharacter?.id === item.id"
+            :variant="MODE_VARIANT[galleryMode]"
+            v-bind="characterCardProps"
+            @edit="startEditingCharacterById"
+            @clone="cloneCharacterById"
+            @delete="handleCharacterDeleted"
+          />
+        </template>
+      </kr-gallery>
     </section>
   </section>
 </template>
@@ -266,6 +282,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -327,6 +345,10 @@ const showCharacterForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
+const isRowMode = computed(() => props.variant === 'row')
+
+/** Which of Cards/Heroes/Icons the shared grid is showing. */
+const galleryMode = ref<GalleryMode>('cards')
 
 const isCompact = computed(() => {
   return props.compact || props.variant === 'row' || isDropdownMode.value
@@ -438,6 +460,42 @@ const characterGenres = computed(() => {
 
   return Array.from(set).sort()
 })
+
+/*
+ * interface-vision t-060 — grid renders through the shared kr-gallery shell
+ * while character-card stays the card, so the reactions, karma and
+ * edit/clone/archive actions from t-064 survive the adoption.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredCharacters.value.map((character) => ({
+    id: character.id,
+    title: character.name || `Character ${character.id}`,
+    source: character,
+  })),
+)
+
+/** Slot props give back a GalleryItem, so map the id to the real record. */
+const characterById = computed(
+  () => new Map(filteredCharacters.value.map((c) => [c.id, c])),
+)
+
+/**
+ * The card's shared props in one place, so the bespoke row layout and the
+ * kr-gallery slot cannot drift when one of them gains another.
+ */
+const characterCardProps = computed(() => ({
+  compact: isCompact.value,
+  showImage: props.showImages,
+  showActions: props.showCardActions,
+  showDescription: props.showDescriptions,
+  showMeta: props.showMeta,
+  showStats: props.showStats,
+  showDebug: props.showDebug,
+  allowEdit: props.allowEdit,
+  allowClone: props.allowClone,
+  allowDelete: props.allowDelete,
+  imageFit: 'contain' as const,
+}))
 
 const filteredCharacters = computed<Character[]>(() => {
   let characters = galleryCharacters.value

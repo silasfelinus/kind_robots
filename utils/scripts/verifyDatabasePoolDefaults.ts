@@ -121,15 +121,23 @@ assert.match(prismaSource, /property === '\$transaction'/)
 assert.match(prismaSource, /transactionContext\.run\(true/)
 assert.match(prismaSource, /transactionContext\.getStore\(\) \? 0/)
 
-// The Alexandria diagnostic inspects the ProxySQL/MariaDB side of the boundary.
-// It remains an explicitly manual, read-only host tool.
+// The Alexandria diagnostic inspects both frontend client sources and the
+// ProxySQL/MariaDB backend boundary. It must use stable processlist columns on
+// the installed ProxySQL version and continue after optional-section failures.
 execFileSync('bash', ['-n', fileURLToPath(capacityDiagnosticUrl)], {
   stdio: 'pipe',
 })
 assert.match(capacityDiagnosticSource, /stats_mysql_connection_pool/)
 assert.match(capacityDiagnosticSource, /stats_mysql_users/)
 assert.match(capacityDiagnosticSource, /stats_mysql_processlist/)
-assert.match(capacityDiagnosticSource, /multiplex_disabled/)
+assert.match(capacityDiagnosticSource, /cli_host/)
+assert.match(capacityDiagnosticSource, /frontend source totals/)
+assert.match(capacityDiagnosticSource, /proxysql_sql_optional/)
+assert.match(capacityDiagnosticSource, /Access_Denied_Max_User_Connections/)
+assert.doesNotMatch(
+  capacityDiagnosticSource,
+  /SELECT[^;]*(transaction_found|multiplex_disabled)/s,
+)
 assert.match(capacityDiagnosticSource, /information_schema\.PROCESSLIST/)
 assert.match(capacityDiagnosticSource, /information_schema\.INNODB_TRX/)
 assert.match(capacityDiagnosticSource, /max_user_connections/)

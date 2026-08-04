@@ -6,26 +6,29 @@
 // runs a short sequence of idempotent, existence-guarded statements against
 // ProxySQL during `npm run vercel-build`. ProxySQL can drop a backend/frontend
 // connection mid-sequence (observed as MariaDB SQLState 08S01 / errno 45009,
-// "socket has unexpectedly been closed"), which fails the whole production
-// deploy even though nothing is logically wrong. Because every repair step is
-// idempotent, reconnecting and re-running the repair is safe, so we retry the
-// repair on connection-level (not query-logic) errors.
+// "socket has unexpectedly been closed"), or temporarily refuse a new session
+// when the shared application user reaches max_user_connections. Both fail the
+// whole production deploy even though nothing is logically wrong. Because every
+// repair step is idempotent, reconnecting and re-running the repair is safe.
 
 /**
  * Classifies whether an error is a transient *connection* failure that is safe
- * to retry with a fresh connection. Deliberately narrow: only socket/connection
- * level failures qualify. Logical errors (parse errors, constraint violations,
- * permission errors, etc.) are never retried — retrying those just wastes a
- * deploy and hides a real bug.
+ * to retry with a fresh connection. Deliberately narrow: socket/connection
+ * failures and temporary connection-capacity exhaustion qualify. Logical errors
+ * (parse errors, constraint violations, permission errors, etc.) are never
+ * retried — retrying those just wastes a deploy and hides a real bug.
  */
 export function isRetryableConnectionError(error) {
   if (!error) return false
 
   const code = typeof error.code === 'string' ? error.code : ''
+  const errno = Number.isFinite(error.errno) ? Number(error.errno) : 0
   if (
     code === 'ER_SOCKET_UNEXPECTED_CLOSE' ||
     code === 'ER_CONNECTION_ALREADY_CLOSED' ||
     code === 'ER_GET_CONNECTION_TIMEOUT' ||
+    code === 'ER_USER_LIMIT_REACHED' ||
+    errno === 1226 ||
     code === 'ECONNRESET' ||
     code === 'ECONNREFUSED' ||
     code === 'EPIPE' ||

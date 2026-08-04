@@ -168,13 +168,16 @@ assert.doesNotMatch(repairSource, /DELETE\s+FROM/i)
 assert.doesNotMatch(repairSource, /DROP\s+TABLE/i)
 assert.match(deploySource, /repairKnownFailedMigrations/)
 assert.match(deploySource, /await repairKnownFailedMigrations[\s\S]*await runPrismaMigrate/)
-// The repair must run inside the connection-retry wrapper so a transient
-// ProxySQL socket drop (SQLState 08S01) reconnects instead of failing the deploy.
+// The repair must run inside the connection-retry wrapper so transient
+// ProxySQL socket drops and temporary connection-capacity exhaustion wait for
+// a fresh session instead of failing the deployment immediately.
 assert.match(deploySource, /withConnectionRetry/)
 assert.match(
   deploySource,
   /withConnectionRetry[\s\S]*repairKnownFailedMigrations[\s\S]*await runPrismaMigrate/,
 )
+assert.match(deploySource, /attempts:\s*6/)
+assert.match(deploySource, /baseDelayMs:\s*3_000/)
 
 // Migrations must resolve the same URL Prisma uses (MIGRATION_DATABASE_URL ??
 // DATABASE_URL) and force SSL onto it — otherwise a MIGRATION_DATABASE_URL set
@@ -199,6 +202,16 @@ assert.equal(
 )
 assert.equal(isRetryableConnectionError({ sqlState: '08S01' }), true)
 assert.equal(isRetryableConnectionError({ code: 'ECONNRESET' }), true)
+assert.equal(
+  isRetryableConnectionError({
+    code: 'ER_USER_LIMIT_REACHED',
+    sqlState: '42000',
+    errno: 1226,
+    fatal: true,
+  }),
+  true,
+)
+assert.equal(isRetryableConnectionError({ errno: 1226 }), true)
 // ...but logical/query errors are not (retrying would hide a real bug).
 assert.equal(
   isRetryableConnectionError({ code: 'ER_PARSE_ERROR', sqlState: '42000' }),

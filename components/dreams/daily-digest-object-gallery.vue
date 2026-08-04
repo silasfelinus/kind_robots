@@ -1,36 +1,38 @@
 <template>
   <section
     v-if="items.length"
-    class="border-t border-base-300 bg-base-200/25 p-4 sm:p-6"
+    class="border-t border-base-300 bg-base-200/25 px-3 py-3 sm:px-4 sm:py-4"
   >
-    <header class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <p class="text-xs font-black uppercase tracking-[0.16em] text-primary">
+    <header class="flex items-center justify-between gap-3">
+      <div class="min-w-0 flex-1">
+        <p class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-primary">
           Complete bundle
         </p>
-        <h3 class="mt-1 text-xl font-black">Objects in this Daily Dream</h3>
-        <p class="mt-1 max-w-3xl text-sm leading-relaxed text-base-content/55">
-          A compact catalog of the world, place, cast, discoveries, and scenario. Open any object for its full information, editable fields, and artwork workbench.
-        </p>
+        <div class="mt-0.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h3 class="text-lg font-black">Objects in this Daily Dream</h3>
+          <p class="hidden text-xs text-base-content/50 lg:block">
+            Open any object for full details, editing, and artwork controls.
+          </p>
+        </div>
       </div>
-      <span class="badge badge-primary h-auto rounded-xl px-3 py-2">
+      <span class="badge badge-primary badge-sm shrink-0 rounded-lg">
         {{ items.length }} objects
       </span>
     </header>
 
-    <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
       <article
         v-for="item in items"
         :key="item.key"
-        class="group overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md"
+        class="group min-w-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md"
       >
         <button
           type="button"
-          class="grid h-full w-full grid-cols-[6.5rem_minmax(0,1fr)] text-left sm:grid-cols-[7.5rem_minmax(0,1fr)]"
+          class="flex min-h-36 w-full flex-col text-left xl:min-h-32"
           :aria-label="`Open ${item.title}`"
           @click="selectedItem = item"
         >
-          <figure class="relative min-h-40 overflow-hidden bg-base-200">
+          <figure class="relative h-20 shrink-0 overflow-hidden bg-base-200 xl:h-16">
             <img
               v-if="item.image"
               :src="item.image"
@@ -39,50 +41,49 @@
             />
             <div
               v-else
-              class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3 text-center text-base-content/30"
+              class="absolute inset-0 flex items-center justify-center gap-2 px-2 text-center text-base-content/30"
             >
-              <Icon :name="item.icon" class="size-10 opacity-50" />
-              <span class="text-[0.68rem] font-bold uppercase tracking-wide">
+              <Icon :name="item.icon" class="size-6 opacity-45" />
+              <span class="text-[0.58rem] font-bold uppercase tracking-wide">
                 Awaiting art
               </span>
             </div>
             <span
-              class="badge badge-neutral badge-sm absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-lg shadow"
+              class="badge badge-neutral badge-xs absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md shadow"
             >
               {{ item.role }}
             </span>
           </figure>
 
-          <div class="flex min-w-0 flex-col p-3.5 sm:p-4">
-            <div class="flex items-start gap-2">
+          <div class="flex min-h-0 flex-1 flex-col p-2.5">
+            <div class="flex items-start gap-1.5">
               <div class="min-w-0 flex-1">
-                <p class="text-[0.68rem] font-black uppercase tracking-[0.13em] text-primary/70">
+                <p class="truncate text-[0.58rem] font-black uppercase tracking-[0.12em] text-primary/70">
                   {{ item.typeLabel }}
                 </p>
-                <h4 class="mt-0.5 line-clamp-2 text-base font-black leading-tight sm:text-lg">
+                <h4 class="mt-0.5 line-clamp-2 text-sm font-black leading-tight">
                   {{ item.title }}
                 </h4>
               </div>
-              <Icon name="kind-icon:external-link" class="mt-1 size-4 shrink-0 text-base-content/30 transition group-hover:text-primary" />
+              <Icon
+                name="kind-icon:external-link"
+                class="mt-0.5 size-3.5 shrink-0 text-base-content/25 transition group-hover:text-primary"
+              />
             </div>
 
-            <div v-if="item.meta.length" class="mt-2 flex flex-wrap gap-1.5">
+            <div v-if="item.meta.length" class="mt-1 flex min-w-0 gap-1">
               <span
-                v-for="meta in item.meta"
+                v-for="meta in item.meta.slice(0, 1)"
                 :key="meta"
-                class="badge badge-ghost badge-sm max-w-full truncate rounded-lg"
+                class="badge badge-ghost badge-xs max-w-full truncate rounded-md"
               >
                 {{ meta }}
               </span>
             </div>
 
-            <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-base-content/60 sm:text-sm">
-              {{ item.summary }}
-            </p>
-
-            <span class="mt-auto inline-flex items-center gap-1.5 pt-3 text-xs font-black text-primary">
+            <span class="mt-auto inline-flex items-center gap-1 pt-1.5 text-[0.65rem] font-black text-primary">
               Open details
-              <Icon name="kind-icon:chevron-right" class="size-3.5" />
+              <Icon name="kind-icon:chevron-right" class="size-3" />
             </span>
           </div>
         </button>

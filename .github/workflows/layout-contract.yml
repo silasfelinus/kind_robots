@@ -38,3 +38,6 @@ jobs:
 
       - name: Verify layout contract
         run: npm run test:layout-contract
+
+      - name: Verify mixed pane primitive fixture
+        run: npx tsx utils/scripts/verifyMixedPanePrimitivesFixture.ts

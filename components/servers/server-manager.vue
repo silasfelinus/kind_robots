@@ -24,53 +24,7 @@
       </button>
     </div>
 
-    <section
-      v-if="activeTab === 'overview'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
-    >
-      <div class="flex min-h-0 flex-col gap-4 overflow-y-auto xl:col-span-5">
-        <server-gallery
-          mode="art"
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-card-actions="false"
-          :show-descriptions="true"
-          :show-meta="true"
-          :show-capabilities="false"
-          :show-use-buttons="false"
-          :show-workflow="false"
-          :show-defaults="false"
-          :show-status="false"
-        />
-
-        <server-gallery
-          mode="text"
-          variant="dropdown"
-          :show-header="false"
-          :show-controls="false"
-          :show-card-actions="false"
-          :show-descriptions="true"
-          :show-meta="true"
-          :show-capabilities="false"
-          :show-use-buttons="false"
-          :show-workflow="false"
-          :show-defaults="false"
-          :show-status="false"
-        />
-
-        <checkpoint-gallery
-          variant="compact"
-          :show-header="false"
-          :show-controls="false"
-          :show-status="false"
-        />
-      </div>
-
-      <div class="min-h-0 overflow-y-auto xl:col-span-7">
-        <server-interact />
-      </div>
-    </section>
+    <server-overview v-if="activeTab === 'overview'" />
 
     <server-gallery
       v-else-if="activeTab === 'art'"

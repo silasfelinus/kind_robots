@@ -39,32 +39,65 @@
       >
         <channel-select seamless class="shrink-0" />
 
-        <nav
+        <!-- This child may clip its own scrolling tabs. The shared shell above
+             must remain overflow-visible so the channel dropdown can escape. -->
+        <div
           v-if="resolvedTabs.length"
-          class="tab-strip flex min-w-0 flex-1 items-stretch gap-1 overflow-x-auto rounded-r-xl border-l border-base-300 px-1.5 sm:gap-1.5"
-          aria-label="Channel tabs"
+          class="flex min-w-0 flex-1 items-stretch overflow-hidden rounded-r-xl border-l border-base-300"
         >
           <button
-            v-for="tab in resolvedTabs"
-            :key="tab.tabKey"
+            v-show="canScrollTabsLeft"
             type="button"
-            class="relative my-1 flex shrink-0 items-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
-            :class="
-              tab.tabKey === activeTabKey
-                ? 'border-primary bg-primary text-primary-content shadow-sm'
-                : 'border-base-300 bg-base-100 text-base-content/70 hover:border-base-content/30 hover:bg-base-200 hover:text-base-content'
-            "
-            :aria-current="tab.tabKey === activeTabKey ? 'page' : undefined"
-            :title="tab.tooltip || tab.title || tab.label"
-            @click="goToTab(tab)"
+            class="tab-scroll-button flex w-8 shrink-0 items-center justify-center border-r border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
+            aria-label="Scroll channel tabs left"
+            title="Scroll channel tabs left"
+            aria-controls="channel-tab-strip"
+            @click="scrollTabs(-1)"
           >
-            <Icon
-              :name="tab.icon || fallbackIcon"
-              class="h-3.5 w-3.5 shrink-0 xl:h-4 xl:w-4"
-            />
-            <span class="max-w-28 truncate xl:max-w-40">{{ tab.label }}</span>
+            <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
           </button>
-        </nav>
+
+          <nav
+            id="channel-tab-strip"
+            ref="tabStrip"
+            class="tab-strip flex min-w-0 flex-1 items-stretch gap-1 overflow-x-auto px-1.5 sm:gap-1.5"
+            aria-label="Channel tabs"
+            @scroll.passive="updateTabScrollState"
+          >
+            <button
+              v-for="tab in resolvedTabs"
+              :key="tab.tabKey"
+              type="button"
+              class="relative my-1 flex shrink-0 items-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
+              :class="
+                tab.tabKey === activeTabKey
+                  ? 'border-primary bg-primary text-primary-content shadow-sm'
+                  : 'border-base-300 bg-base-100 text-base-content/70 hover:border-base-content/30 hover:bg-base-200 hover:text-base-content'
+              "
+              :aria-current="tab.tabKey === activeTabKey ? 'page' : undefined"
+              :title="tab.tooltip || tab.title || tab.label"
+              @click="goToTab(tab)"
+            >
+              <Icon
+                :name="tab.icon || fallbackIcon"
+                class="h-3.5 w-3.5 shrink-0 xl:h-4 xl:w-4"
+              />
+              <span class="max-w-28 truncate xl:max-w-40">{{ tab.label }}</span>
+            </button>
+          </nav>
+
+          <button
+            v-show="canScrollTabsRight"
+            type="button"
+            class="tab-scroll-button flex w-8 shrink-0 items-center justify-center border-l border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
+            aria-label="Scroll channel tabs right"
+            title="Scroll channel tabs right"
+            aria-controls="channel-tab-strip"
+            @click="scrollTabs(1)"
+          >
+            <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+          </button>
+        </div>
 
         <!-- No tabs resolved (a bare route, or content still loading): fall
              back to naming the page rather than rendering an empty bar. -->
@@ -123,7 +156,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
@@ -143,6 +183,12 @@ const pageStore = usePageStore()
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
+
+const tabStrip = ref<HTMLElement | null>(null)
+const canScrollTabsLeft = ref(false)
+const canScrollTabsRight = ref(false)
+let tabStripResizeObserver: ResizeObserver | null = null
+let observedTabStrip: HTMLElement | null = null
 
 await channelContentStore.initialize()
 
@@ -237,6 +283,65 @@ const activeTitle = computed(
     pageStore.title,
 )
 
+function updateTabScrollState(): void {
+  const strip = tabStrip.value
+  if (!strip) {
+    canScrollTabsLeft.value = false
+    canScrollTabsRight.value = false
+    return
+  }
+
+  const tolerance = 2
+  const maxScrollLeft = strip.scrollWidth - strip.clientWidth
+  canScrollTabsLeft.value = strip.scrollLeft > tolerance
+  canScrollTabsRight.value = strip.scrollLeft < maxScrollLeft - tolerance
+}
+
+function observeTabStrip(): void {
+  const strip = tabStrip.value
+  if (strip === observedTabStrip) return
+
+  tabStripResizeObserver?.disconnect()
+  tabStripResizeObserver = null
+  observedTabStrip = strip
+
+  if (!strip || typeof ResizeObserver === 'undefined') return
+
+  tabStripResizeObserver = new ResizeObserver(updateTabScrollState)
+  tabStripResizeObserver.observe(strip)
+}
+
+async function syncTabStrip(): Promise<void> {
+  await nextTick()
+  observeTabStrip()
+
+  const strip = tabStrip.value
+  if (!strip) {
+    updateTabScrollState()
+    return
+  }
+
+  strip
+    .querySelector<HTMLElement>('[aria-current="page"]')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(updateTabScrollState)
+  } else {
+    updateTabScrollState()
+  }
+}
+
+function scrollTabs(direction: -1 | 1): void {
+  const strip = tabStrip.value
+  if (!strip) return
+
+  strip.scrollBy({
+    left: direction * Math.max(strip.clientWidth * 0.75, 160),
+    behavior: 'smooth',
+  })
+}
+
 /**
  * Navigates the tab strip. Routes through the shared tabRouteTarget so this
  * agrees with channel-select's dropdown, which reaches the same tabs — several
@@ -272,8 +377,24 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () =>
+    `${resolvedTabs.value.map((tab) => tab.tabKey).join('|')}::${activeTabKey.value}`,
+  () => {
+    if (!import.meta.client) return
+    void syncTabStrip()
+  },
+)
+
 onMounted(() => {
   maturityPreferenceStore.initialize()
+  void syncTabStrip()
+})
+
+onBeforeUnmount(() => {
+  tabStripResizeObserver?.disconnect()
+  tabStripResizeObserver = null
+  observedTabStrip = null
 })
 
 function goBack(): void {
@@ -342,6 +463,17 @@ function goBack(): void {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   gap: 0.25rem;
+}
+
+.tab-strip {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tab-strip::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 @media (min-width: 1280px) {

@@ -42,7 +42,10 @@ assert.match(feedSource, /allowNavigation \? 'a' : 'article'/)
 assert.match(feedSource, /v-if="allowNavigation"/)
 
 // Confirm earlier fixture modules still resolve after adding another catalog layer.
-assert.ok(getWonderLabPreviewFixture('hero-showcase')?.props?.items)
+// Was 'hero-showcase' until t-074 retired it. This assertion is a canary that
+// the achievement-navigation fixture layer still resolves, so any surviving key
+// from that same module serves the purpose.
+assert.ok(getWonderLabPreviewFixture('leaderboard-table')?.props?.rows)
 assert.ok(getWonderLabPreviewFixture('component-card')?.props?.component)
 
 console.log('WonderLab passive card fixture verification passed.')

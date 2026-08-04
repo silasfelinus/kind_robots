@@ -300,25 +300,45 @@
         </button>
       </div>
 
-      <div v-else :class="layoutClass">
+      <!-- Row stays bespoke: a horizontal filmstrip is not one of kr-gallery's
+           cards/heroes/icons grids. -->
+      <div v-else-if="isRowMode" :class="layoutClass">
         <reward-card
           v-for="reward in filteredRewards"
           :key="reward.id"
           :reward="reward"
           :selected="rewardStore.selectedReward?.id === reward.id"
-          :show-image="showImages"
-          :compact="isCompact"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :allow-edit="allowEdit"
-          :allow-delete="allowDelete"
           :earned-karma="earnedKarmaByRewardId[reward.id]"
+          v-bind="rewardCardProps"
           @select="selectReward"
           @edit="startEditingRewardById"
           @delete="handleRewardDeleted"
         />
       </div>
+
+      <!-- t-060: the shared shell owns the grid and the Cards/Heroes/Icons bar;
+           reward-card stays the card. -->
+      <kr-gallery
+        v-else
+        :items="galleryItems"
+        :mode="galleryMode"
+        empty-label="rewards"
+        @update:mode="galleryMode = $event"
+      >
+        <template #item="{ item }">
+          <reward-card
+            v-if="rewardById.get(Number(item.id))"
+            :reward="rewardById.get(Number(item.id))!"
+            :selected="rewardStore.selectedReward?.id === item.id"
+            :earned-karma="earnedKarmaByRewardId[Number(item.id)]"
+            :variant="MODE_VARIANT[galleryMode]"
+            v-bind="rewardCardProps"
+            @select="selectReward"
+            @edit="startEditingRewardById"
+            @delete="handleRewardDeleted"
+          />
+        </template>
+      </kr-gallery>
     </section>
   </section>
 </template>
@@ -326,6 +346,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useRewardStore } from '@/stores/rewardStore'
 import type { Rarity } from '@/stores/rewardStore'
 import { useUserStore } from '@/stores/userStore'
@@ -403,6 +425,10 @@ const rarityOrder: Record<Rarity, number> = {
 }
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
+const isRowMode = computed(() => props.variant === 'row')
+
+/** Which of Cards/Heroes/Icons the shared grid is showing. */
+const galleryMode = ref<GalleryMode>('cards')
 
 const isCompact = computed(() => {
   return props.compact || props.variant === 'row' || isDropdownMode.value
@@ -583,6 +609,37 @@ const rarities = computed(() => {
     return rarityOrder[a] - rarityOrder[b]
   })
 })
+
+/*
+ * interface-vision t-060 — grid renders through the shared kr-gallery shell
+ * while reward-card stays the card, so t-064's reactions, earned karma and
+ * edit/archive actions survive the adoption. earnedKarma stays an explicit
+ * per-item binding rather than joining rewardCardProps, because it is looked up
+ * per reward id.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredRewards.value.map((reward) => ({
+    id: reward.id,
+    title: reward.name || `Reward ${reward.id}`,
+    source: reward,
+  })),
+)
+
+/** Slot props give back a GalleryItem, so map the id to the real record. */
+const rewardById = computed(
+  () => new Map(filteredRewards.value.map((r) => [r.id, r])),
+)
+
+/** The card's shared props in one place so row and grid cannot drift. */
+const rewardCardProps = computed(() => ({
+  showImage: props.showImages,
+  compact: isCompact.value,
+  showActions: props.showCardActions,
+  showDescription: props.showDescriptions,
+  showMeta: props.showMeta,
+  allowEdit: props.allowEdit,
+  allowDelete: props.allowDelete,
+}))
 
 const filteredRewards = computed<Reward[]>(() => {
   let rewards = visibleRewards.value

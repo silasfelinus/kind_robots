@@ -2,7 +2,7 @@
 title: 'About'
 room: 'About Room'
 subtitle: 'Unapologetically Optimistic'
-description: Where missions and elevator pitches go to socialize.
+description: Where missions, community, and the people behind Kind Robots go to socialize.
 icon: kind-icon:butterfly
 image: splash/about.png
 tooltip: Ah, the "About" page—home of lofty goals and earnest mission statements. But really, welcome! We're all about creating nifty AI-human interaction tools. Stick around and you might just become part of our mission.
@@ -18,3 +18,5 @@ refreshLabel: Refresh mission statement
 ---
 
 :about-page
+
+:sponsor-page

@@ -20,19 +20,21 @@
       </span>
     </header>
 
-    <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+    <div
+      class="mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain pb-1 lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0"
+    >
       <article
         v-for="item in items"
         :key="item.key"
-        class="group min-w-0 overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md"
+        class="group min-w-40 snap-start overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md sm:min-w-44 lg:min-w-0"
       >
         <button
           type="button"
-          class="flex min-h-36 w-full flex-col text-left xl:min-h-32"
+          class="flex min-h-32 w-full flex-col text-left"
           :aria-label="`Open ${item.title}`"
           @click="selectedItem = item"
         >
-          <figure class="relative h-20 shrink-0 overflow-hidden bg-base-200 xl:h-16">
+          <figure class="relative h-16 shrink-0 overflow-hidden bg-base-200">
             <img
               v-if="item.image"
               :src="item.image"

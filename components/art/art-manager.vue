@@ -94,7 +94,7 @@
         <template v-else-if="activeTab === 'artjob'">
           <artjob-failed-page-requeue class="2xl:col-span-2" />
           <artjob-queue-browser
-            class="min-h-[720px] overflow-hidden 2xl:min-h-0"
+            class="min-h-0 overflow-hidden"
           />
           <artjob-feedback-manager
             class="min-h-[560px] overflow-hidden 2xl:min-h-0"

@@ -120,6 +120,40 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-base-content">Publishing</h2>
+          <p class="text-sm text-base-content/70">
+            Control who can discover this scenario and whether mature-content
+            filtering applies.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <label
+            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+          >
+            <span class="label-text font-bold">Public</span>
+            <input
+              v-model="scenarioStore.scenarioForm.isPublic"
+              type="checkbox"
+              class="toggle toggle-success"
+            />
+          </label>
+
+          <label
+            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+          >
+            <span class="label-text font-bold">Mature</span>
+            <input
+              v-model="scenarioStore.scenarioForm.isMature"
+              type="checkbox"
+              class="toggle toggle-warning"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
         <div class="mb-4 flex items-center justify-between gap-2">
           <div>
             <h2 class="text-xl font-bold text-base-content">Opening Choices</h2>
@@ -470,6 +504,8 @@ function resetForAdd() {
     artPrompt: '',
     imagePath: null,
     artImageId: null,
+    isPublic: true,
+    isMature: false,
     userId: userStore.authenticatedUserId,
   }
 

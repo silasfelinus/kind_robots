@@ -195,12 +195,12 @@ function extendPrismaClient(client: PrismaClient) {
   })
 }
 
-// One base client means one MariaDB connector pool per warm Vercel runtime.
-// Do not replace it during requests: retired Prisma clients retain their pools,
-// and a replacement loop can strand another connectionLimit-sized pool each
-// time a frontend socket fails. ProxySQL command pipelining is already disabled
-// in databaseAdapterConfig.ts, which addresses the historical socket poison at
-// its source.
+// One base client means one MariaDB connector pool per Node runtime. Kind Robots
+// currently runs on a separate local machine while ProxySQL and MariaDB live on
+// Alexandria. That local runtime may remain alive for days, so replacing clients
+// during requests can strand connectionLimit-sized pools indefinitely. ProxySQL
+// command pipelining is already disabled in databaseAdapterConfig.ts, which
+// addresses the historical socket poison at its source.
 const basePrisma = globalForPrisma.prisma ?? createBasePrismaClient()
 globalForPrisma.prisma = basePrisma
 

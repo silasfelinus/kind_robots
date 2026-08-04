@@ -293,32 +293,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
       showFooterActions: false,
     },
   },
-  'icon-display': {
-    title: 'Smart Icon specimen',
-    description:
-      'Uses a non-linking synthetic navigation icon and suppresses smartbar edit/remove behavior even when the surrounding app is in edit mode.',
-    viewport: 'mobile',
-    minHeight: '12rem',
-    props: {
-      icon: {
-        id: -302,
-        createdAt: fixtureDate,
-        updatedAt: fixtureDate,
-        title: 'Museum Spark',
-        label: 'WonderLab',
-        description: 'A safe, non-navigating smart icon specimen.',
-        designer: 'WonderLab',
-        icon: 'kind-icon:sparkles',
-        link: '',
-        component: null,
-        type: 'nav',
-        isPublic: true,
-        userId: 0,
-      },
-      showTitle: true,
-      allowEditActions: false,
-    },
-  },
   'checkpoint-card': {
     title: 'Checkpoint Card specimen',
     description:

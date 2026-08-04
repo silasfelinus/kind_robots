@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import confetti from 'canvas-confetti'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
-import { useDisplayStore } from './displayStore'
+import { useViewportStore } from './viewportStore'
 import { useAchievementStore } from './achievementStore'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
@@ -244,7 +244,7 @@ function createId(prefix: string): string {
 export const useMemoryStore = defineStore('memoryStore', () => {
   const userStore = useUserStore()
   const achievementStore = useAchievementStore()
-  const displayStore = useDisplayStore()
+  const viewportStore = useViewportStore()
   const promptStore = usePromptStore()
   const artStore = useArtStore()
   const collectionStore = useCollectionStore()
@@ -575,7 +575,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   )
 
   const cardSize = computed(() => {
-    const screen = displayStore.viewportSize
+    const screen = viewportStore.viewportSize
     const cards = numberOfCards.value
 
     if (screen === 'small') {
@@ -606,7 +606,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   })
 
   const boardColumns = computed(() => {
-    const screen = displayStore.viewportSize
+    const screen = viewportStore.viewportSize
 
     if (screen === 'small') return 4
     if (screen === 'medium')

@@ -7,14 +7,6 @@ assert.ok(editIcon?.props?.icon)
 assert.equal(editIcon?.props?.allowSave, false)
 assert.equal(editIcon?.props?.showFooterActions, false)
 
-const iconDisplay = getWonderLabPreviewFixture('icon-display')
-assert.ok(iconDisplay?.props?.icon)
-assert.equal(iconDisplay?.props?.allowEditActions, false)
-assert.equal(
-  (iconDisplay?.props?.icon as { link?: unknown } | undefined)?.link,
-  '',
-)
-
 const checkpoint = getWonderLabPreviewFixture('checkpoint-card')
 assert.ok(checkpoint?.props?.checkpoint)
 assert.equal(checkpoint?.props?.showImage, false)

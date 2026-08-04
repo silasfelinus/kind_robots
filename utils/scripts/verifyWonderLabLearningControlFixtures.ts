@@ -26,7 +26,7 @@ assert.equal(single?.props?.modelValue, 8)
 assert.equal(single?.props?.min, 0)
 assert.equal(single?.props?.max, 20)
 
-for (const key of ['butterfly-toggle', 'choice-manager', 'fx-region'] as const) {
+for (const key of ['choice-manager', 'fx-region'] as const) {
   const fixture = getWonderLabPreviewFixture(key)
   assert.ok(fixture?.skipReason, `${key} must explain its required app context.`)
 }

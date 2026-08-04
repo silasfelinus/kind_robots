@@ -1,7 +1,7 @@
 <!-- /components/giftshop/checkout-success.vue -->
 <template>
   <section
-    class="mx-auto flex h-full min-h-0 max-w-3xl flex-col items-center justify-center gap-5 overflow-y-auto px-4 py-8 text-center"
+    class="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center gap-5 px-4 py-8 text-center"
   >
     <div
       class="w-full rounded-3xl border bg-base-100 p-6 shadow-lg sm:p-10"
@@ -129,7 +129,8 @@ onMounted(async () => {
 
   if (!sessionId) {
     state.value = 'error'
-    detail.value = 'The Stripe return link did not include a checkout session ID. Your cart was not cleared.'
+    detail.value =
+      'The Stripe return link did not include a checkout session ID. Your cart was not cleared.'
     return
   }
 
@@ -139,7 +140,9 @@ onMounted(async () => {
 
   if (!result.success || !result.data) {
     state.value = 'error'
-    detail.value = result.message || 'Stripe checkout verification failed. Your cart was not cleared.'
+    detail.value =
+      result.message ||
+      'Stripe checkout verification failed. Your cart was not cleared.'
     return
   }
 

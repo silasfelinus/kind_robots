@@ -145,16 +145,16 @@ if ($databaseConnections.Count -eq 0) {
   Write-Host 'No matching TCP connections are currently visible.'
 } else {
   $details = foreach ($connection in $databaseConnections) {
-    $pid = [int]$connection.OwningProcess
-    $process = $processRows[$pid]
+    $ownerPid = [int]$connection.OwningProcess
+    $process = $processRows[$ownerPid]
 
     [pscustomobject]@{
-      PID         = $pid
+      PID         = $ownerPid
       Process     = if ($process) { $process.Name } else { '<exited>' }
       State       = $connection.State
       Local       = "$($connection.LocalAddress):$($connection.LocalPort)"
       Remote      = "$($connection.RemoteAddress):$($connection.RemotePort)"
-      Started     = Get-ProcessStartTime -ProcessId $pid
+      Started     = Get-ProcessStartTime -ProcessId $ownerPid
       ParentPID   = if ($process) { $process.ParentProcessId } else { $null }
       CommandLine = if ($process) { Hide-Secrets $process.CommandLine } else { '' }
     }
@@ -179,7 +179,7 @@ if ($databaseConnections.Count -eq 0) {
         CommandLine = $sample.CommandLine
       }
     } |
-    Sort-Object Connections -Descending, PID |
+    Sort-Object @{ Expression = 'Connections'; Descending = $true }, PID |
     Format-List
 }
 
@@ -196,19 +196,23 @@ $nodeProcesses = @(
 if ($nodeProcesses.Count -eq 0) {
   Write-Host 'No Node/Nuxt processes were found.'
 } else {
-  foreach ($process in $nodeProcesses) {
-    $pid = [int]$process.ProcessId
-    $ownedCount = @($databaseConnections | Where-Object OwningProcess -eq $pid).Count
+  $nodeRows = foreach ($process in $nodeProcesses) {
+    $ownerPid = [int]$process.ProcessId
+    $ownedCount = @(
+      $databaseConnections | Where-Object { $_.OwningProcess -eq $ownerPid }
+    ).Count
 
     [pscustomobject]@{
-      PID                   = $pid
-      Name                  = $process.Name
-      ParentPID             = $process.ParentProcessId
-      Started               = Get-ProcessStartTime -ProcessId $pid
-      DatabaseConnections   = $ownedCount
-      CommandLine           = Hide-Secrets $process.CommandLine
+      PID                 = $ownerPid
+      Name                = $process.Name
+      ParentPID           = $process.ParentProcessId
+      Started             = Get-ProcessStartTime -ProcessId $ownerPid
+      DatabaseConnections = $ownedCount
+      CommandLine         = Hide-Secrets $process.CommandLine
     }
-  } | Format-List
+  }
+
+  $nodeRows | Format-List
 }
 
 Write-Host "`n===== Summary ====="

@@ -11,7 +11,6 @@
       "components/dreams/dream-brainstorm.vue",
       "components/navigation/channel-select.vue",
       "components/pages/memory-dungeon.vue",
-      "components/scenarios/scenario-interact.vue",
       "components/servers/server-manager.vue",
       "components/stages/stage-manager.vue",
       "components/user/chat-gallery.vue",

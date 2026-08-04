@@ -122,36 +122,16 @@
           Pick an opening, or write your own direction below.
         </p>
 
-        <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <button
-            v-for="(intro, index) in introChoices"
-            :key="`${intro.label}-${index}`"
-            type="button"
-            class="group flex flex-col gap-1 rounded-2xl border p-4 text-left text-smart transition"
-            :class="
-              scenarioStore.currentChoice === intro.raw
-                ? 'border-primary bg-primary/10 ring-2 ring-primary'
-                : 'border-base-300 bg-base-200 hover:border-primary/40 hover:bg-base-200/60'
-            "
-            @click="storyStore.pickIntro(intro.raw)"
-          >
-            <span
-              v-if="intro.label"
-              class="text-smart-caption font-black uppercase tracking-widest"
-              :class="
-                scenarioStore.currentChoice === intro.raw
-                  ? 'text-primary'
-                  : 'text-primary/70 group-hover:text-primary'
-              "
-            >
-              {{ intro.label }}
-            </span>
-
-            <span class="text-smart leading-relaxed text-base-content/80">
-              {{ intro.body }}
-            </span>
-          </button>
-        </div>
+        <kr-choice-list
+          class="mt-3"
+          layout="stack"
+          :choices="introListChoices"
+          :selected-key="selectedIntroKey"
+          :show-index="false"
+          hint-prose
+          label="Opening choices"
+          @select="handleIntroSelected"
+        />
       </article>
 
       <article
@@ -287,103 +267,21 @@
         </div>
       </header>
 
-      <section
-        ref="storyLogRef"
-        class="min-h-0 overflow-y-auto overscroll-contain bg-base-200 p-4"
-      >
-        <div class="mx-auto flex max-w-3xl flex-col gap-4">
-          <article
-            v-for="chat in storyStore.storyDisplayChats"
-            :key="chat.id"
-            class="flex flex-col gap-3"
-          >
-            <div class="flex flex-row-reverse">
-              <div
-                class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-smart leading-relaxed text-primary-content shadow-sm"
-              >
-                <p class="mb-1 text-smart-caption font-bold opacity-70">You</p>
-                <p class="whitespace-pre-wrap">{{ chat.content }}</p>
-              </div>
-            </div>
-
-            <div class="flex flex-row gap-3">
-              <div
-                class="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-full border border-base-300 bg-base-100"
-              >
-                <Icon name="kind-icon:alien" class="h-5 w-5 text-secondary" />
-              </div>
-
-              <div
-                class="flex max-w-[85%] flex-col gap-3 rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-smart leading-relaxed shadow-sm"
-              >
-                <p class="text-smart-caption font-bold text-base-content/50">
-                  Weirdlandia
-                </p>
-
-                <span
-                  v-if="chat.isStreaming && !chat.botResponse"
-                  class="flex items-center gap-1 py-1 text-base-content/60"
-                >
-                  <span class="story-dot" />
-                  <span class="story-dot delay-150" />
-                  <span class="story-dot delay-300" />
-                </span>
-
-                <p
-                  v-else
-                  class="whitespace-pre-wrap text-base-content/80"
-                  :class="[
-                    chat.isStreaming ? 'story-streaming' : '',
-                    chat.isInterrupted ? 'text-warning' : '',
-                  ]"
-                >
-                  {{ chat.displayResponse || chat.botResponse }}
-                </p>
-
-                <div
-                  v-if="!chat.isStreaming && chat.replyOptions.length"
-                  class="grid gap-2 pt-1"
-                >
-                  <p
-                    class="text-smart-caption font-black uppercase tracking-widest text-base-content/40"
-                  >
-                    What do you do next?
-                  </p>
-
-                  <button
-                    v-for="option in chat.replyOptions"
-                    :key="option.id"
-                    type="button"
-                    class="group flex items-start gap-2 rounded-2xl border p-3 text-left text-smart transition"
-                    :class="
-                      storyStore.selectedReplyMatches(option)
-                        ? 'border-secondary bg-secondary/15 ring-2 ring-secondary'
-                        : 'border-base-300 bg-base-200 hover:border-secondary/50 hover:bg-secondary/10'
-                    "
-                    :disabled="storyStore.isBusy"
-                    @click="storyStore.selectReplyOption(option)"
-                  >
-                    <span
-                      class="shrink-0 rounded-xl px-2 py-0.5 text-smart-caption font-black"
-                      :class="
-                        storyStore.selectedReplyMatches(option)
-                          ? 'bg-secondary text-secondary-content'
-                          : 'bg-base-100 text-secondary group-hover:bg-secondary group-hover:text-secondary-content'
-                      "
-                    >
-                      {{ option.label }}
-                    </span>
-
-                    <span class="min-w-0 flex-1 leading-relaxed">
-                      {{ option.text }}
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
+      <!-- The story log is kr-chat-window (interface-vision Phase 5, the
+           last of the three surfaces -- character-interact.vue's PR #1400
+           and reward-interact.vue's t-087 are the reference shape). This
+           also removes the bespoke .story-dot/.story-streaming keyframes
+           below in favor of kr-chat-window's own streaming placeholder. -->
+      <kr-chat-window
+        class="bg-base-200 p-4"
+        :turns="chatTurns"
+        label="Weirdlandia story"
+        :is-streaming="storyStore.isBusy"
+        :streaming-text="streamingStoryText"
+        streaming-label="Story goblin thinking..."
+        empty-label="The story will appear here once it begins."
+        @choose="handleReplyChosen"
+      />
 
       <footer class="shrink-0 border-t border-base-300 bg-base-100 p-3">
         <div class="mx-auto flex max-w-3xl flex-col gap-2">
@@ -459,7 +357,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import { useScenarioStore } from '@/stores/scenarioStore'
@@ -470,6 +368,8 @@ import {
   parseScenarioIntros,
   splitIntro,
 } from '@/stores/helpers/scenarioHelper'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
+import type { NarrativeChoice } from '@/components/narrative/kr-choice-list.vue'
 
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
@@ -477,7 +377,6 @@ const sheetStore = useSheetStore()
 const storyStore = useStoryStore()
 const artStore = useArtStore()
 
-const storyLogRef = ref<HTMLElement | null>(null)
 const scenarioArtImage = ref<ArtImage | null>(null)
 
 const selectedScenario = computed(() => scenarioStore.selectedScenario)
@@ -500,6 +399,67 @@ const introChoices = computed(() => {
     ...splitIntro(raw),
   }))
 })
+
+const introListChoices = computed<NarrativeChoice[]>(() =>
+  introChoices.value.map((intro, index) => ({
+    key: String(index),
+    label: intro.label || 'Opening',
+    hint: intro.body,
+  })),
+)
+
+const selectedIntroKey = computed(() => {
+  const raw = scenarioStore.currentChoice
+  if (!raw) return null
+  const index = introChoices.value.findIndex((intro) => intro.raw === raw)
+  return index >= 0 ? String(index) : null
+})
+
+function handleIntroSelected(choice: NarrativeChoice) {
+  const intro = introChoices.value[Number(choice.key)]
+  if (intro) storyStore.pickIntro(intro.raw)
+}
+
+/* Each session Chat becomes a user turn plus (once it has a response) a
+   narrator turn. The in-flight chat is withheld from `turns` while
+   streaming -- its growing text surfaces through kr-chat-window's own
+   `streamingText` placeholder instead, matching reward-interact.vue's
+   t-087 pattern. storyStore.storyDisplayChats already does the parsing
+   (display text, reply options) this surface used to do inline. */
+const chatTurns = computed<NarrativeTurn[]>(() => {
+  const turns: NarrativeTurn[] = []
+
+  for (const chat of storyStore.storyDisplayChats) {
+    turns.push({ id: `user-${chat.id}`, text: chat.content, from: 'user' })
+    if (chat.isStreaming) continue
+
+    const choices: NarrativeChoice[] = chat.replyOptions.map((option) => ({
+      key: option.id,
+      label: option.label,
+      hint: option.text,
+    }))
+
+    turns.push({
+      id: `narrator-${chat.id}`,
+      text: chat.displayResponse,
+      from: 'narrator',
+      speaker: 'Weirdlandia',
+      choices: choices.length ? choices : undefined,
+    })
+  }
+
+  return turns
+})
+
+const streamingStoryText = computed(() => {
+  const chats = storyStore.storyDisplayChats
+  const last = chats[chats.length - 1]
+  return last?.isStreaming ? last.displayResponse : ''
+})
+
+function handleReplyChosen(choice: NarrativeChoice) {
+  storyStore.selectReplyOption(choice.hint ?? choice.label)
+}
 
 const activeServerLabel = computed(() => {
   const server = serverStore.activeTextServer
@@ -528,14 +488,6 @@ async function copyPrompt() {
   storyStore.setStatus('Story prompt copied.')
 }
 
-function scrollToBottom() {
-  const el = storyLogRef.value
-
-  if (!el) return
-
-  el.scrollTop = el.scrollHeight
-}
-
 async function loadScenarioArt() {
   scenarioArtImage.value = null
 
@@ -556,7 +508,6 @@ async function loadScenarioArt() {
 
 onMounted(async () => {
   await Promise.all([storyStore.initialize(), loadScenarioArt()])
-  scrollToBottom()
 })
 
 watch(
@@ -565,68 +516,4 @@ watch(
     await loadScenarioArt()
   },
 )
-
-watch(
-  () =>
-    storyStore.storyDisplayChats
-      .map((chat) => `${chat.botResponse || ''}:${chat.replyOptions.length}`)
-      .join('|'),
-  async () => {
-    await nextTick()
-    scrollToBottom()
-  },
-)
 </script>
-
-<style scoped>
-.story-dot {
-  display: inline-block;
-  height: 0.375rem;
-  width: 0.375rem;
-  border-radius: 9999px;
-  background: currentColor;
-  animation: story-bounce 1s ease-in-out infinite;
-}
-
-.delay-150 {
-  animation-delay: 150ms;
-}
-
-.delay-300 {
-  animation-delay: 300ms;
-}
-
-.story-streaming::after {
-  display: inline-block;
-  margin-left: 0.125rem;
-  color: currentColor;
-  content: '▌';
-  animation: story-cursor 0.85s steps(2, start) infinite;
-}
-
-@keyframes story-bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.65);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes story-cursor {
-  0%,
-  45% {
-    opacity: 1;
-  }
-
-  46%,
-  100% {
-    opacity: 0;
-  }
-}
-</style>

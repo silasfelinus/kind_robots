@@ -225,56 +225,19 @@
               </button>
             </div>
 
-            <div
-              class="mb-3 flex max-h-96 min-h-40 flex-col gap-3 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
-              <div
-                v-if="chatMessages.length === 0"
-                class="flex h-full min-h-32 items-center justify-center text-center text-sm text-base-content/60"
-              >
-                No messages yet. The void is listening, but it keeps forgetting
-                its password.
-              </div>
-
-              <div
-                v-for="messageItem in chatMessages"
-                :key="messageItem.id"
-                class="flex"
-                :class="
-                  messageItem.role === 'user' ? 'justify-end' : 'justify-start'
-                "
-              >
-                <div
-                  class="max-w-[85%] rounded-2xl border p-3 text-sm shadow-sm"
-                  :class="
-                    messageItem.role === 'user'
-                      ? 'border-primary/30 bg-primary text-primary-content'
-                      : 'border-base-300 bg-base-100 text-base-content'
-                  "
-                >
-                  <p class="mb-1 text-xs font-bold opacity-70">
-                    {{
-                      messageItem.role === 'user'
-                        ? 'You'
-                        : selectedCharacterName
-                    }}
-                  </p>
-
-                  <p class="whitespace-pre-wrap">
-                    {{ messageItem.content }}
-                  </p>
-                </div>
-              </div>
-
-              <div v-if="isSendingChat" class="flex justify-start">
-                <div
-                  class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm text-base-content/70 shadow-sm"
-                >
-                  <span class="loading loading-dots loading-sm text-primary" />
-                  Thinking in character...
-                </div>
-              </div>
-            </div>
+            <!-- The character chat log is kr-chat-window (interface-vision
+                 Phase 5). This surface had no scroll helper at all -- it
+                 never auto-scrolled -- so adopting the shared window fixes a
+                 live bug, not just a duplication. -->
+            <kr-chat-window
+              class="mb-3 max-h-96 min-h-40 rounded-2xl border border-base-300 bg-base-200 p-3"
+              :turns="chatTurns"
+              :label="`${selectedCharacterName} conversation`"
+              :is-streaming="isSendingChat"
+              streaming-label="Thinking in character..."
+              empty-label="No messages yet. The void is listening, but it keeps forgetting its password."
+              :prose="false"
+            />
 
             <div class="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
               <button
@@ -521,6 +484,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useRewardStore } from '@/stores/rewardStore'
@@ -648,6 +612,19 @@ const canSendChat = computed(() => {
     !isSendingChat.value,
   )
 })
+
+/* chatMessages as kr-chat-window turns. Each local message already carries
+   its own role, so the mapping is direct -- no pairing needed the way a
+   stored chat record (one row per exchange) requires elsewhere. */
+const chatTurns = computed<NarrativeTurn[]>(() =>
+  chatMessages.value.map((messageItem) => ({
+    id: messageItem.id,
+    text: messageItem.content,
+    from: messageItem.role === 'user' ? 'user' : 'narrator',
+    speaker:
+      messageItem.role === 'user' ? undefined : selectedCharacterName.value,
+  })),
+)
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message

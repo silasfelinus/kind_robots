@@ -52,6 +52,9 @@ jobs:
       - name: Gallery adoption contract
         run: npm run test:gallery-adoption
 
+      - name: Gallery consistency contract
+        run: npm run test:gallery-consistency
+
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest
 

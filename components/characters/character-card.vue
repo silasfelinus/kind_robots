@@ -46,7 +46,7 @@
     <kr-entity-card-body
       :title="displayName"
       :source="character"
-      variant="card"
+      :variant="variant"
       :fallback="artFallbackSrc"
       :show-image="showImage"
       :show-description="false"
@@ -160,7 +160,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
-import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import { resolveArtImageSrc, type ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
@@ -196,8 +196,16 @@ const props = withDefaults(
     allowDelete?: boolean
     fallbackImage?: string
     imageFit?: 'contain' | 'cover'
+    /**
+     * Which stored art to show, and at what aspect — the shared card/hero/icon
+     * vocabulary. Hardcoding this made the gallery's mode bar decorative:
+     * every mode rendered the identical portrait card. See
+     * utils/scripts/verifyGalleryConsistency.ts.
+     */
+    variant?: ArtVariant
   }>(),
   {
+    variant: 'card',
     selected: false,
     isSelected: false,
     compact: false,

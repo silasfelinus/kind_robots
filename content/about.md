@@ -11,7 +11,7 @@ amiTip: Where's that 'Rookie Numbers' meme? We're all about options! 🦋🌈
 channelKey: sanctuary
 tabKey: about
 dashboardKey: giftshop
-dashboardTab: about
+dashboardTab: community
 cards: navCards
 loadingMessage: Loading plans...
 refreshLabel: Refresh mission statement

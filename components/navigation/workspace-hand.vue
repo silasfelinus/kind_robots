@@ -38,6 +38,7 @@
       ref="scrollEl"
       class="workspace-hand-scroll pointer-events-auto absolute inset-x-0 bottom-0 flex items-end overflow-x-auto overscroll-x-contain overflow-y-hidden"
       :style="scrollFrameStyle"
+      @scroll.passive="updateScrollEdges"
     >
       <div
         ref="stripEl"
@@ -163,6 +164,9 @@ const stripEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
 /** The strip's real rendered height, used to size the scroll box. */
 const measuredStripHeightPx = ref(0)
+/** Whether cards exist off either edge — drives the fade, see edgeMask. */
+const canScrollStart = ref(false)
+const canScrollEnd = ref(false)
 const selectedCardKey = ref('')
 
 const CARD_BACKS = [1, 2, 3, 4, 5] as const
@@ -390,8 +394,53 @@ const scrollFrameStyle = computed<CSSProperties>(() => {
    */
   return {
     height: `${measuredStripHeightPx.value || restingHandHeightPx.value}px`,
+    ...(edgeMask.value
+      ? { maskImage: edgeMask.value, WebkitMaskImage: edgeMask.value }
+      : {}),
   }
 })
+
+/**
+ * A fade on whichever edge still has cards behind it.
+ *
+ * The scrollbar is hidden outright (`scrollbar-width: none` plus the
+ * ::-webkit-scrollbar rule below), so once the hand scrolls there is nothing at
+ * all to say more cards exist. At 390px the strip shows about 2.5 of 11 —
+ * Silas, 2026-08-04: "Only seeing a few cards, cut off." Fixing the gesture
+ * only solved half of that; you still have to know there is somewhere to go.
+ *
+ * A MASK, not an overlay element. An absolutely-positioned gradient div would
+ * sit over the cards and is one `pointer-events` slip away from eating the
+ * very touch gesture this component just had to be repaired for (#1399).
+ * mask-image affects painting only and never participates in hit-testing, so
+ * it cannot regress that. The trade is that faded cards stay clickable while
+ * half-transparent, which is the correct behaviour anyway.
+ */
+const FADE_WIDTH = '1.75rem'
+const edgeMask = computed<string>(() => {
+  const start = canScrollStart.value
+  const end = canScrollEnd.value
+  if (!start && !end) return ''
+
+  const stops = [
+    start ? 'transparent 0' : 'black 0',
+    ...(start ? [`black ${FADE_WIDTH}`] : []),
+    ...(end ? [`black calc(100% - ${FADE_WIDTH})`] : []),
+    end ? 'transparent 100%' : 'black 100%',
+  ]
+  return `linear-gradient(to right, ${stops.join(', ')})`
+})
+
+function updateScrollEdges(): void {
+  const el = scrollEl.value
+  if (!el) return
+
+  // 1px of slack: fractional scroll positions otherwise leave the end fade
+  // painted forever once you have scrolled all the way over.
+  const max = el.scrollWidth - el.clientWidth
+  canScrollStart.value = el.scrollLeft > 1
+  canScrollEnd.value = el.scrollLeft < max - 1
+}
 
 function publishHeight(): void {
   if (!import.meta.client) return
@@ -417,6 +466,9 @@ function publishHeight(): void {
    * it, so this stays the resting height even mid-zoom.
    */
   measuredStripHeightPx.value = stripEl.value?.offsetHeight ?? 0
+
+  // Card count and width both change what is reachable, and both land here.
+  updateScrollEdges()
 
   emit(
     'resting-height',

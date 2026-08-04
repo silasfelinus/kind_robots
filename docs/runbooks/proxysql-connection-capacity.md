@@ -5,42 +5,50 @@ configuration or exposing credentials.
 
 ## Architecture
 
-Kind Robots is **not** currently hosted on Alexandria. The production application
-runtime is on the separate local Windows machine that also hosts Comfy and other
-local services. Alexandria / Unraid hosts the database path:
+Kind Robots is **not** currently hosted on Alexandria. The application runtime is
+on the separate local Windows machine that also hosts Comfy and other services.
+Alexandria / Unraid hosts the database path:
 
 ```text
-Local Windows Kind Robots host
-  Node / Nuxt / Nitro process
+Local Windows application host
+  Node / Nuxt / Nitro processes
 
         -> Alexandria host :5544
         -> ProxySQL :6033
         -> mariadb-kindrobots2 :3306
 ```
 
-Vercel deployments exist for previews and build validation, but they are not the
-host whose long-lived Kind Robots process must be counted during this incident.
+Vercel deployments exist for preview and build validation, but they are not the
+intended long-lived Kind Robots runtime.
 
-The last recorded healthy ProxySQL configuration used hostgroup `10`, with the
-MariaDB server row capped at `max_connections = 40`. ProxySQL's `kindrobot`
-frontend/backend rows allowed up to `200` frontend sessions. Those numbers serve
-different purposes:
+## First live census: 2026-08-04
 
-- frontend sessions are application connections to ProxySQL;
-- backend sessions are ProxySQL connections to MariaDB;
-- many frontend requests should share a smaller backend pool when multiplexing
-  is available;
-- active transactions and session state pin a frontend session to one backend
-  connection until that state clears.
+The first two-host capture established:
 
-A MariaDB `ER_USER_LIMIT_REACHED` error at 200 means the MariaDB account itself
-has reached its backend/direct-session resource limit. Raising that number alone
-can hide the cause while allowing the same leak or pinning pattern to grow.
+- `SILAS-PC` had **zero** TCP connections to `100.89.251.10:5544`;
+- no Kind Robots Node/Nuxt/Nitro process was running there at capture time;
+- the five visible Node processes were PM2 and Serendipity Voice processes;
+- ProxySQL reported `kindrobot` frontend connections at **200 / 200**;
+- hostgroup 10 remained ONLINE with `max_connections = 40`;
+- the backend pool had `ConnUsed = 38`, `ConnFree = 2`, and `MaxConnUsed = 40`;
+- multiplexing was enabled and connection warming disabled.
+
+This separates two capacity layers:
+
+1. ProxySQL's `mysql_users.max_connections = 200` limits live **frontend** client
+   sessions for `kindrobot`.
+2. `runtime_mysql_servers.max_connections = 40` limits ProxySQL **backend**
+   sessions to MariaDB for hostgroup 10.
+
+The snapshot therefore makes the ProxySQL per-user frontend limit the leading
+explanation for new connection failures. It does **not** establish that MariaDB
+itself had 200 `kindrobot` backend sessions. The backend pool was bounded at 40.
+
+Because `SILAS-PC` had no matching sockets, another client source currently owns
+the 200 live ProxySQL sessions. The next Alexandria capture must group
+`stats_mysql_processlist.cli_host` to identify that source.
 
 ## Capture both sides before restarting anything
-
-The owner of the 200 sessions cannot be established from only one machine. Run
-one census on the Windows application host and one on Alexandria.
 
 ### A. Application-host census on the local Windows machine
 
@@ -53,140 +61,110 @@ powershell -ExecutionPolicy Bypass -File .\scripts\database-client-connections.p
 
 This reports:
 
-- every TCP connection from the local machine to the `DATABASE_URL` host/port;
-- owning PID, process name, parent PID, start time, and sanitized command line;
-- every local Node/Nuxt process, including those with zero matching connections;
+- every TCP connection to the configured `DATABASE_URL` host and port;
+- owning PID, parent PID, process start time, and sanitized command line;
+- all local Node/Nuxt processes, including parallel or stale runtimes;
 - connection totals per process.
 
-It reads `DATABASE_URL` from the current environment or common repository `.env`
-files and never prints its credentials.
+It reads `DATABASE_URL` from the environment or common repository `.env` files
+and never prints credentials.
 
 ### B. ProxySQL and MariaDB census on Alexandria
 
-From a current Kind Robots checkout on Alexandria:
+From a current copy of the script on Alexandria:
 
 ```bash
 bash scripts/proxysql-capacity-diagnostics.sh \
   | tee /tmp/kindrobots-db-capacity.txt
 ```
 
-The script is read-only. It discovers local container credentials without
-printing them and reports only connection counts, source hosts, state, and
-configuration values. Optional overrides are documented at the top of the
-script.
+The script reports:
+
+- ProxySQL frontend user counts and limits;
+- frontend sessions grouped by client IP, database, command, and backend state;
+- backend `ConnUsed`, `ConnFree`, `MaxConnUsed`, and configured limits;
+- connection-denial counters;
+- MariaDB account/global ceilings and sessions grouped by source host;
+- open InnoDB transactions.
+
+It is read-only and prints no passwords or query text. Optional ProxySQL sections
+are allowed to fail without aborting the MariaDB half of the census.
 
 Capture both outputs before restarting Kind Robots, ProxySQL, or MariaDB. A
-restart clears the most useful evidence.
+restart clears the source and session-age evidence.
 
 ## Interpret the output
 
-### 1. Count local Kind Robots runtimes
+### ProxySQL frontend source totals
 
-On the Windows host:
+`stats_mysql_users.frontend_connections` is the number of live client sessions
+for the ProxySQL user. When it equals `frontend_max_connections`, ProxySQL cannot
+accept another session for that user even if MariaDB has capacity.
 
-- one intended Node process with roughly the configured pool size is normal;
-- multiple Nuxt/Nitro processes can each own an independent connector pool;
-- a single long-lived PID with far more than the configured limit suggests
-  multiple live or retired clients inside that process;
-- old `node.exe` processes pointing at earlier checkouts, preview servers, or
-  development commands are separate clients even when they serve no traffic;
-- other local applications connecting to the same endpoint must be counted too.
+The `cli_host` grouping identifies who holds those sessions:
 
-Because the app process is long-lived, an abandoned client pool can survive for
-hours or days instead of disappearing with a serverless instance.
+- a Tailscale address matching `SILAS-PC` points back to local Node processes;
+- Vercel or public cloud addresses indicate preview/build/runtime clients;
+- another LAN or Tailscale address identifies another machine or service;
+- many sessions with no attached backend show idle frontend sockets that are not
+  currently consuming a MariaDB backend connection.
 
-### 2. Confirm the ProxySQL backend ceiling
+### ProxySQL backend pool
 
-Check `runtime_mysql_servers.max_connections` for hostgroup 10.
+For each backend row:
 
-- `40` matches the last recorded configuration.
-- A value near or above MariaDB's `kindrobot` limit means ProxySQL is allowed to
-  consume all account capacity itself.
-- Multiple ONLINE rows or hostgroups using the same MariaDB user multiply the
-  possible backend count.
+```text
+ConnUsed + ConnFree <= runtime_mysql_servers.max_connections
+```
 
-### 3. Identify who owns the MariaDB sessions
+A full 40-connection pool does not imply 40 simultaneous active queries. It may
+include backend connections pinned to frontend sessions or retained free in the
+pool.
 
-The MariaDB source-host summary separates ProxySQL traffic from direct clients.
+### MariaDB source summary
 
-- one Docker-network source matching the ProxySQL container means ProxySQL owns
-  those sessions;
-- the local Windows machine should normally appear to ProxySQL as frontend
-  traffic, not as a direct MariaDB backend source;
-- other MariaDB source hosts reveal scripts, workers, previews, CI jobs, or
-  services bypassing ProxySQL while sharing `kindrobot`;
-- a separate migration account should not appear under `kindrobot` at all.
+MariaDB's `information_schema.PROCESSLIST` distinguishes:
 
-### 4. Compare `ConnUsed` and `ConnFree`
+- connections from the ProxySQL Docker/network source;
+- direct bypass clients using MariaDB without ProxySQL;
+- sleeping versus active sessions;
+- old open transactions.
 
-In `stats_mysql_connection_pool`:
+Direct bypass sessions are outside ProxySQL's hostgroup cap and should use a
+separate account where possible.
 
-- high `ConnUsed` means real concurrent or pinned work;
-- high `ConnFree` with low `ConnUsed` means ProxySQL is retaining idle backend
-  sessions;
-- `MaxConnUsed` shows the historical peak since ProxySQL started or stats were
-  reset;
-- rising `ConnERR` suggests backend connection churn or a server reachability
-  problem rather than ordinary application load.
+## Immediate recovery, after source evidence is captured
 
-### 5. Check multiplexing blockers
+Choose recovery from the source census:
 
-The frontend-session summary groups `transaction_found` and
-`multiplex_disabled`.
+- one client IP owns most of the 200 frontends: stop or restart that client after
+  recording its process/socket census;
+- stale previews or deployments own them: remove or expire those runtimes rather
+  than raising the shared user limit blindly;
+- many local Node PIDs own them: stop only stale runtimes and retain the intended
+  process;
+- ProxySQL has many old frontends with dead clients: investigate TCP keepalive and
+  idle timeout behavior before increasing limits;
+- direct MariaDB clients dominate: stop or reconfigure those clients; restarting
+  ProxySQL will not release them.
 
-- many transaction-pinned sessions point to requests that opened transactions
-  and did not finish promptly;
-- many multiplex-disabled sessions point to connection state that prevents
-  ProxySQL from returning the backend connection to its shared pool;
-- mostly sleeping frontend sessions with few backend `ConnUsed` entries are not
-  themselves a database-capacity problem unless ProxySQL retains matching free
-  backends.
-
-### 6. Check MariaDB transactions
-
-The final section lists open InnoDB transactions for `kindrobot`.
-
-- rows with old `trx_started` values are strong leak candidates;
-- no rows plus 200 sleeping sessions points toward idle retention or direct
-  clients rather than unfinished transactions.
-
-## Immediate recovery, after evidence is captured
-
-Choose recovery from the census rather than applying every option:
-
-- one local Node PID owns an excessive number of sockets: restart that Kind
-  Robots process after saving its process and connection census;
-- several old local Node processes own connections: stop only the stale
-  processes, leaving the intended runtime running;
-- ProxySQL owns nearly all sleeping backend sessions: restart only the
-  `proxysql` container after recording its pool statistics;
-- direct MariaDB source hosts dominate: stop or reconfigure those clients;
-  restarting ProxySQL will not release their sessions;
-- old open transactions dominate: stop the owning client or process and clear
-  those sessions deliberately;
-- hostgroup max exceeds the intended cap: restore the reviewed ProxySQL server
-  limit, load it to runtime, and save it to disk.
-
-Do not make MariaDB's limit unlimited as the first response. ProxySQL should
-bound backend concurrency, while frontend concurrency and request throughput can
-be substantially higher through multiplexing.
+Do not raise `kindrobot.max_connections` before identifying the client source.
+ProxySQL is already proving that it can multiplex 200 frontend sessions over a
+40-connection backend pool.
 
 ## Durable topology
 
 The desired steady state is:
 
 1. one Prisma/MariaDB connector pool per Kind Robots Node process;
-2. one intended long-lived Kind Robots process on the local Windows host;
+2. one intended long-lived Kind Robots process on the Windows application host;
 3. MariaDB command pipelining disabled on the ProxySQL path;
-4. ProxySQL hostgroup backend capacity below the MariaDB runtime-user limit;
-5. a separate `kindrobot_migrate` account and `MIGRATION_DATABASE_URL`, so a
-   deployment cannot consume or be blocked by runtime connection capacity;
-6. no local scripts, workers, previews, or CI jobs bypassing ProxySQL with the
-   shared runtime account;
-7. recorded steady-state values for local client sockets, frontend sessions,
-   `ConnUsed`, `ConnFree`, and `MaxConnUsed` during ordinary traffic and an
-   art-gallery burst.
+4. a reviewed ProxySQL frontend limit sized above normal client-pool demand;
+5. a bounded ProxySQL backend hostgroup below MariaDB capacity;
+6. a separate migration account and `MIGRATION_DATABASE_URL`;
+7. no preview, worker, or local service sharing `kindrobot` unintentionally;
+8. recorded steady-state client IPs, frontend sessions, `ConnUsed`, `ConnFree`,
+   and `MaxConnUsed` during normal and burst traffic.
 
-Only after those measurements should the per-process pool size or ProxySQL
-backend cap be tuned upward. Throughput is not equal to connection count; a
-healthy proxy serves many interactions over a bounded backend pool.
+Throughput is not equal to connection count. A healthy proxy serves many
+interactions over a bounded backend pool.

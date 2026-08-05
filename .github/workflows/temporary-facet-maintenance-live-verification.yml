@@ -21,6 +21,11 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
       DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      DATABASE_CONNECTION_LIMIT: '2'
+      DATABASE_MINIMUM_IDLE: '0'
+      DATABASE_CONNECT_TIMEOUT_MS: '30000'
+      DATABASE_ACQUIRE_TIMEOUT_MS: '120000'
+      DATABASE_IDLE_TIMEOUT_SECONDS: '300'
     steps:
       - name: Require production connection secrets
         env:
@@ -64,4 +69,4 @@ jobs:
         run: |
           npx tsx scripts/run_facet_catalog_maintenance.ts \
             --seed \
-            "--reason=issue 1451 live verification after PR 1454"
+            "--reason=issue 1451 live verification after PR 1454 with maintenance pool"

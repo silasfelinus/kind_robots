@@ -226,6 +226,7 @@ async function main(): Promise<void> {
   let connection: PoolConnection | undefined
   let keepAlive: NodeJS.Timeout | undefined
   let keepAliveCheckInFlight = false
+  let maintenanceActive = true
   let lockAcquired = false
 
   try {
@@ -235,7 +236,7 @@ async function main(): Promise<void> {
     lockAcquired = true
 
     const reportLockLoss = (error: unknown) => {
-      if (!lockGuard.loseLock(error)) return
+      if (!maintenanceActive || !lockGuard.loseLock(error)) return
       if (keepAlive) clearInterval(keepAlive)
       console.error(
         '[facet-maintenance] Lost the database session holding the catalog lock.',
@@ -281,6 +282,7 @@ async function main(): Promise<void> {
       lockGuard.signal,
     )
   } finally {
+    maintenanceActive = false
     if (keepAlive) clearInterval(keepAlive)
     if (connection && lockAcquired && !lockGuard.signal.aborted) {
       try {

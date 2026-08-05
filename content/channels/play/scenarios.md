@@ -11,6 +11,9 @@ description: Explore branching experiences, create new scenarios, invent solutio
 icon: kind-icon:story
 route: /stories
 sort: 60
+backgroundMobile: background/scenarios-mobile.webp
+backgroundTablet: background/scenarios-tablet.webp
+backgroundDesktop: background/scenarios-desktop.webp
 ---
 
 The Stories manager keeps scenario creation and play on the same stage.

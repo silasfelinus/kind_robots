@@ -1,0 +1,181 @@
+// /stores/seeds/pageBackdropArtPrompts.ts
+//
+// Backdrop art for the pages, three breakpoint variants each.
+//
+// Silas, 2026-08-05: "the art for these backgrounds is a higher priority than
+// the 3000 ish facets currently in the queue."
+//
+// THE ONE THING THAT MAKES BACKDROP ART DIFFERENT from every other batch in
+// this repo: it is scenery, not a subject. UI sits on top of it — panels,
+// toolbars, galleries — so the middle of the canvas has to stay quiet. A
+// beautiful piece with a strong central focal point is a BAD backdrop, because
+// the focal point lands underneath a card. Composition guidance below pushes
+// interest to the edges and keeps the centre open, and that is the requirement
+// most likely to be lost if someone rewrites these prompts.
+//
+// The three variants are genuinely different framings, not one image recropped.
+// A phone gets a tall scene where the interest sits top and bottom; a desktop
+// gets a wide one where it sits left and right. Recropping a landscape to 9:16
+// throws away the sides, which is exactly where the composition put everything.
+
+export type BackdropVariant = 'mobile' | 'tablet' | 'desktop'
+
+export type PageBackdropArtPrompt = {
+  requestId: string
+  page: string
+  variant: BackdropVariant
+  title: string
+  width: number
+  height: number
+  imagePath: string
+  promptString: string
+  negativePrompt: string
+}
+
+/**
+ * Canvas per variant, chosen to match the breakpoints the CSS actually
+ * switches on (mobile <768, tablet 768-1023, desktop >=1024) and to stay on
+ * dimensions the generator handles well.
+ */
+const CANVAS: Record<BackdropVariant, { width: number; height: number; framing: string }> = {
+  mobile: {
+    width: 832,
+    height: 1472,
+    framing:
+      'Tall 9:16 portrait for a phone. Put the interest in the top fifth and the bottom fifth; keep the whole middle band calm, low-contrast and uncluttered, because a column of cards sits over it. Depth should read vertically — foreground detail low in frame, distance receding upward.',
+  },
+  tablet: {
+    width: 1152,
+    height: 1536,
+    framing:
+      'Portrait 3:4 for a tablet. Interest along the top edge and the lower corners; the central two-thirds stays open and quiet. Slightly wider view than the phone framing, with more of the setting visible to either side.',
+  },
+  desktop: {
+    width: 1536,
+    height: 864,
+    framing:
+      'Wide 16:9 landscape for a desktop. Push the interest to the left and right thirds and keep the centre open — that is where the main panel sits. Let the horizon and any architecture carry across the full width so the edges feel inhabited rather than cropped.',
+  },
+}
+
+/**
+ * Shared house style.
+ *
+ * Deliberately restates the "quiet centre" rule that CANVAS.framing also
+ * carries: it is the constraint a generator is most likely to drop, and saying
+ * it twice is cheap insurance on a batch this size.
+ */
+const STYLE = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY, not a portrait or a poster: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail. Kind Robots is a friendly, playful, multi-genre and cross-dimensional world; when any figures appear they are small, distant and incidental to the setting, and across the set they represent a diverse range of genders, races, ages, body sizes and body shapes, mixing humans, robots, animal-like beings and original nonhuman companions naturally and respectfully. No central subject, no single dominant focal point, no readable text, no logos, no watermarks, no borders, no panels, no collage.`
+
+const NEGATIVE_PROMPT = `text, caption, lettering, signage, logo, watermark, signature, border, frame, panel, collage, grid, contact sheet, ui mockup, interface elements, buttons, strong central subject, centered portrait, close-up face, busy cluttered centre, high-contrast centre, harsh clutter, photorealism, low detail, blurry, jpeg artifacts`
+
+type PageSeed = {
+  page: string
+  title: string
+  /** The setting. Written to survive all three framings. */
+  scene: string
+}
+
+/**
+ * First batch: the destination pages.
+ *
+ * Scenes are hand-written per page rather than templated off frontmatter,
+ * because the point of Stage 3 is that pages stop looking interchangeable.
+ * Each is grounded in the page's own declared identity — its `room` and
+ * `subtitle` in content/*.md — so the art agrees with what the page says it is
+ * instead of with what I guessed it was.
+ */
+const PAGES: PageSeed[] = [
+  {
+    page: 'taskmaster',
+    title: 'Taskmaster — Quest Workshop',
+    scene:
+      'A quest workshop at golden hour: a warm timber and brass workroom opening onto a valley of floating islands and drifting lantern-light, with a glowing arched portal set into mossy stone off to one side. Pinned route maps, rope, compasses and half-finished plans hang at the edges of the room. Butterflies and small motes of light drift through. The mood is capable and encouraging — real work, made an adventure.',
+  },
+  {
+    page: 'dreams',
+    title: 'Dreams — Dream Deck',
+    scene:
+      'A dream deck adrift at night: a wide open platform of pale weathered wood floating in a violet and indigo sky, surrounded by slow-turning constellations, soft nebulae and shoals of luminous jellyfish-like drifters. Gauzy banners and star-charts flutter at the margins. Everything is quiet, buoyant and half-remembered, like the moment just before waking.',
+  },
+  {
+    page: 'bots',
+    title: 'Bots — Bot Factory',
+    scene:
+      'A friendly bot factory: a bright airy workshop hall of copper pipework, glass tanks of glowing coolant, conveyor rails and pegboards of neatly hung tools, with tall windows spilling afternoon sun across the floor. Small partially-assembled robots of many different silhouettes wait on side benches. Cheerful and tinkerable rather than industrial or grim.',
+  },
+  {
+    page: 'characters',
+    title: 'Characters — Character Gallery',
+    scene:
+      'A character gallery: a long warm hall with a high vaulted ceiling, framed empty portrait niches and draped fabric receding down both side walls, dust catching in shafts of light from clerestory windows. Costume stands, prop weapons and open wardrobe trunks sit against the walls. It reads as a place where many different people and creatures are about to be introduced.',
+  },
+  {
+    page: 'rewards',
+    title: 'Rewards — Reward Gallery',
+    scene:
+      'A reward vault turned playful: a treasury of open chests, hanging medallions, ribboned trophies and improbable trinkets glinting on shelves that run away to either side, lit by warm low lamplight and a scatter of floating sparks. Slightly chaotic and generous, more curiosity-cabinet than bank.',
+  },
+  {
+    page: 'scenarios',
+    title: 'Scenarios — Scenario Gallery',
+    scene:
+      'A scenario table: an enormous map-strewn planning table seen from a low angle in a warm study, with sculpted terrain, tiny standing figures, dice and reference books pushed to the edges, and tall shelves of bound volumes rising on both sides. Candlelight and a single green-shaded lamp. Anticipation of a story about to be played.',
+  },
+  {
+    page: 'art',
+    title: 'Art — Art Gallery',
+    scene:
+      "An artist's studio at dusk: broad windows, drifting dust, a wall of stacked canvases and drying prints to one side, jars of brushes and spattered palettes to the other, an easel angled out of the centre. Colour swatches and pinned studies cover the edges of the walls. Generous, lived-in, and mid-project rather than tidy.",
+  },
+  {
+    page: 'storybook',
+    title: 'Storybook',
+    scene:
+      'A storybook library: a cosy round reading room where shelves curve away on both sides, an open book the size of a table rests off-centre, and pages lift and drift upward turning into birds and small scenes as they rise. Warm lamplight below, deep blue evening through a tall window. Everything converging into one unfolding story.',
+  },
+  {
+    page: 'wonderlab',
+    title: 'WonderLab',
+    scene:
+      'A museum of components: a bright gallery of glass vitrines and plinths receding down both walls, each holding a strange small mechanism or fragment of interface rendered as a physical curiosity, with brass rails and soft picture-lighting. Cool clean daylight. Reverent and slightly absurd, a natural-history museum for software parts.',
+  },
+  {
+    page: 'giftshop',
+    title: 'Gift Shop',
+    scene:
+      'The gift shop at the end of the tour: warm crowded shelves of enamel pins, plush oddities, printed shirts on racks and postcard spinners lining both side walls, festoon lights strung overhead, an open doorway of daylight beyond. Cheerful, souvenir-bright, and deliberately a little kitsch.',
+  },
+]
+
+function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {
+  const canvas = CANVAS[variant]
+  return [
+    STYLE,
+    `Final canvas: exactly ${canvas.width} x ${canvas.height} pixels. ${canvas.framing}`,
+    `Scene: ${seed.scene}`,
+  ].join('\n\n')
+}
+
+export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(
+  (seed) =>
+    (Object.keys(CANVAS) as BackdropVariant[]).map((variant) => {
+      const canvas = CANVAS[variant]
+      return {
+        // Stable and derived, never random: the enqueue script uses this to
+        // recognise a job it already created, so re-running it is a no-op
+        // rather than a second copy of the whole batch.
+        requestId: `page-backdrop-${seed.page}-${variant}`,
+        page: seed.page,
+        variant,
+        title: `${seed.title} (${variant})`,
+        width: canvas.width,
+        height: canvas.height,
+        // Must match the frontmatter keys in content/<page>.md exactly, and the
+        // /images/** redirect to the media origin.
+        imagePath: `background/${seed.page}-${variant}.webp`,
+        promptString: buildPrompt(seed, variant),
+        negativePrompt: NEGATIVE_PROMPT,
+      }
+    }),
+)

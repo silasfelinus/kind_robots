@@ -13,6 +13,9 @@ dashboardTab: storybook
 cards: navCards
 loadingMessage: Threading the loom...
 refreshLabel: Refresh Storybook
+backgroundMobile: background/storybook-mobile.webp
+backgroundTablet: background/storybook-tablet.webp
+backgroundDesktop: background/storybook-desktop.webp
 ---
 
 :storybook-library-page

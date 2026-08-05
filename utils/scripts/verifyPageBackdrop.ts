@@ -24,11 +24,21 @@
 //
 //   npx tsx utils/scripts/verifyPageBackdrop.ts
 //   npx tsx utils/scripts/verifyPageBackdrop.ts --self-test
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 
 const root = process.cwd()
 const read = (rel: string) => readFileSync(resolve(root, rel), 'utf8')
+
+/** Every .md under content/, including the nested channel and plan pages. */
+function walkContent(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry)
+    if (statSync(full).isDirectory()) walkContent(full, out)
+    else if (entry.endsWith('.md')) out.push(full)
+  }
+  return out
+}
 
 const VARIANTS = ['backgroundMobile', 'backgroundTablet', 'backgroundDesktop'] as const
 
@@ -206,6 +216,54 @@ check(
     'the server and swaps on the client (hydration mismatch + flash). The choice ' +
     'belongs in the .kr-backdrop media queries.',
 )
+
+/* -- 7. queued art and declaring frontmatter agree -------------------------- */
+
+/*
+ * Every queued backdrop prompt must be claimed by a page, and every page's
+ * declared art must be queued.
+ *
+ * These two lists are edited in different files by different motivations — one
+ * when writing prompts, one when opting a page in — and a mismatch is silent in
+ * both directions. A prompt with no page burns a priority-20 queue slot (ahead
+ * of ~3000 facets) producing art nothing renders; a page with no prompt waits
+ * for art that was never asked for. Neither shows up as an error anywhere.
+ */
+const declaredPaths = new Set<string>()
+for (const file of walkContent(resolve(root, 'content'))) {
+  for (const match of readFileSync(file, 'utf8').matchAll(
+    /^background(?:Mobile|Tablet|Desktop):\s*(\S+)\s*$/gm,
+  )) {
+    declaredPaths.add(match[1] as string)
+  }
+}
+
+const seed = read('stores/seeds/pageBackdropArtPrompts.ts')
+const queuedPages = [...seed.matchAll(/^\s*page:\s*'([a-z0-9-]+)',$/gm)].map(
+  (m) => m[1] as string,
+)
+
+for (const page of queuedPages) {
+  for (const variant of ['mobile', 'tablet', 'desktop']) {
+    const path = `background/${page}-${variant}.webp`
+    check(
+      declaredPaths.has(path),
+      `${path} is queued for generation but no page declares it — the art would ` +
+        `render nowhere. Add background${variant[0]?.toUpperCase()}${variant.slice(1)} ` +
+        `to content/…/${page}.md, or drop the prompt.`,
+    )
+  }
+}
+
+for (const path of declaredPaths) {
+  const page = /^background\/(.+)-(?:mobile|tablet|desktop)\.webp$/.exec(path)?.[1]
+  check(
+    Boolean(page && queuedPages.includes(page)),
+    `${path} is declared in frontmatter but nothing queues it — the page will ` +
+      `wait for art no one asked for. Add "${page}" to ` +
+      `stores/seeds/pageBackdropArtPrompts.ts, or drop the frontmatter key.`,
+  )
+}
 
 /* --------------------------------------------------------------------------- */
 

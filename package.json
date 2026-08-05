@@ -53,6 +53,7 @@
     "seed:page-backdrops": "tsx utils/scripts/enqueuePageBackdropArt.ts",
     "export:page-backdrops": "tsx utils/scripts/exportPageBackdropArt.ts",
     "prune:art-image-data": "tsx utils/scripts/pruneRedundantArtImageData.ts",
+    "inspect:art-image-data": "tsx utils/scripts/inspectArtImageData.ts",
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",

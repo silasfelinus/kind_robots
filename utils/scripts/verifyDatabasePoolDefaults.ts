@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { buildDatabaseUrl } from './../../server/utils/databaseAdapterConfig'
 import {
   LONG_LIVED_ACQUIRE_TIMEOUT_MS,
   LONG_LIVED_CONNECTION_LIMIT,
@@ -19,6 +20,29 @@ import {
   VERCEL_PING_TIMEOUT_MS,
   resolveDatabasePoolDefaults,
 } from './../../server/utils/databasePoolDefaults'
+
+function withEnvironment(
+  overrides: Record<string, string | undefined>,
+  run: () => void,
+): void {
+  const previous = Object.fromEntries(
+    Object.keys(overrides).map((key) => [key, process.env[key]]),
+  )
+
+  try {
+    for (const [key, value] of Object.entries(overrides)) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+
+    run()
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+  }
+}
 
 const longLivedDefaults = resolveDatabasePoolDefaults({})
 const vercelDefaults = resolveDatabasePoolDefaults({ VERCEL: '1' })
@@ -71,6 +95,60 @@ assert.equal(
 assert.ok(
   vercelDefaults.idleTimeoutSeconds <= 30,
   'Idle Vercel frontend sessions must retire promptly.',
+)
+
+withEnvironment(
+  {
+    VERCEL: '1',
+    DATABASE_CONNECTION_LIMIT: '10',
+    DATABASE_IDLE_TIMEOUT_SECONDS: '300',
+    DATABASE_MINIMUM_IDLE: '1',
+  },
+  () => {
+    const resolved = new URL(
+      buildDatabaseUrl(
+        'mysql://kindrobot:secret@database.example:5544/kindblank' +
+          '?connectionLimit=12&idleTimeout=600&minimumIdle=4',
+      ),
+    )
+
+    assert.equal(
+      resolved.searchParams.get('connectionLimit'),
+      String(VERCEL_CONNECTION_LIMIT),
+      'Vercel must clamp stale URL and environment pool-size overrides.',
+    )
+    assert.equal(
+      resolved.searchParams.get('idleTimeout'),
+      String(VERCEL_IDLE_TIMEOUT_SECONDS),
+      'Vercel must retire idle ProxySQL frontends promptly despite stale overrides.',
+    )
+    assert.equal(
+      resolved.searchParams.get('minimumIdle'),
+      String(VERCEL_MINIMUM_IDLE),
+      'Vercel must never retain one frontend connection per warm function.',
+    )
+  },
+)
+
+withEnvironment(
+  {
+    VERCEL: undefined,
+    DATABASE_CONNECTION_LIMIT: '10',
+    DATABASE_IDLE_TIMEOUT_SECONDS: '300',
+    DATABASE_MINIMUM_IDLE: '1',
+  },
+  () => {
+    const resolved = new URL(
+      buildDatabaseUrl(
+        'mysql://kindrobot:secret@database.example:5544/kindblank' +
+          '?connectionLimit=12&idleTimeout=600&minimumIdle=4',
+      ),
+    )
+
+    assert.equal(resolved.searchParams.get('connectionLimit'), '12')
+    assert.equal(resolved.searchParams.get('idleTimeout'), '600')
+    assert.equal(resolved.searchParams.get('minimumIdle'), '4')
+  },
 )
 
 for (const defaults of [longLivedDefaults, vercelDefaults]) {
@@ -131,11 +209,26 @@ assert.match(poolDefaultsSource, /LONG_LIVED_CONNECTION_LIMIT = 10/)
 assert.match(poolDefaultsSource, /LONG_LIVED_MINIMUM_IDLE = 1/)
 
 // Request-time Prisma and standalone scripts consume the same active runtime
-// defaults through the adapter. Explicit DATABASE_* overrides remain supported.
+// defaults through the adapter. Long-lived overrides remain supported, while a
+// Vercel URL or environment cannot exceed the serverless safety envelope.
 assert.match(adapterSource, /process\.env\.DATABASE_CONNECTION_LIMIT/)
 assert.match(adapterSource, /process\.env\.DATABASE_IDLE_TIMEOUT_SECONDS/)
 assert.match(adapterSource, /process\.env\.DATABASE_MINIMUM_IDLE/)
 assert.match(adapterSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
+assert.match(adapterSource, /isVercelFunctionRuntime\(\)/)
+assert.match(
+  adapterSource,
+  /Math\.min\(requestedConnectionLimit, VERCEL_CONNECTION_LIMIT\)/,
+)
+assert.match(
+  adapterSource,
+  /Math\.min\(requestedIdleTimeout, VERCEL_IDLE_TIMEOUT_SECONDS\)/,
+)
+assert.match(
+  adapterSource,
+  /isVercelRuntime\s*\?\s*VERCEL_MINIMUM_IDLE\s*:\s*requestedMinimumIdle/,
+)
+assert.match(adapterSource, /Clamped unsafe Vercel database pool override/)
 assert.match(adapterSource, /pipelining:\s*readDatabasePipelining\(\)/)
 assert.match(adapterSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
 assert.match(

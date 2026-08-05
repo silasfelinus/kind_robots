@@ -1,0 +1,5 @@
+Failed ArtJob reconciliation deployment trigger.
+
+Operation: failed-artjobs-2026-08-05-retry-2
+Purpose: force the production build to run the already-merged reconciliation after Vercel skipped commit c7f47212797218eca946e230735e8db378357b6f following the prior deployment failure.
+Remove this marker after the production log verifies remaining FAILED=0.

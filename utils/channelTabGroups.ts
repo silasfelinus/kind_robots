@@ -20,6 +20,8 @@ export function isAdminOnlyTab(
 export function channelTabGroups(
   channel: ResolvedChannel,
 ): ChannelTabGroup[] {
+  // The Admin channel is already an access boundary; only mixed channels need
+  // a second visual group for their admin-only destinations.
   if (channel.channelKey === 'admin') {
     return [
       {

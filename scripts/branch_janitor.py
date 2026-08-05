@@ -63,6 +63,19 @@ def age_hours(branch: str) -> float:
     return (datetime.now(timezone.utc) - committed).total_seconds() / 3600
 
 
+def all_remote_branches() -> list[str]:
+    """Every remote branch short name (no 'origin/'), minus main/HEAD — no prefix filter."""
+    branches: list[str] = []
+    for ref in git("branch", "-r", "--format=%(refname:short)").splitlines():
+        ref = ref.strip()
+        if not ref.startswith("origin/") or "->" in ref:
+            continue
+        name = ref.removeprefix("origin/")
+        if name != "main":
+            branches.append(name)
+    return branches
+
+
 def delete(branch: str, dry_run: bool) -> bool:
     if dry_run:
         return True
@@ -78,6 +91,15 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--stale-hours", type=float, default=12.0)
+    parser.add_argument(
+        "--force-delete",
+        default="",
+        help="Comma-separated branch names to delete regardless of merge state "
+        "(one-shot removal of branches an operator/session has already verified "
+        "superseded — e.g. content confirmed replayed onto main under a different "
+        "commit trail, or scratch/diagnostic work the branch's own later commits "
+        "describe as retired).",
+    )
     args = parser.parse_args()
 
     git("fetch", "origin", "+refs/heads/*:refs/remotes/origin/*", "--prune")
@@ -86,9 +108,18 @@ def main() -> int:
     active: list[str] = []
     failed: list[str] = []
 
+    force_set = {b.strip() for b in args.force_delete.split(",") if b.strip()}
     branches = remote_branches(DEFAULT_PREFIXES)
+    # A forced name is explicit operator/agent intent regardless of naming
+    # convention — it must not be silently dropped just because it falls
+    # outside DEFAULT_PREFIXES.
+    if force_set:
+        for b in force_set & set(all_remote_branches()):
+            if b not in branches:
+                branches.append(b)
+
     for branch in branches:
-        if merged(branch) or patch_equivalent(branch):
+        if branch in force_set or merged(branch) or patch_equivalent(branch):
             (deleted if delete(branch, args.dry_run) else failed).append(branch)
         elif age_hours(branch) >= args.stale_hours:
             stranded.append(branch)
@@ -97,7 +128,7 @@ def main() -> int:
 
     verb = "Would delete" if args.dry_run else "Deleted"
     print(f"Considered {len(branches)} automation branch(es).")
-    print(f"{verb} (merged or patch-equivalent): {', '.join(deleted) or '(none)'}")
+    print(f"{verb} (merged, patch-equivalent, or forced): {', '.join(deleted) or '(none)'}")
     print(f"Stranded (review only): {', '.join(stranded) or '(none)'}")
     print(f"Active (left alone): {', '.join(active) or '(none)'}")
     if failed:

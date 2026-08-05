@@ -17,25 +17,17 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
+import {
+  KARMA_EARNED_BATCH_LIMIT,
+  KARMA_REF_TYPES,
+} from '@/utils/karmaRefTypes'
 
-// Keep in sync with ReactionTargetType (stores/reactionStore.ts) — the only
-// refType values any award call site currently writes.
-const ALLOWED_REF_TYPES = new Set([
-  'artImage',
-  'artCollection',
-  'bot',
-  'character',
-  'chat',
-  'component',
-  'dream',
-  'prompt',
-  'resource',
-  'reward',
-  'scenario',
-  'theme',
-])
+// t-066: this list and ReactionTargetType (stores/reactionStore.ts) used to be
+// two hand-maintained copies joined by a "keep in sync" comment. They are now
+// the same values — see utils/karmaRefTypes.ts for why these twelve.
+const ALLOWED_REF_TYPES = new Set<string>(KARMA_REF_TYPES)
 
-const BATCH_LIMIT = 200
+const BATCH_LIMIT = KARMA_EARNED_BATCH_LIMIT
 
 type KarmaEarnedRequestItem = {
   refType?: unknown

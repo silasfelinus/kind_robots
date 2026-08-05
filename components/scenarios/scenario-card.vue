@@ -9,6 +9,7 @@
     target-type="scenario"
     reaction-category="SCENARIO"
     :target-title="scenarioTitle"
+    :earned-karma="earnedKarma"
     @select="selectScenario"
   >
     <template #actions>
@@ -112,6 +113,9 @@ const props = withDefaults(
      * the identical portrait card. Same prop, same default, as dream-card.
      */
     variant?: ArtVariant
+    /** Total karma this scenario has earned from reactions to it. Omit/undefined
+     *  renders no badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     selected: false,
@@ -127,6 +131,7 @@ const props = withDefaults(
     allowClone: true,
     variant: 'card',
     fallbackImage: '/images/scenarios/space.webp',
+    earnedKarma: undefined,
   },
 )
 

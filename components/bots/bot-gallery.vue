@@ -314,6 +314,7 @@
           :key="bot.id"
           :bot="bot"
           :selected="botStore.currentBot?.id === bot.id"
+          :earned-karma="earnedKarmaByBotId[bot.id]"
           v-bind="botCardProps"
           @select="selectBot"
           @edit="startEditingBotById"
@@ -339,6 +340,7 @@
             v-if="botById.get(Number(item.id))"
             :bot="botById.get(Number(item.id))!"
             :selected="botStore.currentBot?.id === item.id"
+            :earned-karma="earnedKarmaByBotId[Number(item.id)]"
             :variant="MODE_VARIANT[galleryMode]"
             v-bind="botCardProps"
             @select="selectBot"
@@ -603,6 +605,13 @@ const filteredBots = computed<Bot[]>(() => {
 
   return bots
 })
+
+// interface-vision/t-066: earned karma for the rendered set, batched through
+// the shared composable (see composables/useEarnedKarma.ts). Scoped to
+// filteredBots — the set the grid actually renders.
+const { earnedKarma: earnedKarmaByBotId } = useEarnedKarma('bot', () =>
+  filteredBots.value.map((bot) => bot.id),
+)
 
 onMounted(async () => {
   if (props.autoLoad) {

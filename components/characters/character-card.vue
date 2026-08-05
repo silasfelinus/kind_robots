@@ -9,6 +9,7 @@
     target-type="character"
     reaction-category="CHARACTER"
     :target-title="displayName"
+    :earned-karma="earnedKarma"
     @select="selectCharacter"
   >
     <template #actions>
@@ -203,6 +204,9 @@ const props = withDefaults(
      * utils/scripts/verifyGalleryConsistency.ts.
      */
     variant?: ArtVariant
+    /** Total karma this character has earned from reactions to it. Omit/undefined
+     *  renders no badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     variant: 'card',
@@ -223,6 +227,7 @@ const props = withDefaults(
     allowDelete: true,
     fallbackImage: '',
     imageFit: 'cover',
+    earnedKarma: undefined,
   },
 )
 

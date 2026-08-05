@@ -10,6 +10,7 @@
       target-type="bot"
       reaction-category="BOT"
       :target-title="botTitle"
+      :earned-karma="earnedKarma"
       @select="selectBot"
     >
       <template #actions>
@@ -195,6 +196,9 @@ const props = withDefaults(
      * utils/scripts/verifyGalleryConsistency.ts.
      */
     variant?: ArtVariant
+    /** Total karma this bot has earned from reactions to it. Omit/undefined
+     *  renders no badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     variant: 'card',
@@ -213,6 +217,7 @@ const props = withDefaults(
     allowClone: true,
     allowDelete: true,
     fallbackImage: '/images/bot.webp',
+    earnedKarma: undefined,
   },
 )
 

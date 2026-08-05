@@ -411,7 +411,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import type {
   ArtImage,
   Character,
@@ -427,24 +427,9 @@ import {
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
-import { performFetch } from '@/stores/utils'
 
-// interface-vision/t-048: batch-fetch earned karma for the broader visible
-// set (pre type/search refinement, same "don't re-fetch on every keystroke"
-// scoping as reward-gallery's reference wiring — see
-// components/rewards/reward-gallery.vue and
-// server/api/economy/karma-earned.post.ts for the endpoint). dream-gallery
-// has no paging concept (unlike art-gallery's pagedActiveImages), so the
-// broader galleryDreams set (filtered by ownership/mature/archived, not yet
-// by type/search) is the closest equivalent to a "rendered page".
-const KARMA_EARNED_BATCH_LIMIT = 200
-
-type KarmaEarnedRow = {
-  refType: string
-  refId: string
-  earnedKarma: number
-}
-
+// Earned karma comes from useEarnedKarma (t-066); the scoping decision below
+// is t-048's and is unchanged.
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
 type DreamScenarioWithCharacters = Scenario & {
@@ -542,7 +527,6 @@ function closeSearchIfEmpty(): void {
 
 /** Which stored art the current mode asks dream-card for. */
 const modeVariant = computed(() => MODE_VARIANT[galleryMode.value])
-const earnedKarmaByDreamId = ref<Record<number, number>>({})
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 const isRowMode = computed(() => props.variant === 'row')
@@ -651,52 +635,12 @@ const galleryDreams = computed<DreamWithRelations[]>(() => {
 })
 
 // Pre search/type refinement — those filters only narrow an already-fetched
-// set, so re-fetching on every keystroke would be wasted work.
-const visibleDreamIdsKey = computed(() =>
-  galleryDreams.value
-    .slice(0, KARMA_EARNED_BATCH_LIMIT)
-    .map((dream) => dream.id)
-    .join(','),
-)
-
-async function refreshEarnedKarma() {
-  const ids = galleryDreams.value
-    .slice(0, KARMA_EARNED_BATCH_LIMIT)
-    .map((dream) => dream.id)
-
-  if (!ids.length) {
-    earnedKarmaByDreamId.value = {}
-    return
-  }
-
-  const res = await performFetch<KarmaEarnedRow[]>(
-    '/api/economy/karma-earned',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        items: ids.map((id) => ({ refType: 'dream', refId: id })),
-      }),
-    },
-  )
-
-  if (!res.success || !Array.isArray(res.data)) return
-
-  const next: Record<number, number> = {}
-
-  for (const row of res.data) {
-    const id = Number(row.refId)
-    if (Number.isFinite(id)) next[id] = row.earnedKarma
-  }
-
-  earnedKarmaByDreamId.value = next
-}
-
-watch(
-  visibleDreamIdsKey,
-  () => {
-    void refreshEarnedKarma()
-  },
-  { immediate: true },
+// set, so re-fetching on every keystroke would be wasted work. dream-gallery
+// has no paging concept (unlike art-gallery's pagedActiveImages), so the
+// broader galleryDreams set (filtered by ownership/mature/archived, not yet by
+// type/search) is the closest equivalent to a "rendered page".
+const { earnedKarma: earnedKarmaByDreamId } = useEarnedKarma('dream', () =>
+  galleryDreams.value.map((dream) => dream.id),
 )
 
 const dreamTypes = computed(() => {

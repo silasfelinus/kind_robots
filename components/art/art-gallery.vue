@@ -216,6 +216,7 @@
           :key="group.key"
           :collection="group.collection"
           :selected="activeGroupKey === group.key"
+          :earned-karma="earnedKarmaByCollectionId[group.id]"
           :compact="viewSize === 'xs' || viewSize === 'sm'"
           :show-stats="false"
           :show-select-button="false"
@@ -628,7 +629,6 @@ import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
-import { performFetch } from '@/stores/utils'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
 
@@ -941,7 +941,6 @@ const imagePage = ref(0)
 const folderPageSize = ref(24) // default 24
 const imagePageSize = ref(24)
 const hydratedImages = ref<Record<number, ArtImage>>({})
-const earnedKarmaByImageId = ref<Record<number, number>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
 const viewSize = ref<ViewSize>('md')
@@ -1242,7 +1241,6 @@ watch(
     showMature.value,
   ],
   async () => {
-    void refreshEarnedKarma()
     await hydrateVisibleImages()
   },
 )
@@ -1279,7 +1277,6 @@ async function initializeGallery() {
       await fetchArtImagesSafely()
     }
 
-    void refreshEarnedKarma()
     await hydrateVisibleImages()
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
@@ -1492,39 +1489,27 @@ function clearSelectedImage() {
     artStore.deselectArtImage()
 }
 
-// interface-vision/t-046: batch-fetch earned karma for the current visible
-// page only (not the whole gallery), same "fetch on the rendered page, not
-// every filter keystroke" scoping as hydrateVisibleImages -- see
-// components/rewards/reward-gallery.vue for the reference wiring this
-// mirrors and server/api/economy/karma-earned.post.ts for the endpoint.
-async function refreshEarnedKarma() {
-  const ids = pagedActiveImages.value.map((image) => image.id)
+// interface-vision/t-046 scoping, t-066 implementation: earned karma is
+// fetched for the current visible PAGE only (not the whole gallery), the same
+// "fetch on the rendered page, not every filter keystroke" rule as
+// hydrateVisibleImages. useEarnedKarma watches that id list itself, so the
+// page/filter watch below no longer has to call refresh by hand; the explicit
+// Refresh button still does, because karma can change while the ids do not.
+const { earnedKarma: earnedKarmaByImageId, refresh: refreshEarnedKarma } =
+  useEarnedKarma('artImage', () => pagedActiveImages.value.map((i) => i.id))
 
-  if (!ids.length) {
-    earnedKarmaByImageId.value = {}
-    return
-  }
-
-  const res = await performFetch<
-    Array<{ refType: string; refId: string; earnedKarma: number }>
-  >('/api/economy/karma-earned', {
-    method: 'POST',
-    body: JSON.stringify({
-      items: ids.map((id) => ({ refType: 'artImage', refId: id })),
-    }),
-  })
-
-  if (!res.success || !Array.isArray(res.data)) return
-
-  const next: Record<number, number> = {}
-
-  for (const row of res.data) {
-    const id = Number(row.refId)
-    if (Number.isFinite(id)) next[id] = row.earnedKarma
-  }
-
-  earnedKarmaByImageId.value = next
-}
+// Collections earn karma the same way images do (reaction-category
+// ART_COLLECTION). Virtual groups — "Unsorted" and the folder-derived ones —
+// are excluded: they share the sentinel id -1 and have no ArtCollection row to
+// attribute karma to, so batching them would spend request slots on a lookup
+// that can only ever return 0.
+const { earnedKarma: earnedKarmaByCollectionId } = useEarnedKarma(
+  'artCollection',
+  () =>
+    pagedGroups.value
+      .filter((group) => !group.isVirtual && group.id > 0)
+      .map((group) => group.id),
+)
 
 async function hydrateVisibleImages() {
   const imagesNeedingData = pagedActiveImages.value.filter(shouldHydrateImage)

@@ -6,6 +6,7 @@ import type {
   ReactionType,
   Reaction_reactionCategory,
 } from '~/prisma/generated/prisma/client'
+import type { KarmaRefType } from '~/utils/karmaRefTypes'
 import { performFetch, handleError } from './utils'
 import { useAchievementStore } from './achievementStore'
 import { useUserStore } from './userStore'
@@ -38,19 +39,10 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'THEME',
 ]
 
-export type ReactionTargetType =
-  | 'artImage'
-  | 'artCollection'
-  | 'bot'
-  | 'character'
-  | 'chat'
-  | 'component'
-  | 'dream'
-  | 'prompt'
-  | 'resource'
-  | 'reward'
-  | 'scenario'
-  | 'theme'
+// t-066: a reaction target and a karma-earning object are the same set by
+// construction — the REACTION_RECEIVED award derives refType straight from the
+// reaction's target field. See utils/karmaRefTypes.ts.
+export type ReactionTargetType = KarmaRefType
 
 type ReactionFetchKey = `${ReactionTargetType}:${number}`
 

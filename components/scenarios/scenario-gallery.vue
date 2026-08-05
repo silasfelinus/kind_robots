@@ -234,6 +234,7 @@
             :key="scenario.id"
             :scenario="scenario"
             :selected="scenarioStore.selectedScenario?.id === scenario.id"
+            :earned-karma="earnedKarmaByScenarioId[scenario.id]"
             v-bind="scenarioCardProps"
             @edit="startEditingScenarioById"
             @clone="cloneScenarioById"
@@ -258,6 +259,7 @@
               v-if="scenarioById.get(Number(item.id))"
               :scenario="scenarioById.get(Number(item.id))!"
               :selected="scenarioStore.selectedScenario?.id === item.id"
+              :earned-karma="earnedKarmaByScenarioId[Number(item.id)]"
               :variant="MODE_VARIANT[galleryMode]"
               v-bind="scenarioCardProps"
               @edit="startEditingScenarioById"
@@ -496,6 +498,14 @@ const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
     )
   })
 })
+
+// interface-vision/t-066: earned karma for the rendered set, batched through
+// the shared composable (see composables/useEarnedKarma.ts). Scoped to
+// filteredScenarios — the set the grid actually renders.
+const { earnedKarma: earnedKarmaByScenarioId } = useEarnedKarma(
+  'scenario',
+  () => filteredScenarios.value.map((scenario) => scenario.id),
+)
 
 const selectedScenarioCharacters = computed(() => {
   return scenarioStore.selectedScenario?.Characters ?? []

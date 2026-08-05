@@ -1,65 +1,49 @@
 // /utils/scripts/pruneRedundantArtImageData.ts
 //
-// Drop base64 ArtImage.imageData for rows whose art is PROVEN to be served
-// from somewhere else.
+// Drop base64 ArtImage.imageData only when the exact stored imagePath serves
+// bytes identical to the database copy.
 //
 // Silas, 2026-08-05: "If an image has a local imagePath, we don't need the
 // base64 data in the database and I approve field deleted."
 //
 // Usage:
-//   npm run prune:art-image-data                 # dry run, verifies nothing is lost
-//   npm run prune:art-image-data -- --limit 50   # verify a small sample first
-//   npm run prune:art-image-data -- --write      # actually null the column
+//   npm run prune:art-image-data                 # dry run
+//   npm run prune:art-image-data -- --limit 50   # verify a small sample
+//   npm run prune:art-image-data -- --write      # null verified rows
 //
-// WHY THIS IS SAFE TO SERVE. file.get.ts already redirects to `imagePath`
-// before it ever looks at `imageData`:
-//
-//     if (image.imagePath && !image.imagePath.includes(`/api/art/images/${id}/file`))
-//       return sendRedirect(event, image.imagePath, 302)
-//
-// So for a row with a usable imagePath, the base64 is already unreachable
-// weight. Removing it changes no response.
-//
-// ── THE TWO WAYS THIS COULD DESTROY ART, AND WHAT STOPS THEM ──────────────
-//
-// 1. SELF-REFERENTIAL PATHS. dailyDreamArchiveStore writes
-//    `imagePath = /api/art/images/<id>/file?v=<ts>` — the row pointing at its
-//    own endpoint. The redirect guard deliberately skips those (it would loop),
-//    so they DO fall through to imageData. Null them and the image is gone.
-//    Excluded below by the same substring test the endpoint uses, so the two
-//    can never disagree.
-//
-// 2. A PATH THAT IS NOT ACTUALLY A FILE. This is the one that matters, and it
-//    has already happened here: 214 of 227 Reward.imagePath values pointed at
-//    `/rewards/...` when the files live at `/images/rewards/...`, and every one
-//    served a 142 KB Nuxt app shell as text/html at HTTP **200** — because a
-//    missing path does not 404, it falls through to the SPA catch-all
-//    (kind_robots #1446, which is why verifyStoredArtPaths.ts exists).
-//
-//    A status check would have called all 214 healthy and this script would
-//    have deleted the only copy of each. So a row is only pruned when its path
-//    returns 2xx AND a content-type of image/*. Anything else — 404, HTML, a
-//    redirect to HTML, a timeout — is reported and SKIPPED, never pruned.
-//
-// The media origin is the backup. That is exactly why the bytes are verified
-// present there before the database copy goes.
+// Dry run is the default. The write path is deliberately row-specific: it
+// deletes only while imagePath still equals the exact value that was fetched.
 import 'dotenv/config'
+import { createHash } from 'node:crypto'
 import prisma from './../../server/utils/prisma'
 
 const WRITE = process.argv.includes('--write')
 const limitFlag = process.argv.indexOf('--limit')
 const LIMIT = limitFlag === -1 ? 0 : Number(process.argv[limitFlag + 1] || 0)
 
-// Verify against the deployment, not the media host directly: a stored path may
-// be relative, and the app's redirects are part of what makes it resolvable.
-const BASE = (process.env.PRUNE_VERIFY_BASE || 'https://kind-robots.vercel.app')
-  .replace(/\/+$/, '')
-
+const BASE = (process.env.PRUNE_VERIFY_BASE || 'https://kind-robots.vercel.app').replace(
+  /\/+$/,
+  '',
+)
 const CONCURRENCY = 6
 const TIMEOUT_MS = 20_000
 
-type Row = { id: number; imagePath: string | null; bytes: number }
-type Verdict = 'prune' | 'skip-not-image' | 'skip-missing' | 'skip-error'
+type Row = {
+  id: number
+  imagePath: string
+  imageData: string
+  bytes: number
+}
+
+type Verdict =
+  | 'prune'
+  | 'skip-not-image'
+  | 'skip-missing'
+  | 'skip-self-reference'
+  | 'skip-byte-mismatch'
+  | 'skip-invalid-data'
+  | 'skip-error'
+
 type Checked = { row: Row; verdict: Verdict; detail: string }
 
 function resolveUrl(path: string): string {
@@ -67,14 +51,42 @@ function resolveUrl(path: string): string {
   return `${BASE}${path.startsWith('/') ? '' : '/'}${path}`
 }
 
-async function verify(path: string): Promise<{ verdict: Verdict; detail: string }> {
-  const url = resolveUrl(path)
+function isSelfReference(url: string, id: number): boolean {
+  try {
+    return new URL(url).pathname.includes(`/api/art/images/${id}/file`)
+  } catch {
+    return true
+  }
+}
+
+function decodeStoredImage(imageData: string): Buffer | null {
+  const comma = imageData.indexOf(',')
+  const payload = comma >= 0 ? imageData.slice(comma + 1) : imageData
+  if (!payload.trim()) return null
+
+  try {
+    const decoded = Buffer.from(payload, 'base64')
+    return decoded.length ? decoded : null
+  } catch {
+    return null
+  }
+}
+
+function digest(bytes: Uint8Array): string {
+  return createHash('sha256').update(bytes).digest('hex')
+}
+
+async function verify(row: Row): Promise<{ verdict: Verdict; detail: string }> {
+  const url = resolveUrl(row.imagePath)
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
-    // GET, not HEAD: the SPA catch-all that caused #1446 answers HEAD just as
-    // convincingly as it answers GET. The body's content-type is the evidence.
+    const storedBytes = decodeStoredImage(row.imageData)
+    if (!storedBytes) {
+      return { verdict: 'skip-invalid-data', detail: 'stored base64 did not decode' }
+    }
+
     const res = await fetch(url, {
       signal: controller.signal,
       redirect: 'follow',
@@ -84,16 +96,38 @@ async function verify(path: string): Promise<{ verdict: Verdict; detail: string 
     if (res.status === 404) return { verdict: 'skip-missing', detail: '404' }
     if (!res.ok) return { verdict: 'skip-error', detail: `HTTP ${res.status}` }
 
-    const type = (res.headers.get('content-type') || '').toLowerCase()
-    if (!type.startsWith('image/')) {
-      // The #1446 signature: HTTP 200, text/html, an app shell.
-      return { verdict: 'skip-not-image', detail: `200 but ${type || 'no content-type'}` }
+    if (isSelfReference(res.url, row.id)) {
+      return {
+        verdict: 'skip-self-reference',
+        detail: `redirected to same ArtImage endpoint: ${res.url}`,
+      }
     }
 
-    return { verdict: 'prune', detail: type }
+    const type = (res.headers.get('content-type') || '').toLowerCase()
+    if (!type.startsWith('image/')) {
+      return {
+        verdict: 'skip-not-image',
+        detail: `HTTP ${res.status} but ${type || 'no content-type'}`,
+      }
+    }
+
+    const servedBytes = new Uint8Array(await res.arrayBuffer())
+    const storedDigest = digest(storedBytes)
+    const servedDigest = digest(servedBytes)
+    if (storedDigest !== servedDigest) {
+      return {
+        verdict: 'skip-byte-mismatch',
+        detail: `sha256 mismatch (${storedBytes.length} stored, ${servedBytes.length} served)`,
+      }
+    }
+
+    return {
+      verdict: 'prune',
+      detail: `${type}; sha256 ${storedDigest.slice(0, 12)}`,
+    }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
-    return { verdict: 'skip-error', detail: message.slice(0, 60) }
+    return { verdict: 'skip-error', detail: message.slice(0, 120) }
   } finally {
     clearTimeout(timer)
   }
@@ -120,14 +154,8 @@ async function mapLimit<T, R>(
 }
 
 async function main() {
-  /*
-   * Candidates are exactly the rows the serving endpoint would never read
-   * imageData for. The self-reference test mirrors file.get.ts character for
-   * character — if that guard ever changes, this must change with it, or this
-   * script starts deleting bytes the endpoint still needs.
-   */
   const candidates = await prisma.$queryRawUnsafe<Row[]>(`
-    SELECT id, imagePath, LENGTH(imageData) AS bytes
+    SELECT id, imagePath, imageData, LENGTH(imageData) AS bytes
     FROM ArtImage
     WHERE imageData IS NOT NULL
       AND imagePath IS NOT NULL
@@ -143,46 +171,38 @@ async function main() {
   `)
   const allRows = Number(totals[0]?.rows || 0)
   const allBytes = Number(totals[0]?.bytes || 0)
-
   const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`
 
   console.log(
     `ArtImage rows holding base64: ${allRows} (${mb(allBytes)} total)\n` +
       `Candidates with a non-self-referential imagePath: ${candidates.length}` +
       `${LIMIT > 0 ? ` (limited to ${LIMIT})` : ''}\n` +
-      `Verifying each against ${BASE} before pruning anything...\n`,
+      `Verifying exact byte identity against ${BASE}...\n`,
   )
 
-  const checked: Checked[] = await mapLimit<Row, Checked>(
-    candidates,
-    CONCURRENCY,
-    async (row) => ({ row, ...(await verify(row.imagePath as string)) }),
+  const checked = await mapLimit<Row, Checked>(candidates, CONCURRENCY, async (row) => ({
+    row,
+    ...(await verify(row)),
+  }))
+
+  const prunable = checked.filter((entry) => entry.verdict === 'prune')
+  const skipped = checked.filter((entry) => entry.verdict !== 'prune')
+  const reclaimable = prunable.reduce(
+    (sum, entry) => sum + Number(entry.row.bytes || 0),
+    0,
   )
 
-  const prunable = checked.filter((c) => c.verdict === 'prune')
-  const skipped = checked.filter((c) => c.verdict !== 'prune')
-  const reclaimable = prunable.reduce((sum, c) => sum + Number(c.row.bytes || 0), 0)
-
-  for (const s of skipped) {
+  for (const entry of skipped) {
     console.log(
-      `  SKIP  #${String(s.row.id).padStart(6)}  ${s.verdict.padEnd(15)} ` +
-        `${s.detail.padEnd(28)} ${s.row.imagePath}`,
+      `  SKIP  #${String(entry.row.id).padStart(6)}  ${entry.verdict.padEnd(21)} ` +
+        `${entry.detail}  ${entry.row.imagePath}`,
     )
   }
 
   console.log(
-    `\nVerified served elsewhere: ${prunable.length} row(s), ${mb(reclaimable)} reclaimable.\n` +
-      `Skipped (bytes KEPT — these rows are the only copy): ${skipped.length}`,
+    `\nByte-identical external copies: ${prunable.length} row(s), ${mb(reclaimable)} reclaimable.\n` +
+      `Skipped (database bytes kept): ${skipped.length}`,
   )
-
-  const notImage = skipped.filter((s) => s.verdict === 'skip-not-image').length
-  if (notImage) {
-    console.log(
-      `\n  ${notImage} path(s) returned HTTP 200 with a non-image body. That is the\n` +
-        `  #1446 signature — a broken path served as the app shell. Their base64 was\n` +
-        `  NOT touched, and those paths need repairing before their bytes can go.`,
-    )
-  }
 
   if (!WRITE) {
     console.log(`\nDry run only. Re-run with --write to null ${prunable.length} row(s).`)
@@ -194,24 +214,30 @@ async function main() {
     return
   }
 
-  // Chunked so one enormous UPDATE cannot hold a long transaction against the
-  // shared ProxySQL pool this repo keeps saturating.
-  const CHUNK = 200
   let done = 0
-  for (let i = 0; i < prunable.length; i += CHUNK) {
-    const ids = prunable.slice(i, i + CHUNK).map((c) => c.row.id)
-    await prisma.artImage.updateMany({
-      where: { id: { in: ids } },
+  let raced = 0
+  for (const entry of prunable) {
+    const result = await prisma.artImage.updateMany({
+      where: {
+        id: entry.row.id,
+        imagePath: entry.row.imagePath,
+        imageData: { not: null },
+      },
       data: { imageData: null },
     })
-    done += ids.length
-    console.log(`  pruned ${done}/${prunable.length}`)
+
+    if (result.count === 1) done += 1
+    else raced += 1
   }
 
-  console.log(`\nCleared base64 from ${done} row(s), reclaiming ${mb(reclaimable)}.`)
+  console.log(`\nCleared base64 from ${done} row(s).`)
+  if (raced) {
+    console.log(
+      `Kept ${raced} row(s) because imagePath or imageData changed after verification.`,
+    )
+  }
   console.log(
-    'Run OPTIMIZE TABLE ArtImage separately to return the space to the ' +
-      'filesystem — MariaDB keeps it in the tablespace until then.',
+    'Run OPTIMIZE TABLE ArtImage separately to return free space to the filesystem.',
   )
 }
 

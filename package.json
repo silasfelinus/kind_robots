@@ -72,6 +72,7 @@
     "test:earned-karma-wiring": "tsx utils/scripts/verifyEarnedKarmaWiring.ts",
     "test:stored-art-paths": "tsx utils/scripts/verifyStoredArtPaths.ts",
     "test:stored-art-paths:self": "tsx utils/scripts/verifyStoredArtPaths.ts --self-test",
+    "test:lint-ratchet": "tsx utils/scripts/verifyLintRatchet.ts",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "test:data-surface-manifest": "tsx utils/scripts/verifyDataSurfaceManifest.ts",
     "test:nav-manifest": "tsx utils/scripts/verifyNavManifest.ts",

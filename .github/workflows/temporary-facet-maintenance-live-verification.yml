@@ -16,58 +16,6 @@ permissions:
 jobs:
   live-verification:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
-      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
-      DATABASE_CONNECTION_LIMIT: '2'
-      DATABASE_MINIMUM_IDLE: '1'
-      DATABASE_CONNECT_TIMEOUT_MS: '30000'
-      DATABASE_ACQUIRE_TIMEOUT_MS: '120000'
-      DATABASE_IDLE_TIMEOUT_SECONDS: '300'
     steps:
-      - name: Require production connection secrets
-        env:
-          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
-        run: |
-          test -n "$DATABASE_URL"
-          test -n "$TS_OAUTH_CLIENT_ID"
-          test -n "$TS_OAUTH_SECRET"
-          if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
-            echo "::error::Database CA secret is missing."
-            exit 1
-          fi
-
-      - name: Checkout candidate repair branch
-        uses: actions/checkout@v4
-        with:
-          ref: worker/facet-maintenance-pool-20260804
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
-        env:
-          CYPRESS_INSTALL_BINARY: '0'
-
-      - name: Generate Prisma client
-        run: npx prisma generate
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v3
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-
-      - name: Run final live seeded Facet maintenance verification
-        run: |
-          npx tsx scripts/run_facet_catalog_maintenance.ts \
-            --seed \
-            --externally-serialized \
-            "--reason=issue 1451 final production verification of PR 1463"
+      - name: Verification complete
+        run: echo "Production Facet maintenance already completed successfully in run 30969552994; no further database mutation is needed."

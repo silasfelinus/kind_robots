@@ -107,6 +107,33 @@ export function sanitizeText(
   return `${collapsed.slice(0, maxLength - 1).trimEnd()}…`
 }
 
+/**
+ * Several RSS generators repeat the headline as the first sentence of the
+ * description. The card already renders the headline, so remove only an exact
+ * case-insensitive prefix at a word/punctuation boundary.
+ */
+export function stripLeadingDuplicateTitle(
+  summary: string,
+  title: string,
+): string {
+  const cleanSummary = summary.trim()
+  const cleanTitle = title.trim()
+  if (!cleanSummary || !cleanTitle) return cleanSummary
+
+  const prefix = cleanSummary.slice(0, cleanTitle.length)
+  if (prefix.toLocaleLowerCase() !== cleanTitle.toLocaleLowerCase()) {
+    return cleanSummary
+  }
+
+  const boundary = cleanSummary.charAt(cleanTitle.length)
+  if (boundary && !/[\s:|–—-]/.test(boundary)) return cleanSummary
+
+  return cleanSummary
+    .slice(cleanTitle.length)
+    .replace(/^[\s:|–—-]+/, '')
+    .trim()
+}
+
 export function parseFeedXml(xml: string): RawFeedEntry[] {
   const rssItems = xml.match(/<item\b[\s\S]*?<\/item>/gi)
   if (rssItems) {
@@ -164,10 +191,16 @@ export function normalizeEntry(
 ): NewsFeedItem | null {
   if (!raw.title || !raw.link) return null
 
+  const title = sanitizeText(raw.title, MAX_TITLE_LENGTH)
+  const fullSummary = raw.description
+    ? sanitizeText(raw.description, Number.MAX_SAFE_INTEGER)
+    : ''
+  const summary = sanitizeText(stripLeadingDuplicateTitle(fullSummary, title))
+
   return {
     id: stableId(source.id, raw),
-    title: sanitizeText(raw.title, MAX_TITLE_LENGTH),
-    summary: raw.description ? sanitizeText(raw.description) : '',
+    title,
+    summary,
     source: source.name,
     sourceId: source.id,
     url: raw.link,
@@ -276,11 +309,21 @@ function matchesTagFilters(item: NewsFeedItem, feed: FeedDefinition): boolean {
   return true
 }
 
+/**
+ * Registry entries marked unverified are retained as research notes, but they
+ * are known-dead endpoints and must not become a permanent error banner.
+ */
+export function getRunnableFeedSources(
+  feed: FeedDefinition,
+): FeedSourceDefinition[] {
+  return getFeedSources(feed).filter((source) => source.verified)
+}
+
 /** Fetches every source in a feed in parallel and merges into one sorted, deduped list. */
 export async function aggregateFeed(
   feed: FeedDefinition,
 ): Promise<AggregatedFeed> {
-  const sources = getFeedSources(feed)
+  const sources = getRunnableFeedSources(feed)
   const results = await Promise.all(
     sources.map((source) => fetchSourceItems(source)),
   )

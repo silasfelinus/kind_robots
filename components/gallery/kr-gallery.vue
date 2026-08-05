@@ -9,7 +9,20 @@
 -->
 <template>
   <div class="flex w-full flex-col gap-3">
-    <div v-if="modes.length" class="flex shrink-0 gap-0.5">
+    <!--
+      STICKY, because the shell does not own the scroll container -- the parent
+      does, and every adopting parent scrolls the whole gallery including this
+      bar. Silas, 2026-08-05: "the layout toggle ... are improperly placed
+      inside the scrollable container so we cannot see after scrolling down."
+      Sticking to the top of whatever ancestor scrolls keeps the control
+      reachable without requiring each parent to restructure its panes. The
+      background is required: without it the grid shows through as it passes
+      under the buttons.
+    -->
+    <div
+      v-if="modes.length"
+      class="sticky top-0 z-20 -mx-1 flex shrink-0 gap-0.5 bg-base-300/95 px-1 py-1 backdrop-blur"
+    >
       <button
         v-for="entry in modes"
         :key="entry.value"

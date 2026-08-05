@@ -223,7 +223,12 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   .badge,
   .btn,
   .tab {
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
       sans-serif;
   }
 
@@ -282,8 +287,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
   /* One non-scrolling control row (filters, tabs, actions) directly under
      .kr-surface. A page gets one — controls that need more than one row
      belong inside .kr-stage or .kr-scroll instead of stacking toolbars. */
+  /*
+   * `relative z-20` so the toolbar's own overlays — daisyUI tooltips, popovers,
+   * anything anchored to a control — paint ABOVE the scroll region that follows
+   * it, instead of sliding under the first row of cards. Silas, 2026-08-05, on
+   * /dreams: "the dream dash options are hiding underneath the main content,
+   * making it challenging to test."
+   *
+   * A toolbar is a flex row of buttons and inputs, so promoting it to a
+   * stacking context is safe here; if one ever gains an absolutely-positioned
+   * child that needs to escape the row, position that child against its own
+   * wrapper rather than removing this.
+   */
   .kr-toolbar {
-    @apply flex shrink-0 flex-wrap items-center gap-2;
+    @apply relative z-20 flex shrink-0 flex-wrap items-center gap-2;
   }
 
   /* THE scroll region — exactly one per .kr-surface. Everything that can

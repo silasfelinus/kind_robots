@@ -543,7 +543,7 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { useServerStore } from '@/stores/serverStore'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 
-withDefaults(defineProps<{ showModelConnect?: boolean }>(), {
+const props = withDefaults(defineProps<{ showModelConnect?: boolean }>(), {
   showModelConnect: false,
 })
 
@@ -734,7 +734,20 @@ function clearQueue() {
   connectedModelType.value = ''
   message.value = ''
   error.value = ''
-  clearModelSelection()
+  // Only relevant when the model-connect UI is actually shown -- every other
+  // caller (Academy Style Lab, art-maker, art-builder, add-bot/-character/
+  // -reward/-scenario, avatar-picker, ...) renders with showModelConnect
+  // false/default and never lets the visitor touch connectedModelType, so
+  // clearing it unconditionally was silently deselecting whatever bot/
+  // character/dream/reward/scenario the user had selected ELSEWHERE in the
+  // app the moment any unrelated upload batch here finished cleanly --
+  // botStore.deselectBot() and friends persist that null to localStorage
+  // immediately. Same class of "unrelated global Pinia singleton wiped by an
+  // Academy upload" bug already fixed for uploadStore.activeTarget (PRs
+  // #1058, #1063, #1067, #1162), just via a different store family.
+  if (props.showModelConnect) {
+    clearModelSelection()
+  }
 }
 
 function removeFile(index: number) {

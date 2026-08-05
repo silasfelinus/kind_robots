@@ -35,6 +35,12 @@ if (!isVercelBuild || isProductionDeployment) {
 
   run(
     tsxBinary,
+    ['scripts/reconcile_failed_art_jobs_production.ts', '--write'],
+    'Reconciling failed ArtJobs',
+  )
+
+  run(
+    tsxBinary,
     ['scripts/seed_achievements.ts', '--write'],
     'Reconciling canonical Achievement catalog',
   )
@@ -53,12 +59,6 @@ if (!isVercelBuild || isProductionDeployment) {
     tsxBinary,
     ['scripts/seed_contenders.ts', '--write'],
     'Seeding Challenge Center contenders',
-  )
-
-  run(
-    tsxBinary,
-    ['scripts/reconcile_failed_art_jobs.ts', '--write'],
-    'Reconciling failed ArtJobs',
   )
 } else {
   console.log(

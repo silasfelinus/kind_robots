@@ -120,6 +120,7 @@ function collect(minFlexWidth) {
 
   const spill = []
   const crushed = []
+  const starved = []
   for (const el of document.querySelectorAll('body *')) {
     const b = el.getBoundingClientRect()
     if (!visible(el, b)) continue
@@ -147,6 +148,41 @@ function collect(minFlexWidth) {
           node: el,
           text: describe(el, `w=${Math.round(b.width)}`),
         })
+      }
+    }
+
+    /*
+     * STARVED TEXT — an element that truncates away most of what it says.
+     *
+     * This is the gap Silas named on 2026-08-05, after two rounds of reporting
+     * layout problems this audit had passed clean: "I'm a little surprised
+     * these things aren't flagged automatically." Nothing above catches it.
+     * `crushed` needs a box under minFlexWidth, and a truncating title in a
+     * comfortable 150px column is not crushed — it is just not showing its
+     * content. The gallery renders "My Boss is..." for "My Boss is a Dungeon
+     * Master" and every check reported healthy.
+     *
+     * It IS mechanically detectable: a single-line `truncate` (or a clamped
+     * block) that is hiding text has scrollWidth > clientWidth, and the ratio
+     * is how much of the string survives. Flagging below 60% keeps ordinary
+     * tidy truncation quiet while catching text that has effectively been
+     * deleted from the page.
+     */
+    if (b.width >= 1 && el.children.length === 0) {
+      const label = el.textContent.trim()
+      if (label.length >= 12) {
+        const cs = getComputedStyle(el)
+        const clips =
+          cs.textOverflow === 'ellipsis' ||
+          cs.overflow === 'hidden' ||
+          cs.webkitLineClamp !== 'none'
+        const shown = el.clientWidth / (el.scrollWidth || 1)
+        if (clips && el.scrollWidth > el.clientWidth + 1 && shown < 0.6) {
+          starved.push({
+            node: el,
+            text: describe(el, `showing ${Math.round(shown * 100)}%`),
+          })
+        }
       }
     }
   }
@@ -198,9 +234,22 @@ function collect(minFlexWidth) {
     horizontalScroll: de.scrollWidth > vw + 1,
     spill: spill.slice(0, 6).map((s) => s.text),
     crushed: crushed.slice(0, 6).map((c) => c.text),
+    starved: starved.slice(0, 8).map((s) => s.text),
+    starvedTotal: starved.length,
     brokenArt: brokenArt.slice(0, 8),
     brokenArtTotal: brokenArt.length,
   }
+}
+
+/**
+ * Text that truncates away most of itself. Printed for every route that has
+ * any, whether or not the route otherwise failed — the whole point is that
+ * these were invisible to the pass/fail line.
+ */
+function reportStarved(m) {
+  if (!m.starvedTotal) return
+  console.log(`         STARVED-TEXT ${m.starvedTotal} element(s):`)
+  for (const s of m.starved) console.log(`           ${s}`)
 }
 
 const browser = await chromium.launch({
@@ -281,6 +330,16 @@ for (const vp of VIEWPORTS) {
         console.log(`         BROKEN-ART ${m.brokenArtTotal} image(s):`)
         for (const a of m.brokenArt) console.log(`           ${a}`)
       }
+      reportStarved(m)
+    } else if (m.starvedTotal) {
+      // Reported, deliberately NOT counted as a failure yet. Starved text is
+      // new (2026-08-05) and the app has pre-existing truncation that would
+      // red-line every route on day one; a check that fails everything gets
+      // switched off rather than acted on. Surface it, work the number down,
+      // then decide whether it graduates to a failure or a ratcheted baseline
+      // like the layout contract's.
+      console.log(`${label} ⚠️`)
+      reportStarved(m)
     } else {
       console.log(`${label} ✅`)
     }

@@ -181,7 +181,7 @@
       <ul
         v-if="expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
-        class="channel-submenu menu absolute left-full z-120 ml-2 w-80 overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="channel-submenu menu absolute left-full z-120 ml-2 w-80 flex-nowrap overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         :style="{
           top: `${channelFlyoutTop}px`,
           maxHeight: `${channelFlyoutMaxHeight}px`,

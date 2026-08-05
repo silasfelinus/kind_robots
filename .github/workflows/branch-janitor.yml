@@ -9,6 +9,10 @@ on:
         description: "Plan only; delete nothing"
         type: boolean
         default: false
+      force_delete_branches:
+        description: "Comma-separated branch names to delete regardless of merge state"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -36,4 +40,5 @@ jobs:
         run: |
           python scripts/branch_janitor.py \
             ${{ (github.event.inputs.dry_run == 'true') && '--dry-run' || '' }} \
+            --force-delete "${{ github.event.inputs.force_delete_branches }}" \
             | tee -a "$GITHUB_STEP_SUMMARY"

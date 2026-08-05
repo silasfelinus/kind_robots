@@ -45,6 +45,10 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 const contentDirectory = resolve(repositoryRoot, 'content')
 const channelsDirectory = resolve(contentDirectory, 'channels')
 const componentsDirectory = resolve(repositoryRoot, 'components')
+const channelSelectorFile = resolve(
+  componentsDirectory,
+  'navigation/channel-select.vue',
+)
 
 function cleanValue(value: string): string {
   const trimmed = value.trim()
@@ -198,11 +202,45 @@ function validatePageDocument(errors: string[], document: NavigationDocument): v
   validateAccess(errors, document)
 }
 
+async function validateChannelSelectorOverflow(errors: string[]): Promise<void> {
+  const source = await readFile(channelSelectorFile, 'utf8')
+  const flyoutClass = source.match(
+    /ref="channelFlyout"[\s\S]*?class="([^"]+)"/,
+  )?.[1]
+
+  if (!flyoutClass) {
+    errors.push(
+      'components/navigation/channel-select.vue: channel tab flyout class could not be resolved',
+    )
+    return
+  }
+
+  const classes = new Set(flyoutClass.split(/\s+/))
+  for (const requiredClass of [
+    'flex-nowrap',
+    'overflow-x-hidden',
+    'kr-anchor-scroll',
+  ]) {
+    if (!classes.has(requiredClass)) {
+      errors.push(
+        `components/navigation/channel-select.vue: channel tab flyout requires ${requiredClass} so long tab lists stay in one vertically scrollable column`,
+      )
+    }
+  }
+
+  if (!source.includes('maxHeight: `${channelFlyoutMaxHeight}px`')) {
+    errors.push(
+      'components/navigation/channel-select.vue: channel tab flyout must retain its viewport-derived maxHeight',
+    )
+  }
+}
+
 async function main(): Promise<void> {
   const documents = await Promise.all(
     (await markdownFiles(channelsDirectory)).map(readDocument),
   )
   const errors: string[] = []
+  await validateChannelSelectorOverflow(errors)
   const channels = documents.filter((item) => item.contentType === 'channel')
   const tabs = documents.filter((item) => item.contentType === 'tab')
   const channelsByKey = new Map(channels.map((channel) => [channel.channelKey, channel]))

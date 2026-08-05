@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify Prisma MariaDB connector
+        run: node scripts/ensure-prisma-mariadb-connector.mjs
+
       - name: Generate Prisma client
         run: npx prisma generate
 

@@ -87,13 +87,21 @@ exhibit whole while taking the file out of the app.
 | Manifest entry + reviews | **Kept**, with `abandoned: true`. |
 | SFC compilation | **Kept.** The glob makes each a lazy chunk rather than main-bundle weight, but Vite still compiles it. Dropping the preview is the only way to zero this, and that costs the exhibit. |
 
-### The known rough edge
+### The known rough edge — accepted, do not spend time on it
 
 A parked component that references *another* parked component loses auto-import resolution for that
 child, so the child renders as an unresolved custom element in the museum preview. This is common in
 the parked clusters (`butterfly/`, `builder/`), which reference each other heavily. The parent's own
-markup still renders; the nested child comes up empty. Fixable per-component with an explicit
-`import`, if a particular exhibit is ever worth the fidelity.
+markup still renders; the nested child comes up empty.
+
+Silas, 2026-08-05, verbatim:
+
+> "its ok if museum pieces fail to find other pieces, we can correct that if needed but it's VERY low
+> priority"
+
+So this is not a blocker on parking anything, and it is not worth a preventative sweep. If one
+specific exhibit ever matters enough, give that component an explicit `import` of its child and the
+preview resolves again.
 
 ### Finding what to park
 

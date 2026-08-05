@@ -2012,6 +2012,45 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image in the Heidelberg School style: broad, confident plein-air brushwork applied directly from life, a bright high-key palette of blue and gold capturing harsh direct Australian sunlight, a dusty ochre-and-olive bush or rural-labor scene with a hazy heat-shimmer atmosphere, and an unsentimental, matter-of-fact mood. Preserve the source composition and subject.',
     },
   },
+  {
+    slug: 'spanish-golden-age',
+    name: 'Spanish Golden Age Painting',
+    era: 'c. 1620–1680',
+    sortYear: 1620,
+    region: 'Spain',
+    keyIdeas:
+      "Spanish Golden Age painting (Siglo de Oro) shares the Baroque's chiaroscuro and psychological intensity already taught in this curriculum, but pulls toward a different pole entirely. Where Italian Baroque leans into theatrical motion and Dutch Baroque turns that same light toward cozy domestic interiors, Spanish Golden Age painters used tenebrism to freeze a single suspended, almost sculptural moment: figures and objects modeled with an austere, unblinking clarity against a plain dark or neutral ground, with little movement, minimal ornament, and an intense devotional or psychological gravity. Favored subjects were saints in solitary contemplation, humble monastic scenes, royal portraits stripped of overt flattery, and devotional images painted with still-life precision. Painted mostly for Spanish churches, monasteries, and the royal court during Spain's political decline but cultural high point, the movement's sobriety and psychological directness later drew Édouard Manet and 19th-century Realists back to Madrid to study Velázquez directly.",
+    recognitionCues: [
+      "Deep, near-black or plain neutral backgrounds lit by a single strong source (tenebrism), quieter and more static than Italian Baroque's swirling theatrical drama",
+      'Sculptural, almost frozen clarity of form — figures and still-life objects rendered with the same careful, unblinking attention regardless of subject',
+      'A restrained, muted palette (umber, ochre, black, occasional deep red or white) rather than bright saturated color',
+      'Solitary or minimally-peopled compositions — a single saint, monk, or sitter in quiet contemplation rather than crowded narrative scenes',
+      'Devotional or psychologically direct subject matter: contemplative saints, humble monastic life, unflattering royal portraiture, or a young Madonna at ordinary domestic work',
+      "Confident, visible brushwork that can look loose up close but resolves into photographic precision at a distance (Velázquez's signature trait)",
+    ],
+    artists: [
+      {
+        name: 'Diego Velázquez',
+        years: '1599–1660',
+        note: 'Court painter to Philip IV; this lesson\'s clearest generation-style anchor for the "loose up close, photographic from a distance" technique that later fascinated Manet and the Impressionists.',
+      },
+      {
+        name: 'Francisco de Zurbarán',
+        years: '1598–1664',
+        note: 'Painter of solitary monks, saints, and still-lifes with an almost sculptural stillness against near-black grounds; sometimes called "the Spanish Caravaggio."',
+      },
+      {
+        name: 'Bartolomé Esteban Murillo',
+        years: '1617–1682',
+        note: "Softened the mode's austerity in the second half of the century with tender, warmly lit devotional scenes and genre paintings of Seville's street children.",
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image in the Spanish Golden Age style: a single strong light source against a near-black or plain neutral ground (tenebrism), a restrained palette of umber, ochre, and black, sculptural clarity of form, and a quiet, solemn, devotional mood with minimal ornament. Preserve the source composition and subject.',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

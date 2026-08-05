@@ -58,6 +58,11 @@ jobs:
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
 
+      # t-099: ESLint as a ratcheted gate. It never asks anyone to fix the
+      # pre-existing 554 problems — it only refuses NEW ones, per rule.
+      - name: ESLint ratchet
+        run: npm run test:lint-ratchet
+
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest
 

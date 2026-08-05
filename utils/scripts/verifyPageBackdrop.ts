@@ -249,7 +249,11 @@ for (const file of walkContent(resolve(root, 'content'))) {
         `backdrop route. Use /api/art/backdrop/<page>-<variant> so the art ` +
         `resolves by slug once its job completes.`,
     )
-    if (route) declaredSlugs.add(`${route[1]}-${route[2]}`)
+    // Early-exit rather than an inline `if (route)`: the capture-group guard
+    // contract wants the null case handled before any indexing, which is also
+    // the shape that keeps the happy path unindented.
+    if (!route) continue
+    declaredSlugs.add(`${route[1]}-${route[2]}`)
   }
 }
 

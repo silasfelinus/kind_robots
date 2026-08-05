@@ -14,9 +14,11 @@ import type { AddressInfo } from 'node:net'
 import {
   aggregateFeed,
   fetchSourceItems,
+  getRunnableFeedSources,
   normalizeEntry,
   parseFeedXml,
   sanitizeText,
+  stripLeadingDuplicateTitle,
 } from '../../server/utils/newsfeed'
 import type {
   FeedDefinition,
@@ -39,6 +41,23 @@ assert.equal(
   sanitizeText('a'.repeat(300)),
   `${'a'.repeat(279)}…`,
   'text longer than maxLength must be truncated with an ellipsis',
+)
+
+assert.equal(
+  stripLeadingDuplicateTitle(
+    'Fast... But Wrong? Meet Cache Invalidation This is Part 7 of the series.',
+    'Fast... But Wrong? Meet Cache Invalidation',
+  ),
+  'This is Part 7 of the series.',
+  'an RSS description that opens with the card title must not render the title twice',
+)
+assert.equal(
+  stripLeadingDuplicateTitle(
+    'GitHub Actions can test this repository.',
+    'Git',
+  ),
+  'GitHub Actions can test this repository.',
+  'a title that is only a prefix of the first summary word must not be stripped',
 )
 
 // --- parseFeedXml: RSS 2.0 -------------------------------------------------
@@ -131,6 +150,22 @@ assert.equal(
 )
 assert.deepEqual(normalized?.category, ['ai', 'research'])
 
+const duplicateTitleEntry = normalizeEntry(
+  {
+    title: 'Fast... But Wrong? Meet Cache Invalidation',
+    link: 'https://example.com/cache-invalidation',
+    description:
+      '<p>Fast... But Wrong? Meet Cache Invalidation</p><p>This is Part 7 of the series.</p>',
+    categories: ['architecture'],
+  },
+  FIXTURE_SOURCE,
+)
+assert.equal(
+  duplicateTitleEntry?.summary,
+  'This is Part 7 of the series.',
+  'normalization must remove a repeated headline before applying the summary length cap',
+)
+
 assert.equal(
   normalizeEntry(
     { title: undefined, link: 'https://example.com/x', categories: [] },
@@ -155,6 +190,24 @@ const noDateEntry = normalizeEntry(
 assert.ok(
   noDateEntry && !Number.isNaN(new Date(noDateEntry.publishedAt).getTime()),
   'a missing pubDate must fall back to a valid (epoch) timestamp, never NaN',
+)
+
+// --- getRunnableFeedSources: known-dead registry entries stay out of fetches -
+
+const mixedSourceFeed: FeedDefinition = {
+  slug: 'mixed-source-fixture',
+  title: 'Mixed Source Fixture',
+  description: 'test',
+  icon: 'kind-icon:test',
+  defaultEnabled: true,
+  sourceIds: ['who-news', 'gatesfoundation-ideas'],
+  defaultSort: 'recent',
+  topicPolitical: false,
+}
+assert.deepEqual(
+  getRunnableFeedSources(mixedSourceFeed).map((source) => source.id),
+  ['who-news'],
+  'known-dead unverified endpoints must remain documented but must not create a permanent source-error banner',
 )
 
 // --- fetchSourceItems: unreachable host must resolve, never throw ----------
@@ -261,9 +314,9 @@ async function run() {
   assert.equal(neverSucceededResult.stale, undefined)
 
   console.log(
-    'newsfeed aggregation verified: RSS + Atom parsing, sanitization, category ' +
-      'extraction, malformed-input safety, unreachable-source resilience, and ' +
-      'stale-source fallback.',
+    'newsfeed aggregation verified: RSS + Atom parsing, sanitization, duplicate-' +
+      'title cleanup, runnable-source filtering, category extraction, malformed-' +
+      'input safety, unreachable-source resilience, and stale-source fallback.',
   )
 }
 

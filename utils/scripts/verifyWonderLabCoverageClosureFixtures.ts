@@ -49,7 +49,10 @@ for (const key of [
 }
 
 // Confirm earlier fixture modules remain available through the complete catalog.
-assert.ok(getWonderLabPreviewFixture('butterfly-gallery')?.props?.slots)
+// Was butterfly-gallery, retired 2026-08-05. stage-slot comes from the same
+// fixture module, so this still proves that module resolves through the
+// combined catalog — which is the only thing this line ever checked.
+assert.ok(getWonderLabPreviewFixture('stage-slot')?.props)
 assert.ok(getWonderLabPreviewFixture('builder-card')?.props?.card)
 assert.ok(getWonderLabPreviewFixture('component-card')?.props?.component)
 

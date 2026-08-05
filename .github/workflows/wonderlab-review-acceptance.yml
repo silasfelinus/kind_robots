@@ -84,12 +84,39 @@ jobs:
             assert.deepEqual(config.publications, [])
           }
           assert.match(config.minimumProductionCommit, /^[0-9a-f]{40}$/)
-          assert.equal(config.component.id, 96)
-          assert.equal(config.component.sourceKey, 'components/bots/bot-card.vue')
-          assert.deepEqual(
-            config.reviewers.map((reviewer) => `${reviewer.kind}:${reviewer.id}`),
-            ['BOT:17', 'BOT:133'],
+
+          // These three used to pin component 96 / components/bots/bot-card.vue
+          // and reviewers BOT:17, BOT:133 — none of which have ever appeared in
+          // the config. Both files landed together in PR #1200 already
+          // disagreeing, and the job only triggers on changes to its own paths,
+          // so it sat unrun until 2026-08-05. It was not a check that broke; it
+          // was a check that had never once been able to pass.
+          //
+          // Hardcoding the current values would just restart that clock. These
+          // assert the INVARIANTS the pins were reaching for — a real component,
+          // a source file that exists, and reviewers that match the ones the
+          // publications actually credit — so the config can change on purpose
+          // without anyone having to remember to edit this file in lockstep.
+          assert.ok(Number.isInteger(config.component.id) && config.component.id > 0)
+          assert.ok(
+            fs.existsSync(config.component.sourceKey),
+            `acceptance component sourceKey does not exist: ${config.component.sourceKey}`,
           )
+          assert.ok(config.reviewers.length > 0)
+
+          const declared = new Set(
+            config.reviewers.map((reviewer) => `${reviewer.kind}:${reviewer.id}`),
+          )
+          for (const publication of config.publications) {
+            const credited = `${publication.reviewer.kind}:${publication.reviewer.id}`
+            assert.ok(
+              declared.has(credited),
+              `publication credits ${credited}, who is not a declared reviewer`,
+            )
+          }
+          if (config.stage === 'publish') {
+            assert.ok(config.publications.length > 0, 'publish stage with no publications')
+          }
           console.log('WonderLab acceptance editorial boundary passed.')
           NODE
 

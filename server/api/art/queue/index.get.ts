@@ -55,10 +55,14 @@ export default defineEventHandler(async (event) => {
     const totalCount = await prisma.artJob.count({ where })
     const pageCount = Math.max(1, Math.ceil(totalCount / pageSize))
     const page = Math.min(requestedPage, pageCount)
+    const orderBy: Prisma.ArtJobOrderByWithRelationInput[] =
+      status === 'PENDING'
+        ? [{ priority: 'desc' }, { id: 'asc' }]
+        : [{ id: 'desc' }]
 
     const storedJobs = await prisma.artJob.findMany({
       where,
-      orderBy: [{ id: 'desc' }],
+      orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
     })

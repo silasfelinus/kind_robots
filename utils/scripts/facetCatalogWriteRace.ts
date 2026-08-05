@@ -17,8 +17,9 @@ export function chooseFacetForCanonicalSlug<Row>(
 type UpdateFacetWithSlugRaceRecoveryOptions<Row extends { id: number }> = {
   existingId: number
   slug: string
-  updateById: (id: number) => Promise<Row>
+  updateExisting: () => Promise<Row>
   findBySlug: (slug: string) => Promise<Row | null>
+  updateWinner: (winner: Row) => Promise<Row>
 }
 
 export async function updateFacetWithSlugRaceRecovery<
@@ -26,18 +27,19 @@ export async function updateFacetWithSlugRaceRecovery<
 >({
   existingId,
   slug,
-  updateById,
+  updateExisting,
   findBySlug,
+  updateWinner,
 }: UpdateFacetWithSlugRaceRecoveryOptions<Row>): Promise<Row> {
   try {
-    return await updateById(existingId)
+    return await updateExisting()
   } catch (error) {
     if (!isUniqueConstraintError(error)) throw error
 
     const winner = await findBySlug(slug)
     if (!winner || winner.id === existingId) throw error
 
-    return updateById(winner.id)
+    return updateWinner(winner)
   }
 }
 

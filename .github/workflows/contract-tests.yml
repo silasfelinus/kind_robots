@@ -55,6 +55,9 @@ jobs:
       - name: Gallery consistency contract
         run: npm run test:gallery-consistency
 
+      - name: Earned-karma wiring contract
+        run: npm run test:earned-karma-wiring
+
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest
 

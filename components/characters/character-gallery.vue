@@ -245,6 +245,7 @@
           :character="character"
           :selected="characterStore.selectedCharacter?.id === character.id"
           :is-selected="characterStore.selectedCharacter?.id === character.id"
+          :earned-karma="earnedKarmaByCharacterId[character.id]"
           v-bind="characterCardProps"
           @edit="startEditingCharacterById"
           @clone="cloneCharacterById"
@@ -267,6 +268,7 @@
             :character="characterById.get(Number(item.id))!"
             :selected="characterStore.selectedCharacter?.id === item.id"
             :is-selected="characterStore.selectedCharacter?.id === item.id"
+            :earned-karma="earnedKarmaByCharacterId[Number(item.id)]"
             :variant="MODE_VARIANT[galleryMode]"
             v-bind="characterCardProps"
             @edit="startEditingCharacterById"
@@ -522,6 +524,14 @@ const filteredCharacters = computed<Character[]>(() => {
 
   return characters
 })
+
+// interface-vision/t-066: earned karma for the rendered set, batched through
+// the shared composable (see composables/useEarnedKarma.ts). Scoped to
+// filteredCharacters — the set the grid actually renders.
+const { earnedKarma: earnedKarmaByCharacterId } = useEarnedKarma(
+  'character',
+  () => filteredCharacters.value.map((character) => character.id),
+)
 
 const exclusionSummary = computed(() => {
   const allCharacters = characterStore.characters ?? []

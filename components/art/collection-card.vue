@@ -8,6 +8,7 @@
     target-type="artCollection"
     reaction-category="ART_COLLECTION"
     :target-title="collectionLabel"
+    :earned-karma="earnedKarma"
     :card-class="isHiddenMature ? 'opacity-70' : ''"
     @select="selectCollection"
   >
@@ -246,6 +247,9 @@ const props = withDefaults(
     fallbackIcon?: string
     imageHeightClass?: string
     previewArtImage?: ArtImage | null
+    /** Total karma this collection has earned from reactions to it. Omit/undefined
+     *  renders no badge — see components/wonderlab/reactable-card.vue. */
+    earnedKarma?: number | null
   }>(),
   {
     selected: false,
@@ -267,6 +271,7 @@ const props = withDefaults(
     fallbackIcon: 'kind-icon:folder',
     imageHeightClass: 'h-48',
     previewArtImage: null,
+    earnedKarma: undefined,
   },
 )
 

@@ -13,6 +13,9 @@ channelKey: play
 tabKey: resources
 loadingMessage: Loading resource gallery...
 refreshLabel: Refresh Resources
+backgroundMobile: background/resources-mobile.webp
+backgroundTablet: background/resources-tablet.webp
+backgroundDesktop: background/resources-desktop.webp
 ---
 
 :resource-gallery

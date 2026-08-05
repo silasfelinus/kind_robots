@@ -14,6 +14,9 @@ dashboardTab: conductor
 cards: conductorCards
 loadingMessage: Loading plans...
 refreshLabel: Refresh Plan
+backgroundMobile: background/conductor-mobile.webp
+backgroundTablet: background/conductor-tablet.webp
+backgroundDesktop: background/conductor-desktop.webp
 ---
 
 :conductor-manager

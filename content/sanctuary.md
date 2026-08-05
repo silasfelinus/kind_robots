@@ -15,6 +15,9 @@ dashboardTab: community
 cards: navCards
 loadingMessage: Loading sanctuary...
 refreshLabel: Refresh Sanctuary
+backgroundMobile: background/sanctuary-mobile.webp
+backgroundTablet: background/sanctuary-tablet.webp
+backgroundDesktop: background/sanctuary-desktop.webp
 ---
 
 :giftshop-manager

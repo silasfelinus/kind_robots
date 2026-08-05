@@ -13,6 +13,9 @@ dashboardTab: packs
 cards: navCards
 loadingMessage: Packing the crate...
 refreshLabel: Refresh Packmaker
+backgroundMobile: background/packs-mobile.webp
+backgroundTablet: background/packs-tablet.webp
+backgroundDesktop: background/packs-desktop.webp
 ---
 
 :packmaker-page

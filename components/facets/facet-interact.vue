@@ -20,16 +20,30 @@
   of what made the inline editor feel wrong.
 -->
 <template>
-  <facet-gallery
-    v-if="!selectedFacet"
-    :show-header="showHeader"
-    title="Facets"
-    subtitle="Pick a Facet to open its profile."
-    @select="openFacet"
-  />
+  <div v-if="!selectedFacet" class="flex h-full min-h-0 flex-col gap-2">
+    <div class="flex shrink-0 justify-end">
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm rounded-xl"
+        @click="goToCreateFacet"
+      >
+        <Icon name="kind-icon:plus" class="size-3.5" />
+        New Facet
+      </button>
+    </div>
+    <facet-gallery
+      class="min-h-0 flex-1"
+      :show-header="showHeader"
+      title="Facets"
+      subtitle="Pick a Facet to open its profile."
+      @select="openFacet"
+    />
+  </div>
 
   <section v-else class="kr-surface">
-    <header class="kr-toolbar shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3">
+    <header
+      class="kr-toolbar shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
       <button
         type="button"
         class="btn btn-ghost btn-sm rounded-xl"
@@ -74,7 +88,10 @@
             {{ selectedFacet.flavorText }}
           </p>
 
-          <div v-if="selectedFacet.aliases.length" class="flex flex-wrap gap-1.5">
+          <div
+            v-if="selectedFacet.aliases.length"
+            class="flex flex-wrap gap-1.5"
+          >
             <span
               v-for="alias in selectedFacet.aliases"
               :key="alias"
@@ -85,12 +102,19 @@
           </div>
 
           <div class="flex flex-wrap gap-1.5 text-xs">
-            <span class="badge badge-sm">order {{ selectedFacet.sortOrder }}</span>
-            <span class="badge badge-sm">weight {{ selectedFacet.randomWeight }}</span>
+            <span class="badge badge-sm"
+              >order {{ selectedFacet.sortOrder }}</span
+            >
+            <span class="badge badge-sm"
+              >weight {{ selectedFacet.randomWeight }}</span
+            >
             <span v-if="selectedFacet.isRandomizable" class="badge badge-sm">
               randomizable
             </span>
-            <span v-if="selectedFacet.artRequired" class="badge badge-warning badge-sm">
+            <span
+              v-if="selectedFacet.artRequired"
+              class="badge badge-warning badge-sm"
+            >
               art expected
             </span>
           </div>
@@ -109,12 +133,14 @@ import {
   useFacetCatalogStore,
   type FacetCatalogEntry,
 } from '@/stores/facetCatalogStore'
+import { useNavStore } from '@/stores/navStore'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const route = useRoute()
 const router = useRouter()
 const catalog = useFacetCatalogStore()
+const navStore = useNavStore()
 
 /* Resolved from the URL, so a Facet page can be linked, bookmarked and
    back-buttoned. Falls back to null when the slug names nothing, which keeps a
@@ -134,6 +160,22 @@ function closeFacet(): void {
   const query = { ...route.query }
   delete query.facet
   void router.push({ query })
+}
+
+/*
+ * The gallery is a deliberately read-only surface (verifyFacetGallery.ts
+ * forbids create/update/archive here) -- creation belongs to the Library
+ * tab's admin flow. This switches to it and pre-expands the create form via
+ * a one-shot ?create=1 query flag, so a visitor never has to already know
+ * Library exists just to add a Facet.
+ */
+function goToCreateFacet(): void {
+  navStore.setDashboardTab(
+    'facets',
+    'library',
+    'facet-interact create affordance',
+  )
+  void router.push({ query: { ...route.query, create: '1' } })
 }
 
 function taxonomyLabel(taxonomy: string): string {

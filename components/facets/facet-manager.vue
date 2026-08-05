@@ -24,7 +24,10 @@
           Dreams, Rewards, Scenarios, art, and random generation.
         </p>
       </div>
-      <span v-if="facetStore.loading" class="loading loading-spinner loading-sm" />
+      <span
+        v-if="facetStore.loading"
+        class="loading loading-spinner loading-sm"
+      />
       <span class="badge badge-ghost">{{ filteredFacets.length }} shown</span>
     </header>
 
@@ -48,7 +51,9 @@
           {{ taxonomyLabel(taxonomy) }} ({{ taxonomyCounts[taxonomy] || 0 }})
         </option>
       </select>
-      <label class="ml-auto flex items-center gap-2 text-xs text-base-content/60">
+      <label
+        class="ml-auto flex items-center gap-2 text-xs text-base-content/60"
+      >
         <input
           v-model="showArchived"
           type="checkbox"
@@ -76,7 +81,10 @@
           :disabled="!createForm.title.trim() || facetStore.saving"
           @click="createFacet"
         >
-          <span v-if="facetStore.saving" class="loading loading-spinner loading-xs" />
+          <span
+            v-if="facetStore.saving"
+            class="loading loading-spinner loading-xs"
+          />
           <Icon v-else name="kind-icon:plus" class="size-3.5" />
           Create canonical Facet
         </button>
@@ -92,7 +100,9 @@
         class="overflow-hidden rounded-2xl border bg-base-100 transition-all"
         :class="[
           facet.isActive ? 'border-base-300' : 'border-error/40 opacity-60',
-          editingId === facet.id ? 'md:col-span-2 xl:col-span-3 ring-2 ring-secondary/60' : '',
+          editingId === facet.id
+            ? 'md:col-span-2 xl:col-span-3 ring-2 ring-secondary/60'
+            : '',
         ]"
       >
         <div
@@ -114,7 +124,10 @@
                 <span class="badge badge-secondary badge-xs">
                   {{ taxonomyLabel(facet.taxonomy) }}
                 </span>
-                <span v-if="facet.groupLabel" class="badge badge-outline badge-xs">
+                <span
+                  v-if="facet.groupLabel"
+                  class="badge badge-outline badge-xs"
+                >
                   {{ facet.groupLabel }}
                 </span>
                 <span v-if="!facet.isActive" class="badge badge-error badge-xs">
@@ -124,20 +137,28 @@
                   private
                 </span>
               </div>
-              <h2 class="mt-1 truncate text-base font-bold">{{ facet.title }}</h2>
+              <h2 class="mt-1 truncate text-base font-bold">
+                {{ facet.title }}
+              </h2>
               <p class="truncate text-xs text-base-content/40">
                 {{ facet.canonicalValue }}
-                <template v-if="facet.aliases.length"> · {{ facet.aliases.join(' · ') }}</template>
+                <template v-if="facet.aliases.length">
+                  · {{ facet.aliases.join(' · ') }}</template
+                >
               </p>
             </div>
             <button
               type="button"
               class="btn btn-ghost btn-xs rounded-xl"
-              :aria-label="editingId === facet.id ? 'Close editor' : `Edit ${facet.title}`"
+              :aria-label="
+                editingId === facet.id ? 'Close editor' : `Edit ${facet.title}`
+              "
               @click="toggleEdit(facet)"
             >
               <Icon
-                :name="editingId === facet.id ? 'kind-icon:x' : 'kind-icon:pencil'"
+                :name="
+                  editingId === facet.id ? 'kind-icon:x' : 'kind-icon:pencil'
+                "
                 class="size-4"
               />
             </button>
@@ -157,18 +178,25 @@
               {{ facet.artPrompt }}
             </p>
             <div class="mt-3 flex flex-wrap gap-1 text-[11px]">
-              <span class="badge badge-ghost badge-xs">order {{ facet.sortOrder }}</span>
-              <span class="badge badge-ghost badge-xs">weight {{ facet.randomWeight }}</span>
-              <span class="badge badge-ghost badge-xs">rank {{ facet.sourceRank }}</span>
+              <span class="badge badge-ghost badge-xs"
+                >order {{ facet.sortOrder }}</span
+              >
+              <span class="badge badge-ghost badge-xs"
+                >weight {{ facet.randomWeight }}</span
+              >
+              <span class="badge badge-ghost badge-xs"
+                >rank {{ facet.sourceRank }}</span
+              >
               <span class="badge badge-ghost badge-xs">
                 {{ facet.isRandomizable ? 'randomizable' : 'manual only' }}
               </span>
               <span class="badge badge-ghost badge-xs">
                 {{ facet.artRequired ? 'art expected' : 'art optional' }}
               </span>
-              <span v-if="facet.metadata" class="badge badge-ghost badge-xs">metadata</span>
+              <span v-if="facet.metadata" class="badge badge-ghost badge-xs"
+                >metadata</span
+              >
             </div>
-
           </template>
 
           <div v-else class="mt-4 space-y-4">
@@ -254,7 +282,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
 import {
   getDashboardDefaultTab,
@@ -276,6 +305,8 @@ import { resolveEntityArtwork } from '@/utils/artImageSrc'
 
 const dashboardKey = 'facets'
 const navStore = useNavStore()
+const route = useRoute()
+const router = useRouter()
 
 /* Same derivation every other manager uses: the nav store owns the selected tab
    and the dashboard definition owns the default, so a bad or absent value falls
@@ -312,7 +343,8 @@ const taxonomyCounts = computed(() => {
 const filteredFacets = computed(() => {
   const needle = normalizeFacetLookupKey(search.value)
   return visibleFacets.value.filter((facet) => {
-    if (taxonomyFilter.value && facet.taxonomy !== taxonomyFilter.value) return false
+    if (taxonomyFilter.value && facet.taxonomy !== taxonomyFilter.value)
+      return false
     if (!needle) return true
     const values = [
       facet.title,
@@ -342,6 +374,26 @@ onMounted(async () => {
     setError(error, 'Facets could not be loaded.')
   }
 })
+
+/*
+ * One-shot deep link from facet-interact's gallery-view "+ New Facet"
+ * affordance (t-081): the Gallery tab is read-only by contract, so it
+ * switches here via navStore and flags ?create=1 to pre-expand the create
+ * form instead of landing a visitor on a collapsed <details> with no hint
+ * it's there. Cleared immediately so it doesn't re-fire on a later
+ * same-tab navigation or survive a bookmark/share of the URL.
+ */
+watch(
+  () => route.query.create,
+  (value) => {
+    if (value !== '1') return
+    createOpen.value = true
+    const query = { ...route.query }
+    delete query.create
+    void router.replace({ query })
+  },
+  { immediate: true },
+)
 
 function taxonomyLabel(taxonomy: FacetTaxonomy): string {
   return taxonomy

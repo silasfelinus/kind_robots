@@ -1972,6 +1972,46 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image in the American Luminist style: extremely smooth, near-invisible brushwork, a perfectly calm glassy body of water or sky reflecting a precise gradation of still natural light (dawn haze, quiet midday, or pre-storm low sun), a hushed and motionless mood, and minimal incidental human presence. Preserve the source composition and subject.',
     },
   },
+  {
+    slug: 'heidelberg-school',
+    name: 'Heidelberg School',
+    era: 'c. 1885–1900',
+    sortYear: 1885,
+    previewImageSrc: '/images/academy/styles/heidelberg-school.webp',
+    region: 'Australia',
+    keyIdeas:
+      'The Heidelberg School gives the curriculum its first entry from Australia and Oceania — a group of painters, based for a time in artists\' camps around Box Hill and Eaglemont near the Melbourne suburb of Heidelberg, who applied plein-air Impressionist-adjacent technique to a landscape and light no European movement had painted: the harsh, high-key glare of the Australian bush and outback. Where French Impressionism built its palette from the soft, temperate light of the Île-de-France, and the Barbizon School worked in muted greens and greys under overcast northern skies, Heidelberg School painters confronted a hotter, drier, brighter light and answered it with a distinctive "blue and gold" palette — saturated cobalt sky and sun-bleached ochre earth — applied in broad, confident strokes laid down directly from observation, often on small cigar-box-lid-sized panels (the famous 1889 "9 by 5 Impression Exhibition" takes its name from the standard panel size, 9 by 5 inches). The school also gave Australian painting its first sustained attempt at a national visual identity: sheep stations, drought-cracked paddocks, bushfires, and itinerant rural laborers, treated not as picturesque colonial scenery but as the ordinary, unglamorized subject of a new country defining itself in paint — a project with real ideological weight (a settler-nationalist vision of the land that had little room for Aboriginal presence or dispossession), named directly rather than left implicit, the same treatment this curriculum gives the Hudson River School\'s Manifest Destiny undertone.',
+    recognitionCues: [
+      'A bright, high-key "blue and gold" palette — saturated blue sky paired with sun-bleached ochre, olive, and gold earth tones — capturing harsh direct Australian sunlight rather than soft or overcast light',
+      "Broad, confident, visible brushwork applied directly from life outdoors, looser than academic finish but built from continuous descriptive strokes rather than Impressionism's broken optical dabs or Pointillism's dots",
+      'A hazy, heat-shimmer atmospheric quality suggesting dry heat rather than cool or misty air',
+      'Australian bush, sheep-station, or rural-labor subject matter — shearing sheds, drought-stressed paddocks, bushfires, swagmen — treated with plain, unsentimental dignity rather than picturesque exoticism',
+      'A matter-of-fact, unforced mood: dramatic in scale or subject sometimes, but rendered with directness rather than Romantic theatricality',
+      'Occasionally a small, squarish panel format (a legacy of the movement\'s "9 by 5" plein-air sketches), though many major canvases are large-scale studio-finished works built from such sketches',
+    ],
+    artists: [
+      {
+        name: 'Tom Roberts',
+        years: '1856–1931',
+        note: "English-born, Melbourne-based painter and the school's organizing figure; his large narrative bush-labor scenes are this lesson's clearest generation-style anchor for figure-and-landscape composition.",
+      },
+      {
+        name: 'Arthur Streeton',
+        years: '1867–1943',
+        note: 'Painted the movement\'s most characteristic high-key "blue and gold" summer landscapes, working alongside Roberts at the Eaglemont artists\' camp.',
+      },
+      {
+        name: 'Frederick McCubbin',
+        years: '1855–1917',
+        note: 'Brought a narrative, often melancholic sensibility to bush-settler subjects, frequently in a looser, more textured brushwork than Roberts or Streeton.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image in the Heidelberg School style: broad, confident plein-air brushwork applied directly from life, a bright high-key palette of blue and gold capturing harsh direct Australian sunlight, a dusty ochre-and-olive bush or rural-labor scene with a hazy heat-shimmer atmosphere, and an unsentimental, matter-of-fact mood. Preserve the source composition and subject.',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

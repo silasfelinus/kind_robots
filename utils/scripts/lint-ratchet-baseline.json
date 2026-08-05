@@ -1,7 +1,7 @@
 {
   "note": "ESLint RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLintRatchet.ts.",
   "recorded": "2026-08-05",
-  "total": 397,
+  "total": 396,
   "violations": {
     "vue/v-on-event-hyphenation": ["app.vue:16:22"],
     "@typescript-eslint/no-explicit-any": [
@@ -181,7 +181,6 @@
     ],
     "no-extra-boolean-cast": ["components/bots/add-bot.vue:688:51"],
     "@typescript-eslint/no-unused-vars": [
-      "components/bots/bot-interact.vue:407:7",
       "components/builder/builder-art-input.vue:66:8",
       "components/butterfly/butterfly-guide.vue:378:7",
       "components/characters/character-flip-card.vue:512:7",

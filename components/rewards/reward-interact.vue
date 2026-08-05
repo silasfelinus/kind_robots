@@ -3,24 +3,14 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
+    <!--
+      Was `v-else` against the static page-title hero that used to sit above it.
+      That hero duplicated the title workspace-header already renders from
+      frontmatter, so it is gone and this states its own condition instead: the
+      selected-reward bar belongs to interact mode.
+    -->
     <header
-      v-if="!isInteractMode"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
-    >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">
-        What Happens When You Find It?
-      </h1>
-
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
-      >
-        You've stumbled across something strange and powerful. Tell us who you
-        are, how you found it, and what you do next.
-      </p>
-    </header>
-
-    <header
-      v-else
+      v-if="isInteractMode"
       class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
     >
       <button

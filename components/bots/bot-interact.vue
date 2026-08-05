@@ -3,19 +3,6 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
-    <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
-    >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">Bot Interact</h1>
-
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
-      >
-        Chat with the selected bot, use starter prompts, and stream responses
-        through the active text server.
-      </p>
-    </header>
-
     <div
       v-if="statusMessage"
       class="kr-note"
@@ -388,7 +375,6 @@ import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useServerStore } from '@/stores/serverStore'
-import { useUserStore } from '@/stores/userStore'
 
 type SessionChat = {
   id: number
@@ -404,7 +390,6 @@ const botStore = useBotStore()
 const chatStore = useChatStore()
 const promptStore = usePromptStore()
 const serverStore = useServerStore()
-const userStore = useUserStore()
 
 const message = ref('')
 const statusMessage = ref('')

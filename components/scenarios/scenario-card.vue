@@ -13,35 +13,59 @@
     @select="selectScenario"
   >
     <template #actions>
-      <button
-        v-if="showActions && canEdit"
-        class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
-        type="button"
-        title="Edit Scenario"
-        @click.stop="emit('edit', scenario.id)"
-      >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
-      </button>
+      <!--
+        HIDDEN AT REST. These three sat visible on every card at all times,
+        three filled circles punched over the art. Silas, 2026-08-05: "the icon
+        popups for delete copy etc should def not be visible on load, maybe
+        maybe maybe on hover is fine, but the implementation looks ugly."
 
-      <button
-        v-if="showActions && allowClone"
-        class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
-        type="button"
-        title="Clone Scenario"
-        @click.stop="emit('clone', scenario.id)"
+        Its siblings (character-card, bot-card, reward-card) already gated the
+        same buttons on `activeSelected || compact`; scenario-card was the one
+        that never did, which is why only Scenarios looked like this. Matching
+        them, plus a hover/focus reveal so the actions stay discoverable
+        without having to select first. focus-within matters: hover alone hides
+        these from keyboard users entirely, and a card that must be selected
+        before it can be deleted is fine, but one that can never be reached by
+        keyboard is not.
+      -->
+      <div
+        class="flex items-center gap-2 transition-opacity duration-150"
+        :class="
+          activeSelected || compact
+            ? 'opacity-100'
+            : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
+        "
       >
-        <Icon name="kind-icon:copy" class="h-4 w-4" />
-      </button>
+        <button
+          v-if="showActions && canEdit"
+          class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
+          type="button"
+          title="Edit Scenario"
+          @click.stop="emit('edit', scenario.id)"
+        >
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        </button>
 
-      <button
-        v-if="showActions && canDelete"
-        class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
-        type="button"
-        title="Delete Scenario"
-        @click.stop="deleteScenario"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-      </button>
+        <button
+          v-if="showActions && allowClone"
+          class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
+          type="button"
+          title="Clone Scenario"
+          @click.stop="emit('clone', scenario.id)"
+        >
+          <Icon name="kind-icon:copy" class="h-4 w-4" />
+        </button>
+
+        <button
+          v-if="showActions && canDelete"
+          class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
+          type="button"
+          title="Delete Scenario"
+          @click.stop="deleteScenario"
+        >
+          <Icon name="kind-icon:trash" class="h-4 w-4" />
+        </button>
+      </div>
     </template>
 
     <kr-entity-card-body

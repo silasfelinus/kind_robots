@@ -1,27 +1,36 @@
 <!-- /components/server/server-interact.vue -->
 <template>
   <section class="flex w-full flex-col gap-4 rounded-2xl bg-base-200 p-4">
-    <header class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md lg:flex-row lg:items-center lg:justify-between lg:text-left">
-      <div class="min-w-0">
-        <h1 class="text-2xl font-bold text-primary md:text-3xl">
-          Server Tools
-        </h1>
-        <p class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 lg:mx-0">
-          Manage only real access points. Routes decide capabilities. Mana decides billing.
-        </p>
-      </div>
-
+    <header
+      class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md lg:flex-row lg:items-center lg:justify-between lg:text-left"
+    >
       <div class="flex flex-wrap justify-center gap-2 lg:justify-end">
-        <button class="btn btn-primary rounded-xl" type="button" @click="startServerPreset('COMFY')">
+        <button
+          class="btn btn-primary rounded-xl"
+          type="button"
+          @click="startServerPreset('COMFY')"
+        >
           Comfy
         </button>
-        <button class="btn btn-secondary rounded-xl" type="button" @click="startServerPreset('A1111')">
+        <button
+          class="btn btn-secondary rounded-xl"
+          type="button"
+          @click="startServerPreset('A1111')"
+        >
           A1111
         </button>
-        <button class="btn rounded-xl" type="button" @click="startServerPreset('OPENAI')">
+        <button
+          class="btn rounded-xl"
+          type="button"
+          @click="startServerPreset('OPENAI')"
+        >
           OpenAI
         </button>
-        <button class="btn rounded-xl" type="button" @click="startServerPreset('ANTHROPIC')">
+        <button
+          class="btn rounded-xl"
+          type="button"
+          @click="startServerPreset('ANTHROPIC')"
+        >
           Anthropic
         </button>
       </div>
@@ -59,12 +68,16 @@ const showServerForm = ref(false)
 
 const artSummary = computed(() => {
   const server = serverStore.activeArtServer
-  return server ? `${server.label || server.title} · ${server.serverType}` : 'No art server selected.'
+  return server
+    ? `${server.label || server.title} · ${server.serverType}`
+    : 'No art server selected.'
 })
 
 const textSummary = computed(() => {
   const server = serverStore.activeTextServer
-  return server ? `${server.label || server.title} · ${server.serverType}` : 'No text server selected.'
+  return server
+    ? `${server.label || server.title} · ${server.serverType}`
+    : 'No text server selected.'
 })
 
 function startServerPreset(serverType: ServerType) {

@@ -50,24 +50,45 @@
     left and the text is the content, so the row stays readable at any width
     and the icons grid can pack tightly without squeezing anything.
   -->
-  <div
-    v-if="variant === 'icon'"
-    class="flex w-full items-center gap-3 px-1 py-1.5"
-  >
-    <kr-art-plate
-      v-if="showImage"
-      :source="source"
-      :variant="variant"
-      :fallback="fallback"
-      :alt="title"
-      shape="square"
-      frame="none"
-      :fit="fit"
-      :placeholder-icon="placeholderIcon"
-      class="size-12 shrink-0 overflow-hidden rounded-xl"
-    />
+  <div v-if="variant === 'icon'" class="flex w-full items-center gap-3">
+    <!--
+      The thumbnail is sized by this WRAPPER, never by classes on the plate.
 
-    <div class="min-w-0 flex-1">
+      kr-art-plate's aspect map returns `aspect-square w-full` (every shape
+      carries `w-full`), so a `size-12` passed down as a class fought `w-full`
+      for the same `width` property at equal specificity and lost. The plate
+      then went full-row-width, `shrink-0` kept it there, the text column next
+      to it collapsed to zero, and the art sat centered in a wide empty box —
+      Silas, 2026-08-05, seeing /characters Icons: "no text, just not what I
+      would expect an icon focused layout to look like."
+
+      Constraining from the outside removes the conflict instead of winning it:
+      `w-full` now resolves against a 3.5rem box, which is what it was always
+      meant to do. Do not move this sizing back onto the plate.
+    -->
+    <div
+      v-if="showImage"
+      class="size-14 shrink-0 overflow-hidden rounded-xl bg-base-300"
+    >
+      <kr-art-plate
+        :source="source"
+        :variant="variant"
+        :fallback="fallback"
+        :alt="title"
+        shape="square"
+        frame="none"
+        fit="cover"
+        :placeholder-icon="placeholderIcon"
+      />
+    </div>
+
+    <!--
+      pr-16 leaves the lane reactable-card's absolutely-positioned action
+      cluster (karma chip + React button, `right-2 top-2`) occupies. Without it
+      those controls sit on top of the title, which is only noticeable in this
+      variant because the row is short enough for `top-2` to reach the text.
+    -->
+    <div class="min-w-0 flex-1 pr-16">
       <h2 class="truncate text-sm font-black leading-tight" :title="title">
         {{ title }}
       </h2>

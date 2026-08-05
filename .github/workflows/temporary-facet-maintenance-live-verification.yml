@@ -1,0 +1,67 @@
+name: Temporary Facet Maintenance Live Verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/temporary-facet-maintenance-live-verification.yml
+
+concurrency:
+  group: facet-catalog-maintenance
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  live-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+    steps:
+      - name: Require production connection secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          test -n "$DATABASE_URL"
+          test -n "$TS_OAUTH_CLIENT_ID"
+          test -n "$TS_OAUTH_SECRET"
+          if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
+            echo "::error::Database CA secret is missing."
+            exit 1
+          fi
+
+      - name: Checkout merged repair from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Run live serialized Facet maintenance with canonical seed
+        run: |
+          npx tsx scripts/run_facet_catalog_maintenance.ts \
+            --seed \
+            "--reason=issue 1451 live verification after PR 1454"

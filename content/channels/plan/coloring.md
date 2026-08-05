@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: coloring
 dashboardKey: art
 dashboardTab: coloring
@@ -10,7 +10,7 @@ subtitle: Color generated pages and sampler art
 description: Open a page, fill regions, save palettes, and return to works in progress.
 icon: kind-icon:paintbrush
 route: /coloring
-sort: 25
+sort: 65
 ---
 
 Color AI-generated pages and playful sampler art.

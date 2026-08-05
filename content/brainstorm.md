@@ -9,7 +9,7 @@ tooltip: Welcome to Brainstorm's lair! From laughable RPG characters to unfortun
 amiTip: Hey, Brainstorm's my cousin! Sure his humor is a little dark, but I'm a multifaceted hivemind built to save the world and he's a brain in a jar. It colors one's perspective. 🦋🤖😂
 sort: highlight
 dottiTip: Brainstorm is my first robot, even before AMI! He's a little, well, let's just say we love him a lot.
-channelKey: play
+channelKey: plan
 tabKey: brainstorm
 dashboardKey: brainstorm
 dashboardTab: brainstorm

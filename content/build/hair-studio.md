@@ -9,7 +9,7 @@ tooltip: Private AI hairstyle previews for Hair by Superkate.
 dottiTip: AMI, the reversible haircuts have their own laboratory now.
 amiTip: Excellent. The receipts may remain safely outside the splash zone.
 sort: highlight
-channelKey: play
+channelKey: plan
 tabKey: hair-studio
 dashboardKey: art
 dashboardTab: stylist

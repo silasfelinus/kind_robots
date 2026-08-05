@@ -8,7 +8,7 @@ icon: kind-icon:paintbrush
 tooltip: Open a page, fill the regions, save your palette, and make more art.
 dottiTip: Stay inside the lines or don't — the robots aren't judging. Much.
 amiTip: I colored a butterfly forty-one times. No regrets. 🦋🎨
-channelKey: play
+channelKey: plan
 tabKey: coloring
 dashboardKey: art
 dashboardTab: coloring

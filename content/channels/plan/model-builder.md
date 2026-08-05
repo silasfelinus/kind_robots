@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: model-builder
 dashboardKey: builder
 dashboardTab: model-builder

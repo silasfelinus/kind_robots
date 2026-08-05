@@ -39,12 +39,12 @@
       >
         <channel-select seamless class="shrink-0" />
 
-        <!-- This child may clip its own scrolling tabs. The shared shell above
-             must remain overflow-visible so the channel dropdown can escape. -->
+        <!-- The horizontal strip owns clipping. This wrapper stays visible so
+             the complete-tab menu can escape below the one-row header. -->
         <div
           v-if="resolvedTabs.length"
           ref="tabViewport"
-          class="flex min-w-0 flex-1 items-stretch overflow-hidden rounded-r-xl border-l border-base-300"
+          class="flex min-w-0 flex-1 items-stretch overflow-visible rounded-r-xl border-l border-base-300"
         >
           <button
             v-if="hasTabOverflow"
@@ -65,7 +65,7 @@
           <nav
             id="channel-tab-strip"
             ref="tabStrip"
-            class="tab-strip flex min-w-0 flex-1 snap-x snap-mandatory items-stretch gap-1 overflow-x-auto px-1.5 sm:gap-1.5"
+            class="tab-strip flex min-w-0 flex-1 flex-nowrap snap-x snap-mandatory items-stretch gap-1 overflow-x-auto overflow-y-hidden px-1.5 sm:gap-1.5"
             aria-label="Channel tabs"
             @scroll.passive="updateTabScrollState"
           >
@@ -73,7 +73,7 @@
               v-for="(tab, index) in resolvedTabs"
               :key="tab.tabKey"
               type="button"
-              class="tab-button relative my-1 flex min-w-0 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
+              class="tab-button relative my-1 flex min-w-0 whitespace-nowrap items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-black transition xl:text-sm"
               :class="
                 tab.tabKey === activeTabKey
                   ? 'border-primary bg-primary text-primary-content shadow-sm'
@@ -108,6 +108,49 @@
           >
             <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
           </button>
+
+          <div v-if="hasTabOverflow" class="dropdown dropdown-end shrink-0">
+            <button
+              tabindex="0"
+              type="button"
+              class="flex h-full w-8 items-center justify-center rounded-r-xl border-l border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
+              :aria-label="`Show all ${resolvedChannel?.label || 'channel'} tabs`"
+              :title="`Show all ${resolvedTabs.length} tabs`"
+              aria-haspopup="menu"
+            >
+              <Icon name="kind-icon:map" class="h-4 w-4" />
+            </button>
+
+            <ul
+              tabindex="0"
+              class="dropdown-content menu absolute right-0 top-full z-120 mt-2 max-h-[min(70vh,28rem)] w-[min(18rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+              :aria-label="`${resolvedChannel?.label || 'Channel'} tabs`"
+            >
+              <li v-for="tab in resolvedTabs" :key="`all-${tab.tabKey}`">
+                <button
+                  type="button"
+                  class="flex min-h-11 items-center gap-2 rounded-xl"
+                  :class="
+                    tab.tabKey === activeTabKey
+                      ? 'active bg-primary text-primary-content'
+                      : ''
+                  "
+                  :aria-current="
+                    tab.tabKey === activeTabKey ? 'page' : undefined
+                  "
+                  @click="goToTab(tab)"
+                >
+                  <Icon
+                    :name="tab.icon || fallbackIcon"
+                    class="h-4 w-4 shrink-0"
+                  />
+                  <span class="min-w-0 truncate text-sm font-black">
+                    {{ tab.label }}
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <!-- No tabs resolved (a bare route, or content still loading): fall
@@ -326,13 +369,16 @@ function tabLayoutMetrics(): {
 
 function tabCapacity(
   viewportWidth: number,
-  reserveArrows: boolean,
+  reserveControls: boolean,
   metrics: ReturnType<typeof tabLayoutMetrics>,
 ): number {
   const { minimumTabWidth, gap, arrowWidth } = metrics
   const stripPadding = 12
-  const arrowSpace = reserveArrows ? arrowWidth * 2 : 0
-  const availableWidth = Math.max(0, viewportWidth - stripPadding - arrowSpace)
+  const controlSpace = reserveControls ? arrowWidth * 3 : 0
+  const availableWidth = Math.max(
+    0,
+    viewportWidth - stripPadding - controlSpace,
+  )
 
   return Math.max(
     1,
@@ -626,6 +672,7 @@ function goBack(): void {
 }
 
 .tab-strip {
+  flex-wrap: nowrap;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-padding-inline: 0.375rem;
@@ -635,6 +682,7 @@ function goBack(): void {
 .tab-button {
   flex-grow: 0;
   flex-shrink: 0;
+  white-space: nowrap;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }

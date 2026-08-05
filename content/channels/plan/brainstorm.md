@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: play
+channelKey: plan
 tabKey: brainstorm
 dashboardKey: brainstorm
 dashboardTab: brainstorm
@@ -10,7 +10,7 @@ subtitle: Turn a pitch into useful creative riffs
 description: Generate variations, keep the promising ideas, and save reusable seeds for later building.
 icon: kind-icon:brain
 route: /brainstorm
-sort: 15
+sort: 25
 ---
 
 A front porch for ideas that are not yet ready to become forms.

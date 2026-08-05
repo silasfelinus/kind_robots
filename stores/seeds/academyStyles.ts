@@ -2051,6 +2051,45 @@ export const academyStyles: AcademyStyle[] = [
         'Repaint this image in the Spanish Golden Age style: a single strong light source against a near-black or plain neutral ground (tenebrism), a restrained palette of umber, ochre, and black, sculptural clarity of form, and a quiet, solemn, devotional mood with minimal ornament. Preserve the source composition and subject.',
     },
   },
+  {
+    slug: 'mannerism',
+    name: 'Mannerism',
+    era: 'c. 1520–1580',
+    sortYear: 1520,
+    region: 'Italy',
+    keyIdeas:
+      "Mannerism grew directly out of the High Renaissance but deliberately pushed past its balance and naturalism into elegant artifice. Where Leonardo, Raphael, and Botticelli sought anatomical correctness and calm, stable compositions, Mannerist painters stretched the figure into impossibly long limbs and swan necks, twisted poses into serpentine, off-balance spirals, and cooled the palette into acidic, jewel-like color harmonies that read as sophisticated rather than natural. Faces became smooth, porcelain-cool, and faintly emotionally distant — beautiful but unreadable, a style built for court sophistication rather than devotional warmth. Working mostly for the Medici court in Florence and the papal court in Rome, Mannerist painters treated technical virtuosity as its own subject: an impossibly long neck or elongated fingers weren't mistakes, they were the point.",
+    recognitionCues: [
+      'Impossibly elongated limbs, necks, and fingers — figures stretched past anatomical correctness on purpose',
+      "Twisting, off-balance poses (the figura serpentinata) rather than the Renaissance's stable, centered stances",
+      'Smooth, cool, porcelain-like skin with a composed, faintly aloof expression — beautiful rather than warm or devotional',
+      "A restrained, acidic jewel-toned palette (cool pinks, acid greens, deep blues) rather than the Renaissance's warm earth tones",
+      "Shallow, ambiguous, or compressed pictorial space — a plain dark ground or a crowded stage rather than the Renaissance's deep, legible perspective",
+      'Technical virtuosity treated as the subject itself: the distortion reads as sophistication, not error',
+    ],
+    artists: [
+      {
+        name: 'Agnolo Bronzino',
+        years: '1503–1572',
+        note: "Medici court portraitist; this lesson's clearest generation-style anchor for cool, smooth, emotionally composed court portraiture.",
+      },
+      {
+        name: 'Parmigianino',
+        years: '1503–1540',
+        note: 'Pushed the movement\'s elongation furthest (his Madonna with the Long Neck is its most-cited example); this entry draws instead on one of his figure drawings.',
+      },
+      {
+        name: 'Perino del Vaga',
+        years: '1501–1547',
+        note: "A leading pupil of Raphael who carried Roman Mannerism's crowded, elegant figure groups into large-scale religious painting.",
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as an Italian Mannerist painting: elegant, elongated figures in artificial, twisting poses, cool porcelain-smooth skin, a restrained jewel-toned palette against a plain or ambiguous dark ground, and a composed, faintly aloof emotional temperature rather than Baroque drama. Preserve the source composition and subject.',
+    },
+  },
 ]
 
 export const academyStylesBySlug: Record<string, AcademyStyle> = Object.assign(

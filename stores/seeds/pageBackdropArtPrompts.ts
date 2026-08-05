@@ -146,6 +146,72 @@ const PAGES: PageSeed[] = [
     scene:
       'The gift shop at the end of the tour: warm crowded shelves of enamel pins, plush oddities, printed shirts on racks and postcard spinners lining both side walls, festoon lights strung overhead, an open doorway of daylight beyond. Cheerful, souvenir-bright, and deliberately a little kitsch.',
   },
+
+  /*
+   * Second batch. `index` leads it because it is the front door — the one page
+   * every visitor sees, and the only one where a missing backdrop is a first
+   * impression rather than a gap.
+   */
+  {
+    page: 'index',
+    title: 'Kind Robots — Dashboard Room',
+    scene:
+      'The dashboard room: a warm circular hall at golden hour with tall arched doorways set all around the wall, each opening onto a glimpse of somewhere different — a workshop, a night sky, a gallery, a garden. Worn wooden floor, a domed skylight above, motes drifting in the light. Welcoming and full of directions to go, with the middle of the room deliberately clear.',
+  },
+  {
+    page: 'sanctuary',
+    title: 'Sanctuary',
+    scene:
+      'A sanctuary garden at dusk: a sheltered walled courtyard of soft greenery, a still reflecting pool off-centre, climbing vines and hanging lanterns along both walls, low stone benches at the edges. Butterflies drift through the warm air. Quiet, safe and unhurried — the calmest scene in the set.',
+  },
+  {
+    page: 'academy',
+    title: 'Art Academy',
+    scene:
+      "An art academy studio: a high-windowed atelier with plaster casts and anatomical models on shelves down one side, easels and stools ranged along the other, master studies pinned in rows on the far wall. Cool north light, chalk dust in the air, a faint smell of turpentine implied. Studious and generous rather than austere.",
+  },
+  {
+    page: 'coloring',
+    title: 'Coloring Book',
+    scene:
+      'A coloring table seen from above and slightly off-centre: a big paper-strewn work surface where line-art pages, fat wax crayons, pencil stubs and half-filled palettes spread to the edges, some pages still pure black-and-white outline and others blazing with colour. Bright, tactile and childlike without being twee.',
+  },
+  {
+    page: 'stories',
+    title: 'Stories — Story Maker Room',
+    scene:
+      'A multiverse of doors: a vast soft-lit space where dozens of freestanding doorframes float at different depths and angles, each ajar on a sliver of a different world — snow, neon, jungle, deep sea. Mist below, warm light above, the doors clustering to the left and right and thinning through the middle.',
+  },
+  {
+    page: 'conductor',
+    title: 'Conductor Cockpit',
+    scene:
+      'A conductor cockpit: a wide dim control room with a curved bank of glowing schedule boards, plotting tables and brass instruments arranged along both flanks, cables looping overhead, a tall window onto a night landscape ahead. Focused, technical and calm — a place for watching many things at once.',
+  },
+  {
+    page: 'giving',
+    title: 'Giving & Support',
+    scene:
+      'A giving hall: a warm open room where long tables of carefully packed parcels and supplies recede to either side, ribbon and twine spools at the edges, an open double door spilling afternoon light. Generous, practical and unsentimental — the work of helping, not a symbol of it.',
+  },
+  {
+    page: 'packs',
+    title: 'Packmaker',
+    scene:
+      'A packing bench: a sturdy workshop table strewn with open crates, labelled tins, folded canvas and neatly bundled kits, shelving of prepared bundles rising on both sides, a stencil and ink pad to one corner. Orderly, satisfying, everything-in-its-place.',
+  },
+  {
+    page: 'resources',
+    title: 'Resources — Resource Gallery',
+    scene:
+      'A resource archive: a long hall of card-catalogue drawers, labelled canisters and spooled reels on deep shelves running away down both walls, rolling ladders on rails, a reading lectern at the near edge. Cool, ordered and quietly enormous.',
+  },
+  {
+    page: 'serendipity',
+    title: 'Serendipity — Story Door',
+    scene:
+      'The story door: a single ornate doorway standing free in a soft twilight meadow, its frame carved with small creatures, light spilling warm from the gap where it stands ajar. Tall grass and fireflies at the lower edges, deep blue sky above. Inviting and a little mysterious, with the space around the door left open.',
+  },
 ]
 
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {

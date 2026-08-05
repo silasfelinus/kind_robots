@@ -6,6 +6,11 @@ on:
       - worker/issue-1451-facet-lock-race-20260804
     paths:
       - .github/workflows/temporary-issue-1451-seed-patch.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temporary-issue-1451-seed-patch.yml
 
 permissions:
   contents: write

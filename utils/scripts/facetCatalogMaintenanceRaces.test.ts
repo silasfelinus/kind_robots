@@ -7,6 +7,7 @@ import {
   runSerializedFacetMaintenanceSteps,
 } from '../../scripts/facetCatalogMaintenanceRuntime'
 import {
+  chooseFacetForCanonicalSlug,
   shouldAssignAliasToFacet,
   updateFacetWithSlugRaceRecovery,
 } from './facetCatalogWriteRace'
@@ -57,6 +58,19 @@ function verifyLockOwnershipRows(): void {
   assert.equal(
     lockOwnerMatchesConnection([{ connectionId: 42, ownerId: null }]),
     false,
+  )
+}
+
+function verifyCanonicalSlugWinsSnapshotDisagreement(): void {
+  const slugFacet = { id: 11 }
+  const aliasFacet = { id: 7 }
+  assert.equal(
+    chooseFacetForCanonicalSlug(slugFacet, aliasFacet),
+    slugFacet,
+  )
+  assert.equal(
+    chooseFacetForCanonicalSlug(undefined, aliasFacet),
+    aliasFacet,
   )
 }
 
@@ -111,6 +125,7 @@ function verifyCanonicalAliasCanFollowRaceWinner(): void {
 async function main(): Promise<void> {
   await verifyLockLossStopsRemainingSteps()
   verifyLockOwnershipRows()
+  verifyCanonicalSlugWinsSnapshotDisagreement()
   await verifySlugUpdateRaceRecoversWinner()
   await verifySlugUpdateRaceDoesNotMaskMissingWinner()
   verifyCanonicalAliasCanFollowRaceWinner()

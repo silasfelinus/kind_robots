@@ -7,6 +7,13 @@ export function isUniqueConstraintError(error: unknown): boolean {
   )
 }
 
+export function chooseFacetForCanonicalSlug<Row>(
+  slugFacet: Row | undefined,
+  aliasFacet: Row | undefined,
+): Row | undefined {
+  return slugFacet ?? aliasFacet
+}
+
 type UpdateFacetWithSlugRaceRecoveryOptions<Row extends { id: number }> = {
   existingId: number
   slug: string

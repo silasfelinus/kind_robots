@@ -48,11 +48,10 @@
       @click.capture="activeTab === 'artjob' ? handleArtJobImageClick($event) : undefined"
     >
       <div
-        class="kr-scroll p-3"
         :class="
           activeTab === 'artjob'
-            ? 'flex h-full flex-col gap-3 p-0 2xl:grid 2xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)] 2xl:grid-rows-[auto_minmax(0,1fr)] 2xl:overflow-hidden'
-            : ''
+            ? 'flex h-full min-h-0 flex-col overflow-hidden p-0'
+            : 'kr-scroll p-3'
         "
       >
         <art-maker
@@ -92,13 +91,69 @@
         />
 
         <template v-else-if="activeTab === 'artjob'">
-          <artjob-failed-page-requeue class="2xl:col-span-2" />
-          <artjob-queue-browser
-            class="min-h-0 overflow-hidden"
-          />
-          <artjob-feedback-manager
-            class="min-h-[560px] overflow-hidden 2xl:min-h-0"
-          />
+          <div
+            class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-100 px-3 py-2"
+          >
+            <div
+              role="tablist"
+              aria-label="ArtJob workspace"
+              class="tabs tabs-box tabs-sm bg-base-200"
+            >
+              <button
+                type="button"
+                role="tab"
+                class="tab h-auto min-h-9 gap-2 rounded-xl px-4"
+                :class="{ 'tab-active': artJobWorkspaceTab === 'queue' }"
+                :aria-selected="artJobWorkspaceTab === 'queue'"
+                @click="artJobWorkspaceTab = 'queue'"
+              >
+                Queue
+              </button>
+              <button
+                type="button"
+                role="tab"
+                class="tab h-auto min-h-9 gap-2 rounded-xl px-4"
+                :class="{ 'tab-active': artJobWorkspaceTab === 'trainer' }"
+                :aria-selected="artJobWorkspaceTab === 'trainer'"
+                @click="artJobWorkspaceTab = 'trainer'"
+              >
+                Art trainer
+                <span
+                  v-if="pendingTrainerCount"
+                  class="badge badge-primary badge-sm rounded-2xl"
+                >
+                  {{ pendingTrainerCount }}
+                </span>
+              </button>
+            </div>
+
+            <p class="hidden text-xs text-base-content/50 lg:block">
+              {{
+                artJobWorkspaceTab === 'queue'
+                  ? 'Pipeline health, progress, and recovery controls'
+                  : 'Review finished renders and leave training feedback'
+              }}
+            </p>
+          </div>
+
+          <div
+            v-show="artJobWorkspaceTab === 'queue'"
+            class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3"
+          >
+            <artjob-failed-page-requeue class="shrink-0" />
+            <artjob-queue-browser
+              class="min-h-0 flex-1 overflow-hidden"
+            />
+          </div>
+
+          <div
+            v-show="artJobWorkspaceTab === 'trainer'"
+            class="min-h-0 flex-1 overflow-hidden p-3"
+          >
+            <artjob-feedback-manager
+              class="h-full min-h-0 overflow-hidden"
+            />
+          </div>
         </template>
 
         <div
@@ -155,6 +210,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -172,7 +228,9 @@ type ArtTab =
   | 'artjob'
 
 type LegacyArtTab = ArtTab | 'upload'
+type ArtJobWorkspaceTab = 'queue' | 'trainer'
 
+const artJobStore = useArtJobStore()
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
@@ -195,6 +253,7 @@ const validTabs: LegacyArtTab[] = [
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
+const artJobWorkspaceTab = ref<ArtJobWorkspaceTab>('queue')
 const artPreviewDialog = ref<HTMLDialogElement | null>(null)
 const artPreviewSrc = ref('')
 const artPreviewTitle = ref('Generated art')
@@ -215,6 +274,12 @@ const activeTab = computed<ArtTab>(() => {
   }
 
   return selectedTab as ArtTab
+})
+
+const pendingTrainerCount = computed(() => {
+  return artJobStore.trainerJobs.filter((job) => {
+    return !job.payload?.curation?.human
+  }).length
 })
 
 async function loadManagerData(force = false) {

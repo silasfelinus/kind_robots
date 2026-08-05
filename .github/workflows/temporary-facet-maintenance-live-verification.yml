@@ -16,7 +16,7 @@ permissions:
 jobs:
   live-verification:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
@@ -40,10 +40,10 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout merged repair from main
+      - name: Checkout candidate repair branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: worker/facet-maintenance-pool-20260804
 
       - uses: actions/setup-node@v4
         with:
@@ -65,8 +65,9 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Run live serialized Facet maintenance with canonical seed
+      - name: Run live externally serialized Facet maintenance with canonical seed
         run: |
           npx tsx scripts/run_facet_catalog_maintenance.ts \
             --seed \
-            "--reason=issue 1451 live verification after PR 1454 with maintenance pool"
+            --externally-serialized \
+            "--reason=issue 1451 live verification of PR 1463"

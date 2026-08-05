@@ -14,9 +14,9 @@ dashboardKey: giftshop
 dashboardTab: community
 loadingMessage: Loading giving page...
 refreshLabel: Refresh giving page
-backgroundMobile: background/giving-mobile.webp
-backgroundTablet: background/giving-tablet.webp
-backgroundDesktop: background/giving-desktop.webp
+backgroundMobile: /api/art/backdrop/giving-mobile
+backgroundTablet: /api/art/backdrop/giving-tablet
+backgroundDesktop: /api/art/backdrop/giving-desktop
 ---
 
 :giving-page

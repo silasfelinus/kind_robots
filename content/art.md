@@ -16,9 +16,9 @@ dashboardTab: gallery
 cards: artCards
 loadingMessage: Loading art gallery...
 refreshLabel: Refresh Art
-backgroundMobile: background/art-mobile.webp
-backgroundTablet: background/art-tablet.webp
-backgroundDesktop: background/art-desktop.webp
+backgroundMobile: /api/art/backdrop/art-mobile
+backgroundTablet: /api/art/backdrop/art-tablet
+backgroundDesktop: /api/art/backdrop/art-desktop
 ---
 
 :art-manager

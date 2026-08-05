@@ -16,9 +16,9 @@ dashboardTab: dreams
 cards: dreamCards
 loadingMessage: Loading locations...
 refreshLabel: Refresh Locations
-backgroundMobile: background/dreams-mobile.webp
-backgroundTablet: background/dreams-tablet.webp
-backgroundDesktop: background/dreams-desktop.webp
+backgroundMobile: /api/art/backdrop/dreams-mobile
+backgroundTablet: /api/art/backdrop/dreams-tablet
+backgroundDesktop: /api/art/backdrop/dreams-desktop
 ---
 
 :dream-manager

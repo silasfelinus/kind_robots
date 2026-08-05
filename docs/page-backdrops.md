@@ -15,10 +15,19 @@ Silas, 2026-08-05:
 Three optional frontmatter keys, in any `content/*.md`:
 
 ```yaml
-backgroundMobile: background/taskmaster-mobile.webp
-backgroundTablet: background/taskmaster-tablet.webp
-backgroundDesktop: background/taskmaster-desktop.webp
+backgroundMobile: /api/art/backdrop/taskmaster-mobile
+backgroundTablet: /api/art/backdrop/taskmaster-tablet
+backgroundDesktop: /api/art/backdrop/taskmaster-desktop
 ```
+
+**Written once, up front — before the art exists.** That route derives
+`page-backdrop-<page>-<variant>`, the same requestId
+`enqueuePageBackdropArt` writes, finds the completed job, and redirects to its
+image. So art appears on its own the moment generation finishes: nothing to
+run, nothing to write back here.
+
+Until a job completes the route 404s and the page renders exactly as it did
+before, which is the degradation path working rather than a failure.
 
 That is the whole integration. No page component changes, no props to thread — `app.vue` mounts
 `kr-page-backdrop` once and `pageStore` carries the values to it.
@@ -28,9 +37,13 @@ size rather than nothing; a page with none renders no backdrop at all. Since art
 generated, most pages will ship one variant long before three — that is the expected state, not a
 half-finished one.
 
-Paths are bare and get `/images/` prefixed (`utils/pageImagePath.ts`), which `vercel.json` redirects to
-`media.acrocatranch.com`. **`public/images/**` is gitignored**, so art is uploaded to the media origin,
-not committed. Until it is, the page looks exactly as it does now.
+### Moving bytes to the media share (optional)
+
+A file served straight from nginx is cheaper than the resolver route — no
+function, no database read — so `npm run export:page-backdrops` writes finished
+art to `$IMAGES_PATH` and sets `ArtImage.imagePath`. That is an optimisation,
+**not a prerequisite**: pages show their art either way. Run it at leisure, on
+a host where `IMAGES_PATH` reaches the share (Vercel cannot write to it).
 
 `backgroundMobile` is not the same thing as `image:`. `image:` is the **thumbnail** — nav tabs and the
 workspace sheet render it at chip size. These are full-bleed art.

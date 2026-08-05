@@ -221,20 +221,39 @@ check(
 
 /*
  * Every queued backdrop prompt must be claimed by a page, and every page's
- * declared art must be queued.
+ * declared backdrop must be queued.
  *
- * These two lists are edited in different files by different motivations — one
- * when writing prompts, one when opting a page in — and a mismatch is silent in
- * both directions. A prompt with no page burns a priority-20 queue slot (ahead
- * of ~3000 facets) producing art nothing renders; a page with no prompt waits
- * for art that was never asked for. Neither shows up as an error anywhere.
+ * The two live in different files edited for different reasons, and a mismatch
+ * is silent in both directions: a prompt with no page burns a priority-100
+ * queue slot producing art nothing renders, and a page with no prompt waits for
+ * art no one asked for.
+ *
+ * The join is the SLUG now, not a file path. Frontmatter declares
+ * `/api/art/backdrop/<page>-<variant>`, and that route derives
+ * `page-backdrop-<page>-<variant>` to find the completed job — the same
+ * requestId the seeder writes. Checking the slugs match is therefore checking
+ * the route can actually resolve, which is the thing that matters.
  */
-const declaredPaths = new Set<string>()
+const BACKDROP_ROUTE = /^\/api\/art\/backdrop\/([a-z0-9-]+)-(mobile|tablet|desktop)$/
+
+const declaredSlugs = new Set<string>()
 for (const file of walkContent(resolve(root, 'content'))) {
   for (const match of readFileSync(file, 'utf8').matchAll(
     /^background(?:Mobile|Tablet|Desktop):\s*(\S+)\s*$/gm,
   )) {
-    declaredPaths.add(match[1] as string)
+    const value = match[1] as string
+    const route = BACKDROP_ROUTE.exec(value)
+    check(
+      Boolean(route),
+      `${file.split('/').slice(-2).join('/')} declares "${value}", which is not a ` +
+        `backdrop route. Use /api/art/backdrop/<page>-<variant> so the art ` +
+        `resolves by slug once its job completes.`,
+    )
+    // Early-exit rather than an inline `if (route)`: the capture-group guard
+    // contract wants the null case handled before any indexing, which is also
+    // the shape that keeps the happy path unindented.
+    if (!route) continue
+    declaredSlugs.add(`${route[1]}-${route[2]}`)
   }
 }
 
@@ -242,28 +261,44 @@ const seed = read('stores/seeds/pageBackdropArtPrompts.ts')
 const queuedPages = [...seed.matchAll(/^\s*page:\s*'([a-z0-9-]+)',$/gm)].map(
   (m) => m[1] as string,
 )
+const queuedSlugs = new Set(
+  queuedPages.flatMap((page) =>
+    ['mobile', 'tablet', 'desktop'].map((variant) => `${page}-${variant}`),
+  ),
+)
 
-for (const page of queuedPages) {
-  for (const variant of ['mobile', 'tablet', 'desktop']) {
-    const path = `background/${page}-${variant}.webp`
-    check(
-      declaredPaths.has(path),
-      `${path} is queued for generation but no page declares it — the art would ` +
-        `render nowhere. Add background${variant[0]?.toUpperCase()}${variant.slice(1)} ` +
-        `to content/…/${page}.md, or drop the prompt.`,
-    )
-  }
+for (const slug of queuedSlugs) {
+  check(
+    declaredSlugs.has(slug),
+    `${slug} is queued for generation but no page declares ` +
+      `/api/art/backdrop/${slug} — the art would render nowhere.`,
+  )
 }
 
-for (const path of declaredPaths) {
-  const page = /^background\/(.+)-(?:mobile|tablet|desktop)\.webp$/.exec(path)?.[1]
+for (const slug of declaredSlugs) {
   check(
-    Boolean(page && queuedPages.includes(page)),
-    `${path} is declared in frontmatter but nothing queues it — the page will ` +
-      `wait for art no one asked for. Add "${page}" to ` +
+    queuedSlugs.has(slug),
+    `/api/art/backdrop/${slug} is declared in frontmatter but nothing queues it ` +
+      `— the route will 404 forever. Add its page to ` +
       `stores/seeds/pageBackdropArtPrompts.ts, or drop the frontmatter key.`,
   )
 }
+
+/*
+ * The resolver route must exist and derive the requestId the seeder writes.
+ * If those two ever disagree the route 404s on art that generated perfectly.
+ */
+const resolver = read('server/api/art/backdrop/[slug].get.ts')
+check(
+  /page-backdrop-\$\{slug\}/.test(resolver),
+  'The backdrop resolver no longer derives `page-backdrop-<slug>`, so it cannot ' +
+    'match the requestId enqueuePageBackdropArt writes.',
+)
+check(
+  /status:\s*'DONE'/.test(resolver) && /artImageId:\s*\{\s*not:\s*null\s*\}/.test(resolver),
+  'The backdrop resolver must require status DONE and a non-null artImageId, or ' +
+    'it can redirect to a job that has no image yet.',
+)
 
 /* -- 8. one art mechanism, not several -------------------------------------- */
 

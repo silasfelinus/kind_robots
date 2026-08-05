@@ -1,0 +1,43 @@
+name: Temporary issue 1451 minimum-idle contract patch
+
+on:
+  push:
+    branches:
+      - worker/facet-maintenance-pool-20260804
+    paths:
+      - .github/workflows/temporary-issue-1451-minimum-idle-contract.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/facet-maintenance-pool-20260804
+
+      - name: Update bounded pool contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('utils/scripts/verifyFacetCatalogMaintenance.ts')
+          text = path.read_text(encoding='utf-8')
+          old = '"DATABASE_MINIMUM_IDLE: \'0\'"'
+          new = '"DATABASE_MINIMUM_IDLE: \'1\'"'
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected one minimum-idle assertion, found {count}')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Commit durable patch and remove temporary workflow
+        run: |
+          git config user.name "workflow-patch-bot"
+          git config user.email "workflow-patch-bot@users.noreply.github.com"
+          git rm .github/workflows/temporary-issue-1451-minimum-idle-contract.yml
+          git add utils/scripts/verifyFacetCatalogMaintenance.ts
+          git diff --staged --check
+          git commit -m "test: require warm facet maintenance connection"
+          git push

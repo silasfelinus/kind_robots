@@ -1,0 +1,35 @@
+name: Temporary Facet Run Diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/temporary-facet-run-diagnostic.yml
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  inspect-latest-maintenance-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect latest Facet Catalog Maintenance run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUNS_JSON="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/facet-catalog-maintenance.yml/runs?per_page=10")"
+          echo "$RUNS_JSON" | jq -r '.workflow_runs[] | "run=\(.id) event=\(.event) status=\(.status) conclusion=\(.conclusion) branch=\(.head_branch) sha=\(.head_sha) created=\(.created_at) url=\(.html_url)"'
+
+          LATEST_RUN_ID="$(echo "$RUNS_JSON" | jq -r '.workflow_runs[0].id')"
+          echo "LATEST_RUN_ID=$LATEST_RUN_ID"
+          JOBS_JSON="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${LATEST_RUN_ID}/jobs?per_page=100")"
+          echo "$JOBS_JSON" | jq -r '.jobs[] | "job=\(.id) name=\(.name) status=\(.status) conclusion=\(.conclusion) started=\(.started_at) completed=\(.completed_at)"'
+
+          FAILED_JOB_IDS="$(echo "$JOBS_JSON" | jq -r '.jobs[] | select(.conclusion == "failure") | .id')"
+          for JOB_ID in $FAILED_JOB_IDS; do
+            echo "===== FAILED JOB $JOB_ID LOG TAIL ====="
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${JOB_ID}/logs" > "job-${JOB_ID}.log" || true
+            tail -n 180 "job-${JOB_ID}.log" || true
+          done

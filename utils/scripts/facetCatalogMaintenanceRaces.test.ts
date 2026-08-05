@@ -83,14 +83,18 @@ async function verifySlugUpdateRaceRecoversWinner(): Promise<void> {
   const row = await updateFacetWithSlugRaceRecovery({
     existingId: 7,
     slug: 'storm-caller',
-    updateById: async (id) => {
-      updatedIds.push(id)
-      if (id === 7) throw uniqueError
-      return { id }
+    updateExisting: async () => {
+      updatedIds.push(7)
+      throw uniqueError
     },
     findBySlug: async (slug) => {
       assert.equal(slug, 'storm-caller')
-      return { id: 11 }
+      return { id: 11, description: 'winner description' }
+    },
+    updateWinner: async (winner) => {
+      updatedIds.push(winner.id)
+      assert.equal(winner.description, 'winner description')
+      return winner
     },
   })
 
@@ -107,10 +111,13 @@ async function verifySlugUpdateRaceDoesNotMaskMissingWinner(): Promise<void> {
     updateFacetWithSlugRaceRecovery({
       existingId: 7,
       slug: 'storm-caller',
-      updateById: async () => {
+      updateExisting: async () => {
         throw uniqueError
       },
       findBySlug: async () => null,
+      updateWinner: async () => {
+        throw new Error('must not update a missing winner')
+      },
     }),
     (error) => error === uniqueError,
   )

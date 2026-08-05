@@ -60,6 +60,12 @@
           >
             {{ job.projectSlug }}
           </span>
+          <span
+            v-if="job.priority > 0"
+            class="badge badge-accent badge-xs rounded-2xl"
+          >
+            Priority {{ job.priority }}
+          </span>
         </div>
         <p
           v-if="canShowJobContent"
@@ -159,6 +165,20 @@
 
       <div class="flex flex-wrap items-center gap-1">
         <button
+          v-if="job.status === 'PENDING'"
+          type="button"
+          class="btn btn-xs rounded-2xl"
+          :class="job.priority > 0 ? 'btn-outline' : 'btn-accent'"
+          :disabled="priorityStore.prioritizingJobIds.includes(job.id)"
+          @click="togglePriority"
+        >
+          <span
+            v-if="priorityStore.prioritizingJobIds.includes(job.id)"
+            class="loading loading-spinner loading-xs"
+          />
+          {{ job.priority > 0 ? 'Normal priority' : 'Move to front' }}
+        </button>
+        <button
           v-if="isEditableInPlace"
           type="button"
           class="btn btn-primary btn-xs rounded-2xl"
@@ -222,6 +242,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
+import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import { useArtStore } from '@/stores/artStore'
 import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
 
@@ -237,6 +258,7 @@ const emit = defineEmits<{
 }>()
 
 const artJobStore = useArtJobStore()
+const priorityStore = useArtJobPriorityStore()
 const artStore = useArtStore()
 const copied = ref(false)
 
@@ -383,6 +405,14 @@ async function handleCopy(): Promise<void> {
   window.setTimeout(() => {
     copied.value = false
   }, 1500)
+}
+
+async function togglePriority(): Promise<void> {
+  if (props.job.priority > 0) {
+    await priorityStore.returnToNormal(props.job.id)
+    return
+  }
+  await priorityStore.moveToFront(props.job.id)
 }
 
 function jobStatusClass(status: string): string {

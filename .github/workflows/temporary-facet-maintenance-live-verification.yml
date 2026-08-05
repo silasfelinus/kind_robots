@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: facet-catalog-live-verification-1451
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -65,9 +65,9 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Run live externally serialized Facet maintenance with canonical seed
+      - name: Run definitive live Facet maintenance verification
         run: |
           npx tsx scripts/run_facet_catalog_maintenance.ts \
             --seed \
             --externally-serialized \
-            "--reason=issue 1451 live verification of PR 1463 with serialized seed modules"
+            "--reason=issue 1451 definitive live verification of PR 1463"

@@ -83,25 +83,34 @@
     </div>
 
     <!--
-      pr-16 leaves the lane reactable-card's absolutely-positioned action
-      cluster (karma chip + React button, `right-2 top-2`) occupies. Without it
-      those controls sit on top of the title, which is only noticeable in this
-      variant because the row is short enough for `top-2` to reach the text.
+      TEXT GETS THE REST. An earlier pass reserved `pr-16` here for
+      reactable-card's absolutely-positioned action cluster, but that cluster is
+      hidden at rest and absent entirely when there is no karma to show — so on
+      a ~230px cell it was donating a quarter of the row to nothing and
+      truncating titles to "My Boss is...". Silas, 2026-08-05: "not enough space
+      given to the description."
+
+      Badges sit INLINE with the subtitle rather than on their own line, which
+      is what made a single chip cost a third of the row's height.
     -->
-    <div class="min-w-0 flex-1 pr-16">
+    <div class="min-w-0 flex-1 pr-1">
       <h2 class="truncate text-sm font-black leading-tight" :title="title">
         {{ title }}
       </h2>
 
-      <p v-if="subtitle" class="truncate text-xs text-base-content/60">
-        {{ subtitle }}
-      </p>
+      <div class="flex min-w-0 items-center gap-1.5">
+        <p
+          v-if="subtitle"
+          class="min-w-0 flex-1 truncate text-xs text-base-content/60"
+          :title="subtitle"
+        >
+          {{ subtitle }}
+        </p>
 
-      <div v-if="badges.length" class="mt-1 flex flex-wrap gap-1">
         <span
           v-for="badge in badges"
           :key="badge.label"
-          class="badge badge-xs"
+          class="badge badge-xs shrink-0"
           :class="badge.class || 'badge-primary'"
         >
           {{ badge.label }}

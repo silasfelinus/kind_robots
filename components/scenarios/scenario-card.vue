@@ -216,9 +216,11 @@ const introCount = computed(() => {
 
 const badges = computed<EntityCardChip[]>(() => {
   const result: EntityCardChip[] = []
-  if (props.scenario.userId === userStore.userId) {
-    result.push({ label: 'Yours', class: 'badge-primary' })
-  }
+  // No 'Yours' chip. /stories shows the signed-in user their own scenarios, so
+  // it rendered on all 152 of them — a badge that is always true carries no
+  // information and cost a third of each icon row. Silas, 2026-08-05: "the
+  // owner info should not even be present on this gallery, and 'Yours' takes up
+  // a full third of the space."
   if (props.scenario.isMature) {
     result.push({ label: 'Mature', class: 'badge-warning' })
   }

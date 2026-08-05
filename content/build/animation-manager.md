@@ -9,7 +9,7 @@ icon: kind-icon:sparkles
 sort: highlight
 dottiTip: AMI, how do we know which butterfly build actually works?
 amiTip: We don't guess — we log it, rate it, and promote the one that survives contact with reality.
-channelKey: play
+channelKey: plan
 tabKey: animation-manager
 dashboardKey: wonder
 dashboardTab: animation-manager

@@ -121,9 +121,11 @@
         <Icon name="kind-icon:check" class="h-3 w-3" />
       </div>
 
-      <!-- Retry -->
+      <!-- Retry — always available on a failed load, not just in debug mode,
+           so a transient network/URL hiccup doesn't permanently pin the card
+           to the fallback image with no recovery path for real users. -->
       <button
-        v-if="imageLoadFailed && showDebug"
+        v-if="imageLoadFailed"
         class="absolute bottom-1.5 left-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-bold text-warning-content shadow"
         type="button"
         title="Retry image"

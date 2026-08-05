@@ -12,6 +12,9 @@ tabKey: serendipity
 dashboardKey: scenario
 dashboardTab: serendipity
 cards: navCards
+backgroundMobile: background/serendipity-mobile.webp
+backgroundTablet: background/serendipity-tablet.webp
+backgroundDesktop: background/serendipity-desktop.webp
 ---
 
 :serendipity-page

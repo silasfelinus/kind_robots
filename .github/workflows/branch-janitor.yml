@@ -1,0 +1,44 @@
+name: Branch janitor
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan only; delete nothing"
+        type: boolean
+        default: false
+      force_delete_branches:
+        description: "Comma-separated branch names to delete regardless of merge state"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: branch-janitor
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Delete merged branches and report stranded work
+        run: |
+          python scripts/branch_janitor.py \
+            ${{ (github.event.inputs.dry_run == 'true') && '--dry-run' || '' }} \
+            --force-delete "${{ github.event.inputs.force_delete_branches }}" \
+            | tee -a "$GITHUB_STEP_SUMMARY"

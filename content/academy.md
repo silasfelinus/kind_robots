@@ -15,6 +15,9 @@ dashboardKey: academy
 dashboardTab: timeline
 loadingMessage: Restoring the frescoes...
 refreshLabel: Refresh Academy
+backgroundMobile: background/academy-mobile.webp
+backgroundTablet: background/academy-tablet.webp
+backgroundDesktop: background/academy-desktop.webp
 ---
 
 :academy-manager

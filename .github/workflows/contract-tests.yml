@@ -18,11 +18,11 @@ jobs:
   # t-099: ESLint as a ratcheted gate — it never asks anyone to fix the
   # pre-existing problems, only refuses NEW ones, per rule.
   #
-  # Its OWN job on purpose. A full-repo `eslint .` takes minutes, and the
-  # contract-verifiers job below is a ~106-step serial chain under a 10-minute
-  # budget; putting this inline made every later verifier queue behind it and
-  # threatened the whole job's timeout. Nothing here depends on those steps, so
-  # running in parallel costs no extra wall-clock.
+  # Its OWN job on purpose. The contract-verifiers job below is a ~100-step
+  # serial chain under a 10-minute budget, and a full-repo `eslint .` is the
+  # single slowest check here (measured: 41s in CI, 73s locally) while depending
+  # on none of those steps. Serialising it inside that chain spends the shared
+  # budget for no reason; in parallel it costs no extra wall-clock at all.
   lint-ratchet:
     name: ESLint ratchet
     runs-on: ubuntu-latest

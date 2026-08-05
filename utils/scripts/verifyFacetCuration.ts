@@ -1,6 +1,7 @@
 // /utils/scripts/verifyFacetCuration.ts
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { stripComments } from './lib/sourceText'
 
 const root = process.cwd()
 
@@ -28,7 +29,10 @@ function requireOrder(
 }
 
 function forbidFacetArtMutation(path: string, text: string): void {
-  const updateCalls = text.match(/prisma\.facet\.update\(\{[\s\S]*?\n\s*\}\)/g) ?? []
+  // Strip comments first (t-068): a doc comment showing a prisma.facet.update
+  // block to explain which fields are protected must not read as one.
+  const updateCalls =
+    stripComments(text).match(/prisma\.facet\.update\(\{[\s\S]*?\n\s*\}\)/g) ?? []
   const protectedFields = [
     'flavorText',
     'examples',

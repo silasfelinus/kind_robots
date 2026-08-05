@@ -25,26 +25,23 @@
 
 import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import { stripComments } from './lib/sourceText'
 
 const failures: string[] = []
 const notes: string[] = []
 
-/**
- * Strip comments before any forbid-scan.
+/*
+ * WHY EVERY SCAN BELOW STRIPS COMMENTS FIRST.
  *
  * interface-vision t-068: "a doc comment can fail 29 source-text contracts".
  * This contract proved it on its own first run — scenario-card.vue was flagged
  * for hardcoding `variant="card"` when the only occurrence left was inside the
  * doc comment explaining that it USED to. A contract that punishes you for
  * documenting the thing it asked you to fix trains people to delete comments.
+ *
+ * The stripper itself lives in ./lib/sourceText, shared with every other
+ * forbid-scanning verifier and covered by verifySourceTextComments.test.ts.
  */
-function stripComments(src: string): string {
-  return src
-    .replace(/<!--[\s\S]*?-->/g, '') // template
-    .replace(/\/\*[\s\S]*?\*\//g, '') // block
-    .replace(/(^|[^:])\/\/[^\n]*/g, '$1') // line, sparing protocol slashes
-}
-
 const fail = (msg: string) => failures.push(msg)
 const ok = (msg: string) => notes.push(`ok - ${msg}`)
 

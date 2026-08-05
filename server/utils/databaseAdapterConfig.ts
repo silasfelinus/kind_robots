@@ -21,6 +21,10 @@ import {
   DEFAULT_IDLE_TIMEOUT_SECONDS,
   DEFAULT_MINIMUM_IDLE,
   DEFAULT_PING_TIMEOUT_MS,
+  VERCEL_CONNECTION_LIMIT,
+  VERCEL_IDLE_TIMEOUT_SECONDS,
+  VERCEL_MINIMUM_IDLE,
+  isVercelFunctionRuntime,
 } from './databasePoolDefaults'
 
 export type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
@@ -67,62 +71,75 @@ export function readDatabaseUseTextProtocol(): boolean {
 
 export function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
+  const isVercelRuntime = isVercelFunctionRuntime()
   const connectTimeout = readPositiveInteger(
-    process.env.DATABASE_CONNECT_TIMEOUT_MS,
+    parsed.searchParams.get('connectTimeout') ??
+      process.env.DATABASE_CONNECT_TIMEOUT_MS,
     DEFAULT_CONNECT_TIMEOUT_MS,
   )
   const acquireTimeout = readPositiveInteger(
-    process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
+    parsed.searchParams.get('acquireTimeout') ??
+      process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
     DEFAULT_ACQUIRE_TIMEOUT_MS,
   )
-  const connectionLimit = readPositiveInteger(
-    process.env.DATABASE_CONNECTION_LIMIT,
+  const requestedConnectionLimit = readPositiveInteger(
+    parsed.searchParams.get('connectionLimit') ??
+      process.env.DATABASE_CONNECTION_LIMIT,
     DEFAULT_CONNECTION_LIMIT,
   )
   const minDelayValidation = readNonNegativeInteger(
-    process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
+    parsed.searchParams.get('minDelayValidation') ??
+      process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
     0,
   )
-  const idleTimeout = readPositiveInteger(
-    process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
+  const requestedIdleTimeout = readPositiveInteger(
+    parsed.searchParams.get('idleTimeout') ??
+      process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
     DEFAULT_IDLE_TIMEOUT_SECONDS,
   )
-  const minimumIdle = readNonNegativeInteger(
-    process.env.DATABASE_MINIMUM_IDLE,
+  const requestedMinimumIdle = readNonNegativeInteger(
+    parsed.searchParams.get('minimumIdle') ??
+      process.env.DATABASE_MINIMUM_IDLE,
     DEFAULT_MINIMUM_IDLE,
   )
   const pingTimeout = readPositiveInteger(
-    process.env.DATABASE_PING_TIMEOUT_MS,
+    parsed.searchParams.get('pingTimeout') ??
+      process.env.DATABASE_PING_TIMEOUT_MS,
     DEFAULT_PING_TIMEOUT_MS,
   )
+  const connectionLimit = isVercelRuntime
+    ? Math.min(requestedConnectionLimit, VERCEL_CONNECTION_LIMIT)
+    : requestedConnectionLimit
+  const idleTimeout = isVercelRuntime
+    ? Math.min(requestedIdleTimeout, VERCEL_IDLE_TIMEOUT_SECONDS)
+    : requestedIdleTimeout
+  const minimumIdle = isVercelRuntime
+    ? VERCEL_MINIMUM_IDLE
+    : requestedMinimumIdle
 
-  if (!parsed.searchParams.has('connectTimeout')) {
-    parsed.searchParams.set('connectTimeout', String(connectTimeout))
+  if (
+    isVercelRuntime &&
+    (connectionLimit !== requestedConnectionLimit ||
+      idleTimeout !== requestedIdleTimeout ||
+      minimumIdle !== requestedMinimumIdle)
+  ) {
+    console.warn('[prisma] Clamped unsafe Vercel database pool override', {
+      requestedConnectionLimit,
+      requestedIdleTimeout,
+      requestedMinimumIdle,
+      connectionLimit,
+      idleTimeout,
+      minimumIdle,
+    })
   }
 
-  if (!parsed.searchParams.has('acquireTimeout')) {
-    parsed.searchParams.set('acquireTimeout', String(acquireTimeout))
-  }
-
-  if (!parsed.searchParams.has('connectionLimit')) {
-    parsed.searchParams.set('connectionLimit', String(connectionLimit))
-  }
-
-  if (!parsed.searchParams.has('minDelayValidation')) {
-    parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
-  }
-
-  if (!parsed.searchParams.has('idleTimeout')) {
-    parsed.searchParams.set('idleTimeout', String(idleTimeout))
-  }
-
-  if (!parsed.searchParams.has('minimumIdle')) {
-    parsed.searchParams.set('minimumIdle', String(minimumIdle))
-  }
-
-  if (!parsed.searchParams.has('pingTimeout')) {
-    parsed.searchParams.set('pingTimeout', String(pingTimeout))
-  }
+  parsed.searchParams.set('connectTimeout', String(connectTimeout))
+  parsed.searchParams.set('acquireTimeout', String(acquireTimeout))
+  parsed.searchParams.set('connectionLimit', String(connectionLimit))
+  parsed.searchParams.set('minDelayValidation', String(minDelayValidation))
+  parsed.searchParams.set('idleTimeout', String(idleTimeout))
+  parsed.searchParams.set('minimumIdle', String(minimumIdle))
+  parsed.searchParams.set('pingTimeout', String(pingTimeout))
 
   if (!parsed.searchParams.has('pipelining')) {
     parsed.searchParams.set('pipelining', String(readDatabasePipelining()))

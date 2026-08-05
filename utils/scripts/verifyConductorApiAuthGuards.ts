@@ -10,9 +10,12 @@
 //     (server/utils/authGuard.ts)
 //   - validateApiKey(...) paired with a userIsAdmin(...) check
 //     (server/utils/validateKey.ts + server/utils/authUser.ts) -- the older
-//     pattern used by art-request.post.ts and curate-request.post.ts. It is
-//     functionally equivalent (same JWT / user-api-key / beta-admin-token
-//     resolution as requireAdminApiUser) so it is accepted, not flagged.
+//     pattern used by art-request.post.ts (curate-request.post.ts used to be
+//     a second example but was removed in PR #1244, 2026-08-01, when the
+//     curator vision-model pass it fed was retired -- see conductor
+//     kind-robots/t-051). It is functionally equivalent (same JWT /
+//     user-api-key / beta-admin-token resolution as requireAdminApiUser) so
+//     it is accepted, not flagged.
 import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'

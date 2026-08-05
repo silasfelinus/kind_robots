@@ -35,12 +35,6 @@ if (!isVercelBuild || isProductionDeployment) {
 
   run(
     tsxBinary,
-    ['scripts/reconcile_failed_art_jobs_production.ts', '--write'],
-    'Reconciling failed ArtJobs',
-  )
-
-  run(
-    tsxBinary,
     ['scripts/seed_achievements.ts', '--write'],
     'Reconciling canonical Achievement catalog',
   )

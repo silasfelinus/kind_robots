@@ -16,10 +16,10 @@ name: Facet Catalog Maintenance
 # verifyFacetCatalogMaintenance.ts asserts this file exists for exactly that
 # reason.
 #
-# The run still takes the MySQL named lock inside
-# run_facet_catalog_maintenance.ts, so a manual dispatch cannot collide with the
-# weekly schedule, with a second dispatch, or with anyone running the script by
-# hand. Deploys no longer contend for it.
+# GitHub's non-cancelling concurrency group is the outer serialization lock for
+# scheduled and dispatched workflow runs. Direct script invocations still take
+# the MariaDB named lock. The workflow deliberately skips that database lock so
+# it does not consume a scarce ProxySQL frontend session for the full run.
 #
 # Required secrets (repository Actions secrets: Settings → Secrets and variables
 # → Actions → New repository secret) — identical to the nightly fallback
@@ -118,4 +118,5 @@ jobs:
           echo "Running with $SEED_FLAG"
           npx tsx scripts/run_facet_catalog_maintenance.ts \
             "$SEED_FLAG" \
+            --externally-serialized \
             "--reason=out-of-band ${{ github.event_name }} run"

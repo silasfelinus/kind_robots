@@ -283,6 +283,7 @@ onBeforeUnmount(() => {
   display: grid;
   width: min(98vw, 64rem);
   height: min(92vh, 52rem);
+  height: min(92dvh, 52rem);
   /*
    * The heading row is deeper than the heading so the heading can sit at its
    * BOTTOM (see .loading-heading align-self) rather than at the top of the
@@ -291,8 +292,13 @@ onBeforeUnmount(() => {
    * nearly the full width -- so a top-anchored heading rendered underneath it
    * and both became unreadable. Silas: "it should be an easy fix to lower the
    * message nearer the logo."
+   *
+   * Both text bands are content-sized. The rotating message can wrap after an
+   * orientation change, so forcing its parent into an 8rem track clips longer
+   * messages while the logo track keeps the space instead.
    */
-  grid-template-rows: minmax(7rem, auto) minmax(0, 1fr) 8rem;
+  grid-template-rows:
+    minmax(7rem, auto) minmax(0, 1fr) minmax(8rem, auto);
   place-items: center;
   opacity: 1;
   transform: scale(1);
@@ -436,7 +442,7 @@ onBeforeUnmount(() => {
   display: grid;
   width: 100%;
   min-height: 8rem;
-  grid-template-rows: 4rem 4rem;
+  grid-template-rows: 4rem minmax(4rem, auto);
   place-items: center;
 }
 
@@ -449,6 +455,9 @@ onBeforeUnmount(() => {
 
 .loading-message {
   font-size: clamp(1.05rem, 2vw, 1.75rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
   will-change: transform, opacity;
 }
 

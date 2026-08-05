@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { extractWonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentSourceEvidence.mjs'
 
 const characterSheetSource = await readFile(
-  'components/characters/character-sheet.vue',
+  'components/abandonware/characters/character-sheet.vue',
   'utf8',
 )
 const characterSheet = extractWonderLabComponentSourceEvidence(
@@ -33,7 +33,7 @@ assert.ok(
 )
 
 const butterflyLinkSource = await readFile(
-  'components/butterfly/ami-link-butterflies.vue',
+  'components/abandonware/butterfly/ami-link-butterflies.vue',
   'utf8',
 )
 const butterflyLink = extractWonderLabComponentSourceEvidence(butterflyLinkSource)

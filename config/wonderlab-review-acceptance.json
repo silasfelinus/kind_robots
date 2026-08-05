@@ -4,7 +4,7 @@
   "minimumProductionCommit": "5474a04f6ace908b8540214b45c17e6a747c7255",
   "component": {
     "id": 1951,
-    "sourceKey": "components/characters/character-sheet.vue",
+    "sourceKey": "components/abandonware/characters/character-sheet.vue",
     "title": "character-sheet"
   },
   "reviewers": [

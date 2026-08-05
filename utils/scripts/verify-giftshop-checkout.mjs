@@ -30,7 +30,7 @@ const [
   source('components/navigation/notification-bell.vue'),
   source('components/pages/giving-page.vue'),
   source('components/giftshop/giftshop-interact.vue'),
-  source('components/giftshop/cart-interact.vue'),
+  source('components/abandonware/giftshop/cart-interact.vue'),
   source('components/giftshop/shopping-cart.vue'),
   source('server/api/stripe/checkout.post.ts'),
   source('server/api/stripe/checkout-status.get.ts'),

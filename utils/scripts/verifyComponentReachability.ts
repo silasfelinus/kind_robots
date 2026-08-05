@@ -291,8 +291,8 @@ export function reachableFrom(roots: Set<string>, edges: Map<string, Set<string>
  * here by design, and the museum's glob means Vite compiles these files anyway,
  * so a stale specifier is a hard `nuxt build` failure rather than a dead file
  * nobody notices. That is exactly what happened on the first parking run:
- * builder-art-input kept `~/components/builder/art-builder.vue` pointing at a
- * path that had just moved, and the build died on it.
+ * builder-art-input kept its import pointing at the pre-parking path, and the
+ * build died on it.
  *
  * Prefer `@/`-anchored specifiers in parked files — they do not care how deep
  * the file sits.
@@ -456,10 +456,32 @@ function main(): void {
   const baseline = loadRatchetBaseline<{ orphans: string[]; total?: number }>(BASELINE)
   const grown = grownRatchetBuckets(current, baseline ? { orphans: baseline.orphans } : null)
 
+  const parked = walk(resolve(root, 'components', PARKED_SEGMENT), isVue).length
+
   process.stdout.write(
     `Component reachability: ${files.size} live components, ` +
       `${orphans.length} unreachable from app.vue / pages / layouts / content mounts` +
       `${ratchetDelta(orphans.length, baseline?.orphans.length)}\n`,
+  )
+
+  // Parked count is PROGRESS, not debt, and it is meant to climb.
+  //
+  // Silas, 2026-08-05: "I do hope that many components will be parked in the
+  // end, since we are substituting for quality bespoke. this might as well be a
+  // good standard for progress, though not at the expense of quality."
+  //
+  // So the two numbers read in opposite directions on purpose: orphans ratchet
+  // DOWN to zero (nothing dead left lying in the app), while parked climbs as
+  // hand-rolled components are replaced by the shared kit. Nothing caps it.
+  //
+  // The one way this metric could lie: a component goes orphaned because
+  // somebody deleted its mount by accident, and parking it makes the loss
+  // permanent and tidy-looking. Read the orphan list before acting on it — a
+  // component that was live last week is a bug report, not a parking candidate.
+  process.stdout.write(
+    `Parked in components/${PARKED_SEGMENT}/: ${parked} ` +
+      `(${Math.round((parked / (parked + files.size)) * 100)}% of all components) — ` +
+      `still exhibited in WonderLab, out of the app build.\n`,
   )
 
   if (update) {

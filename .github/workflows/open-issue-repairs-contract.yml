@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "components/characters/add-character.vue"
-      - "components/pages/super-form.vue"
+      - "components/abandonware/pages/super-form.vue"
       - "stores/superkateReceiptStore.ts"
       - "server/api/stylist/receipt-email.post.ts"
       - "server/api/art/queue/**"
@@ -16,7 +16,7 @@ on:
     branches: [main]
     paths:
       - "components/characters/add-character.vue"
-      - "components/pages/super-form.vue"
+      - "components/abandonware/pages/super-form.vue"
       - "stores/superkateReceiptStore.ts"
       - "server/api/stylist/receipt-email.post.ts"
       - "server/api/art/queue/**"

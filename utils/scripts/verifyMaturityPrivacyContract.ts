@@ -54,7 +54,7 @@ assert.ok(videoLoraPicker.includes('<maturity-toggle'))
 assert.ok(videoLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(!videoLoraPicker.includes('artStore.showMature'))
 
-const artLoraPicker = readFileSync('components/art/lora-picker.vue', 'utf8')
+const artLoraPicker = readFileSync('components/abandonware/art/lora-picker.vue', 'utf8')
 assert.ok(artLoraPicker.includes('<maturity-toggle'))
 assert.ok(artLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(artLoraPicker.includes('availableLoraIds'))

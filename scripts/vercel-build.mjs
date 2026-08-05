@@ -6,6 +6,9 @@ const binExtension = process.platform === 'win32' ? '.cmd' : ''
 const prismaBinary = path.resolve(`node_modules/.bin/prisma${binExtension}`)
 const tsxBinary = path.resolve(`node_modules/.bin/tsx${binExtension}`)
 const nuxtBinary = path.resolve('node_modules/.bin/nuxt')
+const connectorGuard = path.resolve(
+  'scripts/ensure-prisma-mariadb-connector.mjs',
+)
 const TRANSIENT_DATABASE_OUTPUT =
   /ER_USER_LIMIT_REACHED|max_user_connections|pool timeout|failed to retrieve a connection|Max connect timeout reached|P1001|P1002|P1017|P2024|connection (?:closed|refused|reset)|connect(?:ion)? timeout/i
 
@@ -50,6 +53,11 @@ function runOptionalDatabaseMaintenance(command, args, label) {
 const isVercelBuild = process.env.VERCEL === '1'
 const isProductionDeployment = process.env.VERCEL_ENV === 'production'
 
+run(
+  process.execPath,
+  [connectorGuard],
+  'Ensuring Prisma MariaDB connector supports zero-idle pools',
+)
 run(prismaBinary, ['generate'], 'Generating Prisma client')
 
 if (!isVercelBuild || isProductionDeployment) {

@@ -1,9 +1,9 @@
 // /scripts/run_facet_catalog_maintenance.ts
 //
-// Serializes the complete production Facet catalog mutation sequence with a
-// MariaDB named lock. Vercel production deployments can overlap, but canonical
-// seeding, merge cleanup, taxonomy curation, and ArtJob creation must behave as
-// one ordered catalog operation rather than several interleaved writers.
+// Serializes the complete production Facet catalog mutation sequence. Direct
+// invocations take a MariaDB named lock. The GitHub Actions workflow may instead
+// pass --externally-serialized because its non-cancelling concurrency group is
+// already the outer lock, avoiding an otherwise dedicated ProxySQL session.
 
 import 'dotenv/config'
 import { spawn } from 'node:child_process'
@@ -25,6 +25,7 @@ const LOCK_PING_INTERVAL_MS = 20_000
 const binExtension = process.platform === 'win32' ? '.cmd' : ''
 const tsxBinary = path.resolve(`node_modules/.bin/tsx${binExtension}`)
 const runCanonicalSeed = process.argv.includes('--seed')
+const externallySerialized = process.argv.includes('--externally-serialized')
 const reasonArgument = process.argv.find((argument) =>
   argument.startsWith('--reason='),
 )
@@ -162,6 +163,16 @@ async function runStep(step: Step, abortSignal: AbortSignal): Promise<void> {
   })
 }
 
+async function runMaintenanceSteps(abortSignal: AbortSignal): Promise<void> {
+  if (!runCanonicalSeed) {
+    console.log(
+      `[facet-maintenance] Skipping unchanged canonical seed: ${seedReason}`,
+    )
+  }
+
+  await runSerializedFacetMaintenanceSteps(steps, runStep, abortSignal)
+}
+
 function acquiredValue(rows: unknown): number {
   if (!Array.isArray(rows) || !rows.length) return 0
   const row = rows[0]
@@ -210,10 +221,7 @@ async function releaseLock(connection: PoolConnection): Promise<void> {
   )
 }
 
-async function main(): Promise<void> {
-  const databaseUrl = process.env.DATABASE_URL
-  if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-
+async function runWithDatabaseLock(databaseUrl: string): Promise<void> {
   const config = buildDatabaseConfig(databaseUrl)
   // buildDatabaseConfig() is typed against @prisma/adapter-mariadb's own
   // nested copy of the `mariadb` package, which TS treats as structurally
@@ -270,17 +278,7 @@ async function main(): Promise<void> {
         })
     }, LOCK_PING_INTERVAL_MS)
 
-    if (!runCanonicalSeed) {
-      console.log(
-        `[facet-maintenance] Skipping unchanged canonical seed: ${seedReason}`,
-      )
-    }
-
-    await runSerializedFacetMaintenanceSteps(
-      steps,
-      runStep,
-      lockGuard.signal,
-    )
+    await runMaintenanceSteps(lockGuard.signal)
   } finally {
     maintenanceActive = false
     if (keepAlive) clearInterval(keepAlive)
@@ -313,6 +311,21 @@ async function main(): Promise<void> {
       )
     }
   }
+}
+
+async function main(): Promise<void> {
+  const databaseUrl = process.env.DATABASE_URL
+  if (!databaseUrl) throw new Error('DATABASE_URL is missing')
+
+  if (externallySerialized) {
+    console.log(
+      '[facet-maintenance] External scheduler owns serialization; database named lock skipped.',
+    )
+    await runMaintenanceSteps(new AbortController().signal)
+    return
+  }
+
+  await runWithDatabaseLock(databaseUrl)
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

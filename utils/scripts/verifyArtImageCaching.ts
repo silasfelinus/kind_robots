@@ -82,6 +82,44 @@ check(
     `original.`,
 )
 
+/* -- 5. nothing silently defaults to the A1111 engine ----------------------- */
+
+/*
+ * A1111 must never be reached by accident.
+ *
+ * `/api/art/queue` defaulted to it — `body?.engine || 'A1111'` — and that one
+ * fallback killed 60 page backdrop jobs on 2026-08-05: WinError 10061,
+ * connection refused, three attempts each, prompts never read. Nothing runs
+ * A1111 here; every PENDING and recent DONE job in the queue is COMFY and the
+ * only A1111 rows are CANCELLED.
+ *
+ * A silent default is the dangerous shape. A caller that omits `engine` gets a
+ * job that looks correctly queued, sits at the right priority, and cannot run.
+ * Explicit A1111 stays legal — the `serverType === 'A1111'` branches elsewhere
+ * are real capability handling — but choosing it must be deliberate.
+ */
+const ENGINE_DEFAULT_FILES = [
+  'server/api/art/queue/index.post.ts',
+  'server/api/art/enqueue.post.ts',
+  'utils/scripts/enqueuePageBackdropArt.ts',
+]
+
+for (const file of ENGINE_DEFAULT_FILES) {
+  let source: string
+  try {
+    source = withoutComments(readFileSync(resolve(process.cwd(), file), 'utf8'))
+  } catch {
+    continue // file moved or removed; other checks will notice
+  }
+
+  check(
+    !/(?:\|\||\?\?)\s*['"]A1111['"]/.test(source),
+    `${file} falls back to 'A1111'. Nothing runs A1111 — a caller that omits ` +
+      `the engine would get a job that looks queued and cannot run. Default to ` +
+      `COMFY; keep A1111 reachable only as an explicit choice.`,
+  )
+}
+
 /* --------------------------------------------------------------------------- */
 
 function selfTest(): void {

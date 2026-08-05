@@ -14,9 +14,9 @@ tabKey: scenarios
 dashboardKey: scenario
 dashboardTab: scenarios
 cards: scenarioCards
-backgroundMobile: background/stories-mobile.webp
-backgroundTablet: background/stories-tablet.webp
-backgroundDesktop: background/stories-desktop.webp
+backgroundMobile: /api/art/backdrop/stories-mobile
+backgroundTablet: /api/art/backdrop/stories-tablet
+backgroundDesktop: /api/art/backdrop/stories-desktop
 ---
 
 :scenario-manager

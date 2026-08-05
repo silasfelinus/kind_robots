@@ -12,9 +12,9 @@ tabKey: serendipity
 dashboardKey: scenario
 dashboardTab: serendipity
 cards: navCards
-backgroundMobile: background/serendipity-mobile.webp
-backgroundTablet: background/serendipity-tablet.webp
-backgroundDesktop: background/serendipity-desktop.webp
+backgroundMobile: /api/art/backdrop/serendipity-mobile
+backgroundTablet: /api/art/backdrop/serendipity-tablet
+backgroundDesktop: /api/art/backdrop/serendipity-desktop
 ---
 
 :serendipity-page

@@ -36,7 +36,27 @@ export default defineEventHandler(async (event) => {
     const auth = await requireMachineUser(event)
     const body = (await readBody(event)) as QueueRequestBody | null
 
-    const engine = String(body?.engine || 'A1111').toUpperCase()
+    /*
+     * NEVER DEFAULT TO A1111. This single fallback is the whole reason 60 page
+     * backdrop jobs died on 2026-08-05 with `WinError 10061 ... target machine
+     * actively refused it` — connection refused, three attempts each, prompts
+     * never read. Nothing runs A1111 here: every PENDING job in the queue is
+     * COMFY, every recent DONE job is COMFY, and the only A1111 rows anywhere
+     * are CANCELLED.
+     *
+     * A silent default is what makes this dangerous rather than annoying. A
+     * caller that forgets `engine` gets a job that looks perfectly queued, sits
+     * at the right priority, and cannot possibly run. Silas, having been bitten
+     * before: "make sure there is no more references to a111, that has hit us
+     * before."
+     *
+     * COMFY is the default now because it is what the relay actually claims.
+     * A1111 remains a valid EXPLICIT choice — the branches keyed on
+     * `serverType === 'A1111'` elsewhere are real capability handling for a
+     * server that genuinely is one, and they stay. What is gone is getting it
+     * by accident.
+     */
+    const engine = String(body?.engine || 'COMFY').toUpperCase()
 
     if (!ENGINES.has(engine)) {
       throw createError({

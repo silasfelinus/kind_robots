@@ -14,9 +14,9 @@ sort: 30
 status: under-construction
 tutorial:
   underConstruction: true
-backgroundMobile: background/giftshop-mobile.webp
-backgroundTablet: background/giftshop-tablet.webp
-backgroundDesktop: background/giftshop-desktop.webp
+backgroundMobile: /api/art/backdrop/giftshop-mobile
+backgroundTablet: /api/art/backdrop/giftshop-tablet
+backgroundDesktop: /api/art/backdrop/giftshop-desktop
 ---
 
 A future storefront for generated art and products that help support the project.

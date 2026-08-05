@@ -31,7 +31,6 @@ const TIMEOUT_MS = 20_000
 type Row = {
   id: number
   imagePath: string
-  imageData: string
   bytes: number
 }
 
@@ -82,11 +81,6 @@ async function verify(row: Row): Promise<{ verdict: Verdict; detail: string }> {
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
-    const storedBytes = decodeStoredImage(row.imageData)
-    if (!storedBytes) {
-      return { verdict: 'skip-invalid-data', detail: 'stored base64 did not decode' }
-    }
-
     const res = await fetch(url, {
       signal: controller.signal,
       redirect: 'follow',
@@ -112,6 +106,26 @@ async function verify(row: Row): Promise<{ verdict: Verdict; detail: string }> {
     }
 
     const servedBytes = new Uint8Array(await res.arrayBuffer())
+
+    /*
+     * The stored blob is loaded HERE, one row at a time, and only for rows that
+     * already look prunable.
+     *
+     * Selecting imageData in the candidate query instead pulled every base64
+     * blob in the table before printing a single line — on a corpus where one
+     * card is ~500KB, that is gigabytes over the wire and looks exactly like a
+     * hang. A dry run whose first job is to report a size must not read the
+     * whole thing to do it.
+     */
+    const stored = await prisma.artImage.findUnique({
+      where: { id: row.id },
+      select: { imageData: true },
+    })
+    const storedBytes = stored?.imageData ? decodeStoredImage(stored.imageData) : null
+    if (!storedBytes) {
+      return { verdict: 'skip-invalid-data', detail: 'stored base64 did not decode' }
+    }
+
     const storedDigest = digest(storedBytes)
     const servedDigest = digest(servedBytes)
     if (storedDigest !== servedDigest) {
@@ -154,8 +168,28 @@ async function mapLimit<T, R>(
 }
 
 async function main() {
+  /*
+   * `rowCount`, not `rows`: ROWS is a reserved word in MariaDB 10.6+ (FETCH
+   * FIRST n ROWS / LIMIT ROWS EXAMINED), so `COUNT(*) AS rows` is a syntax
+   * error rather than a shadowing warning. This repo already has a contract for
+   * the table-identifier form of the same mistake
+   * (test:no-unquoted-reserved-word-tables); column aliases need the same care.
+   */
+  const totals = await prisma.$queryRawUnsafe<{ rowCount: number; bytes: number }[]>(`
+    SELECT COUNT(*) AS rowCount, COALESCE(SUM(LENGTH(imageData)), 0) AS bytes
+    FROM ArtImage WHERE imageData IS NOT NULL
+  `)
+  const allRows = Number(totals[0]?.rowCount || 0)
+  const allBytes = Number(totals[0]?.bytes || 0)
+  const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`
+
+  console.log(
+    `ArtImage rows holding base64: ${allRows} (${mb(allBytes)} total)`,
+  )
+  console.log('Selecting candidates...')
+
   const candidates = await prisma.$queryRawUnsafe<Row[]>(`
-    SELECT id, imagePath, imageData, LENGTH(imageData) AS bytes
+    SELECT id, imagePath, LENGTH(imageData) AS bytes
     FROM ArtImage
     WHERE imageData IS NOT NULL
       AND imagePath IS NOT NULL
@@ -165,17 +199,8 @@ async function main() {
     ${LIMIT > 0 ? `LIMIT ${Math.floor(LIMIT)}` : ''}
   `)
 
-  const totals = await prisma.$queryRawUnsafe<{ rows: number; bytes: number }[]>(`
-    SELECT COUNT(*) AS rows, COALESCE(SUM(LENGTH(imageData)), 0) AS bytes
-    FROM ArtImage WHERE imageData IS NOT NULL
-  `)
-  const allRows = Number(totals[0]?.rows || 0)
-  const allBytes = Number(totals[0]?.bytes || 0)
-  const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`
-
   console.log(
-    `ArtImage rows holding base64: ${allRows} (${mb(allBytes)} total)\n` +
-      `Candidates with a non-self-referential imagePath: ${candidates.length}` +
+    `Candidates with a non-self-referential imagePath: ${candidates.length}` +
       `${LIMIT > 0 ? ` (limited to ${LIMIT})` : ''}\n` +
       `Verifying exact byte identity against ${BASE}...\n`,
   )

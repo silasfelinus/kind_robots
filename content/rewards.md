@@ -15,9 +15,9 @@ dashboardTab: rewards
 cards: rewardCards
 loadingMessage: Loading rewards...
 refreshLabel: Refresh Rewards
-backgroundMobile: background/rewards-mobile.webp
-backgroundTablet: background/rewards-tablet.webp
-backgroundDesktop: background/rewards-desktop.webp
+backgroundMobile: /api/art/backdrop/rewards-mobile
+backgroundTablet: /api/art/backdrop/rewards-tablet
+backgroundDesktop: /api/art/backdrop/rewards-desktop
 ---
 
 :reward-manager

@@ -48,6 +48,15 @@ const USER_ID = Number(process.env.ART_SEED_USER_ID || 1)
 const PROJECT_SLUG = 'page-backdrops'
 const PRIORITY = 100
 
+/*
+ * ENGINE IS A COLUMN, NOT PART OF THE PAYLOAD — which is exactly how the first
+ * refresh still failed. --refresh-failed rewrote payload/status/priority and
+ * left `engine` untouched, so 60 rows carried a correct COMFY workflow while
+ * still being routed to A1111. Same connection refused, straight back to
+ * FAILED. Both the create and the refresh path must set it.
+ */
+const ENGINE = 'COMFY' as const
+
 function requestIdFromPayload(payload: string): string | null {
   try {
     const parsed = JSON.parse(payload) as Record<string, unknown>
@@ -211,6 +220,7 @@ async function main() {
       await prisma.artJob.update({
         where: { id: job.id },
         data: {
+          engine: ENGINE,
           payload: buildPayload(entry),
           status: 'PENDING',
           priority: PRIORITY,
@@ -234,7 +244,7 @@ async function main() {
     missing.map((entry) =>
       prisma.artJob.create({
         data: {
-          engine: 'COMFY',
+          engine: ENGINE,
           priority: PRIORITY,
           projectSlug: PROJECT_SLUG,
           userId: USER_ID,

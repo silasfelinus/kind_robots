@@ -14,9 +14,9 @@ tabKey: dashboard
 cards: navCards
 loadingMessage: Loading the homepage
 refreshLabel: Refresh
-backgroundMobile: background/index-mobile.webp
-backgroundTablet: background/index-tablet.webp
-backgroundDesktop: background/index-desktop.webp
+backgroundMobile: /api/art/backdrop/index-mobile
+backgroundTablet: /api/art/backdrop/index-tablet
+backgroundDesktop: /api/art/backdrop/index-desktop
 ---
 
 :home-feed-placeholder

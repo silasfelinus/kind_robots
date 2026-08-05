@@ -16,9 +16,9 @@ dashboardTab: wonder-lab
 cards: labCards
 loadingMessage: Loading the museum...
 refreshLabel: Refresh Museum
-backgroundMobile: background/wonderlab-mobile.webp
-backgroundTablet: background/wonderlab-tablet.webp
-backgroundDesktop: background/wonderlab-desktop.webp
+backgroundMobile: /api/art/backdrop/wonderlab-mobile
+backgroundTablet: /api/art/backdrop/wonderlab-tablet
+backgroundDesktop: /api/art/backdrop/wonderlab-desktop
 ---
 
 :lab-manager

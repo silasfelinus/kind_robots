@@ -15,9 +15,9 @@ dashboardTab: coloring
 cards: navCards
 loadingMessage: Sharpening the crayons...
 refreshLabel: Refresh the coloring book
-backgroundMobile: background/coloring-mobile.webp
-backgroundTablet: background/coloring-tablet.webp
-backgroundDesktop: background/coloring-desktop.webp
+backgroundMobile: /api/art/backdrop/coloring-mobile
+backgroundTablet: /api/art/backdrop/coloring-tablet
+backgroundDesktop: /api/art/backdrop/coloring-desktop
 ---
 
 :coloring-book-page

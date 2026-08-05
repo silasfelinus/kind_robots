@@ -15,6 +15,9 @@ dashboardTab: characters
 cards: navCards
 loadingMessage: Loading character builder...
 refreshLabel: Refresh characters
+backgroundMobile: background/characters-mobile.webp
+backgroundTablet: background/characters-tablet.webp
+backgroundDesktop: background/characters-desktop.webp
 ---
 
 :character-manager

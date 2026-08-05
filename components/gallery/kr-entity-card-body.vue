@@ -68,7 +68,7 @@
     -->
     <div
       v-if="showImage"
-      class="size-14 shrink-0 overflow-hidden rounded-xl bg-base-300"
+      class="size-14 shrink-0 overflow-hidden rounded-xl bg-(--kr-surface-sunken)"
     >
       <kr-art-plate
         :source="source"

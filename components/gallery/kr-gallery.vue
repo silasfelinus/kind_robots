@@ -21,7 +21,7 @@
     -->
     <div
       v-if="modes.length"
-      class="sticky top-0 z-20 -mx-1 flex shrink-0 gap-0.5 bg-base-300/95 px-1 py-1 backdrop-blur"
+      class="sticky top-0 z-20 -mx-1 flex shrink-0 gap-0.5 bg-(--kr-surface-sunken) px-1 py-1 backdrop-blur"
     >
       <button
         v-for="entry in modes"
@@ -115,7 +115,7 @@
         v-else
         :key="item.id"
         type="button"
-        class="group overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+        class="group overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
         @click="emit('open', item)"
       >
         <div class="relative overflow-hidden" :class="imageWrapClass">

@@ -69,6 +69,25 @@ const sharedNavigationSchema = z.object({
   description: z.string().optional(),
   icon: z.string().optional(),
   image: z.string().optional(),
+  /*
+   * PAGE BACKDROP ART, one per breakpoint.
+   *
+   * Distinct from `image` above, which is a THUMBNAIL — nav tabs and the
+   * workspace sheet render it at chip size. These are full-bleed art rendered
+   * behind the page by components/ui/kr-page-backdrop.vue.
+   *
+   * Three named breakpoints rather than orientation, per Silas 2026-08-05:
+   * "backgroundMobile, backgroundTablet, and background desktop would be less
+   * ambiguous". They line up with Tailwind's defaults — mobile <768,
+   * tablet 768-1023, desktop >=1024.
+   *
+   * All three are optional and independently so: the backdrop falls back
+   * across variants, so a page shipping only `backgroundDesktop` still shows
+   * it on a phone rather than nothing.
+   */
+  backgroundMobile: z.string().optional(),
+  backgroundTablet: z.string().optional(),
+  backgroundDesktop: z.string().optional(),
   tooltip: z.string().optional(),
   dottiTip: z.string().optional(),
   amiTip: z.string().optional(),

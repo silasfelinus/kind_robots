@@ -36,7 +36,7 @@
       :key="choice.key"
       type="button"
       :class="[
-        'flex items-center gap-3 rounded-xl border-2 border-base-300 bg-base-100 text-left transition',
+        'flex items-center gap-3 rounded-xl border-2 border-(--kr-surface-border) bg-(--kr-surface-raised) text-left transition',
         'hover:-translate-y-0.5 hover:border-primary/50',
         // The house pattern for every other narrative control: a visible focus
         // ring, and no lift or transition for readers who asked for less motion.

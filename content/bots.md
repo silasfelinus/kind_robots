@@ -17,6 +17,9 @@ dashboardTab: bots
 cards: botCards
 loadingMessage: Loading bot factory...
 refreshLabel: Refresh Bots
+backgroundMobile: background/bots-mobile.webp
+backgroundTablet: background/bots-tablet.webp
+backgroundDesktop: background/bots-desktop.webp
 ---
 
 :bot-manager

@@ -238,6 +238,25 @@ function collect(minFlexWidth) {
     starvedTotal: starved.length,
     brokenArt: brokenArt.slice(0, 8),
     brokenArtTotal: brokenArt.length,
+
+    /*
+     * Which page-backdrop variant this viewport actually resolved.
+     *
+     * The whole per-breakpoint scheme is a chain of CSS var() fallbacks
+     * (assets/css/tailwind.css, .kr-backdrop), and NO static check can see
+     * which one wins — that is decided by the browser at layout time, which is
+     * exactly the class of thing this audit exists for. Reported as the
+     * resolved URL so the caller can compare it across viewports.
+     *
+     * Empty string when the page declares no backdrop, which is most of them
+     * and is not a defect.
+     */
+    backdrop: (() => {
+      const el = document.querySelector('.kr-backdrop')
+      if (!el) return ''
+      const image = getComputedStyle(el).backgroundImage
+      return !image || image === 'none' ? '' : image
+    })(),
   }
 }
 
@@ -258,6 +277,10 @@ const browser = await chromium.launch({
 })
 
 let failures = 0
+
+/** route -> { phone, tablet, desktop } resolved backdrop URLs. */
+const backdropsByRoute = {}
+
 for (const vp of VIEWPORTS) {
   const ctx = await browser.newContext({
     viewport: { width: vp.width, height: vp.height },
@@ -344,6 +367,12 @@ for (const vp of VIEWPORTS) {
       console.log(`${label} ✅`)
     }
 
+    // Record which backdrop each viewport resolved, so the cross-viewport
+    // check below can run once every viewport has been visited.
+    if (m?.backdrop) {
+      ;(backdropsByRoute[route] ??= {})[vp.name] = m.backdrop
+    }
+
     if (SHOTS) {
       await page.screenshot({
         path: `${SHOTS}/${vp.name}${route.replace(/\//g, '_')}.png`,
@@ -354,6 +383,41 @@ for (const vp of VIEWPORTS) {
   await ctx.close()
 }
 await browser.close()
+
+/*
+ * PER-BREAKPOINT BACKDROPS actually differ per breakpoint.
+ *
+ * A route that declares three distinct variants must resolve three distinct
+ * URLs at 390 / 820 / 1440 — those widths sit either side of the md (768) and
+ * lg (1024) boundaries, so each lands in a different band. If two match, the
+ * fallback chain collapsed and one variant is unreachable: the art still
+ * appears, so nothing looks broken, and the tablet or mobile crop simply never
+ * gets used.
+ *
+ * Only routes that resolved a backdrop at EVERY viewport are judged. A route
+ * declaring one variant on purpose is meant to repeat it — that is the
+ * degradation path, not a defect.
+ */
+for (const [route, byViewport] of Object.entries(backdropsByRoute)) {
+  const seen = Object.values(byViewport)
+  if (seen.length < VIEWPORTS.length) continue
+
+  const distinct = new Set(seen)
+  if (distinct.size === 1) continue // one variant, deliberately repeated
+
+  if (distinct.size < seen.length) {
+    failures += 1
+    console.log(`\n${route} ❌ backdrop variants collapse across breakpoints:`)
+    for (const [name, url] of Object.entries(byViewport)) {
+      console.log(`         ${name.padEnd(8)} ${url}`)
+    }
+    console.log(
+      `         Two viewports resolved the same art while others differ, so a` +
+        `\n         declared variant is unreachable. Check the var() fallback` +
+        `\n         order in .kr-backdrop (assets/css/tailwind.css).`,
+    )
+  }
+}
 
 if (failures) {
   console.log(

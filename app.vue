@@ -84,10 +84,34 @@
           </aside>
         </Transition>
 
+        <!--
+          `data-kr-backdrop` flips the surface tokens (assets/css/tailwind.css)
+          for everything inside, so the shared kit's panels go translucent and
+          the art reads through them. Present ONLY when the page actually
+          declares backdrop art — otherwise the attribute is absent and every
+          surface resolves to the same opaque theme colour it always had.
+
+          It sits on <main> rather than on the backdrop element because the
+          backdrop is a sibling of the page content, not its ancestor; the
+          tokens have to be inherited by the cards, which live under <main>.
+        -->
         <main
           class="kr-main relative z-10 h-full min-h-0 overflow-hidden rounded-2xl bg-base-100 transition-[padding] duration-300 ease-out"
           :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
+          :data-kr-backdrop="hasPageBackdrop ? '' : undefined"
         >
+          <!--
+            Page backdrop art, BEFORE fx-region deliberately. Both layers sit
+            at z-0, so DOM order decides: the backdrop paints first, fx-region's
+            effects paint over it, and the z-10 <NuxtPage /> wrapper below sits
+            above both. Renders nothing at all unless the page declares art.
+          -->
+          <kr-page-backdrop
+            :mobile="pageStore.backgroundMobile"
+            :tablet="pageStore.backgroundTablet"
+            :desktop="pageStore.backgroundDesktop"
+          />
+
           <fx-region region="page" />
 
           <div
@@ -167,6 +191,21 @@ import { useUserStore } from '@/stores/userStore'
 import { useIntroStore } from '@/stores/introStore'
 
 const pageStore = usePageStore()
+
+/**
+ * Whether the current page declares any backdrop art.
+ *
+ * Mirrors kr-page-backdrop's own `hasBackdrop` rather than reading it off the
+ * child, because the attribute it drives belongs on <main> — the cards that
+ * inherit the surface tokens are siblings of the backdrop, not its children.
+ */
+const hasPageBackdrop = computed(() =>
+  Boolean(
+    pageStore.backgroundMobile ||
+      pageStore.backgroundTablet ||
+      pageStore.backgroundDesktop,
+  ),
+)
 const navStore = useNavStore()
 const userStore = useUserStore()
 const introStore = useIntroStore()

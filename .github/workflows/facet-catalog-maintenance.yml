@@ -52,13 +52,21 @@ concurrency:
 jobs:
   maintenance:
     runs-on: ubuntu-latest
-    # The full run is ~13 sequential child steps and has been observed taking
-    # ~45 minutes. Generous ceiling so a slow-but-healthy run is not killed.
-    timeout-minutes: 90
+    # The full run is intentionally conservative about ProxySQL connections and
+    # can take longer than the former ten-connection profile.
+    timeout-minutes: 120
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
       DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      # Production Vercel functions share ProxySQL's finite frontend-session
+      # budget. Maintenance must wait for a small number of slots rather than
+      # opening the long-lived server profile and failing after ten seconds.
+      DATABASE_CONNECTION_LIMIT: '2'
+      DATABASE_MINIMUM_IDLE: '0'
+      DATABASE_CONNECT_TIMEOUT_MS: '30000'
+      DATABASE_ACQUIRE_TIMEOUT_MS: '120000'
+      DATABASE_IDLE_TIMEOUT_SECONDS: '300'
     steps:
       - name: Require secrets
         env:

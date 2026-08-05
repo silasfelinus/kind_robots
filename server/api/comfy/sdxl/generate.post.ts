@@ -8,6 +8,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { saveImage } from '../../../utils/saveImage'
+import { offloadArtImageBytes } from '../../../utils/artImageOffload'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
@@ -209,7 +210,17 @@ export default defineEventHandler(async (event) => {
       },
       data: {
         path: savedImage.fileName,
-        imagePath: savedImage.fileName,
+        /*
+         * imagePath is deliberately NOT set from savedImage.fileName. That
+         * value is `ArtImageUpload-<timestamp>` (or, in development, an
+         * absolute local filesystem path) — neither is a URL. file.get.ts
+         * treats any non-self-referential imagePath as somewhere to redirect,
+         * so writing a bare filename here 302s the browser to a path that does
+         * not exist and renders a broken image while the real bytes sit
+         * unread in imageData. Leaving it null makes file.get.ts serve those
+         * bytes, and offloadArtImageBytes below sets a real path when the
+         * media share is available.
+         */
         fileName: savedImage.fileName,
         fileType: 'png',
         cfg: Math.floor(cfgValue),
@@ -253,12 +264,24 @@ export default defineEventHandler(async (event) => {
 
     const { balance } = await gate.commit(`sdxl:${newArt.id}`)
 
+    /*
+     * Move the bytes onto the media share so this row does not add another
+     * LongText blob to the database. No-op unless IMAGES_PATH is set.
+     *
+     * The response deliberately keeps imageData even after the database copy
+     * is gone: the client already has these bytes in flight and renders them
+     * immediately, while every later fetch follows the new imagePath.
+     */
+    const offload = await offloadArtImageBytes(newArt.id)
+
     event.node.res.statusCode = 201
 
     return {
       success: true,
       message: 'Comfy art and image saved successfully!',
-      data: newArt,
+      data: offload.offloaded
+        ? { ...newArt, imagePath: offload.imagePath ?? newArt.imagePath }
+        : newArt,
       mana: { balance, charged: gate.cost },
     }
   } catch (error) {

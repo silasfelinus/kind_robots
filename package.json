@@ -154,7 +154,9 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "generatesmart": "node utils/scripts/generate-smart-icons.mjs",
-    "test:api-client-followups": "tsx utils/scripts/verifyApiClientFollowups.ts"
+    "test:api-client-followups": "tsx utils/scripts/verifyApiClientFollowups.ts",
+    "offload:art-images": "tsx utils/scripts/offloadArtImageData.ts",
+    "test:art-image-offload": "tsx utils/scripts/verifyArtImageOffload.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

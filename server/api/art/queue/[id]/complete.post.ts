@@ -42,6 +42,7 @@ import {
   applyEntityArtCompletion,
   readEntityArtMetadata,
 } from '../../../../utils/entityArt'
+import { offloadArtImageBytes } from '../../../../utils/artImageOffload'
 
 const MAX_ATTEMPTS = 3
 
@@ -502,6 +503,33 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    /*
+     * Take the bytes back out of the database now that the job is DONE.
+     *
+     * This runs AFTER the transaction on purpose, and in particular after
+     * assertArtImageMatchesCompletion, which hashes ArtImage.imageData against
+     * the Comfy completion proof. Offloading earlier would null the very column
+     * that assertion reads and reject every proof-carrying job.
+     *
+     * A no-op unless IMAGES_PATH is set, and it never throws — see
+     * artImageOffload.ts. Failure leaves the row exactly as it is today.
+     */
+    const offloadTargets = [
+      updated.artImageId,
+      archivedArtImageId,
+    ].filter((value): value is number => Number.isInteger(value) && Number(value) > 0)
+
+    const offloaded: string[] = []
+    for (const targetId of offloadTargets) {
+      const result = await offloadArtImageBytes(targetId)
+      if (result.offloaded && result.imagePath) {
+        offloaded.push(result.imagePath)
+        console.log(
+          `🗜️ ArtImage ${targetId} offloaded to ${result.imagePath} (${Math.round(Number(result.bytesFreed || 0) / 1024)}KB freed)`,
+        )
+      }
+    }
+
     return {
       success: true,
       message:
@@ -515,6 +543,7 @@ export default defineEventHandler(async (event) => {
         completionTrace,
         completedFacetIds,
         completedEntityArt,
+        offloadedImagePaths: offloaded,
       },
       statusCode: 200,
     }

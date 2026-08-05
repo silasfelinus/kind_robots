@@ -12,6 +12,7 @@ import { requireMachineUser } from '../../utils/authGuard'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
+import { offloadArtImageBytes } from '../../utils/artImageOffload'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
@@ -233,12 +234,19 @@ export default defineEventHandler(async (event) => {
 
     const { balance } = await gate.commit(`art:${updatedImage.id}`)
 
+    // Same offload as comfy/sdxl: drop the database copy once the file is on
+    // the share, but keep imageData in this response so the client still
+    // renders instantly. No-op unless IMAGES_PATH is set.
+    const offload = await offloadArtImageBytes(updatedImage.id)
+
     event.node.res.statusCode = 201
 
     return {
       success: true,
       message: 'ArtImage generated successfully.',
-      data: updatedImage,
+      data: offload.offloaded
+        ? { ...updatedImage, imagePath: offload.imagePath ?? updatedImage.imagePath }
+        : updatedImage,
       statusCode: 201,
       mana: {
         balance,

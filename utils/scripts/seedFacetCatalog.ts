@@ -17,6 +17,11 @@ import {
   prepareUniqueFacetAliases,
 } from './../facetAliases'
 import { runWithKeyedConcurrency } from './facetSeedConcurrency'
+import {
+  chooseFacetForCanonicalSlug,
+  shouldAssignAliasToFacet,
+  updateFacetWithSlugRaceRecovery,
+} from './facetCatalogWriteRace'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
@@ -567,23 +572,48 @@ async function saveCandidate(
   const existingFacetId = lookupKey
     ? state.aliasOwner.get(lookupKey)
     : undefined
-  const existingFacet =
-    (existingFacetId !== undefined
+  const aliasFacet =
+    existingFacetId !== undefined
       ? state.facetsById.get(existingFacetId)
-      : undefined) ?? state.facetsBySlug.get(slug)
+      : undefined
+  const existingFacet = chooseFacetForCanonicalSlug(
+    state.facetsBySlug.get(slug),
+    aliasFacet,
+  )
 
   const facet = existingFacet
-    ? await prisma.facet.update({
-        where: { id: existingFacet.id },
-        data: {
-          title: candidate.title,
-          slug,
-          description: candidate.description || existingFacet.description,
-          imagePath: candidate.imagePath || existingFacet.imagePath,
-          icon: candidate.icon || existingFacet.icon,
-          designer: existingFacet.designer || 'facet-catalog',
-          isActive: true,
-        },
+    ? await updateFacetWithSlugRaceRecovery({
+        existingId: existingFacet.id,
+        slug,
+        updateExisting: () =>
+          prisma.facet.update({
+            where: { id: existingFacet.id },
+            data: {
+              title: candidate.title,
+              slug,
+              description:
+                candidate.description || existingFacet.description,
+              imagePath: candidate.imagePath || existingFacet.imagePath,
+              icon: candidate.icon || existingFacet.icon,
+              designer: existingFacet.designer || 'facet-catalog',
+              isActive: true,
+            },
+          }),
+        findBySlug: (candidateSlug) =>
+          prisma.facet.findUnique({ where: { slug: candidateSlug } }),
+        updateWinner: (winner) =>
+          prisma.facet.update({
+            where: { id: winner.id },
+            data: {
+              title: candidate.title,
+              slug,
+              description: candidate.description || winner.description,
+              imagePath: candidate.imagePath || winner.imagePath,
+              icon: candidate.icon || winner.icon,
+              designer: winner.designer || 'facet-catalog',
+              isActive: true,
+            },
+          }),
       })
     : await createOrRecoverFacet(candidate, slug)
 
@@ -620,19 +650,25 @@ async function saveCandidate(
 
   for (const alias of prepareUniqueFacetAliases([slug, ...candidate.aliases])) {
     const ownerId = state.aliasOwner.get(alias.lookupKey)
-    if (ownerId !== undefined && ownerId !== facet.id) continue
+    const isCanonicalAlias = alias.lookupKey === lookupKey
+    if (
+      !shouldAssignAliasToFacet(ownerId, facet.id, isCanonicalAlias)
+    ) {
+      continue
+    }
     await prisma.facetAlias.upsert({
       where: { lookupKey: alias.lookupKey },
       create: {
         facetId: facet.id,
         alias: alias.alias,
         lookupKey: alias.lookupKey,
-        isCanonical: alias.lookupKey === lookupKey,
+        isCanonical: isCanonicalAlias,
         isActive: true,
       },
       update: {
-        alias: alias.lookupKey === lookupKey ? slug : alias.alias,
-        isCanonical: alias.lookupKey === lookupKey,
+        facetId: facet.id,
+        alias: isCanonicalAlias ? slug : alias.alias,
+        isCanonical: isCanonicalAlias,
         isActive: true,
       },
     })

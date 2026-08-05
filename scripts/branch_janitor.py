@@ -35,6 +35,26 @@ def merged(branch: str) -> bool:
     ).returncode == 0
 
 
+def patch_equivalent(branch: str) -> bool:
+    """Return true when every branch patch already exists on main.
+
+    ``git cherry`` compares patch IDs rather than commit ancestry. This catches
+    abandoned branches whose work was replayed onto a fresh branch and merged,
+    while still refusing to delete a branch that has any unique patch left.
+    """
+
+    result = subprocess.run(
+        ["git", "cherry", "origin/main", f"origin/{branch}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return False
+    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return bool(lines) and all(line.startswith("-") for line in lines)
+
+
 def age_hours(branch: str) -> float:
     timestamp = git("log", "-1", "--format=%ct", f"origin/{branch}")
     if not timestamp:
@@ -68,7 +88,7 @@ def main() -> int:
 
     branches = remote_branches(DEFAULT_PREFIXES)
     for branch in branches:
-        if merged(branch):
+        if merged(branch) or patch_equivalent(branch):
             (deleted if delete(branch, args.dry_run) else failed).append(branch)
         elif age_hours(branch) >= args.stale_hours:
             stranded.append(branch)
@@ -77,7 +97,7 @@ def main() -> int:
 
     verb = "Would delete" if args.dry_run else "Deleted"
     print(f"Considered {len(branches)} automation branch(es).")
-    print(f"{verb} (fully merged): {', '.join(deleted) or '(none)'}")
+    print(f"{verb} (merged or patch-equivalent): {', '.join(deleted) or '(none)'}")
     print(f"Stranded (review only): {', '.join(stranded) or '(none)'}")
     print(f"Active (left alone): {', '.join(active) or '(none)'}")
     if failed:

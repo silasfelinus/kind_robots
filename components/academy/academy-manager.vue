@@ -152,6 +152,14 @@ watch(
   (tab) => {
     if (tab === 'stylelab') {
       configureStyleLabUploadTarget()
+    } else if (hasConfiguredUploadTarget.value) {
+      // Style Lab's ArtImage upload target is only meaningful while that tab
+      // is showing. Without this, switching to Timeline/Styles/Remix leaves
+      // the shared uploadStore target pointed at Style Lab's ArtImage upload,
+      // so any global upload trigger elsewhere on the page would keep
+      // offering "Upload image" for a tab the user already left.
+      uploadStore.clearTarget()
+      hasConfiguredUploadTarget.value = false
     }
 
     if (tabNeedsManagerData(tab)) {

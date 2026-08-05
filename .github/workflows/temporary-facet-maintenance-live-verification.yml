@@ -16,7 +16,7 @@ permissions:
 jobs:
   live-verification:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 120
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
@@ -65,23 +65,9 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Prove Prisma can acquire a maintenance connection
+      - name: Run final live seeded Facet maintenance verification
         run: |
-          cat > .facet-maintenance-prisma-probe.ts <<'EOF'
-          import { PrismaClient } from './prisma/generated/prisma/client'
-          import { createDatabaseAdapter } from './server/utils/databaseAdapterConfig'
-
-          const databaseUrl = process.env.DATABASE_URL
-          if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-          const prisma = new PrismaClient({
-            adapter: createDatabaseAdapter(databaseUrl),
-          })
-          try {
-            const count = await prisma.facet.count()
-            console.log(`Prisma maintenance connection succeeded; Facet rows=${count}.`)
-          } finally {
-            await prisma.$disconnect()
-          }
-          EOF
-          npx tsx .facet-maintenance-prisma-probe.ts
-          rm .facet-maintenance-prisma-probe.ts
+          npx tsx scripts/run_facet_catalog_maintenance.ts \
+            --seed \
+            --externally-serialized \
+            "--reason=issue 1451 final production verification of PR 1463"

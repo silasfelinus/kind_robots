@@ -60,10 +60,11 @@ jobs:
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
       DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
       # Production Vercel functions share ProxySQL's finite frontend-session
-      # budget. Maintenance must wait for a small number of slots rather than
-      # opening the long-lived server profile and failing after ten seconds.
+      # budget. Maintenance uses a small pool with one warm connection; setting
+      # minimumIdle to zero leaves the Prisma MariaDB adapter at active=0/idle=0
+      # without ever establishing its first session.
       DATABASE_CONNECTION_LIMIT: '2'
-      DATABASE_MINIMUM_IDLE: '0'
+      DATABASE_MINIMUM_IDLE: '1'
       DATABASE_CONNECT_TIMEOUT_MS: '30000'
       DATABASE_ACQUIRE_TIMEOUT_MS: '120000'
       DATABASE_IDLE_TIMEOUT_SECONDS: '300'

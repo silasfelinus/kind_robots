@@ -458,6 +458,41 @@ function currentArtImageId(
   return primary && Number.isInteger(id) && id > 0 ? id : null
 }
 
+/*
+ * interface-vision/t-079: one join row is how an ArtImage becomes visible in
+ * an entity's history (listEntityArtHistory queries this table now, not
+ * ArtImage.path prefixes). Used both when an existing ArtImage is reused as
+ * history (no duplicate row) and when a fresh duplicate is created for the
+ * legacy no-artImageId fallback -- either way, the row that should show up
+ * in history needs a link. project keeps writing ProjectArtImage too: its
+ * own dedicated gallery endpoint (/api/projects/[id]/art) still reads that
+ * table unchanged, so both need to stay in sync at archive time.
+ */
+async function linkEntityArtImage(
+  db: EntityArtDb,
+  entityType: EntityArtType,
+  entityId: number,
+  artImageId: number,
+): Promise<void> {
+  await db.entityArtImage.upsert({
+    where: {
+      entityType_entityId_artImageId: { entityType, entityId, artImageId },
+    },
+    create: { entityType, entityId, artImageId },
+    update: {},
+  })
+
+  if (entityType === 'project') {
+    await db.projectArtImage.upsert({
+      where: {
+        projectId_artImageId: { projectId: entityId, artImageId },
+      },
+      create: { projectId: entityId, artImageId },
+      update: {},
+    })
+  }
+}
+
 async function createHistoryReference(
   db: EntityArtDb,
   input: {
@@ -504,18 +539,7 @@ async function createHistoryReference(
     },
   })
 
-  if (input.entityType === 'project') {
-    await db.projectArtImage.upsert({
-      where: {
-        projectId_artImageId: {
-          projectId: input.entityId,
-          artImageId: history.id,
-        },
-      },
-      create: { projectId: input.entityId, artImageId: history.id },
-      update: {},
-    })
-  }
+  await linkEntityArtImage(db, input.entityType, input.entityId, history.id)
 
   return history
 }
@@ -541,17 +565,24 @@ export async function archiveCurrentEntityArt(
     : path
   if (!referencePath) return null
 
-  if (input.entityType === 'project' && sourceArtImageId) {
-    await db.projectArtImage.upsert({
-      where: {
-        projectId_artImageId: {
-          projectId: input.entityId,
-          artImageId: sourceArtImageId,
-        },
-      },
-      create: { projectId: input.entityId, artImageId: sourceArtImageId },
-      update: {},
-    })
+  /*
+   * interface-vision/t-079: when the current slot already names a real
+   * ArtImage row (sourceArtImageId), archiving means "keep this row
+   * reachable from history" -- a join, not a copy. Previously only project
+   * got this treatment; every entity type has the same reusable id now, so
+   * every entity type gets the same non-duplicating archive. The
+   * createHistoryReference duplicate-row path below is now reached only by
+   * the legacy fallback: a bare path string with no artImageId behind it
+   * (e.g. an old Bot avatarImage set before this table tracked art), which
+   * still needs a real ArtImage row created before it can be linked at all.
+   */
+  if (sourceArtImageId) {
+    await linkEntityArtImage(
+      db,
+      input.entityType,
+      input.entityId,
+      sourceArtImageId,
+    )
     return db.artImage.findUnique({ where: { id: sourceArtImageId } })
   }
 
@@ -716,15 +747,16 @@ export async function applyEntityArtImage(
   let archivedId: number | null = null
   if (input.preserveOriginal) {
     if (input.archivedArtImageId) {
-      const reference = await createHistoryReference(db, {
-        entityType: target.entityType,
-        entityId: target.entityId,
-        field: target.field,
-        record: target.record,
-        referencePath: `/api/art/images/${input.archivedArtImageId}/file`,
-        sourceArtImageId: input.archivedArtImageId,
-      })
-      archivedId = reference.id
+      // The caller (the queue's overwrite-retry completion path) already
+      // created a standalone ArtImage row for the pre-overwrite snapshot --
+      // link it into history rather than duplicating it a second time.
+      await linkEntityArtImage(
+        db,
+        target.entityType,
+        target.entityId,
+        input.archivedArtImageId,
+      )
+      archivedId = input.archivedArtImageId
     } else {
       const archived = await archiveCurrentEntityArt(db, target)
       archivedId = archived?.id ?? null
@@ -767,38 +799,69 @@ export async function listEntityArtHistory(
   entityType: EntityArtType,
   entityId: number,
 ) {
-  const prefix = entityArtHistoryPrefix(entityType, entityId)
-  const rows = await db.artImage.findMany({
-    where: {
-      isActive: true,
-      path: { startsWith: prefix },
-    },
+  const historyPrefix = entityArtHistoryPrefix(entityType, entityId)
+  const currentPrefix = entityArtCurrentPath(entityType, entityId, '')
+
+  const links = await db.entityArtImage.findMany({
+    where: { entityType, entityId, ArtImage: { isActive: true } },
     orderBy: { createdAt: 'desc' },
     select: {
-      id: true,
       createdAt: true,
-      updatedAt: true,
-      fileName: true,
-      fileType: true,
-      imagePath: true,
-      path: true,
-      promptString: true,
-      artPrompt: true,
-      checkpoint: true,
-      checkpointResourceId: true,
-      designer: true,
-      isPublic: true,
-      isMature: true,
+      ArtImage: {
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          fileName: true,
+          fileType: true,
+          imagePath: true,
+          path: true,
+          promptString: true,
+          artPrompt: true,
+          checkpoint: true,
+          checkpointResourceId: true,
+          designer: true,
+          isPublic: true,
+          isMature: true,
+        },
+      },
     },
   })
 
-  return rows.map((row) => {
-    const field = safeText(row.path).slice(prefix.length).split(':')[0] || ''
-    let fieldLabel = 'Image'
-    try {
-      fieldLabel = getEntityArtFieldConfig(entityType, field).label
-    } catch {}
-    return { ...row, field, fieldLabel }
+  return links.map(({ createdAt: linkedAt, ArtImage: row }) => {
+    /*
+     * EntityArtImage doesn't carry which slot (field) an entry belongs to --
+     * the join is only (entityType, entityId, artImageId). field is only
+     * knowable when the joined ArtImage still carries one of entityArt.ts's
+     * own path tags: the legacy history-duplicate tag (row was created
+     * specifically as this field's history), or a reused primary image's
+     * current-slot tag from whenever it was last active in that field. A
+     * shared/plain ArtImage row carries neither, so field comes back
+     * undefined -- filteredHistory's `!item.field` fallback in
+     * entity-art-manager.vue already shows those under every slot rather
+     * than hiding them.
+     */
+    const path = safeText(row.path)
+    let field = ''
+    if (path.startsWith(historyPrefix)) {
+      field = path.slice(historyPrefix.length).split(':')[0] || ''
+    } else if (path.startsWith(currentPrefix)) {
+      field = path.slice(currentPrefix.length) || ''
+    }
+    let fieldLabel: string | undefined
+    if (field) {
+      try {
+        fieldLabel = getEntityArtFieldConfig(entityType, field).label
+      } catch {
+        field = ''
+      }
+    }
+    return {
+      ...row,
+      createdAt: linkedAt,
+      field: field || undefined,
+      fieldLabel,
+    }
   })
 }
 

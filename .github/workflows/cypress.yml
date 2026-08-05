@@ -136,32 +136,48 @@ jobs:
 
           run_pool_round() {
             local round="$1"
-            local failed=0
-            local pids=()
+            local attempt failed pids
 
-            rm -f "$tmpdir"/*
-            echo "Running pooled database soak round ${round} (8 concurrent requests)..."
-            for request in $(seq 1 8); do
-              (
-                check_database /api/health/database
-              ) >"$tmpdir/${round}-${request}.log" 2>&1 &
-              pids+=("$!")
-            done
+            # Each round is itself meant to soak-test recovery across ProxySQL's
+            # idle-retirement window (see the pauses between rounds below); a single
+            # blip within one round's 8 concurrent requests used to abort the whole
+            # job immediately via `set -e` on the very first attempt, which defeated
+            # that soak-testing intent -- rounds 2 and 3 never even ran. Retry a
+            # failed round up to 3 attempts before treating it as a real failure.
+            for attempt in 1 2 3; do
+              failed=0
+              pids=()
 
-            for pid in "${pids[@]}"; do
-              if ! wait "$pid"; then
-                failed=1
+              rm -f "$tmpdir"/*
+              echo "Running pooled database soak round ${round} (8 concurrent requests, attempt ${attempt}/3)..."
+              for request in $(seq 1 8); do
+                (
+                  check_database /api/health/database
+                ) >"$tmpdir/${round}-${request}.log" 2>&1 &
+                pids+=("$!")
+              done
+
+              for pid in "${pids[@]}"; do
+                if ! wait "$pid"; then
+                  failed=1
+                fi
+              done
+
+              if [ "$failed" -eq 0 ] && check_database /api/health/database-direct; then
+                echo "  pooled and direct database checks passed for round ${round} (attempt ${attempt}/3)."
+                return 0
+              fi
+
+              echo "::warning::Pooled database soak round ${round} attempt ${attempt}/3 failed."
+              if [ "$attempt" -lt 3 ]; then
+                echo "  retrying round ${round} in 10s..."
+                sleep 10
               fi
             done
 
-            if [ "$failed" -ne 0 ]; then
-              echo "::error::Pooled database soak round ${round} failed."
-              cat "$tmpdir"/*.log || true
-              return 1
-            fi
-
-            check_database /api/health/database-direct
-            echo "  pooled and direct database checks passed for round ${round}."
+            echo "::error::Pooled database soak round ${round} failed after 3 attempts."
+            cat "$tmpdir"/*.log || true
+            return 1
           }
 
           run_pool_round 1

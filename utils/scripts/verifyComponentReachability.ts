@@ -327,6 +327,52 @@ export function unresolvedParkedImports(exists: (p: string) => boolean): string[
   return broken
 }
 
+/**
+ * Tooling that still names a component at its PRE-parking path.
+ *
+ * Verifiers, workflow trigger filters and review-batch configs address
+ * components by string path, so parking moves the file out from under a
+ * readFileSync and they die on a bare ENOENT. Four CI jobs went red this way on
+ * the first parking run -- verifyMaturityPrivacyContract, verifyOpenIssueRepairs,
+ * verifyFacetArtGeneration and verify-giftshop-checkout -- and none of them was
+ * reachable from the contract-tests step list, so a local sweep of that list
+ * said green.
+ *
+ * The test is deliberately narrow: the path must be BOTH missing AND present
+ * under components/abandonware/. Plenty of verifiers use invented fixture paths
+ * (`components/alpha/foo-card.vue`) in their own self-tests, and those must not
+ * register. Only a path that provably moved counts.
+ *
+ * Repoint them, never delete the assertion — the file still exists and its
+ * content is unchanged, so the check still holds. Deleting one is how a privacy
+ * gate silently stops being enforced the day somebody un-parks the component.
+ */
+export function stalePreParkingPaths(): string[] {
+  const stale: string[] = []
+  const dirs = ['utils/scripts', '.github/workflows', 'config', 'scripts', 'utils/wonderlab']
+  const isTooling = (f: string) => /\.(ts|mjs|js|json|ya?ml)$/.test(f)
+
+  for (const dir of dirs) {
+    for (const abs of walk(resolve(root, dir), isTooling)) {
+      const rel = relative(root, abs).replace(/\\/g, '/')
+      if (rel === relative(root, BASELINE).replace(/\\/g, '/')) continue
+
+      for (const match of readFileSync(abs, 'utf8').matchAll(
+        /components\/([a-z0-9-]+)\/([a-z0-9.-]+\.vue)/g,
+      )) {
+        const [path, dirName, file] = match as unknown as [string, string, string]
+        if (dirName === PARKED_SEGMENT) continue
+        if (existsSync(resolve(root, path))) continue
+        if (existsSync(resolve(root, 'components', PARKED_SEGMENT, dirName, file))) {
+          stale.push(`${rel} → ${path}`)
+        }
+      }
+    }
+  }
+
+  return stale
+}
+
 function selfTest(): void {
   // Both spellings collapse to one component.
   if (componentKey('LoraCard') !== componentKey('lora-card')) {
@@ -437,6 +483,19 @@ function main(): void {
       `\nParking moves a file one directory deeper, so a relative specifier that` +
         `\nwas correct before is not correct now. Re-anchor these on '@/' — the` +
         `\nmuseum still compiles parked components, so a stale path fails the build.\n`,
+    )
+    process.exitCode = 1
+    return
+  }
+
+  const stale = stalePreParkingPaths()
+  if (stale.length) {
+    console.error(`\n❌ ${stale.length} tooling reference(s) still name a pre-parking path:\n`)
+    for (const entry of stale) console.error(`     ${entry}`)
+    console.error(
+      `\nThese die on a bare ENOENT the moment they run. Repoint each to` +
+        `\ncomponents/abandonware/… — do NOT delete the assertion. The file still` +
+        `\nexists and its content is unchanged, so whatever it asserted still holds.\n`,
     )
     process.exitCode = 1
     return

@@ -13,12 +13,20 @@
 // DRY RUN BY DEFAULT, matching enqueueTwistedFairyTalesArtPrompts.ts. Queue
 // writes are the kind of thing you want to look at before doing.
 //
-// WHY PRIORITY 20. The relay claims work `ORDER BY priority DESC, id ASC`
-// (server/api/art/queue/claim.post.ts). The facet backlog does not set a
-// priority at all, so it sits at the schema default of 0; the Twisted Fairy
-// Tales batch sits at 10. 20 clears both, which is what "higher priority than
-// the 3000 ish facets" has to mean in practice — the number is not decorative,
-// it is the only thing that moves these to the front.
+// WHY PRIORITY 100. The relay claims work `ORDER BY priority DESC, id ASC`
+// (server/api/art/queue/claim.post.ts). The facet backlog never sets a priority,
+// so it sits at the schema default of 0; the Twisted Fairy Tales batch sits at
+// 10. The number is not decorative — it is the only thing that moves these to
+// the front of "the 3000 ish facets".
+//
+// 100 specifically, rather than any other clearing value, because migration
+// 20260805071500_prioritize_taskmaster_art_jobs already established it as THE
+// rush band by raising the pending Taskmaster package to exactly 100. A
+// different number here would leave two competing conventions for "ahead of the
+// backlog", and queue order would then depend on which convention a given batch
+// happened to use. Backdrop art is the same class of work as that package —
+// Stage 3 art that is being waited on — so it belongs in the same band rather
+// than straddling it.
 //
 // IDEMPOTENT. Jobs are matched by the `requestId` inside their payload, so
 // re-running only fills gaps. That matters more than usual here: a second run
@@ -31,7 +39,7 @@ import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtProm
 const WRITE = process.argv.includes('--write')
 const USER_ID = Number(process.env.ART_SEED_USER_ID || 1)
 const PROJECT_SLUG = 'page-backdrops'
-const PRIORITY = 20
+const PRIORITY = 100
 
 function requestIdFromPayload(payload: string): string | null {
   try {

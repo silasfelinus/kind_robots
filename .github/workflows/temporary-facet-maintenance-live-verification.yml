@@ -70,4 +70,4 @@ jobs:
           npx tsx scripts/run_facet_catalog_maintenance.ts \
             --seed \
             --externally-serialized \
-            "--reason=issue 1451 live verification of PR 1463"
+            "--reason=issue 1451 live verification of PR 1463 with serialized seed modules"

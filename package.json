@@ -74,6 +74,7 @@
     "test:component-reachability:self": "tsx utils/scripts/verifyComponentReachability.ts --self-test",
     "test:page-backdrop": "tsx utils/scripts/verifyPageBackdrop.ts",
     "test:page-backdrop:self": "tsx utils/scripts/verifyPageBackdrop.ts --self-test",
+    "test:art-image-caching": "tsx utils/scripts/verifyArtImageCaching.ts",
     "test:earned-karma-wiring": "tsx utils/scripts/verifyEarnedKarmaWiring.ts",
     "test:stored-art-paths": "tsx utils/scripts/verifyStoredArtPaths.ts",
     "test:stored-art-paths:self": "tsx utils/scripts/verifyStoredArtPaths.ts --self-test",

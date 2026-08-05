@@ -72,6 +72,12 @@ jobs:
       - name: Page backdrop contract
         run: npm run test:page-backdrop
 
+      # The app's busiest route by 3x. Its CDN cacheability is a multiplier on
+      # database sessions, so a silent regression here shows up as a
+      # connection-capacity incident rather than as anything looking broken.
+      - name: Art image caching contract
+        run: npm run test:art-image-caching
+
       # t-099: ESLint as a ratcheted gate — never asks anyone to fix the
       # pre-existing problems, only refuses NEW ones, per rule.
       #

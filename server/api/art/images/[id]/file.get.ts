@@ -105,13 +105,36 @@ export default defineEventHandler(async (event) => {
      * at once. The Cache-Control above is immutable for public art, so an
      * image converts once and is then served from CDN cache.
      */
-    const wantsWebp = (getHeader(event, 'accept') || '').includes('image/webp')
+    /*
+     * NO `Vary: Accept`, AND NO ACCEPT NEGOTIATION — deliberately, and this is
+     * the load-bearing part of this handler.
+     *
+     * Negotiating on Accept was correct HTTP, but it made the response depend
+     * on a request header, which forces `Vary: Accept`, which keys the CDN
+     * cache on that header's raw value. Browsers send wildly different strings
+     * for it — Chrome, Firefox and Safari each send a different list, and it
+     * changes between versions — so a single image fragmented into many cache
+     * entries, and every one of them had to be populated by invoking this
+     * function, hitting Prisma, and opening a ProxySQL session to read a
+     * LongText blob.
+     *
+     * That matters here more than almost anywhere else in the app: this route
+     * was 1591 requests in a two-hour window on 2026-08-05 — 34% of all
+     * function invocations and 3x the next busiest route — because gallery
+     * pages mount 140+ images at once. Fragmenting its cache multiplies
+     * database sessions by exactly the factor you least want during a
+     * connection-capacity incident.
+     *
+     * Always transcoding makes the response a pure function of the image id,
+     * so one cache entry serves every client forever under the immutable
+     * Cache-Control above. WebP has been universally supported since Safari 14
+     * (2020), and the two fallbacks below still cover every real failure —
+     * a client that somehow cannot read WebP is a far smaller risk than the
+     * cache behaviour this replaces.
+     */
     const canTranscode = TRANSCODABLE_TYPES.has(fileType)
 
-    // The response body now depends on Accept, so caches must key on it.
-    setHeader(event, 'Vary', 'Accept')
-
-    if (wantsWebp && canTranscode) {
+    if (canTranscode) {
       /*
        * Deliberate degradation, not error handling: any sharp failure (a
        * corrupt row, an unavailable native binding) must fall through to the

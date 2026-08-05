@@ -236,11 +236,36 @@ assert.match(
   /return raw !== 'false' && raw !== '0' && raw !== 'no'/,
 )
 
-// Preview builds must not mutate the production database. Their deployed API
-// runtime may read it, but it receives the Vercel pool profile above.
+// Preview builds must not mutate the production database. Production migrations
+// remain mandatory, but idempotent maintenance may yield only after bounded
+// retries end in a recognized transient connection-capacity failure.
 assert.match(vercelBuildSource, /process\.env\.VERCEL_ENV === 'production'/)
 assert.match(vercelBuildSource, /Skipping migrations and database seeds/)
 assert.match(vercelBuildSource, /if \(!isVercelBuild \|\| isProductionDeployment\)/)
+assert.match(vercelBuildSource, /const TRANSIENT_DATABASE_OUTPUT/)
+assert.match(vercelBuildSource, /ER_USER_LIMIT_REACHED/)
+assert.match(vercelBuildSource, /pool timeout/)
+assert.match(vercelBuildSource, /runOptionalDatabaseMaintenance/)
+assert.match(
+  vercelBuildSource,
+  /run\(\s*process\.execPath,\s*\['scripts\/prisma-migrate-deploy\.mjs'\]/s,
+)
+assert.doesNotMatch(
+  vercelBuildSource,
+  /runOptionalDatabaseMaintenance\(\s*process\.execPath,\s*\['scripts\/prisma-migrate-deploy\.mjs'\]/s,
+)
+for (const maintenanceScript of [
+  'scripts/seed_achievements.ts',
+  'scripts/generate_achievement_art.ts',
+  'scripts/seed_contenders.ts',
+]) {
+  assert.match(
+    vercelBuildSource,
+    new RegExp(
+      `runOptionalDatabaseMaintenance\\([\\s\\S]*?${maintenanceScript.replaceAll('/', '\\/')}`,
+    ),
+  )
+}
 
 // The request-time singleton creates exactly one base Prisma client per process.
 assert.match(

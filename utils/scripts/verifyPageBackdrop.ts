@@ -30,12 +30,12 @@ import { join, resolve } from 'node:path'
 const root = process.cwd()
 const read = (rel: string) => readFileSync(resolve(root, rel), 'utf8')
 
-/** Every .md under content/, including the nested channel and plan pages. */
-function walkContent(dir: string, out: string[] = []): string[] {
+/** Every file with `ext` under `dir`, recursively. */
+function walkContent(dir: string, out: string[] = [], ext = '.md'): string[] {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry)
-    if (statSync(full).isDirectory()) walkContent(full, out)
-    else if (entry.endsWith('.md')) out.push(full)
+    if (statSync(full).isDirectory()) walkContent(full, out, ext)
+    else if (entry.endsWith(ext)) out.push(full)
   }
   return out
 }
@@ -262,6 +262,39 @@ for (const path of declaredPaths) {
     `${path} is declared in frontmatter but nothing queues it — the page will ` +
       `wait for art no one asked for. Add "${page}" to ` +
       `stores/seeds/pageBackdropArtPrompts.ts, or drop the frontmatter key.`,
+  )
+}
+
+/* -- 8. one art mechanism, not several -------------------------------------- */
+
+/*
+ * A page-specific backdrop component must not load its own art.
+ *
+ * This is the failure that actually happened on 2026-08-05, and it happened
+ * without anyone making a mistake: two agents solved "pages need backgrounds" in
+ * parallel — one generically (kr-page-backdrop + frontmatter keys), one
+ * bespoke (taskmaster-backdrop rendering the page thumbnail stretched to fill).
+ * Both shipped. Taskmaster ended up with two backdrops stacked, and it was
+ * invisible only because the generic layer's art had not been uploaded yet.
+ *
+ * Silas settled it: "lets go generic, because doing it right wins every time."
+ * Bespoke scenes stay as DECORATION over the shared art layer — they just do
+ * not source their own image. This check makes the next fork fail loudly at the
+ * moment it is introduced, rather than surfacing as a doubled background weeks
+ * later when someone finally uploads a file.
+ */
+for (const file of walkContent(resolve(root, 'components'), [], '.vue')) {
+  const name = file.split('/').pop() ?? ''
+  if (!/-backdrop\.vue$/.test(name)) continue
+  if (name === 'kr-page-backdrop.vue') continue // the one that IS the mechanism
+
+  const source = withoutComments(readFileSync(file, 'utf8'))
+  check(
+    !/<img\b/.test(source) && !/background-image\s*:/.test(source),
+    `${name} loads its own art (an <img> or background-image). Page backdrops ` +
+      `come from kr-page-backdrop via the background* frontmatter keys — a ` +
+      `second art source stacks two backdrops on the same page. Keep the ` +
+      `bespoke scene as decoration and drop the image.`,
   )
 }
 

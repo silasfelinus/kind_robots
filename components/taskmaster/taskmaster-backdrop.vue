@@ -4,13 +4,20 @@
     :class="compact ? 'taskmaster-backdrop--compact' : ''"
     aria-hidden="true"
   >
-    <img
-      v-if="image && !imageFailed"
-      :src="image"
-      alt=""
-      class="taskmaster-backdrop__image absolute inset-0 h-full w-full object-cover"
-      @error="imageFailed = true"
-    />
+    <!--
+      NO <img> HERE ANY MORE. This used to render the page's `image` thumbnail
+      stretched to fill, as a stand-in for real backdrop art. Art now comes from
+      kr-page-backdrop (mounted once in app.vue, driven by the
+      backgroundMobile/Tablet/Desktop frontmatter keys), which gives Taskmaster
+      a proper per-breakpoint image instead of an upscaled
+      thumbnail — and gives every other page the same mechanism.
+
+      What survives here is what was always the good part: the hand-built scene.
+      Because kr-page-backdrop sits at z-0 in <main> and the page renders at
+      z-10, this whole layer already paints ON TOP of that art with no slot or
+      teleport needed — the islands, portal and path become foreground over the
+      artwork, which is what the mockup shows.
+    -->
     <div class="taskmaster-backdrop__sky absolute inset-0" />
     <div class="taskmaster-backdrop__portal absolute" />
     <div class="taskmaster-backdrop__island taskmaster-backdrop__island--one absolute" />
@@ -25,25 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    image?: string | null
     compact?: boolean
   }>(),
   {
-    image: null,
     compact: false,
-  },
-)
-
-const imageFailed = ref(false)
-
-watch(
-  () => props.image,
-  () => {
-    imageFailed.value = false
   },
 )
 </script>
@@ -69,12 +63,6 @@ watch(
     );
 }
 
-.taskmaster-backdrop__image {
-  object-position: 66% center;
-  opacity: 0.54;
-  filter: saturate(1.16) contrast(0.96);
-  transform: scale(1.025);
-}
 
 .taskmaster-backdrop__sky {
   background:
@@ -106,6 +94,72 @@ watch(
       ellipse at center,
       transparent 30%,
       color-mix(in oklab, var(--color-base-100) 28%, transparent) 100%
+    );
+}
+
+/*
+ * COMPOSING OVER REAL BACKDROP ART.
+ *
+ * Three layers above are opaque where it matters — the root's 145deg base, the
+ * sky's 96% left edge, and the wash's fully-opaque bottom stop. That is correct
+ * when this scene IS the background, and wrong the moment kr-page-backdrop is
+ * painting a photograph underneath: the art would be completely hidden and the
+ * whole per-breakpoint mechanism would silently do nothing on this page.
+ *
+ * `[data-kr-backdrop]` is set on <main> by app.vue only when the page actually
+ * declares backdrop art, so these overrides engage exactly when there is
+ * something behind to protect — the same signal the surface tokens use, for the
+ * same reason. With no art declared, none of this applies and the scene renders
+ * precisely as it did before.
+ *
+ * Only the GROUNDS are thinned. The portal, islands, clouds and path keep their
+ * own opacities untouched: they are the foreground, and over real artwork they
+ * are the point.
+ */
+[data-kr-backdrop] .taskmaster-backdrop {
+  background:
+    radial-gradient(
+      circle at 82% 16%,
+      color-mix(in oklab, var(--color-secondary) 26%, transparent),
+      transparent 27%
+    ),
+    radial-gradient(
+      circle at 16% 8%,
+      color-mix(in oklab, var(--color-info) 18%, transparent),
+      transparent 34%
+    );
+}
+
+[data-kr-backdrop] .taskmaster-backdrop__sky {
+  background:
+    radial-gradient(
+      circle at 72% 23%,
+      transparent 0 11rem,
+      color-mix(in oklab, var(--color-secondary) 16%, transparent) 16rem,
+      transparent 25rem
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-base-100) 62%, transparent) 0%,
+      color-mix(in oklab, var(--color-base-100) 44%, transparent) 38%,
+      color-mix(in oklab, var(--color-base-100) 14%, transparent) 72%,
+      transparent 100%
+    );
+}
+
+[data-kr-backdrop] .taskmaster-backdrop__wash {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-base-100) 8%, transparent) 0%,
+      transparent 34%,
+      color-mix(in oklab, var(--color-base-100) 34%, transparent) 76%,
+      color-mix(in oklab, var(--color-base-100) 62%, transparent) 100%
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 30%,
+      color-mix(in oklab, var(--color-base-100) 18%, transparent) 100%
     );
 }
 
@@ -211,10 +265,6 @@ watch(
   box-shadow: 0 0 0.85rem color-mix(in oklab, var(--color-warning) 60%, transparent);
 }
 
-.taskmaster-backdrop--compact .taskmaster-backdrop__image {
-  opacity: 0.34;
-  filter: saturate(1.08) contrast(0.94);
-}
 
 .taskmaster-backdrop--compact .taskmaster-backdrop__portal {
   opacity: 0.34;
@@ -233,10 +283,6 @@ watch(
 }
 
 @media (max-width: 767px) {
-  .taskmaster-backdrop__image {
-    object-position: 68% top;
-    opacity: 0.48;
-  }
 
   .taskmaster-backdrop__sky {
     background:
@@ -247,6 +293,21 @@ watch(
         color-mix(in oklab, var(--color-base-100) 82%, transparent) 66%,
         var(--color-base-100) 100%
       );
+  }
+
+  /*
+   * The phone sky above ends on a fully-opaque stop, which would bury the
+   * bottom half of the mobile artwork — the variant most likely to exist first,
+   * since a phone is where Silas actually looks at this.
+   */
+  [data-kr-backdrop] .taskmaster-backdrop__sky {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-base-100) 8%, transparent) 0%,
+      color-mix(in oklab, var(--color-base-100) 18%, transparent) 34%,
+      color-mix(in oklab, var(--color-base-100) 44%, transparent) 66%,
+      color-mix(in oklab, var(--color-base-100) 66%, transparent) 100%
+    );
   }
 
   .taskmaster-backdrop__portal {

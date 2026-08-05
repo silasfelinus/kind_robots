@@ -13,6 +13,7 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
   async function setPriority(id: number, priority: number): Promise<boolean> {
     if (prioritizingJobIds.value.includes(id)) return false
 
+    const artJobStore = useArtJobStore()
     prioritizingJobIds.value = [...prioritizingJobIds.value, id]
     error.value = null
 
@@ -27,10 +28,10 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
 
       if (!res.success || !res.data?.job) {
         error.value = res.message || `Failed to update priority for job ${id}.`
+        artJobStore.error = error.value
         return false
       }
 
-      const artJobStore = useArtJobStore()
       await Promise.all([artJobStore.fetchJobs(), artJobStore.fetchStats()])
       return true
     } finally {

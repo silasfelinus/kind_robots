@@ -854,7 +854,7 @@ async function main(): Promise<void> {
   )
 }
 
-main()
+await main()
   .catch((error: unknown) => {
     console.error(error)
     process.exitCode = 1

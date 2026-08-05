@@ -24,11 +24,6 @@
         />
       </span>
 
-      <!-- Channel only. The active tab used to be stacked underneath here,
-           which both duplicated the title section beside it and gave the
-           control the two-line drop Silas called awkward. The tab strip in
-           workspace-header now names the tab, and is selectable rather than
-           merely descriptive. -->
       <span class="min-w-0 truncate text-sm font-black sm:text-base xl:text-lg">
         {{ activeChannel.label }}
       </span>
@@ -112,76 +107,30 @@
             </button>
           </div>
 
-          <ul
+          <div
             v-if="
               submenuMode === 'inline' &&
               expandedChannelKey === channel.channelKey
             "
-            class="menu mt-1 gap-1 rounded-xl border border-base-300/70 bg-base-200/60 p-1"
+            class="mt-1 rounded-xl border border-base-300/70 bg-base-200/60 p-1"
             :aria-label="channel.label + ' tabs'"
           >
-            <li v-for="tab in channel.tabs" :key="tab.tabKey">
-              <button
-                type="button"
-                class="flex min-h-11 items-center gap-2 rounded-xl"
-                :class="
-                  isActiveTab(channel, tab)
-                    ? 'active bg-secondary text-secondary-content'
-                    : ''
-                "
-                @click="selectTab(channel, tab)"
-              >
-                <span
-                  class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200"
-                >
-                  <img
-                    v-if="tab.image"
-                    :src="tab.image"
-                    :alt="tab.title || tab.label"
-                    class="h-full w-full object-cover"
-                  />
-                  <span
-                    class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-                  >
-                    <Icon
-                      :name="tab.icon || channel.icon"
-                      class="h-4 w-4 text-base-100 drop-shadow"
-                    />
-                  </span>
-                </span>
-
-                <span
-                  class="flex min-w-0 flex-1 flex-col items-start leading-tight"
-                >
-                  <span class="flex max-w-full items-center gap-1">
-                    <span class="truncate text-sm font-black">
-                      {{ tab.label }}
-                    </span>
-                    <span
-                      v-if="isAdminOnlyTab(channel, tab)"
-                      class="badge badge-warning badge-xs shrink-0 font-bold uppercase"
-                      title="Admin-only page"
-                    >
-                      Admin
-                    </span>
-                  </span>
-                  <span
-                    v-if="tab.summary || tab.description"
-                    class="line-clamp-1 text-xs font-medium opacity-65"
-                  >
-                    {{ tab.summary || tab.description }}
-                  </span>
-                </span>
-              </button>
-            </li>
-          </ul>
+            <ChannelTabList
+              :channel="channel"
+              :active-channel-key="activeChannel.channelKey"
+              :active-tab-key="activeTab?.tabKey || ''"
+              :columns="1"
+              @select="selectTab(channel, $event)"
+            />
+          </div>
         </li>
       </ul>
 
-      <ul
+      <div
         v-if="expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
-        class="channel-submenu menu absolute left-full z-120 ml-2 w-80 flex-nowrap overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        :class="channelFlyoutColumns === 2 ? 'w-[40rem]' : 'w-80'"
         :style="{
           top: `${channelFlyoutTop}px`,
           maxHeight: `${channelFlyoutMaxHeight}px`,
@@ -189,61 +138,14 @@
         }"
         :aria-label="expandedChannel.label + ' tabs'"
       >
-        <li v-for="tab in expandedChannel.tabs" :key="tab.tabKey">
-          <button
-            type="button"
-            class="flex min-h-11 items-center gap-2 rounded-xl"
-            :class="
-              isActiveTab(expandedChannel, tab)
-                ? 'active bg-secondary text-secondary-content'
-                : ''
-            "
-            @click="selectTab(expandedChannel, tab)"
-          >
-            <span
-              class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-base-200"
-            >
-              <img
-                v-if="tab.image"
-                :src="tab.image"
-                :alt="tab.title || tab.label"
-                class="h-full w-full object-cover"
-              />
-              <span
-                class="absolute inset-0 flex items-center justify-center bg-base-content/20"
-              >
-                <Icon
-                  :name="tab.icon || expandedChannel.icon"
-                  class="h-4 w-4 text-base-100 drop-shadow"
-                />
-              </span>
-            </span>
-
-            <span
-              class="flex min-w-0 flex-1 flex-col items-start leading-tight"
-            >
-              <span class="flex max-w-full items-center gap-1">
-                <span class="truncate text-sm font-black">
-                  {{ tab.label }}
-                </span>
-                <span
-                  v-if="isAdminOnlyTab(expandedChannel, tab)"
-                  class="badge badge-warning badge-xs shrink-0 font-bold uppercase"
-                  title="Admin-only page"
-                >
-                  Admin
-                </span>
-              </span>
-              <span
-                v-if="tab.summary || tab.description"
-                class="line-clamp-1 text-xs font-medium opacity-65"
-              >
-                {{ tab.summary || tab.description }}
-              </span>
-            </span>
-          </button>
-        </li>
-      </ul>
+        <ChannelTabList
+          :channel="expandedChannel"
+          :active-channel-key="activeChannel.channelKey"
+          :active-tab-key="activeTab?.tabKey || ''"
+          :columns="channelFlyoutColumns"
+          @select="selectTab(expandedChannel, $event)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -257,23 +159,24 @@ import type {
 } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { usePageStore } from '@/stores/pageStore'
+import { hasSeparatedAdminTabs } from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
 
 withDefaults(
   defineProps<{
-    /**
-     * Drop this control's own border, rounding and shadow so it can sit inside
-     * a shared shell with the tab strip and read as one bar. The standalone
-     * (framed) form is still the default for any other mount.
-     */
     seamless?: boolean
   }>(),
   { seamless: false },
 )
 
 type SubmenuMode = 'flyout' | 'inline'
+type FlyoutColumns = 1 | 2
 
 const VIEWPORT_GUTTER = 12
+const FLYOUT_GAP = 8
+const FLYOUT_GUTTER = 8
+const SINGLE_FLYOUT_WIDTH = 320
+const SPLIT_FLYOUT_WIDTH = 640
 
 const route = useRoute()
 const router = useRouter()
@@ -285,6 +188,7 @@ const channelFlyout = ref<HTMLElement | null>(null)
 const channelFlyoutTop = ref(0)
 const channelMenuMaxHeight = ref(320)
 const channelFlyoutMaxHeight = ref(320)
+const channelFlyoutColumns = ref<FlyoutColumns>(1)
 const submenuMode = ref<SubmenuMode>('inline')
 
 await channelContentStore.initialize()
@@ -369,21 +273,9 @@ function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
   )
 }
 
-function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
-  return (
-    activeChannel.value.channelKey === channel.channelKey &&
-    activeTab.value?.tabKey === tab.tabKey
-  )
-}
-
-// Flag admin-gated tabs that live OUTSIDE the dedicated admin channel, so the
-// user can tell at a glance which public-channel links are actually restricted.
-function isAdminOnlyTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
-  return tab.requiredRole === 'ADMIN' && channel.channelKey !== 'admin'
-}
-
 function closeChannelTabs(): void {
   expandedChannelKey.value = ''
+  channelFlyoutColumns.value = 1
 }
 
 function getViewportBottom(): number {
@@ -413,6 +305,12 @@ function updateChannelMenuViewport(): void {
   if (!menu) return
 
   channelMenuMaxHeight.value = availableViewportHeight(menu)
+
+  const channel = expandedChannel.value
+  if (submenuMode.value === 'flyout' && channel) {
+    channelFlyoutColumns.value = preferredFlyoutColumns(channel)
+  }
+
   updateChannelFlyoutViewport()
 }
 
@@ -425,6 +323,15 @@ function scheduleChannelMenuViewportUpdate(): void {
 }
 
 function handleViewportResize(): void {
+  if (
+    submenuMode.value === 'flyout' &&
+    expandedChannel.value &&
+    !canShowFlyoutWidth(SINGLE_FLYOUT_WIDTH)
+  ) {
+    submenuMode.value = 'inline'
+    channelFlyoutColumns.value = 1
+  }
+
   scheduleChannelMenuViewportUpdate()
 }
 
@@ -440,21 +347,21 @@ onBeforeUnmount(() => {
   window.visualViewport?.removeEventListener('scroll', handleViewportResize)
 })
 
-function expectedFlyoutWidth(): number {
-  if (typeof window === 'undefined') return 320
-  return window.innerWidth >= 768
-    ? 320
-    : Math.min(352, Math.max(0, window.innerWidth - 16))
-}
-
-function canShowFlyout(): boolean {
+function canShowFlyoutWidth(width: number): boolean {
   const menu = channelMenu.value
   if (!menu || typeof window === 'undefined') return false
 
   const menuRect = menu.getBoundingClientRect()
-  const flyoutRight = menuRect.right + 8 + expectedFlyoutWidth()
+  const flyoutRight = menuRect.right + FLYOUT_GAP + width
 
-  return flyoutRight <= window.innerWidth - 8
+  return flyoutRight <= window.innerWidth - FLYOUT_GUTTER
+}
+
+function preferredFlyoutColumns(channel: ResolvedChannel): FlyoutColumns {
+  return hasSeparatedAdminTabs(channel) &&
+    canShowFlyoutWidth(SPLIT_FLYOUT_WIDTH)
+    ? 2
+    : 1
 }
 
 function positionChannelTabs(event: Event): void {
@@ -490,11 +397,15 @@ function openChannelTabs(
     return
   }
 
-  const nextMode: SubmenuMode = canShowFlyout() ? 'flyout' : 'inline'
+  const nextMode: SubmenuMode = canShowFlyoutWidth(SINGLE_FLYOUT_WIDTH)
+    ? 'flyout'
+    : 'inline'
   if (nextMode === 'inline' && !allowInline) return
 
   submenuMode.value = nextMode
   expandedChannelKey.value = channel.channelKey
+  channelFlyoutColumns.value =
+    nextMode === 'flyout' ? preferredFlyoutColumns(channel) : 1
 
   if (nextMode === 'flyout') {
     positionChannelTabs(event)

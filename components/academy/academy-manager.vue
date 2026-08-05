@@ -128,14 +128,6 @@ function goToRemix(styleSlug: string) {
   navStore.setDashboardTab(dashboardKey.value, 'remix', 'academy remix CTA')
 }
 
-// The stylelab tab renders a bare <image-upload> alongside art-styler for
-// general gallery uploads. uploadStore.activeTarget is an app-lifetime Pinia
-// singleton that only other pages (add-bot, add-character, art-maker, ...)
-// ever write -- none of them clear it on unmount -- so without setting our
-// own target here, entering this tab either finds no target (upload button
-// permanently disabled) or inherits a stale one from whatever page ran last
-// (e.g. a Bot edit target, silently applying an Academy upload to that bot).
-// Mirrors art-maker.vue's configureArtImageUpload() pattern.
 function configureStyleLabUploadTarget() {
   uploadStore.setTarget({
     model: 'ArtImage',
@@ -151,17 +143,28 @@ function configureStyleLabUploadTarget() {
   hasConfiguredUploadTarget.value = true
 }
 
+function tabNeedsManagerData(tab: AcademyTab) {
+  return tab === 'remix' || tab === 'stylelab'
+}
+
 watch(
   activeTab,
   (tab) => {
     if (tab === 'stylelab') {
       configureStyleLabUploadTarget()
     }
+
+    if (tabNeedsManagerData(tab)) {
+      void loadManagerData()
+    }
   },
   { immediate: true },
 )
 
 async function loadManagerData(force = false) {
+  if (isLoadingManager.value) return
+  if (!force && serverStore.hasLoaded && artStore.hasLoaded) return
+
   isLoadingManager.value = true
   managerError.value = null
 
@@ -187,14 +190,9 @@ async function loadManagerData(force = false) {
 
 onMounted(() => {
   academyStore.hydrate()
-  void loadManagerData()
 })
 
 onUnmounted(() => {
-  // Only clear the target if this component actually set one (i.e. the user
-  // opened the stylelab tab) -- otherwise leaving Academy without ever
-  // visiting Style Lab wipes out whatever unrelated page (add-bot,
-  // art-maker, ...) had configured before the user arrived here.
   if (hasConfiguredUploadTarget.value) {
     uploadStore.clearTarget()
   }

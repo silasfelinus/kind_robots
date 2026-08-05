@@ -7,7 +7,7 @@ on:
       - .github/workflows/temporary-facet-maintenance-live-verification.yml
 
 concurrency:
-  group: facet-catalog-maintenance
+  group: facet-catalog-live-verification-1451
   cancel-in-progress: false
 
 permissions:

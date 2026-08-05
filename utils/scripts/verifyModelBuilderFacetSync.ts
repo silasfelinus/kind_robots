@@ -1,6 +1,7 @@
 // /utils/scripts/verifyModelBuilderFacetSync.ts
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { containsCode } from './lib/sourceText'
 
 const root = process.cwd()
 
@@ -15,7 +16,7 @@ function requireText(path: string, text: string, fragment: string): void {
 }
 
 function forbidText(path: string, text: string, fragment: string): void {
-  if (text.includes(fragment)) {
+  if (containsCode(text, fragment)) {
     throw new Error(`${path} contains retired Model Builder Facet text: ${fragment}`)
   }
 }

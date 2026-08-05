@@ -1,6 +1,7 @@
 // /utils/scripts/verifyFacetCanonicalMerges.ts
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { containsCode } from './lib/sourceText'
 
 const root = process.cwd()
 
@@ -15,7 +16,7 @@ function requireText(path: string, text: string, value: string): void {
 }
 
 function forbidText(path: string, text: string, value: string): void {
-  if (text.includes(value)) {
+  if (containsCode(text, value)) {
     throw new Error(`${path} contains retired contract text: ${value}`)
   }
 }

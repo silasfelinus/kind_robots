@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { RewardType, Rarity } from '../../prisma/generated/prisma/enums'
 import { CREATABLE_DREAM_TYPES } from '../../stores/helpers/dreamHelper'
 import { SYSTEM_OPTION_FACET_TARGETS } from '../seeds/facetSystemOptionArtwork'
+import { containsCode } from './lib/sourceText'
 
 const root = process.cwd()
 
@@ -141,7 +142,7 @@ async function main(): Promise<void> {
   requireText(files.policy, text.policy, 'utils/scripts/seedSystemOptionFacets.ts')
 
   for (const forbidden of ['prisma.dreamFacet', 'prisma.rewardFacet']) {
-    if (text.seed.includes(forbidden)) {
+    if (containsCode(text.seed, forbidden)) {
       failures.push(
         `${files.seed} must not duplicate structural enum values into assignment tables (${forbidden}).`,
       )

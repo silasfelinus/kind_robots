@@ -26,6 +26,19 @@
           >
             manifest unmatched
           </span>
+          <!--
+            Parked in components/abandonware/. The exhibit still mounts for real
+            below -- that is the whole point of parking rather than deleting --
+            so without this badge a retired component is indistinguishable from
+            a live one.
+          -->
+          <span
+            v-if="manifestEntry?.abandoned"
+            class="badge badge-neutral badge-sm"
+            title="Parked in components/abandonware/ — still previewable here, but excluded from the app build."
+          >
+            abandonware
+          </span>
           <span
             v-if="manifestEntry"
             class="badge badge-ghost badge-sm font-mono"
@@ -121,9 +134,9 @@
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <p class="font-black text-error">Preview error contained</p>
-            <pre
-              class="mt-2 whitespace-pre-wrap text-xs text-error/80"
-            >{{ previewError }}</pre>
+            <pre class="mt-2 whitespace-pre-wrap text-xs text-error/80">{{
+              previewError
+            }}</pre>
           </div>
 
           <button
@@ -154,9 +167,7 @@
 
             <template #fallback>
               <div class="flex min-h-40 items-center justify-center">
-                <span
-                  class="loading loading-spinner loading-md text-primary"
-                />
+                <span class="loading loading-spinner loading-md text-primary" />
               </div>
             </template>
           </Suspense>
@@ -283,7 +294,9 @@ function buildCandidates(): string[] {
     `/components/${props.folderName}/${name}.vue`,
     `/components/content/${props.folderName}/${name}.vue`,
     `/components/${name}.vue`,
-  ].filter((value, index, list) => Boolean(value) && list.indexOf(value) === index)
+  ].filter(
+    (value, index, list) => Boolean(value) && list.indexOf(value) === index,
+  )
 }
 
 function resolveComponent(): void {
@@ -296,7 +309,9 @@ function resolveComponent(): void {
 
   if (fixture.value?.skipReason) return
 
-  const matchedPath = buildCandidates().find((candidate) => allModules[candidate])
+  const matchedPath = buildCandidates().find(
+    (candidate) => allModules[candidate],
+  )
   if (!matchedPath) {
     previewNotFound.value = true
     return

@@ -52,16 +52,62 @@ component on the next generation. No contract asserts a fixed entry count.
 The component is gone and has no successor. This is already fully supported; it is a status change,
 not a new concept.
 
-1. Delete the source file.
+1. **Move the source file to `components/abandonware/`**, mirroring its original folder
+   (`components/butterfly/butterfly-net.vue` → `components/abandonware/butterfly/butterfly-net.vue`).
+   See "Park, don't delete" below for why this replaced deletion.
 2. Set the `Component`'s status to `RETIRED` with a `statusReason` saying what replaced it or why it
    went. `ComponentStatus.RETIRED` is a real enum value (`prisma/schema.prisma:2540`), settable from
    the admin UI at `components/wonderlab/lab-interact.vue:154`, rendered by
    `components/wonderlab/component-card.vue`, and sorted last in
    `utils/wonderlab/componentCatalog.ts` (`statusOrder.RETIRED = 6`).
-3. Let reconcile flip `isDiscovered` on its next run. The museum's `discovery: 'missing'` filter
-   (`normalizeWonderLabMuseumQuery`) is what surfaces these as history.
+3. Regenerate the manifest (`npm run components:manifest`). The entry stays, flagged
+   `abandoned: true`, and `isDiscovered` stays **true** — the file genuinely still exists.
 
 The reviews stay on the retired exhibit. That is the point — they document what the site was.
+
+## Park, don't delete
+
+Silas, 2026-08-05, verbatim:
+
+> "if we aren't using a component, it should move to /abandonware. that way it is still reachable by
+> wonderlab, but should not affect built"
+
+Deleting kept the reviews but cost the museum the exhibit itself: `wonderlab-preview-host.vue`
+renders "Component source not found" for a missing file, and no new AI review draft can ever be
+generated for it (`reviewDraftPrompt.ts:209` throws without source evidence). Parking keeps the
+exhibit whole while taking the file out of the app.
+
+### What parking actually removes
+
+| | Parked? |
+|---|---|
+| Nuxt auto-import registration | **Gone** — `nuxt.config.ts` `components[].ignore` lists `abandonware/**/*.vue`, resolved relative to `~/components`. Confirm with: no parked name appears in `.nuxt/components.d.ts`. |
+| `vue-tsc` typechecking | **Gone** — `tsconfig.json` excludes `components/abandonware/**/*`. |
+| WonderLab preview | **Kept** — the museum's `import.meta.glob('@/components/**/*.vue')` still matches. `ignore` governs auto-import, not globs. |
+| Manifest entry + reviews | **Kept**, with `abandoned: true`. |
+| SFC compilation | **Kept.** The glob makes each a lazy chunk rather than main-bundle weight, but Vite still compiles it. Dropping the preview is the only way to zero this, and that costs the exhibit. |
+
+### The known rough edge
+
+A parked component that references *another* parked component loses auto-import resolution for that
+child, so the child renders as an unresolved custom element in the museum preview. This is common in
+the parked clusters (`butterfly/`, `builder/`), which reference each other heavily. The parent's own
+markup still renders; the nested child comes up empty. Fixable per-component with an explicit
+`import`, if a particular exhibit is ever worth the fidelity.
+
+### Finding what to park
+
+`npm run test:component-reachability` traverses from `app.vue`, `error.vue`, `pages/`, `layouts/`,
+and `content/*.md` MDC mounts, and reports every component nothing reaches. A grep cannot answer this
+— a cluster that only cites itself looks referenced from every angle except the one that matters. The
+baseline is a ratchet at **zero**: a PR that orphans a component fails until it parks it.
+
+That check reports rather than judges. Its blind spots are runtime mounts — `<component :is>`, a
+string-addressed registry, a plugin CSS selector — so read the list before acting on it. Three edge
+classes were found and taught to it the hard way, each after a first pass parked something live:
+directory-local `import.meta.glob` registries (all 47 `screenfx/` effects), explicit `.vue` imports
+(`stage-manager`'s three cards, caught by vue-tsc), and Nuxt's `Lazy` prefix
+(`<LazyWorkspaceNarrator>`, six components, caught by `test:narrative-kit`).
 
 ### Succeed — only when reviews describe a surface that still exists
 
@@ -74,6 +120,10 @@ the deleted surface.
 
 ## What this policy is not
 
-It is not licence to delete a component that is still mounted somewhere. Check first — the ordinary
+It is not licence to park a component that is still mounted somewhere. Check first — the ordinary
 dead-code checks still apply, and `verifyLayoutContract.ts` resolves every MDC mount in `content/`,
-so a component referenced from a content file will fail CI if you remove it.
+so a component referenced from a content file will fail CI if you move it.
+
+It is also not a reason to reach for deletion instead. Deleting still behaves exactly as documented
+above — the row and its reviews survive — but it costs the exhibit its preview, and parking costs
+nothing that matters. Park.

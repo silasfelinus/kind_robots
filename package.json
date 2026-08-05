@@ -69,6 +69,8 @@
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
     "test:gallery-adoption": "tsx utils/scripts/verifyGalleryAdoption.ts",
     "test:gallery-consistency": "tsx utils/scripts/verifyGalleryConsistency.ts",
+    "test:component-reachability": "tsx utils/scripts/verifyComponentReachability.ts",
+    "test:component-reachability:self": "tsx utils/scripts/verifyComponentReachability.ts --self-test",
     "test:earned-karma-wiring": "tsx utils/scripts/verifyEarnedKarmaWiring.ts",
     "test:stored-art-paths": "tsx utils/scripts/verifyStoredArtPaths.ts",
     "test:stored-art-paths:self": "tsx utils/scripts/verifyStoredArtPaths.ts --self-test",

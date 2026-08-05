@@ -58,6 +58,13 @@ jobs:
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
 
+      # Orphan components: nothing in app.vue, pages/, layouts/ or a content MDC
+      # mount reaches them, even transitively. A grep cannot answer this — a
+      # cluster that only cites itself looks referenced from every angle except
+      # the one that matters. New orphans belong in components/abandonware/.
+      - name: Component reachability contract
+        run: npm run test:component-reachability
+
       # t-099: ESLint as a ratcheted gate — never asks anyone to fix the
       # pre-existing problems, only refuses NEW ones, per rule.
       #

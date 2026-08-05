@@ -1,0 +1,6 @@
+{
+  "note": "Component reachability RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyComponentReachability.ts.",
+  "recorded": "2026-08-05",
+  "total": 0,
+  "orphans": []
+}

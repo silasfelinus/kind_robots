@@ -108,6 +108,12 @@
                 @click="artJobWorkspaceTab = 'queue'"
               >
                 Queue
+                <span
+                  v-if="artJobWorkspaceTab === 'queue'"
+                  class="badge badge-success badge-outline badge-xs rounded-2xl"
+                >
+                  Live · 15s
+                </span>
               </button>
               <button
                 type="button"
@@ -209,13 +215,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
+import { useUserStore } from '@/stores/userStore'
 
 type ArtTab =
   | 'generate'
@@ -230,12 +237,15 @@ type ArtTab =
 type LegacyArtTab = ArtTab | 'upload'
 type ArtJobWorkspaceTab = 'queue' | 'trainer'
 
+const ART_JOB_REFRESH_INTERVAL_MS = 15_000
+
 const artJobStore = useArtJobStore()
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
 const navStore = useNavStore()
 const serverStore = useServerStore()
+const userStore = useUserStore()
 
 const defaultDashboardKey = 'art'
 const defaultTab: ArtTab = 'generate'
@@ -257,6 +267,7 @@ const artJobWorkspaceTab = ref<ArtJobWorkspaceTab>('queue')
 const artPreviewDialog = ref<HTMLDialogElement | null>(null)
 const artPreviewSrc = ref('')
 const artPreviewTitle = ref('Generated art')
+let artJobRefreshTimer: ReturnType<typeof setInterval> | null = null
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -274,6 +285,14 @@ const activeTab = computed<ArtTab>(() => {
   }
 
   return selectedTab as ArtTab
+})
+
+const shouldLiveRefreshArtJobs = computed(() => {
+  return (
+    userStore.isAdmin &&
+    activeTab.value === 'artjob' &&
+    artJobWorkspaceTab.value === 'queue'
+  )
 })
 
 const pendingTrainerCount = computed(() => {
@@ -315,6 +334,35 @@ async function refreshManagerData() {
   await loadManagerData(true)
 }
 
+function stopArtJobLiveRefresh(): void {
+  if (!artJobRefreshTimer) return
+  clearInterval(artJobRefreshTimer)
+  artJobRefreshTimer = null
+}
+
+async function refreshArtJobLiveData(): Promise<void> {
+  if (!import.meta.client || !shouldLiveRefreshArtJobs.value) return
+  if (document.visibilityState !== 'visible') return
+  if (artJobStore.loadingJobs || artJobStore.loadingStats) return
+
+  await Promise.all([artJobStore.fetchJobs(), artJobStore.fetchStats()])
+}
+
+function syncArtJobLiveRefresh(): void {
+  stopArtJobLiveRefresh()
+  if (!import.meta.client || !shouldLiveRefreshArtJobs.value) return
+
+  artJobRefreshTimer = setInterval(() => {
+    void refreshArtJobLiveData()
+  }, ART_JOB_REFRESH_INTERVAL_MS)
+}
+
+function handleVisibilityChange(): void {
+  if (document.visibilityState === 'visible') {
+    void refreshArtJobLiveData()
+  }
+}
+
 function handleArtJobImageClick(event: MouseEvent): void {
   const target = event.target
   if (!(target instanceof Element)) return
@@ -342,7 +390,17 @@ function clearArtPreview(): void {
   artPreviewTitle.value = 'Generated art'
 }
 
+watch(shouldLiveRefreshArtJobs, syncArtJobLiveRefresh, { immediate: true })
+
 onMounted(async () => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
   await loadManagerData()
+})
+
+onBeforeUnmount(() => {
+  stopArtJobLiveRefresh()
+  if (import.meta.client) {
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }
 })
 </script>

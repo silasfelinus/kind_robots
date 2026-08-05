@@ -10,6 +10,10 @@ const cleanupPath = path.join(
 )
 const artPath = path.join(root, 'scripts/generate_facet_art.ts')
 const runnerPath = path.join(root, 'scripts/run_facet_catalog_maintenance.ts')
+const workflowPath = path.join(
+  root,
+  '.github/workflows/facet-catalog-maintenance.yml',
+)
 const buildPath = path.join(root, 'scripts/vercel-build.mjs')
 const schemaPath = path.join(root, 'prisma/schema.prisma')
 const managerPath = path.join(root, 'components/facets/facet-manager.vue')
@@ -19,6 +23,7 @@ const entityArtPath = path.join(root, 'server/utils/entityArt.ts')
 const cleanup = fs.readFileSync(cleanupPath, 'utf8')
 const art = fs.readFileSync(artPath, 'utf8')
 const runner = fs.readFileSync(runnerPath, 'utf8')
+const workflow = fs.readFileSync(workflowPath, 'utf8')
 const build = fs.readFileSync(buildPath, 'utf8')
 const schema = fs.readFileSync(schemaPath, 'utf8')
 const manager = fs.readFileSync(managerPath, 'utf8')
@@ -156,6 +161,20 @@ assert.ok(
   'Lock loss must abort the currently running child mutation process.',
 )
 
+for (const required of [
+  "DATABASE_CONNECTION_LIMIT: '2'",
+  "DATABASE_MINIMUM_IDLE: '0'",
+  "DATABASE_CONNECT_TIMEOUT_MS: '30000'",
+  "DATABASE_ACQUIRE_TIMEOUT_MS: '120000'",
+  "DATABASE_IDLE_TIMEOUT_SECONDS: '300'",
+  'timeout-minutes: 120',
+]) {
+  assert.ok(
+    workflow.includes(required),
+    `Facet maintenance workflow is missing its bounded ProxySQL pool contract: ${required}`,
+  )
+}
+
 const seedHook = "script: 'utils/scripts/runFacetCatalogSeed.ts'"
 const directivesHook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
 const cleanupHook = "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
@@ -204,9 +223,7 @@ assert.ok(
  * the catalog silently stops being maintained at all.
  */
 assert.ok(
-  fs.existsSync(
-    path.join(root, '.github/workflows/facet-catalog-maintenance.yml'),
-  ),
+  fs.existsSync(workflowPath),
   'An out-of-band Facet catalog maintenance workflow must exist, because the production build no longer runs the maintenance itself.',
 )
 

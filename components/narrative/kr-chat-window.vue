@@ -78,7 +78,7 @@
           'min-w-0 max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
           turn.from === 'user'
             ? 'rounded-br-sm border border-secondary/30 bg-secondary/10'
-            : 'rounded-bl-sm border border-base-300 bg-base-100 shadow-sm',
+            : 'rounded-bl-sm border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm',
         ]"
       >
         <p

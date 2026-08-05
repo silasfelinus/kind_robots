@@ -6,7 +6,7 @@
     :data-art-subject="normalizedTargetTitle || undefined"
     data-art-context
     :class="[
-      'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
+      'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-(--kr-surface) transition-all hover:shadow-lg',
       // Panel cards (bot, character, reward, scenario) inset their art and want
       // the padding. Poster cards (dream) run their art edge-to-edge with the
       // title overlaid, and padding would frame it in a way the design does not
@@ -14,7 +14,7 @@
       // nothing else in this repo uses Tailwind's important modifier and a
       // class-string fight is a worse contract than a boolean.
       padded ? (compact ? 'gap-2 p-3' : 'gap-4 p-4') : 'gap-0 p-0',
-      selected ? 'border-primary bg-primary/10' : 'border-base-300',
+      selected ? 'border-primary bg-primary/10' : 'border-(--kr-surface-border)',
       normalizedCardClass,
     ]"
     @click="handleSelect"
@@ -51,7 +51,7 @@
     <Transition name="reaction-pop">
       <div
         v-if="reactionOpen && canRenderReactionCard"
-        class="absolute inset-x-2 top-14 z-40 max-h-[calc(100%-4rem)] overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="absolute inset-x-2 top-14 z-40 max-h-[calc(100%-4rem)] overflow-y-auto rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface-raised) p-2 shadow-2xl"
         @click.stop
       >
         <div class="mb-2 flex items-center justify-between gap-2">

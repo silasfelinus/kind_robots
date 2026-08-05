@@ -65,6 +65,13 @@ jobs:
       - name: Component reachability contract
         run: npm run test:component-reachability
 
+      # Stage 3 rails: per-breakpoint page backdrop art + the surface tokens
+      # that let the shared kit go translucent over it. The failure this really
+      # guards is a backdrop key wired into three of its four sites — the page
+      # typechecks, the frontmatter validates, and the art just never arrives.
+      - name: Page backdrop contract
+        run: npm run test:page-backdrop
+
       # t-099: ESLint as a ratcheted gate — never asks anyone to fix the
       # pre-existing problems, only refuses NEW ones, per rule.
       #

@@ -47,15 +47,24 @@ export type WorkspacePage = ContentCollectionItem & {
   sort?: string | number
   icon?: string
   image?: string
+  /*
+   * Full-bleed backdrop art, one per breakpoint. Distinct from `image`, which
+   * is the thumbnail the nav tabs and workspace sheet render at chip size.
+   * Rendered by components/ui/kr-page-backdrop.vue. All three are optional and
+   * the backdrop falls back across them, so declaring one is enough.
+   */
+  backgroundMobile?: string
+  backgroundTablet?: string
+  backgroundDesktop?: string
   description?: string
   summary?: string
 }
 
-function normalizeImagePath(path: string): string {
-  if (!path) return ''
-  if (path.startsWith('/') || path.startsWith('http')) return path
-  return `/images/${path}`
-}
+// normalizeImagePath used to live here as one of four private copies. It is
+// utils/pageImagePath.ts now — same behaviour for every value in content/
+// today, plus `data:` support and a guard against double-prefixing an
+// `images/`-rooted path into `/images/images/…`.
+
 
 function isBuilderCardArray(value: unknown): value is BuilderCard[] {
   return (
@@ -148,9 +157,18 @@ export const usePageStore = defineStore('pageStore', () => {
     description: getString(currentPage.value?.description),
     summary: getString(currentPage.value?.summary),
     icon: getString(currentPage.value?.icon) || 'mdi:robot-happy',
-    image: normalizeImagePath(
+    image: pageImagePath(
       getString(currentPage.value?.image) || '/images/botcafe.webp',
     ),
+    /*
+     * NO DEFAULT, deliberately — unlike `image` above, which falls back to
+     * botcafe.webp. A page with no backdrop declared must resolve to '' so the
+     * backdrop renders nothing at all; defaulting would put one page's art
+     * behind all 54.
+     */
+    backgroundMobile: pageImagePath(currentPage.value?.backgroundMobile),
+    backgroundTablet: pageImagePath(currentPage.value?.backgroundTablet),
+    backgroundDesktop: pageImagePath(currentPage.value?.backgroundDesktop),
     tooltip: getString(currentPage.value?.tooltip),
     dottiTip:
       getString(currentPage.value?.dottiTip) ||
@@ -409,6 +427,9 @@ export const usePageStore = defineStore('pageStore', () => {
     summary: computed(() => meta.value.summary),
     icon: computed(() => meta.value.icon),
     image: computed(() => meta.value.image),
+    backgroundMobile: computed(() => meta.value.backgroundMobile),
+    backgroundTablet: computed(() => meta.value.backgroundTablet),
+    backgroundDesktop: computed(() => meta.value.backgroundDesktop),
     tooltip: computed(() => meta.value.tooltip),
     dottiTip: computed(() => meta.value.dottiTip),
     amiTip: computed(() => meta.value.amiTip),

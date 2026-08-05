@@ -54,6 +54,12 @@ if (!isVercelBuild || isProductionDeployment) {
     ['scripts/seed_contenders.ts', '--write'],
     'Seeding Challenge Center contenders',
   )
+
+  run(
+    tsxBinary,
+    ['scripts/reconcile_failed_art_jobs.ts', '--write'],
+    'Reconciling failed ArtJobs',
+  )
 } else {
   console.log(
     `[vercel-build] Skipping migrations and database seeds for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`,

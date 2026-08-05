@@ -197,7 +197,7 @@
                 </span>
               </span>
               <Icon
-                name="kind-icon:arrowdown"
+                name="kind-icon:chevron-down"
                 class="size-4 text-base-content/45 transition-transform group-open:rotate-180"
               />
             </summary>
@@ -241,7 +241,7 @@
                 </span>
               </span>
               <Icon
-                name="kind-icon:arrowdown"
+                name="kind-icon:chevron-down"
                 class="size-4 text-base-content/45 transition-transform group-open:rotate-180"
               />
             </summary>
@@ -320,7 +320,7 @@
           <span v-if="store.isWeaving" class="loading loading-dots loading-sm" />
           <template v-else>
             Build my quest
-            <Icon name="kind-icon:arrowright" class="size-4" />
+            <Icon name="kind-icon:chevron-right" class="size-4" />
           </template>
         </button>
         <p
@@ -634,10 +634,10 @@
               <p
                 class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-secondary/75"
               >
-                Mission rail
+                Practical checkpoint plan
               </p>
               <p v-if="store.currentCheckpoint" class="mt-1 text-sm font-bold">
-                {{ store.currentCheckpoint.title }}
+                Current action: {{ store.currentCheckpoint.title }}
               </p>
               <p v-else class="mt-1 text-xs text-base-content/55">
                 Every planned checkpoint has an outcome.
@@ -714,7 +714,7 @@
               All checkpoints have an outcome
             </p>
             <p class="mt-0.5 text-xs text-base-content/55">
-              Finish for a practical recap and optional Apply actions.
+              Review any optional Apply actions, then finish for a practical recap.
             </p>
           </div>
           <button

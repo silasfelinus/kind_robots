@@ -163,7 +163,6 @@ watch(
 
 async function loadManagerData(force = false) {
   if (isLoadingManager.value) return
-  if (!force && serverStore.hasLoaded && artStore.hasLoaded) return
 
   isLoadingManager.value = true
   managerError.value = null

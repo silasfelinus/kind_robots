@@ -2,75 +2,84 @@
 <template>
   <section
     v-if="!taskmasterStore.session"
-    class="rounded-2xl border border-secondary/25 bg-secondary/5 p-4"
+    class="space-y-3"
     aria-labelledby="taskmaster-samples-heading"
   >
-    <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">
-        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-secondary/75">
-          Try a sample task
+        <p
+          class="text-[0.68rem] font-black uppercase tracking-[0.15em] text-accent"
+        >
+          Serendipity's sparks
         </p>
-        <h2 id="taskmaster-samples-heading" class="mt-1 text-lg font-black">
-          Start with a ready-made quest
-        </h2>
-        <p class="mt-1 max-w-3xl text-xs leading-relaxed text-base-content/55">
-          Pick an example to build a reviewable checkpoint plan. Nothing is applied or
-          marked complete automatically.
+        <h3 id="taskmaster-samples-heading" class="mt-1 text-base font-black">
+          Borrow a beginning
+        </h3>
+        <p class="mt-1 text-xs leading-relaxed text-base-content/55">
+          Each spark builds a reviewable plan. Nothing is applied automatically.
         </p>
       </div>
       <span
         v-if="gateProject"
-        class="badge badge-warning badge-sm rounded-xl"
+        class="badge badge-warning badge-outline badge-sm h-auto rounded-xl py-1 text-[0.65rem]"
       >
-        {{ gateProject.gateCount }} current human
+        {{ gateProject.gateCount }} human
         {{ gateProject.gateCount === 1 ? 'gate' : 'gates' }}
       </span>
     </div>
 
-    <div class="mt-3 grid gap-2 md:grid-cols-2">
+    <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
       <button
         v-for="sample in sampleTasks"
         :key="sample.id"
         type="button"
-        class="group rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70 disabled:cursor-wait disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none"
+        class="taskmaster-spark group relative min-h-28 overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:cursor-wait disabled:opacity-60 motion-reduce:transform-none motion-reduce:transition-none"
         :class="
           sample.id === 'conductor-gates'
-            ? 'border-warning/40 bg-warning/5'
-            : 'border-base-300 bg-base-100'
+            ? 'border-warning/45 bg-warning/10'
+            : 'border-base-300/90 bg-base-100/90'
         "
         :disabled="startingId !== null || taskmasterStore.isWeaving"
         @click="useSample(sample)"
       >
-        <span class="flex items-start gap-3">
-          <span
-            class="flex size-9 shrink-0 items-center justify-center rounded-xl border border-current/15 bg-base-100/70 text-secondary"
-            aria-hidden="true"
-          >
+        <span
+          class="absolute -right-5 -top-5 size-20 rounded-full bg-accent/10 transition group-hover:scale-125 motion-reduce:transition-none"
+          aria-hidden="true"
+        />
+        <span class="relative flex h-full flex-col gap-2">
+          <span class="flex items-start justify-between gap-2">
             <span
-              v-if="startingId === sample.id"
-              class="loading loading-spinner loading-sm"
-            />
-            <Icon v-else :name="sample.icon" class="size-4" />
-          </span>
-          <span class="min-w-0 flex-1">
-            <span class="block text-sm font-black leading-snug">
-              {{ sample.task }}
-            </span>
-            <span class="mt-1 block text-xs leading-relaxed text-base-content/50">
-              {{ sample.helper }}
-            </span>
-            <span
-              v-if="sample.id === 'conductor-gates' && gateProject"
-              class="mt-2 block text-[0.68rem] font-bold uppercase tracking-wide text-warning"
+              class="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-current/15 bg-base-100/80 text-accent shadow-sm"
+              aria-hidden="true"
             >
-              Starts with {{ gateProject.name }}
+              <span
+                v-if="startingId === sample.id"
+                class="loading loading-spinner loading-sm"
+              />
+              <Icon v-else :name="sample.icon" class="size-5" />
             </span>
+            <Icon
+              name="kind-icon:chevron-right"
+              class="mt-1 size-4 shrink-0 text-base-content/25 transition group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transition-none"
+            />
+          </span>
+          <span class="block text-sm font-black leading-snug">
+            {{ sample.task }}
+          </span>
+          <span class="block text-xs leading-relaxed text-base-content/50">
+            {{ sample.helper }}
+          </span>
+          <span
+            v-if="sample.id === 'conductor-gates' && gateProject"
+            class="mt-auto block text-[0.65rem] font-black uppercase tracking-wide text-warning"
+          >
+            Starts with {{ gateProject.name }}
           </span>
         </span>
       </button>
     </div>
 
-    <p v-if="errorMessage" class="mt-3 text-xs text-error" role="alert">
+    <p v-if="errorMessage" class="text-xs text-error" role="alert">
       {{ errorMessage }}
     </p>
   </section>
@@ -104,7 +113,7 @@ const sampleTasks: SampleTask[] = [
     id: 'conductor-gates',
     task: 'Look at my conductor repo and help me clear any current human gates.',
     helper:
-      'Loads the current Conductor surface and scopes the checkpoint plan to the project with the most needs-human work.',
+      'Load the current Conductor surface and start with the project carrying the most needs-human work.',
     icon: 'kind-icon:gearhammer',
     tone: 'adventurous',
     vibeTags: ['clear-eyed', 'collaborative', 'practical'],
@@ -113,7 +122,7 @@ const sampleTasks: SampleTask[] = [
   {
     id: 'ship-feature',
     task: 'Help me choose the next feature to ship and identify the smallest useful first step.',
-    helper: 'Turn an open-ended product decision into a short, concrete sequence.',
+    helper: 'Turn an open product decision into a short, concrete sequence.',
     icon: 'kind-icon:story',
     tone: 'mysterious',
     vibeTags: ['decisive', 'focused', 'small wins'],
@@ -129,7 +138,7 @@ const sampleTasks: SampleTask[] = [
   {
     id: 'hard-conversation',
     task: 'Help me prepare for a conversation I have been putting off.',
-    helper: 'Clarify the goal, gather the important facts, and plan the opening words.',
+    helper: 'Clarify the goal, gather the facts, and plan the opening words.',
     icon: 'kind-icon:alert',
     tone: 'tender',
     vibeTags: ['honest', 'calm', 'respectful'],

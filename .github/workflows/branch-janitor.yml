@@ -1,6 +1,8 @@
 name: Branch janitor
 
 on:
+  pull_request:
+    types: [closed]
   schedule:
     - cron: "23 * * * *"
   workflow_dispatch:

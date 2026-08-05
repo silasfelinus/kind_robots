@@ -71,6 +71,9 @@ jobs:
       - name: Verify Facet seed target-slug serialization
         run: npx tsx utils/scripts/verifyFacetSeedSlugSerialization.ts
 
+      - name: Verify Facet maintenance race handling
+        run: npx tsx utils/scripts/facetCatalogMaintenanceRaces.test.ts
+
       - name: Verify retired Facet sources
         run: |
           node utils/scripts/verifyFacetLegacySeedSnapshots.mjs

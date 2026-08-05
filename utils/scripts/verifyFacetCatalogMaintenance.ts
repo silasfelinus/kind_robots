@@ -132,7 +132,9 @@ for (const required of [
   "const LOCK_NAME = 'kind-robots:facet-catalog-maintenance'",
   'SELECT GET_LOCK(?, ?) AS acquired',
   'SELECT RELEASE_LOCK(?) AS released',
-  'connection?.ping()',
+  'SELECT CONNECTION_ID() AS connectionId, IS_USED_LOCK(?) AS ownerId',
+  'createFacetMaintenanceLockGuard',
+  'runSerializedFacetMaintenanceSteps',
   "script: 'utils/scripts/runFacetCatalogSeed.ts'",
   "script: 'utils/scripts/applyFacetCatalogDirectives.ts'",
   "script: 'utils/scripts/cleanupRetiredFacetShells.ts'",
@@ -144,6 +146,15 @@ for (const required of [
     `Missing serialized runner contract: ${required}`,
   )
 }
+
+assert.ok(
+  !runner.includes('Continuing without the lock'),
+  'Facet maintenance must stop immediately when the named-lock session is lost.',
+)
+assert.ok(
+  runner.includes('signal: abortSignal'),
+  'Lock loss must abort the currently running child mutation process.',
+)
 
 const seedHook = "script: 'utils/scripts/runFacetCatalogSeed.ts'"
 const directivesHook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"

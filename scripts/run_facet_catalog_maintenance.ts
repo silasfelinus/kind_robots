@@ -11,6 +11,13 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import mariadb, { type PoolConnection } from 'mariadb'
 import { buildDatabaseConfig } from '../server/utils/databaseAdapterConfig'
+import {
+  createFacetMaintenanceLockGuard,
+  facetMaintenanceAbortReason,
+  lockOwnerMatchesConnection,
+  runSerializedFacetMaintenanceSteps,
+  throwIfFacetMaintenanceAborted,
+} from './facetCatalogMaintenanceRuntime'
 
 const LOCK_NAME = 'kind-robots:facet-catalog-maintenance'
 const LOCK_WAIT_SECONDS = 900
@@ -104,27 +111,53 @@ const steps: Step[] = [
   },
 ]
 
-async function runStep(step: Step): Promise<void> {
+async function runStep(step: Step, abortSignal: AbortSignal): Promise<void> {
+  throwIfFacetMaintenanceAborted(abortSignal)
   console.log(`[facet-maintenance] ${step.label}`)
+
   await new Promise<void>((resolve, reject) => {
+    let settled = false
+    const finish = (callback: () => void) => {
+      if (settled) return
+      settled = true
+      callback()
+    }
+
     const child = spawn(tsxBinary, [step.script, ...(step.args ?? [])], {
       env: process.env,
       stdio: 'inherit',
+      signal: abortSignal,
     })
 
-    child.once('error', reject)
-    child.once('exit', (code, signal) => {
-      if (code === 0) {
-        resolve()
-        return
-      }
-      reject(
-        new Error(
-          `${step.label} exited with ${
-            signal ? `signal ${signal}` : `code ${code ?? 'unknown'}`
-          }`,
+    child.once('error', (error) => {
+      finish(() =>
+        reject(
+          abortSignal.aborted
+            ? facetMaintenanceAbortReason(abortSignal)
+            : error,
         ),
       )
+    })
+    child.once('exit', (code, exitSignal) => {
+      finish(() => {
+        if (abortSignal.aborted) {
+          reject(facetMaintenanceAbortReason(abortSignal))
+          return
+        }
+        if (code === 0) {
+          resolve()
+          return
+        }
+        reject(
+          new Error(
+            `${step.label} exited with ${
+              exitSignal
+                ? `signal ${exitSignal}`
+                : `code ${code ?? 'unknown'}`
+            }`,
+          ),
+        )
+      })
     })
   })
 }
@@ -153,6 +186,16 @@ async function acquireLock(connection: PoolConnection): Promise<void> {
   console.log(`[facet-maintenance] Acquired database lock ${LOCK_NAME}.`)
 }
 
+async function verifyLockOwnership(
+  connection: PoolConnection,
+): Promise<boolean> {
+  const rows = await connection.query(
+    'SELECT CONNECTION_ID() AS connectionId, IS_USED_LOCK(?) AS ownerId',
+    [LOCK_NAME],
+  )
+  return lockOwnerMatchesConnection(rows)
+}
+
 async function releaseLock(connection: PoolConnection): Promise<void> {
   const rows = await connection.query('SELECT RELEASE_LOCK(?) AS released', [
     LOCK_NAME,
@@ -179,38 +222,52 @@ async function main(): Promise<void> {
   const pool = mariadb.createPool(
     config as unknown as Parameters<typeof mariadb.createPool>[0],
   )
+  const lockGuard = createFacetMaintenanceLockGuard()
   let connection: PoolConnection | undefined
   let keepAlive: NodeJS.Timeout | undefined
+  let keepAliveCheckInFlight = false
+  let maintenanceActive = true
   let lockAcquired = false
-  let lockSessionLost = false
 
   try {
     connection = await pool.getConnection()
-    await acquireLock(connection)
+    const lockConnection = connection
+    await acquireLock(lockConnection)
     lockAcquired = true
 
-    /*
-     * The keepalive only reports; it deliberately never aborts the run. But it
-     * used to keep firing every 20s against an already-dead socket for the rest
-     * of a ~45 minute run, logging the same fatal error ~130 times and burying
-     * the step output that actually explains the failure. Stop after the first
-     * loss and record it, so teardown can skip a RELEASE_LOCK that cannot work.
-     * (A dead session releases its named lock automatically, so there is nothing
-     * to clean up on the server side.)
-     */
+    const reportLockLoss = (error: unknown) => {
+      if (!maintenanceActive || !lockGuard.loseLock(error)) return
+      if (keepAlive) clearInterval(keepAlive)
+      console.error(
+        '[facet-maintenance] Lost the database session holding the catalog lock.',
+        error,
+      )
+      console.error(
+        '[facet-maintenance] Aborting the current maintenance step. No further catalog mutations will run without serialization.',
+      )
+    }
+
+    // Use a real SQL ownership check rather than COM_PING. ProxySQL closed the
+    // leased lock session at its ten-minute idle boundary even though ping()
+    // ran every twenty seconds. This query both keeps the session active and
+    // proves the named lock is still owned by this exact connection.
     keepAlive = setInterval(() => {
-      void connection?.ping().catch((error: unknown) => {
-        if (lockSessionLost) return
-        lockSessionLost = true
-        if (keepAlive) clearInterval(keepAlive)
-        console.error(
-          '[facet-maintenance] Lost the database session holding the catalog lock.',
-          error,
-        )
-        console.error(
-          '[facet-maintenance] Continuing without the lock. Remaining steps still run; concurrent maintenance is no longer excluded.',
-        )
-      })
+      if (keepAliveCheckInFlight || lockGuard.signal.aborted) return
+      keepAliveCheckInFlight = true
+      void verifyLockOwnership(lockConnection)
+        .then((ownsLock) => {
+          if (!ownsLock) {
+            reportLockLoss(
+              new Error(
+                `Database connection no longer owns named lock ${LOCK_NAME}.`,
+              ),
+            )
+          }
+        })
+        .catch(reportLockLoss)
+        .finally(() => {
+          keepAliveCheckInFlight = false
+        })
     }, LOCK_PING_INTERVAL_MS)
 
     if (!runCanonicalSeed) {
@@ -219,10 +276,15 @@ async function main(): Promise<void> {
       )
     }
 
-    for (const step of steps) await runStep(step)
+    await runSerializedFacetMaintenanceSteps(
+      steps,
+      runStep,
+      lockGuard.signal,
+    )
   } finally {
+    maintenanceActive = false
     if (keepAlive) clearInterval(keepAlive)
-    if (connection && lockAcquired && !lockSessionLost) {
+    if (connection && lockAcquired && !lockGuard.signal.aborted) {
       try {
         await releaseLock(connection)
       } catch (error) {
@@ -232,17 +294,8 @@ async function main(): Promise<void> {
         )
       }
     }
-    /*
-     * Teardown must never be able to fail the run on its own.
-     *
-     * These two calls used to be unguarded inside `finally`, so a throw from
-     * either -- which is exactly what a connection already destroyed by
-     * ER_CMD_CONNECTION_CLOSED produces -- propagated out of main() and became
-     * the process's exit code. That had two bad consequences: maintenance that
-     * had actually COMPLETED could still fail the production build, and the
-     * teardown error REPLACED the real step error in the logs, hiding the true
-     * cause. Both were live during the 2026-08-01 deploy outage.
-     */
+    // Teardown must never replace the real maintenance failure. A dead session
+    // releases its named lock automatically and may throw from both calls.
     try {
       connection?.release()
     } catch (error) {

@@ -6,7 +6,7 @@
   <section
     class="kr-surface taskmaster-shell relative min-h-0 gap-0 overflow-x-hidden rounded-[2rem] border border-secondary/25 bg-base-100"
   >
-    <TaskmasterBackdrop :image="tabImage" :compact="Boolean(store.session)" />
+    <TaskmasterBackdrop :compact="Boolean(store.session)" />
 
     <div class="relative z-10 flex min-h-0 flex-1 flex-col">
       <template v-if="!store.session">

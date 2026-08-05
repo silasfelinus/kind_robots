@@ -15,6 +15,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # t-099: ESLint as a ratcheted gate — it never asks anyone to fix the
+  # pre-existing problems, only refuses NEW ones, per rule.
+  #
+  # Its OWN job on purpose. A full-repo `eslint .` takes minutes, and the
+  # contract-verifiers job below is a ~106-step serial chain under a 10-minute
+  # budget; putting this inline made every later verifier queue behind it and
+  # threatened the whole job's timeout. Nothing here depends on those steps, so
+  # running in parallel costs no extra wall-clock.
+  lint-ratchet:
+    name: ESLint ratchet
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # postinstall runs `nuxi prepare`, which generates the
+      # .nuxt/eslint.config.mjs that eslint.config.mjs extends.
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: ESLint ratchet
+        run: npm run test:lint-ratchet
+
   contract-tests:
     name: Contract verifiers
     runs-on: ubuntu-latest
@@ -57,11 +90,6 @@ jobs:
 
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
-
-      # t-099: ESLint as a ratcheted gate. It never asks anyone to fix the
-      # pre-existing 554 problems — it only refuses NEW ones, per rule.
-      - name: ESLint ratchet
-        run: npm run test:lint-ratchet
 
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest

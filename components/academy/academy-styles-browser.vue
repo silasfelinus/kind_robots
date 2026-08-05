@@ -22,7 +22,11 @@
       </div>
 
       <div class="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-        <div class="join" aria-label="Filter Academy lessons by progress">
+        <div
+          class="join"
+          role="group"
+          aria-label="Filter Academy lessons by progress"
+        >
           <button
             v-for="option in lessonFilterOptions"
             :key="option.value"
@@ -67,7 +71,10 @@
           </button>
         </div>
 
-        <p class="text-xs font-semibold text-base-content/50" aria-live="polite">
+        <p
+          class="text-xs font-semibold text-base-content/50"
+          aria-live="polite"
+        >
           {{ resultSummary }}
         </p>
       </div>
